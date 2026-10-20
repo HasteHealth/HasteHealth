@@ -1,4 +1,4 @@
-//! Property tests for FHIRPath: the parser and the evaluator take any input
+//! Property tests for `FHIRPath`: the parser and the evaluator take any input
 //! without panicking, and an expression evaluates the same every time and
 //! the same in parentheses.
 //!
@@ -8,9 +8,10 @@
 
 use std::sync::LazyLock;
 
-use haste_fhir_model::r4::generated::resources::Patient;
+use haste_fhir_model::r4::generated::{resources::Patient, types::FHIRBoolean};
 use haste_reflect::MetaValue;
 use proptest::prelude::*;
+use proptest::test_runner::TestCaseError;
 use serde_json::json;
 
 use crate::{FHIRPathError, FPEngine, parser};
@@ -314,6 +315,45 @@ fn values(result: &Result<Vec<String>, FHIRPathError>) -> Option<&Vec<String>> {
     result.as_ref().ok()
 }
 
+/// The expression's single Boolean result, `None` for an empty result.
+fn boolean(expression: &str) -> Result<Option<bool>, TestCaseError> {
+    RUNTIME.block_on(async {
+        let context = FPEngine::new()
+            .evaluate(expression, vec![])
+            .await
+            .map_err(|error| TestCaseError::fail(format!("{expression}: {error}")))?;
+        match context.iter().collect::<Vec<_>>().as_slice() {
+            [] => Ok(None),
+            [value] => value
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .and_then(|boolean| boolean.value)
+                .map(Some)
+                .ok_or_else(|| TestCaseError::fail(format!("{expression} is not a Boolean"))),
+            many => Err(TestCaseError::fail(format!(
+                "{expression} gave {} values",
+                many.len()
+            ))),
+        }
+    })
+}
+
+/// A Decimal literal: fixed notation, since the grammar has no exponent.
+fn decimal_literal(value: f64) -> String {
+    format!("{value:.4}")
+}
+
+const COMPARISONS: [&str; 4] = ["<", ">", "<=", ">="];
+
+fn compare<T: PartialOrd>(operator: &str, left: &T, right: &T) -> bool {
+    match operator {
+        "<" => left < right,
+        ">" => left > right,
+        "<=" => left <= right,
+        _ => left >= right,
+    }
+}
+
 proptest! {
     /// The parser never panics, whatever the input.
     #[test]
@@ -342,5 +382,34 @@ proptest! {
         let wrapped = evaluate(&format!("({input})"));
         prop_assert_eq!(values(&first), values(&second), "{} evaluates differently each time", input);
         prop_assert_eq!(values(&first), values(&wrapped), "({}) evaluates differently", input);
+    }
+}
+
+proptest! {
+    /// `<`, `>`, `<=` and `>=` agree with Rust on Integers, on Decimals, and
+    /// across the two (<https://hl7.org/fhirpath/N1/#comparison>).
+    #[test]
+    fn numeric_comparisons_agree_with_rust(
+        a in -1_000_000i64..=1_000_000, b in -1_000_000i64..=1_000_000,
+        x in -1.0e6f64..=1.0e6, y in -1.0e6f64..=1.0e6,
+    ) {
+        let (xs, ys) = (decimal_literal(x), decimal_literal(y));
+        let (xv, yv): (f64, f64) = (xs.parse().unwrap(), ys.parse().unwrap());
+        #[allow(clippy::cast_precision_loss)]
+        let af = a as f64;
+        for operator in COMPARISONS {
+            prop_assert_eq!(boolean(&format!("{a} {operator} {b}"))?, Some(compare(operator, &a, &b)));
+            prop_assert_eq!(boolean(&format!("{xs} {operator} {ys}"))?, Some(compare(operator, &xv, &yv)));
+            prop_assert_eq!(boolean(&format!("{a} {operator} {ys}"))?, Some(compare(operator, &af, &yv)));
+        }
+    }
+
+    /// A comparison with an empty operand gives an empty result.
+    #[test]
+    fn comparison_with_an_empty_operand_is_empty(n in 0i64..100) {
+        for operator in COMPARISONS {
+            prop_assert_eq!(boolean(&format!("{{}} {operator} {n}"))?, None);
+            prop_assert_eq!(boolean(&format!("{n} {operator} {{}}"))?, None);
+        }
     }
 }

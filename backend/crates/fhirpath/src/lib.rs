@@ -3,7 +3,7 @@ mod parser;
 use crate::{
     error::{FunctionError, OperationError},
     parser::{
-        Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation,
+        Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation, Polarity,
         QualifiedIdentifier, Term,
     },
 };
@@ -15,7 +15,10 @@ use haste_fhir_model::r4::{
     },
     generated::{
         resources::ResourceType,
-        types::{FHIRBoolean, FHIRDecimal, FHIRId, FHIRInteger, FHIRString, Reference},
+        types::{
+            FHIRBoolean, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
+            FHIRUnsignedInt, Quantity, Reference,
+        },
     },
 };
 use haste_reflect::MetaValue;
@@ -30,6 +33,8 @@ mod allocators;
 
 #[cfg(test)]
 mod proptests;
+#[cfg(test)]
+mod spec_tests;
 use allocators::AllocatorTrait;
 
 fn evaluate_literal<'b>(
@@ -331,6 +336,22 @@ async fn evaluate_function<'a>(
         "descendants" => evaluate_descendants(context, config).await,
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
+        "single" | "last" | "tail" => evaluate_subsetting(function, &context),
+        "skip" | "take" => evaluate_skip_take(function, context, config).await,
+        "not" => evaluate_not(function, &context),
+        "all" => evaluate_all(function, context, config).await,
+        "allTrue" | "anyTrue" | "allFalse" | "anyFalse" => {
+            evaluate_boolean_aggregate(function, &context)
+        }
+        "subsetOf" | "supersetOf" => evaluate_subset(function, context, config).await,
+        "distinct" | "isDistinct" => evaluate_distinct(function, &context),
+        "select" => evaluate_select(function, context, config).await,
+        "union" | "combine" | "intersect" | "exclude" => {
+            evaluate_combining(function, context, config).await
+        }
+        "iif" => evaluate_iif(function, context, config).await,
+        "abs" | "ceiling" | "exp" | "floor" | "ln" | "log" | "power" | "round" | "sqrt"
+        | "truncate" => evaluate_math(function, context, config).await,
         "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
         "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
@@ -643,6 +664,433 @@ fn evaluate_first<'a>(
     }
 }
 
+fn boolean_result<'a>(context: &Context<'a>, value: bool) -> Context<'a> {
+    context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+        value: Some(value),
+        ..Default::default()
+    })])
+}
+
+fn optional_boolean_result<'a>(context: &Context<'a>, value: Option<bool>) -> Context<'a> {
+    match value {
+        Some(value) => boolean_result(context, value),
+        None => context.new_context_from(vec![]),
+    }
+}
+
+/// A number that keeps its type, so Integer arithmetic gives an Integer.
+#[derive(Clone, Copy)]
+enum Number {
+    Integer(i64),
+    Decimal(f64),
+}
+
+impl Number {
+    fn of(value: &dyn MetaValue) -> Result<Number, FHIRPathError> {
+        let any = value.as_any();
+        let integer = if let Some(integer) = any.downcast_ref::<FHIRInteger>() {
+            integer.value
+        } else if let Some(integer) = any.downcast_ref::<FHIRPositiveInt>() {
+            integer.value.and_then(|v| i64::try_from(v).ok())
+        } else if let Some(integer) = any.downcast_ref::<FHIRUnsignedInt>() {
+            integer.value.and_then(|v| i64::try_from(v).ok())
+        } else {
+            any.downcast_ref::<i64>().copied()
+        };
+
+        match integer {
+            Some(integer) => Ok(Number::Integer(integer)),
+            None => Ok(Number::Decimal(downcast_number(value)?)),
+        }
+    }
+
+    #[allow(clippy::cast_precision_loss)]
+    fn as_f64(self) -> f64 {
+        match self {
+            Number::Integer(value) => value as f64,
+            Number::Decimal(value) => value,
+        }
+    }
+
+    /// `None` when the whole number does not fit an Integer.
+    #[allow(clippy::cast_possible_truncation)]
+    fn integer_from(value: f64) -> Option<Number> {
+        // 2^63, exact as an f64. The range also rejects NaN and infinity.
+        const BOUND: f64 = 9_223_372_036_854_775_808.0;
+        (-BOUND..BOUND)
+            .contains(&value)
+            .then_some(Number::Integer(value as i64))
+    }
+
+    /// `None` for NaN and infinity, which a Decimal cannot represent.
+    fn decimal_from(value: f64) -> Option<Number> {
+        value.is_finite().then_some(Number::Decimal(value))
+    }
+}
+
+fn number_result<'a>(context: &Context<'a>, number: Option<Number>) -> Context<'a> {
+    let value = match number {
+        Some(Number::Integer(value)) => context.allocate_literal(FHIRInteger {
+            value: Some(value),
+            ..Default::default()
+        }),
+        Some(Number::Decimal(value)) => context.allocate_literal(FHIRDecimal {
+            value: Some(value),
+            ..Default::default()
+        }),
+        None => return context.new_context_from(vec![]),
+    };
+
+    context.new_context_from(vec![value])
+}
+
+/// The input's only item: `None` when empty, an error for more than one.
+fn singleton<'a>(
+    name: &str,
+    context: &Context<'a>,
+) -> Result<Option<&'a dyn MetaValue>, FHIRPathError> {
+    match context.values.as_slice() {
+        [] => Ok(None),
+        [value] => Ok(Some(*value)),
+        values => Err(FunctionError::InvalidCardinality(name.to_string(), values.len()).into()),
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#singleton-evaluation-of-collections>: a
+/// single item that is not a Boolean counts as true.
+fn singleton_boolean(name: &str, context: &Context<'_>) -> Result<Option<bool>, FHIRPathError> {
+    match singleton(name, context)? {
+        None => Ok(None),
+        Some(value) if BOOLEAN_TYPES.contains(value.fhir_type()) => Ok(Some(downcast_bool(value)?)),
+        Some(_) => Ok(Some(true)),
+    }
+}
+
+fn contains_value(
+    collection: &[&dyn MetaValue],
+    value: &dyn MetaValue,
+) -> Result<bool, FHIRPathError> {
+    for item in collection {
+        if value_equal(*item, value)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+/// The items of `values` whose membership in `other` is `member`.
+fn filter_by_membership<'a>(
+    values: impl IntoIterator<Item = &'a dyn MetaValue>,
+    other: &[&dyn MetaValue],
+    member: bool,
+) -> Result<Vec<&'a dyn MetaValue>, FHIRPathError> {
+    let mut filtered = Vec::new();
+    for value in values {
+        if contains_value(other, value)? == member {
+            filtered.push(value);
+        }
+    }
+    Ok(filtered)
+}
+
+fn distinct_values<'a>(
+    values: impl IntoIterator<Item = &'a dyn MetaValue>,
+) -> Result<Vec<&'a dyn MetaValue>, FHIRPathError> {
+    let mut distinct = Vec::new();
+    for value in values {
+        if !contains_value(&distinct, value)? {
+            distinct.push(value);
+        }
+    }
+    Ok(distinct)
+}
+
+/// <https://hl7.org/fhirpath/N1/#not-boolean>
+fn evaluate_not<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let value = singleton_boolean("not", context)?;
+    Ok(optional_boolean_result(context, value.map(|value| !value)))
+}
+
+/// <https://hl7.org/fhirpath/N1/#allcriteria-expression-boolean>
+async fn evaluate_all<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    for value in &context.values {
+        let item = context.new_context_from(vec![*value]);
+        let result = evaluate_expression(&function.arguments[0], item, config.clone()).await?;
+
+        if singleton_boolean("all", &result)? != Some(true) {
+            return Ok(boolean_result(&context, false));
+        }
+    }
+
+    Ok(boolean_result(&context, true))
+}
+
+/// <https://hl7.org/fhirpath/N1/#selectprojection-expression-collection>
+async fn evaluate_select<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let mut selected = vec![];
+    for value in &context.values {
+        let item = context.new_context_from(vec![*value]);
+        let result = evaluate_expression(&function.arguments[0], item, config.clone()).await?;
+        selected.extend(result.values);
+    }
+
+    Ok(context.new_context_from(selected))
+}
+
+/// <https://hl7.org/fhirpath/N1/#alltrue-boolean> and the three that follow it.
+fn evaluate_boolean_aggregate<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let values = context
+        .values
+        .iter()
+        .map(|value| downcast_bool(*value))
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let result = match function.name.0.as_str() {
+        "allTrue" => values.iter().all(|value| *value),
+        "anyTrue" => values.iter().any(|value| *value),
+        "allFalse" => values.iter().all(|value| !*value),
+        "anyFalse" => values.iter().any(|value| !*value),
+        _ => unreachable!(),
+    };
+
+    Ok(boolean_result(context, result))
+}
+
+/// <https://hl7.org/fhirpath/N1/#subsetofother-collection-boolean> and
+/// <https://hl7.org/fhirpath/N1/#supersetofother-collection-boolean>
+async fn evaluate_subset<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let other = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let (subset, superset) = if function.name.0 == "subsetOf" {
+        (&context.values, &other.values)
+    } else {
+        (&other.values, &context.values)
+    };
+
+    let missing = filter_by_membership(subset.iter().copied(), superset, false)?;
+    Ok(boolean_result(&context, missing.is_empty()))
+}
+
+/// <https://hl7.org/fhirpath/N1/#distinct-collection> and
+/// <https://hl7.org/fhirpath/N1/#isdistinct-boolean>
+fn evaluate_distinct<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let distinct = distinct_values(context.values.iter().copied())?;
+
+    if function.name.0 == "isDistinct" {
+        let is_distinct = distinct.len() == context.values.len();
+        Ok(boolean_result(context, is_distinct))
+    } else {
+        Ok(context.new_context_from(distinct))
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#single-collection>,
+/// <https://hl7.org/fhirpath/N1/#last-collection> and
+/// <https://hl7.org/fhirpath/N1/#tail-collection>
+fn evaluate_subsetting<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let values = match function.name.0.as_str() {
+        "single" => singleton("single", context)?.into_iter().collect(),
+        "last" => context.values.last().copied().into_iter().collect(),
+        "tail" => context.values.iter().skip(1).copied().collect(),
+        _ => unreachable!(),
+    };
+
+    Ok(context.new_context_from(values))
+}
+
+/// <https://hl7.org/fhirpath/N1/#skipnum-integer-collection> and
+/// <https://hl7.org/fhirpath/N1/#takenum-integer-collection>
+async fn evaluate_skip_take<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let name = function.name.0.as_str();
+    let num = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let num = match singleton(name, &num)?.map(Number::of).transpose()? {
+        Some(Number::Integer(num)) => num,
+        None => return Ok(context.new_context_from(vec![])),
+        Some(Number::Decimal(_)) => {
+            let message = format!("{name} requires an Integer argument");
+            return Err(FunctionError::InvalidFunctionCall(message).into());
+        }
+    };
+
+    // Zero or less skips nothing and takes nothing.
+    let num = usize::try_from(num.max(0)).unwrap_or(usize::MAX);
+    let values = context.values.iter().copied();
+    let values = if name == "skip" {
+        values.skip(num).collect()
+    } else {
+        values.take(num).collect()
+    };
+
+    Ok(context.new_context_from(values))
+}
+
+/// <https://hl7.org/fhirpath/N1/#unionother-collection>,
+/// <https://hl7.org/fhirpath/N1/#combineother-collection-collection>,
+/// <https://hl7.org/fhirpath/N1/#intersectother-collection-collection> and
+/// <https://hl7.org/fhirpath/N1/#excludeother-collection-collection>
+async fn evaluate_combining<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let other = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let input = context.values.iter().copied();
+    let both = input.clone().chain(other.values.iter().copied());
+
+    let values = match function.name.0.as_str() {
+        "union" => distinct_values(both)?,
+        "combine" => both.collect(),
+        "intersect" => filter_by_membership(distinct_values(input)?, &other.values, true)?,
+        "exclude" => filter_by_membership(input, &other.values, false)?,
+        _ => unreachable!(),
+    };
+
+    Ok(context.new_context_from(values))
+}
+
+/// <https://hl7.org/fhirpath/N1/#iifcriterion-expression-true-result-collection-otherwise-result-collection-collection>
+async fn evaluate_iif<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Custom(2, 3))?;
+
+    let criterion =
+        evaluate_expression(&function.arguments[0], context.clone(), config.clone()).await?;
+
+    // Only the chosen branch is evaluated.
+    let branch = if singleton_boolean("iif", &criterion)? == Some(true) {
+        function.arguments.get(1)
+    } else {
+        function.arguments.get(2)
+    };
+
+    match branch {
+        Some(branch) => evaluate_expression(branch, context, config).await,
+        None => Ok(context.new_context_from(vec![])),
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#math>: empty for an empty input or a result
+/// that cannot be represented, such as `(-1).sqrt()`.
+async fn evaluate_math<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = function.name.0.as_str();
+    let cardinality = match name {
+        "log" | "power" => Cardinality::One,
+        "round" => Cardinality::Custom(0, 1),
+        _ => Cardinality::Zero,
+    };
+    validate_arguments(&function.arguments, &cardinality)?;
+
+    let Some(input) = singleton(name, &context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+
+    // abs keeps a Quantity's unit.
+    if name == "abs"
+        && let Some(quantity) = input.as_any().downcast_ref::<Quantity>()
+    {
+        let mut quantity = quantity.clone();
+        if let Some(value) = quantity.value.as_mut() {
+            value.value = value.value.map(f64::abs);
+        }
+        return Ok(context.new_context_from(vec![context.allocate_literal(quantity)]));
+    }
+
+    let argument = match function.arguments.first() {
+        Some(argument) => {
+            let argument = evaluate_expression(argument, context.clone(), config).await?;
+            singleton(name, &argument)?.map(Number::of).transpose()?
+        }
+        None => None,
+    };
+
+    let number = Number::of(input)?;
+    let value = number.as_f64();
+    let result = match (name, number, argument) {
+        ("abs", Number::Integer(integer), _) => integer.checked_abs().map(Number::Integer),
+        ("abs", Number::Decimal(decimal), _) => Some(Number::Decimal(decimal.abs())),
+        ("ceiling", _, _) => Number::integer_from(value.ceil()),
+        ("floor", _, _) => Number::integer_from(value.floor()),
+        ("truncate", _, _) => Number::integer_from(value.trunc()),
+        ("exp", _, _) => Number::decimal_from(value.exp()),
+        ("ln", _, _) => Number::decimal_from(value.ln()),
+        ("sqrt", _, _) => Number::decimal_from(value.sqrt()),
+        ("log", _, Some(base)) => Number::decimal_from(value.log(base.as_f64())),
+        ("power", Number::Integer(base), Some(Number::Integer(exponent))) if exponent >= 0 => {
+            u32::try_from(exponent)
+                .ok()
+                .and_then(|exponent| base.checked_pow(exponent))
+                .map(Number::Integer)
+        }
+        ("power", _, Some(exponent)) => Number::decimal_from(value.powf(exponent.as_f64())),
+        ("round", _, None) => Number::decimal_from(value.round()),
+        ("round", _, Some(Number::Integer(precision @ 0..))) => {
+            // An f64 holds about 15 decimal places, so more changes nothing.
+            let scale = 10f64.powi(i32::try_from(precision.min(15)).unwrap_or(15));
+            Number::decimal_from((value * scale).round() / scale)
+        }
+        ("round", _, Some(_)) => {
+            let message = "round precision must be an Integer >= 0".to_string();
+            return Err(FunctionError::InvalidFunctionCall(message).into());
+        }
+        // log or power with an empty argument.
+        _ => None,
+    };
+
+    Ok(number_result(&context, result))
+}
+
 fn expression_to_literal(expression: &Expression) -> Result<&Literal, FHIRPathError> {
     match expression {
         Expression::Singular(vec) if vec.len() == 1 => match &vec[0] {
@@ -819,24 +1267,29 @@ fn evaluate_get_resource_key<'a>(
 }
 
 fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
-    if NUMBER_TYPES.contains(left.values[0].fhir_type())
-        && NUMBER_TYPES.contains(right.values[0].fhir_type())
-    {
-        let left_value = downcast_number(left.values[0])?;
-        let right_value = downcast_number(right.values[0])?;
+    value_equal(left.values[0], right.values[0])
+}
+
+fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIRPathError> {
+    // An element equals itself. Other complex values are unequal until
+    // member-wise equality is implemented.
+    if std::ptr::addr_eq(left, right) && left.fhir_type() == right.fhir_type() {
+        return Ok(true);
+    }
+
+    if NUMBER_TYPES.contains(left.fhir_type()) && NUMBER_TYPES.contains(right.fhir_type()) {
+        let left_value = downcast_number(left)?;
+        let right_value = downcast_number(right)?;
         #[allow(clippy::float_cmp)]
         Ok(left_value == right_value)
-    } else if STRING_TYPES.contains(left.values[0].fhir_type())
-        && STRING_TYPES.contains(right.values[0].fhir_type())
-    {
-        let left_value = downcast_string(left.values[0])?;
-        let right_value = downcast_string(right.values[0])?;
+    } else if STRING_TYPES.contains(left.fhir_type()) && STRING_TYPES.contains(right.fhir_type()) {
+        let left_value = downcast_string(left)?;
+        let right_value = downcast_string(right)?;
         Ok(left_value == right_value)
-    } else if BOOLEAN_TYPES.contains(left.values[0].fhir_type())
-        && BOOLEAN_TYPES.contains(right.values[0].fhir_type())
+    } else if BOOLEAN_TYPES.contains(left.fhir_type()) && BOOLEAN_TYPES.contains(right.fhir_type())
     {
-        let left_value = downcast_bool(left.values[0])?;
-        let right_value = downcast_bool(right.values[0])?;
+        let left_value = downcast_bool(left)?;
+        let right_value = downcast_bool(right)?;
         // Suppress clippy warning because strict equality comparison for float values
         // is intentional and required by the FHIRPath specification.
         #[allow(clippy::float_cmp)]
@@ -875,9 +1328,18 @@ async fn evaluate_operation<'a>(
         Operation::As(expr, ty) => evaluate_as(expr, ty, context, config).await,
         Operation::XOr(left, right) => evaluate_xor(left, right, context, config).await,
 
-        Operation::Modulo(_, _) => not_implemented("Modulo"),
-        Operation::Polarity(_, _) => not_implemented("Polarity"),
-        Operation::DivisionTruncated(_, _) => not_implemented("DivisionTruncated"),
+        Operation::Modulo(left, right) => {
+            evaluate_truncated_division(left, right, context, config, true).await
+        }
+        Operation::Polarity(polarity, expression) => {
+            evaluate_polarity(polarity, expression, context, config).await
+        }
+        Operation::DivisionTruncated(left, right) => {
+            evaluate_truncated_division(left, right, context, config, false).await
+        }
+        Operation::Concatenate(left, right) => {
+            evaluate_concatenate(left, right, context, config).await
+        }
         Operation::LessThan(left, right) => evaluate_less_than(left, right, context, config).await,
         Operation::GreaterThan(left, right) => {
             evaluate_greater_than(left, right, context, config).await
@@ -890,9 +1352,10 @@ async fn evaluate_operation<'a>(
         }
         Operation::Equivalent(_, _) => not_implemented("Equivalent"),
         Operation::NotEquivalent(_, _) => not_implemented("NotEquivalent"),
-        Operation::In(_, _) => not_implemented("In"),
-        Operation::Contains(_, _) => not_implemented("Contains"),
-        Operation::Implies(_, _) => not_implemented("Implies"),
+        Operation::In(element, collection) | Operation::Contains(collection, element) => {
+            evaluate_membership(element, collection, context, config).await
+        }
+        Operation::Implies(left, right) => evaluate_implies(left, right, context, config).await,
     }
 }
 
@@ -1160,14 +1623,149 @@ async fn evaluate_union<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
+    // <https://hl7.org/fhirpath/N1/#union-collections> removes duplicates.
     operation_n(left, right, context, config, |left, right| {
-        let mut union = Vec::with_capacity(left.values.len() + right.values.len());
-        union.extend(left.values.iter());
-        union.extend(right.values.iter());
+        let union = distinct_values(left.values.iter().chain(right.values.iter()).copied())?;
 
         Ok(left.new_context_from(union))
     })
     .await
+}
+
+/// <https://hl7.org/fhirpath/N1/#div> and <https://hl7.org/fhirpath/N1/#mod>:
+/// empty when dividing by 0.
+async fn evaluate_truncated_division<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    remainder: bool,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_2(left, right, context, config, move |left, right| {
+        Box::pin(async move {
+            let result = match (Number::of(left.values[0])?, Number::of(right.values[0])?) {
+                (Number::Integer(dividend), Number::Integer(divisor)) => {
+                    let result = if remainder {
+                        dividend.checked_rem(divisor)
+                    } else {
+                        dividend.checked_div(divisor)
+                    };
+                    result.map(Number::Integer)
+                }
+                // Dividing by 0.0 gives NaN or infinity, which decimal_from turns into empty.
+                (dividend, divisor) => {
+                    let (dividend, divisor) = (dividend.as_f64(), divisor.as_f64());
+                    Number::decimal_from(if remainder {
+                        dividend % divisor
+                    } else {
+                        (dividend / divisor).trunc()
+                    })
+                }
+            };
+
+            Ok(number_result(&left, result))
+        })
+    })
+    .await
+}
+
+/// Unary `+` and `-`, per <https://hl7.org/fhirpath/N1/#operator-precedence>.
+async fn evaluate_polarity<'a>(
+    polarity: &Polarity,
+    expression: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let operand = evaluate_expression(expression, context, config).await?;
+    let Some(value) = singleton("polarity", &operand)? else {
+        return Ok(operand);
+    };
+
+    let result = match (polarity, Number::of(value)?) {
+        (Polarity::Positive, number) => Some(number),
+        (Polarity::Negative, Number::Integer(value)) => value.checked_neg().map(Number::Integer),
+        (Polarity::Negative, Number::Decimal(value)) => Some(Number::Decimal(-value)),
+    };
+
+    Ok(number_result(&operand, result))
+}
+
+/// <https://hl7.org/fhirpath/N1/#string-concatenation>: an empty operand
+/// counts as `''`.
+async fn evaluate_concatenate<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_n(left, right, context, config, |left, right| {
+        let mut concatenated = String::new();
+        for operand in [&left, &right] {
+            if let Some(value) = singleton("&", operand)? {
+                concatenated.push_str(&downcast_string(value)?);
+            }
+        }
+
+        Ok(
+            left.new_context_from(vec![left.allocate_literal(FHIRString {
+                value: Some(concatenated),
+                ..Default::default()
+            })]),
+        )
+    })
+    .await
+}
+
+/// `in` and `contains`, per <https://hl7.org/fhirpath/N1/#membership>: empty
+/// for an empty element, false for an empty collection.
+async fn evaluate_membership<'a>(
+    element: &Expression,
+    collection: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_n(
+        element,
+        collection,
+        context,
+        config,
+        |element, collection| {
+            let Some(value) = singleton("membership", &element)? else {
+                return Ok(element);
+            };
+
+            let contained = contains_value(&collection.values, value)?;
+            Ok(boolean_result(&element, contained))
+        },
+    )
+    .await
+}
+
+/// <https://hl7.org/fhirpath/N1/#implies>
+async fn evaluate_implies<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let left = evaluate_expression(left, context.clone(), config.clone()).await?;
+    let left = singleton_boolean("implies", &left)?;
+
+    // A false left operand makes the right one irrelevant.
+    if left == Some(false) {
+        return Ok(boolean_result(&context, true));
+    }
+
+    let right = evaluate_expression(right, context.clone(), config).await?;
+    let right = singleton_boolean("implies", &right)?;
+
+    let result = match (left, right) {
+        (Some(_), right) => right,
+        (None, Some(true)) => Some(true),
+        (None, _) => None,
+    };
+
+    Ok(optional_boolean_result(&context, result))
 }
 
 async fn evaluate_type_operation<'a>(
