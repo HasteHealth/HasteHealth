@@ -61,10 +61,10 @@ export default function Contact(): ReactNode {
           Reach out to the right team, or connect with us on GitHub.
         </PageHero>
 
-        <section className="bg-white py-20 md:py-28">
+        <section className="bg-white pb-14 pt-2 md:pb-16 md:pt-4">
           <Container>
             <SectionHeader title="Email Us" />
-            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-3">
+            <div className="mt-6 grid gap-4 md:mt-8 md:grid-cols-3">
               {contactChannels.map((channel, index) => (
                 <div
                   key={channel.title}
@@ -85,10 +85,10 @@ export default function Contact(): ReactNode {
           </Container>
         </section>
 
-        <section className="border-t border-slate-200/80 bg-slate-50 py-20 md:py-28">
+        <section className="border-t border-slate-200/80 bg-slate-50 py-14 md:py-16">
           <Container>
             <SectionHeader title="Connect on GitHub" />
-            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2">
+            <div className="mt-6 grid gap-4 md:mt-8 md:grid-cols-2">
               {communityLinks.map((link, index) => (
                 <div key={link.title} data-reveal="" style={revealDelay(index)}>
                   <LinkCard

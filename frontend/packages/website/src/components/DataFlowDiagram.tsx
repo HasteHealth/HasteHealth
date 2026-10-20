@@ -178,30 +178,24 @@ function Endpoints({
 
 function Core() {
   return (
-    <div className="relative">
-      <div
-        className="absolute -inset-6 rounded-[2rem] bg-brand-300/25 blur-2xl"
-        aria-hidden="true"
-      />
-      <div className="relative w-[14rem] rounded-2xl bg-deep-950 p-5 text-white shadow-[0_24px_48px_-20px_rgb(2_20_22/0.55)] ring-1 ring-white/10 @5xl:w-[17.5rem] @5xl:p-6">
-        <LogoMark className="h-8 w-8 text-brand-400" />
-        <div className="mt-3 text-lg font-semibold leading-tight text-white">
-          Haste Health
-        </div>
-        <div className="mt-1 text-[0.8125rem] leading-snug text-slate-400">
-          FHIR R4 clinical data layer
-        </div>
-        <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
-          {core.map((line) => (
-            <div
-              key={line}
-              className="flex items-center gap-2 text-[0.8125rem] leading-snug text-slate-200"
-            >
-              <Icon name="check" className="h-3.5 w-3.5 text-brand-400" />
-              {line}
-            </div>
-          ))}
-        </div>
+    <div className="w-[14rem] rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.04),0_16px_40px_-24px_rgb(15_23_42/0.2)] @5xl:w-[17.5rem] @5xl:p-6">
+      <LogoMark className="h-8 w-8 text-brand-700" />
+      <div className="mt-3 text-lg font-semibold leading-tight text-ink-950">
+        Haste Health
+      </div>
+      <div className="mt-1 text-[0.8125rem] leading-snug text-slate-500">
+        FHIR R4 clinical data layer
+      </div>
+      <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
+        {core.map((line) => (
+          <div
+            key={line}
+            className="flex items-center gap-2 text-[0.8125rem] leading-snug text-slate-700"
+          >
+            <Icon name="check" className="h-3.5 w-3.5 text-brand-700" />
+            {line}
+          </div>
+        ))}
       </div>
     </div>
   );

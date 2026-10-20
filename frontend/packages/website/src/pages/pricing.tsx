@@ -398,15 +398,13 @@ export default function Pricing(): ReactNode {
     >
       <main id="tw-scope" ref={page} className="text-ink-950">
         <PageHero
-          badge="Published pricing"
           title="Pricing"
-          overlap
           actions={
             <>
-              <Button to={SIGNUP_URL} on="dark">
+              <Button to={SIGNUP_URL} size="sm">
                 Start for free
               </Button>
-              <Button to={DEMO_URL} variant="secondary" on="dark">
+              <Button to={DEMO_URL} variant="secondary" size="sm">
                 Book a demo
               </Button>
             </>
@@ -417,10 +415,9 @@ export default function Pricing(): ReactNode {
           production: backups, upgrades, a signed BAA, and dedicated support.
         </PageHero>
 
-        {/* The cards ride up over the bottom of the hero. They are subgrids of
-            this grid, which is what keeps each section of every card on a
-            shared baseline. */}
-        <section className="relative z-10 -mt-28 pb-16 md:-mt-32 md:pb-24">
+        {/* The cards are subgrids of this grid, which is what keeps each
+            section of every card on a shared baseline. */}
+        <section className="pb-16 md:pb-24">
           <Container>
             <div className={site.rise} style={riseDelay(300)}>
               <div
@@ -432,7 +429,7 @@ export default function Pricing(): ReactNode {
               </div>
             </div>
 
-            <p className="mt-8 text-center text-base text-slate-600">
+            <p className="mt-14 text-center text-base text-slate-600">
               Doesn&apos;t fit your situation? Tell us at{" "}
               <Link
                 href="mailto:business@haste.health"
@@ -554,16 +551,11 @@ export default function Pricing(): ReactNode {
           </Container>
         </section>
 
-        <section className="relative isolate py-20 text-white md:py-28">
-          <div
-            className={clsx(site.darkBackdrop, "-z-10")}
-            aria-hidden="true"
-          />
+        <section className="border-y border-slate-200/80 bg-slate-50 py-20 md:py-28">
           <Container>
             <SectionHeader
               eyebrow="Compliance"
               title="What your security reviewer gets on day one"
-              on="dark"
             >
               None of this is gated behind a sales call, and we are straight
               about what we do not have yet.
@@ -572,24 +564,24 @@ export default function Pricing(): ReactNode {
               {compliance.map((card, index) => (
                 <article
                   key={card.title}
-                  className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 md:p-7"
+                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 md:p-7"
                   data-reveal=""
                   style={revealDelay(index)}
                 >
-                  <h3 className="text-xl font-semibold tracking-tight text-white">
+                  <h3 className="text-xl font-semibold tracking-tight text-ink-950">
                     {card.title}
                   </h3>
-                  <p className="mt-2 flex-1 text-base leading-relaxed text-slate-300">
+                  <p className="mt-2 flex-1 text-base leading-relaxed text-slate-600">
                     {card.body}
                   </p>
                 </article>
               ))}
             </div>
-            <p className="mt-8 text-base text-slate-300" data-reveal="">
+            <p className="mt-8 text-base text-slate-600" data-reveal="">
               Request the pack at{" "}
               <Link
                 href="mailto:security@haste.health"
-                className="font-semibold text-brand-300 underline decoration-brand-300/40 underline-offset-4 hover:text-brand-200 hover:decoration-brand-200"
+                className="font-semibold text-brand-800 underline decoration-brand-300 underline-offset-4 hover:text-brand-900 hover:decoration-brand-600"
               >
                 security@haste.health
               </Link>
