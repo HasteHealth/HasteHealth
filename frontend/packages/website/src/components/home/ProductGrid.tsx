@@ -247,7 +247,7 @@ function PolicyArt() {
     <Panel>
       <PanelBar label="AccessPolicyV2 · own-record" />
       <Code size="sm">
-        <span className="text-slate-400">// FHIRPath condition</span>
+        <span className="text-slate-400">{"// FHIRPath condition"}</span>
         {"\n"}
         <span className={STRING}>%request</span>.type = &apos;read&apos; and
         {"\n"}
