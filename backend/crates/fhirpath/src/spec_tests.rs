@@ -4,9 +4,10 @@
 use crate::FPEngine;
 use haste_fhir_model::r4::{
     conversion::downcast_string,
+    datetime::Date,
     generated::{
         resources::Patient,
-        types::{FHIRBoolean, FHIRDecimal, FHIRInteger, HumanName, Quantity},
+        types::{FHIRBoolean, FHIRDate, FHIRDecimal, FHIRInteger, HumanName, Quantity},
     },
 };
 use haste_reflect::MetaValue;
@@ -312,4 +313,184 @@ async fn polarity() {
     assert_evaluates("-5.5", &["-5.5"]).await;
     assert_evaluates("+5", &["5"]).await;
     assert_evaluates("-{}", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#indexofsubstring-string-integer> through
+/// <https://hl7.org/fhirpath/N1/#tochars-collection>
+#[tokio::test]
+async fn string_functions() {
+    assert_evaluates("'abcdefg'.indexOf('bc')", &["1"]).await;
+    assert_evaluates("'abcdefg'.indexOf('x')", &["-1"]).await;
+    assert_evaluates("'abcdefg'.indexOf('abcdefg')", &["0"]).await;
+    assert_evaluates("'abcdefg'.indexOf('')", &["0"]).await;
+    assert_evaluates("{}.indexOf('a')", &[]).await;
+    assert_evaluates("'abc'.indexOf({})", &[]).await;
+
+    assert_evaluates("'abcdefg'.substring(3)", &["'defg'"]).await;
+    assert_evaluates("'abcdefg'.substring(1, 2)", &["'bc'"]).await;
+    assert_evaluates("'abcdefg'.substring(6, 2)", &["'g'"]).await;
+    assert_evaluates("'abcdefg'.substring(7, 1)", &[]).await;
+    assert_evaluates("'abcdefg'.substring(-1)", &[]).await;
+    assert_evaluates("'abcdefg'.substring(2, {})", &["'cdefg'"]).await;
+    assert_errors("'abcdefg'.substring(1.5)").await;
+
+    assert_evaluates("'abcdefg'.replace('cde', '123')", &["'ab123fg'"]).await;
+    assert_evaluates("'abcdefg'.replace('cde', '')", &["'abfg'"]).await;
+    assert_evaluates("'abc'.replace('', 'x')", &["'xaxbxcx'"]).await;
+    assert_evaluates("'abc'.replace({}, 'x')", &[]).await;
+
+    assert_evaluates("'abc123'.matches('^[a-z]+[0-9]+$')", &["true"]).await;
+    assert_evaluates("'abc'.matches('[0-9]')", &["false"]).await;
+    assert_evaluates("{}.matches('a')", &[]).await;
+    assert_errors("'abc'.matches('(')").await;
+    // An R4 invariant's pattern, whose \\. is a FHIRPath escape for the regex \.
+    let identifier =
+        r"'Patient.name'.matches('[A-Za-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*(\\[x])?)*')";
+    assert_evaluates(identifier, &["true"]).await;
+
+    assert_evaluates(
+        "'11/30/1972'.replaceMatches('(?<month>[0-9]{1,2})/(?<day>[0-9]{1,2})/(?<year>[0-9]{2,4})', '${day}-${month}-${year}')",
+        &["'30-11-1972'"],
+    )
+    .await;
+
+    assert_evaluates("'abc'.length()", &["3"]).await;
+    assert_evaluates("''.length()", &["0"]).await;
+    assert_evaluates("{}.length()", &[]).await;
+
+    assert_evaluates("'abc'.toChars()", &["'a'", "'b'", "'c'"]).await;
+    assert_evaluates("{}.toChars()", &[]).await;
+
+    assert_errors("('a' | 'b').length()").await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#string>
+#[tokio::test]
+async fn string_escapes() {
+    assert_evaluates(r"'it\'s'", &["'it's'"]).await;
+    assert_evaluates(r"'a\\b'.length()", &["3"]).await;
+    assert_evaluates(r"'A\t'.toChars()", &["'A'", "'\t'"]).await;
+    // A \ before any other character is ignored.
+    assert_evaluates(r"'\p'", &["'p'"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#comments>
+#[tokio::test]
+async fn comments() {
+    assert_evaluates("2 + 2 // This is a single-line comment", &["4.0"]).await;
+    assert_evaluates("/*\nThis is a multi-line comment\n*/ 2 + 2", &["4.0"]).await;
+    assert_evaluates("'a//b' /* not in strings */", &["'a//b'"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#boolean-conversion-functions>
+#[tokio::test]
+async fn boolean_conversion() {
+    assert_evaluates("'yes'.toBoolean()", &["true"]).await;
+    assert_evaluates("'F'.toBoolean()", &["false"]).await;
+    assert_evaluates("1.toBoolean()", &["true"]).await;
+    assert_evaluates("0.0.toBoolean()", &["false"]).await;
+    assert_evaluates("2.toBoolean()", &[]).await;
+    assert_evaluates("'maybe'.toBoolean()", &[]).await;
+    assert_evaluates("{}.toBoolean()", &[]).await;
+
+    assert_evaluates("'T'.convertsToBoolean()", &["true"]).await;
+    assert_evaluates("'maybe'.convertsToBoolean()", &["false"]).await;
+    assert_evaluates("{}.convertsToBoolean()", &[]).await;
+    assert_errors("(true | false).toBoolean()").await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#integer-conversion-functions>
+#[tokio::test]
+async fn integer_conversion() {
+    assert_evaluates("'-12'.toInteger()", &["-12"]).await;
+    assert_evaluates("'+12'.toInteger()", &["12"]).await;
+    assert_evaluates("true.toInteger()", &["1"]).await;
+    assert_evaluates("'1.5'.toInteger()", &[]).await;
+    assert_evaluates("1.5.toInteger()", &[]).await;
+
+    assert_evaluates("5.convertsToInteger()", &["true"]).await;
+    assert_evaluates("'12a'.convertsToInteger()", &["false"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#decimal-conversion-functions>
+#[tokio::test]
+async fn decimal_conversion() {
+    assert_evaluates("'1.5'.toDecimal()", &["1.5"]).await;
+    assert_evaluates("'-1'.toDecimal()", &["-1.0"]).await;
+    assert_evaluates("5.toDecimal()", &["5.0"]).await;
+    assert_evaluates("false.toDecimal()", &["0.0"]).await;
+    // Only (\+|-)?\d+(\.\d+)? converts.
+    assert_evaluates("'1.'.toDecimal()", &[]).await;
+    assert_evaluates("'1e5'.toDecimal()", &[]).await;
+
+    assert_evaluates("'abc'.convertsToDecimal()", &["false"]).await;
+    assert_evaluates("'+0.5'.convertsToDecimal()", &["true"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#string-conversion-functions>
+#[tokio::test]
+async fn string_conversion() {
+    assert_evaluates("5.toString()", &["'5'"]).await;
+    assert_evaluates("1.5.toString()", &["'1.5'"]).await;
+    assert_evaluates("true.toString()", &["'true'"]).await;
+    assert_evaluates("'a'.toString()", &["'a'"]).await;
+
+    let patient = Patient {
+        birthDate: Some(Box::new(FHIRDate {
+            value: Some(Date::YearMonthDay(1974, 12, 25)),
+            ..Default::default()
+        })),
+        name: Some(vec![HumanName::default()]),
+        ..Default::default()
+    };
+    let birth_date = evaluate_on("Patient.birthDate.toString()", vec![&patient]).await;
+    assert_eq!(birth_date, ["'1974-12-25'"]);
+    let name = evaluate_on("Patient.name.convertsToString()", vec![&patient]).await;
+    assert_eq!(name, ["false"]);
+
+    let quantity = Quantity {
+        value: Some(Box::new(FHIRDecimal {
+            value: Some(5.5),
+            ..Default::default()
+        })),
+        unit: Some(Box::new("mg".to_string().into())),
+        ..Default::default()
+    };
+    let quantity = evaluate_on("$this.toString()", vec![&quantity]).await;
+    assert_eq!(quantity, ["'5.5 'mg''"]);
+}
+
+/// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>
+#[tokio::test]
+async fn trace() {
+    assert_evaluates("(1 | 2).trace('numbers')", &["1", "2"]).await;
+    assert_evaluates("(1 | 2).trace('numbers', $this + 1)", &["1", "2"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#istype-type-specifier> and
+/// <https://hl7.org/fhirpath/N1/#is-type-specifier>
+#[tokio::test]
+async fn is_and_as() {
+    let patient = Patient {
+        name: Some(vec![HumanName::default(), HumanName::default()]),
+        ..Default::default()
+    };
+    let is = async |expression| evaluate_on(expression, vec![&patient]).await;
+
+    assert_eq!(is("$this.is(Patient)").await, ["true"]);
+    assert_eq!(is("$this.is(Observation)").await, ["false"]);
+    assert_eq!(is("$this is FHIR.Patient").await, ["true"]);
+    assert_eq!(is("{}.is(Patient)").await, Vec::<String>::new());
+    assert_eq!(is("{} is Patient").await, Vec::<String>::new());
+    assert!(
+        FPEngine::new()
+            .evaluate("Patient.name.is(HumanName)", vec![&patient])
+            .await
+            .is_err()
+    );
+
+    assert_eq!(is("($this as Patient).exists()").await, ["true"]);
+    assert_eq!(is("($this as Observation).exists()").await, ["false"]);
+    // R4 search parameters apply as() to collections, so it filters them.
+    assert_eq!(is("Patient.name.as(HumanName).count()").await, ["2"]);
 }

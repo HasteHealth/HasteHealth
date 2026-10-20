@@ -11,7 +11,8 @@ use dashmap::DashMap;
 pub use error::FHIRPathError;
 use haste_fhir_model::r4::{
     conversion::{
-        BOOLEAN_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool, downcast_number, downcast_string,
+        BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
+        downcast_datetime, downcast_number, downcast_string,
     },
     generated::{
         resources::ResourceType,
@@ -23,6 +24,7 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
+use regex::{Regex, RegexBuilder};
 use std::pin::Pin;
 use std::{
     collections::HashMap,
@@ -325,7 +327,9 @@ async fn evaluate_function<'a>(
     match function.name.0.as_str() {
         "resolve" => Ok(context),
         "where" => evaluate_where(function, context, config).await,
+        // R4 search parameters apply as() to collections, so it filters like ofType.
         "ofType" | "as" => evaluate_of_type(function, &context),
+        "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
         "empty" => evaluate_empty(function, &context),
@@ -357,6 +361,13 @@ async fn evaluate_function<'a>(
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
+        "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
+        | "replaceMatches" => evaluate_string_function(function, context, config).await,
+        "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
+        | "convertsToDecimal" | "toString" | "convertsToString" => {
+            evaluate_conversion(function, &context)
+        }
+        "trace" => evaluate_trace(function, context, config).await,
 
         _ => Err(FHIRPathError::NotImplemented(format!(
             "Function '{}' is not implemented",
@@ -1091,6 +1102,343 @@ async fn evaluate_math<'a>(
     Ok(number_result(&context, result))
 }
 
+fn string_result<'a>(context: &Context<'a>, value: String) -> Context<'a> {
+    context.new_context_from(vec![context.allocate_literal(FHIRString {
+        value: Some(value),
+        ..Default::default()
+    })])
+}
+
+/// Compiled patterns, which come from expressions and are cached like their ASTs.
+static REGEX: LazyLock<DashMap<String, Arc<Regex>>> = LazyLock::new(DashMap::new);
+
+fn compile_regex(pattern: &str) -> Result<Arc<Regex>, FHIRPathError> {
+    if let Some(regex) = REGEX.get(pattern) {
+        return Ok(regex.clone());
+    }
+
+    // The spec's 'single line' mode, where '.' also matches a newline.
+    let regex = RegexBuilder::new(pattern)
+        .dot_matches_new_line(true)
+        .build()
+        .map_err(|e| FunctionError::InvalidFunctionCall(format!("invalid regex: {e}")))?;
+    let regex = Arc::new(regex);
+    REGEX.insert(pattern.to_string(), regex.clone());
+    Ok(regex)
+}
+
+fn char_count(value: &str) -> Result<i64, FHIRPathError> {
+    i64::try_from(value.chars().count())
+        .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
+}
+
+/// <https://hl7.org/fhirpath/N1/#indexofsubstring-string-integer> through
+/// <https://hl7.org/fhirpath/N1/#tochars-collection>: empty when the input or
+/// a required argument is empty.
+async fn evaluate_string_function<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = function.name.0.as_str();
+    let cardinality = match name {
+        "length" | "toChars" => Cardinality::Zero,
+        "indexOf" | "matches" => Cardinality::One,
+        "substring" => Cardinality::Custom(1, 2),
+        _ => Cardinality::Custom(2, 2),
+    };
+    validate_arguments(&function.arguments, &cardinality)?;
+
+    let empty = context.new_context_from(vec![]);
+    let Some(input) = singleton(name, &context)? else {
+        return Ok(empty);
+    };
+    let input = downcast_string(input)?;
+
+    let mut arguments = Vec::with_capacity(function.arguments.len());
+    for argument in &function.arguments {
+        let argument = evaluate_expression(argument, context.clone(), config.clone()).await?;
+        arguments.push(singleton(name, &argument)?);
+    }
+    let string_argument = |index: usize| -> Result<Option<String>, FHIRPathError> {
+        Ok(arguments[index].map(downcast_string).transpose()?)
+    };
+    let integer_argument = |index: usize| -> Result<Option<i64>, FHIRPathError> {
+        match arguments
+            .get(index)
+            .copied()
+            .flatten()
+            .map(Number::of)
+            .transpose()?
+        {
+            Some(Number::Integer(value)) => Ok(Some(value)),
+            None => Ok(None),
+            Some(Number::Decimal(_)) => {
+                let message = format!("{name} requires Integer arguments");
+                Err(FunctionError::InvalidFunctionCall(message).into())
+            }
+        }
+    };
+
+    let result = match name {
+        "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
+        "toChars" => {
+            let chars = input.chars().map(|c| {
+                context.allocate_literal(FHIRString {
+                    value: Some(c.to_string()),
+                    ..Default::default()
+                })
+            });
+            context.new_context_from(chars.collect())
+        }
+        "indexOf" => {
+            let Some(substring) = string_argument(0)? else {
+                return Ok(empty);
+            };
+            let index = match input.find(&substring) {
+                Some(byte_index) => char_count(&input[..byte_index])?,
+                None => -1,
+            };
+            number_result(&context, Some(Number::Integer(index)))
+        }
+        "substring" => {
+            let Some(start) = integer_argument(0)? else {
+                return Ok(empty);
+            };
+            let Ok(start) = usize::try_from(start) else {
+                return Ok(empty);
+            };
+            if start >= input.chars().count() {
+                return Ok(empty);
+            }
+            // An empty length is the same as none.
+            let length = integer_argument(1)?
+                .map_or(usize::MAX, |length| usize::try_from(length).unwrap_or(0));
+            string_result(&context, input.chars().skip(start).take(length).collect())
+        }
+        "replace" => {
+            let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
+            else {
+                return Ok(empty);
+            };
+            string_result(&context, input.replace(&pattern, &substitution))
+        }
+        "matches" => {
+            let Some(pattern) = string_argument(0)? else {
+                return Ok(empty);
+            };
+            boolean_result(&context, compile_regex(&pattern)?.is_match(&input))
+        }
+        "replaceMatches" => {
+            let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
+            else {
+                return Ok(empty);
+            };
+            let replaced = compile_regex(&pattern)?.replace_all(&input, substitution.as_str());
+            string_result(&context, replaced.into_owned())
+        }
+        _ => unreachable!(),
+    };
+
+    Ok(result)
+}
+
+/// The kinds of item the conversion functions accept.
+enum Convertible<'v> {
+    Boolean(bool),
+    Number(Number),
+    String(String),
+    DateTime(String),
+    Quantity(&'v Quantity),
+}
+
+impl<'v> Convertible<'v> {
+    fn of(value: &'v dyn MetaValue) -> Result<Option<Self>, FHIRPathError> {
+        let fhir_type = value.fhir_type();
+        let convertible = if BOOLEAN_TYPES.contains(fhir_type) {
+            Convertible::Boolean(downcast_bool(value)?)
+        } else if NUMBER_TYPES.contains(fhir_type) {
+            Convertible::Number(Number::of(value)?)
+        } else if STRING_TYPES.contains(fhir_type) {
+            Convertible::String(downcast_string(value)?)
+        } else if DATE_TIME_TYPES.contains(fhir_type) {
+            Convertible::DateTime(downcast_datetime(value)?)
+        } else if let Some(quantity) = value.as_any().downcast_ref::<Quantity>() {
+            Convertible::Quantity(quantity)
+        } else {
+            return Ok(None);
+        };
+        Ok(Some(convertible))
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#boolean-conversion-functions>
+fn to_boolean(value: Convertible) -> Option<bool> {
+    match value {
+        Convertible::Boolean(value) => Some(value),
+        Convertible::Number(number) => match number.as_f64() {
+            1.0 => Some(true),
+            0.0 => Some(false),
+            _ => None,
+        },
+        Convertible::String(value) => {
+            let is = |words: &[&str]| words.iter().any(|word| value.eq_ignore_ascii_case(word));
+            if is(&["true", "t", "yes", "y", "1", "1.0"]) {
+                Some(true)
+            } else if is(&["false", "f", "no", "n", "0", "0.0"]) {
+                Some(false)
+            } else {
+                None
+            }
+        }
+        Convertible::DateTime(_) | Convertible::Quantity(_) => None,
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#integer-conversion-functions>
+fn to_integer(value: Convertible) -> Option<i64> {
+    match value {
+        Convertible::Boolean(value) => Some(i64::from(value)),
+        Convertible::Number(Number::Integer(value)) => Some(value),
+        // Rust's parser accepts exactly (\+|-)?\d+, failing only on overflow.
+        Convertible::String(value) => value.parse().ok(),
+        _ => None,
+    }
+}
+
+/// Whether `value` has the spec's Decimal format, (\+|-)?\d+(\.\d+)?.
+fn is_decimal(value: &str) -> bool {
+    let unsigned = value.strip_prefix(['+', '-']).unwrap_or(value);
+    let (whole, fraction) = unsigned.split_once('.').unwrap_or((unsigned, "0"));
+    let digits = |part: &str| !part.is_empty() && part.bytes().all(|b| b.is_ascii_digit());
+    digits(whole) && digits(fraction)
+}
+
+/// <https://hl7.org/fhirpath/N1/#decimal-conversion-functions>
+fn to_decimal(value: Convertible) -> Option<f64> {
+    match value {
+        Convertible::Boolean(value) => Some(f64::from(u8::from(value))),
+        Convertible::Number(number) => Some(number.as_f64()),
+        Convertible::String(value) if is_decimal(&value) => value.parse().ok(),
+        _ => None,
+    }
+}
+
+/// A Decimal's String form, which keeps a fraction so it reads as a Decimal.
+fn decimal_string(value: f64) -> String {
+    let string = value.to_string();
+    if string.contains('.') {
+        string
+    } else {
+        string + ".0"
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#string-conversion-functions>
+fn to_string(value: Convertible) -> Option<String> {
+    match value {
+        Convertible::Boolean(value) => Some(value.to_string()),
+        Convertible::Number(Number::Integer(value)) => Some(value.to_string()),
+        Convertible::Number(Number::Decimal(value)) => Some(decimal_string(value)),
+        Convertible::String(value) | Convertible::DateTime(value) => Some(value),
+        Convertible::Quantity(quantity) => {
+            let value = quantity.value.as_ref()?.value?;
+            // The UCUM code when there is one, as FHIRPath quantities use UCUM units.
+            let code = quantity
+                .code
+                .as_ref()
+                .and_then(|code| code.value.as_deref());
+            let unit = quantity
+                .unit
+                .as_ref()
+                .and_then(|unit| unit.value.as_deref());
+            let unit = code.or(unit).unwrap_or("1");
+            Some(format!("{} '{unit}'", decimal_string(value)))
+        }
+    }
+}
+
+/// `toX()` gives the converted item or empty, `convertsToX()` whether there is
+/// one, per <https://hl7.org/fhirpath/N1/#conversion>.
+fn evaluate_conversion<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let name = function.name.0.as_str();
+    let Some(value) = singleton(name, context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let (converts, target) = match name.strip_prefix("convertsTo") {
+        Some(target) => (true, target),
+        None => (false, &name["to".len()..]),
+    };
+
+    let converted = Convertible::of(value)?.and_then(|value| match target {
+        "Boolean" => to_boolean(value).map(|value| boolean_result(context, value)),
+        "Integer" => {
+            to_integer(value).map(|value| number_result(context, Some(Number::Integer(value))))
+        }
+        "Decimal" => {
+            to_decimal(value).map(|value| number_result(context, Some(Number::Decimal(value))))
+        }
+        "String" => to_string(value).map(|value| string_result(context, value)),
+        _ => unreachable!(),
+    });
+
+    if converts {
+        Ok(boolean_result(context, converted.is_some()))
+    } else {
+        Ok(converted.unwrap_or_else(|| context.new_context_from(vec![])))
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>:
+/// logs at debug level and returns the input. The arguments are only evaluated
+/// when that level is on.
+async fn evaluate_trace<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Custom(1, 2))?;
+
+    if tracing::enabled!(tracing::Level::DEBUG) {
+        let name = evaluate_expression(&function.arguments[0], context.clone(), config.clone());
+        let name = singleton("trace", &name.await?)?.map(downcast_string);
+        let name = name.transpose()?.unwrap_or_default();
+
+        let traced = match function.arguments.get(1) {
+            Some(projection) => evaluate_expression(projection, context.clone(), config).await?,
+            None => context.clone(),
+        };
+        tracing::debug!(name, values = ?traced.values, "FHIRPath trace");
+    }
+
+    Ok(context)
+}
+
+/// `is` as an operator or function, per <https://hl7.org/fhirpath/N1/#is-type-specifier>:
+/// empty for an empty input and an error for more than one item.
+fn is_type<'a>(input: &Context<'a>, type_name: &str) -> Result<Context<'a>, FHIRPathError> {
+    let value = singleton("is", input)?;
+    Ok(optional_boolean_result(
+        input,
+        value.map(|value| check_type(value, type_name)),
+    ))
+}
+
+/// <https://hl7.org/fhirpath/N1/#istype-type-specifier>
+fn evaluate_is_function<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    is_type(context, &derive_typename(&function.arguments[0])?)
+}
+
 fn expression_to_literal(expression: &Expression) -> Result<&Literal, FHIRPathError> {
     match expression {
         Expression::Singular(vec) if vec.len() == 1 => match &vec[0] {
@@ -1706,12 +2054,7 @@ async fn evaluate_concatenate<'a>(
             }
         }
 
-        Ok(
-            left.new_context_from(vec![left.allocate_literal(FHIRString {
-                value: Some(concatenated),
-                ..Default::default()
-            })]),
-        )
+        Ok(string_result(&left, concatenated))
     })
     .await
 }
@@ -1777,27 +2120,17 @@ async fn evaluate_type_operation<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(expression, context, config).await?;
 
-    if left.values.len() > 1 {
-        return Err(FHIRPathError::OperationError(
-            OperationError::InvalidCardinality,
-        ));
-    }
-
-    let Some(type_name) = type_name.0.first().map(|id| &id.0) else {
+    // The last part names the type, as in FHIR.Patient.
+    let Some(Identifier(type_name)) = type_name.0.last() else {
         return Ok(left.new_context_from(vec![]));
     };
 
-    let filtered = filter_by_type(type_name, &left);
-
     if return_context {
-        Ok(filtered)
+        // <https://hl7.org/fhirpath/N1/#as-type-specifier>
+        let value = singleton("as", &left)?.filter(|value| check_type(*value, type_name));
+        Ok(left.new_context_from(value.into_iter().collect()))
     } else {
-        Ok(
-            left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
-                value: Some(!filtered.values.is_empty()),
-                ..Default::default()
-            })]),
-        )
+        is_type(&left, type_name)
     }
 }
 

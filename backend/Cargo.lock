@@ -2746,9 +2746,11 @@ dependencies = [
  "insta",
  "peg",
  "proptest",
+ "regex",
  "serde_json",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

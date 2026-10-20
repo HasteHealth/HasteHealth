@@ -14,7 +14,9 @@ haste-reflect-derive = { path = "../reflect-derive", version = "0.*" }
 bumpalo = { version = "3.20.3", default-features = false }
 dashmap = { version= "6.2.1", default-features = false }
 peg = { version = "0.8.6", default-features = false, features = ["std"] }
+regex = { workspace = true }
 thiserror = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
