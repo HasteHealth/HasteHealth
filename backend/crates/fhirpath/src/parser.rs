@@ -65,6 +65,7 @@ pub enum Operation {
     // Additive Operations
     Add(Expression, Expression),
     Subtraction(Expression, Expression),
+    Concatenate(Expression, Expression),
     // Multiplicative Operations
     Multiplication(Expression, Expression),
     Division(Expression, Expression),
@@ -307,10 +308,11 @@ parser! {
                 }
             }
             --
-            x:(@) _w() op:$("+" / "-") _w() y:@ {
+            x:(@) _w() op:$("+" / "-" / "&") _w() y:@ {
                 match op{
                     "+" => Expression::Operation(Box::new(Operation::Add(x, y))),
                     "-" => Expression::Operation(Box::new(Operation::Subtraction(x, y))),
+                    "&" => Expression::Operation(Box::new(Operation::Concatenate(x, y))),
                     _ => unreachable!(),
                 }
              }
