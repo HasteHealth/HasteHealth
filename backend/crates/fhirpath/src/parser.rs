@@ -100,7 +100,12 @@ pub enum Operation {
 
 parser! {
     grammar parser() for str {
-        rule _w() = quiet!{[' ' | '\n' | '\t']*}
+        // Whitespace and <https://hl7.org/fhirpath/N1/#comments>.
+        rule _w() = quiet!{(
+            [' ' | '\n' | '\r' | '\t']
+            / "//" [^'\n']*
+            / "/*" (!"*/" [_])* "*/"
+        )*}
 
         rule invocation() -> Invocation
           = "$this" { Invocation::This }
@@ -155,9 +160,8 @@ parser! {
         }
 
         rule literal_string() -> Literal
-        // / [^'\"']
-          = "'" s:$(("\\'" / [^('\n' | '\r' | '\0' | '\'' )])*) "'" {
-            Literal::String(s.to_string())
+          = "'" s:$(("\\" [_] / [^('\n' | '\r' | '\0' | '\'' | '\\')])*) "'" {?
+            unescape(s).map(Literal::String)
         }
 
         rule literal_integer () -> Literal
@@ -251,6 +255,8 @@ parser! {
           / literal_time()
           / literal_date()
 
+        pub rule expression() -> Expression = _w() e:operations() _w() { e }
+
         pub rule operations() -> Expression = precedence!{
             x:(@) _w() "implies"  _w() y:@ {
                 Expression::Operation(Box::new(Operation::Implies(x, y)))
@@ -342,7 +348,44 @@ parser! {
 }
 
 pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
-    parser::operations(input).map_err(FHIRPathError::ParseError)
+    parser::expression(input).map_err(FHIRPathError::ParseError)
+}
+
+/// Resolves the escapes of <https://hl7.org/fhirpath/N1/#string>; a `\` before
+/// any other character is dropped.
+fn unescape(raw: &str) -> Result<String, &'static str> {
+    if !raw.contains('\\') {
+        return Ok(raw.to_string());
+    }
+
+    let mut unescaped = String::with_capacity(raw.len());
+    let mut chars = raw.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            unescaped.push(c);
+            continue;
+        }
+
+        // The grammar always puts a character after a '\\'.
+        let escaped = match chars.next() {
+            Some('r') => '\r',
+            Some('n') => '\n',
+            Some('t') => '\t',
+            Some('f') => '\u{c}',
+            Some('u') => {
+                let hex = chars.by_ref().take(4).collect::<String>();
+                u32::from_str_radix(&hex, 16)
+                    .ok()
+                    .and_then(char::from_u32)
+                    .ok_or("Invalid \\u escape.")?
+            }
+            Some(escaped) => escaped,
+            None => break,
+        };
+        unescaped.push(escaped);
+    }
+
+    Ok(unescaped)
 }
 
 #[cfg(test)]
@@ -353,10 +396,7 @@ mod tests {
     fn literals() {
         let escaped_string = parser::literal("'hello \\' world'").unwrap();
 
-        assert_eq!(
-            escaped_string,
-            Literal::String("hello \\' world".to_string())
-        );
+        assert_eq!(escaped_string, Literal::String("hello ' world".to_string()));
 
         let time = parser::literal("@T14:34:28").unwrap();
         assert_eq!(time, Literal::Time("14:34:28".to_string()));
