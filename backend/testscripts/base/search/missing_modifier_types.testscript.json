@@ -286,7 +286,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.effectiveDateTime.count()",
+                        "expression": "Bundle.entry[0].resource.effective.count()",
                         "operator": "equals",
                         "value": "0",
                         "warningOnly": false
@@ -313,7 +313,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.effectiveDateTime.count()",
+                        "expression": "Bundle.entry[0].resource.effective.count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -394,7 +394,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.valueQuantity.count()",
+                        "expression": "Bundle.entry[0].resource.value.count()",
                         "operator": "equals",
                         "value": "0",
                         "warningOnly": false
@@ -421,7 +421,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.valueQuantity.count()",
+                        "expression": "Bundle.entry[0].resource.value.count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
