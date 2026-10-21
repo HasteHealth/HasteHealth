@@ -511,6 +511,7 @@ async fn greater_than() {
     assert_errors("(1 | 2) > 1").await;
 }
 
+
 /// <https://hl7.org/fhirpath/N1/#less-than>
 #[tokio::test]
 async fn less_than() {
@@ -525,6 +526,39 @@ async fn less_than() {
     assert_evaluates("1 < {}", &[]).await;
     assert_errors("'a' < 1").await;
     assert_errors("(1 | 2) < 1").await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#greater-or-equal>
+#[tokio::test]
+async fn greater_or_equal() {
+    assert_evaluates("2 >= 1", &["true"]).await;
+    assert_evaluates("1 >= 2", &["false"]).await;
+    assert_evaluates("1 >= 1", &["true"]).await;
+    assert_evaluates("1.5 >= 1", &["true"]).await;
+    assert_evaluates("1.0 >= 1", &["true"]).await;
+    assert_evaluates("'b' >= 'a'", &["true"]).await;
+    assert_evaluates("'a' >= 'a'", &["true"]).await;
+    assert_evaluates("'abc' >= 'ab'", &["true"]).await;
+    assert_evaluates("{} >= 1", &[]).await;
+    assert_evaluates("1 >= {}", &[]).await;
+    assert_errors("'a' >= 1").await;
+    assert_errors("(1 | 2) >= 1").await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#less-or-equal>
+#[tokio::test]
+async fn less_or_equal() {
+    assert_evaluates("1 <= 2", &["true"]).await;
+    assert_evaluates("2 <= 1", &["false"]).await;
+    assert_evaluates("1 <= 1", &["true"]).await;
+    assert_evaluates("1 <= 1.5", &["true"]).await;
+    assert_evaluates("'a' <= 'b'", &["true"]).await;
+    assert_evaluates("'b' <= 'a'", &["false"]).await;
+    assert_evaluates("'ab' <= 'abc'", &["true"]).await;
+    assert_evaluates("{} <= 1", &[]).await;
+    assert_evaluates("1 <= {}", &[]).await;
+    assert_errors("'a' <= 1").await;
+    assert_errors("(1 | 2) <= 1").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#less-than>, <https://hl7.org/fhirpath/N1/#less-or-equal>
