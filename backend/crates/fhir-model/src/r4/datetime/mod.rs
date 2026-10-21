@@ -114,12 +114,22 @@ impl ToString for Instant {
     }
 }
 
+/// A time of day. FHIR's `time` always has seconds; FHIRPath's also allows
+/// hour and minute precision.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Time(chrono::NaiveTime);
+pub enum Time {
+    Hour(u8),
+    HourMinute(u8, u8),
+    HourMinuteSecond(chrono::NaiveTime),
+}
 
 impl ToString for Time {
     fn to_string(&self) -> String {
-        self.0.format("%H:%M:%S%.f").to_string()
+        match self {
+            Time::Hour(hour) => format!("{hour:02}"),
+            Time::HourMinute(hour, minute) => format!("{hour:02}:{minute:02}"),
+            Time::HourMinuteSecond(time) => time.format("%H:%M:%S%.f").to_string(),
+        }
     }
 }
 
@@ -148,6 +158,11 @@ pub static INSTANT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 
 pub static TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?$").unwrap()
+});
+
+/// A FHIR `time`, or one cut off after the hour or minute.
+static PARTIAL_TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([01][0-9]|2[0-3])(?::([0-5][0-9])(?::([0-5][0-9]|60)(\.[0-9]+)?)?)?$").unwrap()
 });
 
 /// A capture the regex matched as digits.
@@ -210,13 +225,25 @@ pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
 
 pub fn parse_time(time_string: &str) -> Result<Time, ParseError> {
     if TIME_REGEX.is_match(time_string) {
-        let time = Time(
-            chrono::NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
-                .map_err(|_| ParseError::InvalidFormat)?,
-        );
-        Ok(time)
+        chrono::NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
+            .map(Time::HourMinuteSecond)
+            .map_err(|_| ParseError::InvalidFormat)
     } else {
         Err(ParseError::InvalidFormat)
+    }
+}
+
+/// A FHIRPath Time, which unlike a FHIR `time` may stop at hour or minute.
+pub fn parse_partial_time(time_string: &str) -> Result<Time, ParseError> {
+    let captures = PARTIAL_TIME_REGEX
+        .captures(time_string)
+        .ok_or(ParseError::InvalidFormat)?;
+    match (captures.get(1), captures.get(2)) {
+        (Some(hour), None) => Ok(Time::Hour(captured(hour))),
+        (Some(hour), Some(minute)) if time_string.len() == 5 => {
+            Ok(Time::HourMinute(captured(hour), captured(minute)))
+        }
+        _ => parse_time(time_string),
     }
 }
 
@@ -303,7 +330,7 @@ mod tests {
         assert!(parse_time("23:59:59.232").is_ok());
         assert_eq!(
             parse_time("23:59:59.232").unwrap(),
-            Time(chrono::NaiveTime::from_hms_milli_opt(23, 59, 59, 232).unwrap())
+            Time::HourMinuteSecond(chrono::NaiveTime::from_hms_milli_opt(23, 59, 59, 232).unwrap())
         );
     }
 
