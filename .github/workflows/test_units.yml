@@ -70,7 +70,6 @@ jobs:
           -p haste-sd-to-json-schema \
           -p haste-sql-on-fhir \
           -p haste-testscript-runner \
-          -p haste-wal-worker \
           -p haste-worker \
           -p haste-x-fhir-query \
           -- -Dclippy::all -Dclippy::pedantic
