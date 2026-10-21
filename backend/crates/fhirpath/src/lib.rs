@@ -14,12 +14,12 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{DATETIME_REGEX, DateTime, Date, Time, parse_date, parse_partial_time, parse_time},
+    datetime::{DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_partial_time, parse_time},
     generated::{
         resources::ResourceType,
         types::{
-            FHIRBoolean, FHIRDate, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
-            FHIRTime, FHIRUnsignedInt, Quantity, Reference,
+            FHIRBoolean, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt,
+            FHIRString, FHIRTime, FHIRUnsignedInt, Quantity, Reference,
         },
     },
 };
