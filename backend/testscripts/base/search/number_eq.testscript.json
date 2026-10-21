@@ -332,6 +332,86 @@
                 }
             ],
             "id": "molecularsequence-6"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 49
+                }
+            ],
+            "id": "riskassessment-x0"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 49
+                }
+            ],
+            "id": "molecularsequence-x0"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 151
+                }
+            ],
+            "id": "riskassessment-x1"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 151
+                }
+            ],
+            "id": "molecularsequence-x1"
         }
     ],
     "fixture": [
@@ -459,6 +539,38 @@
             "id": "fixture-molecularsequence-6",
             "resource": {
                 "reference": "#molecularsequence-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-x0",
+            "resource": {
+                "reference": "#riskassessment-x0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-x0",
+            "resource": {
+                "reference": "#molecularsequence-x0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-x1",
+            "resource": {
+                "reference": "#riskassessment-x1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-x1",
+            "resource": {
+                "reference": "#molecularsequence-x1"
             },
             "autocreate": false,
             "autodelete": false
@@ -649,6 +761,50 @@
                     "operation": {
                         "type": {
                             "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-x0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-x0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-x1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-x1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                             "code": "search"
                         },
                         "resource": "RiskAssessment",
@@ -698,7 +854,7 @@
                     "assert": {
                         "expression": "Bundle.entry.count()",
                         "operator": "equals",
-                        "value": "7",
+                        "value": "9",
                         "warningOnly": false
                     }
                 },
@@ -755,7 +911,7 @@
                     "assert": {
                         "expression": "Bundle.entry.count()",
                         "operator": "equals",
-                        "value": "5",
+                        "value": "7",
                         "warningOnly": false
                     }
                 },
@@ -812,7 +968,7 @@
                     "assert": {
                         "expression": "Bundle.entry.count()",
                         "operator": "equals",
-                        "value": "7",
+                        "value": "9",
                         "warningOnly": false
                     }
                 },
@@ -869,7 +1025,7 @@
                     "assert": {
                         "expression": "Bundle.entry.count()",
                         "operator": "equals",
-                        "value": "5",
+                        "value": "7",
                         "warningOnly": false
                     }
                 }
