@@ -50,7 +50,6 @@ members = [
     "crates/sql-on-fhir",
     "crates/subscription",
     "crates/testscript-runner",
-    "crates/wal-worker",
     "crates/worker",
     "crates/x-fhir-query",
 ]

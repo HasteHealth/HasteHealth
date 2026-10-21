@@ -9,13 +9,11 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_worker::{search_indexing, traits::Worker as _};
 
-/// Run background workers (search indexing, WAL processing).
+/// Run background workers (search indexing).
 #[derive(Subcommand, Debug)]
 pub(crate) enum WorkerCommands {
     /// Run the search-indexing worker. Default when no subcommand is given.
     Worker,
-    /// Run the Postgres WAL (write-ahead log) worker. Not yet implemented.
-    WalWorker,
 }
 
 /// Runs the `worker` command group. `command` is `None` when the bare `worker`
@@ -46,34 +44,5 @@ pub(crate) async fn run(command: &Option<WorkerCommands>) -> Result<(), Operatio
 
             Ok(())
         }
-        Some(WorkerCommands::WalWorker) => todo!(),
     }
 }
-
-// async fn create_wal_worker() -> Result<(), Box<dyn std::error::Error>> {
-//     let config = get_config::<WALWorkerEnvironmentVariables>("environment".into());
-
-//     let connection_url = config
-//         .get(WALWorkerEnvironmentVariables::DatabaseURL)
-//         .expect(&format!(
-//             "'{}' variable not set",
-//             String::from(WALWorkerEnvironmentVariables::DatabaseURL)
-//         ));
-
-//     let slot_name = config
-//         .get(WALWorkerEnvironmentVariables::PGSlotName)
-//         .expect(&format!(
-//             "'{}' variable not set",
-//             String::from(WALWorkerEnvironmentVariables::PGSlotName)
-//         ));
-//     let publication_name = config
-//         .get(WALWorkerEnvironmentVariables::PGPublicationName)
-//         .expect(&format!(
-//             "'{}' variable not set",
-//             String::from(WALWorkerEnvironmentVariables::PGPublicationName)
-//         ));
-
-//     wal_worker(slot_name, publication_name, &connection_url).await;
-
-//     Ok(())
-// }
