@@ -73,7 +73,55 @@ fn evaluate_literal<'b>(
             },
         )])),
         Literal::Null => Ok(context.new_context_from(vec![])),
-        _ => Err(FHIRPathError::InvalidLiteral(literal.to_owned())),
+        Literal::Date(date) => temporal_literal(
+            literal,
+            context,
+            parse_date(date).ok().map(|value| FHIRDate {
+                value: Some(value),
+                ..Default::default()
+            }),
+        ),
+        Literal::DateTime(datetime) => temporal_literal(
+            literal,
+            context,
+            parse_datetime_literal(datetime).map(|value| FHIRDateTime {
+                value: Some(value),
+                ..Default::default()
+            }),
+        ),
+        Literal::Time(time) => temporal_literal(
+            literal,
+            context,
+            parse_partial_time(time).ok().map(|value| FHIRTime {
+                value: Some(value),
+                ..Default::default()
+            }),
+        ),
+    }
+}
+
+/// The singleton for a parsed `Date`, `DateTime` or `Time` literal.
+fn temporal_literal<'b, T: MetaValue + 'static>(
+    literal: &Literal,
+    context: &Context<'b>,
+    value: Option<T>,
+) -> Result<Context<'b>, FHIRPathError> {
+    value
+        .map(|value| context.new_context_from(vec![context.allocate_literal(value)]))
+        .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
+}
+
+/// A `DateTime` literal, whose time part may be cut short (`@2020-01-01T`) or lack
+/// a timezone, which is read as UTC.
+fn parse_datetime_literal(literal: &str) -> Option<DateTime> {
+    let literal = literal.strip_suffix('T').unwrap_or(literal);
+    let zoned = literal
+        .split_once('T')
+        .is_none_or(|(_, time)| time.ends_with('Z') || time.contains(['+', '-']));
+    if zoned {
+        parse_datetime(literal).ok()
+    } else {
+        parse_datetime(&format!("{literal}Z")).ok()
     }
 }
 
