@@ -7,7 +7,7 @@ use haste_fhir_model::r4::{
     datetime::Date,
     generated::{
         resources::Patient,
-        types::{FHIRBoolean, FHIRDate, FHIRDecimal, FHIRInteger, HumanName, Quantity},
+        types::{FHIRBoolean, FHIRDate, FHIRDecimal, FHIRInteger, FHIRTime, HumanName, Quantity},
     },
 };
 use haste_reflect::MetaValue;
@@ -22,7 +22,7 @@ fn render(value: &dyn MetaValue) -> String {
         format!("{:?}", decimal.value.unwrap())
     } else if let Some(boolean) = any.downcast_ref::<FHIRBoolean>() {
         boolean.value.unwrap().to_string()
-    } else if any.is::<FHIRDate>() {
+    } else if any.is::<FHIRDate>() || any.is::<FHIRTime>() {
         format!("'{}'", downcast_datetime(value).unwrap())
     } else {
         format!("'{}'", downcast_string(value).unwrap())
@@ -488,6 +488,25 @@ async fn date_conversion() {
     };
     let birth_date = evaluate_on("Patient.birthDate.toDate()", vec![&patient]).await;
     assert_eq!(birth_date, ["'1974-12-25'"]);
+}
+
+/// <https://hl7.org/fhirpath/N1/#time-conversion-functions>
+#[tokio::test]
+async fn time_conversion() {
+    assert_evaluates("'14:30:15'.toTime()", &["'14:30:15'"]).await;
+    assert_evaluates("'14:30:15.250'.toTime()", &["'14:30:15.250'"]).await;
+    assert_evaluates("'14:30'.toTime()", &["'14:30'"]).await;
+    assert_evaluates("'14'.toTime()", &["'14'"]).await;
+    assert_evaluates("'25:00'.toTime()", &[]).await;
+    assert_evaluates("'2014-01-25'.toTime()", &[]).await;
+    assert_evaluates("1.toTime()", &[]).await;
+    assert_evaluates("{}.toTime()", &[]).await;
+
+    assert_evaluates("'14:30'.convertsToTime()", &["true"]).await;
+    assert_evaluates("'abc'.convertsToTime()", &["false"]).await;
+    assert_evaluates("true.convertsToTime()", &["false"]).await;
+    assert_evaluates("{}.convertsToTime()", &[]).await;
+    assert_errors("('14:30' | '15:30').toTime()").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>

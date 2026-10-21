@@ -14,12 +14,12 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{DATETIME_REGEX, Date, parse_date},
+    datetime::{DATETIME_REGEX, Date, Time, parse_date, parse_partial_time},
     generated::{
         resources::ResourceType,
         types::{
             FHIRBoolean, FHIRDate, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
-            FHIRUnsignedInt, Quantity, Reference,
+            FHIRTime, FHIRUnsignedInt, Quantity, Reference,
         },
     },
 };
@@ -365,9 +365,8 @@ async fn evaluate_function<'a>(
         "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
         | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
-        | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate" => {
-            evaluate_conversion(function, &context)
-        }
+        | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
+        | "toTime" | "convertsToTime" => evaluate_conversion(function, &context),
         "trace" => evaluate_trace(function, context, config).await,
 
         _ => Err(FHIRPathError::NotImplemented(format!(
@@ -1340,6 +1339,15 @@ fn to_date(value: Convertible) -> Option<Date> {
     parse_date(date).ok()
 }
 
+/// <https://hl7.org/fhirpath/N1/#time-conversion-functions>: a `Time` or
+/// time-formatted `String`, keeping its precision.
+fn to_time(value: Convertible) -> Option<Time> {
+    let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
+        return None;
+    };
+    parse_partial_time(&value).ok()
+}
+
 /// A Decimal's String form, which keeps a fraction so it reads as a Decimal.
 fn decimal_string(value: f64) -> String {
     let string = value.to_string();
@@ -1402,6 +1410,12 @@ fn evaluate_conversion<'a>(
         "String" => to_string(value).map(|value| string_result(context, value)),
         "Date" => to_date(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRDate {
+                value: Some(value),
+                ..Default::default()
+            })])
+        }),
+        "Time" => to_time(value).map(|value| {
+            context.new_context_from(vec![context.allocate_literal(FHIRTime {
                 value: Some(value),
                 ..Default::default()
             })])
