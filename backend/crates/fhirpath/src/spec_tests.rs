@@ -7,7 +7,10 @@ use haste_fhir_model::r4::{
     datetime::Date,
     generated::{
         resources::Patient,
-        types::{FHIRBoolean, FHIRDate, FHIRDecimal, FHIRInteger, FHIRTime, HumanName, Quantity},
+        types::{
+            FHIRBoolean, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRInteger, FHIRTime, HumanName,
+            Quantity,
+        },
     },
 };
 use haste_reflect::MetaValue;
@@ -22,7 +25,7 @@ fn render(value: &dyn MetaValue) -> String {
         format!("{:?}", decimal.value.unwrap())
     } else if let Some(boolean) = any.downcast_ref::<FHIRBoolean>() {
         boolean.value.unwrap().to_string()
-    } else if any.is::<FHIRDate>() || any.is::<FHIRTime>() {
+    } else if any.is::<FHIRDate>() || any.is::<FHIRDateTime>() || any.is::<FHIRTime>() {
         format!("'{}'", downcast_datetime(value).unwrap())
     } else {
         format!("'{}'", downcast_string(value).unwrap())
@@ -488,6 +491,28 @@ async fn date_conversion() {
     };
     let birth_date = evaluate_on("Patient.birthDate.toDate()", vec![&patient]).await;
     assert_eq!(birth_date, ["'1974-12-25'"]);
+}
+
+/// <https://hl7.org/fhirpath/N1/#datetime-conversion-functions>
+#[tokio::test]
+async fn date_time_conversion() {
+    assert_evaluates(
+        "'2014-01-25T14:30:00Z'.toDateTime()",
+        &["'2014-01-25T14:30:00+00:00'"],
+    )
+    .await;
+    assert_evaluates("'2014-01-25'.toDateTime()", &["'2014-01-25'"]).await;
+    assert_evaluates("'2014-01'.toDateTime()", &["'2014-01'"]).await;
+    assert_evaluates("'abc'.toDateTime()", &[]).await;
+    assert_evaluates("1.toDateTime()", &[]).await;
+    assert_evaluates("{}.toDateTime()", &[]).await;
+
+    assert_evaluates("'2014-01-25'.convertsToDateTime()", &["true"]).await;
+    assert_evaluates("'2014-01-25T14:30:00Z'.convertsToDateTime()", &["true"]).await;
+    assert_evaluates("'14:30'.convertsToDateTime()", &["false"]).await;
+    assert_evaluates("true.convertsToDateTime()", &["false"]).await;
+    assert_evaluates("{}.convertsToDateTime()", &[]).await;
+    assert_errors("('2014' | '2015').toDateTime()").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#time-conversion-functions>

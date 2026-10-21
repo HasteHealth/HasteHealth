@@ -14,7 +14,10 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_partial_time, parse_time},
+    datetime::{
+        DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_datetime, parse_partial_time,
+        parse_time,
+    },
     generated::{
         resources::ResourceType,
         types::{
@@ -366,7 +369,9 @@ async fn evaluate_function<'a>(
         | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
-        | "toTime" | "convertsToTime" => evaluate_conversion(function, &context),
+        | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
+            evaluate_conversion(function, &context)
+        }
         "trace" => evaluate_trace(function, context, config).await,
         "now" | "timeOfDay" | "today" => evaluate_current_time(function, &context),
 
@@ -1340,6 +1345,15 @@ fn to_date(value: Convertible) -> Option<Date> {
     parse_date(date).ok()
 }
 
+/// <https://hl7.org/fhirpath/N1/#datetime-conversion-functions>: a `Date`,
+/// `DateTime` or datetime-formatted `String`, keeping its precision.
+fn to_date_time(value: Convertible) -> Option<DateTime> {
+    let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
+        return None;
+    };
+    parse_datetime(&value).ok()
+}
+
 /// <https://hl7.org/fhirpath/N1/#time-conversion-functions>: a `Time` or
 /// time-formatted `String`, keeping its precision.
 fn to_time(value: Convertible) -> Option<Time> {
@@ -1411,6 +1425,12 @@ fn evaluate_conversion<'a>(
         "String" => to_string(value).map(|value| string_result(context, value)),
         "Date" => to_date(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRDate {
+                value: Some(value),
+                ..Default::default()
+            })])
+        }),
+        "DateTime" => to_date_time(value).map(|value| {
+            context.new_context_from(vec![context.allocate_literal(FHIRDateTime {
                 value: Some(value),
                 ..Default::default()
             })])
