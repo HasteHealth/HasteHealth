@@ -1326,7 +1326,7 @@ fn to_decimal(value: Convertible) -> Option<f64> {
 }
 
 /// <https://hl7.org/fhirpath/N1/#date-conversion-functions>: the date part of a
-/// Date, DateTime or date-formatted String, keeping its precision.
+/// `Date`, `DateTime` or date-formatted `String`, keeping its precision.
 fn to_date(value: Convertible) -> Option<Date> {
     let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
         return None;
