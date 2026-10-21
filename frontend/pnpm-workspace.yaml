@@ -15,7 +15,7 @@ overrides:
   # Docusaurus 3 asks for ^1, but only 2.1.2 is patched; Docusaurus 4 uses ^2.
   tinypool: '^2.1.2'
   webpackbar: '^7.0.0'
-  markdown-it: '^14.3.1'
+  markdown-it: '^14.3.3'
   webpack-dev-middleware: '^7.4.6'
   image-size: '^2.0.3'
   qs: '^6.16.0'
@@ -26,6 +26,13 @@ overrides:
   'brace-expansion@>=2.0.0 <3.0.0': '^2.1.7'
   'brace-expansion@>=4.0.0': '^5.0.12'
   handlebars@>=4.0.0 <=4.7.9: ^4.7.10
+  launch-editor@<=2.14.1: ^2.14.2
+  follow-redirects@>=1.16.0 <1.16.1: ^1.16.1
+  dompurify@<=3.4.15: ^3.4.16
+  joi@<17.13.8: ^17.13.8
+  # 6.x has no fixed release; its users (Tailwind 3, cssnano) need ^6.
+  postcss-selector-parser@>=7.0.0 <7.1.6: ^7.1.6
+  fast-copy@>=3.0.0 <3.1.0: ^3.1.0
 allowBuilds:
   '@swc/core': false
   core-js: true
@@ -51,7 +58,8 @@ auditConfig:
     # build tooling: micromatch/chokidar in devDependencies and the website's
     # Docusaurus build. Remove once braces ships a fix.
     - 'GHSA-vfj7-8cjw-p6xm'
-    # No patched release yet (http-cache-semantics <=4.2.0, latest 4.2.0).
+    # No patched release yet (http-cache-semantics <=4.2.0; 4.3.0 leaves
+    # max-stale handling unchanged).
     # Only reached by Docusaurus's update-notifier in the website build, a
     # single-user client cache rather than a shared one. Remove once
     # http-cache-semantics ships a fix.

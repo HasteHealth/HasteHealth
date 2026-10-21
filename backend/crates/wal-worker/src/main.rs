@@ -2,9 +2,12 @@ use std::sync::Arc;
 
 use crate::es_search_destination::ESSearchDestination;
 use etl::{
-    config::{BatchConfig, PgConnectionConfig, PipelineConfig, TableSyncCopyConfig, TlsConfig},
+    config::{
+        BatchConfig, InvalidatedSlotBehavior, MemoryBackpressureConfig, PgConnectionConfig,
+        PipelineConfig, ReplicationSlotConfig, TableSyncCopyConfig, TcpKeepaliveConfig, TlsConfig,
+    },
     pipeline::Pipeline,
-    store::both::memory::MemoryStore,
+    store::MemoryStore,
 };
 use haste_config::{Config, get_config};
 use haste_fhir_search::elastic_search::{
@@ -103,6 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let pg_config = PgConnectionConfig {
         host: "localhost".to_string(),
+        hostaddr: None,
         port: 5432,
         name: "haste_health".to_string(),
         username: "postgres".to_string(),
@@ -111,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             enabled: false,
             trusted_root_certs: String::new(),
         },
-        keepalive: None,
+        keepalive: TcpKeepaliveConfig::default(),
     };
 
     let search_engine = ElasticSearchEngine::new(
@@ -126,14 +130,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         id: PIPELINE_ID,
         publication_name: "my_publication".to_string(),
         pg_connection: pg_config.clone(),
+        store_pg_connection: None,
+        replication_slot: ReplicationSlotConfig::default(),
         batch: BatchConfig {
-            max_size: 1000,
             max_fill_ms: 5000,
+            ..BatchConfig::default()
         },
         table_error_retry_delay_ms: 10000,
         table_error_retry_max_attempts: 5,
         max_table_sync_workers: 4,
+        max_copy_connections_per_table: PipelineConfig::DEFAULT_MAX_COPY_CONNECTIONS_PER_TABLE,
+        memory_refresh_interval_ms: PipelineConfig::DEFAULT_MEMORY_REFRESH_INTERVAL_MS,
+        table_sync_monitor_refresh_interval_ms:
+            PipelineConfig::DEFAULT_TABLE_SYNC_MONITOR_REFRESH_INTERVAL_MS,
+        replication_lag_refresh_interval_ms:
+            PipelineConfig::DEFAULT_REPLICATION_LAG_REFRESH_INTERVAL_MS,
+        settle_durable_interval_ms: None,
+        memory_backpressure: Some(MemoryBackpressureConfig::default()),
         table_sync_copy: TableSyncCopyConfig::SkipAllTables,
+        invalidated_slot_behavior: InvalidatedSlotBehavior::default(),
+        // Installs the etl schema and DDL trigger that every pipeline needs.
+        run_source_migrations: true,
+        drain_on_shutdown: PipelineConfig::DEFAULT_DRAIN_ON_SHUTDOWN,
     };
 
     let store = MemoryStore::new();

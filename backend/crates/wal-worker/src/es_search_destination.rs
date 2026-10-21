@@ -1,6 +1,11 @@
-use etl::destination::Destination;
+use etl::data::{Cell, TableRow};
+use etl::destination::{
+    Destination, DestinationWriteStatus, DropTableForCopyResult, TableCopyBatchId,
+    WriteEventsDurability, WriteEventsResult, WriteTableRowsResult,
+};
 use etl::error::EtlResult;
-use etl::types::{Cell, Event, TableId, TableRow};
+use etl::event::Event;
+use etl::schema::ReplicatedTableSchema;
 use haste_fhir_model::r4::generated::resources::ResourceType;
 use haste_fhir_search::{IndexResource, SearchEngine};
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
@@ -42,28 +47,44 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
         "http"
     }
 
-    fn truncate_table(&self, table_id: TableId) -> impl Future<Output = EtlResult<()>> {
+    fn drop_table_for_copy(
+        &self,
+        replicated_table_schema: &ReplicatedTableSchema,
+        async_result: DropTableForCopyResult<()>,
+    ) -> impl Future<Output = EtlResult<()>> + Send {
         warn!(
-            "truncate_table is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?}",
-            table_id
+            "drop_table_for_copy is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?}",
+            replicated_table_schema.id()
         );
+        async_result.send(Ok(()));
         std::future::ready(Ok(()))
     }
 
     fn write_table_rows(
         &self,
-        table_id: TableId,
+        replicated_table_schema: &ReplicatedTableSchema,
+        _batch_id: Option<TableCopyBatchId>,
         rows: Vec<TableRow>,
-    ) -> impl Future<Output = EtlResult<()>> {
+        async_result: WriteTableRowsResult,
+    ) -> impl Future<Output = EtlResult<()>> + Send {
         warn!(
             "write_table_rows is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?} and rows: {:?}",
-            table_id, rows
+            replicated_table_schema.id(),
+            rows
         );
+        async_result.send(Ok(DestinationWriteStatus::Durable));
         std::future::ready(Ok(()))
     }
 
-    async fn write_events(&self, events: Vec<Event>) -> EtlResult<()> {
+    // Indexing finishes before the result is sent, so every batch is durable.
+    async fn write_events(
+        &self,
+        events: Vec<Event>,
+        _durability: WriteEventsDurability,
+        async_result: WriteEventsResult,
+    ) -> EtlResult<()> {
         if events.is_empty() {
+            async_result.send(Ok(DestinationWriteStatus::Durable));
             return Ok(());
         }
         info!("Writing {} events", events.len());
@@ -72,7 +93,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
             .into_iter()
             .filter_map(|e| {
                 if let Event::Insert(i) = e {
-                    Some(i.table_row.values)
+                    Some(i.table_row.into_values())
                 } else {
                     None
                 }
@@ -149,6 +170,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
             .await
             .expect("Failed to index resources in search engine");
 
+        async_result.send(Ok(DestinationWriteStatus::Durable));
         Ok(())
     }
 }
