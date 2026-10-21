@@ -642,3 +642,19 @@ async fn string_ordering() {
     assert_evaluates("'a' <= 'a'", &["true"]).await;
     assert_evaluates("'a' >= 'b'", &["false"]).await;
 }
+
+/// <https://hl7.org/fhirpath/N1/#equivalent> and
+/// <https://hl7.org/fhirpath/N1/#not-equivalent>
+#[tokio::test]
+async fn equivalent() {
+    assert_evaluates("{} ~ {}", &["true"]).await;
+    assert_evaluates("{} ~ 1", &["false"]).await;
+    assert_evaluates("'Abc  d' ~ 'aBC D'", &["true"]).await;
+    assert_evaluates("'a' ~ 'b'", &["false"]).await;
+    assert_evaluates("0.1 ~ 0.10", &["true"]).await;
+    assert_evaluates("(1 | 2 | 3) ~ (3 | 1 | 2)", &["true"]).await;
+    assert_evaluates("(1 | 2) ~ (1 | 2 | 3)", &["false"]).await;
+    assert_evaluates("{} !~ {}", &["false"]).await;
+    assert_evaluates("'a' !~ 'A'", &["false"]).await;
+    assert_evaluates("1 !~ 2", &["true"]).await;
+}

@@ -1787,17 +1787,17 @@ async fn evaluate_operation<'a>(
         Operation::GreaterThanEqual(left, right) => {
             evaluate_greater_than_equal(left, right, context, config).await
         }
-        Operation::Equivalent(_, _) => not_implemented("Equivalent"),
-        Operation::NotEquivalent(_, _) => not_implemented("NotEquivalent"),
+        Operation::Equivalent(left, right) => {
+            evaluate_equivalence(left, right, context, config, false).await
+        }
+        Operation::NotEquivalent(left, right) => {
+            evaluate_equivalence(left, right, context, config, true).await
+        }
         Operation::In(element, collection) | Operation::Contains(collection, element) => {
             evaluate_membership(element, collection, context, config).await
         }
         Operation::Implies(left, right) => evaluate_implies(left, right, context, config).await,
     }
-}
-
-fn not_implemented(name: &'static str) -> Result<Context<'static>, FHIRPathError> {
-    Err(FHIRPathError::NotImplemented(name.to_string()))
 }
 
 async fn evaluate_add<'a>(
@@ -2066,6 +2066,51 @@ async fn evaluate_not_equal<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     evaluate_equality(left, right, context, config, true).await
+}
+
+/// Strings are equivalent ignoring case and whitespace differences; other
+/// types follow `=`.
+fn value_equivalent(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIRPathError> {
+    if STRING_TYPES.contains(left.fhir_type()) && STRING_TYPES.contains(right.fhir_type()) {
+        let normalize = |value: &str| {
+            value
+                .split_whitespace()
+                .map(str::to_lowercase)
+                .collect::<Vec<_>>()
+        };
+        Ok(normalize(&downcast_string(left)?) == normalize(&downcast_string(right)?))
+    } else {
+        value_equal(left, right)
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#equivalent> and
+/// <https://hl7.org/fhirpath/N1/#not-equivalent>. Order is ignored.
+async fn evaluate_equivalence<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    negate: bool,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_n(left, right, context, config, |left, right| {
+        let mut equivalent = left.values.len() == right.values.len();
+        if equivalent {
+            let mut matched = vec![false; right.values.len()];
+            'left: for item in &left.values {
+                for (index, candidate) in right.values.iter().enumerate() {
+                    if !matched[index] && value_equivalent(*item, *candidate)? {
+                        matched[index] = true;
+                        continue 'left;
+                    }
+                }
+                equivalent = false;
+                break;
+            }
+        }
+        Ok(boolean_result(&left, equivalent != negate))
+    })
+    .await
 }
 
 async fn evaluate_union<'a>(
