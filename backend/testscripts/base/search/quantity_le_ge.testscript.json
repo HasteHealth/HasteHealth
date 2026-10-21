@@ -8,7 +8,7 @@
     "resourceType": "TestScript",
     "contained": [
         {
-            "id": "obs-1",
+            "id": "qle-obs-1",
             "resourceType": "Observation",
             "status": "final",
             "meta": {
@@ -29,7 +29,7 @@
             }
         },
         {
-            "id": "obs-2",
+            "id": "qle-obs-2",
             "resourceType": "Observation",
             "status": "final",
             "meta": {
@@ -50,7 +50,7 @@
             }
         },
         {
-            "id": "obs-3",
+            "id": "qle-obs-3",
             "resourceType": "Observation",
             "status": "final",
             "meta": {
@@ -71,7 +71,7 @@
             }
         },
         {
-            "id": "obs-4",
+            "id": "qle-obs-4",
             "resourceType": "Observation",
             "status": "final",
             "meta": {
@@ -96,7 +96,7 @@
         {
             "id": "fixture-obs-1",
             "resource": {
-                "reference": "#obs-1"
+                "reference": "#qle-obs-1"
             },
             "autocreate": false,
             "autodelete": false
@@ -104,7 +104,7 @@
         {
             "id": "fixture-obs-2",
             "resource": {
-                "reference": "#obs-2"
+                "reference": "#qle-obs-2"
             },
             "autocreate": false,
             "autodelete": false
@@ -112,7 +112,7 @@
         {
             "id": "fixture-obs-3",
             "resource": {
-                "reference": "#obs-3"
+                "reference": "#qle-obs-3"
             },
             "autocreate": false,
             "autodelete": false
@@ -120,7 +120,7 @@
         {
             "id": "fixture-obs-4",
             "resource": {
-                "reference": "#obs-4"
+                "reference": "#qle-obs-4"
             },
             "autocreate": false,
             "autodelete": false
@@ -135,48 +135,44 @@
                     "operation": {
                         "type": {
                             "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "create"
+                            "code": "update"
                         },
                         "encodeRequestUrl": false,
-                        "resource": "Observation",
                         "sourceId": "fixture-obs-1",
-                        "responseId": "create-1"
+                        "targetId": "fixture-obs-1"
                     }
                 },
                 {
                     "operation": {
                         "type": {
                             "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "create"
+                            "code": "update"
                         },
                         "encodeRequestUrl": false,
-                        "resource": "Observation",
                         "sourceId": "fixture-obs-2",
-                        "responseId": "create-2"
+                        "targetId": "fixture-obs-2"
                     }
                 },
                 {
                     "operation": {
                         "type": {
                             "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "create"
+                            "code": "update"
                         },
                         "encodeRequestUrl": false,
-                        "resource": "Observation",
                         "sourceId": "fixture-obs-3",
-                        "responseId": "create-3"
+                        "targetId": "fixture-obs-3"
                     }
                 },
                 {
                     "operation": {
                         "type": {
                             "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "create"
+                            "code": "update"
                         },
                         "encodeRequestUrl": false,
-                        "resource": "Observation",
                         "sourceId": "fixture-obs-4",
-                        "responseId": "create-4"
+                        "targetId": "fixture-obs-4"
                     }
                 },
                 {
@@ -200,7 +196,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 1 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-1').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -208,7 +204,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -235,7 +231,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -243,7 +239,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 10 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-3').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -270,7 +266,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 1 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-1').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -278,7 +274,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -305,7 +301,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -313,7 +309,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 10 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-3').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -340,7 +336,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 1 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-1').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -348,7 +344,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -375,7 +371,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 5.4 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-2').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -383,7 +379,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 10 and valueQuantity.code = 'mg').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-3').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -391,7 +387,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.ofType(Observation).where(valueQuantity.value = 10 and valueQuantity.code = 'g').count()",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qle-obs-4').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
