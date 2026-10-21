@@ -534,6 +534,26 @@ async fn time_conversion() {
     assert_errors("('14:30' | '15:30').toTime()").await;
 }
 
+/// <https://hl7.org/fhirpath/N1/#date>, <#datetime> and <#time> literals
+#[tokio::test]
+async fn temporal_literals() {
+    assert_evaluates("@2020", &["'2020'"]).await;
+    assert_evaluates("@2020-01", &["'2020-01'"]).await;
+    assert_evaluates("@2020-01-01", &["'2020-01-01'"]).await;
+    assert_evaluates("@2020-01-01T", &["'2020-01-01'"]).await;
+    assert_evaluates("@2020-01-01T12:00:00Z", &["'2020-01-01T12:00:00+00:00'"]).await;
+    assert_evaluates("@2020-01-01T12:00:00", &["'2020-01-01T12:00:00+00:00'"]).await;
+    assert_evaluates(
+        "@2020-01-01T12:00:00+05:00",
+        &["'2020-01-01T07:00:00+00:00'"],
+    )
+    .await;
+    assert_evaluates("@T12", &["'12'"]).await;
+    assert_evaluates("@T12:00", &["'12:00'"]).await;
+    assert_evaluates("@T12:00:00.250", &["'12:00:00.250'"]).await;
+    assert_evaluates("@2020-01-01.toDate()", &["'2020-01-01'"]).await;
+}
+
 /// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>
 #[tokio::test]
 async fn trace() {
