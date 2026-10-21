@@ -14,10 +14,11 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
+    datetime::{DATETIME_REGEX, Date, parse_date},
     generated::{
         resources::ResourceType,
         types::{
-            FHIRBoolean, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
+            FHIRBoolean, FHIRDate, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
             FHIRUnsignedInt, Quantity, Reference,
         },
     },
@@ -364,7 +365,7 @@ async fn evaluate_function<'a>(
         "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
         | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
-        | "convertsToDecimal" | "toString" | "convertsToString" => {
+        | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate" => {
             evaluate_conversion(function, &context)
         }
         "trace" => evaluate_trace(function, context, config).await,
@@ -1324,6 +1325,21 @@ fn to_decimal(value: Convertible) -> Option<f64> {
     }
 }
 
+/// <https://hl7.org/fhirpath/N1/#date-conversion-functions>: the date part of a
+/// Date, DateTime or date-formatted String, keeping its precision.
+fn to_date(value: Convertible) -> Option<Date> {
+    let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
+        return None;
+    };
+    if !DATETIME_REGEX.is_match(&value) {
+        return None;
+    }
+    let date = value
+        .split_once('T')
+        .map_or(value.as_str(), |(date, _)| date);
+    parse_date(date).ok()
+}
+
 /// A Decimal's String form, which keeps a fraction so it reads as a Decimal.
 fn decimal_string(value: f64) -> String {
     let string = value.to_string();
@@ -1384,6 +1400,12 @@ fn evaluate_conversion<'a>(
             to_decimal(value).map(|value| number_result(context, Some(Number::Decimal(value))))
         }
         "String" => to_string(value).map(|value| string_result(context, value)),
+        "Date" => to_date(value).map(|value| {
+            context.new_context_from(vec![context.allocate_literal(FHIRDate {
+                value: Some(value),
+                ..Default::default()
+            })])
+        }),
         _ => unreachable!(),
     });
 

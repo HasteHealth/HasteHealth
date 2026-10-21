@@ -3,7 +3,7 @@
 
 use crate::FPEngine;
 use haste_fhir_model::r4::{
-    conversion::downcast_string,
+    conversion::{downcast_datetime, downcast_string},
     datetime::Date,
     generated::{
         resources::Patient,
@@ -22,6 +22,8 @@ fn render(value: &dyn MetaValue) -> String {
         format!("{:?}", decimal.value.unwrap())
     } else if let Some(boolean) = any.downcast_ref::<FHIRBoolean>() {
         boolean.value.unwrap().to_string()
+    } else if any.is::<FHIRDate>() {
+        format!("'{}'", downcast_datetime(value).unwrap())
     } else {
         format!("'{}'", downcast_string(value).unwrap())
     }
@@ -460,6 +462,34 @@ async fn string_conversion() {
     assert_eq!(quantity, ["'5.5 'mg''"]);
 }
 
+/// <https://hl7.org/fhirpath/N1/#date-conversion-functions>
+#[tokio::test]
+async fn date_conversion() {
+    assert_evaluates("'2014-01-25'.toDate()", &["'2014-01-25'"]).await;
+    assert_evaluates("'2014-01'.toDate()", &["'2014-01'"]).await;
+    assert_evaluates("'2014-01-25T14:30:00Z'.toDate()", &["'2014-01-25'"]).await;
+    assert_evaluates("'abc'.toDate()", &[]).await;
+    assert_evaluates("1.toDate()", &[]).await;
+    assert_evaluates("{}.toDate()", &[]).await;
+
+    assert_evaluates("'2014-01-25'.convertsToDate()", &["true"]).await;
+    assert_evaluates("'2014-01-25T14:30:00Z'.convertsToDate()", &["true"]).await;
+    assert_evaluates("'14:30'.convertsToDate()", &["false"]).await;
+    assert_evaluates("true.convertsToDate()", &["false"]).await;
+    assert_evaluates("{}.convertsToDate()", &[]).await;
+    assert_errors("('2014' | '2015').toDate()").await;
+
+    let patient = Patient {
+        birthDate: Some(Box::new(FHIRDate {
+            value: Some(Date::YearMonthDay(1974, 12, 25)),
+            ..Default::default()
+        })),
+        ..Default::default()
+    };
+    let birth_date = evaluate_on("Patient.birthDate.toDate()", vec![&patient]).await;
+    assert_eq!(birth_date, ["'1974-12-25'"]);
+}
+
 /// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>
 #[tokio::test]
 async fn trace() {
@@ -510,7 +540,6 @@ async fn greater_than() {
     assert_errors("'a' > 1").await;
     assert_errors("(1 | 2) > 1").await;
 }
-
 
 /// <https://hl7.org/fhirpath/N1/#less-than>
 #[tokio::test]
