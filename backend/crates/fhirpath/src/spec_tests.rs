@@ -494,3 +494,19 @@ async fn is_and_as() {
     // R4 search parameters apply as() to collections, so it filters them.
     assert_eq!(is("Patient.name.as(HumanName).count()").await, ["2"]);
 }
+
+/// <https://hl7.org/fhirpath/N1/#greater-than>
+#[tokio::test]
+async fn greater_than() {
+    assert_evaluates("2 > 1", &["true"]).await;
+    assert_evaluates("1 > 1", &["false"]).await;
+    assert_evaluates("1 > 1.5", &["false"]).await;
+    assert_evaluates("2.5 > 2", &["true"]).await;
+    assert_evaluates("'b' > 'a'", &["true"]).await;
+    assert_evaluates("'a' > 'b'", &["false"]).await;
+    assert_evaluates("'abc' > 'abd'", &["false"]).await;
+    assert_evaluates("{} > 1", &[]).await;
+    assert_evaluates("1 > {}", &[]).await;
+    assert_errors("1 > 'a'").await;
+    assert_errors("(1 | 2) > 1").await;
+}

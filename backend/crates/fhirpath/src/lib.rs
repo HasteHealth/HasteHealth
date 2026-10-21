@@ -1780,7 +1780,7 @@ where
     .await
 }
 
-async fn evaluate_numerical_comparison<'a, F>(
+async fn evaluate_ordered_comparison<'a, F>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
@@ -1788,23 +1788,41 @@ async fn evaluate_numerical_comparison<'a, F>(
     op: F,
 ) -> Result<Context<'a>, FHIRPathError>
 where
-    F: FnOnce(f64, f64) -> bool + Copy + Send + 'static,
+    F: FnOnce(std::cmp::Ordering) -> bool + Copy + Send + 'static,
 {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+            let ordering = if let (Ok(l), Ok(r)) = (
+                downcast_number(left.values[0]),
+                downcast_number(right.values[0]),
+            ) {
+                l.partial_cmp(&r)
+            } else if let (Ok(l), Ok(r)) = (
+                downcast_string(left.values[0]),
+                downcast_string(right.values[0]),
+            ) {
+                // Strings compare lexicographically by Unicode code point.
+                Some(l.cmp(&r))
+            } else {
+                return Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
+                    left.values[0].fhir_type(),
+                    right.values[0].fhir_type(),
+                )));
+            };
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
-                    value: Some(op(left_value, right_value)),
+            // NaN is unordered so the result is empty.
+            Ok(left.new_context_from(match ordering {
+                Some(ordering) => vec![left.allocate_literal(FHIRBoolean {
+                    value: Some(op(ordering)),
                     ..Default::default()
-                })]),
-            )
+                })],
+                None => vec![],
+            }))
         })
     })
     .await
 }
+
 async fn evaluate_subtraction<'a>(
     left: &Expression,
     right: &Expression,
@@ -1838,7 +1856,7 @@ async fn evaluate_less_than<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numerical_comparison(left, right, context, config, |l, r| l < r).await
+    evaluate_ordered_comparison(left, right, context, config, |o| o.is_lt()).await
 }
 
 async fn evaluate_less_than_equal<'a>(
@@ -1847,7 +1865,7 @@ async fn evaluate_less_than_equal<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numerical_comparison(left, right, context, config, |l, r| l <= r).await
+    evaluate_ordered_comparison(left, right, context, config, |o| o.is_le()).await
 }
 
 async fn evaluate_greater_than<'a>(
@@ -1856,7 +1874,7 @@ async fn evaluate_greater_than<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numerical_comparison(left, right, context, config, |l, r| l > r).await
+    evaluate_ordered_comparison(left, right, context, config, |o| o.is_gt()).await
 }
 
 async fn evaluate_greater_than_equal<'a>(
@@ -1865,7 +1883,7 @@ async fn evaluate_greater_than_equal<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numerical_comparison(left, right, context, config, |l, r| l >= r).await
+    evaluate_ordered_comparison(left, right, context, config, |o| o.is_ge()).await
 }
 
 async fn evaluate_boolean_binary<'a, F>(
