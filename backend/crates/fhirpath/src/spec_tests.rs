@@ -494,3 +494,28 @@ async fn is_and_as() {
     // R4 search parameters apply as() to collections, so it filters them.
     assert_eq!(is("Patient.name.as(HumanName).count()").await, ["2"]);
 }
+
+/// <https://hl7.org/fhirpath/N1/#greater-than>
+#[tokio::test]
+async fn greater_than() {
+    assert_evaluates("2 > 1", &["true"]).await;
+    assert_evaluates("1 > 2", &["false"]).await;
+    assert_evaluates("1 > 1", &["false"]).await;
+    assert_evaluates("1.5 > 1", &["true"]).await;
+    assert_evaluates("'b' > 'a'", &["true"]).await;
+    assert_evaluates("'a' > 'b'", &["false"]).await;
+    assert_evaluates("'abc' > 'ab'", &["true"]).await;
+    assert_evaluates("{} > 1", &[]).await;
+    assert_evaluates("1 > {}", &[]).await;
+    assert_errors("'a' > 1").await;
+    assert_errors("(1 | 2) > 1").await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#less-than>, <https://hl7.org/fhirpath/N1/#less-or-equal>
+/// and <https://hl7.org/fhirpath/N1/#greater-or-equal> on strings.
+#[tokio::test]
+async fn string_ordering() {
+    assert_evaluates("'a' < 'b'", &["true"]).await;
+    assert_evaluates("'a' <= 'a'", &["true"]).await;
+    assert_evaluates("'a' >= 'b'", &["false"]).await;
+}
