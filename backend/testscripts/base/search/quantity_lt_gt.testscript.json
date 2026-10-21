@@ -1,0 +1,483 @@
+{
+    "id": "quantity-lt-gt-prefix",
+    "url": "https://haste.health/fhir/TestScript/quantity-lt-gt-prefix",
+    "title": "Quantity lt and gt prefixes",
+    "name": "Quantity lt-gt prefix tests",
+    "status": "active",
+    "description": "Validate lt and gt prefixes on quantity search against the precision range of the search value, with system|code, ||code and bare values.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "qlg-obs-1",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.3,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qlg-obs-2",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.35,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qlg-obs-3",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.4,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qlg-obs-4",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.45,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qlg-obs-5",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.5,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qlg-obs-6",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-lt-gt-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity lt/gt"
+            },
+            "valueQuantity": {
+                "value": 5.5,
+                "unit": "g",
+                "system": "http://unitsofmeasure.org",
+                "code": "g"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-obs-1",
+            "resource": {
+                "reference": "#qlg-obs-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-2",
+            "resource": {
+                "reference": "#qlg-obs-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-3",
+            "resource": {
+                "reference": "#qlg-obs-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-4",
+            "resource": {
+                "reference": "#qlg-obs-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-5",
+            "resource": {
+                "reference": "#qlg-obs-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-6",
+            "resource": {
+                "reference": "#qlg-obs-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-quantity-lt-gt-prefix-checks",
+            "name": "Quantity lt/gt checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-1",
+                        "targetId": "fixture-obs-1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-2",
+                        "targetId": "fixture-obs-2"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-3",
+                        "targetId": "fixture-obs-3"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-4",
+                        "targetId": "fixture-obs-4"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-5",
+                        "targetId": "fixture-obs-5"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-6",
+                        "targetId": "fixture-obs-6"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=gt5.4|http://unitsofmeasure.org|mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-5').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=lt5.4|http://unitsofmeasure.org|mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=gt5.4||mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-5').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=lt5.4||mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=gt5.4&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-5').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-6').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=lt5.4&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qlg-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=gt5.5|http://unitsofmeasure.org|mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=lt5.3|http://unitsofmeasure.org|mg&_tag=quantity-lt-gt-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "params": "_tag=quantity-lt-gt-test"
+                }
+            }
+        ]
+    }
+}
