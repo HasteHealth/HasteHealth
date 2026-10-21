@@ -232,9 +232,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.category.count()",
                         "operator": "equals",
-                        "value": "obs-bare",
+                        "value": "0",
                         "warningOnly": false
                     }
                 },
@@ -259,9 +259,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.category.count()",
                         "operator": "equals",
-                        "value": "obs-full",
+                        "value": "1",
                         "warningOnly": false
                     }
                 },
@@ -286,9 +286,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.effectiveDateTime.count()",
                         "operator": "equals",
-                        "value": "obs-bare",
+                        "value": "0",
                         "warningOnly": false
                     }
                 },
@@ -313,9 +313,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.effectiveDateTime.count()",
                         "operator": "equals",
-                        "value": "obs-full",
+                        "value": "1",
                         "warningOnly": false
                     }
                 },
@@ -340,9 +340,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.subject.count()",
                         "operator": "equals",
-                        "value": "obs-bare",
+                        "value": "0",
                         "warningOnly": false
                     }
                 },
@@ -367,9 +367,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.subject.count()",
                         "operator": "equals",
-                        "value": "obs-full",
+                        "value": "1",
                         "warningOnly": false
                     }
                 },
@@ -394,9 +394,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.valueQuantity.count()",
                         "operator": "equals",
-                        "value": "obs-bare",
+                        "value": "0",
                         "warningOnly": false
                     }
                 },
@@ -421,9 +421,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.valueQuantity.count()",
                         "operator": "equals",
-                        "value": "obs-full",
+                        "value": "1",
                         "warningOnly": false
                     }
                 },
@@ -448,9 +448,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.questionnaire.count()",
                         "operator": "equals",
-                        "value": "qr-bare",
+                        "value": "0",
                         "warningOnly": false
                     }
                 },
@@ -475,9 +475,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[0].resource.id",
+                        "expression": "Bundle.entry[0].resource.questionnaire.count()",
                         "operator": "equals",
-                        "value": "qr-canonical",
+                        "value": "1",
                         "warningOnly": false
                     }
                 }
