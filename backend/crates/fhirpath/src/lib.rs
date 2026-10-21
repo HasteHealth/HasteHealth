@@ -14,12 +14,12 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{DATETIME_REGEX, Date, parse_date},
+    datetime::{DATETIME_REGEX, Date, DateTime, parse_date, parse_time},
     generated::{
         resources::ResourceType,
         types::{
-            FHIRBoolean, FHIRDate, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString,
-            FHIRUnsignedInt, Quantity, Reference,
+            FHIRBoolean, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt,
+            FHIRString, FHIRTime, FHIRUnsignedInt, Quantity, Reference,
         },
     },
 };
@@ -369,6 +369,7 @@ async fn evaluate_function<'a>(
             evaluate_conversion(function, &context)
         }
         "trace" => evaluate_trace(function, context, config).await,
+        "now" | "timeOfDay" | "today" => evaluate_current_time(function, &context),
 
         _ => Err(FHIRPathError::NotImplemented(format!(
             "Function '{}' is not implemented",
@@ -1416,6 +1417,38 @@ fn evaluate_conversion<'a>(
     }
 }
 
+/// `now`, `timeOfDay` and `today`, per
+/// <https://hl7.org/fhirpath/N1/#current-date-and-time-functions>.
+fn evaluate_current_time<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let now = context.now();
+    let value = match function.name.0.as_str() {
+        "now" => context.allocate_literal(FHIRDateTime {
+            value: Some(DateTime::Iso8601(now)),
+            ..Default::default()
+        }),
+        "timeOfDay" => context.allocate_literal(FHIRTime {
+            value: Some(
+                parse_time(&now.format("%H:%M:%S%.3f").to_string())
+                    .map_err(|e| FHIRPathError::InternalError(format!("{e:?}")))?,
+            ),
+            ..Default::default()
+        }),
+        _ => context.allocate_literal(FHIRDate {
+            value: Some(
+                parse_date(&now.format("%Y-%m-%d").to_string())
+                    .map_err(|e| FHIRPathError::InternalError(format!("{e:?}")))?,
+            ),
+            ..Default::default()
+        }),
+    };
+    Ok(context.new_context_from(vec![value]))
+}
+
 /// <https://hl7.org/fhirpath/N1/#tracename-string-projection-expression-collection>:
 /// logs at debug level and returns the input. The arguments are only evaluated
 /// when that level is on.
@@ -2313,6 +2346,13 @@ impl<'a> Context<'a> {
             .allocate_resolved(value)
     }
 
+    fn now(&self) -> chrono::DateTime<chrono::Utc> {
+        self.allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .now()
+    }
+
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
         self.allocator
             .lock()
@@ -2541,6 +2581,31 @@ mod tests {
             .expect("Failed to downcast to FHIRDateTime");
 
         assert_eq!(datetime_value.value, Some(DateTime::Year(1980)));
+    }
+
+    #[tokio::test]
+    async fn test_current_date_and_time() {
+        let engine = FPEngine::new();
+        let result = engine
+            .evaluate(
+                "now().toString().substring(0, 10) = today().toString() \
+                 and now().toString().substring(11, 8) = timeOfDay().toString().substring(0, 8) \
+                 and today().toString() = today().toString()",
+                vec![],
+            )
+            .await
+            .unwrap();
+        assert_eq!(result.values.len(), 1);
+        assert!(downcast_bool(result.values[0]).unwrap());
+
+        for name in ["now", "today", "timeOfDay"] {
+            assert!(
+                engine
+                    .evaluate(&format!("{name}(1)"), vec![])
+                    .await
+                    .is_err()
+            );
+        }
     }
 
     #[tokio::test]

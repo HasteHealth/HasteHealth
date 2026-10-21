@@ -2565,6 +2565,7 @@ name = "haste-fhirpath"
 version = "0.126.27"
 dependencies = [
  "bumpalo",
+ "chrono",
  "criterion",
  "dashmap",
  "haste-fhir-model",
