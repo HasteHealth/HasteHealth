@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/HasteHealth/HasteHealth/security/advisories/new
+    about: Report security issues privately here or to security@haste.health. Do not open a public issue.
+  - name: Ask a question
+    url: https://github.com/HasteHealth/HasteHealth/discussions/categories/q-a
+    about: Usage questions and help belong in Discussions.

@@ -1,0 +1,12 @@
+name: FHIR Search feature
+description: Support for part of the FHIR search specification
+title: "[FHIR Search] "
+labels: ["enhancement", "fhir-search"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What to support
+      description: Name the parameter, modifier, prefix or behavior and link its section of https://hl7.org/fhir/R4/search.html.
+    validations:
+      required: true

@@ -1,0 +1,11 @@
+name: Feature request
+description: Something Haste Health should do
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What should it do
+      description: The behavior you want and why. Link the spec if there is one.
+    validations:
+      required: true

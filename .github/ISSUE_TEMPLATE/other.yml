@@ -1,0 +1,10 @@
+name: Other
+description: Anything that does not fit the templates above
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Describe the issue. Include a link, command or request if there is one.
+    validations:
+      required: true
