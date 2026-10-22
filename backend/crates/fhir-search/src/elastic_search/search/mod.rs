@@ -254,6 +254,9 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
 
     add_context_clauses(&mut clauses, resource_type, tenant, project);
 
+    // `_count=0` asks only for the total.
+    state.show_total |= state.max_count == 0;
+
     Ok(build_elastic_query(
         &clauses,
         state.max_count,
