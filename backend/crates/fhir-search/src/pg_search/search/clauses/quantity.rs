@@ -40,8 +40,18 @@ fn quantity_predicate(
     };
     let (params, system) = equals(params, &exprs.system, quantity.system);
     let (params, code) = equals(params, &exprs.code, quantity.code);
+    let matches = all_of([amount, system, code]);
 
-    (all_of([amount, system, code]), params)
+    // `ne` is the negation of the whole match, so another unit also qualifies.
+    let is_ne = quantity
+        .amount
+        .as_ref()
+        .is_some_and(|amount| amount.prefix == Prefix::Ne);
+    if is_ne {
+        (format!("({matches}) IS NOT TRUE"), params)
+    } else {
+        (matches, params)
+    }
 }
 
 /// Compares the indexed `[start, end]` range against `[prefix]amount`.
@@ -54,16 +64,10 @@ fn amount_predicate(
     let float = SqlParam::Float64;
 
     match amount.prefix {
-        // The value falls inside the indexed range.
+        // The value falls inside the indexed range (`ne` negates the match).
         Prefix::Eq | Prefix::Ne => {
             let (params, i) = bind(params, [float(amount.value)]);
-            let contains = format!("({start} <= ${i} AND {end} >= ${i})");
-            let sql = if amount.prefix == Prefix::Ne {
-                format!("NOT {contains}")
-            } else {
-                contains
-            };
-            (params, sql)
+            (params, format!("({start} <= ${i} AND {end} >= ${i})"))
         }
         // Wholly above or below the search value's precision range.
         Prefix::Gt | Prefix::Sa => {

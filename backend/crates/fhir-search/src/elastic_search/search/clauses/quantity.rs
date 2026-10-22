@@ -18,8 +18,11 @@ pub fn quantity(field: &str, values: &[QuantityValue]) -> serde_json::Value {
 
 fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
     let mut filter = Vec::new();
-    if let Some(amount) = &quantity.amount {
-        filter.extend(amount_queries(field, amount));
+    let mut ne_amount = None;
+    match &quantity.amount {
+        Some(amount) if amount.prefix == Prefix::Ne => ne_amount = Some(amount),
+        Some(amount) => filter.extend(amount_queries(field, amount)),
+        None => {}
     }
     if let Some(system) = quantity.system {
         filter.push(match_query(field, "start_system", system));
@@ -29,7 +32,14 @@ fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
         filter.push(match_query(field, "start_code", code));
         filter.push(match_query(field, "end_code", code));
     }
-    all_of(filter, Vec::new())
+    match ne_amount {
+        // `ne` negates the whole match, so another unit also qualifies.
+        Some(amount) => {
+            filter.extend(amount_queries(field, amount));
+            all_of(Vec::new(), vec![all_of(filter, Vec::new())])
+        }
+        None => all_of(filter, Vec::new()),
+    }
 }
 
 /// Compares the indexed `[start_value, end_value]` range against
@@ -47,8 +57,7 @@ fn amount_queries(field: &str, amount: &NumberValue) -> Vec<serde_json::Value> {
     };
 
     match amount.prefix {
-        Prefix::Eq => contains(),
-        Prefix::Ne => vec![all_of(Vec::new(), vec![all_of(contains(), Vec::new())])],
+        Prefix::Eq | Prefix::Ne => contains(),
         // Wholly above or below the search value's precision range.
         Prefix::Gt | Prefix::Sa => vec![bound("start_value", "gte", above(&amount.range))],
         Prefix::Lt | Prefix::Eb => vec![bound("end_value", "lte", below(&amount.range))],
