@@ -1,0 +1,306 @@
+{
+    "id": "escaped-separators",
+    "url": "https://haste.health/fhir/TestScript/search-escaped-separators",
+    "title": "Escaped separators",
+    "name": "Search escaped separators",
+    "status": "active",
+    "description": "A backslash escapes , | $ and \\ in search parameter values.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "p-comma-pipe",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "escaped-separators-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://a|b",
+                    "value": "123"
+                },
+                {
+                    "system": "http://s",
+                    "value": "x,y"
+                }
+            ]
+        },
+        {
+            "id": "p-x",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "escaped-separators-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://s",
+                    "value": "x"
+                }
+            ]
+        },
+        {
+            "id": "p-y",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "escaped-separators-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://s",
+                    "value": "y"
+                }
+            ]
+        },
+        {
+            "id": "p-backslash",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "escaped-separators-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://s",
+                    "value": "x\\y"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-p-comma-pipe",
+            "resource": {
+                "reference": "#p-comma-pipe"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-x",
+            "resource": {
+                "reference": "#p-x"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-y",
+            "resource": {
+                "reference": "#p-y"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-backslash",
+            "resource": {
+                "reference": "#p-backslash"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-escaped-separators",
+            "name": "Escaped separators are literal.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-p-comma-pipe",
+                        "responseId": "create-p-comma-pipe",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-p-x",
+                        "responseId": "create-p-x",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-p-y",
+                        "responseId": "create-p-y",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-p-backslash",
+                        "responseId": "create-p-backslash",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://s|x\\,y&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://s|x,y&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://s|x\\,y,y&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://a\\|b|123&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://a|123&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://a\\|b\\|123&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=http://s|x\\\\y&_tag=escaped-separators-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

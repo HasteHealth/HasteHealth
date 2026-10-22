@@ -144,18 +144,23 @@ fn string_holds(values: &StringValues<'_>, folded: &[String], string: &str) -> b
 }
 
 fn token_holds(wanted: &TokenValue<'_>, token: &TokenIndex) -> bool {
-    let system_holds = match wanted.system {
+    let system_holds = match &wanted.system {
         TokenSystem::Any => true,
         TokenSystem::Absent => token.system().is_none(),
-        TokenSystem::Is(system) => token.system() == Some(system),
+        TokenSystem::Is(system) => token.system() == Some(&**system),
     };
-    system_holds && wanted.code.is_none_or(|code| token.code() == Some(code))
+    system_holds
+        && wanted
+            .code
+            .as_deref()
+            .is_none_or(|code| token.code() == Some(code))
 }
 
 fn reference_holds(wanted: &ReferenceValue<'_>, reference: &ReferenceIndex) -> bool {
-    reference.id() == Some(wanted.id)
+    reference.id() == Some(&*wanted.id)
         && wanted
             .resource_type
+            .as_deref()
             .is_none_or(|resource_type| reference.resource_type() == Some(resource_type))
 }
 
@@ -211,9 +216,11 @@ fn quantity_holds(quantity: &QuantityValue<'_>, indexed: &QuantityRange) -> bool
         .is_none_or(|amount| range_holds(amount, indexed.start_value(), indexed.end_value()))
         && quantity
             .system
+            .as_deref()
             .is_none_or(|system| indexed.start_system() == Some(system))
         && quantity
             .code
+            .as_deref()
             .is_none_or(|code| indexed.start_code() == Some(code));
 
     // `ne` negates the whole match, so another unit also qualifies.

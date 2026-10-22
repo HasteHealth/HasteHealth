@@ -38,8 +38,8 @@ fn quantity_predicate(
             (params, Some(sql))
         }
     };
-    let (params, system) = equals(params, &exprs.system, quantity.system);
-    let (params, code) = equals(params, &exprs.code, quantity.code);
+    let (params, system) = equals(params, &exprs.system, quantity.system.as_deref());
+    let (params, code) = equals(params, &exprs.code, quantity.code.as_deref());
     let matches = all_of([amount, system, code]);
 
     // `ne` is the negation of the whole match, so another unit also qualifies.

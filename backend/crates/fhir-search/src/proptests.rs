@@ -8,7 +8,7 @@
 //! timeline by consecutive dates.
 
 use chrono::{Datelike, NaiveDate, TimeDelta, TimeZone, Utc};
-use haste_fhir_client::url::Prefix;
+use haste_fhir_client::url::{Prefix, Segments};
 use haste_fhir_model::r4::{
     datetime::{DateTime, parse_datetime},
     strategies::{
@@ -18,6 +18,7 @@ use haste_fhir_model::r4::{
 };
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseError;
+use std::borrow::Cow;
 
 use crate::{
     indexing_conversion::{DateRange, DecimalRange, date_time_range, get_decimal_range},
@@ -373,15 +374,15 @@ proptest! {
         (code, prefix) in prefixes(), decimal in scaled(), system in segment(), unit in segment()
     ) {
         let text = format!("{code}{}|{system}|{unit}", decimal.render());
-        let value = failed(&format!("{text:?} did not parse"), QuantityValue::parse(&text))?;
+        let value = failed(&format!("{text:?} did not parse"), QuantityValue::parse(Segments::of(&text, '|')))?;
         let amount = value.amount.as_ref().expect("an amount");
         prop_assert_eq!(amount.prefix, prefix);
         prop_assert_eq!(amount.value, decimal.value());
-        prop_assert_eq!(value.system, (!system.is_empty()).then_some(system.as_str()));
-        prop_assert_eq!(value.code, (!unit.is_empty()).then_some(unit.as_str()));
+        prop_assert_eq!(value.system.as_deref(), (!system.is_empty()).then_some(system.as_str()));
+        prop_assert_eq!(value.code.as_deref(), (!unit.is_empty()).then_some(unit.as_str()));
 
         let bare = decimal.render();
-        let value = failed(&format!("{bare:?} did not parse"), QuantityValue::parse(&bare))?;
+        let value = failed(&format!("{bare:?} did not parse"), QuantityValue::parse(Segments::of(&bare, '|')))?;
         prop_assert!(value.system.is_none() && value.code.is_none());
     }
 
@@ -389,12 +390,12 @@ proptest! {
     /// system means any, an empty one means none.
     #[test]
     fn token_value_keeps_system_and_code(system in segment(), code in segment()) {
-        let value = failed(&format!("{code:?} did not parse"), TokenValue::parse(&code))?;
+        let value = failed(&format!("{code:?} did not parse"), TokenValue::parse(Segments::of(&code, '|')))?;
         prop_assert!(matches!(value.system, TokenSystem::Any));
-        prop_assert_eq!(value.code, Some(code.as_str()));
+        prop_assert_eq!(value.code.as_deref(), Some(code.as_str()));
 
         let text = format!("{system}|{code}");
-        let value = failed(&format!("{text:?} did not parse"), TokenValue::parse(&text))?;
+        let value = failed(&format!("{text:?} did not parse"), TokenValue::parse(Segments::of(&text, '|')))?;
         match (system.is_empty(), code.is_empty()) {
             (true, true) => {
                 prop_assert!(matches!(value.system, TokenSystem::Any));
@@ -402,11 +403,11 @@ proptest! {
             }
             (true, false) => {
                 prop_assert!(matches!(value.system, TokenSystem::Absent));
-                prop_assert_eq!(value.code, Some(code.as_str()));
+                prop_assert_eq!(value.code.as_deref(), Some(code.as_str()));
             }
             (false, _) => {
-                prop_assert!(matches!(value.system, TokenSystem::Is(s) if s == system));
-                prop_assert_eq!(value.code, (!code.is_empty()).then_some(code.as_str()));
+                prop_assert!(matches!(value.system, TokenSystem::Is(ref s) if *s == system));
+                prop_assert_eq!(value.code.as_deref(), (!code.is_empty()).then_some(code.as_str()));
             }
         }
     }
@@ -418,17 +419,21 @@ proptest! {
         resource_type in resource_type(), other_type in resource_type(), id in id_string()
     ) {
         let qualified = format!("{resource_type}/{id}");
-        let value = failed(&format!("{qualified:?} did not parse"), ReferenceValue::parse(&qualified, None))?;
-        prop_assert_eq!((value.resource_type, value.id), (Some(resource_type), id.as_str()));
+        let value = failed(&format!("{qualified:?} did not parse"), ReferenceValue::parse(Cow::Borrowed(&qualified), None))?;
+        prop_assert_eq!((value.resource_type.as_deref(), &*value.id), (Some(resource_type), id.as_str()));
 
-        let value = failed(&format!("{id:?} did not parse"), ReferenceValue::parse(&id, Some(resource_type)))?;
-        prop_assert_eq!((value.resource_type, value.id), (Some(resource_type), id.as_str()));
+        let value = failed(&format!("{id:?} did not parse"), ReferenceValue::parse(Cow::Borrowed(&id), Some(resource_type)))?;
+        prop_assert_eq!((value.resource_type.as_deref(), &*value.id), (Some(resource_type), id.as_str()));
 
-        let value = failed(&format!("{id:?} did not parse"), ReferenceValue::parse(&id, None))?;
-        prop_assert_eq!((value.resource_type, value.id), (None, id.as_str()));
+        let value = failed(&format!("{id:?} did not parse"), ReferenceValue::parse(Cow::Borrowed(&id), None))?;
+        prop_assert_eq!((value.resource_type.as_deref(), &*value.id), (None, id.as_str()));
+
+        // An owned value, as one with an escape is, parses the same.
+        let value = failed(&format!("{qualified:?} did not parse"), ReferenceValue::parse(Cow::Owned(qualified.clone()), None))?;
+        prop_assert_eq!((value.resource_type.as_deref(), &*value.id), (Some(resource_type), id.as_str()));
 
         prop_assert_eq!(
-            ReferenceValue::parse(&qualified, Some(other_type)).is_ok(),
+            ReferenceValue::parse(Cow::Borrowed(&qualified), Some(other_type)).is_ok(),
             other_type == resource_type
         );
     }
@@ -436,10 +441,10 @@ proptest! {
     /// Value parsing never panics, whatever the text.
     #[test]
     fn value_parsers_never_panic(text in ".*", modifier_type in prop::option::of("[A-Za-z]{1,16}")) {
-        let _ = TokenValue::parse(&text);
-        let _ = IdentifierTypeValue::parse(&text);
-        let _ = ReferenceValue::parse(&text, modifier_type.as_deref());
-        let _ = QuantityValue::parse(&text);
+        let _ = TokenValue::parse(Segments::of(&text, '|'));
+        let _ = IdentifierTypeValue::parse(Segments::of(&text, '|'));
+        let _ = ReferenceValue::parse(Cow::Borrowed(&text), modifier_type.as_deref());
+        let _ = QuantityValue::parse(Segments::of(&text, '|'));
         let _ = NumberValue::parse(&text);
         let _ = DateValue::parse(&text);
     }

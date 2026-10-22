@@ -24,11 +24,11 @@ fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
         Some(amount) => filter.extend(amount_queries(field, amount)),
         None => {}
     }
-    if let Some(system) = quantity.system {
+    if let Some(system) = quantity.system.as_deref() {
         filter.push(match_query(field, "start_system", system));
         filter.push(match_query(field, "end_system", system));
     }
-    if let Some(code) = quantity.code {
+    if let Some(code) = quantity.code.as_deref() {
         filter.push(match_query(field, "start_code", code));
         filter.push(match_query(field, "end_code", code));
     }

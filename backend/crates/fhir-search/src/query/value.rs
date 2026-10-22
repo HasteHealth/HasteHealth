@@ -6,10 +6,14 @@
 //! is parsed as the precision range it implies and `ap` as the widened range
 //! it overlaps, so a backend only writes the comparison in its own language.
 //!
-//! Text is borrowed from the parameter and copied once, by the backend, into
-//! its bind list or query.
+//! Text is borrowed from the parameter, and copied once, by the backend, into
+//! its bind list or query. Only a value with an escape is copied sooner, by
+//! the parameter's accessors, which resolve it: nothing here reads a
+//! backslash.
 
-use haste_fhir_client::url::{Parameter, Prefix, parse_prefix};
+use std::borrow::Cow;
+
+use haste_fhir_client::url::{Parameter, Prefix, Segments, parse_prefix};
 use haste_fhir_model::r4::{
     datetime::parse_datetime,
     generated::{
@@ -45,13 +49,13 @@ pub enum Values<'a> {
 #[derive(Debug)]
 pub enum StringValues<'a> {
     /// No modifier: a prefix, ignoring case.
-    Prefix(&'a [String]),
+    Prefix(Cow<'a, [String]>),
     /// `:exact`: the whole value, case and accents included.
-    Exact(&'a [String]),
+    Exact(Cow<'a, [String]>),
     /// `:contains`: anywhere in the value, ignoring case.
-    Contains(&'a [String]),
+    Contains(Cow<'a, [String]>),
     /// `:text`: advanced text handling.
-    Text(&'a [String]),
+    Text(Cow<'a, [String]>),
 }
 
 /// A token parameter's values, by modifier.
@@ -71,11 +75,11 @@ pub enum TokenValues<'a> {
     Below(Vec<TokenValue<'a>>),
     /// `:text`: free text matched against a coding's display or a concept's
     /// text.
-    Text(&'a [String]),
+    Text(Cow<'a, [String]>),
     /// `:in`: tokens in any of the value sets, by canonical URI.
-    In(&'a [String]),
+    In(Cow<'a, [String]>),
     /// `:not-in`: tokens in none of the value sets, by canonical URI.
-    NotIn(&'a [String]),
+    NotIn(Cow<'a, [String]>),
     /// `:of-type`: `system|code|value`, the type and value of an identifier.
     OfType(Vec<IdentifierTypeValue<'a>>),
 }
@@ -88,11 +92,11 @@ pub enum TokenValues<'a> {
 )]
 pub enum UriValues<'a> {
     /// No modifier: the URI itself.
-    Uris(&'a [String]),
+    Uris(Cow<'a, [String]>),
     /// `:above`: URIs above the searched one in a hierarchy.
-    Above(&'a [String]),
+    Above(Cow<'a, [String]>),
     /// `:below`: URIs below the searched one in a hierarchy.
-    Below(&'a [String]),
+    Below(Cow<'a, [String]>),
 }
 
 /// A reference parameter's values, by modifier.
@@ -114,37 +118,37 @@ pub enum ReferenceValues<'a> {
 }
 
 /// `code`, `system|code`, `|code`, `system|` or `|`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TokenValue<'a> {
     pub system: TokenSystem<'a>,
     /// `None` for an empty code (`system|`, `|`): any code.
-    pub code: Option<&'a str>,
+    pub code: Option<Cow<'a, str>>,
 }
 
 /// What a token value says of the system.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TokenSystem<'a> {
     /// Nothing (`code`, `|`): any system.
     Any,
     /// `|code`: there is none.
     Absent,
     /// `system|code` or `system|`.
-    Is(&'a str),
+    Is(Cow<'a, str>),
 }
 
 /// `system|code|value`: an identifier's type and value, for `:of-type`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IdentifierTypeValue<'a> {
-    pub system: &'a str,
-    pub code: &'a str,
-    pub value: &'a str,
+    pub system: Cow<'a, str>,
+    pub code: Cow<'a, str>,
+    pub value: Cow<'a, str>,
 }
 
 /// `id` or `Type/id`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReferenceValue<'a> {
-    pub resource_type: Option<&'a str>,
-    pub id: &'a str,
+    pub resource_type: Option<Cow<'a, str>>,
+    pub id: Cow<'a, str>,
 }
 
 /// `[prefix]date`, as the range the prefix compares. For `ap` the range is
@@ -169,8 +173,8 @@ pub struct NumberValue {
 #[derive(Debug)]
 pub struct QuantityValue<'a> {
     pub amount: Option<NumberValue>,
-    pub system: Option<&'a str>,
-    pub code: Option<&'a str>,
+    pub system: Option<Cow<'a, str>>,
+    pub code: Option<Cow<'a, str>>,
 }
 
 /// The parameter types every backend indexes: all but composite and special.
@@ -222,21 +226,24 @@ impl<'a> Values<'a> {
         if modifier == Some("missing") {
             return Ok(Values::Missing(missing_value(parameter)?));
         }
-        let values = parameter.value.as_slice();
-        if values.is_empty() {
+        if parameter.value.is_empty() {
             return Err(QueryBuildError::InvalidParameterValue(
                 parameter.name.clone(),
             ));
         }
 
         Ok(match (param_type, modifier) {
-            (Indexed::String, _) => Values::String(StringValues::parse(modifier, values)?),
-            (Indexed::Token, _) => Values::Token(TokenValues::parse(modifier, values)?),
-            (Indexed::Uri, _) => Values::Uri(UriValues::parse(modifier, values)?),
-            (Indexed::Reference, _) => Values::Reference(ReferenceValues::parse(modifier, values)?),
-            (Indexed::Date, None) => Values::Date(each(values, DateValue::parse)?),
-            (Indexed::Number, None) => Values::Number(each(values, NumberValue::parse)?),
-            (Indexed::Quantity, None) => Values::Quantity(each(values, QuantityValue::parse)?),
+            (Indexed::String, _) => Values::String(StringValues::parse(modifier, parameter)?),
+            (Indexed::Token, _) => Values::Token(TokenValues::parse(modifier, parameter)?),
+            (Indexed::Uri, _) => Values::Uri(UriValues::parse(modifier, parameter)?),
+            (Indexed::Reference, _) => {
+                Values::Reference(ReferenceValues::parse(modifier, parameter)?)
+            }
+            (Indexed::Date, None) => Values::Date(each(parameter, |v| DateValue::parse(&v))?),
+            (Indexed::Number, None) => Values::Number(each(parameter, |v| NumberValue::parse(&v))?),
+            (Indexed::Quantity, None) => {
+                Values::Quantity(segments(parameter, QuantityValue::parse)?)
+            }
             // A date, number or quantity is qualified by a prefix instead.
             (Indexed::Date | Indexed::Number | Indexed::Quantity, Some(modifier)) => {
                 return Err(invalid_modifier(modifier));
@@ -247,7 +254,7 @@ impl<'a> Values<'a> {
 
 /// `:missing`'s value: exactly `true` or `false`.
 fn missing_value(parameter: &Parameter) -> Result<bool, QueryBuildError> {
-    match parameter.value.as_slice() {
+    match &*parameter.values() {
         [value] if value == "true" => Ok(true),
         [value] if value == "false" => Ok(false),
         _ => Err(QueryBuildError::InvalidParameterValue(
@@ -258,10 +265,18 @@ fn missing_value(parameter: &Parameter) -> Result<bool, QueryBuildError> {
 
 /// Every value parsed, or the first error.
 fn each<'a, T>(
-    values: &'a [String],
-    parse: impl Fn(&'a str) -> Result<T, QueryBuildError>,
+    parameter: &'a Parameter,
+    parse: impl Fn(Cow<'a, str>) -> Result<T, QueryBuildError>,
 ) -> Result<Vec<T>, QueryBuildError> {
-    values.iter().map(|value| parse(value)).collect()
+    parameter.each_value().map(parse).collect()
+}
+
+/// Every value parsed from its `|` segments, or the first error.
+fn segments<'a, T>(
+    parameter: &'a Parameter,
+    parse: impl Fn(Segments<'a>) -> Result<T, QueryBuildError>,
+) -> Result<Vec<T>, QueryBuildError> {
+    parameter.segmented('|').map(parse).collect()
 }
 
 fn invalid_modifier(modifier: &str) -> QueryBuildError {
@@ -269,12 +284,12 @@ fn invalid_modifier(modifier: &str) -> QueryBuildError {
 }
 
 impl<'a> StringValues<'a> {
-    fn parse(modifier: Option<&str>, values: &'a [String]) -> Result<Self, QueryBuildError> {
+    fn parse(modifier: Option<&str>, parameter: &'a Parameter) -> Result<Self, QueryBuildError> {
         Ok(match modifier {
-            None => StringValues::Prefix(values),
-            Some("exact") => StringValues::Exact(values),
-            Some("contains") => StringValues::Contains(values),
-            Some("text") => StringValues::Text(values),
+            None => StringValues::Prefix(parameter.values()),
+            Some("exact") => StringValues::Exact(parameter.values()),
+            Some("contains") => StringValues::Contains(parameter.values()),
+            Some("text") => StringValues::Text(parameter.values()),
             Some(other) => return Err(invalid_modifier(other)),
         })
     }
@@ -292,7 +307,7 @@ impl<'a> StringValues<'a> {
 
     /// The strings, whichever modifier qualifies them.
     #[must_use]
-    pub fn values(&self) -> &'a [String] {
+    pub fn values(&self) -> &[String] {
         match self {
             StringValues::Prefix(values)
             | StringValues::Exact(values)
@@ -303,17 +318,19 @@ impl<'a> StringValues<'a> {
 }
 
 impl<'a> TokenValues<'a> {
-    fn parse(modifier: Option<&str>, values: &'a [String]) -> Result<Self, QueryBuildError> {
-        let codes = || each(values, TokenValue::parse);
+    fn parse(modifier: Option<&str>, parameter: &'a Parameter) -> Result<Self, QueryBuildError> {
+        let codes = || segments(parameter, TokenValue::parse);
         Ok(match modifier {
             None => TokenValues::Codes(codes()?),
             Some("not") => TokenValues::Not(codes()?),
             Some("above") => TokenValues::Above(codes()?),
             Some("below") => TokenValues::Below(codes()?),
-            Some("text") => TokenValues::Text(values),
-            Some("in") => TokenValues::In(values),
-            Some("not-in") => TokenValues::NotIn(values),
-            Some("of-type") => TokenValues::OfType(each(values, IdentifierTypeValue::parse)?),
+            Some("text") => TokenValues::Text(parameter.values()),
+            Some("in") => TokenValues::In(parameter.values()),
+            Some("not-in") => TokenValues::NotIn(parameter.values()),
+            Some("of-type") => {
+                TokenValues::OfType(segments(parameter, IdentifierTypeValue::parse)?)
+            }
             Some(other) => return Err(invalid_modifier(other)),
         })
     }
@@ -335,11 +352,11 @@ impl<'a> TokenValues<'a> {
 }
 
 impl<'a> UriValues<'a> {
-    fn parse(modifier: Option<&str>, values: &'a [String]) -> Result<Self, QueryBuildError> {
+    fn parse(modifier: Option<&str>, parameter: &'a Parameter) -> Result<Self, QueryBuildError> {
         Ok(match modifier {
-            None => UriValues::Uris(values),
-            Some("above") => UriValues::Above(values),
-            Some("below") => UriValues::Below(values),
+            None => UriValues::Uris(parameter.values()),
+            Some("above") => UriValues::Above(parameter.values()),
+            Some("below") => UriValues::Below(parameter.values()),
             Some(other) => return Err(invalid_modifier(other)),
         })
     }
@@ -358,13 +375,16 @@ impl<'a> UriValues<'a> {
 impl<'a> ReferenceValues<'a> {
     /// `:above`, `:below`, `:identifier` or `:[type]`, the name of a resource
     /// type.
-    fn parse(modifier: Option<&'a str>, values: &'a [String]) -> Result<Self, QueryBuildError> {
-        let references = |type_name| each(values, |value| ReferenceValue::parse(value, type_name));
+    fn parse(modifier: Option<&'a str>, parameter: &'a Parameter) -> Result<Self, QueryBuildError> {
+        let references =
+            |type_name| each(parameter, |value| ReferenceValue::parse(value, type_name));
         Ok(match modifier {
             None => ReferenceValues::References(references(None)?),
             Some("above") => ReferenceValues::Above(references(None)?),
             Some("below") => ReferenceValues::Below(references(None)?),
-            Some("identifier") => ReferenceValues::Identifier(each(values, TokenValue::parse)?),
+            Some("identifier") => {
+                ReferenceValues::Identifier(segments(parameter, TokenValue::parse)?)
+            }
             Some(name) if ResourceType::try_from(name).is_ok() => {
                 ReferenceValues::References(references(Some(name))?)
             }
@@ -386,57 +406,61 @@ impl<'a> ReferenceValues<'a> {
 }
 
 impl<'a> TokenValue<'a> {
+    /// Parses a value's `|` segments.
+    ///
     /// # Errors
     ///
     /// Returns an error for a value with three or more segments, which names
     /// no token.
-    pub fn parse(value: &'a str) -> Result<Self, QueryBuildError> {
-        Ok(match value.split_once('|') {
-            None => TokenValue {
+    pub fn parse(mut segments: Segments<'a>) -> Result<Self, QueryBuildError> {
+        let source = segments.source();
+        let invalid = || QueryBuildError::InvalidParameterValue(source.to_string());
+        let (first, second, third) = (segments.next(), segments.next(), segments.next());
+        Ok(match (first, second, third) {
+            (Some(code), None, _) => TokenValue {
                 system: TokenSystem::Any,
-                code: Some(value),
-            },
-            Some((_, code)) if code.contains('|') => {
-                return Err(QueryBuildError::InvalidParameterValue(value.to_string()));
-            }
-            Some(("", "")) => TokenValue {
-                system: TokenSystem::Any,
-                code: None,
-            },
-            Some(("", code)) => TokenValue {
-                system: TokenSystem::Absent,
                 code: Some(code),
             },
-            Some((system, code)) => TokenValue {
-                system: TokenSystem::Is(system),
-                code: (!code.is_empty()).then_some(code),
-            },
+            (Some(_), Some(_), Some(_)) | (None, ..) => return Err(invalid()),
+            (Some(system), Some(code), None) => {
+                let code = (!code.is_empty()).then_some(code);
+                let system = match (system.is_empty(), code.is_some()) {
+                    // `|`: nothing is said of either.
+                    (true, false) => TokenSystem::Any,
+                    (true, true) => TokenSystem::Absent,
+                    (false, _) => TokenSystem::Is(system),
+                };
+                TokenValue { system, code }
+            }
         })
     }
 }
 
 impl<'a> IdentifierTypeValue<'a> {
+    /// Parses a value's `|` segments.
+    ///
     /// # Errors
     ///
     /// Returns an error unless all three of `system|code|value` are present.
-    pub fn parse(value: &'a str) -> Result<Self, QueryBuildError> {
-        let mut segments = value.split('|');
+    pub fn parse(mut segments: Segments<'a>) -> Result<Self, QueryBuildError> {
         match (
             segments.next(),
             segments.next(),
             segments.next(),
             segments.next(),
         ) {
-            (Some(system), Some(code), Some(identifier), None)
-                if !system.is_empty() && !code.is_empty() && !identifier.is_empty() =>
+            (Some(system), Some(code), Some(value), None)
+                if !system.is_empty() && !code.is_empty() && !value.is_empty() =>
             {
                 Ok(IdentifierTypeValue {
                     system,
                     code,
-                    value: identifier,
+                    value,
                 })
             }
-            _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+            _ => Err(QueryBuildError::InvalidParameterValue(
+                segments.source().to_string(),
+            )),
         }
     }
 }
@@ -451,24 +475,43 @@ impl<'a> ReferenceValue<'a> {
     ///
     /// Returns an error for anything else, and for a `Type/id` whose type
     /// isn't `type_name`.
-    pub fn parse(value: &'a str, type_name: Option<&'a str>) -> Result<Self, QueryBuildError> {
+    pub fn parse(value: Cow<'a, str>, type_name: Option<&'a str>) -> Result<Self, QueryBuildError> {
         let invalid = || QueryBuildError::InvalidParameterValue(value.to_string());
-        let (resource_type, id) = match parse_haste_canonical(value) {
-            Some((resource_type, id)) => (Some(resource_type), id),
-            None => match value.split_once('/') {
-                None => (None, value),
-                Some((resource_type, id)) if !id.contains('/') => (Some(resource_type), id),
-                Some(_) => return Err(invalid()),
-            },
+        // The parts borrow from `value`, so an owned value owns them too.
+        let (resource_type, id) = match &value {
+            Cow::Borrowed(value) => {
+                let (resource_type, id) = reference_parts(value).ok_or_else(invalid)?;
+                (resource_type.map(Cow::Borrowed), Cow::Borrowed(id))
+            }
+            Cow::Owned(value) => {
+                let (resource_type, id) = reference_parts(value).ok_or_else(invalid)?;
+                (
+                    resource_type.map(|resource_type| Cow::Owned(resource_type.to_string())),
+                    Cow::Owned(id.to_string()),
+                )
+            }
         };
         let resource_type = match (type_name, resource_type) {
-            (Some(type_name), None) => Some(type_name),
+            (Some(type_name), None) => Some(Cow::Borrowed(type_name)),
             (Some(type_name), Some(resource_type)) if resource_type != type_name => {
                 return Err(invalid());
             }
             (_, resource_type) => resource_type,
         };
         Ok(ReferenceValue { resource_type, id })
+    }
+}
+
+/// `(type, id)` of `id`, `Type/id` or a Haste Health canonical; `None` for
+/// anything else.
+fn reference_parts(value: &str) -> Option<(Option<&str>, &str)> {
+    if let Some((resource_type, id)) = parse_haste_canonical(value) {
+        return Some((Some(resource_type), id));
+    }
+    match value.split_once('/') {
+        None => Some((None, value)),
+        Some((resource_type, id)) if !id.contains('/') => Some((Some(resource_type), id)),
+        Some(_) => None,
     }
 }
 
@@ -522,8 +565,8 @@ impl<'a> QuantityValue<'a> {
     ///
     /// Returns an error for a value with other than one or three segments, or
     /// an amount that doesn't parse.
-    pub fn parse(value: &'a str) -> Result<Self, QueryBuildError> {
-        let mut segments = value.split('|');
+    pub fn parse(mut segments: Segments<'a>) -> Result<Self, QueryBuildError> {
+        let value = segments.source();
         let (amount, system, code) = match (
             segments.next(),
             segments.next(),
@@ -531,8 +574,8 @@ impl<'a> QuantityValue<'a> {
             segments.next(),
         ) {
             // A bare value matches any unit.
-            (Some(amount), None, _, _) => (amount, "", ""),
-            (Some(amount), Some(system), Some(code), None) => (amount, system, code),
+            (Some(amount), None, _, _) => (amount, None, None),
+            (Some(amount), Some(system), Some(code), None) => (amount, Some(system), Some(code)),
             (Some(_), Some(_), Some(_), Some(_)) if segments.next().is_none() => {
                 return Err(QueryBuildError::UnsupportedParameterValue(
                     value.to_string(),
@@ -540,13 +583,12 @@ impl<'a> QuantityValue<'a> {
             }
             _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
         };
-        let segment = |segment: &'a str| (!segment.is_empty()).then_some(segment);
         Ok(QuantityValue {
             amount: (!amount.is_empty())
-                .then(|| NumberValue::parse(amount))
+                .then(|| NumberValue::parse(&amount))
                 .transpose()?,
-            system: segment(system),
-            code: segment(code),
+            system: system.filter(|system| !system.is_empty()),
+            code: code.filter(|code| !code.is_empty()),
         })
     }
 }
@@ -562,11 +604,82 @@ mod tests {
     ) -> Result<Values<'static>, QueryBuildError> {
         let parameter = Box::leak(Box::new(Parameter {
             name: "p".to_string(),
-            modifier: Some(modifier.to_string()),
+            modifier: (!modifier.is_empty()).then(|| modifier.to_string()),
             value: values.iter().map(|v| (*v).to_string()).collect(),
             chains: Vec::new(),
         }));
         Values::parse(parameter, type_)
+    }
+
+    fn parse_token(value: &str) -> Result<TokenValue<'_>, QueryBuildError> {
+        TokenValue::parse(Segments::of(value, '|'))
+    }
+
+    #[test]
+    fn escaped_separators_are_literal_in_tokens() {
+        let token = parse_token(r"http://a\|b|123").unwrap();
+        assert_eq!(token.system, TokenSystem::Is("http://a|b".into()));
+        assert_eq!(token.code.as_deref(), Some("123"));
+
+        let token = parse_token(r"x\\|y\|z").unwrap();
+        assert_eq!(token.system, TokenSystem::Is(r"x\".into()));
+        assert_eq!(token.code.as_deref(), Some("y|z"));
+
+        // An escaped pipe is not a separator.
+        let token = parse_token(r"a\|b").unwrap();
+        assert_eq!(token.system, TokenSystem::Any);
+        assert_eq!(token.code.as_deref(), Some("a|b"));
+
+        assert!(parse_token("a|b|c").is_err());
+    }
+
+    #[test]
+    fn token_shapes() {
+        let token = parse_token("|").unwrap();
+        assert_eq!(token.system, TokenSystem::Any);
+        assert_eq!(token.code, None);
+        let token = parse_token("|c").unwrap();
+        assert_eq!(token.system, TokenSystem::Absent);
+        assert_eq!(token.code.as_deref(), Some("c"));
+        let token = parse_token("s|").unwrap();
+        assert_eq!(token.system, TokenSystem::Is("s".into()));
+        assert_eq!(token.code, None);
+    }
+
+    #[test]
+    fn escaped_separators_are_literal_in_quantities() {
+        let quantity = QuantityValue::parse(Segments::of(r"5|http://a\|b|m\|s", '|')).unwrap();
+        assert_eq!(quantity.system.as_deref(), Some("http://a|b"));
+        assert_eq!(quantity.code.as_deref(), Some("m|s"));
+    }
+
+    #[test]
+    fn strings_resolve_their_escapes() {
+        let Values::String(StringValues::Exact(resolved)) =
+            parse(&SearchParamType::string(), "exact", &[r"a\|b", "plain"]).unwrap()
+        else {
+            panic!("expected :exact")
+        };
+        assert_eq!(&*resolved, ["a|b", "plain"]);
+        assert!(matches!(
+            parse(&SearchParamType::string(), "exact", &["plain"]).unwrap(),
+            Values::String(StringValues::Exact(Cow::Borrowed(_)))
+        ));
+    }
+
+    #[test]
+    fn references_resolve_their_escapes() {
+        let Values::Reference(ReferenceValues::References(references)) = parse(
+            &SearchParamType::reference(),
+            "",
+            &[r"Patient/a\,b", "Patient/c"],
+        )
+        .unwrap() else {
+            panic!("expected references")
+        };
+        assert_eq!(references[0].resource_type.as_deref(), Some("Patient"));
+        assert_eq!(references[0].id, "a,b");
+        assert!(matches!(references[1].id, Cow::Borrowed("c")));
     }
 
     #[test]
@@ -596,7 +709,7 @@ mod tests {
         ));
         match parse(&SearchParamType::reference(), "Patient", &["a"]).unwrap() {
             Values::Reference(ReferenceValues::References(references)) => {
-                assert_eq!(references[0].resource_type, Some("Patient"));
+                assert_eq!(references[0].resource_type.as_deref(), Some("Patient"));
             }
             other => panic!("`:[type]` is applied to the values, got {other:?}"),
         }

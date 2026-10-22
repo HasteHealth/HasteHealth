@@ -22,13 +22,13 @@ pub fn reference_clause(
     let (predicate, params) =
         or_predicates(references, target_params(target), |reference, params| {
             let text = |s: &str| SqlParam::Text(s.to_string());
-            Ok(match reference.resource_type {
+            Ok(match reference.resource_type.as_deref() {
                 None => {
-                    let (params, i) = bind(params, [text(reference.id)]);
+                    let (params, i) = bind(params, [text(&reference.id)]);
                     (format!("{id_column} = ${i}"), params)
                 }
                 Some(resource_type) => {
-                    let (params, i) = bind(params, [text(resource_type), text(reference.id)]);
+                    let (params, i) = bind(params, [text(resource_type), text(&reference.id)]);
                     (
                         format!("({type_column} = ${i} AND {id_column} = ${})", i + 1),
                         params,

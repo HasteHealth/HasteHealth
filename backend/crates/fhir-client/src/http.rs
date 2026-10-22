@@ -139,7 +139,7 @@ fn fhir_parameter_to_query_parameters(http_url: &mut reqwest::Url, parameters: &
             ParsedParameter::Result(parameter) | ParsedParameter::Resource(parameter) => parameter,
         };
 
-        query_parameters.append_pair(&parameter.key(), parameter.value.join(",").as_str());
+        query_parameters.append_pair(&parameter.key(), &parameter.value_string());
     }
 }
 
