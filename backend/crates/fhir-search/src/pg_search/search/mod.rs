@@ -152,6 +152,11 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         where_clauses.push(any_of_clause(&scope, any_of).await?);
     }
 
+    // `_count=0` asks only for the total.
+    if state.max_count == 0 {
+        state.total = state.total.or(Some(ACCURATE_COUNT));
+    }
+
     let query = build_final_query(
         &where_clauses,
         schema_registry,
