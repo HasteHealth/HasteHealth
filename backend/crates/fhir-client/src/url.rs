@@ -170,15 +170,12 @@ impl<'a> Segments<'a> {
         } else {
             current.find(self.separator)
         };
-        match split {
-            Some(i) => {
-                self.rest = Some(&current[i + self.separator.len_utf8()..]);
-                Some(&current[..i])
-            }
-            None => {
-                self.rest = None;
-                Some(current)
-            }
+        if let Some(i) = split {
+            self.rest = Some(&current[i + self.separator.len_utf8()..]);
+            Some(&current[..i])
+        } else {
+            self.rest = None;
+            Some(current)
         }
     }
 }
