@@ -1,0 +1,217 @@
+{
+    "id": "search-type-test",
+    "url": "https://haste.health/fhir/TestScript/search-type",
+    "name": "Search Type Test",
+    "title": "_type on system-level search",
+    "status": "active",
+    "description": "Tests _type on a system-level search: it restricts the search to the named types, and a value that is not a resource type is refused.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "type-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-type-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Typed"
+                }
+            ]
+        },
+        {
+            "id": "type-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-type-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "type test"
+            }
+        },
+        {
+            "id": "type-condition",
+            "resourceType": "Condition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-type-test"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/type-patient"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#type-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation",
+            "resource": {
+                "reference": "#type-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition",
+            "resource": {
+                "reference": "#type-condition"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-type-filter",
+            "name": "_type restricts a system-level search",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-patient",
+                        "description": "Client-supplied ids.",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-observation",
+                        "sourceId": "fixture-observation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-condition",
+                        "sourceId": "fixture-condition",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_type=Patient,Observation&_tag=search-type-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the named types are returned",
+                        "expression": "Bundle.entry.resource.resourceType.distinct().sort().join(',')",
+                        "value": "Observation,Patient",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both matches are returned",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_type=Condition&_tag=search-type-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A single type returns only that type",
+                        "expression": "Bundle.entry.resource.ofType(Condition).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing else is returned",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_tag=search-type-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Without _type every type is returned",
+                        "expression": "Bundle.entry.count()",
+                        "value": "3",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_type=NotAType&_tag=search-type-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An unknown type is an invalid OperationOutcome",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

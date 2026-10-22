@@ -20,7 +20,7 @@ use crate::{
     SearchOptions, SearchReturn,
     indexing_conversion::to_insertable_index,
     memory::R4_SEARCH_PARAMETERS_INDEX,
-    query::{QueryBuildError, max_count, parse_u64, value::Values},
+    query::{QueryBuildError, max_count, parse_u64, type_filter, value::Values},
 };
 use haste_fhir_client::{
     request::SearchRequest,
@@ -221,9 +221,15 @@ async fn search(
         .filter_map(result_parameter)
         .try_fold(Page { count, offset: 0 }, paged)?;
 
+    let types = type_filter(request)?;
     let candidates = resources
         .iter()
         .filter(|stored| resource_type.is_none_or(|rt| *rt == stored.resource_type))
+        .filter(|stored| {
+            types
+                .as_ref()
+                .is_none_or(|types| types.contains(&stored.resource_type))
+        })
         .collect::<Vec<_>>();
     let hits = retained(candidates, &criteria, matched).await?;
 
@@ -303,7 +309,7 @@ fn paged(page: Page, parameter: &Parameter) -> Result<Page, OperationOutcomeErro
             _ => return Err(QueryBuildError::InvalidParameterValue(parameter.name.clone()).into()),
         },
         // Handled in middleware, as for the other backends.
-        "_summary" | "_elements" | "_include" => page,
+        "_summary" | "_elements" | "_include" | "_type" => page,
         // `_sort` and the rest need what only a query has.
         _ => return Err(QueryBuildError::UnsupportedParameter(parameter.name.clone()).into()),
     })

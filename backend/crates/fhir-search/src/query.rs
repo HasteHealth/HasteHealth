@@ -4,8 +4,11 @@
 pub mod value;
 
 use crate::{DEFAULT_COUNT, MAX_COUNT, SearchOptions};
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_client::{
+    request::SearchRequest,
+    url::{Parameter, ParsedParameter},
+};
+use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 #[derive(OperationOutcomeError, Debug)]
@@ -85,4 +88,71 @@ pub(crate) fn parse_u64(parameter: &Parameter) -> Result<u64, OperationOutcomeEr
             format!("Invalid {} value: '{value}'.", parameter.name),
         )
     })
+}
+
+/// The types a system-level search's `_type` restricts it to. `None` when the
+/// search is at the type level or names no `_type`.
+///
+/// # Errors
+///
+/// Returns an error for a value that is not a resource type.
+pub(crate) fn type_filter(
+    request: &SearchRequest,
+) -> Result<Option<Vec<ResourceType>>, QueryBuildError> {
+    let SearchRequest::System(request) = request else {
+        return Ok(None);
+    };
+    let Some(parameter) = request.parameters.get("_type") else {
+        return Ok(None);
+    };
+    let (ParsedParameter::Result(parameter) | ParsedParameter::Resource(parameter)) = parameter;
+
+    parameter
+        .value
+        .iter()
+        .filter(|value| !value.is_empty())
+        .map(|value| {
+            ResourceType::try_from(value.as_str())
+                .map_err(|_| QueryBuildError::InvalidParameterValue(format!("_type={value}")))
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map(Some)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::{
+        request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest},
+        url::ParsedParameters,
+    };
+
+    fn system(query: &str) -> SearchRequest {
+        SearchRequest::System(FHIRSearchSystemRequest {
+            parameters: ParsedParameters::try_from(query).expect("query parses"),
+        })
+    }
+
+    #[test]
+    fn type_filter_reads_the_named_types() {
+        assert_eq!(
+            type_filter(&system("_type=Patient,Observation")).expect("valid"),
+            Some(vec![ResourceType::Patient, ResourceType::Observation])
+        );
+        assert_eq!(type_filter(&system("_tag=x")).expect("valid"), None);
+    }
+
+    #[test]
+    fn type_filter_refuses_an_unknown_type() {
+        assert!(type_filter(&system("_type=Patient,NotAType")).is_err());
+    }
+
+    #[test]
+    fn type_filter_ignores_a_type_level_search() {
+        let request = SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type: ResourceType::Patient,
+            parameters: ParsedParameters::try_from("_type=Observation").expect("query parses"),
+        });
+        assert_eq!(type_filter(&request).expect("valid"), None);
+    }
 }
