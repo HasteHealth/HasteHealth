@@ -476,29 +476,34 @@ impl<'a> ReferenceValue<'a> {
     /// Returns an error for anything else, and for a `Type/id` whose type
     /// isn't `type_name`.
     pub fn parse(value: Cow<'a, str>, type_name: Option<&'a str>) -> Result<Self, QueryBuildError> {
-        let invalid = || QueryBuildError::InvalidParameterValue(value.to_string());
-        // The parts borrow from `value`, so an owned value owns them too.
-        let (resource_type, id) = match &value {
+        let invalid = |value: &str| QueryBuildError::InvalidParameterValue(value.to_string());
+        let agrees = |resource_type: Option<&str>, value: &str| match (type_name, resource_type) {
+            (Some(type_name), Some(resource_type)) if resource_type != type_name => {
+                Err(invalid(value))
+            }
+            _ => Ok(()),
+        };
+        // The parts borrow from the value, so an owned value's parts are
+        // owned too.
+        let (resource_type, id) = match value {
             Cow::Borrowed(value) => {
-                let (resource_type, id) = reference_parts(value).ok_or_else(invalid)?;
+                let (resource_type, id) = reference_parts(value).ok_or_else(|| invalid(value))?;
+                agrees(resource_type, value)?;
                 (resource_type.map(Cow::Borrowed), Cow::Borrowed(id))
             }
             Cow::Owned(value) => {
-                let (resource_type, id) = reference_parts(value).ok_or_else(invalid)?;
+                let (resource_type, id) = reference_parts(&value).ok_or_else(|| invalid(&value))?;
+                agrees(resource_type, &value)?;
                 (
                     resource_type.map(|resource_type| Cow::Owned(resource_type.to_string())),
                     Cow::Owned(id.to_string()),
                 )
             }
         };
-        let resource_type = match (type_name, resource_type) {
-            (Some(type_name), None) => Some(Cow::Borrowed(type_name)),
-            (Some(type_name), Some(resource_type)) if resource_type != type_name => {
-                return Err(invalid());
-            }
-            (_, resource_type) => resource_type,
-        };
-        Ok(ReferenceValue { resource_type, id })
+        Ok(ReferenceValue {
+            resource_type: resource_type.or_else(|| type_name.map(Cow::Borrowed)),
+            id,
+        })
     }
 }
 
