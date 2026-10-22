@@ -679,7 +679,6 @@ async fn equivalent() {
     assert_evaluates("1 !~ 2", &["true"]).await;
 }
 
-
 /// <https://hl7.org/fhirpath/N1/#quantity>
 #[tokio::test]
 async fn quantity_literals() {
