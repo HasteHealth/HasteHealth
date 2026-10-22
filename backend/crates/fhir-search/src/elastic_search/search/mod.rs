@@ -7,7 +7,7 @@ use crate::{
         DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError,
         flatten_parameter_field_name, get_index_name,
     },
-    query::{QueryBuildError, value::Values},
+    query::{QueryBuildError, type_filter, value::Values},
 };
 use elasticsearch::{Elasticsearch, SearchParts};
 use haste_fhir_client::{
@@ -252,6 +252,11 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
         );
     }
 
+    if let Some(types) = type_filter(request)? {
+        let types = types.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+        clauses.push(json!({ "terms": { "resource_type": types } }));
+    }
+
     add_context_clauses(&mut clauses, resource_type, tenant, project);
 
     // `_count=0` asks only for the total.
@@ -359,7 +364,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
             )
             .await?;
         }
-        "_summary" | "_elements" | "_include" => {
+        "_summary" | "_elements" | "_include" | "_type" => {
             // _elements and _summary are handled in middleware, not in the ES query.
         }
         _ => {

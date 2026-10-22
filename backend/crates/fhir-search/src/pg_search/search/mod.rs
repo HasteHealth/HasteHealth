@@ -19,7 +19,7 @@ use crate::{
             shared_table_for, shared_table_name,
         },
     },
-    query::{QueryBuildError, max_count, parse_u64, value::Values},
+    query::{QueryBuildError, max_count, parse_u64, type_filter, value::Values},
 };
 
 use clauses::{
@@ -146,6 +146,10 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         }
     }
 
+    if let Some(types) = type_filter(search_request)? {
+        where_clauses.push(type_clause(&types));
+    }
+
     // `ANDed` with the client's parameters like any other clause, so nothing in
     // the URL can widen it.
     if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
@@ -263,6 +267,28 @@ async fn resource_clause<ParameterResolver: SearchParameterResolve>(
     let parameter = resolve_parameter(scope, scope.resource_type, &param.name).await?;
     let target = clause_target(scope, &scope.root_row(), &parameter);
     Ok(parameter_to_sql_clause(&parameter, &target, param)?)
+}
+
+/// `sr.resource_type IN (...)`; empty (`_type=`) is `FALSE`.
+fn type_clause(types: &[ResourceType]) -> SqlClause {
+    if types.is_empty() {
+        return SqlClause {
+            sql: "FALSE".to_string(),
+            params: Vec::new(),
+        };
+    }
+
+    let placeholders = (1..=types.len())
+        .map(|i| format!("${i}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    SqlClause {
+        sql: format!("sr.resource_type IN ({placeholders})"),
+        params: types
+            .iter()
+            .map(|t| SqlParam::Text(t.as_ref().to_string()))
+            .collect(),
+    }
 }
 
 /// `(a) OR (b) OR ...` over `any_of`'s parameters, each built as it would be
@@ -413,7 +439,8 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
         // Handled in middleware. `_include` adds entries to the Bundle from
         // the references on this page of matches; it does not filter, sort or
         // page, so there is nothing for the query to do with it.
-        "_summary" | "_elements" | "_include" => state,
+        // `_type` is applied as a filter in `execute_search`.
+        "_summary" | "_elements" | "_include" | "_type" => state,
         _ => return Err(QueryBuildError::UnsupportedParameter(param.name.clone()).into()),
     })
 }
@@ -846,6 +873,14 @@ mod tests {
                 query.filter_sql
             );
         }
+    }
+
+    #[test]
+    fn type_clause_binds_each_type() {
+        let clause = type_clause(&[ResourceType::Patient, ResourceType::Observation]);
+        assert_eq!(clause.sql, "sr.resource_type IN ($1, $2)");
+        assert_eq!(clause.params.len(), 2);
+        assert_eq!(type_clause(&[]).sql, "FALSE");
     }
 
     #[test]
