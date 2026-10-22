@@ -447,6 +447,9 @@ async fn evaluate_function<'a>(
         | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
             evaluate_conversion(function, &context)
         }
+        "toQuantity" | "convertsToQuantity" => {
+            evaluate_to_quantity(function, context, config).await
+        }
         "trace" => evaluate_trace(function, context, config).await,
         "now" | "timeOfDay" | "today" => evaluate_current_time(function, &context),
 
@@ -1457,19 +1460,123 @@ fn to_string(value: Convertible) -> Option<String> {
         Convertible::String(value) | Convertible::DateTime(value) => Some(value),
         Convertible::Quantity(quantity) => {
             let value = quantity.value.as_ref()?.value?;
-            // The UCUM code when there is one, as FHIRPath quantities use UCUM units.
-            let code = quantity
-                .code
-                .as_ref()
-                .and_then(|code| code.value.as_deref());
-            let unit = quantity
-                .unit
-                .as_ref()
-                .and_then(|unit| unit.value.as_deref());
-            let unit = code.or(unit).unwrap_or("1");
-            Some(format!("{} '{unit}'", decimal_string(value)))
+            Some(format!(
+                "{} '{}'",
+                decimal_string(value),
+                quantity_unit(quantity)
+            ))
         }
     }
+}
+
+/// The UCUM code when there is one, as `FHIRPath` quantities use UCUM units.
+fn quantity_unit(quantity: &Quantity) -> &str {
+    let code = quantity
+        .code
+        .as_ref()
+        .and_then(|code| code.value.as_deref());
+    let unit = quantity
+        .unit
+        .as_ref()
+        .and_then(|unit| unit.value.as_deref());
+    code.or(unit).unwrap_or("1")
+}
+
+const UCUM_SYSTEM: &str = "http://unitsofmeasure.org";
+
+/// The spec's calendar duration keywords, which are not UCUM units.
+const CALENDAR_UNITS: [&str; 16] = [
+    "year",
+    "years",
+    "month",
+    "months",
+    "week",
+    "weeks",
+    "day",
+    "days",
+    "hour",
+    "hours",
+    "minute",
+    "minutes",
+    "second",
+    "seconds",
+    "millisecond",
+    "milliseconds",
+];
+
+/// The spec's Quantity string format: a number then an optional quoted UCUM
+/// unit or calendar duration keyword.
+static QUANTITY_STRING: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([+-]?\d+(?:\.\d+)?)\s*(?:'([^']+)'|([a-zA-Z]+))?$")
+        .expect("quantity regex is valid")
+});
+
+fn new_quantity(value: f64, unit: &str) -> Quantity {
+    let ucum = !CALENDAR_UNITS.contains(&unit);
+    Quantity {
+        value: Some(Box::new(FHIRDecimal {
+            value: Some(value),
+            ..Default::default()
+        })),
+        unit: Some(Box::new(unit.to_string().into())),
+        system: ucum.then(|| Box::new(FHIRUri::from(UCUM_SYSTEM.to_string()))),
+        code: Some(Box::new(FHIRCode::from(unit.to_string()))),
+        ..Default::default()
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#toquantityunit-string-quantity>. Without a
+/// UCUM engine, a `unit` is only satisfied by the item's own unit.
+fn to_quantity(value: Convertible, unit: Option<&str>) -> Option<Quantity> {
+    let quantity = match value {
+        Convertible::Quantity(quantity) => {
+            quantity.value.as_ref()?.value?;
+            quantity.clone()
+        }
+        Convertible::Boolean(value) => new_quantity(f64::from(u8::from(value)), "1"),
+        Convertible::Number(number) => new_quantity(number.as_f64(), "1"),
+        Convertible::String(value) => {
+            let captures = QUANTITY_STRING.captures(&value)?;
+            let number = captures[1].parse().ok()?;
+            let unit = captures.get(2).or_else(|| captures.get(3));
+            new_quantity(number, unit.map_or("1", |unit| unit.as_str()))
+        }
+        Convertible::DateTime(_) => return None,
+    };
+    unit.is_none_or(|unit| unit == quantity_unit(&quantity))
+        .then_some(quantity)
+}
+
+/// `toQuantity([unit])` and `convertsToQuantity([unit])`.
+async fn evaluate_to_quantity<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+    let name = function.name.0.as_str();
+    let converts = name == "convertsToQuantity";
+    let empty = context.new_context_from(vec![]);
+    let Some(value) = singleton(name, &context)? else {
+        return Ok(empty);
+    };
+
+    let mut unit = None;
+    if let Some(argument) = function.arguments.first() {
+        let argument = evaluate_expression(argument, context.clone(), config).await?;
+        match singleton(name, &argument)? {
+            Some(argument) => unit = Some(downcast_string(argument)?),
+            None => return Ok(empty),
+        }
+    }
+
+    let quantity = Convertible::of(value)?.and_then(|value| to_quantity(value, unit.as_deref()));
+    Ok(match quantity {
+        _ if converts => boolean_result(&context, quantity.is_some()),
+        Some(quantity) => context.new_context_from(vec![context.allocate_literal(quantity)]),
+        None => empty,
+    })
 }
 
 /// `toX()` gives the converted item or empty, `convertsToX()` whether there is

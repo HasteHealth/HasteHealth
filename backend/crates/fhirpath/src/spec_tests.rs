@@ -679,6 +679,7 @@ async fn equivalent() {
     assert_evaluates("1 !~ 2", &["true"]).await;
 }
 
+
 /// <https://hl7.org/fhirpath/N1/#quantity>
 #[tokio::test]
 async fn quantity_literals() {
@@ -692,4 +693,43 @@ async fn quantity_literals() {
     )
     .await;
     assert_evaluates("(4.5 'mg').toString()", &["'4.5 'mg''"]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#quantity-conversion-functions>
+#[tokio::test]
+async fn quantity_conversion() {
+    let to_parts = |expression: &str| format!("({expression}).value | ({expression}).code");
+    assert_evaluates(&to_parts("1.toQuantity()"), &["1.0", "'1'"]).await;
+    assert_evaluates(&to_parts("2.5.toQuantity()"), &["2.5", "'1'"]).await;
+    assert_evaluates(&to_parts("true.toQuantity()"), &["1.0", "'1'"]).await;
+    assert_evaluates(&to_parts("'4 days'.toQuantity()"), &["4.0", "'days'"]).await;
+    assert_evaluates(&to_parts("'-5.5 \\'mg\\''.toQuantity()"), &["-5.5", "'mg'"]).await;
+    assert_evaluates(&to_parts("'6'.toQuantity()"), &["6.0", "'1'"]).await;
+    assert_evaluates("'abc'.toQuantity()", &[]).await;
+    assert_evaluates("'4 d ays'.toQuantity()", &[]).await;
+    assert_evaluates("{}.toQuantity()", &[]).await;
+
+    assert_evaluates("1.toQuantity('1').value", &["1.0"]).await;
+    assert_evaluates("'4 days'.toQuantity('days').value", &["4.0"]).await;
+    assert_evaluates("'4 days'.toQuantity('mg')", &[]).await;
+
+    assert_evaluates("1.convertsToQuantity()", &["true"]).await;
+    assert_evaluates("'4 days'.convertsToQuantity()", &["true"]).await;
+    assert_evaluates("'abc'.convertsToQuantity()", &["false"]).await;
+    assert_evaluates("'2014-01-25'.toDate().convertsToQuantity()", &["false"]).await;
+    assert_evaluates("1.convertsToQuantity('mg')", &["false"]).await;
+    assert_evaluates("{}.convertsToQuantity()", &[]).await;
+
+    let quantity = Quantity {
+        value: Some(Box::new(FHIRDecimal {
+            value: Some(5.5),
+            ..Default::default()
+        })),
+        unit: Some(Box::new("mg".to_string().into())),
+        ..Default::default()
+    };
+    let converted = evaluate_on("$this.toQuantity('mg').value", vec![&quantity]).await;
+    assert_eq!(converted, ["5.5"]);
+    let converted = evaluate_on("$this.convertsToQuantity('g')", vec![&quantity]).await;
+    assert_eq!(converted, ["false"]);
 }
