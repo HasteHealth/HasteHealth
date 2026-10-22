@@ -130,9 +130,27 @@
                 },
                 {
                     "assert": {
-                        "description": "Only the named types are returned",
-                        "expression": "Bundle.entry.resource.resourceType.distinct().sort().join(',')",
-                        "value": "Observation,Patient",
+                        "description": "Patient count with _type=Patient,Observation",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation count with _type=Patient,Observation",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition count with _type=Patient,Observation",
+                        "expression": "Bundle.entry.resource.ofType(Condition).count()",
+                        "value": "0",
                         "warningOnly": false,
                         "operator": "equals"
                     }
