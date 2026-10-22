@@ -42,14 +42,14 @@ pub fn token(
 fn token_query(field: &str, token: &TokenValue<'_>) -> serde_json::Value {
     let mut filter = Vec::new();
     let mut must_not = Vec::new();
-    match token.system {
+    match &token.system {
         TokenSystem::Any => {}
         TokenSystem::Absent => {
             must_not.push(json!({ "exists": { "field": format!("{field}.system") } }));
         }
         TokenSystem::Is(system) => filter.push(match_query(field, "system", system)),
     }
-    if let Some(code) = token.code {
+    if let Some(code) = token.code.as_deref() {
         filter.push(match_query(field, "code", code));
     }
     all_of(filter, must_not)

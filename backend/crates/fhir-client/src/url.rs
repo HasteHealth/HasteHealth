@@ -1,7 +1,7 @@
 use derivative::Derivative;
 use haste_fhir_operation_error::derive::OperationOutcomeError;
 use haste_reflect::{MetaValue, derive::Reflect};
-use std::{collections::HashMap, fmt::Display};
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 static RESULT_PARAMETERS: &[&str] = &[
     "_count",
@@ -56,10 +56,144 @@ impl ChainLink {
 #[derivative(Debug)]
 pub struct Parameter {
     pub name: String,
+    /// The values as written after `=`, one per unescaped comma, with their
+    /// escapes (`\,` `\|` `\$` `\\`) still in place. Read them through
+    /// [`Parameter::values`] or [`Parameter::segmented`], which resolve the
+    /// escapes once the parameter's type says what a `|` or `$` means; build
+    /// one from literal text with [`escape`].
     #[derivative(Debug(format_with = "crate::redact"))]
     pub value: Vec<String>,
     pub modifier: Option<String>,
     pub chains: Vec<ChainLink>,
+}
+
+/// Whether `value` holds an escape to resolve: one memchr, the common case
+/// being none.
+fn has_escape(value: &str) -> bool {
+    value.contains('\\')
+}
+
+/// `value` with every escape (`\,` `\|` `\$` `\\`) resolved to its literal
+/// character (<https://hl7.org/fhir/R4/search.html#escaping>); borrowed when
+/// it has none. A backslash before any other character stays as written.
+fn unescape(value: &str) -> Cow<'_, str> {
+    if !has_escape(value) {
+        return Cow::Borrowed(value);
+    }
+    let mut out = String::with_capacity(value.len());
+    let mut chars = value.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            out.push(c);
+        } else if let Some(next) = chars.next() {
+            if !matches!(next, ',' | '|' | '$' | '\\') {
+                out.push('\\');
+            }
+            out.push(next);
+        } else {
+            out.push(c);
+        }
+    }
+    Cow::Owned(out)
+}
+
+/// `literal` escaped so that it reads back as itself: the inverse of what
+/// [`Parameter::values`] resolves. For building a parameter from text that
+/// was never in a URL.
+#[must_use]
+pub fn escape(literal: &str) -> Cow<'_, str> {
+    if !literal.contains([',', '|', '$', '\\']) {
+        return Cow::Borrowed(literal);
+    }
+    let mut out = String::with_capacity(literal.len() + 2);
+    for c in literal.chars() {
+        if matches!(c, ',' | '|' | '$' | '\\') {
+            out.push('\\');
+        }
+        out.push(c);
+    }
+    Cow::Owned(out)
+}
+
+/// One value's segments between unescaped `separator`s, each with its escapes
+/// resolved: `system|code` of a token, `value|system|code` of a quantity.
+///
+/// A segment borrows from the value unless it held an escape. An empty value
+/// is one empty segment, as with `str::split`.
+pub struct Segments<'a> {
+    source: &'a str,
+    rest: Option<&'a str>,
+    separator: char,
+    escaped: bool,
+}
+
+impl<'a> Segments<'a> {
+    /// The segments of `value` as written in a URL.
+    #[must_use]
+    pub fn of(value: &'a str, separator: char) -> Self {
+        Segments {
+            source: value,
+            rest: Some(value),
+            separator,
+            escaped: has_escape(value),
+        }
+    }
+
+    /// The value as written, for an error that names it.
+    #[must_use]
+    pub fn source(&self) -> &'a str {
+        self.source
+    }
+
+    /// The pieces as written, their escapes still in place.
+    fn raw(mut self) -> impl Iterator<Item = &'a str> {
+        std::iter::from_fn(move || self.next_raw())
+    }
+
+    /// The next raw piece, its escapes still in place. A value without a
+    /// backslash splits with `str::find`.
+    fn next_raw(&mut self) -> Option<&'a str> {
+        let current = self.rest?;
+        let split = if self.escaped {
+            let mut escaped = false;
+            current.char_indices().find_map(|(i, c)| {
+                if escaped {
+                    escaped = false;
+                    None
+                } else if c == '\\' {
+                    escaped = true;
+                    None
+                } else {
+                    (c == self.separator).then_some(i)
+                }
+            })
+        } else {
+            current.find(self.separator)
+        };
+        match split {
+            Some(i) => {
+                self.rest = Some(&current[i + self.separator.len_utf8()..]);
+                Some(&current[..i])
+            }
+            None => {
+                self.rest = None;
+                Some(current)
+            }
+        }
+    }
+}
+
+impl<'a> Iterator for Segments<'a> {
+    type Item = Cow<'a, str>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let raw = self.next_raw()?;
+        Some(if self.escaped {
+            unescape(raw)
+        } else {
+            Cow::Borrowed(raw)
+        })
+    }
 }
 
 impl Parameter {
@@ -89,6 +223,43 @@ impl Parameter {
         key
     }
 
+    /// The values as written after `=` in a URL: the pieces joined by commas,
+    /// their escapes intact, so a parsed query serialises to what was read.
+    #[must_use]
+    pub fn value_string(&self) -> String {
+        self.value.join(",")
+    }
+
+    /// Every value with its escapes resolved. Borrowed from the parameter
+    /// when none has an escape, the common case.
+    #[must_use]
+    pub fn values(&self) -> Cow<'_, [String]> {
+        if self.value.iter().any(|value| has_escape(value)) {
+            Cow::Owned(
+                self.value
+                    .iter()
+                    .map(|value| unescape(value).into_owned())
+                    .collect(),
+            )
+        } else {
+            Cow::Borrowed(&self.value)
+        }
+    }
+
+    /// Each value with its escapes resolved, borrowed when it has none. For
+    /// a parser that keeps a slice of the value.
+    pub fn each_value(&self) -> impl Iterator<Item = Cow<'_, str>> {
+        self.value.iter().map(|value| unescape(value))
+    }
+
+    /// Each value split on unescaped `separator`s, every segment with its
+    /// escapes resolved: `'|'` for a token's `system|code`.
+    pub fn segmented(&self, separator: char) -> impl Iterator<Item = Segments<'_>> {
+        self.value
+            .iter()
+            .map(move |value| Segments::of(value, separator))
+    }
+
     fn parse(key: &str, value: &str) -> Result<Self, ParseError> {
         let mut segments = key.split('.').map(ChainLink::parse);
         // `split` always yields at least one segment.
@@ -99,7 +270,9 @@ impl Parameter {
         Ok(Parameter {
             name: first.name,
             modifier: first.modifier,
-            value: value.split(',').map(str::to_string).collect(),
+            // The pieces keep their escapes: which of `|` and `$` separate is
+            // only known with the parameter's type.
+            value: Segments::of(value, ',').raw().map(str::to_string).collect(),
             chains: segments.collect::<Result<_, _>>()?,
         })
     }
@@ -426,6 +599,102 @@ mod tests {
         for (input, expected) in cases {
             let result = parse_prefix(input);
             assert_eq!(result, expected, "Failed for input: {input}");
+        }
+    }
+
+    #[test]
+    fn test_split_unescaped() {
+        let split = |v| Segments::of(v, ',').raw().collect::<Vec<_>>();
+        assert_eq!(split("a,b"), ["a", "b"]);
+        assert_eq!(split(r"a\,b"), [r"a\,b"]);
+        assert_eq!(split(r"a\\,b"), [r"a\\", "b"]);
+        assert_eq!(split(""), [""]);
+        assert_eq!(split("é,ü"), ["é", "ü"]);
+    }
+
+    #[test]
+    fn test_unescape() {
+        assert_eq!(unescape(r"a\,b\|c\$d\\e"), r"a,b|c$d\e");
+        assert_eq!(unescape(r"\x"), r"\x");
+        assert_eq!(unescape("plain"), "plain");
+        assert_eq!(unescape("trailing\\"), "trailing\\");
+        assert!(matches!(unescape("plain"), Cow::Borrowed(_)));
+    }
+
+    #[test]
+    fn test_escape_round_trips() {
+        for literal in ["plain", "a,b|c$d\\e", r"\x", "é|ü"] {
+            assert_eq!(unescape(&escape(literal)), literal);
+        }
+        assert!(matches!(escape("plain"), Cow::Borrowed(_)));
+        assert_eq!(escape(r"a\,b"), r"a\\\,b");
+    }
+
+    #[test]
+    fn test_segments() {
+        let segments = |v| Segments::of(v, '|').collect::<Vec<_>>();
+        assert_eq!(segments("a|b"), ["a", "b"]);
+        assert_eq!(segments(r"a\|b|c"), ["a|b", "c"]);
+        assert_eq!(segments(r"x\\|y\|z"), [r"x\", "y|z"]);
+        assert_eq!(segments("|"), ["", ""]);
+        assert_eq!(segments(""), [""]);
+        assert_eq!(segments("é|ü"), ["é", "ü"]);
+        // Without an escape every segment borrows.
+        assert!(Segments::of("a|b", '|').all(|segment| matches!(segment, Cow::Borrowed(_))));
+        assert_eq!(Segments::of("a|b", '|').source(), "a|b");
+    }
+
+    #[test]
+    fn test_parse_escaped_values() {
+        let parameter = |q| {
+            let params = ParsedParameters::try_from(q).unwrap();
+            let ParsedParameter::Resource(p) = params.get("p").unwrap() else {
+                panic!("expected a resource parameter")
+            };
+            p.clone()
+        };
+        // The pieces keep their escapes.
+        assert_eq!(parameter(r"p=Smith\,Jones").value, [r"Smith\,Jones"]);
+        assert_eq!(parameter("p=Smith,Jones").value, ["Smith", "Jones"]);
+        assert_eq!(
+            parameter(r"p=http://a\|b|1,x").value,
+            [r"http://a\|b|1", "x"]
+        );
+        assert_eq!(parameter(r"p=a\\,b").value, [r"a\\", "b"]);
+
+        // The accessors resolve them.
+        assert_eq!(&*parameter(r"p=Smith\,Jones").values(), ["Smith,Jones"]);
+        assert_eq!(&*parameter(r"p=a\\,b").values(), [r"a\", "b"]);
+        assert!(matches!(
+            parameter("p=Smith,Jones").values(),
+            Cow::Borrowed(_)
+        ));
+        assert_eq!(
+            parameter(r"p=a\,b,c").each_value().collect::<Vec<_>>(),
+            ["a,b", "c"]
+        );
+        assert_eq!(
+            parameter(r"p=http://a\|b|1,x")
+                .segmented('|')
+                .map(Iterator::collect::<Vec<_>>)
+                .collect::<Vec<_>>(),
+            [vec!["http://a|b", "1"], vec!["x"]]
+        );
+    }
+
+    #[test]
+    fn test_value_string_round_trips() {
+        for query in [
+            r"p=Smith\,Jones",
+            "p=Smith,Jones",
+            r"p=a\|b|1,x\,y",
+            r"p=a\\,b",
+        ] {
+            let params = ParsedParameters::try_from(query).unwrap();
+            let ParsedParameter::Resource(p) = params.get("p").unwrap() else {
+                panic!("expected a resource parameter")
+            };
+            assert_eq!(format!("p={}", p.value_string()), query);
         }
     }
 

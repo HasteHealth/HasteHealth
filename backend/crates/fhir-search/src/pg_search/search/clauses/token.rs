@@ -44,12 +44,12 @@ fn token_predicate(
     code_column: &str,
     params: Vec<SqlParam>,
 ) -> (String, Vec<SqlParam>) {
-    let (params, system) = match token.system {
+    let (params, system) = match &token.system {
         TokenSystem::Any => (params, None),
         TokenSystem::Absent => (params, Some(format!("{system_column} IS NULL"))),
         TokenSystem::Is(system) => equals(params, system_column, Some(system)),
     };
-    let (params, code) = equals(params, code_column, token.code);
+    let (params, code) = equals(params, code_column, token.code.as_deref());
 
     (all_of([system, code]), params)
 }
@@ -58,11 +58,12 @@ fn token_predicate(
 mod tests {
     use super::*;
     use crate::pg_search::{schema::ParamColumns, search::clauses::ANCHOR_TABLE_ALIAS};
+    use haste_fhir_client::url::Segments;
 
     fn search(target: &ClauseTarget, values: &[&str]) -> String {
         let tokens = values
             .iter()
-            .map(|value| TokenValue::parse(value).expect("a token parses"))
+            .map(|value| TokenValue::parse(Segments::of(value, '|')).expect("a token parses"))
             .collect::<Vec<_>>();
         token_clause(&TokenValues::Codes(tokens), target)
             .expect("a token search builds")

@@ -22,10 +22,10 @@ pub fn reference(
             .iter()
             .map(|reference| {
                 let mut filter = Vec::new();
-                if let Some(resource_type) = reference.resource_type {
+                if let Some(resource_type) = reference.resource_type.as_deref() {
                     filter.push(match_query(field, "resource_type", resource_type));
                 }
-                filter.push(match_query(field, "id", reference.id));
+                filter.push(match_query(field, "id", &reference.id));
                 nested(field, all_of(filter, Vec::new()))
             })
             .collect(),

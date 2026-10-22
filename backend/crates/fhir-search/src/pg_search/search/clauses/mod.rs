@@ -430,6 +430,7 @@ fn direct_predicate(negate: bool, predicate: &str) -> String {
 mod tests {
     use super::*;
     use crate::query::value::{DateValue, NumberValue, QuantityValue};
+    use haste_fhir_client::url::Segments;
 
     fn direct(columns: ParamColumns) -> ClauseTarget {
         ClauseTarget::DirectColumn {
@@ -524,7 +525,7 @@ mod tests {
     }
 
     fn quantity(value: &str) -> QuantityValue<'_> {
-        QuantityValue::parse(value).expect("a quantity parses")
+        QuantityValue::parse(Segments::of(value, '|')).expect("a quantity parses")
     }
 
     #[test]
