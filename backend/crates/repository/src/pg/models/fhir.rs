@@ -218,6 +218,28 @@ impl FHIRRepository for PGConnection {
         }
     }
 
+    async fn read_latest_many(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        keys: &[(ResourceType, ResourceId)],
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+        if keys.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        match self {
+            PGConnection::Pool(pool, _) => {
+                read_latest_many(pool, tenant_id, project_id, keys).await
+            }
+            PGConnection::Transaction(tx, _, pending) => {
+                pending.flush(tx).await?;
+                let mut conn = tx.lock().await;
+                read_latest_many(&mut **conn, tenant_id, project_id, keys).await
+            }
+        }
+    }
+
     async fn history(
         &self,
         tenant_id: &TenantId,
@@ -436,6 +458,50 @@ where
         Some((_, true)) | None => Ok(None),
         Some((json, _)) => Ok(Some(json.0)),
     }
+}
+
+/// The lookup of [`read_latest`] for every key, in one statement. The lateral
+/// subquery is one probe of `resources_id_idx` per key stopping at the newest
+/// version, so the cost is the same as the single reads without their round
+/// trips.
+async fn read_latest_many<'a, 'e, E>(
+    executor: E,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    keys: &'a [(ResourceType, ResourceId)],
+) -> Result<Vec<Resource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let types: Vec<&str> = keys.iter().map(|(type_, _)| type_.as_ref()).collect();
+    let ids: Vec<&str> = keys.iter().map(|(_, id)| id.as_ref()).collect();
+
+    let rows = sqlx::query_as::<_, (FHIRJson<Resource>, bool)>(
+        r"
+            SELECT r.resource, r.deleted
+            FROM unnest($3::text[], $4::text[]) AS k(resource_type, id)
+            CROSS JOIN LATERAL (
+                SELECT resource, deleted
+                FROM resources
+                WHERE tenant = $1 AND project = $2
+                  AND resource_type = k.resource_type AND id = k.id
+                ORDER BY sequence DESC
+                LIMIT 1
+            ) r
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(&types)
+    .bind(&ids)
+    .fetch_all(executor)
+    .await
+    .map_err(StoreError::from)?;
+
+    Ok(rows
+        .into_iter()
+        .filter_map(|(json, deleted)| (!deleted).then_some(json.0))
+        .collect())
 }
 
 fn process_history_parameters(
