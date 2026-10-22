@@ -678,3 +678,18 @@ async fn equivalent() {
     assert_evaluates("'a' !~ 'A'", &["false"]).await;
     assert_evaluates("1 !~ 2", &["true"]).await;
 }
+
+/// <https://hl7.org/fhirpath/N1/#quantity>
+#[tokio::test]
+async fn quantity_literals() {
+    assert_evaluates("4.5 'mg'.value", &["4.5"]).await;
+    assert_evaluates("4.5 'mg'.code", &["'mg'"]).await;
+    assert_evaluates("2 years.value", &["2.0"]).await;
+    assert_evaluates("2 years.code", &["'years'"]).await;
+    assert_evaluates(
+        "2 years.system",
+        &["'http://hl7.org/fhirpath/CodeSystem/calendar-units'"],
+    )
+    .await;
+    assert_evaluates("(4.5 'mg').toString()", &["'4.5 'mg''"]).await;
+}

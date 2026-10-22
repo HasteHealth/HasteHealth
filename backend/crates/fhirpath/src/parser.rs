@@ -14,7 +14,14 @@ pub enum Literal {
     Date(String),
     DateTime(String),
     Time(String),
-    // Quantity(f64, String),
+    /// Value and unit; a unit is UCUM (from a string) or a calendar duration keyword.
+    Quantity(f64, Unit),
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum Unit {
+    Ucum(String),
+    Calendar(String),
 }
 
 #[derive(PartialEq, Debug)]
@@ -178,6 +185,22 @@ parser! {
                 .map_err(|_| "Failed to parse number.")
         }
 
+        // <https://hl7.org/fhirpath/N1/#quantity>: `4.5 'mg'` or `2 years`.
+        rule literal_quantity () -> Literal
+          = value:$(['0'..='9']+ ("." ['0'..='9']+)?) _w() unit:quantity_unit() {?
+            value.parse::<f64>()
+                .map(|value| Literal::Quantity(value, unit))
+                .map_err(|_| "Failed to parse number.")
+        }
+
+        rule quantity_unit () -> Unit
+          = "'" s:$(("\\" [_] / [^('\n' | '\r' | '\0' | '\'' | '\\')])*) "'" {?
+            unescape(s).map(Unit::Ucum)
+          }
+          / unit:$(("year" / "month" / "week" / "day" / "hour" / "minute" / "second" / "millisecond") "s"?) !['a'..='z' | 'A'..='Z' | '0'..='9' | '_'] {
+            Unit::Calendar(unit.to_string())
+          }
+
         rule literal_boolean () -> Literal
           = "true" { Literal::Boolean(true) }
           / "false" { Literal::Boolean(false) }
@@ -249,6 +272,7 @@ parser! {
           = "{}" { Literal::Null }
           / literal_boolean()
           / literal_string()
+          / literal_quantity()
           / literal_float()
           / literal_integer()
           / literal_datetime()
@@ -397,6 +421,17 @@ mod tests {
         let escaped_string = parser::literal("'hello \\' world'").unwrap();
 
         assert_eq!(escaped_string, Literal::String("hello ' world".to_string()));
+
+        assert_eq!(
+            parser::literal("4.5 'mg'").unwrap(),
+            Literal::Quantity(4.5, Unit::Ucum("mg".to_string()))
+        );
+        assert_eq!(
+            parser::literal("2 years").unwrap(),
+            Literal::Quantity(2.0, Unit::Calendar("years".to_string()))
+        );
+        // A trailing word is not a unit.
+        assert!(parser::literal("2 dayz").is_err());
 
         let time = parser::literal("@T14:34:28").unwrap();
         assert_eq!(time, Literal::Time("14:34:28".to_string()));
