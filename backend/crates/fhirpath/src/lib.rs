@@ -36,6 +36,8 @@ use std::{
 };
 
 mod allocators;
+mod fhir_functions;
+pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
 
 #[cfg(test)]
 mod proptests;
@@ -377,7 +379,16 @@ async fn evaluate_function<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match function.name.0.as_str() {
-        "resolve" => Ok(context),
+        "resolve" => fhir_functions::evaluate_resolve(context, config).await,
+        "extension" => fhir_functions::evaluate_extension(function, context, config).await,
+        "hasValue" => fhir_functions::evaluate_has_value(function, &context),
+        "getValue" => fhir_functions::evaluate_get_value(function, &context),
+        "htmlChecks" => fhir_functions::evaluate_html_checks(function, &context),
+        "memberOf" => fhir_functions::evaluate_member_of(function, context, config).await,
+        "subsumes" | "subsumedBy" => {
+            fhir_functions::evaluate_subsumes(function, context, config).await
+        }
+        "conformsTo" => fhir_functions::evaluate_conforms_to(function, context, config).await,
         "where" => evaluate_where(function, context, config).await,
         // R4 search parameters apply as() to collections, so it filters like ofType.
         "ofType" | "as" => evaluate_of_type(function, &context),
@@ -2506,6 +2517,8 @@ pub struct Config<'a> {
     // Used to resolve resource_id in getResourceKey for sql-on-fhir.
     resource_id: Option<String>,
     variable_resolver: Option<ExternalConstantResolver<'a>>,
+    // Backs memberOf, subsumes, subsumedBy, conformsTo and resolve.
+    services: Option<Arc<dyn FHIRServices>>,
 }
 
 impl<'a> Config<'a> {
@@ -2517,6 +2530,12 @@ impl<'a> Config<'a> {
     #[must_use]
     pub fn with_variable_resolver(mut self, resolver: ExternalConstantResolver<'a>) -> Self {
         self.variable_resolver = Some(resolver);
+        self
+    }
+
+    #[must_use]
+    pub fn with_services(mut self, services: Arc<dyn FHIRServices>) -> Self {
+        self.services = Some(services);
         self
     }
 
