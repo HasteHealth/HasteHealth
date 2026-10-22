@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/x-fhir-query",
-  "version": "0.126.28",
+  "version": "0.126.29",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "type": "module",
