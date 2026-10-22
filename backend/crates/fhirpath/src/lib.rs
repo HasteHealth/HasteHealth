@@ -4,7 +4,7 @@ use crate::{
     error::{FunctionError, OperationError},
     parser::{
         Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation, Polarity,
-        QualifiedIdentifier, Term,
+        QualifiedIdentifier, Term, Unit,
     },
 };
 use dashmap::DashMap;
@@ -75,6 +75,33 @@ fn evaluate_literal<'b>(
             },
         )])),
         Literal::Null => Ok(context.new_context_from(vec![])),
+        Literal::Quantity(value, unit) => {
+            let (system, code) = match unit {
+                Unit::Ucum(code) => ("http://unitsofmeasure.org", code),
+                Unit::Calendar(code) => ("http://hl7.org/fhirpath/CodeSystem/calendar-units", code),
+            };
+            Ok(
+                context.new_context_from(vec![context.allocate_literal(Quantity {
+                    value: Some(Box::new(FHIRDecimal {
+                        value: Some(*value),
+                        ..Default::default()
+                    })),
+                    unit: Some(Box::new(FHIRString {
+                        value: Some(code.clone()),
+                        ..Default::default()
+                    })),
+                    system: Some(Box::new(FHIRUri {
+                        value: Some(system.to_string()),
+                        ..Default::default()
+                    })),
+                    code: Some(Box::new(FHIRCode {
+                        value: Some(code.clone()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                })]),
+            )
+        }
         Literal::Date(date) => temporal_literal(
             literal,
             context,
