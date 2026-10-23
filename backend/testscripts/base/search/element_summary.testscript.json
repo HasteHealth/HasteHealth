@@ -4,7 +4,7 @@
     "title": "_elements and _summary checks",
     "name": "Element and Summary tests",
     "status": "active",
-    "description": "Validate the _elements and _summary search result parameters (https://hl7.org/fhir/R4/search.html#elements and https://hl7.org/fhir/R4/search.html#summary). _summary=data is not yet implemented and is intentionally not exercised here.",
+    "description": "Validate the _elements and _summary search result parameters (https://hl7.org/fhir/R4/search.html#elements and https://hl7.org/fhir/R4/search.html#summary).",
     "resourceType": "TestScript",
     "contained": [
         {
@@ -436,6 +436,87 @@
                         "expression": "Bundle.entry[0].resource.text.exists()",
                         "operator": "equals",
                         "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-summary-data",
+            "name": "_summary=data drops text and keeps everything else.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_summary=data",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.text.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.gender.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.birthDate.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.address.exists()",
+                        "operator": "equals",
+                        "value": "true",
                         "warningOnly": false
                     }
                 },

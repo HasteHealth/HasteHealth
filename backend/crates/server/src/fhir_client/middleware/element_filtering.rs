@@ -10,7 +10,7 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, Resource},
     terminology::IssueType,
-    types::{Coding, FHIRUri, Meta},
+    types::{Coding, FHIRUri, Meta, Narrative},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
@@ -65,9 +65,8 @@ fn requested_elements(parameters: &[&ParsedParameter]) -> Vec<String> {
         .collect()
 }
 
-/// See <https://hl7.org/fhir/R4/search.html#summary>. `Data` is not yet
-/// implemented: unlike `True`/`Text`, "everything except `text`" is a
-/// denylist rather than an allowlist. Treated as a no-op for now, same as `False`.
+/// See <https://hl7.org/fhir/R4/search.html#summary>. `Data` is a denylist
+/// (everything except `text`), so it is applied separately from `kept_fields`.
 enum SummaryMode {
     True,
     Text,
@@ -122,8 +121,8 @@ fn kept_fields(subsetting: &Subsetting) -> Option<Vec<&str>> {
         // Will need to mark fields in generated structs with #[summary] or something else.
         Subsetting::Summary(SummaryMode::True) => Some(Vec::new()),
         Subsetting::Summary(SummaryMode::Text) => Some(vec!["text"]),
-        // Count is handled at the bundle level (no entries at all); Data
-        // isn't implemented yet. Both pass the resource through unchanged.
+        // Count is handled at the bundle level (no entries at all) and Data
+        // drops `text` instead of keeping fields.
         Subsetting::Summary(SummaryMode::Data | SummaryMode::Count | SummaryMode::False) => None,
     }
 }
@@ -149,6 +148,18 @@ fn tag_subsetted(resource: &mut Resource) {
     });
 }
 
+/// `_summary=data`: everything except `text`. Resources without one (Bundle,
+/// Binary, Parameters) pass through.
+fn omit_text(mut resource: Resource) -> Resource {
+    if let Some(text) = resource.get_field_mut("text") {
+        let text: &mut dyn std::any::Any = text;
+        if let Some(text) = text.downcast_mut::<Option<Box<Narrative>>>() {
+            *text = None;
+        }
+    }
+    resource
+}
+
 fn filter_bundle(
     mut bundle: Bundle,
     subsetting: &Subsetting,
@@ -158,9 +169,11 @@ fn filter_bundle(
         return Ok(bundle);
     }
 
-    let Some(fields) = kept_fields(subsetting) else {
+    let drop_text = matches!(subsetting, Subsetting::Summary(SummaryMode::Data));
+    let fields = kept_fields(subsetting);
+    if fields.is_none() && !drop_text {
         return Ok(bundle);
-    };
+    }
     let Some(entries) = bundle.entry.take() else {
         return Ok(bundle);
     };
@@ -171,9 +184,12 @@ fn filter_bundle(
             if is_search_match(&entry)
                 && let Some(resource) = entry.resource.take()
             {
-                let mut filtered = resource.filter(&fields).map_err(|e| {
-                    OperationOutcomeError::error(IssueType::invalid(), e.to_string())
-                })?;
+                let mut filtered = match &fields {
+                    Some(fields) => resource.filter(fields).map_err(|e| {
+                        OperationOutcomeError::error(IssueType::invalid(), e.to_string())
+                    })?,
+                    None => omit_text(*resource),
+                };
                 tag_subsetted(&mut filtered);
                 entry.resource = Some(Box::new(filtered));
             }
