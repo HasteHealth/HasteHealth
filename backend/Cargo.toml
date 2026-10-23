@@ -55,7 +55,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.126.30"
+version = "0.126.31"
 authors = ["Haste Health"]
 license = "Apache-2.0"
 homepage = "https://haste.health"
