@@ -198,7 +198,7 @@ fn number_holds(number: &NumberValue, found: f64) -> bool {
 /// inside it.
 fn range_holds(amount: &NumberValue, start: f64, end: f64) -> bool {
     match amount.prefix {
-        // `ne` is negated by the caller, together with the unit.
+        // `ne` is folded into `negated` at parse time.
         Prefix::Eq | Prefix::Ne => (start..=end).contains(&amount.value),
         Prefix::Gt | Prefix::Sa => start >= above(&amount.range),
         Prefix::Lt | Prefix::Eb => end <= below(&amount.range),
@@ -223,9 +223,5 @@ fn quantity_holds(quantity: &QuantityValue<'_>, indexed: &QuantityRange) -> bool
             .as_deref()
             .is_none_or(|code| indexed.start_code() == Some(code));
 
-    // `ne` negates the whole match, so another unit also qualifies.
-    match &quantity.amount {
-        Some(amount) if amount.prefix == Prefix::Ne => !matches,
-        _ => matches,
-    }
+    matches != quantity.negated
 }

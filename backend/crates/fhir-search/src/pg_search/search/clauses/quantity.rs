@@ -42,12 +42,7 @@ fn quantity_predicate(
     let (params, code) = equals(params, &exprs.code, quantity.code.as_deref());
     let matches = all_of([amount, system, code]);
 
-    // `ne` is the negation of the whole match, so another unit also qualifies.
-    let is_ne = quantity
-        .amount
-        .as_ref()
-        .is_some_and(|amount| amount.prefix == Prefix::Ne);
-    if is_ne {
+    if quantity.negated {
         (format!("({matches}) IS NOT TRUE"), params)
     } else {
         (matches, params)
@@ -64,7 +59,8 @@ fn amount_predicate(
     let float = SqlParam::Float64;
 
     match amount.prefix {
-        // The value falls inside the indexed range (`ne` negates the match).
+        // The value falls inside the indexed range; `ne` is folded into
+        // `negated` at parse time.
         Prefix::Eq | Prefix::Ne => {
             let (params, i) = bind(params, [float(amount.value)]);
             (params, format!("({start} <= ${i} AND {end} >= ${i})"))

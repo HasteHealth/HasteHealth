@@ -172,9 +172,13 @@ pub struct NumberValue {
 /// `[prefix]value[|system|code]`; an empty segment is unconstrained.
 #[derive(Debug)]
 pub struct QuantityValue<'a> {
+    /// The value comparison. Never `ne`: that is `negated` with an `eq` amount.
     pub amount: Option<NumberValue>,
     pub system: Option<Cow<'a, str>>,
     pub code: Option<Cow<'a, str>>,
+    /// `ne`: the resource matches when the whole of amount, system and code
+    /// does not, so another unit, or no unit, qualifies.
+    pub negated: bool,
 }
 
 /// The parameter types every backend indexes: all but composite and special.
@@ -588,12 +592,21 @@ impl<'a> QuantityValue<'a> {
             }
             _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
         };
+        let mut amount = (!amount.is_empty())
+            .then(|| NumberValue::parse(&amount))
+            .transpose()?;
+        let negated = match amount.as_mut() {
+            Some(amount) if amount.prefix == Prefix::Ne => {
+                amount.prefix = Prefix::Eq;
+                true
+            }
+            _ => false,
+        };
         Ok(QuantityValue {
-            amount: (!amount.is_empty())
-                .then(|| NumberValue::parse(&amount))
-                .transpose()?,
+            amount,
             system: system.filter(|system| !system.is_empty()),
             code: code.filter(|code| !code.is_empty()),
+            negated,
         })
     }
 }
@@ -656,6 +669,15 @@ mod tests {
         let quantity = QuantityValue::parse(Segments::of(r"5|http://a\|b|m\|s", '|')).unwrap();
         assert_eq!(quantity.system.as_deref(), Some("http://a|b"));
         assert_eq!(quantity.code.as_deref(), Some("m|s"));
+    }
+
+    #[test]
+    fn ne_quantities_are_negated_with_an_eq_amount() {
+        let ne = QuantityValue::parse(Segments::of("ne5.4|s|c", '|')).unwrap();
+        assert!(ne.negated);
+        assert_eq!(ne.amount.unwrap().prefix, Prefix::Eq);
+        let eq = QuantityValue::parse(Segments::of("5.4|s|c", '|')).unwrap();
+        assert!(!eq.negated);
     }
 
     #[test]

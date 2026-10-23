@@ -376,7 +376,9 @@ proptest! {
         let text = format!("{code}{}|{system}|{unit}", decimal.render());
         let value = failed(&format!("{text:?} did not parse"), QuantityValue::parse(Segments::of(&text, '|')))?;
         let amount = value.amount.as_ref().expect("an amount");
-        prop_assert_eq!(amount.prefix, prefix);
+        // `ne` is carried as `negated` with an `eq` amount.
+        prop_assert_eq!(amount.prefix, if prefix == Prefix::Ne { Prefix::Eq } else { prefix });
+        prop_assert_eq!(value.negated, prefix == Prefix::Ne);
         prop_assert_eq!(amount.value, decimal.value());
         prop_assert_eq!(value.system.as_deref(), (!system.is_empty()).then_some(system.as_str()));
         prop_assert_eq!(value.code.as_deref(), (!unit.is_empty()).then_some(unit.as_str()));

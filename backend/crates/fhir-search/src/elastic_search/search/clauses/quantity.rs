@@ -17,13 +17,11 @@ pub fn quantity(field: &str, values: &[QuantityValue]) -> serde_json::Value {
 }
 
 fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
-    let mut filter = Vec::new();
-    let mut ne_amount = None;
-    match &quantity.amount {
-        Some(amount) if amount.prefix == Prefix::Ne => ne_amount = Some(amount),
-        Some(amount) => filter.extend(amount_queries(field, amount)),
-        None => {}
-    }
+    let mut filter = quantity
+        .amount
+        .as_ref()
+        .map(|amount| amount_queries(field, amount))
+        .unwrap_or_default();
     if let Some(system) = quantity.system.as_deref() {
         filter.push(match_query(field, "start_system", system));
         filter.push(match_query(field, "end_system", system));
@@ -32,13 +30,11 @@ fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
         filter.push(match_query(field, "start_code", code));
         filter.push(match_query(field, "end_code", code));
     }
-    match ne_amount {
-        // `ne` negates the whole match, so another unit also qualifies.
-        Some(amount) => {
-            filter.extend(amount_queries(field, amount));
-            all_of(Vec::new(), vec![all_of(filter, Vec::new())])
-        }
-        None => all_of(filter, Vec::new()),
+    let matches = all_of(filter, Vec::new());
+    if quantity.negated {
+        all_of(Vec::new(), vec![matches])
+    } else {
+        matches
     }
 }
 
@@ -57,6 +53,7 @@ fn amount_queries(field: &str, amount: &NumberValue) -> Vec<serde_json::Value> {
     };
 
     match amount.prefix {
+        // `ne` is folded into `negated` at parse time.
         Prefix::Eq | Prefix::Ne => contains(),
         // Wholly above or below the search value's precision range.
         Prefix::Gt | Prefix::Sa => vec![bound("start_value", "gte", above(&amount.range))],
