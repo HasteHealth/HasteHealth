@@ -95,7 +95,7 @@
                             "code": "search"
                         },
                         "resource": "Patient",
-                        "params": "_tag=format-pretty-test&_format=application/fhir%2Bjson",
+                        "params": "_tag=format-pretty-test&_format=application/fhir+json",
                         "encodeRequestUrl": false
                     }
                 },
