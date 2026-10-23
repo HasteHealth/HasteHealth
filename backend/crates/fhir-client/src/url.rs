@@ -16,6 +16,8 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_containedType",
     "_since",
     "_type",
+    "_format",
+    "_pretty",
 ];
 
 /// One `name[:modifier]` segment of a chained parameter's name.
