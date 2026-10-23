@@ -61,6 +61,15 @@ pub trait FHIRRepository: Sized {
         resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
+    /// [`Self::read_latest`] for many keys in one round trip: the current
+    /// version of each `(type, id)` that exists and is not deleted, in no
+    /// particular order. A key that does not resolve is left out.
+    fn read_latest_many(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        keys: &[(ResourceType, ResourceId)],
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn history(
         &self,
         tenant_id: &TenantId,

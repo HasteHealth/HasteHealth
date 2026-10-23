@@ -22,7 +22,7 @@
 //! `:iterate` recursion. Both truncate rather than fail, because a chart view
 //! that renders without three of four references is more useful than an error.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
 
 use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
@@ -50,6 +50,9 @@ const MAX_ITERATE_DEPTH: usize = 2;
 /// and it holds no per-request state.
 static FP_ENGINE: LazyLock<FPEngine> = LazyLock::new(FPEngine::new);
 
+/// `*` in an `_include` value: every type, or every reference parameter.
+const WILDCARD: &str = "*";
+
 /// One parsed `_include` (or `_revinclude`) value.
 ///
 /// `_include=Observation:subject:Patient` is
@@ -57,10 +60,9 @@ static FP_ENGINE: LazyLock<FPEngine> = LazyLock::new(FPEngine::new);
 /// `target_type = Some(Patient)`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IncludeDirective {
-    /// The type whose parameter is followed. `*` is not accepted; see
-    /// [`parse_include_value`].
+    /// The type whose parameter is followed; [`WILDCARD`] for any matched type.
     pub source_type: String,
-    /// The reference search parameter to follow.
+    /// The reference search parameter to follow; [`WILDCARD`] for all of them.
     pub parameter: String,
     /// Restricts which target type is included, for a parameter that can point
     /// at several.
@@ -103,16 +105,20 @@ fn parsed_values(parameter: &Parameter) -> Vec<IncludeDirective> {
         .collect()
 }
 
-/// `Type:param`, `Type:param:TargetType`, or `*`.
+/// `Type:param`, `Type:param:TargetType`, `Type:*` or `*`.
 ///
-/// `*` is rejected: including every reference of every match is the one form of
-/// this parameter whose cost is not bounded by anything the client stated, and
-/// silently ignoring it would hide that. A client that wants everything names
-/// the parameters.
+/// Wildcards fan out to every reference parameter of the matched types; the
+/// [`MAX_INCLUDED`] and [`MAX_ITERATE_DEPTH`] limits bound the cost.
 fn parse_include_value(value: &str, iterate: bool) -> Option<IncludeDirective> {
     let parts: Vec<&str> = value.split(':').collect();
 
     match parts[..] {
+        [WILDCARD] => Some(IncludeDirective {
+            source_type: WILDCARD.to_string(),
+            parameter: WILDCARD.to_string(),
+            target_type: None,
+            iterate,
+        }),
         [source_type, parameter] if !source_type.is_empty() && !parameter.is_empty() => {
             Some(IncludeDirective {
                 source_type: source_type.to_string(),
@@ -138,11 +144,18 @@ fn parse_include_value(value: &str, iterate: bool) -> Option<IncludeDirective> {
 /// A reference to resolve: a type and an id within this project.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct IncludeTarget {
-    resource_type: String,
+    resource_type: ResourceType,
     id: String,
 }
 
-/// The references `directives` select out of `resources`.
+/// The expressions each directive (by index) follows on each source type.
+/// Resolving one is an `async` lookup in the parameter index, and the
+/// `:iterate` hops repeat the same directives over the same types, so a search
+/// resolves each pair once.
+type ExpressionCache = HashMap<(usize, ResourceType), Vec<String>>;
+
+/// The references `directives` (only the `:iterate` ones when `iterate_only`)
+/// select out of `resources`.
 ///
 /// Evaluates each directive's search parameter expression against each resource
 /// of the matching type. A reference with no type (a bare id) or an absolute URL
@@ -153,62 +166,122 @@ async fn collect_targets(
     project: &ProjectId,
     resources: &[&Resource],
     directives: &[IncludeDirective],
+    iterate_only: bool,
+    expressions: &mut ExpressionCache,
 ) -> Result<Vec<IncludeTarget>, OperationOutcomeError> {
     let mut targets = Vec::new();
     let mut seen = HashSet::new();
 
-    // One evaluation per (directive, resource of that type).
-    for directive in directives {
-        let Some(expression) = reference_expression(tenant, project, directive).await? else {
+    // One evaluation per (expression, resource of that type).
+    for (index, directive) in directives.iter().enumerate() {
+        if iterate_only && !directive.iterate {
             continue;
-        };
+        }
 
-        for resource in resources
-            .iter()
-            .filter(|r| r.resource_type().as_ref() == directive.source_type)
-        {
-            // A parameter whose expression does not apply to this resource is
-            // not a failure of the search: the other includes still stand.
-            let evaluated = match FP_ENGINE.evaluate(&expression, vec![*resource]).await {
-                Ok(evaluated) => evaluated,
-                Err(e) => {
-                    tracing::warn!(
-                        "_include: failed to evaluate '{expression}' for {}:{}: {e}",
-                        directive.source_type,
-                        directive.parameter,
-                    );
-                    continue;
-                }
-            };
+        for resource in resources {
+            let resource_type = resource.resource_type();
+            if directive.source_type != WILDCARD && resource_type.as_ref() != directive.source_type
+            {
+                continue;
+            }
 
-            for value in evaluated.iter() {
-                for reference in indexing_conversion::index_reference_values(value) {
-                    let (Some(resource_type), Some(id)) =
-                        (reference.resource_type(), reference.id())
-                    else {
-                        // A canonical or absolute URL; not a row in this project.
-                        continue;
-                    };
+            let key = (index, resource_type);
+            if !expressions.contains_key(&key) {
+                let resolved = directive_expressions(tenant, project, directive, &key.1).await?;
+                expressions.insert(key.clone(), resolved);
+            }
 
-                    if let Some(wanted) = directive.target_type.as_deref() {
-                        if wanted != resource_type {
-                            continue;
-                        }
-                    }
-
-                    let target = IncludeTarget {
-                        resource_type: resource_type.to_string(),
-                        id: id.to_string(),
-                    };
-                    if seen.insert(target.clone()) {
-                        targets.push(target);
-                    }
-                }
+            for expression in &expressions[&key] {
+                collect_from(resource, expression, directive, &mut targets, &mut seen).await;
             }
         }
     }
 
     Ok(targets)
+}
+
+/// Evaluates `expression` on `resource` and pushes each new reference that
+/// passes `directive`'s target type.
+async fn collect_from(
+    resource: &Resource,
+    expression: &str,
+    directive: &IncludeDirective,
+    targets: &mut Vec<IncludeTarget>,
+    seen: &mut HashSet<IncludeTarget>,
+) {
+    // A parameter whose expression does not apply to this resource is
+    // not a failure of the search: the other includes still stand.
+    let evaluated = match FP_ENGINE.evaluate(expression, vec![resource]).await {
+        Ok(evaluated) => evaluated,
+        Err(e) => {
+            tracing::warn!(
+                "_include: failed to evaluate '{expression}' for {}:{}: {e}",
+                directive.source_type,
+                directive.parameter,
+            );
+            return;
+        }
+    };
+
+    for value in &evaluated {
+        for reference in indexing_conversion::index_reference_values(value) {
+            let (Some(resource_type), Some(id)) = (reference.resource_type(), reference.id())
+            else {
+                // A canonical or absolute URL; not a row in this project.
+                continue;
+            };
+
+            if directive
+                .target_type
+                .as_deref()
+                .is_some_and(|wanted| wanted != resource_type)
+            {
+                continue;
+            }
+
+            // A type this server does not store cannot be read.
+            let Ok(resource_type) = ResourceType::try_from(resource_type) else {
+                continue;
+            };
+
+            let target = IncludeTarget {
+                resource_type,
+                id: id.to_string(),
+            };
+            if seen.insert(target.clone()) {
+                targets.push(target);
+            }
+        }
+    }
+}
+
+/// The expressions `directive` follows on `resource_type`: one for a named
+/// parameter, every reference parameter's for a wildcard.
+async fn directive_expressions(
+    tenant: &TenantId,
+    project: &ProjectId,
+    directive: &IncludeDirective,
+    resource_type: &ResourceType,
+) -> Result<Vec<String>, OperationOutcomeError> {
+    if directive.parameter != WILDCARD {
+        return Ok(reference_expression(tenant, project, directive)
+            .await?
+            .into_iter()
+            .collect());
+    }
+
+    let mut expressions: Vec<String> = R4_SEARCH_PARAMETERS_INDEX
+        .by_resource_type(tenant, project, resource_type)
+        .await?
+        .into_iter()
+        .filter(|p| p.search_parameter.type_.as_str() == Some("reference"))
+        .filter_map(|p| p.search_parameter.expression.as_ref()?.value.clone())
+        .collect();
+    // Parameters such as `patient` and `subject` share an expression.
+    expressions.sort_unstable();
+    expressions.dedup();
+
+    Ok(expressions)
 }
 
 /// The FHIRPath expression of `directive`'s parameter, or `None` when it names
@@ -259,59 +332,50 @@ async fn reference_expression(
         .and_then(|e| e.value.clone()))
 }
 
-/// Reads `targets` from the repository, skipping any that no longer resolve.
+/// Reads `targets` from the repository in one round trip, dropping any that no
+/// longer resolve.
 ///
-/// Each read is by `(type, id)` primary key. A reference to a deleted or
-/// unreadable resource is dropped: an include is supplementary, and failing the
-/// whole search over a dangling pointer would make one bad reference hide every
-/// match.
+/// A reference to a deleted or unreadable resource is dropped: an include is
+/// supplementary, and failing the whole search over a dangling pointer would
+/// make one bad reference hide every match.
 async fn read_targets<Repo: FHIRRepository>(
     repo: &Repo,
     tenant: &TenantId,
     project: &ProjectId,
     targets: &[IncludeTarget],
 ) -> Vec<Resource> {
-    let mut resources = Vec::with_capacity(targets.len());
-
-    for target in targets {
-        let Ok(resource_type) = ResourceType::try_from(target.resource_type.as_str()) else {
-            continue;
-        };
-
-        match repo
-            .read_latest(
-                tenant,
-                project,
-                &resource_type,
-                &ResourceId::new(target.id.clone()),
+    let keys: Vec<(ResourceType, ResourceId)> = targets
+        .iter()
+        .map(|target| {
+            (
+                target.resource_type.clone(),
+                ResourceId::new(target.id.clone()),
             )
-            .await
-        {
-            Ok(Some(resource)) => resources.push(resource),
-            Ok(None) => {
+        })
+        .collect();
+
+    match repo.read_latest_many(tenant, project, &keys).await {
+        Ok(resources) => {
+            if resources.len() < targets.len() {
                 tracing::debug!(
-                    "_include target {}/{} does not resolve",
-                    target.resource_type,
-                    target.id
+                    "_include: {} of {} targets do not resolve",
+                    targets.len() - resources.len(),
+                    targets.len()
                 );
             }
-            Err(e) => {
-                tracing::warn!(
-                    "_include target {}/{} could not be read: {e}",
-                    target.resource_type,
-                    target.id
-                );
-            }
+            resources
+        }
+        Err(e) => {
+            tracing::warn!("_include: {} targets could not be read: {e}", targets.len());
+            Vec::new()
         }
     }
-
-    resources
 }
 
 /// Everything `_include` adds to one page of matches.
 ///
-/// Runs the non-`:iterate` directives against the matches, then the `:iterate`
-/// ones repeatedly against what has been added, up to
+/// Runs every directive against the matches, then the `:iterate` ones
+/// repeatedly against what the previous hop added, up to
 /// [`MAX_ITERATE_DEPTH`]. Resources already in the page, and resources already
 /// included, are never added twice.
 pub async fn resolve_includes<Repo: FHIRRepository>(
@@ -327,36 +391,45 @@ pub async fn resolve_includes<Repo: FHIRRepository>(
 
     // Matches are already in the Bundle; including one again would duplicate it.
     let mut emitted: HashSet<IncludeTarget> = matches.iter().filter_map(resource_target).collect();
-
-    // direct includes are those without the `:iterate` modifier. They are processed first.
-    // Iterate depends on the results of the direct includes. It is processed in subsequent hops.
-    let (direct, iterate): (Vec<_>, Vec<_>) = directives.into_iter().partition(|d| !d.iterate);
-
+    let mut expressions = ExpressionCache::new();
     let mut included: Vec<Resource> = Vec::new();
 
-    // First hop: the matches.
-    let mut frontier = {
-        let sources: Vec<&Resource> = matches.iter().collect();
-        let targets = collect_targets(tenant, project, &sources, &direct).await?;
-        take_new(targets, &mut emitted, included.len())
-    };
+    // First hop: every directive against the matches. `:iterate` applies to
+    // them too, not only to what has been included.
+    let sources: Vec<&Resource> = matches.iter().collect();
+    let targets = collect_targets(
+        tenant,
+        project,
+        &sources,
+        &directives,
+        false,
+        &mut expressions,
+    )
+    .await?;
+    let frontier = take_new(targets, &mut emitted, included.len());
     included.extend(read_targets(repo, tenant, project, &frontier).await);
 
-    // Further hops: only `:iterate` directives, only against what was added.
-    // Brute force over iterate directives up to the maximum depth.
-    // For each successive run we use the output from the previous run as the new sources.
+    // Further hops: only `:iterate` directives, only against what the previous
+    // hop read (the tail of `included` from `from`); anything earlier is settled.
+    let iterates = directives.iter().any(|directive| directive.iterate);
+    let mut from = 0;
     for _ in 0..MAX_ITERATE_DEPTH {
-        if iterate.is_empty() || frontier.is_empty() || included.len() >= MAX_INCLUDED {
+        if !iterates || from == included.len() || included.len() >= MAX_INCLUDED {
             break;
         }
 
-        // The resources read for the previous frontier are the tail of
-        // `included`; iterating from anything earlier would redo settled work.
-        let from = included.len().saturating_sub(frontier.len());
         let sources: Vec<&Resource> = included[from..].iter().collect();
-
-        let targets = collect_targets(tenant, project, &sources, &iterate).await?;
-        frontier = take_new(targets, &mut emitted, included.len());
+        let targets = collect_targets(
+            tenant,
+            project,
+            &sources,
+            &directives,
+            true,
+            &mut expressions,
+        )
+        .await?;
+        let frontier = take_new(targets, &mut emitted, included.len());
+        from = included.len();
         included.extend(read_targets(repo, tenant, project, &frontier).await);
     }
 
@@ -388,7 +461,26 @@ fn take_new(
 
 fn resource_target(resource: &Resource) -> Option<IncludeTarget> {
     Some(IncludeTarget {
-        resource_type: resource.resource_type().as_ref().to_string(),
+        resource_type: resource.resource_type(),
         id: resource.id().clone()?,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_wildcards() {
+        let all = parse_include_value("*", true).unwrap();
+        assert_eq!(
+            (all.source_type.as_str(), all.parameter.as_str()),
+            ("*", "*")
+        );
+        assert!(all.iterate);
+
+        let typed = parse_include_value("Observation:*", false).unwrap();
+        assert_eq!(typed.source_type, "Observation");
+        assert_eq!(typed.parameter, "*");
+    }
 }
