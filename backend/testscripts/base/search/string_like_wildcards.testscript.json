@@ -1,0 +1,832 @@
+{
+    "id": "search-string-like-wildcards",
+    "url": "https://haste.health/fhir/TestScript/search-string-like-wildcards",
+    "title": "String search wildcard characters",
+    "name": "Search string LIKE wildcard characters",
+    "status": "active",
+    "description": "The characters a SQL LIKE pattern treats specially (%, _ and \\) match themselves in string searches. Each fixture has a decoy that an unescaped pattern would also match: 100% next to 1000, Mary_Ann next to Mary-Ann and Back\\slash next to Backslash. Default (prefix), :contains and :exact are covered, plus a value that is only a wildcard character: as a prefix it matches nothing, with :contains only the name that holds the character.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "p-percent",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "100%",
+                    "given": [
+                        "Pct"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "p-thousand",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "1000",
+                    "given": [
+                        "Kilo"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "p-underscore",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Mary_Ann",
+                    "given": [
+                        "Score"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "p-hyphen",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Mary-Ann",
+                    "given": [
+                        "Dash"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "p-backslash",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Back\\slash",
+                    "given": [
+                        "Slant"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "p-no-backslash",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-like-wildcards-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Backslash",
+                    "given": [
+                        "Plain"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-p-percent",
+            "resource": {
+                "reference": "#p-percent"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-thousand",
+            "resource": {
+                "reference": "#p-thousand"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-underscore",
+            "resource": {
+                "reference": "#p-underscore"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-hyphen",
+            "resource": {
+                "reference": "#p-hyphen"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-backslash",
+            "resource": {
+                "reference": "#p-backslash"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-p-no-backslash",
+            "resource": {
+                "reference": "#p-no-backslash"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-percent",
+                    "responseId": "create-p-percent",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-thousand",
+                    "responseId": "create-p-thousand",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-underscore",
+                    "responseId": "create-p-underscore",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-hyphen",
+                    "responseId": "create-p-hyphen",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-backslash",
+                    "responseId": "create-p-backslash",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-p-no-backslash",
+                    "responseId": "create-p-no-backslash",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "01-percent",
+            "name": "A percent sign in a string search value matches itself.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=100&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=100%&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Pct'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=0%&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Pct'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:exact=100%&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Pct'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=%&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=%&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Pct'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-underscore",
+            "name": "An underscore in a string search value matches itself.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Mary&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Mary_Ann&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Score'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Mary-Ann&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Dash'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=y_A&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Score'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=y-A&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Dash'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:exact=Mary_Ann&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Score'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=_&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=_&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Score'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-backslash",
+            "name": "A backslash (written \\\\ in the search value) matches itself.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Back&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Back\\\\slash&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Slant'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Backslash&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Plain'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=k\\\\s&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Slant'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=ks&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Plain'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:exact=Back\\\\slash&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Slant'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=\\\\&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=\\\\&_tag=string-like-wildcards-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.name.given = 'Slant'",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=string-like-wildcards-test",
+                    "resource": "Patient",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
