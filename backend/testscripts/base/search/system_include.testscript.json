@@ -1,0 +1,301 @@
+{
+    "id": "search-system-include-test",
+    "url": "https://haste.health/fhir/TestScript/search-system-include",
+    "name": "Search System Include Test",
+    "title": "search.mode and _include on system-level search",
+    "status": "active",
+    "description": "Tests system-level search: every entry carries search.mode, and _include adds the referenced resources marked include.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "sysinc-org",
+            "resourceType": "Organization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-system-include-test"
+                    }
+                ]
+            },
+            "name": "Include Test Hospital"
+        },
+        {
+            "id": "sysinc-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-system-include-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Included",
+                    "given": [
+                        "Ida"
+                    ]
+                }
+            ],
+            "managingOrganization": {
+                "reference": "Organization/sysinc-org"
+            }
+        },
+        {
+            "id": "sysinc-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-system-include-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/sysinc-patient"
+            }
+        },
+        {
+            "id": "sysinc-observation-one",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-system-include-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/sysinc-patient"
+            },
+            "encounter": {
+                "reference": "Encounter/sysinc-encounter"
+            },
+            "valueQuantity": {
+                "value": 70,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "sysinc-observation-two",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-system-include-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/sysinc-patient"
+            },
+            "valueQuantity": {
+                "value": 65,
+                "unit": "/min",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-sys-org",
+            "resource": {
+                "reference": "#sysinc-org"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sys-patient",
+            "resource": {
+                "reference": "#sysinc-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sys-encounter",
+            "resource": {
+                "reference": "#sysinc-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sys-observation-one",
+            "resource": {
+                "reference": "#sysinc-observation-one"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sys-observation-two",
+            "resource": {
+                "reference": "#sysinc-observation-two"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-system-search-include",
+            "name": "System search marks matches and includes",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-sys-org",
+                        "sourceId": "fixture-sys-org",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-sys-patient",
+                        "sourceId": "fixture-sys-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-sys-encounter",
+                        "sourceId": "fixture-sys-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-sys-observation-one",
+                        "sourceId": "fixture-sys-observation-one",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-sys-observation-two",
+                        "sourceId": "fixture-sys-observation-two",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_type=Observation&_tag=search-system-include-test&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both Observations are matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The subject Patient is included once",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only matches and includes are present",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-system-search-without-include",
+            "name": "System search without _include marks every entry match",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_type=Observation&_tag=search-system-include-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both entries are matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No entry is an include",
+                        "expression": "Bundle.entry.where(search.mode = 'include').count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

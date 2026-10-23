@@ -672,49 +672,36 @@ impl<B: Backend> Handler<B> for Storage {
                         )
                         .await?;
 
-                    match &search_request {
+                    // `_include` reads the references on this page of
+                    // matches. It adds entries; it never changes which
+                    // resources matched, so `total` is untouched.
+                    let directives = search_includes::include_directives(
+                        search_request_parameters(&search_request),
+                    );
+
+                    let included = search_includes::resolve_includes(
+                        state.repo.as_ref(),
+                        &ctx.tenant,
+                        &ctx.project,
+                        &resources,
+                        directives,
+                    )
+                    .await?;
+
+                    let bundle = to_bundle(
+                        BundleType::searchset(),
+                        search_results.total,
+                        search_entries(&fhir_api_root, resources, included),
+                    );
+
+                    Ok(FHIRResponse::Search(match search_request {
                         SearchRequest::Type(_) => {
-                            // `_include` reads the references on this page of
-                            // matches. It adds entries; it never changes which
-                            // resources matched, so `total` is untouched.
-                            let directives = search_includes::include_directives(
-                                search_request_parameters(&search_request),
-                            );
-
-                            let included = search_includes::resolve_includes(
-                                state.repo.as_ref(),
-                                &ctx.tenant,
-                                &ctx.project,
-                                &resources,
-                                directives,
-                            )
-                            .await?;
-
-                            let entries = search_entries(&fhir_api_root, resources, included);
-
-                            Ok(FHIRResponse::Search(SearchResponse::Type(
-                                FHIRSearchTypeResponse {
-                                    bundle: to_bundle(
-                                        BundleType::searchset(),
-                                        search_results.total,
-                                        entries,
-                                    ),
-                                },
-                            )))
+                            SearchResponse::Type(FHIRSearchTypeResponse { bundle })
                         }
-                        SearchRequest::System(_) => Ok(FHIRResponse::Search(
-                            SearchResponse::System(FHIRSearchSystemResponse {
-                                bundle: to_bundle(
-                                    BundleType::searchset(),
-                                    search_results.total,
-                                    resources
-                                        .into_iter()
-                                        .map(|r| to_bundle_entry(&fhir_api_root, r, None))
-                                        .collect(),
-                                ),
-                            }),
-                        )),
-                    }
+                        SearchRequest::System(_) => {
+                            SearchResponse::System(FHIRSearchSystemResponse { bundle })
+                        }
+                    }))
                 }
                 FHIRRequest::Transaction(transaction_request) => {
                     // Run sort before creating transaction.
