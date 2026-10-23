@@ -1,0 +1,624 @@
+{
+    "resourceType": "TestScript",
+    "id": "sort-number-quantity-uri",
+    "url": "https://haste.health/fhir/TestScript/sort-number-quantity-uri",
+    "title": "Sort number quantity uri",
+    "name": "Sort number quantity uri tests",
+    "status": "active",
+    "description": "_sort on number, quantity and uri parameters in both directions; reference parameters are still rejected.",
+    "contained": [
+        {
+            "resourceType": "RiskAssessment",
+            "id": "ra-0",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "b"
+                    },
+                    "probabilityDecimal": 20
+                }
+            ]
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "id": "ra-1",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "c"
+                    },
+                    "probabilityDecimal": 30
+                }
+            ]
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "id": "ra-2",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "a"
+                    },
+                    "probabilityDecimal": 10
+                }
+            ]
+        },
+        {
+            "resourceType": "Observation",
+            "id": "ob-0",
+            "status": "final",
+            "code": {
+                "text": "b"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "valueQuantity": {
+                "value": 2,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "resourceType": "Observation",
+            "id": "ob-1",
+            "status": "final",
+            "code": {
+                "text": "c"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "valueQuantity": {
+                "value": 3,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "resourceType": "Observation",
+            "id": "ob-2",
+            "status": "final",
+            "code": {
+                "text": "a"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            },
+            "valueQuantity": {
+                "value": 1,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "resourceType": "ValueSet",
+            "id": "vs-0",
+            "status": "draft",
+            "url": "http://example.org/vs/b",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "ValueSet",
+            "id": "vs-1",
+            "status": "draft",
+            "url": "http://example.org/vs/c",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "ValueSet",
+            "id": "vs-2",
+            "status": "draft",
+            "url": "http://example.org/vs/a",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "sort-types-test"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ra-0",
+            "resource": {
+                "reference": "#ra-0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ra-1",
+            "resource": {
+                "reference": "#ra-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ra-2",
+            "resource": {
+                "reference": "#ra-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ob-0",
+            "resource": {
+                "reference": "#ob-0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ob-1",
+            "resource": {
+                "reference": "#ob-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ob-2",
+            "resource": {
+                "reference": "#ob-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-vs-0",
+            "resource": {
+                "reference": "#vs-0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-vs-1",
+            "resource": {
+                "reference": "#vs-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-vs-2",
+            "resource": {
+                "reference": "#vs-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-sort-checks",
+            "name": "sort checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-ra-0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-ra-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-ra-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-ob-0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-ob-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-ob-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-vs-0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-vs-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-vs-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "_tag=sort-types-test&_sort=probability",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=probability count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=probability first",
+                        "expression": "Bundle.entry[0].resource.prediction.outcome.text",
+                        "operator": "equals",
+                        "value": "a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=probability last",
+                        "expression": "Bundle.entry[2].resource.prediction.outcome.text",
+                        "operator": "equals",
+                        "value": "c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "_tag=sort-types-test&_sort=-probability",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=-probability count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=-probability first",
+                        "expression": "Bundle.entry[0].resource.prediction.outcome.text",
+                        "operator": "equals",
+                        "value": "c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "RiskAssessment _sort=-probability last",
+                        "expression": "Bundle.entry[2].resource.prediction.outcome.text",
+                        "operator": "equals",
+                        "value": "a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=sort-types-test&_sort=value-quantity",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=value-quantity count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=value-quantity first",
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=value-quantity last",
+                        "expression": "Bundle.entry[2].resource.code.text",
+                        "operator": "equals",
+                        "value": "c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=sort-types-test&_sort=-value-quantity",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=-value-quantity count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=-value-quantity first",
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Observation _sort=-value-quantity last",
+                        "expression": "Bundle.entry[2].resource.code.text",
+                        "operator": "equals",
+                        "value": "a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "_tag=sort-types-test&_sort=url",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=url count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=url first",
+                        "expression": "Bundle.entry[0].resource.url",
+                        "operator": "equals",
+                        "value": "http://example.org/vs/a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=url last",
+                        "expression": "Bundle.entry[2].resource.url",
+                        "operator": "equals",
+                        "value": "http://example.org/vs/c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "_tag=sort-types-test&_sort=-url",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=-url count",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=-url first",
+                        "expression": "Bundle.entry[0].resource.url",
+                        "operator": "equals",
+                        "value": "http://example.org/vs/c",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "ValueSet _sort=-url last",
+                        "expression": "Bundle.entry[2].resource.url",
+                        "operator": "equals",
+                        "value": "http://example.org/vs/a",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_sort=subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "sort on reference rejected",
+                        "direction": "response",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=sort-types-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

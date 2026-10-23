@@ -464,7 +464,10 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
         .to_string();
 
     // Same sortable types as Elasticsearch.
-    if !matches!(param_type.as_str(), "date" | "string" | "token") {
+    if !matches!(
+        param_type.as_str(),
+        "date" | "string" | "token" | "number" | "quantity" | "uri"
+    ) {
         return Err(QueryBuildError::UnsupportedSortParameter(name.to_string()).into());
     }
 
@@ -606,11 +609,13 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
     match &entry.target {
         ClauseTarget::DirectColumn { alias, columns } => {
             let column = match (entry.param_type.as_str(), columns) {
-                // Ascending reads the period's start, descending its end.
-                ("date", ParamColumns::Date { start, end }) => {
+                // Ascending reads the range's start, descending its end.
+                ("date", ParamColumns::Date { start, end })
+                | ("quantity", ParamColumns::Quantity { start, end, .. }) => {
                     Some(if ascending { start } else { end })
                 }
-                ("string", ParamColumns::String { value } | ParamColumns::Uri { value })
+                ("string", ParamColumns::String { value })
+                | ("uri", ParamColumns::Uri { value })
                 | ("number", ParamColumns::Number { value }) => Some(value),
                 (
                     "token",
@@ -628,7 +633,9 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
             let column = match entry.param_type.as_str() {
                 "date" if ascending => "start_ms",
                 "date" => "end_ms",
-                "string" => "value",
+                "string" | "uri" | "number" => "value",
+                "quantity" if ascending => "start_value",
+                "quantity" => "end_value",
                 "token" => "code",
                 _ => return (None, params),
             };

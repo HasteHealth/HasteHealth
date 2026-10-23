@@ -41,71 +41,47 @@ fn sort_build(
     })?;
     let url = flatten_parameter_field_name(&url);
 
-    match &search_param.type_ {
-        param_type if param_type == &SearchParamType::date() => match direction {
-            SortDirection::Asc => {
-                let sort_col = url.clone() + ".start";
-                Ok(json!({
-                    sort_col: {
-                        "order": "asc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-            SortDirection::Desc => {
-                let sort_col = url.clone() + ".end";
-                Ok(json!({
-                    sort_col: {
-                        "order": "desc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-        },
-        param_type if param_type == &SearchParamType::string() => match direction {
-            SortDirection::Asc => Ok(json!({
-                url: {
-                    "order": "asc"
+    let param_type = &search_param.type_;
+    let ascending = matches!(direction, SortDirection::Asc);
+
+    // (sort field, nested path). Periods and quantities sort by their start
+    // ascending and their end descending.
+    let (field, nested) = if param_type == &SearchParamType::date() {
+        (
+            format!("{url}.{}", if ascending { "start" } else { "end" }),
+            true,
+        )
+    } else if param_type == &SearchParamType::quantity() {
+        (
+            format!(
+                "{url}.{}",
+                if ascending {
+                    "start_value"
+                } else {
+                    "end_value"
                 }
-            })),
-            SortDirection::Desc => Ok(json!({
-                url: {
-                    "order": "desc"
-                }
-            })),
-        },
-        param_type if param_type == &SearchParamType::token() => match direction {
-            SortDirection::Asc => {
-                let sort_col = url.clone() + ".code";
-                Ok(json!({
-                    sort_col: {
-                        "order": "asc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-            SortDirection::Desc => {
-                let sort_col = url.clone() + ".code";
-                Ok(json!({
-                    sort_col: {
-                        "order": "desc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-        },
-        _ => Err(QueryBuildError::UnsupportedSortParameter(
+            ),
+            true,
+        )
+    } else if param_type == &SearchParamType::token() {
+        (format!("{url}.code"), true)
+    } else if param_type == &SearchParamType::string()
+        || param_type == &SearchParamType::number()
+        || param_type == &SearchParamType::uri()
+    {
+        (url.clone(), false)
+    } else {
+        return Err(QueryBuildError::UnsupportedSortParameter(
             search_param.name.value.clone().unwrap_or_default(),
-        )),
+        ));
+    };
+
+    let order = if ascending { "asc" } else { "desc" };
+    let mut sort = json!({ "order": order });
+    if nested {
+        sort["nested"] = json!({ "path": url });
     }
+    Ok(json!({ field: sort }))
 }
 
 /// Matches documents where the parameter has at least one value. Token, date,
