@@ -340,7 +340,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
             )
             .await?;
         }
-        "_summary" | "_elements" | "_include" | "_type" => {
+        "_summary" | "_elements" | "_include" | "_type" | "_format" | "_pretty" => {
             // _elements and _summary are handled in middleware, not in the ES query.
         }
         _ => {

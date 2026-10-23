@@ -15,7 +15,7 @@ use crate::{
 };
 use axum::{
     Extension, Router, ServiceExt,
-    body::{Body, Bytes},
+    body::{Body, Bytes, to_bytes},
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
     http::{HeaderName, HeaderValue, Method, Uri},
@@ -26,7 +26,7 @@ use axum::{
 use axum_client_ip::ClientIpSource;
 use haste_fhir_client::{
     FHIRClient,
-    request::{FHIRCapabilitiesResponse, FHIRResponse},
+    request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -36,6 +36,7 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::generate_id};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
@@ -109,6 +110,40 @@ fn request_fhir_version(
     Ok(project_version)
 }
 
+/// Whether a search asked for `_pretty=true`. `_format` must name JSON, the
+/// only format served (<https://hl7.org/fhir/R4/http.html#parameters>); a raw
+/// `+` in `application/fhir+json` reaches here as a space.
+fn pretty_requested(
+    format: Option<&str>,
+    pretty: Option<&str>,
+) -> Result<bool, OperationOutcomeError> {
+    if let Some(format) = format
+        && !matches!(
+            format,
+            "json" | "application/json" | "application/fhir+json" | "application/fhir json"
+        )
+    {
+        return Err(OperationOutcomeError::error(
+            IssueType::not_supported(),
+            format!("_format '{format}' is not supported; only JSON is served."),
+        ));
+    }
+    Ok(pretty == Some("true"))
+}
+
+async fn pretty_print(response: Response) -> Result<Response, OperationOutcomeError> {
+    let (mut parts, body) = response.into_parts();
+    let bytes = to_bytes(body, usize::MAX)
+        .await
+        .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
+    // Not JSON (or unreadable): leave the body as it was.
+    let bytes = serde_json::from_slice::<serde_json::Value>(&bytes)
+        .and_then(|value| serde_json::to_vec_pretty(&value))
+        .map_or(bytes, Bytes::from);
+    parts.headers.remove(axum::http::header::CONTENT_LENGTH);
+    Ok(Response::from_parts(parts, Body::from(bytes)))
+}
+
 async fn fhir_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -127,21 +162,31 @@ async fn fhir_handler<
     let (requested_version, fhir_location) = split_fhir_version(uri.path());
     let fhir_version = request_fhir_version(&user, &path, requested_version)?;
 
+    let query: HashMap<String, String> = original_uri
+        .query()
+        .map(|q| {
+            url::form_urlencoded::parse(q.as_bytes())
+                .into_owned()
+                .collect()
+        })
+        .unwrap_or_default();
+    let format = query.get("_format").cloned();
+    let pretty = query.get("_pretty").cloned();
+
     let http_req = HTTPRequest::new(
         method,
         fhir_location.to_string(),
         HTTPBody::Bytes(body),
-        original_uri
-            .query()
-            .map(|q| {
-                url::form_urlencoded::parse(q.as_bytes())
-                    .into_owned()
-                    .collect()
-            })
-            .unwrap_or_default(),
+        query,
     );
 
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
+    // Searches only: `_format` is also an operation parameter.
+    let pretty = if matches!(fhir_request, FHIRRequest::Search(_)) {
+        pretty_requested(format.as_deref(), pretty.as_deref())?
+    } else {
+        false
+    };
 
     let ctx = Arc::new(
         ServerCTX::new(
@@ -157,7 +202,12 @@ async fn fhir_handler<
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
 
-    Ok(response.into_response())
+    let response = response.into_response();
+    if pretty {
+        pretty_print(response).await
+    } else {
+        Ok(response)
+    }
 }
 
 async fn public_metadata_handler<
@@ -384,6 +434,16 @@ mod tests {
     use axum::body::{Body, to_bytes};
     use axum::http::{Request, StatusCode};
     use tower::ServiceExt;
+
+    #[test]
+    fn format_and_pretty_parameters() {
+        for format in ["json", "application/json", "application/fhir+json"] {
+            assert!(!pretty_requested(Some(format), None).unwrap());
+        }
+        assert!(pretty_requested(None, Some("true")).unwrap());
+        assert!(!pretty_requested(None, Some("false")).unwrap());
+        assert!(pretty_requested(Some("xml"), None).is_err());
+    }
 
     #[test]
     fn version_is_split_off_when_the_url_carries_one() {

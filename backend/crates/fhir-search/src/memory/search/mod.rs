@@ -309,7 +309,7 @@ fn paged(page: Page, parameter: &Parameter) -> Result<Page, OperationOutcomeErro
             _ => return Err(QueryBuildError::InvalidParameterValue(parameter.name.clone()).into()),
         },
         // Handled in middleware, as for the other backends.
-        "_summary" | "_elements" | "_include" | "_type" => page,
+        "_summary" | "_elements" | "_include" | "_type" | "_format" | "_pretty" => page,
         // `_sort` and the rest need what only a query has.
         _ => return Err(QueryBuildError::UnsupportedParameter(parameter.name.clone()).into()),
     })
