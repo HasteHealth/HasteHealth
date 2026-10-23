@@ -146,6 +146,14 @@
                         "value": "false",
                         "warningOnly": false
                     }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
                 }
             ]
         },
@@ -193,6 +201,14 @@
                         "expression": "Bundle.entry[0].resource.gender.exists()",
                         "operator": "equals",
                         "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
                         "warningOnly": false
                     }
                 }
@@ -275,6 +291,14 @@
                         "value": "false",
                         "warningOnly": false
                     }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
                 }
             ]
         },
@@ -332,6 +356,14 @@
                         "value": "false",
                         "warningOnly": false
                     }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
                 }
             ]
         },
@@ -365,6 +397,14 @@
                         "value": "true",
                         "warningOnly": false
                     }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
                 }
             ]
         },
@@ -396,6 +436,14 @@
                         "expression": "Bundle.entry[0].resource.text.exists()",
                         "operator": "equals",
                         "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.tag.where(system='http://terminology.hl7.org/CodeSystem/v3-ObservationValue' and code='SUBSETTED').exists()",
+                        "operator": "equals",
+                        "value": "true",
                         "warningOnly": false
                     }
                 }

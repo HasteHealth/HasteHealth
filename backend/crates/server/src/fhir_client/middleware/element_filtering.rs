@@ -7,8 +7,13 @@ use haste_fhir_client::{
     request::{FHIRRequest, FHIRResponse, SearchRequest, SearchResponse},
     url::{ParsedParameter, ParsedParameters},
 };
-use haste_fhir_model::r4::generated::{resources::Bundle, terminology::IssueType};
+use haste_fhir_model::r4::generated::{
+    resources::{Bundle, Resource},
+    terminology::IssueType,
+    types::{Coding, FHIRUri, Meta},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_reflect::MetaValue;
 use std::sync::Arc;
 
 /// Element Filtering (should occur after access control checks).
@@ -123,6 +128,27 @@ fn kept_fields(subsetting: &Subsetting) -> Option<Vec<&str>> {
     }
 }
 
+const SUBSETTED_SYSTEM: &str = "http://terminology.hl7.org/CodeSystem/v3-ObservationValue";
+const SUBSETTED_CODE: &str = "SUBSETTED";
+
+/// Marks a resource as partial with `meta.tag` `SUBSETTED`.
+fn tag_subsetted(resource: &mut Resource) {
+    let Some(meta) = resource.get_field_mut("meta") else {
+        return;
+    };
+    let meta: &mut dyn std::any::Any = meta;
+    let Some(meta) = meta.downcast_mut::<Option<Box<Meta>>>() else {
+        return;
+    };
+
+    let tags = meta.get_or_insert_default().tag.get_or_insert_default();
+    tags.push(Coding {
+        system: Some(Box::new(FHIRUri::from(SUBSETTED_SYSTEM.to_string()))),
+        code: Some(Box::new(SUBSETTED_CODE.to_string().into())),
+        ..Default::default()
+    });
+}
+
 fn filter_bundle(
     mut bundle: Bundle,
     subsetting: &Subsetting,
@@ -145,9 +171,10 @@ fn filter_bundle(
             if is_search_match(&entry)
                 && let Some(resource) = entry.resource.take()
             {
-                let filtered = resource.filter(&fields).map_err(|e| {
+                let mut filtered = resource.filter(&fields).map_err(|e| {
                     OperationOutcomeError::error(IssueType::invalid(), e.to_string())
                 })?;
+                tag_subsetted(&mut filtered);
                 entry.resource = Some(Box::new(filtered));
             }
             Ok(entry)
