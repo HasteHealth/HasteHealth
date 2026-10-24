@@ -1,0 +1,411 @@
+{
+    "id": "search-list-test",
+    "url": "https://haste.health/fhir/TestScript/search-list",
+    "name": "Search List Parameter Test",
+    "title": "_list parameter tests",
+    "status": "active",
+    "description": "Tests _list: it restricts a search to the resources a List's entry.item references, combines with other parameters, accepts several lists, and matches nothing for an unknown list.",
+    "extension": [
+        {
+            "url": "https://haste.health/fhir/StructureDefinition/testscript-search-backend",
+            "valueCode": "postgres"
+        }
+    ],
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "list-pat-in-f",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "gender": "female"
+        },
+        {
+            "id": "list-pat-in-m",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "gender": "male"
+        },
+        {
+            "id": "list-pat-out",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "gender": "female"
+        },
+        {
+            "id": "list-obs-in",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "x"
+            }
+        },
+        {
+            "id": "list-a",
+            "resourceType": "List",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "status": "current",
+            "mode": "working",
+            "entry": [
+                {
+                    "item": {
+                        "reference": "Patient/list-pat-in-f"
+                    }
+                },
+                {
+                    "item": {
+                        "reference": "Patient/list-pat-in-m"
+                    }
+                },
+                {
+                    "item": {
+                        "reference": "Observation/list-obs-in"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "list-b",
+            "resourceType": "List",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-list-test"
+                    }
+                ]
+            },
+            "status": "current",
+            "mode": "working",
+            "entry": [
+                {
+                    "item": {
+                        "reference": "Patient/list-pat-out"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-list-pat-in-f",
+            "resource": {
+                "reference": "#list-pat-in-f"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-list-pat-in-m",
+            "resource": {
+                "reference": "#list-pat-in-m"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-list-pat-out",
+            "resource": {
+                "reference": "#list-pat-out"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-list-obs-in",
+            "resource": {
+                "reference": "#list-obs-in"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-list-a",
+            "resource": {
+                "reference": "#list-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-list-b",
+            "resource": {
+                "reference": "#list-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-list-restricts-to-its-items",
+            "name": "_list returns only the resources the List references",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-pat-in-f",
+                        "sourceId": "fixture-list-pat-in-f",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-pat-in-m",
+                        "sourceId": "fixture-list-pat-in-m",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-pat-out",
+                        "sourceId": "fixture-list-pat-out",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-obs-in",
+                        "sourceId": "fixture-list-obs-in",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-b",
+                        "sourceId": "fixture-list-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-list-a",
+                        "sourceId": "fixture-list-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-list-test&_list=list-a",
+                        "encodeRequestUrl": false,
+                        "description": "Only the two Patients in list-a."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Two Patients are in list-a",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The unlisted Patient is absent",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'list-pat-out').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-list-test&_list=list-b",
+                        "encodeRequestUrl": false,
+                        "description": "Only list-b's Patient."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One Patient is in list-b",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-list-combines-with-other-parameters",
+            "name": "_list combines with other parameters and other types",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-list-test&_list=list-a&gender=female",
+                        "encodeRequestUrl": false,
+                        "description": "Female Patients in list-a."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One female Patient is in list-a",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the listed female Patient",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'list-pat-in-f').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-list-test&_list=list-a",
+                        "encodeRequestUrl": false,
+                        "description": "Observations in list-a."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The listed Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-list-test&_list=list-b",
+                        "encodeRequestUrl": false,
+                        "description": "Observations in list-b."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Observation is in list-b",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "0",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-list-test&_list=list-a,list-b",
+                        "encodeRequestUrl": false,
+                        "description": "Either list."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "All three Patients are in a list",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "3",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-list-test&_list=no-such-list",
+                        "encodeRequestUrl": false,
+                        "description": "Unknown list."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An unknown list matches nothing",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "0",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        }
+    ]
+}
