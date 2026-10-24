@@ -732,3 +732,42 @@ async fn quantity_conversion() {
     let converted = evaluate_on("$this.convertsToQuantity('g')", vec![&quantity]).await;
     assert_eq!(converted, ["false"]);
 }
+
+/// <https://hl7.org/fhirpath/N1/#datetime-arithmetic>
+#[tokio::test]
+async fn date_time_arithmetic() {
+    assert_evaluates("@2014 + 24 months", &["'2016'"]).await;
+    assert_evaluates("@2019-03-01 + 1 day", &["'2019-03-02'"]).await;
+    assert_evaluates("@2020-01-31 + 1 month", &["'2020-02-29'"]).await;
+    assert_evaluates("@2020-01-01 - 1 day", &["'2019-12-31'"]).await;
+    assert_evaluates("@2020-01-01 + 2 weeks", &["'2020-01-15'"]).await;
+    assert_evaluates("@2020-01-01 + 1.9 years", &["'2021-01-01'"]).await;
+    assert_evaluates("@2020-03 - 3 months", &["'2019-12'"]).await;
+    assert_evaluates("@2020-01-01 + 1 'd'", &["'2020-01-02'"]).await;
+    assert_evaluates(
+        "@2020-01-01T12:00:00Z + 90 minutes",
+        &["'2020-01-01T13:30:00+00:00'"],
+    )
+    .await;
+    assert_evaluates(
+        "@2020-01-01T12:00:00Z - 1 year",
+        &["'2019-01-01T12:00:00+00:00'"],
+    )
+    .await;
+    assert_evaluates(
+        "@2020-01-01T12:00:00Z + 1.5 seconds",
+        &["'2020-01-01T12:00:01.500+00:00'"],
+    )
+    .await;
+    assert_evaluates("@T10:00 + 1 hour", &["'11:00'"]).await;
+    assert_evaluates("@T23:30:00 + 1 hour", &["'00:30:00'"]).await;
+    assert_evaluates("@T10 + 90 minutes", &["'11'"]).await;
+    // Units the value's precision cannot take, or not time units, are empty.
+    assert_evaluates("@2020-01-01 + 1 hour", &[]).await;
+    assert_evaluates("@T10:00 + 1 day", &[]).await;
+    assert_evaluates("@2014 + 1 day", &[]).await;
+    assert_evaluates("@2020-01-01 + 1 'mg'", &[]).await;
+    assert_evaluates("@2020-01-01 + {}", &[]).await;
+    assert_evaluates("1 + 2", &["3.0"]).await;
+    assert_evaluates("5 - 2", &["3.0"]).await;
+}
