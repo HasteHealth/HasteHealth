@@ -7296,7 +7296,7 @@
                         "warningOnly": false,
                         "label": "deceased-not",
                         "operator": "equals",
-                        "value": "2",
+                        "value": "1",
                         "extension": [
                             {
                                 "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
