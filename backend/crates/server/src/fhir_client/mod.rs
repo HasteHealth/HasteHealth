@@ -42,7 +42,10 @@ use middleware::{
     auth_z::{access_control::AccessControl, scope_check::SmartScopeAccess},
     capabilities::Capabilities,
     check_project::{CheckProject, SetProjectReadOnly},
-    custom_models::{membership::MembershipSync, project::ProjectSync, user::UserSync},
+    custom_models::{
+        access_policy_v3::AccessPolicyV3Validation, membership::MembershipSync,
+        project::ProjectSync, user::UserSync,
+    },
     element_filtering::ElementFiltering,
     operation_definitions::OperationDefinitions,
     operations::Operations,
@@ -268,6 +271,7 @@ enum Lane {
     OperationDefinition,
     ProjectAuth,
     TenantAuth,
+    AccessPolicy,
     Operation,
     Capabilities,
 }
@@ -282,6 +286,7 @@ impl Lane {
             | ResourceType::SearchParameter => Lane::Artifact,
             ResourceType::OperationDefinition => Lane::OperationDefinition,
             ResourceType::Membership => Lane::ProjectAuth,
+            ResourceType::AccessPolicyV3 => Lane::AccessPolicy,
             ResourceType::User | ResourceType::Project | ResourceType::IdentityProvider => {
                 Lane::TenantAuth
             }
@@ -376,6 +381,7 @@ struct Router<B: Backend> {
     operation_definition: Pipeline<B>,
     project_auth: Pipeline<B>,
     tenant_auth: Pipeline<B>,
+    access_policy: Pipeline<B>,
     operation: Pipeline<B>,
     capabilities: Pipeline<B>,
 }
@@ -393,6 +399,7 @@ impl<B: Backend> Handler<B> for Router<B> {
             Ok(Lane::OperationDefinition) => &self.operation_definition,
             Ok(Lane::ProjectAuth) => &self.project_auth,
             Ok(Lane::TenantAuth) => &self.tenant_auth,
+            Ok(Lane::AccessPolicy) => &self.access_policy,
             Ok(Lane::Operation) => &self.operation,
             Ok(Lane::Capabilities) => &self.capabilities,
             Err(error) => return Box::pin(std::future::ready(Err(error.into()))),
@@ -513,6 +520,14 @@ impl<
                     Box::new(PatchAsUpdate),
                     Box::new(ProjectSync),
                     Box::new(UserSync),
+                ],
+                Storage,
+            ),
+            access_policy: Pipeline::new(
+                vec![
+                    // A PATCH runs as an update, so the patched policy is checked too.
+                    Box::new(PatchAsUpdate),
+                    Box::new(AccessPolicyV3Validation),
                 ],
                 Storage,
             ),

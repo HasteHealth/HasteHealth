@@ -98,6 +98,22 @@
       "resourceType": "SearchParameter"
     },
     {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3_assignment/access-policy.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3_assignment/link.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3/combining.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
       "filename": "definitions/haste-health/search_parameter/client_application/grant_type.json",
       "resourceType": "SearchParameter"
     },
@@ -155,6 +171,14 @@
     },
     {
       "filename": "definitions/haste-health/structure_definition/access_policy_v2.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v3_assignment.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v3.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -219,6 +243,62 @@
     },
     {
       "filename": "definitions/haste-health/terminology/access-policy-v2/rule-condition-operators.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3AttributeScope.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3AttributeScope.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Combining.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Combining.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3FieldMode.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3FieldMode.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Obligation.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Obligation.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Redaction.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Redaction.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleKind.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleKind.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleType.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleType.json",
       "resourceType": "ValueSet"
     },
     {

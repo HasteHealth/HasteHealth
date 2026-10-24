@@ -16,7 +16,7 @@
 
 /// (canonical URL, base) pairs of the single-valued parameters, sorted for
 /// binary search.
-static SINGLE_VALUED: [(&str, &str); 802] = [
+static SINGLE_VALUED: [(&str, &str); 806] = [
     (
         "http://hl7.org/fhir/SearchParameter/Account-name",
         "Account",
@@ -3046,6 +3046,22 @@ static SINGLE_VALUED: [(&str, &str); 802] = [
     (
         "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link",
         "AccessPolicyV2Assignment",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining",
+        "AccessPolicyV3",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name",
+        "AccessPolicyV3",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3Assignment-access-policy",
+        "AccessPolicyV3Assignment",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3Assignment-link",
+        "AccessPolicyV3Assignment",
     ),
     (
         "https://haste.health/fhir/SearchParameter/ClientApplication-name",

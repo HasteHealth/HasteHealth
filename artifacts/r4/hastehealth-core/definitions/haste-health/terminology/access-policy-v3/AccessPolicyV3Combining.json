@@ -1,0 +1,70 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3combining",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Combining",
+            "resource": {
+                "id": "accesspolicyv3combining-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Combining",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Combining",
+                "title": "AccessPolicyV3Combining",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 combining algorithms.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "deny-overrides",
+                        "display": "deny-overrides"
+                    },
+                    {
+                        "code": "permit-overrides",
+                        "display": "permit-overrides"
+                    },
+                    {
+                        "code": "deny-unless-permit",
+                        "display": "deny-unless-permit"
+                    },
+                    {
+                        "code": "permit-unless-deny",
+                        "display": "permit-unless-deny"
+                    },
+                    {
+                        "code": "first-applicable",
+                        "display": "first-applicable"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3combining",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Combining",
+                "title": "AccessPolicyV3Combining",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 combining algorithms.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Combining"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -48,6 +48,14 @@
         {
             "code": "AccessPolicyV2Assignment",
             "display": "AccessPolicyV2Assignment"
+        },
+        {
+            "code": "AccessPolicyV3",
+            "display": "AccessPolicyV3"
+        },
+        {
+            "code": "AccessPolicyV3Assignment",
+            "display": "AccessPolicyV3Assignment"
         }
     ]
 }
