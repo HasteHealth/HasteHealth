@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/jwt",
-  "version": "0.126.31",
+  "version": "0.126.32",
   "dependencies": {
     "jose": "^6.2.3"
   },
