@@ -1,5 +1,6 @@
 mod error;
 mod parser;
+mod temporal;
 use crate::{
     error::{FunctionError, OperationError},
     parser::{
@@ -2001,7 +2002,9 @@ async fn evaluate_add<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if NUMBER_TYPES.contains(left.values[0].fhir_type())
+            if let Some(result) = temporal_arithmetic(&left, &right, false) {
+                Ok(result)
+            } else if NUMBER_TYPES.contains(left.values[0].fhir_type())
                 && NUMBER_TYPES.contains(right.values[0].fhir_type())
             {
                 let left_value = downcast_number(left.values[0])?;
@@ -2107,7 +2110,79 @@ async fn evaluate_subtraction<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l - r).await
+    operation_2(left, right, context, config, |left, right| {
+        Box::pin(async move {
+            if let Some(result) = temporal_arithmetic(&left, &right, true) {
+                return Ok(result);
+            }
+            let left_value = downcast_number(left.values[0])?;
+            let right_value = downcast_number(right.values[0])?;
+
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
+                    value: Some(left_value - right_value),
+                    ..Default::default()
+                })]),
+            )
+        })
+    })
+    .await
+}
+
+/// A `Date`, `DateTime` or `Time` plus or minus a time-valued Quantity, or
+/// `None` when the operands are not that pair. An unsupported unit or an
+/// out-of-range result is empty.
+fn temporal_arithmetic<'a>(
+    left: &Context<'a>,
+    right: &Context<'a>,
+    subtract: bool,
+) -> Option<Context<'a>> {
+    let quantity = right.values[0].as_any().downcast_ref::<Quantity>()?;
+    let any = left.values[0].as_any();
+    let (is_date, is_date_time, is_time) = (
+        any.is::<FHIRDate>(),
+        any.is::<FHIRDateTime>(),
+        any.is::<FHIRTime>(),
+    );
+    if !(is_date || is_date_time || is_time) {
+        return None;
+    }
+
+    let duration = quantity
+        .value
+        .as_ref()
+        .and_then(|value| value.value)
+        .and_then(|value| temporal::Duration::new(value, quantity_unit(quantity)))
+        .and_then(|duration| {
+            if subtract {
+                duration.negate()
+            } else {
+                Some(duration)
+            }
+        });
+    let result = duration.and_then(|duration| {
+        if let Some(date) = any.downcast_ref::<FHIRDate>() {
+            let value = temporal::shift_date(date.value.as_ref()?, duration)?;
+            Some(left.allocate_literal(FHIRDate {
+                value: Some(value),
+                ..Default::default()
+            }))
+        } else if let Some(date_time) = any.downcast_ref::<FHIRDateTime>() {
+            let value = temporal::shift_date_time(date_time.value.as_ref()?, duration)?;
+            Some(left.allocate_literal(FHIRDateTime {
+                value: Some(value),
+                ..Default::default()
+            }))
+        } else {
+            let value =
+                temporal::shift_time(any.downcast_ref::<FHIRTime>()?.value.as_ref()?, duration)?;
+            Some(left.allocate_literal(FHIRTime {
+                value: Some(value),
+                ..Default::default()
+            }))
+        }
+    });
+    Some(left.new_context_from(result.into_iter().collect()))
 }
 
 async fn evaluate_multiplication<'a>(

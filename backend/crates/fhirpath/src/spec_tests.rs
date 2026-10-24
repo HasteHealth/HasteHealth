@@ -732,3 +732,50 @@ async fn quantity_conversion() {
     let converted = evaluate_on("$this.convertsToQuantity('g')", vec![&quantity]).await;
     assert_eq!(converted, ["false"]);
 }
+
+/// <https://hl7.org/fhirpath/N1/#datetime-arithmetic>
+#[tokio::test]
+async fn date_time_arithmetic() {
+    assert_evaluates("@2014 + 24 months", &["'2016'"]).await;
+    // Truncated to the value's precision.
+    assert_evaluates("@2014 + 18 months", &["'2015'"]).await;
+    assert_evaluates("@2014-03 + 11 months", &["'2015-02'"]).await;
+    assert_evaluates("@2014-03 + 20 days", &["'2014-03'"]).await;
+    assert_evaluates("@2020-01-01 + 1 month", &["'2020-02-01'"]).await;
+    assert_evaluates("@2020-01-31 + 1 month", &["'2020-02-29'"]).await;
+    assert_evaluates("@2020-03-01 - 1 day", &["'2020-02-29'"]).await;
+    assert_evaluates("@2020-01-01 + 1 week", &["'2020-01-08'"]).await;
+    assert_evaluates("@2020-01-01 + 25 hours", &["'2020-01-02'"]).await;
+    assert_evaluates("@2020-01-01 - 1 year", &["'2019-01-01'"]).await;
+    assert_evaluates("@2020-01-01 + 1.9 days", &["'2020-01-02'"]).await;
+    assert_evaluates("@2020-01-01 + 1 'd'", &["'2020-01-02'"]).await;
+
+    assert_evaluates(
+        "@2020-01-01T10:00:00Z + 90 minutes",
+        &["'2020-01-01T11:30:00+00:00'"],
+    )
+    .await;
+    assert_evaluates(
+        "@2020-01-01T00:00:00Z - 1 second",
+        &["'2019-12-31T23:59:59+00:00'"],
+    )
+    .await;
+    assert_evaluates(
+        "@2020-01-01T00:00:00Z + 1 year",
+        &["'2021-01-01T00:00:00+00:00'"],
+    )
+    .await;
+    assert_evaluates("@2020-01-01T + 1 day", &["'2020-01-02'"]).await;
+
+    assert_evaluates("@T10:00:00 + 1 hour", &["'11:00:00'"]).await;
+    assert_evaluates("@T23:30:00 + 1 hour", &["'00:30:00'"]).await;
+    assert_evaluates("@T10:00 + 90 minutes", &["'11:30'"]).await;
+    assert_evaluates("@T10 - 11 hours", &["'23'"]).await;
+    assert_evaluates("@T10:00:00 + 1 month", &[]).await;
+
+    assert_evaluates("@2020-01-01 + 1 'mg'", &[]).await;
+    assert_evaluates("@2020-01-01 + {}", &[]).await;
+    assert_evaluates("{} - 1 day", &[]).await;
+    assert_evaluates("@9999-12-31 + 1 day", &[]).await;
+    assert_evaluates("1 + 2", &["3.0"]).await;
+}
