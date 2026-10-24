@@ -29,6 +29,24 @@ pub struct ServerConfig {
     pub security: SecurityConfig,
     pub operations: OperationsConfig,
     pub signup: SignupConfig,
+    pub jobs: JobsConfig,
+}
+
+/// Asynchronous jobs: the status endpoint a client polls while its job runs.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct JobsConfig {
+    /// What a polling client is told to wait, in seconds (`Retry-After`),
+    /// while its job is still queued or running.
+    pub retry_after_seconds: u64,
+}
+
+impl Default for JobsConfig {
+    fn default() -> Self {
+        Self {
+            retry_after_seconds: 5,
+        }
+    }
 }
 
 /// Sign-up and login at `/auth/signup` and `/auth/login`.
@@ -159,6 +177,7 @@ impl Default for ServerConfig {
             security: SecurityConfig::default(),
             operations: OperationsConfig::default(),
             signup: SignupConfig::default(),
+            jobs: JobsConfig::default(),
         }
     }
 }
