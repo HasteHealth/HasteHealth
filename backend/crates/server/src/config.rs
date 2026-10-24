@@ -1,8 +1,9 @@
 use derivative::Derivative;
 use haste_fhir_search::config::SearchConfig;
 use haste_repository::config::RepoConfig;
+use haste_worker::async_jobs::AsyncJobWorkerConfig;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
@@ -32,19 +33,61 @@ pub struct ServerConfig {
     pub jobs: JobsConfig,
 }
 
-/// Asynchronous jobs: the status endpoint a client polls while its job runs.
+/// Asynchronous jobs: an operation invoked with `Prefer: respond-async` today,
+/// Bulk Data exports next. The first three apply to the server's kick-off and
+/// status endpoints; the rest to the worker that runs the jobs.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct JobsConfig {
+    /// How long a finished job and its result stay available to poll, in
+    /// seconds, and how long a job that never ran waits before it is cleared.
+    pub retention_seconds: u64,
+    /// Queued or running jobs one project may have at once. A kick-off past
+    /// this is refused with `429 Too Many Requests`, as the Bulk Data
+    /// specification allows.
+    pub max_live_per_project: i64,
     /// What a polling client is told to wait, in seconds (`Retry-After`),
     /// while its job is still queued or running.
     pub retry_after_seconds: u64,
+    /// How long one claim or lease renewal holds a job for a worker, in
+    /// seconds. A worker that stops renewing for this long loses the job.
+    pub lease_seconds: u64,
+    /// How often an idle worker looks for queued jobs, in milliseconds.
+    pub poll_interval_ms: u64,
+    /// Jobs one worker runs at once.
+    pub max_concurrent: usize,
+    /// How often a worker sweeps abandoned and expired jobs, in seconds.
+    pub maintenance_interval_seconds: u64,
+}
+
+impl JobsConfig {
+    #[must_use]
+    pub fn retention(&self) -> Duration {
+        Duration::from_secs(self.retention_seconds)
+    }
+
+    #[must_use]
+    pub fn worker_config(&self) -> AsyncJobWorkerConfig {
+        AsyncJobWorkerConfig {
+            poll_interval: Duration::from_millis(self.poll_interval_ms),
+            lease_duration: Duration::from_secs(self.lease_seconds),
+            max_concurrent_jobs: self.max_concurrent,
+            maintenance_interval: Duration::from_secs(self.maintenance_interval_seconds),
+            retention: self.retention(),
+        }
+    }
 }
 
 impl Default for JobsConfig {
     fn default() -> Self {
         Self {
+            retention_seconds: 24 * 60 * 60,
+            max_live_per_project: 10,
             retry_after_seconds: 5,
+            lease_seconds: 60,
+            poll_interval_ms: 1000,
+            max_concurrent: 4,
+            maintenance_interval_seconds: 60,
         }
     }
 }

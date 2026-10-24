@@ -75,7 +75,7 @@ enum CliCommand {
         #[arg(long)]
         no_browser: bool,
     },
-    /// Run background workers (search indexing, WAL processing).
+    /// Run the background workers (search indexing and async jobs), or only the one named.
     Worker {
         #[command(subcommand)]
         command: Option<commands::worker::WorkerCommands>,

@@ -191,7 +191,18 @@ async fn evaluate_invocation<'a>(
                 Ok(context.new_context_from(vec![]))
             }
         }
-        Invocation::IndexAccessor => Err(FHIRPathError::NotImplemented("index access".to_string())),
+        Invocation::IndexAccessor => Ok(context.new_context_from(
+            context
+                .index
+                .map(|index| {
+                    context.allocate_literal(FHIRInteger {
+                        value: Some(i64::try_from(index).unwrap_or(i64::MAX)),
+                        ..Default::default()
+                    })
+                })
+                .into_iter()
+                .collect(),
+        )),
         Invocation::Total => Err(FHIRPathError::NotImplemented("total".to_string())),
         Invocation::Identifier(Identifier(id)) => Ok(context.new_context_from(
             context
@@ -483,10 +494,10 @@ async fn evaluate_where<'a>(
     let where_condition = &function.arguments[0];
     let mut new_context = vec![];
 
-    for value in &context.values {
+    for (index, value) in context.values.iter().enumerate() {
         let result = evaluate_expression(
             where_condition,
-            context.new_context_from(vec![*value]),
+            context.new_item_context(*value, index),
             config.clone(),
         )
         .await?;
@@ -710,8 +721,17 @@ async fn evaluate_repeat<'a>(
     let mut cur = context;
 
     while !cur.values.is_empty() {
-        cur = evaluate_expression(projection, cur, config.clone()).await?;
-        end_result.extend_from_slice(cur.values.as_slice());
+        let mut next = vec![];
+        for (index, value) in cur.values.iter().enumerate() {
+            let item = cur.new_item_context(*value, index);
+            next.extend(
+                evaluate_expression(projection, item, config.clone())
+                    .await?
+                    .values,
+            );
+        }
+        end_result.extend_from_slice(&next);
+        cur = cur.new_context_from(next);
     }
 
     Ok(cur.new_context_from(end_result))
@@ -932,8 +952,8 @@ async fn evaluate_all<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::One)?;
 
-    for value in &context.values {
-        let item = context.new_context_from(vec![*value]);
+    for (index, value) in context.values.iter().enumerate() {
+        let item = context.new_item_context(*value, index);
         let result = evaluate_expression(&function.arguments[0], item, config.clone()).await?;
 
         if singleton_boolean("all", &result)? != Some(true) {
@@ -953,8 +973,8 @@ async fn evaluate_select<'a>(
     validate_arguments(&function.arguments, &Cardinality::One)?;
 
     let mut selected = vec![];
-    for value in &context.values {
-        let item = context.new_context_from(vec![*value]);
+    for (index, value) in context.values.iter().enumerate() {
+        let item = context.new_item_context(*value, index);
         let result = evaluate_expression(&function.arguments[0], item, config.clone()).await?;
         selected.extend(result.values);
     }
@@ -2578,6 +2598,8 @@ impl ResolvedValue {
 pub struct Context<'a> {
     allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
     values: Vec<&'a dyn MetaValue>,
+    // Position of the current item in an iteration function, backing `$index`.
+    index: Option<usize>,
 }
 
 pub type ResolvedValueFuture = Pin<Box<dyn Future<Output = Option<ResolvedValue>> + Send>>;
@@ -2660,12 +2682,24 @@ impl<'a> Context<'a> {
         values: Vec<&'a dyn MetaValue>,
         allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
     ) -> Self {
-        Self { allocator, values }
+        Self {
+            allocator,
+            values,
+            index: None,
+        }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
             allocator: self.allocator.clone(),
             values,
+            index: self.index,
+        }
+    }
+    /// A singleton context for one item of an iteration function, binding `$index`.
+    fn new_item_context(&self, value: &'a dyn MetaValue, index: usize) -> Self {
+        Self {
+            index: Some(index),
+            ..self.new_context_from(vec![value])
         }
     }
     fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
@@ -2700,6 +2734,7 @@ impl Clone for Context<'_> {
         Self {
             allocator: self.allocator.clone(),
             values: self.values.clone(),
+            index: self.index,
         }
     }
 }

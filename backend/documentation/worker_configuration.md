@@ -1,5 +1,18 @@
 # Haste Health Worker
 
+## Commands
+
+| Command                          | Runs                                    |
+| -------------------------------- | --------------------------------------- |
+| `haste-health worker`            | Search indexing and async jobs together |
+| `haste-health worker indexing`   | Search indexing only                    |
+| `haste-health worker async-jobs` | Async jobs only                         |
+
+Run the two separately to scale them on their own. Every deployment needs both
+running somewhere. The settings below are the indexing worker's. The async-job
+worker reads the [server configuration](./server_configuration.md) instead: its
+lease, polling and concurrency come from the `jobs` section (`HASTE_JOBS.*`).
+
 ## Configuration
 
 Worker configuration is loaded with [Figment](https://docs.rs/figment), merging two sources in order (`backend/src/commands/worker.rs`):
