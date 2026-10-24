@@ -894,6 +894,23 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpClient<CTX
             _ctx: PhantomData,
         }
     }
+
+    /// Builds and sends a FHIR interaction, returning the raw response.
+    async fn execute(
+        &self,
+        ctx: &CTX,
+        request: &FHIRRequest,
+    ) -> Result<reqwest::Response, OperationOutcomeError> {
+        let mut http_request = fhir_request_to_http_request(&self.state, request).await?;
+        apply_request_headers(ctx, &mut http_request);
+
+        Ok(self
+            .state
+            .client
+            .execute(http_request)
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?)
+    }
 }
 
 /// Applies the caller's headers to a built request. Applied last so a
@@ -925,26 +942,9 @@ impl HttpResponseMetadata {
     }
 }
 
-/// A request that is not a FHIR interaction, such as a poll of an
-/// asynchronous request's status URL.
-#[derive(Debug, Clone)]
-pub struct HttpRequest {
-    pub method: Method,
-    /// Absolute, or relative to the client's FHIR base URL.
-    pub url: String,
-    pub body: Option<String>,
-}
-
-/// The response to an [`HttpRequest`], whatever its status.
-#[derive(Debug, Clone)]
-pub struct HttpResponse {
-    pub metadata: HttpResponseMetadata,
-    pub body: bytes::Bytes,
-}
-
 /// What a FHIR client over HTTP offers beyond [`FHIRClient`]: the status and
 /// headers of a response, and requests outside the FHIR interactions.
-pub trait FHIRHttpExchange<CTX> {
+pub trait FHIRHttpExchange<CTX>: FHIRClient<CTX, OperationOutcomeError> {
     /// Sends a FHIR interaction as [`FHIRClient::request`] does, also
     /// returning the status and headers of its response, or `None` when no
     /// response arrived.
@@ -959,10 +959,12 @@ pub trait FHIRHttpExchange<CTX> {
         ),
     > + Send;
 
-    /// Sends a request that is not a FHIR interaction. A non-success status is
-    /// a response like any other, not an error. The configured authentication
-    /// is sent only to the FHIR base URL's origin, so a URL taken from a
-    /// response cannot carry the credentials elsewhere.
+    /// Sends a request that is not a FHIR interaction, such as a poll of an
+    /// asynchronous request's status URL, to `url`: absolute, or relative to
+    /// the FHIR base URL. A non-success status is a response like any other,
+    /// not an error. The configured authentication is sent only to the FHIR
+    /// base URL's origin, so a URL taken from a response cannot carry the
+    /// credentials elsewhere.
     ///
     /// # Errors
     ///
@@ -971,8 +973,9 @@ pub trait FHIRHttpExchange<CTX> {
     fn send(
         &self,
         ctx: CTX,
-        request: HttpRequest,
-    ) -> impl Future<Output = Result<HttpResponse, OperationOutcomeError>> + Send;
+        method: Method,
+        url: &str,
+    ) -> impl Future<Output = Result<(HttpResponseMetadata, bytes::Bytes), OperationOutcomeError>> + Send;
 }
 
 impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpExchange<CTX>
@@ -986,43 +989,31 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpExchange<C
         Option<HttpResponseMetadata>,
         Result<FHIRResponse, OperationOutcomeError>,
     ) {
-        let mut http_request = match fhir_request_to_http_request(&self.state, &request).await {
-            Ok(http_request) => http_request,
-            Err(error) => return (None, Err(error)),
-        };
-        apply_request_headers(&ctx, &mut http_request);
-
-        let response = match self.state.client.execute(http_request).await {
-            Ok(response) => response,
-            Err(error) => return (None, Err(FHIRHTTPError::ReqwestError(error).into())),
-        };
-        let metadata = HttpResponseMetadata::of(&response);
-
-        (
-            Some(metadata),
-            http_response_to_fhir_response(&request, response).await,
-        )
+        match self.execute(&ctx, &request).await {
+            Ok(response) => (
+                Some(HttpResponseMetadata::of(&response)),
+                http_response_to_fhir_response(&request, response).await,
+            ),
+            Err(error) => (None, Err(error)),
+        }
     }
 
     async fn send(
         &self,
         ctx: CTX,
-        request: HttpRequest,
-    ) -> Result<HttpResponse, OperationOutcomeError> {
+        method: Method,
+        url: &str,
+    ) -> Result<(HttpResponseMetadata, bytes::Bytes), OperationOutcomeError> {
         // `join` resolves a relative URL against the base, and returns an
         // absolute one as it is.
         let url = self
             .state
             .api_url
-            .join(&request.url)
-            .map_err(|_| FHIRHTTPError::UrlParseError(request.url.clone()))?;
+            .join(url)
+            .map_err(|_| FHIRHTTPError::UrlParseError(url.to_string()))?;
         let same_origin = url.origin() == self.state.api_url.origin();
 
-        let mut builder = self.state.client.request(request.method, url);
-        if let Some(body) = request.body {
-            builder = builder.body(body);
-        }
-        let mut http_request = build_request(builder)?;
+        let mut http_request = build_request(self.state.client.request(method, url))?;
         if same_origin {
             authenticate(&self.state, &mut http_request).await?;
         }
@@ -1040,7 +1031,7 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpExchange<C
             .await
             .map_err(FHIRHTTPError::ReqwestError)?;
 
-        Ok(HttpResponse { metadata, body })
+        Ok((metadata, body))
     }
 }
 
@@ -1052,7 +1043,9 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRClient<CTX, Op
         ctx: CTX,
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
-        self.request_with_metadata(ctx, request).await.1
+        let response = self.execute(&ctx, &request).await?;
+
+        http_response_to_fhir_response(&request, response).await
     }
 
     async fn capabilities(&self, ctx: CTX) -> Result<CapabilityStatement, OperationOutcomeError> {

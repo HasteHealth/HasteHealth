@@ -180,17 +180,8 @@
                         "description": "Poll until the job is no longer running.",
                         "extension": [
                             {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll",
-                                "extension": [
-                                    {
-                                        "url": "whileResponseCode",
-                                        "valueString": "202"
-                                    },
-                                    {
-                                        "url": "timeoutSeconds",
-                                        "valueInteger": 60
-                                    }
-                                ]
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll-while-response-code",
+                                "valueString": "202"
                             }
                         ],
                         "method": "get",
@@ -276,17 +267,8 @@
                     "operation": {
                         "extension": [
                             {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll",
-                                "extension": [
-                                    {
-                                        "url": "whileResponseCode",
-                                        "valueString": "202"
-                                    },
-                                    {
-                                        "url": "timeoutSeconds",
-                                        "valueInteger": 60
-                                    }
-                                ]
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll-while-response-code",
+                                "valueString": "202"
                             }
                         ],
                         "method": "get",

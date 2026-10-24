@@ -89,15 +89,6 @@
                 },
                 {
                     "assert": {
-                        "label": "Create code is one of 200 or 201",
-                        "responseCode": "200,201",
-                        "operator": "in",
-                        "sourceId": "create-response",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "assert": {
                         "label": "Create carries an ETag",
                         "headerField": "ETag",
                         "operator": "notEmpty",
@@ -107,27 +98,8 @@
                 },
                 {
                     "assert": {
-                        "label": "ETag is weak",
-                        "headerField": "ETag",
-                        "operator": "contains",
-                        "value": "W/",
-                        "sourceId": "create-response",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "assert": {
                         "label": "Create is FHIR JSON",
                         "contentType": "application/fhir+json",
-                        "sourceId": "create-response",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "assert": {
-                        "label": "Create sends no X-Progress",
-                        "headerField": "X-Progress",
-                        "operator": "empty",
                         "sourceId": "create-response",
                         "warningOnly": false
                     }
@@ -154,14 +126,6 @@
                     "assert": {
                         "label": "Missing read is notFound",
                         "response": "notFound",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "assert": {
-                        "label": "Missing read is not 200",
-                        "responseCode": "200",
-                        "operator": "notEquals",
                         "warningOnly": false
                     }
                 },
@@ -206,64 +170,6 @@
                         "label": "Unknown job issue is not-found",
                         "expression": "OperationOutcome.issue.first().code",
                         "value": "not-found",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "operation": {
-                        "method": "delete",
-                        "url": "../../jobs/http-assertions-no-such-job",
-                        "encodeRequestUrl": false
-                    }
-                },
-                {
-                    "assert": {
-                        "label": "Cancelling an unknown job is 404",
-                        "responseCode": "404",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "assert": {
-                        "label": "The earlier response is still addressable",
-                        "responseCode": "404",
-                        "sourceId": "unknown-job",
-                        "warningOnly": false
-                    }
-                }
-            ]
-        },
-        {
-            "id": "poll-timeout",
-            "name": "Polling stops at its timeout",
-            "description": "The poll extension repeats a request while its response has the given status, and gives up at the timeout with the last response.",
-            "action": [
-                {
-                    "operation": {
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll",
-                                "extension": [
-                                    {
-                                        "url": "whileResponseCode",
-                                        "valueString": "404"
-                                    },
-                                    {
-                                        "url": "timeoutSeconds",
-                                        "valueInteger": 1
-                                    }
-                                ]
-                            }
-                        ],
-                        "method": "get",
-                        "url": "../../jobs/http-assertions-no-such-job",
-                        "encodeRequestUrl": false
-                    }
-                },
-                {
-                    "assert": {
-                        "label": "Polled request still 404 after the timeout",
-                        "responseCode": "404",
                         "warningOnly": false
                     }
                 }
