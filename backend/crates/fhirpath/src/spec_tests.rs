@@ -133,6 +133,30 @@ async fn select() {
     assert_evaluates("{}.select($this)", &[]).await;
 }
 
+/// `$index` is the position of the current item in `where`, `select`, `all`, `exists` and `repeat`.
+#[tokio::test]
+async fn index() {
+    assert_evaluates("('a' | 'b' | 'c').where($index > 0)", &["'b'", "'c'"]).await;
+    assert_evaluates("('a' | 'b' | 'c').select($index)", &["0", "1", "2"]).await;
+    assert_evaluates("('a' | 'b').all($index < 2)", &["true"]).await;
+    assert_evaluates("('a' | 'b').all($index < 1)", &["false"]).await;
+    assert_evaluates("('a' | 'b').exists($index = 1)", &["true"]).await;
+    // Only position 0 is projected, and the projected 'c' then ends the recursion.
+    assert_evaluates(
+        "('a' | 'b').repeat(iif($index = 0 and $this != 'c', 'c', {}))",
+        &["'c'"],
+    )
+    .await;
+    // Innermost iteration wins.
+    assert_evaluates(
+        "(1 | 2).select(('x' | 'y' | 'z').select($index))",
+        &["0", "1", "2", "0", "1", "2"],
+    )
+    .await;
+    // Empty outside an iteration function.
+    assert_evaluates("$index", &[]).await;
+}
+
 /// <https://hl7.org/fhirpath/N1/#single-collection> through
 /// <https://hl7.org/fhirpath/N1/#excludeother-collection-collection>
 #[tokio::test]
