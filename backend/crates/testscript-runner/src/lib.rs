@@ -1,7 +1,10 @@
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use haste_fhir_client::{
     FHIRClient,
-    http::{HeaderMap, HeaderName, HeaderValue, WithRequestHeaders},
+    http::{
+        FHIRHttpExchange, HeaderMap, HeaderName, HeaderValue, HttpResponseMetadata, Method,
+        StatusCode, WithRequestHeaders, header,
+    },
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
         FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
@@ -27,7 +30,7 @@ use haste_fhir_model::r4::generated::{
         AssertDirectionCodes, AssertOperatorCodes, BoundCode, BundleType, IssueType,
         ReportActionResultCodes, ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
     },
-    types::{FHIRId, FHIRMarkdown, FHIRString, Reference},
+    types::{ExtensionValueTypeChoice, FHIRId, FHIRMarkdown, FHIRString, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, TypedPointer};
@@ -56,15 +59,27 @@ pub enum TestScriptError {
 
 #[derive(Debug, Clone)]
 enum Response {
-    FHIRResponse(Box<FHIRResponse>),
+    Interaction(Box<FHIRResponse>),
     OperationError(Arc<OperationOutcomeError>),
+    /// The response to a request that is not a FHIR interaction (an operation
+    /// with a `url` and no `type`): its body, when that is a FHIR resource.
+    Http(Option<Box<Resource>>),
+}
+
+/// A response as fixtures, variables and assertions see it: the FHIR
+/// response, plus the HTTP status and headers it came with (`None` when the
+/// request failed before a response arrived).
+#[derive(Debug, Clone)]
+struct RecordedResponse {
+    response: Response,
+    http: Option<HttpResponseMetadata>,
 }
 
 #[derive(Debug)]
 enum Fixtures {
     Resource(Resource),
     Request(FHIRRequest),
-    Response(Response),
+    Response(RecordedResponse),
 }
 
 // Internal structure to hold current test result and testing fixtures.
@@ -72,7 +87,7 @@ struct TestState {
     fp_engine: haste_fhirpath::FPEngine,
     fixtures: HashMap<String, Fixtures>,
     latest_request: Option<FHIRRequest>,
-    latest_response: Option<Response>,
+    latest_response: Option<RecordedResponse>,
     result: BoundCode<ReportResultCodes>,
     /// Writes not yet confirmed visible to search. All are waited for, since a
     /// search (a chained one especially) may filter on any of them.
@@ -117,9 +132,27 @@ impl TestState {
             Fixtures::Request(req) => {
                 request_to_meta_value(req).ok_or_else(|| TestScriptError::InvalidFixture)
             }
-            Fixtures::Response(response) => {
-                response_to_meta_value(response).ok_or_else(|| TestScriptError::InvalidFixture)
-            }
+            Fixtures::Response(recorded) => response_to_meta_value(&recorded.response)
+                .ok_or_else(|| TestScriptError::InvalidFixture),
+        }
+    }
+
+    /// The response fixture `fixture_id` names, or the latest response.
+    fn resolve_response(
+        &self,
+        fixture_id: Option<&str>,
+    ) -> Result<&RecordedResponse, TestScriptError> {
+        match fixture_id {
+            Some(fixture_id) => match self.fixtures.get(fixture_id) {
+                Some(Fixtures::Response(recorded)) => Ok(recorded),
+                Some(_) => Err(TestScriptError::ExecutionError(format!(
+                    "Fixture '{fixture_id}' is not a response."
+                ))),
+                None => Err(TestScriptError::FixtureNotFound),
+            },
+            None => self.latest_response.as_ref().ok_or_else(|| {
+                TestScriptError::ExecutionError("No response to evaluate yet.".to_string())
+            }),
         }
     }
 }
@@ -131,7 +164,7 @@ struct TestResult<T> {
 
 fn response_to_meta_value(response: &Response) -> Option<&dyn MetaValue> {
     match response {
-        Response::FHIRResponse(fhir_response) => match &**fhir_response {
+        Response::Interaction(fhir_response) => match &**fhir_response {
             FHIRResponse::Create(res) => Some(&res.resource),
             FHIRResponse::Read(res) => Some(&res.resource),
             FHIRResponse::VersionRead(res) => Some(&res.resource),
@@ -162,6 +195,9 @@ fn response_to_meta_value(response: &Response) -> Option<&dyn MetaValue> {
             let outcome = op_error.outcome();
             Some(outcome)
         }
+        Response::Http(resource) => resource
+            .as_deref()
+            .map(|resource| resource as &dyn MetaValue),
     }
 }
 
@@ -195,13 +231,14 @@ fn request_to_meta_value(request: &FHIRRequest) -> Option<&dyn MetaValue> {
 fn associate_request_response_variables(
     state: &mut TestState,
     operation: &TestScriptSetupActionOperation,
-    request: FHIRRequest,
-    response: Response,
+    request: Option<FHIRRequest>,
+    response: RecordedResponse,
 ) {
-    if let Some(request_var) = operation
-        .requestId
-        .as_ref()
-        .and_then(|id| id.value.as_ref())
+    if let Some(request) = request.as_ref()
+        && let Some(request_var) = operation
+            .requestId
+            .as_ref()
+            .and_then(|id| id.value.as_ref())
     {
         // Associate request variable in state
         state
@@ -220,7 +257,7 @@ fn associate_request_response_variables(
             .insert(response_var.clone(), Fixtures::Response(response.clone()));
     }
 
-    state.latest_request = Some(request);
+    state.latest_request = request;
     state.latest_response = Some(response);
 }
 
@@ -267,6 +304,26 @@ async fn get_variable(
         )));
     };
 
+    if let Some(field) = variable
+        .headerField
+        .as_ref()
+        .and_then(|field| field.value.as_deref())
+    {
+        let source_id = variable
+            .sourceId
+            .as_ref()
+            .and_then(|id| id.value.as_deref());
+        let recorded = state.resolve_response(source_id)?;
+
+        return header_value(recorded, field)
+            .map(ConvertedValue::String)
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Variable '{variable_id}': the response has no '{field}' header."
+                ))
+            });
+    }
+
     if let Some(expression) = variable
         .expression
         .as_ref()
@@ -304,7 +361,7 @@ async fn get_variable(
         }
     } else {
         Err(TestScriptError::ExecutionError(format!(
-            "Only support variable with expression for variable id '{variable_id}'.",
+            "Only support variable with expression or headerField for variable id '{variable_id}'.",
         )))
     }
 }
@@ -338,6 +395,48 @@ async fn evaluate_variable(
     }
 
     Ok(result)
+}
+
+/// What an operation sends: a FHIR interaction, or a plain HTTP request.
+enum OperationRequest {
+    Interaction(Box<FHIRRequest>),
+    Http { method: Method, url: String },
+}
+
+async fn testscript_operation_to_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+) -> Result<OperationRequest, TestScriptError> {
+    let operation = get_operation(pointer)?;
+
+    // An operation with a `url` and no `type` is a plain HTTP request to that
+    // (variable-evaluated) URL by its `method`: how a `TestScript` reaches what
+    // is not a FHIR interaction, such as an asynchronous request's status URL.
+    if get_operation_type(operation).is_none()
+        && let Some(url) = operation.url.as_ref().and_then(|url| url.value.as_deref())
+    {
+        // The method codes are the HTTP methods in lower case.
+        let method = operation
+            .method
+            .as_ref()
+            .and_then(BoundCode::as_str)
+            .unwrap_or("get");
+        let method = Method::from_bytes(method.to_ascii_uppercase().as_bytes()).map_err(|_| {
+            TestScriptError::ExecutionError(format!(
+                "Unsupported method '{method}' for operation at '{}'.",
+                pointer.path()
+            ))
+        })?;
+
+        return Ok(OperationRequest::Http {
+            method,
+            url: evaluate_variable(state, pointer.root(), url).await?,
+        });
+    }
+
+    testscript_operation_to_fhir_request(state, pointer)
+        .await
+        .map(|request| OperationRequest::Interaction(Box::new(request)))
 }
 
 async fn testscript_operation_to_fhir_request(
@@ -1073,10 +1172,134 @@ async fn wait_for_index<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
     }
 }
 
-async fn run_operation<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+/// The extension that repeats an operation while its response has the status
+/// in its `valueString` (such as `"202"`), as a client polls an asynchronous
+/// request's status URL. Only the last response is recorded.
+const POLL_EXTENSION_URL: &str =
+    "https://haste.health/fhir/StructureDefinition/testscript-poll-while-response-code";
+
+/// How long an operation is polled before the last response is taken as it is.
+const POLL_TIMEOUT: Duration = Duration::from_secs(60);
+
+/// The shortest wait between polls, and the wait without a `Retry-After`.
+const POLL_INTERVAL: Duration = Duration::from_secs(1);
+
+/// The status the operation's poll extension repeats it on, if it has one.
+fn poll_while(
+    operation: &TestScriptSetupActionOperation,
+    path: &str,
+) -> Result<Option<StatusCode>, TestScriptError> {
+    let Some(extension) = operation
+        .extension
+        .as_ref()
+        .and_then(|extensions| extensions.iter().find(|e| e.url == POLL_EXTENSION_URL))
+    else {
+        return Ok(None);
+    };
+
+    match &extension.value {
+        Some(ExtensionValueTypeChoice::String(code)) => code
+            .value
+            .as_deref()
+            .and_then(|code| StatusCode::from_bytes(code.trim().as_bytes()).ok()),
+        _ => None,
+    }
+    .map(Some)
+    .ok_or_else(|| {
+        TestScriptError::ExecutionError(format!(
+            "The poll extension on the operation at '{path}' needs a valueString holding an \
+             HTTP status code."
+        ))
+    })
+}
+
+/// A response header's value, with repeats joined as HTTP allows (`, `).
+fn header_value(recorded: &RecordedResponse, field: &str) -> Option<String> {
+    let headers = &recorded.http.as_ref()?.headers;
+    let values: Vec<&str> = headers
+        .get_all(field)
+        .iter()
+        .filter_map(|value| value.to_str().ok())
+        .collect();
+
+    (!values.is_empty()).then(|| values.join(", "))
+}
+
+/// `Retry-After` in its delay-seconds form.
+fn retry_after(recorded: &RecordedResponse) -> Option<Duration> {
+    header_value(recorded, header::RETRY_AFTER.as_str())?
+        .trim()
+        .parse::<u64>()
+        .ok()
+        .map(Duration::from_secs)
+}
+
+async fn send_operation<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
+    client: &Client,
+    ctx: CTX,
+    request: &OperationRequest,
+) -> RecordedResponse {
+    match request {
+        OperationRequest::Interaction(request) => {
+            let (http, result) = client
+                .request_with_metadata(ctx, request.as_ref().clone())
+                .await;
+            let response = match result {
+                Ok(response) => Response::Interaction(Box::new(response)),
+                Err(error) => Response::OperationError(Arc::new(error)),
+            };
+
+            RecordedResponse { response, http }
+        }
+        OperationRequest::Http { method, url } => match client.send(ctx, method.clone(), url).await
+        {
+            Ok((metadata, body)) => RecordedResponse {
+                // A body that is not a FHIR resource (a Bulk Data manifest,
+                // say) is left to the HTTP-level assertions.
+                response: Response::Http(
+                    serde_json::from_slice::<Resource>(&body).ok().map(Box::new),
+                ),
+                http: Some(metadata),
+            },
+            Err(error) => RecordedResponse {
+                response: Response::OperationError(Arc::new(error)),
+                http: None,
+            },
+        },
+    }
+}
+
+/// Sends the operation, and while its response has the `poll_while` status
+/// sends it again, waiting as long as `Retry-After` says, up to
+/// [`POLL_TIMEOUT`]. Returns the last response.
+async fn send_polling<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
+    client: &Client,
+    ctx: CTX,
+    request: &OperationRequest,
+    poll_while: Option<StatusCode>,
+) -> RecordedResponse {
+    let Some(poll_while) = poll_while else {
+        return send_operation(client, ctx, request).await;
+    };
+    let deadline = tokio::time::Instant::now() + POLL_TIMEOUT;
+
+    loop {
+        let recorded = send_operation(client, ctx.clone(), request).await;
+        let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
+        if recorded.http.as_ref().map(|http| http.status) != Some(poll_while) || remaining.is_zero()
+        {
+            return recorded;
+        }
+
+        let wait = retry_after(&recorded)
+            .unwrap_or_default()
+            .max(POLL_INTERVAL)
+            .min(remaining);
+        tokio::time::sleep(wait).await;
+    }
+}
+
+async fn run_operation<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1091,10 +1314,11 @@ async fn run_operation<
     })?;
 
     let mut state_guard = state.lock().await;
-    let fhir_request = testscript_operation_to_fhir_request(&state_guard, &pointer).await?;
+    let request = testscript_operation_to_request(&state_guard, &pointer).await?;
 
     if let Some(timeout) = options.index_wait_timeout
-        && reads_search_index(&fhir_request)
+        && let OperationRequest::Interaction(fhir_request) = &request
+        && reads_search_index(fhir_request)
         && !state_guard.unindexed_writes.is_empty()
     {
         // One deadline for the whole set: the worker indexes them together.
@@ -1113,35 +1337,41 @@ async fn run_operation<
         None => ctx,
     };
 
-    let fhir_response = client.request(ctx, fhir_request.clone()).await;
+    let poll_while = poll_while(operation, pointer.path())?;
+    let recorded = send_polling(client, ctx, &request, poll_while).await;
+
     if let Some(wait_duration) = options.wait_between_operations {
         tokio::time::sleep(wait_duration).await;
     }
 
-    match fhir_response {
-        Ok(fhir_response) => {
-            if let Some(write) = indexed_write(&fhir_response) {
+    let failure = match &recorded.response {
+        Response::Interaction(response) => {
+            if let Some(write) = indexed_write(response) {
                 state_guard.unindexed_writes.push(write);
             }
-            associate_request_response_variables(
-                &mut state_guard,
-                operation,
-                fhir_request,
-                Response::FHIRResponse(Box::new(fhir_response)),
-            );
-
-            drop(state_guard);
-
-            Ok(TestResult {
-                state: state.clone(),
-                value: TestReportSetupActionOperation {
-                    result: ReportActionResultCodes::pass(),
-                    ..Default::default()
-                },
-            })
+            None
         }
-        Err(op_error) => {
-            let op_error = Arc::new(op_error);
+        Response::OperationError(error) => Some(error.to_string()),
+        Response::Http(_) => recorded
+            .http
+            .as_ref()
+            .filter(|http| !http.status.is_success())
+            .map(|http| format!("HTTP {}", http.status)),
+    };
+
+    let fhir_request = match request {
+        OperationRequest::Interaction(request) => Some(*request),
+        OperationRequest::Http { .. } => None,
+    };
+    associate_request_response_variables(&mut state_guard, operation, fhir_request, recorded);
+    drop(state_guard);
+
+    let value = match failure {
+        None => TestReportSetupActionOperation {
+            result: ReportActionResultCodes::pass(),
+            ..Default::default()
+        },
+        Some(failure) => {
             tracing::warn!(
                 path = pointer.path(),
                 operation.label = operation
@@ -1150,29 +1380,25 @@ async fn run_operation<
                     .and_then(|l| l.value.as_deref())
                     .unwrap_or("<no-label>"),
                 operation.operation_type = get_operation_type(operation).unwrap_or("<unknown>"),
-                error = %op_error,
+                error = %failure,
                 "TestScript operation failed"
             );
-            associate_request_response_variables(
-                &mut state_guard,
-                operation,
-                fhir_request,
-                Response::OperationError(op_error.clone()),
-            );
 
-            Ok(TestResult {
-                state: state.clone(),
-                value: TestReportSetupActionOperation {
-                    result: ReportActionResultCodes::warning(),
-                    message: Some(Box::new(FHIRMarkdown {
-                        value: Some(format!("Operation failed: {op_error}")),
-                        ..Default::default()
-                    })),
+            TestReportSetupActionOperation {
+                result: ReportActionResultCodes::warning(),
+                message: Some(Box::new(FHIRMarkdown {
+                    value: Some(format!("Operation failed: {failure}")),
                     ..Default::default()
-                },
-            })
+                })),
+                ..Default::default()
+            }
         }
-    }
+    };
+
+    Ok(TestResult {
+        state: state.clone(),
+        value,
+    })
 }
 
 fn get_source<'a>(
@@ -1198,8 +1424,8 @@ fn get_source<'a>(
                 }
             }
             assertion if assertion == &AssertDirectionCodes::response() => {
-                if let Some(response) = state.latest_response.as_ref() {
-                    response_to_meta_value(response)
+                if let Some(recorded) = state.latest_response.as_ref() {
+                    response_to_meta_value(&recorded.response)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
                         .map(Some)
                 } else {
@@ -1346,32 +1572,42 @@ async fn run_assertion(
 
     let mut state_guard = state.lock().await;
 
-    let Some(source) = get_source(&state_guard, assertion)? else {
-        return Err(TestScriptError::ExecutionError(format!(
-            "Failed to resolve source for assertion at '{}'.",
-            pointer.path()
-        )));
-    };
-
     let default = AssertOperatorCodes::equals();
     let operator = assertion.operator.as_ref().unwrap_or(&default);
 
     // Keep all uses of `source` inside this scope so the immutable borrow
     // of `state_guard` ends before we mutate `state_guard`.
     let failure_message = if let Some(message) =
-        evaluate_resource_assertion(assertion, pointer.path(), source, operator)
+        evaluate_http_assertion(&state_guard, assertion, pointer.path(), operator)?
     {
         Some(message)
-    } else if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
-        evaluate_expression_assertion(
-            &state_guard,
-            assertion,
-            pointer.path(),
-            source,
-            operator,
-            expression,
-        )
-        .await?
+    } else if assertion.resource.is_some() || assertion.expression.is_some() {
+        let Some(source) = get_source(&state_guard, assertion)? else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Failed to resolve source for assertion at '{}'.",
+                pointer.path()
+            )));
+        };
+
+        if let Some(message) =
+            evaluate_resource_assertion(assertion, pointer.path(), source, operator)
+        {
+            Some(message)
+        } else if let Some(expression) =
+            assertion.expression.as_ref().and_then(|e| e.value.as_ref())
+        {
+            evaluate_expression_assertion(
+                &state_guard,
+                assertion,
+                pointer.path(),
+                source,
+                operator,
+                expression,
+            )
+            .await?
+        } else {
+            None
+        }
     } else {
         None
     };
@@ -1405,6 +1641,166 @@ async fn run_assertion(
             ..Default::default()
         },
     })
+}
+
+/// The status code an assertion's `response` code stands for.
+fn response_code_status(code: &str) -> Option<u16> {
+    Some(match code {
+        "okay" => 200,
+        "created" => 201,
+        "noContent" => 204,
+        "notModified" => 304,
+        "bad" => 400,
+        "forbidden" => 403,
+        "notFound" => 404,
+        "methodNotAllowed" => 405,
+        "conflict" => 409,
+        "gone" => 410,
+        "preconditionFailed" => 412,
+        "unprocessable" => 422,
+        _ => return None,
+    })
+}
+
+/// Compares an HTTP value (a status code or a header, `None` when absent)
+/// with an assertion's expected value under its operator, or `None` for an
+/// operator that does not apply. `in` and `notIn` take a comma-separated list.
+fn compare_http_value(operator: &str, actual: Option<&str>, expected: &str) -> Option<bool> {
+    let listed = || {
+        expected
+            .split(',')
+            .map(str::trim)
+            .any(|item| Some(item) == actual)
+    };
+    let contains = actual.is_some_and(|actual| actual.contains(expected));
+
+    Some(match operator {
+        "equals" => actual == Some(expected),
+        "notEquals" => actual != Some(expected),
+        "in" => listed(),
+        "notIn" => !listed(),
+        "contains" => contains,
+        "notContains" => !contains,
+        "empty" => actual.is_none_or(str::is_empty),
+        "notEmpty" => actual.is_some_and(|actual| !actual.is_empty()),
+        _ => return None,
+    })
+}
+
+/// An assertion's HTTP-level check, if it has one: `responseCode`,
+/// `response`, `headerField` (against `value`) or `contentType`, made on the
+/// response `sourceId` names or the latest one. An assertion holds at most one
+/// check (invariants tst-5 and tst-6). Returns the failure.
+fn evaluate_http_assertion(
+    state: &TestState,
+    assertion: &TestScriptSetupActionAssert,
+    path: &str,
+    operator: &BoundCode<AssertOperatorCodes>,
+) -> Result<Option<String>, TestScriptError> {
+    let response_code = assertion
+        .responseCode
+        .as_ref()
+        .and_then(|code| code.value.as_deref());
+    let response = assertion.response.as_ref().and_then(BoundCode::as_str);
+    let header_field = assertion
+        .headerField
+        .as_ref()
+        .and_then(|field| field.value.as_deref());
+    let content_type = assertion
+        .contentType
+        .as_ref()
+        .and_then(|content_type| content_type.value.as_deref());
+
+    if response_code.is_none()
+        && response.is_none()
+        && header_field.is_none()
+        && content_type.is_none()
+    {
+        return Ok(None);
+    }
+
+    let label = assert_label(assertion);
+    let error = |message: String| {
+        TestScriptError::ExecutionError(format!("Assertion '{label}' at '{path}': {message}"))
+    };
+    if assertion.direction.as_ref() == Some(&AssertDirectionCodes::request()) {
+        return Err(error(
+            "responseCode, response, headerField and contentType are checked against \
+             responses only."
+                .to_string(),
+        ));
+    }
+
+    let source_id = assertion
+        .sourceId
+        .as_ref()
+        .and_then(|id| id.value.as_deref());
+    let recorded = state.resolve_response(source_id)?;
+    let Some(http) = recorded.http.as_ref() else {
+        return Ok(Some(format!(
+            "Assertion '{label}' at '{path}' failed: no HTTP response arrived."
+        )));
+    };
+    let status = http.status.as_u16().to_string();
+
+    // What is checked, its actual value, and the expected one.
+    let (what, actual, expected) = if let Some(code) = response_code {
+        ("response code".to_string(), Some(status), code.to_string())
+    } else if let Some(code) = response {
+        let expected = response_code_status(code)
+            .ok_or_else(|| error(format!("unknown response code '{code}'.")))?;
+        (
+            format!("response code (for '{code}')"),
+            Some(status),
+            expected.to_string(),
+        )
+    } else if let Some(field) = header_field {
+        let expected = assertion
+            .value
+            .as_ref()
+            .and_then(|value| value.value.as_deref())
+            .unwrap_or_default();
+        (
+            format!("header '{field}'"),
+            header_value(recorded, field),
+            expected.to_string(),
+        )
+    } else {
+        // The media type alone, without parameters such as `charset`.
+        let actual = header_value(recorded, header::CONTENT_TYPE.as_str()).map(|value| {
+            value
+                .split(';')
+                .next()
+                .unwrap_or_default()
+                .trim()
+                .to_ascii_lowercase()
+        });
+        (
+            "content type".to_string(),
+            actual,
+            content_type.unwrap_or_default().to_ascii_lowercase(),
+        )
+    };
+
+    let operator = operator.as_str().unwrap_or("equals");
+    let passed = compare_http_value(operator, actual.as_deref(), &expected).ok_or_else(|| {
+        error(format!(
+            "operator '{operator}' is not supported for responseCode, response, headerField \
+             or contentType."
+        ))
+    })?;
+    if passed {
+        return Ok(None);
+    }
+
+    let actual = actual.map_or_else(|| "absent".to_string(), |actual| format!("'{actual}'"));
+    let expected = match operator {
+        "empty" | "notEmpty" => String::new(),
+        _ => format!(" '{expected}'"),
+    };
+    Ok(Some(format!(
+        "Assertion '{label}' at '{path}' failed: {what} was {actual}, expected {operator}{expected}."
+    )))
 }
 
 fn evaluate_resource_assertion(
@@ -1487,10 +1883,7 @@ async fn evaluate_expression_assertion(
     )))
 }
 
-async fn run_action<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_action<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1553,10 +1946,7 @@ async fn run_action<
     }
 }
 
-async fn run_setup_action<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_setup_action<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1620,10 +2010,7 @@ async fn run_setup_action<
     }
 }
 
-async fn setup_fixtures<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn setup_fixtures<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1719,10 +2106,7 @@ async fn setup_fixtures<
     Ok(state)
 }
 
-async fn run_setup<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_setup<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1774,10 +2158,7 @@ async fn run_setup<
     })
 }
 
-async fn run_teardown<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_teardown<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1841,10 +2222,7 @@ async fn run_teardown<
     })
 }
 
-async fn run_test<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_test<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1896,10 +2274,7 @@ async fn run_test<
     })
 }
 
-async fn run_tests<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+async fn run_tests<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1975,10 +2350,7 @@ pub struct TestRunnerOptions {
         testscript.url = test_script.url.value.as_deref().unwrap_or("<no-url>"),
     )
 )]
-pub async fn run<
-    CTX: Clone + WithRequestHeaders,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
->(
+pub async fn run<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>(
     client: &Client,
     ctx: CTX,
     test_script: Arc<TestScript>,
