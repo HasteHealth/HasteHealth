@@ -7385,7 +7385,7 @@
                         "warningOnly": false,
                         "label": "deceased-missing-true",
                         "operator": "equals",
-                        "value": "1",
+                        "value": "0",
                         "extension": [
                             {
                                 "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
@@ -7451,7 +7451,7 @@
                         "warningOnly": false,
                         "label": "deceased-missing-false",
                         "operator": "equals",
-                        "value": "2",
+                        "value": "3",
                         "extension": [
                             {
                                 "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
