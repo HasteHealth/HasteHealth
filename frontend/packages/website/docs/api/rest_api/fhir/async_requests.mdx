@@ -79,6 +79,8 @@ curl -i -X DELETE "https://api.haste.health/w/[tenant]/[project]/api/v1/jobs/9zc
 
 ## Running the worker
 
-Jobs are run by the `haste-health worker` process, the same one that indexes
-search. A deployment without a running worker accepts jobs but never finishes
-them, and they expire unrun.
+Jobs are run by the `haste-health worker` process, which also indexes search.
+To run the two separately, for example to scale jobs on their own, start
+`haste-health worker indexing` and `haste-health worker async-jobs` as
+separate processes. A deployment without a running async-job worker accepts
+jobs but never finishes them, and they expire unrun.
