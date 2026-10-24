@@ -263,10 +263,85 @@ async fn resource_clause<ParameterResolver: SearchParameterResolve>(
     if param.is_chained() {
         return chained::chained_clause(scope, param).await;
     }
+    if param.name == "_list" {
+        return list_clause(scope, param).await;
+    }
 
     let parameter = resolve_parameter(scope, scope.resource_type, &param.name).await?;
     let target = clause_target(scope, &scope.root_row(), &parameter);
     Ok(parameter_to_sql_clause(&parameter, &target, param)?)
+}
+
+/// `_list=id[,id]`: rows named by an `entry.item` of one of the `List`s, as
+/// `EXISTS (SELECT 1 FROM anchor l WHERE l.id IN (...) AND <item is this row>)`.
+async fn list_clause<ParameterResolver: SearchParameterResolve>(
+    scope: &SearchScope<'_, ParameterResolver>,
+    param: &Parameter,
+) -> Result<SqlClause, OperationOutcomeError> {
+    if param.modifier.is_some() {
+        return Err(QueryBuildError::unsupported_modifier(
+            param.modifier.as_deref().unwrap_or_default(),
+        )
+        .into());
+    }
+    // Functional lists (`$current-allergies`, ...) are not supported.
+    let ids = param
+        .values()
+        .iter()
+        .filter(|id| !id.is_empty())
+        .map(|id| {
+            if id.starts_with('$') {
+                Err(QueryBuildError::UnsupportedParameterValue(format!(
+                    "_list={id}"
+                )))
+            } else {
+                Ok(SqlParam::Text(id.clone()))
+            }
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    if ids.is_empty() {
+        return Ok(SqlClause {
+            sql: "FALSE".to_string(),
+            params: Vec::new(),
+        });
+    }
+
+    let item = resolve_parameter(scope, Some(&ResourceType::List), "item").await?;
+    let list_row = ClauseRow {
+        anchor: Cow::Borrowed("l"),
+        type_table: None,
+    };
+    let target = clause_target(scope, &list_row, &item);
+    let (type_column, id_column) = clauses::reference_exprs(&target)?;
+    let is_item = clauses::wrap_predicate(
+        &target,
+        false,
+        &format!(
+            "{id_column} = {ANCHOR_TABLE_ALIAS}.resource_id \
+             AND {type_column} = {ANCHOR_TABLE_ALIAS}.resource_type"
+        ),
+        clauses::target_params(&target),
+    );
+
+    let placeholders = (1..=ids.len())
+        .map(|i| format!("${i}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let is_item_sql = rebase_placeholders(&is_item.sql, is_item.params.len(), ids.len());
+    let mut params = ids;
+    params.extend(is_item.params);
+
+    let anchor_table = resource_table_name(&scope.registry.version);
+    Ok(SqlClause {
+        sql: format!(
+            "EXISTS (SELECT 1 FROM {anchor_table} l \
+             WHERE l.tenant = {ANCHOR_TABLE_ALIAS}.tenant \
+             AND l.project = {ANCHOR_TABLE_ALIAS}.project \
+             AND l.resource_type = 'List' AND l.resource_id IN ({placeholders}) \
+             AND {is_item_sql})"
+        ),
+        params,
+    })
 }
 
 /// `sr.resource_type IN (...)`; empty (`_type=`) is `FALSE`.
