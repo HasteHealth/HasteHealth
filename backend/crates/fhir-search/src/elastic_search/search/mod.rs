@@ -121,7 +121,7 @@ fn parameter_to_elasticsearch_clauses(
         Values::Missing(missing) => (has_value(&field, &search_param.type_), *missing),
         Values::String(values) => (clauses::string(&field, values)?, false),
         Values::Token(values) => clauses::token(&field, values)?,
-        Values::Uri(values) => (clauses::uri(&field, values)?, false),
+        Values::Uri(values) => (clauses::uri(&field, values), false),
         Values::Reference(values) => (clauses::reference(&field, values)?, false),
         Values::Date(values) => (clauses::date(&field, values), false),
         Values::Number(values) => (clauses::number(&field, values), false),

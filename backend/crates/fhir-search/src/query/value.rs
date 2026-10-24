@@ -86,17 +86,28 @@ pub enum TokenValues<'a> {
 
 /// A uri parameter's values, by modifier.
 #[derive(Debug)]
-#[expect(
-    dead_code,
-    reason = "modifiers the specification defines that no backend searches yet"
-)]
 pub enum UriValues<'a> {
     /// No modifier: the URI itself.
     Uris(Cow<'a, [String]>),
-    /// `:above`: URIs above the searched one in a hierarchy.
+    /// `:above`: stored URIs that are a `/`-delimited prefix of the value.
     Above(Cow<'a, [String]>),
-    /// `:below`: URIs below the searched one in a hierarchy.
+    /// `:below`: stored URIs that start with the value.
     Below(Cow<'a, [String]>),
+}
+
+/// The stored URIs `:above` matches: `uri` itself and each `/`-delimited
+/// prefix of it. OIDs and other `urn:` URIs have no hierarchy.
+#[must_use]
+pub fn uri_ancestors(uri: &str) -> Vec<&str> {
+    let mut ancestors = vec![uri];
+    if !uri.starts_with("urn:") {
+        ancestors.extend(uri.match_indices('/').filter_map(|(i, _)| {
+            // Skip the empty segments of `scheme://`.
+            let prefix = &uri[..i];
+            (!prefix.is_empty() && !prefix.ends_with([':', '/'])).then_some(prefix)
+        }));
+    }
+    ancestors
 }
 
 /// A reference parameter's values, by modifier.
@@ -600,6 +611,24 @@ impl<'a> QuantityValue<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::uri_ancestors;
+
+    #[test]
+    fn uri_ancestors_are_slash_delimited_prefixes() {
+        assert_eq!(
+            uri_ancestors("http://a.org/fhir/V/1/_history/5"),
+            [
+                "http://a.org/fhir/V/1/_history/5",
+                "http://a.org",
+                "http://a.org/fhir",
+                "http://a.org/fhir/V",
+                "http://a.org/fhir/V/1",
+                "http://a.org/fhir/V/1/_history",
+            ]
+        );
+        assert_eq!(uri_ancestors("urn:oid:1.2/3"), ["urn:oid:1.2/3"]);
+    }
+
     use super::*;
 
     fn parse(
