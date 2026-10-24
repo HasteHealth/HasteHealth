@@ -1,5 +1,5 @@
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, target_params, value_expr,
+    ClauseTarget, SqlClause, SqlParam, bind, escape_like, or_predicates, target_params, value_expr,
     wrap_predicate,
 };
 use crate::query::{QueryBuildError, value::StringValues};
@@ -43,18 +43,6 @@ fn string_predicate(
             return Err(QueryBuildError::unsupported_modifier(values.modifier()));
         }
     })
-}
-
-/// Escapes the characters PostgreSQL's `LIKE` treats specially.
-fn escape_like(value: &str) -> String {
-    let mut escaped = String::with_capacity(value.len());
-    for character in value.chars() {
-        if matches!(character, '\\' | '%' | '_') {
-            escaped.push('\\');
-        }
-        escaped.push(character);
-    }
-    escaped
 }
 
 #[cfg(test)]

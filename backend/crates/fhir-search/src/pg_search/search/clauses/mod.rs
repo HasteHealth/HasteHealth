@@ -346,6 +346,18 @@ pub(super) fn all_of<const N: usize>(conditions: [Option<String>; N]) -> String 
     }
 }
 
+/// Escapes the characters PostgreSQL's `LIKE` treats specially.
+pub(super) fn escape_like(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        if matches!(character, '\\' | '%' | '_') {
+            escaped.push('\\');
+        }
+        escaped.push(character);
+    }
+    escaped
+}
+
 /// Adds `offset` to every `$n` placeholder in a clause with `param_count`
 /// binds.
 #[must_use]
