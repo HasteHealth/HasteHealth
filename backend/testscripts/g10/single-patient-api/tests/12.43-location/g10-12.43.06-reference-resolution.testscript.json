@@ -1,0 +1,117 @@
+{
+    "id": "g10-12.43.06-reference-resolution",
+    "url": "https://haste.health/fhir/TestScript/g10-12.43.06-reference-resolution",
+    "name": "g10-12.43.06-reference-resolution",
+    "title": "12.43.06 Must support references resolve",
+    "status": "active",
+    "description": "g10 12.43.06 (DAT-PAT-2; US Core 6.1.0: group None). Each must support reference of the record's Location instances resolves with a read: managingOrganization -> Organization/g10-holy-healthcare. Conformance of each target to its profile is checked when the record is written.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Organization",
+            "id": "g10-holy-healthcare",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://hl7.org/fhir/sid/us-npi",
+                    "value": "1234567893"
+                }
+            ],
+            "active": true,
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                            "code": "prov"
+                        }
+                    ],
+                    "text": "Provider"
+                }
+            ],
+            "name": "Holy Healthcare",
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "(+1) 555-555-5555"
+                },
+                {
+                    "system": "email",
+                    "value": "hq@holyhealthcare.org"
+                }
+            ],
+            "address": [
+                {
+                    "line": [
+                        "100 MANAGING ORGANIZATION AVE"
+                    ],
+                    "city": "Amherst",
+                    "state": "MA",
+                    "postalCode": "01002",
+                    "country": "USA"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-Organization-g10-holy-healthcare",
+            "resource": {
+                "reference": "#g10-holy-healthcare"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-references",
+            "name": "Must support references",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Organization",
+                        "targetId": "fixture-Organization-g10-holy-healthcare",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization/g10-holy-healthcare resolves",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Organization is returned",
+                        "resource": "Organization",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the referenced resource",
+                        "expression": "Organization.id = 'g10-holy-healthcare'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

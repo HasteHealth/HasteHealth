@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.37.02-search-patient-code",
+    "url": "https://haste.health/fhir/TestScript/g10-12.37.02-search-patient-code",
+    "name": "g10-12.37.02-search-patient-code",
+    "title": "12.37.02 Server returns valid results for Observation search by patient + code",
+    "status": "active",
+    "description": "g10 12.37.02 (SH-PAT-2; US Core 6.1.0: group 10.34). Server returns valid results for Observation search by patient + code. US Core SHALL search. Every result must match every parameter, and the record's Observation/g10-capillary-refill-time-nail-bed must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-observation-patient-g10-example-code-44963-7",
+            "name": "GET Observation?patient=g10-example&code=44963-7",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&code=44963-7",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-capillary-refill-time-nail-bed is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-capillary-refill-time-nail-bed').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (code.coding.where(code = '44963-7').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-observation-patient-g10-example-code-http-loinc-org-44963-7",
+            "name": "Token system|code form: GET Observation?patient=g10-example&code=http://loinc.org|44963-7",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&code=http://loinc.org|44963-7",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-capillary-refill-time-nail-bed is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-capillary-refill-time-nail-bed').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (code.coding.where(system = 'http://loinc.org' and code = '44963-7').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

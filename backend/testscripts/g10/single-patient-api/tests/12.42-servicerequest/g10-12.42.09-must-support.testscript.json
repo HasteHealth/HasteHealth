@@ -1,0 +1,130 @@
+{
+    "id": "g10-12.42.09-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.42.09-must-support",
+    "name": "g10-12.42.09-must-support",
+    "title": "12.42.09 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.42.09 (DAT-PAT-2; US Core 6.1.0: group 10.39). Every must support element of US Core ServiceRequest Profile (including the USCDI ones) appears in at least one ServiceRequest the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ServiceRequest",
+                        "params": "_id=g10-bmp,g10-cbc,g10-chest-xray,g10-ekg,g10-foodpantry-referral,g10-rehab,g10-servicerequest-dnr-example1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.authoredOn is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).authoredOn.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.category is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).category.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.category:us-core is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).category.where(coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and (code = 'sdoh' or code = 'functional-status' or code = 'disability-status' or code = 'cognitive-status' or code = 'treatment-intervention-preference' or code = 'care-experience-preference' or code = '386053000' or code = '410606002' or code = '108252007' or code = '363679005' or code = '409063005' or code = '409073007' or code = '387713003')).exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.code is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).code.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.encounter is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).encounter.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.intent is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).intent.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.occurrencePeriod is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).occurrence.ofType(Period).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.requester is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).requester.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.status is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(ServiceRequest).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ServiceRequest.reasonCode or ServiceRequest.reasonReference is present",
+                        "expression": "(Bundle.entry.resource.ofType(ServiceRequest).reasonCode.exists() or Bundle.entry.resource.ofType(ServiceRequest).reasonReference.exists())",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

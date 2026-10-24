@@ -1,0 +1,192 @@
+{
+    "id": "g10-12.16.04-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.16.04-validation",
+    "name": "g10-12.16.04-validation",
+    "title": "12.16.04 MedicationDispense conforms to US Core MedicationDispense Profile",
+    "status": "active",
+    "description": "g10 12.16.04 (DAT-PAT-2). Inferno validates the MedicationDispense resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's MedicationDispense/g10-medicationdispense-example that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "MedicationDispense",
+            "id": "g10-val-12-16-04",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "status": "completed",
+            "medicationCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                        "code": "476872",
+                        "display": "Nizatidine 15 MG/ML Oral Solution"
+                    }
+                ],
+                "text": "Nizatidine 15 MG/ML Oral Solution"
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient",
+                "display": "Amy Shaw"
+            },
+            "context": {
+                "reference": "Encounter/g10-example-1",
+                "display": "Office Visit"
+            },
+            "performer": [
+                {
+                    "actor": {
+                        "reference": "Organization/g10-holy-healthcare",
+                        "display": "Holy Healthcare Pharmacy"
+                    }
+                }
+            ],
+            "authorizingPrescription": [
+                {
+                    "reference": "MedicationRequest/g10-medicationrequest-coded-oral-axid",
+                    "display": "MedicationRequest Coded Oral Axid Example"
+                }
+            ],
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "FFC",
+                        "display": "First Fill - Complete"
+                    }
+                ]
+            },
+            "quantity": {
+                "value": 480,
+                "unit": "mL",
+                "system": "http://unitsofmeasure.org",
+                "code": "mL"
+            },
+            "whenHandedOver": "2016-12-08T06:38:52Z",
+            "dosageInstruction": [
+                {
+                    "text": "10 mL bid",
+                    "timing": {
+                        "repeat": {
+                            "boundsPeriod": {
+                                "start": "2008-04-05"
+                            },
+                            "frequency": 2,
+                            "period": 1,
+                            "periodUnit": "d"
+                        }
+                    },
+                    "doseAndRate": [
+                        {
+                            "doseQuantity": {
+                                "value": 10,
+                                "unit": "ml",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "mL"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-16-04",
+            "resource": {
+                "reference": "#g10-val-12-16-04"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT MedicationDispense/g10-val-12-16-04 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "MedicationDispense",
+                        "targetId": "fixture-g10-val-12-16-04",
+                        "sourceId": "fixture-g10-val-12-16-04",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationDispense is returned",
+                        "resource": "MedicationDispense",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "MedicationDispense",
+                    "targetId": "fixture-g10-val-12-16-04",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

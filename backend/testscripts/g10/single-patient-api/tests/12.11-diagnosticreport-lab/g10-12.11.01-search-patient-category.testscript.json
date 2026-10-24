@@ -1,0 +1,206 @@
+{
+    "id": "g10-12.11.01-search-patient-category",
+    "url": "https://haste.health/fhir/TestScript/g10-12.11.01-search-patient-category",
+    "name": "g10-12.11.01-search-patient-category",
+    "title": "12.11.01 Server returns valid results for DiagnosticReport search by patient + category",
+    "status": "active",
+    "description": "g10 12.11.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.11). Server returns valid results for DiagnosticReport search by patient + category. US Core SHALL search. Every result must match every parameter, and the record's DiagnosticReport/g10-cbc must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-diagnosticreport-patient-g10-example-category-lab",
+            "name": "GET DiagnosticReport?patient=g10-example&category=LAB",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LAB",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-cbc is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-cbc').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LAB').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-reference-form-get-diagnosticreport-patient-patient-g10-example-category-lab",
+            "name": "Reference form: GET DiagnosticReport?patient=Patient/g10-example&category=LAB",
+            "description": "patient=Patient/[id] returns what patient=[id] returns.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=Patient/g10-example&category=LAB",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-cbc is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-cbc').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LAB').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as patient=[id]",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-token-system-code-form-get-diagnosticreport-patient-g10-example-category-http-terminology-hl7-org-codesystem-v2-0074-lab",
+            "name": "Token system|code form: GET DiagnosticReport?patient=g10-example&category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-cbc is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-cbc').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0074' and code = 'LAB').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-post-diagnosticreport-search-patient-g10-example-category-lab",
+            "name": "POST DiagnosticReport/_search?patient=g10-example&category=LAB",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "DiagnosticReport/_search?patient=g10-example&category=LAB",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

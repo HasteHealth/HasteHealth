@@ -1,0 +1,130 @@
+{
+    "id": "g10-12.46.03-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.46.03-must-support",
+    "name": "g10-12.46.03-must-support",
+    "title": "12.46.03 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.46.03 (DAT-PAT-2, DAT-PAT-3; US Core 6.1.0: group 10.42). Every must support element of US Core Provenance Profile (including the USCDI ones) appears in at least one Provenance the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Provenance",
+                        "params": "_id=g10-79614,g10-prov-allergyintolerance-79613,g10-prov-careplan-careplan-ulcer-example,g10-prov-careteam-example,g10-prov-condition-condition-SDOH-example,g10-prov-condition-encounter-diagnosis-example1,g10-prov-coverage-coverage-example,g10-prov-device-udi-2,g10-prov-diagnosticreport-bone-density-report,g10-prov-diagnosticreport-cbc,g10-prov-documentreference-cardiology-report-note,g10-prov-encounter-1036,g10-prov-goal-goal-1,g10-prov-immunization-imm-1,g10-prov-medicationdispense-medicationdispense-example,g10-prov-medicationrequest-medicationrequest-coded-oral-axid,g10-prov-observation-AHC-HRSN-item-example-68517-2,g10-prov-observation-at-home-in-vitro-test,g10-prov-observation-average-blood-pressure,g10-prov-observation-blood-pressure,g10-prov-observation-bmi,g10-prov-observation-capillary-refill-time-nail-bed,g10-prov-observation-care-experience-preference,g10-prov-observation-head-circumference,g10-prov-observation-heart-rate,g10-prov-observation-height,g10-prov-observation-observation-occupation,g10-prov-observation-ofc-percentile,g10-prov-observation-oxygen-saturation,g10-prov-observation-pack-years-example,g10-prov-observation-pediatric-bmi-example,g10-prov-observation-pediatric-wt-example,g10-prov-observation-pregnancy-intent,g10-prov-observation-pregnancy-status,g10-prov-observation-respiratory-rate,g10-prov-observation-temperature,g10-prov-observation-treatment-intervention-preference,g10-prov-observation-weight,g10-prov-patient-child-example,g10-prov-procedure-defib-implant,g10-prov-servicerequest-bmp",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent.onBehalfOf is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.onBehalfOf.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent.who is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.who.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent:ProvenanceAuthor is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/provenance-participant-type' and code = 'author').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent:ProvenanceAuthor.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/provenance-participant-type' and code = 'author').exists()).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent:ProvenanceTransmitter is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.where(type.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type' and code = 'transmitter').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.agent:ProvenanceTransmitter.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).agent.where(type.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type' and code = 'transmitter').exists()).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.recorded is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).recorded.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.target is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).target.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance.target.reference is present",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).target.reference.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+    "id": "g10-12.5.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.5.05-must-support",
+    "name": "g10-12.5.05-must-support",
+    "title": "12.5.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.5.05 (DAT-PAT-2; US Core 6.1.0: group 10.5). Every must support element of US Core CareTeam Profile (including the USCDI ones) appears in at least one CareTeam the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "CareTeam",
+                        "params": "_id=g10-example,g10-missing-coded-data-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CareTeam.participant is present",
+                        "expression": "Bundle.entry.resource.ofType(CareTeam).participant.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CareTeam.participant.member is present",
+                        "expression": "Bundle.entry.resource.ofType(CareTeam).participant.member.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CareTeam.participant.role is present",
+                        "expression": "Bundle.entry.resource.ofType(CareTeam).participant.role.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CareTeam.status is present",
+                        "expression": "Bundle.entry.resource.ofType(CareTeam).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CareTeam.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(CareTeam).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

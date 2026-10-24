@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.13.02-search-id",
+    "url": "https://haste.health/fhir/TestScript/g10-12.13.02-search-id",
+    "name": "g10-12.13.02-search-id",
+    "title": "12.13.02 Server returns valid results for Encounter search by _id",
+    "status": "active",
+    "description": "g10 12.13.02 (SH-PAT-2; US Core 6.1.0: group 10.13). Server returns valid results for Encounter search by _id. US Core SHALL search. Every result must match every parameter, and the record's Encounter/g10-1036 must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-encounter-id-g10-1036",
+            "name": "GET Encounter?_id=g10-1036",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "_id=g10-1036",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/g10-1036 is returned",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'g10-1036').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((id = 'g10-1036'))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

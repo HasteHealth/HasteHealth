@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.23.03-search-patient-category",
+    "url": "https://haste.health/fhir/TestScript/g10-12.23.03-search-patient-category",
+    "name": "g10-12.23.03-search-patient-category",
+    "title": "12.23.03 Server returns valid results for Observation search by patient + category",
+    "status": "active",
+    "description": "g10 12.23.03 (SH-PAT-2; US Core 6.1.0: group None). Server returns valid results for Observation search by patient + category. US Core SHALL search. Every result must match every parameter, and the record's Observation/g10-treatment-intervention-preference must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-observation-patient-g10-example-category-treatment-intervention-preference",
+            "name": "GET Observation?patient=g10-example&category=treatment-intervention-preference",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=treatment-intervention-preference",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-treatment-intervention-preference is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-treatment-intervention-preference').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'treatment-intervention-preference').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-observation-patient-g10-example-category-http-hl7-org-fhir-us-core-codesystem-us-core-category-treatment-intervention-preference",
+            "name": "Token system|code form: GET Observation?patient=g10-example&category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|treatment-intervention-preference",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|treatment-intervention-preference",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-treatment-intervention-preference is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-treatment-intervention-preference').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'treatment-intervention-preference').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

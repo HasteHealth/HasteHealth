@@ -1,0 +1,166 @@
+{
+    "id": "g10-12.48.02-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.48.02-validation",
+    "name": "g10-12.48.02-validation",
+    "title": "12.48.02 Specimen conforms to US Core Specimen Profile",
+    "status": "active",
+    "description": "g10 12.48.02 (DAT-PAT-2). Inferno validates the Specimen resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Specimen/g10-example-serum-lipemic that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Specimen",
+            "id": "g10-val-12-48-02",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://acme.com/labs/accession-ids",
+                    "value": "20241105-00124"
+                }
+            ],
+            "accessionIdentifier": {
+                "system": "http://acme.com/labs/accession-ids",
+                "value": "20241105-00124"
+            },
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "119364003",
+                        "display": "Serum sample"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0487",
+                        "code": "SER",
+                        "display": "Serum"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient"
+            },
+            "container": [
+                {
+                    "type": {
+                        "text": "Serum Separator Tube"
+                    }
+                }
+            ],
+            "condition": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "version": "http://snomed.info/sct/731000124108",
+                            "code": "118127007",
+                            "display": "Specimen lipemic"
+                        }
+                    ],
+                    "text": "Lipemic"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-48-02",
+            "resource": {
+                "reference": "#g10-val-12-48-02"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Specimen/g10-val-12-48-02 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Specimen",
+                        "targetId": "fixture-g10-val-12-48-02",
+                        "sourceId": "fixture-g10-val-12-48-02",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen is returned",
+                        "resource": "Specimen",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Specimen",
+                    "targetId": "fixture-g10-val-12-48-02",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

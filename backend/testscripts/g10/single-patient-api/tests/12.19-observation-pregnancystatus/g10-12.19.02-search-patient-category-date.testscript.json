@@ -1,0 +1,266 @@
+{
+    "id": "g10-12.19.02-search-patient-category-date",
+    "url": "https://haste.health/fhir/TestScript/g10-12.19.02-search-patient-category-date",
+    "name": "g10-12.19.02-search-patient-category-date",
+    "title": "12.19.02 Server returns valid results for Observation search by patient + category + date",
+    "status": "active",
+    "description": "g10 12.19.02 (SH-PAT-2; US Core 6.1.0: group 10.19). Server returns valid results for Observation search by patient + category + date. US Core SHALL search. Every result must match every parameter, and the record's Observation/g10-pregnancy-status must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-observation-patient-g10-example-category-social-history-date-2022-08-24t10-39-52-00-00",
+            "name": "GET Observation?patient=g10-example&category=social-history&date=2022-08-24T10:39:52+00:00",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=social-history&date=2022-08-24T10:39:52+00:00",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-pregnancy-status is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-pregnancy-status').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'social-history').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-observation-patient-g10-example-category-http-terminology-hl7-org-codesystem-observation-category-social-history-date-2022-08-24t10-39-52-00-00",
+            "name": "Token system|code form: GET Observation?patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|social-history&date=2022-08-24T10:39:52+00:00",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|social-history&date=2022-08-24T10:39:52+00:00",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/g10-pregnancy-status is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'g10-pregnancy-status').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://terminology.hl7.org/CodeSystem/observation-category' and code = 'social-history').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-comparator-gt-get-observation-patient-g10-example-category-social-history-date-gt2022-08-23t10-39-52z",
+            "name": "Comparator gt: GET Observation?patient=g10-example&category=social-history&date=gt2022-08-23T10:39:52Z",
+            "description": "Every result's date satisfies gt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=social-history&date=gt2022-08-23T10:39:52Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'social-history').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(date).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2022-08-23').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-comparator-ge-get-observation-patient-g10-example-category-social-history-date-ge2022-08-23t10-39-52z",
+            "name": "Comparator ge: GET Observation?patient=g10-example&category=social-history&date=ge2022-08-23T10:39:52Z",
+            "description": "Every result's date satisfies ge (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=social-history&date=ge2022-08-23T10:39:52Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'social-history').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(date).where($this.toString().substring(0, 10) >= '2022-08-23').exists() or effective.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2022-08-23').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-comparator-lt-get-observation-patient-g10-example-category-social-history-date-lt2022-08-25t10-39-52z",
+            "name": "Comparator lt: GET Observation?patient=g10-example&category=social-history&date=lt2022-08-25T10:39:52Z",
+            "description": "Every result's date satisfies lt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=social-history&date=lt2022-08-25T10:39:52Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'social-history').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(date).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2022-08-25').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-comparator-le-get-observation-patient-g10-example-category-social-history-date-le2022-08-25t10-39-52z",
+            "name": "Comparator le: GET Observation?patient=g10-example&category=social-history&date=le2022-08-25T10:39:52Z",
+            "description": "Every result's date satisfies le (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=social-history&date=le2022-08-25T10:39:52Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'social-history').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(date).where($this.toString().substring(0, 10) <= '2022-08-25').exists() or effective.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2022-08-25').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

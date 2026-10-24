@@ -1,0 +1,58 @@
+{
+    "id": "g10-12.8.03-provenance-revinclude",
+    "url": "https://haste.health/fhir/TestScript/g10-12.8.03-provenance-revinclude",
+    "name": "g10-12.8.03-provenance-revinclude",
+    "title": "12.8.03 Provenance returned with _revinclude",
+    "status": "active",
+    "description": "g10 12.8.03 (SH-PAT-3, DAT-PAT-3; US Core 6.1.0: group 10.8). US Core Basic Provenance: a server SHALL support _revinclude=Provenance:target. The Coverage search returns the Provenance whose target is Coverage/g10-coverage-example.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-revinclude",
+            "name": "GET Coverage?patient=g10-example&_revinclude=Provenance:target",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Coverage",
+                        "params": "patient=g10-example&_revinclude=Provenance:target",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage/g10-coverage-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).where(id = 'g10-coverage-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Provenance/g10-prov-coverage-coverage-example is included",
+                        "expression": "Bundle.entry.resource.ofType(Provenance).where(id = 'g10-prov-coverage-coverage-example' and target.reference = 'Coverage/g10-coverage-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

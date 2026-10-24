@@ -1,0 +1,75 @@
+# TestScripts that fail against Haste Health today, and scenarios that cannot run.
+# test_e2e_g10.yml does not run them; README.md explains each. Remove a line once
+# its TestScript passes. A scenario directory ending in / skips the whole scenario.
+
+# Granular (fine-grained) scopes: authorize answers 501 "Invalid smart resource scope" for
+# patient/[type].rs?category=..., so these scenarios cannot sign in (9.25, 9.14, 9.23, 9.24).
+fine-grained-scopes-1/
+fine-grained-scopes-2/
+
+# Patient-scoped tokens (scenario 1 and 9.22) are refused Device: the server treats Device as outside
+# the Patient compartment and not shared reference data, so every Device request answers 403.
+smart-v1-scopes/tests/g10-9.22.5.07-device-v1-access.testscript.json
+standalone-patient-app/tests/g10-1.7.07-device-access.testscript.json
+
+# OpenID configuration: nothing is served at the id_token issuer + /.well-known/openid-configuration
+# (404); the server publishes it only at /.well-known/openid-configuration/w/[tenant]/[project].
+standalone-patient-app/tests/g10-1.11.02-openid-configuration.testscript.json
+
+# Bulk Data: no $export operation, and GET operation invocations answer 501. The kick-off scripts
+# stop with an execution error when no Content-Location comes back.
+multi-patient-api/tests/g10-bulk-capability-statement.testscript.json
+multi-patient-api/tests/g10-bulk-export-cancel.testscript.json
+multi-patient-api/tests/g10-bulk-export-output-format.testscript.json
+multi-patient-api/tests/g10-bulk-export-since.testscript.json
+multi-patient-api/tests/g10-bulk-group-export.testscript.json
+
+# The CapabilityStatement lists no US Core supportedProfile.
+single-patient-api/tests/12.1-capability-statement/g10-12.1.05-profile-support.testscript.json
+
+# Profile validation: the server refuses a conformant US Core 7 problem list Condition with its
+# meta.profile (Condition.category:us-core is not matched, a value discriminator on a required
+# binding) and answers 500.
+profile-validation/tests/g10-12.7.05-validation.testscript.json
+
+# _revinclude is not supported (501), so no search returns Provenance:target.
+single-patient-api/tests/12.10-diagnosticreport-note/g10-12.10.06-provenance-revinclude.testscript.json
+single-patient-api/tests/12.11-diagnosticreport-lab/g10-12.11.06-provenance-revinclude.testscript.json
+single-patient-api/tests/12.12-documentreference/g10-12.12.07-provenance-revinclude.testscript.json
+single-patient-api/tests/12.13-encounter/g10-12.13.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.14-goal/g10-12.14.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.15-immunization/g10-12.15.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.16-medicationdispense/g10-12.16.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.17-medicationrequest/g10-12.17.04-provenance-revinclude.testscript.json
+single-patient-api/tests/12.18-observation-lab/g10-12.18.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.19-observation-pregnancystatus/g10-12.19.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.2-patient/g10-12.2.07-provenance-revinclude.testscript.json
+single-patient-api/tests/12.20-observation-pregnancyintent/g10-12.20.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.21-observation-occupation/g10-12.21.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.22-respiratory-rate/g10-12.22.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.23-treatment-intervention-preference/g10-12.23.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.24-care-experience-preference/g10-12.24.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.25-heart-rate/g10-12.25.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.26-body-temperature/g10-12.26.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.27-pediatric-weight-for-height/g10-12.27.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.28-pulse-oximetry/g10-12.28.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.29-smokingstatus/g10-12.29.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.3-allergyintolerance/g10-12.3.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.31-head-circumference/g10-12.31.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.32-body-height/g10-12.32.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.33-bmi/g10-12.33.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.34-observation-screening-assessment/g10-12.34.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.35-average-blood-pressure/g10-12.35.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.36-blood-pressure/g10-12.36.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.37-observation-clinical-result/g10-12.37.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.38-pediatric-bmi-for-age/g10-12.38.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.39-head-occipital-frontal-circumference-percentile/g10-12.39.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.4-careplan/g10-12.4.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.40-body-weight/g10-12.40.05-provenance-revinclude.testscript.json
+single-patient-api/tests/12.41-procedure/g10-12.41.04-provenance-revinclude.testscript.json
+single-patient-api/tests/12.42-servicerequest/g10-12.42.07-provenance-revinclude.testscript.json
+single-patient-api/tests/12.5-careteam/g10-12.5.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.6-condition-encounter-diagnosis/g10-12.6.04-provenance-revinclude.testscript.json
+single-patient-api/tests/12.7-condition-problems-health-concerns/g10-12.7.04-provenance-revinclude.testscript.json
+single-patient-api/tests/12.8-coverage/g10-12.8.03-provenance-revinclude.testscript.json
+single-patient-api/tests/12.9-implantable-device/g10-12.9.03-provenance-revinclude.testscript.json

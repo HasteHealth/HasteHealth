@@ -1,0 +1,293 @@
+{
+    "id": "g10-ehr-practitioner-app-setup",
+    "url": "https://haste.health/fhir/TestScript/g10-ehr-practitioner-app-setup",
+    "name": "g10 ehr-practitioner-app setup",
+    "title": "g10 ehr-practitioner-app: login",
+    "status": "active",
+    "description": "Run as admin. The login for g10 scenario 3: a member User linked to Practitioner/g10-practitioner-1, a full-access policy, and a public client with a launch URI, allowed the scopes g10 requests for an EHR launch (SMART v2).",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "g10-practitioner-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "g10-practitioner@example.org"
+        },
+        {
+            "id": "g10-practitioner-user-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/g10-practitioner-user"
+            },
+            "link": {
+                "reference": "Practitioner/g10-practitioner-1"
+            }
+        },
+        {
+            "id": "g10-practitioner-user-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: ehr-practitioner-app",
+            "description": "Full access, so only the SMART scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "g10-practitioner-user-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/g10-practitioner-user-policy"
+            },
+            "link": {
+                "reference": "Membership/g10-practitioner-user-membership"
+            }
+        },
+        {
+            "id": "g10-ehr-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: EHR practitioner app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "launch openid fhirUser offline_access user/Medication.rs user/AllergyIntolerance.rs user/CarePlan.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Device.rs user/DiagnosticReport.rs user/DocumentReference.rs user/Encounter.rs user/Goal.rs user/Immunization.rs user/Location.rs user/MedicationDispense.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Patient.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/Provenance.rs user/QuestionnaireResponse.rs user/RelatedPerson.rs user/ServiceRequest.rs user/Specimen.rs",
+            "launchUri": "http://127.0.0.1:8977/launch"
+        },
+        {
+            "id": "g10-ehr-patient-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: EHR-launched patient app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8977/callback"
+            ],
+            "launchUri": "http://127.0.0.1:8977/launch",
+            "scope": "launch openid fhirUser offline_access patient/Patient.rs"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-practitioner-user",
+            "resource": {
+                "reference": "#g10-practitioner-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-practitioner-user-membership",
+            "resource": {
+                "reference": "#g10-practitioner-user-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-practitioner-user-policy",
+            "resource": {
+                "reference": "#g10-practitioner-user-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-practitioner-user-policy-assignment",
+            "resource": {
+                "reference": "#g10-practitioner-user-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-ehr-app",
+            "resource": {
+                "reference": "#g10-ehr-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-ehr-patient-app",
+            "resource": {
+                "reference": "#g10-ehr-patient-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-login",
+            "name": "The user, its membership and policy, and the app",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-g10-practitioner-user",
+                        "sourceId": "fixture-g10-practitioner-user",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/g10-practitioner-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-g10-practitioner-user-membership",
+                        "sourceId": "fixture-g10-practitioner-user-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/g10-practitioner-user-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-g10-practitioner-user-policy",
+                        "sourceId": "fixture-g10-practitioner-user-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/g10-practitioner-user-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-g10-practitioner-user-policy-assignment",
+                        "sourceId": "fixture-g10-practitioner-user-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/g10-practitioner-user-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-g10-ehr-app",
+                        "sourceId": "fixture-g10-ehr-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/g10-ehr-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-g10-ehr-patient-app",
+                        "sourceId": "fixture-g10-ehr-patient-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/g10-ehr-patient-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

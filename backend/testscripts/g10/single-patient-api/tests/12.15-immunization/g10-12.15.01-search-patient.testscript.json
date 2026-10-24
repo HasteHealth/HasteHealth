@@ -1,0 +1,159 @@
+{
+    "id": "g10-12.15.01-search-patient",
+    "url": "https://haste.health/fhir/TestScript/g10-12.15.01-search-patient",
+    "name": "g10-12.15.01-search-patient",
+    "title": "12.15.01 Server returns valid results for Immunization search by patient",
+    "status": "active",
+    "description": "g10 12.15.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.15). Server returns valid results for Immunization search by patient. US Core SHALL search. Every result must match every parameter, and the record's Immunization/g10-imm-1 must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-immunization-patient-g10-example",
+            "name": "GET Immunization?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Immunization",
+                        "params": "patient=g10-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization/g10-imm-1 is returned",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).where(id = 'g10-imm-1').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Immunization returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).all((patient.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-reference-form-get-immunization-patient-patient-g10-example",
+            "name": "Reference form: GET Immunization?patient=Patient/g10-example",
+            "description": "patient=Patient/[id] returns what patient=[id] returns.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Immunization",
+                        "params": "patient=Patient/g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization/g10-imm-1 is returned",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).where(id = 'g10-imm-1').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Immunization returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).all((patient.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as patient=[id]",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-post-immunization-search-patient-g10-example",
+            "name": "POST Immunization/_search?patient=g10-example",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "Immunization/_search?patient=g10-example",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

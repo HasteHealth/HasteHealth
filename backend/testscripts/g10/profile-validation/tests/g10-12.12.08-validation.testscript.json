@@ -1,0 +1,173 @@
+{
+    "id": "g10-12.12.08-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.12.08-validation",
+    "name": "g10-12.12.08-validation",
+    "title": "12.12.08 DocumentReference conforms to US Core DocumentReference Profile",
+    "status": "active",
+    "description": "g10 12.12.08 (DAT-PAT-2). Inferno validates the DocumentReference resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's DocumentReference/g10-cardiology-report-note that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "DocumentReference",
+            "id": "g10-val-12-12-08",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "urn:ietf:rfc:3986",
+                    "value": "urn:oid:2.16.840.1.113883.19.5.99999.1"
+                }
+            ],
+            "status": "current",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "11488-4",
+                        "display": "Consult note"
+                    }
+                ],
+                "text": "Cardiology report"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                            "code": "clinical-note",
+                            "display": "Clinical Note"
+                        }
+                    ],
+                    "text": "Clinical Note"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/g10-validation-patient",
+                "display": "Amy Shaw"
+            },
+            "date": "2022-11-18T20:45:05Z",
+            "author": [
+                {
+                    "reference": "Practitioner/g10-practitioner-1",
+                    "display": "Ronald Bone, MD"
+                }
+            ],
+            "description": "Ureteroscopy",
+            "content": [
+                {
+                    "attachment": {
+                        "contentType": "application/pdf",
+                        "url": "http://example.org/fhir/pdfdownloads/cardiopanel-report-123.pdf"
+                    }
+                }
+            ],
+            "context": {
+                "period": {
+                    "start": "2019-03-01",
+                    "end": "2019-03-02"
+                }
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-12-08",
+            "resource": {
+                "reference": "#g10-val-12-12-08"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT DocumentReference/g10-val-12-12-08 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "DocumentReference",
+                        "targetId": "fixture-g10-val-12-12-08",
+                        "sourceId": "fixture-g10-val-12-12-08",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A DocumentReference is returned",
+                        "resource": "DocumentReference",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "DocumentReference",
+                    "targetId": "fixture-g10-val-12-12-08",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,147 @@
+{
+    "id": "g10-12.49.01-clinical-note-types",
+    "url": "https://haste.health/fhir/TestScript/g10-12.49.01-clinical-note-types",
+    "name": "g10-12.49.01-clinical-note-types",
+    "title": "12.49.01 The required clinical note types and report categories are returned",
+    "status": "active",
+    "description": "g10 12.49.01 (DAT-PAT-4; US Core 6.1.0: 10.45.01). The patient's DocumentReferences include the eight US Core clinical note types and the DiagnosticReports the three report categories (Cardiology, Pathology, Radiology).",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-document-types",
+            "name": "GET DocumentReference?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DocumentReference",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 11488-4 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '11488-4').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 18842-5 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '18842-5').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 34117-2 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '34117-2').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 28570-0 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '28570-0').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 11506-3 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '11506-3').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 18748-4 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '18748-4').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 11502-2 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '11502-2').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A 11526-1 note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(type.coding.where(system = 'http://loinc.org' and code = '11526-1').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-report-categories",
+            "name": "GET DiagnosticReport?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A LP29708-2 report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(category.coding.where(system = 'http://loinc.org' and code = 'LP29708-2').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A LP7839-6 report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(category.coding.where(system = 'http://loinc.org' and code = 'LP7839-6').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A LP29684-5 report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(category.coding.where(system = 'http://loinc.org' and code = 'LP29684-5').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

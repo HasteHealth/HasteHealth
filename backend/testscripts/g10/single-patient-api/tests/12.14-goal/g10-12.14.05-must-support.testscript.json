@@ -1,0 +1,82 @@
+{
+    "id": "g10-12.14.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.14.05-must-support",
+    "name": "g10-12.14.05-must-support",
+    "title": "12.14.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.14.05 (DAT-PAT-2; US Core 6.1.0: group 10.14). Every must support element of US Core Goal Profile (including the USCDI ones) appears in at least one Goal the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Goal",
+                        "params": "_id=g10-goal-1,g10-goal-sdoh-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Goal.description is present",
+                        "expression": "Bundle.entry.resource.ofType(Goal).description.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Goal.lifecycleStatus is present",
+                        "expression": "Bundle.entry.resource.ofType(Goal).lifecycleStatus.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Goal.startDate or Goal.target.dueDate is present",
+                        "expression": "(Bundle.entry.resource.ofType(Goal).start.ofType(date).exists() or Bundle.entry.resource.ofType(Goal).target.due.ofType(date).exists())",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Goal.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(Goal).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Goal.target is present",
+                        "expression": "Bundle.entry.resource.ofType(Goal).target.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

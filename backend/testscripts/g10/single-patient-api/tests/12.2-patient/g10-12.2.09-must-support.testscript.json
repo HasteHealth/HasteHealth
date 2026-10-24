@@ -1,0 +1,258 @@
+{
+    "id": "g10-12.2.09-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.2.09-must-support",
+    "name": "g10-12.2.09-must-support",
+    "title": "12.2.09 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.2.09 (DAT-PAT-2; US Core 6.1.0: group 10.2). Every must support element of US Core Patient Profile (including the USCDI ones) appears in at least one Patient the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=g10-child-example,g10-deceased-example,g10-example,g10-infant-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address.city is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.city.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address.line is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.line.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address.postalCode is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.postalCode.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address.state is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.state.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.birthDate is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.gender is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).gender.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.identifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.identifier.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).identifier.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.identifier.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).identifier.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.name is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.name.family is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.name.given is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.given.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.address.period.end or Patient.address.use is present",
+                        "expression": "(Bundle.entry.resource.ofType(Patient).address.period.end.exists() or Bundle.entry.resource.ofType(Patient).address.use.where($this = 'old').exists())",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.communication is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).communication.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.communication.language is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).communication.language.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.deceasedDateTime is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).deceased.ofType(dateTime).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.extension:ethnicity is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).extension.where(url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.extension:race is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).extension.where(url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.extension:sex is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).extension.where(url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.extension:tribalAffiliation is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).extension.where(url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.name.period.end or Patient.name.use is present",
+                        "expression": "(Bundle.entry.resource.ofType(Patient).name.period.end.exists() or Bundle.entry.resource.ofType(Patient).name.use.where($this = 'old').exists())",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.name.suffix is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.suffix.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.telecom is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).telecom.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.telecom.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).telecom.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.telecom.use is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).telecom.use.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient.telecom.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Patient).telecom.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

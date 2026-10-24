@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.12.03-search-patient-type",
+    "url": "https://haste.health/fhir/TestScript/g10-12.12.03-search-patient-type",
+    "name": "g10-12.12.03-search-patient-type",
+    "title": "12.12.03 Server returns valid results for DocumentReference search by patient + type",
+    "status": "active",
+    "description": "g10 12.12.03 (SH-PAT-2; US Core 6.1.0: group 10.12). Server returns valid results for DocumentReference search by patient + type. US Core SHALL search. Every result must match every parameter, and the record's DocumentReference/g10-cardiology-report-note must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-documentreference-patient-g10-example-type-11488-4",
+            "name": "GET DocumentReference?patient=g10-example&type=11488-4",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DocumentReference",
+                        "params": "patient=g10-example&type=11488-4",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DocumentReference/g10-cardiology-report-note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(id = 'g10-cardiology-report-note').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DocumentReference returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).all((subject.reference.endsWith('Patient/g10-example')) and (type.coding.where(code = '11488-4').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-documentreference-patient-g10-example-type-http-loinc-org-11488-4",
+            "name": "Token system|code form: GET DocumentReference?patient=g10-example&type=http://loinc.org|11488-4",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DocumentReference",
+                        "params": "patient=g10-example&type=http://loinc.org|11488-4",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DocumentReference/g10-cardiology-report-note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(id = 'g10-cardiology-report-note').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DocumentReference returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).all((subject.reference.endsWith('Patient/g10-example')) and (type.coding.where(system = 'http://loinc.org' and code = '11488-4').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,165 @@
+{
+    "id": "g10-3.8.16-encounter-context",
+    "url": "https://haste.health/fhir/TestScript/g10-3.8.16-encounter-context",
+    "name": "g10-3.8.16-encounter-context",
+    "title": "3.8.16 The encounter in context can be read",
+    "status": "active",
+    "description": "g10 3.8.16 / 3.8.15 (US Core 6) / 3.4.17 / 3.4.16 (AUT-PAT-17). The launch encounter can be read with the practitioner's token.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Encounter",
+            "id": "g10-example-1",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "extension": [
+                {
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed",
+                    "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "373066001"
+                    }
+                }
+            ],
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB",
+                "display": "ambulatory"
+            },
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://www.ama-assn.org/go/cpt",
+                            "code": "99211"
+                        }
+                    ],
+                    "text": "Office Visit"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/g10-example"
+            },
+            "period": {
+                "start": "2015-11-01T17:00:14-05:00",
+                "end": "2015-11-01T18:00:14-05:00"
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/g10-hospital",
+                        "display": "Holy Family Hospital"
+                    }
+                }
+            ],
+            "identifier": [
+                {
+                    "system": "http://example.org/encounter/identifiers",
+                    "value": "g10-encounter-1"
+                }
+            ],
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                    "code": "ATND"
+                                }
+                            ]
+                        }
+                    ],
+                    "period": {
+                        "start": "2015-11-01T17:00:14-05:00",
+                        "end": "2015-11-01T18:00:14-05:00"
+                    },
+                    "individual": {
+                        "reference": "Practitioner/g10-practitioner-1"
+                    }
+                }
+            ],
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "195967001",
+                            "display": "Asthma"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-example-1",
+            "resource": {
+                "reference": "#g10-example-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01",
+            "name": "3.8.16 The encounter in context can be read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-g10-example-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An Encounter is returned",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the launch encounter",
+                        "expression": "Encounter.id = 'g10-example-1'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the launch patient's",
+                        "expression": "Encounter.subject.reference = 'Patient/g10-example'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

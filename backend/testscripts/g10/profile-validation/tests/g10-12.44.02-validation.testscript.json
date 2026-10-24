@@ -1,0 +1,162 @@
+{
+    "id": "g10-12.44.02-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.44.02-validation",
+    "name": "g10-12.44.02-validation",
+    "title": "12.44.02 Organization conforms to US Core Organization Profile",
+    "status": "active",
+    "description": "g10 12.44.02 (DAT-PAT-2). Inferno validates the Organization resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Organization/g10-acme-lab that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Organization",
+            "id": "g10-val-12-44-02",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://hl7.org/fhir/sid/us-npi",
+                    "value": "1144221847"
+                },
+                {
+                    "system": "urn:oid:2.16.840.1.113883.4.7",
+                    "value": "12D4567890"
+                }
+            ],
+            "active": true,
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                            "code": "prov",
+                            "display": "Healthcare Provider"
+                        }
+                    ]
+                }
+            ],
+            "name": "Acme Labs",
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "(+1) 734-677-7777"
+                },
+                {
+                    "system": "email",
+                    "value": "hq@acme.org"
+                }
+            ],
+            "address": [
+                {
+                    "line": [
+                        "3300 WASHTENAW AVE STE 227"
+                    ],
+                    "city": "AMHERST",
+                    "state": "MA",
+                    "postalCode": "01002",
+                    "country": "USA"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-44-02",
+            "resource": {
+                "reference": "#g10-val-12-44-02"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Organization/g10-val-12-44-02 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Organization",
+                        "targetId": "fixture-g10-val-12-44-02",
+                        "sourceId": "fixture-g10-val-12-44-02",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Organization is returned",
+                        "resource": "Organization",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Organization",
+                    "targetId": "fixture-g10-val-12-44-02",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

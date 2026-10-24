@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.2.05-search-gender-name",
+    "url": "https://haste.health/fhir/TestScript/g10-12.2.05-search-gender-name",
+    "name": "g10-12.2.05-search-gender-name",
+    "title": "12.2.05 Server returns valid results for Patient search by gender + name",
+    "status": "active",
+    "description": "g10 12.2.05 (SH-PAT-2; US Core 6.1.0: group 10.2). Server returns valid results for Patient search by gender + name. US Core SHALL search. Every result must match every parameter, and the record's Patient/g10-child-example must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-patient-gender-male-name-example",
+            "name": "GET Patient?gender=male&name=Example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "gender=male&name=Example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/g10-child-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'g10-child-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Patient returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Patient).all((gender = 'male') and (name.where(family.where($this.lower().startsWith('example')).exists() or given.where($this.lower().startsWith('example')).exists() or text.where($this.lower().startsWith('example')).exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
