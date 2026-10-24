@@ -732,3 +732,20 @@ async fn quantity_conversion() {
     let converted = evaluate_on("$this.convertsToQuantity('g')", vec![&quantity]).await;
     assert_eq!(converted, ["false"]);
 }
+
+/// <https://hl7.org/fhirpath/N1/#functions>
+#[tokio::test]
+async fn index_in_iteration_functions() {
+    assert_evaluates("('a' | 'b' | 'c').where($index > 0)", &["'b'", "'c'"]).await;
+    assert_evaluates("('a' | 'b' | 'c').select($index)", &["0", "1", "2"]).await;
+    assert_evaluates("('a' | 'b' | 'c').all($index < 3)", &["true"]).await;
+    assert_evaluates("('a' | 'b' | 'c').all($index < 2)", &["false"]).await;
+    // Nested iterations bind their own index.
+    assert_evaluates(
+        "('a' | 'b').select(('x' | 'y' | 'z').where($index = 2))",
+        &["'z'", "'z'"],
+    )
+    .await;
+    // Outside an iteration there is no index.
+    assert_evaluates("$index", &[]).await;
+}
