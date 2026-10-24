@@ -22,11 +22,12 @@ haste-repository = { path = "../repository", version = "0.*" }
 
 elasticsearch = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
     "tls-rustls-ring-native-roots",
     "postgres",
     "time",
 ] }
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync", "time"] }
 tracing = { workspace = true }

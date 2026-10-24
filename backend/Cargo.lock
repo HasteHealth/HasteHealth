@@ -2898,6 +2898,7 @@ dependencies = [
  "haste-jwt",
  "haste-repository",
  "serde",
+ "serde_json",
  "sqlx",
  "tokio",
  "tracing",
