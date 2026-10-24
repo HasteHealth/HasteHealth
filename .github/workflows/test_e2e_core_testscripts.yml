@@ -6,61 +6,16 @@ name: <Test> Core TestScripts
 # (`--index-wait-ms`), which takes about as long as indexing does rather than
 # a fixed delay after every operation.
 #
-# Runs on main, plus `ci/core-testscripts` (and `ci/core-testscripts/**`) for
-# iterating on the scripts without touching main.
+# Called by test_e2e.yml, which builds the binary this downloads and deploys
+# the website with these TestReports.
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  # Run by audit_autofix.yml on its pull request branches.
-  workflow_dispatch: {}
+  workflow_call: {}
 
-# Also runs on Audit Autofix branches, so the token stays read-only.
 permissions:
   contents: read
 
-# A newer push to the same branch supersedes a running check.
-concurrency:
-  group: core-testscripts-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      SQLX_OFFLINE: true
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
-        with:
-          toolchain: stable
-
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-        with:
-          workspaces: "./backend -> target"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-
-      - name: Build
-        run: cargo build --locked --bin haste-health
-        working-directory: ./backend
-
-      # A tarball keeps the executable bit.
-      - name: Package binary
-        run: tar -czf haste-health.tar.gz -C backend/target/debug haste-health
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: haste-health-binary
-          path: haste-health.tar.gz
-          retention-days: 1
-
   core-testscripts:
-    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -230,62 +185,3 @@ jobs:
             backend/server.log
             backend/worker.log
           if-no-files-found: ignore
-
-  # Deploys the website on every push to main, with the conformance page's
-  # data refreshed from this run's TestReports. `continue-on-error` plus the
-  # file check below mean a build/test failure upstream (no artifacts to
-  # download)
-  deploy-website:
-    needs: core-testscripts
-    if: always() && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Download TestReports
-        continue-on-error: true
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          pattern: core-testreports-*
-          path: reports
-
-      - name: Generate merged coverage data
-        run: |
-          postgres=reports/core-testreports-postgres/postgres.json
-          elasticsearch=reports/core-testreports-elasticsearch/elasticsearch.json
-          if [ -f "$postgres" ] && [ -f "$elasticsearch" ]; then
-            node frontend/packages/website/scripts/generate.mjs test-support \
-              --postgres "$postgres" \
-              --elasticsearch "$elasticsearch"
-          else
-            echo "TestReports unavailable this run; deploying with the previously committed coverage data."
-          fi
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.9.0
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 23
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: ./frontend
-
-      - name: Build frontend packages
-        run: pnpm ci:build
-        working-directory: ./frontend
-
-      - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
-        with:
-          wranglerVersion: "4.130.0"
-          workingDirectory: "frontend/packages/website"
-          packageManager: pnpm
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

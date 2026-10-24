@@ -51,6 +51,6 @@ and run it again instead.
 ## Deployment
 
 The site is deployed to Cloudflare by the `deploy-website` job in
-`.github/workflows/test_e2e_core_testscripts.yml` on every push to `main`,
-after refreshing the conformance report from that run's TestReports.
+`.github/workflows/test_e2e.yml` on every push to `main`, after refreshing
+the conformance report from that run's core TestReports.
 `pnpm wrangler` builds and deploys from a local checkout.

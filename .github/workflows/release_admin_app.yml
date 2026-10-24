@@ -1,8 +1,8 @@
 name: <Release> Admin App
 
 # Deploys the admin app (frontend/packages/admin-app) to Cloudflare Workers at
-# haste-admin.app, the same way test_e2e_core_testscripts.yml deploys the
-# website. Unlike the website this never runs on its own: start it from the
+# haste-admin.app, the same way test_e2e.yml deploys the website. Unlike the
+# website this never runs on its own: start it from the
 # Actions tab ("Run workflow"), choosing the branch or tag to build from.
 #
 # The app reads its FHIR server and OIDC client id at build time
