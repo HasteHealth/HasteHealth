@@ -390,7 +390,7 @@
                     "assert": {
                         "description": "Path rules sort first",
                         "expression": "DeidentificationPolicy.rule.first().target.path",
-                        "value": "Patient.birthDate",
+                        "value": "Observation.valueQuantity",
                         "warningOnly": false
                     }
                 },
