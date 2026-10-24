@@ -86,12 +86,13 @@ jobs:
     needs: build
     uses: ./.github/workflows/test_e2e_g10.yml
 
-  # Deploys the website on every push to main, with the conformance page's
-  # data refreshed from this run's core TestReports. `continue-on-error` plus
-  # the file check below mean a build/test failure upstream (no artifacts to
-  # download) still deploys, with the previously committed coverage data.
+  # Deploys the website on every push to main, with the conformance pages'
+  # data refreshed from this run's TestReports: core, US Core (base), g10 and
+  # access control. `continue-on-error` plus the file checks below mean a
+  # build/test failure upstream (no artifacts to download) still deploys, with
+  # the previously committed data for whichever suites have no reports.
   deploy-website:
-    needs: core-testscripts
+    needs: [core-testscripts, base, g10, access-control]
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -103,7 +104,7 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: core-testreports-*
+          pattern: "*testreports*"
           path: reports
 
       - name: Generate merged coverage data
@@ -117,6 +118,20 @@ jobs:
           else
             echo "TestReports unavailable this run; deploying with the previously committed coverage data."
           fi
+
+      # The other suites' pages, and the totals the homepage and the
+      # conformance overview show. A suite with no reports this run keeps its
+      # committed data.
+      - name: Generate test suite data
+        run: |
+          args=()
+          add() { if [ -e "$2" ]; then args+=("--$1" "$2"); fi; }
+          add us-core-postgres reports/us-core-testreports-postgres/us-core-postgres.json
+          add us-core-elasticsearch reports/us-core-testreports-elasticsearch/us-core-elasticsearch.json
+          add g10-postgres reports/g10-testreports
+          add access-control-postgres reports/access-control-testreports-postgres
+          add access-control-elasticsearch reports/access-control-testreports-elasticsearch
+          node frontend/packages/website/scripts/generate.mjs test-suites "${args[@]}"
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:

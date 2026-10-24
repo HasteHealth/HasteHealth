@@ -36,6 +36,7 @@ stops at the first failure:
 | Step           | Reads                                                       | Writes                                                                                               |
 | -------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `test-support` | `backend/testscripts/core`, `backend/testreports/*.json`    | `static/test-reports/support.json` (the conformance report)                                          |
+| `test-suites`  | the US Core, g10 and access control TestScripts and reports | `static/test-reports/suites/*.json` (one per suite), `static/test-reports/suites.json` (totals)      |
 | `server`       | the local server (`HASTE_HEALTH_*`, see `.env.example`)     | `static/fhir/R4/metadata.json`, `static/fhir/R4/OperationDefinition/*.json`, `static/mcp/tools.json` |
 | `fhir`         | `artifacts/r4`, the conformance report, the server snapshot | `docs/reference/fhir/**` pages, `src/fhir-model/*.json`, `static/fhir/R4/<Type>.json`                |
 | `social-card`  | the conformance report                                      | `static/img/social-card.{svg,png}`                                                                   |

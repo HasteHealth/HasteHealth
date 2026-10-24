@@ -420,9 +420,11 @@ function HowItFits() {
 }
 
 function Proof() {
-  const { conformance } = useHomepageFacts();
+  const { conformance, suites } = useHomepageFacts();
+  // Every suite's checks, not just the core suite the grid below shows.
+  const checks = suites.reduce((sum, suite) => sum + suite.assertions, 0);
   const coverage = [
-    { value: conformance.checks, label: "automated checks" },
+    { value: checks, label: "automated checks" },
     { value: conformance.searchParameters, label: "search parameters" },
     { value: conformance.backends.length, label: "search backends" },
   ];
@@ -511,12 +513,14 @@ function Proof() {
               ))}
             </dl>
             <p className="m-0 mt-5 text-sm leading-relaxed text-slate-500">
-              Each square is one resource type with its own TestScript, run in
-              CI against both PostgreSQL and Elasticsearch.
+              The checks span {suites.length} test suites:{" "}
+              {suites.map((suite) => suite.title).join(", ")}. Each square is
+              one resource type in the core suite, run in CI against both
+              PostgreSQL and Elasticsearch.
             </p>
             <div className="mt-auto pt-6">
-              <ArrowLink to="/docs/reference/conformance/test-coverage">
-                See the full conformance report
+              <ArrowLink to="/docs/reference/conformance/overview">
+                See every conformance report
               </ArrowLink>
             </div>
           </Panel>

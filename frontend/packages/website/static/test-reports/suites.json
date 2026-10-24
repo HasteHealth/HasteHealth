@@ -1,0 +1,62 @@
+{
+  "suites": [
+    {
+      "id": "core",
+      "title": "FHIR R4 core",
+      "page": "/docs/reference/conformance/test-coverage",
+      "generatedAt": "2026-10-24T21:37:51.531Z",
+      "backends": [
+        "postgres",
+        "elasticsearch"
+      ],
+      "testScripts": 157,
+      "testScriptsPassing": 156,
+      "knownGaps": 1,
+      "assertions": 11692,
+      "assertionsPassing": 11684
+    },
+    {
+      "id": "us-core",
+      "title": "US Core",
+      "page": "/docs/reference/conformance/us-core",
+      "generatedAt": "2026-10-24T21:37:51.687Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 213,
+      "testScriptsPassing": 213,
+      "knownGaps": 0,
+      "assertions": 225,
+      "assertionsPassing": 225
+    },
+    {
+      "id": "g10",
+      "title": "ONC (g)(10) Standardized API",
+      "page": "/docs/reference/conformance/onc-g10",
+      "generatedAt": "2026-10-24T21:37:51.774Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 440,
+      "testScriptsPassing": 374,
+      "knownGaps": 66,
+      "assertions": 3655,
+      "assertionsPassing": 3131
+    },
+    {
+      "id": "access-control",
+      "title": "SMART scopes and access control",
+      "page": "/docs/reference/conformance/access-control",
+      "generatedAt": "2026-10-24T21:37:51.795Z",
+      "backends": [
+        "postgres",
+        "elasticsearch"
+      ],
+      "testScripts": 14,
+      "testScriptsPassing": 14,
+      "knownGaps": 0,
+      "assertions": 136,
+      "assertionsPassing": 136
+    }
+  ]
+}
