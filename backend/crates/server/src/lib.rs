@@ -5,6 +5,7 @@ pub mod config;
 mod extract;
 pub mod fhir_client;
 mod fhir_http;
+pub mod jobs;
 pub mod load_artifacts;
 mod mcp;
 mod middleware;

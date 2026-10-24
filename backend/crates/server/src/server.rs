@@ -4,7 +4,7 @@ use crate::{
     config::ServerConfig,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
-    mcp,
+    jobs, mcp,
     middleware::{
         errors::{log_operationoutcome_errors, operation_outcome_error_handle},
         security_headers::security_headers,
@@ -265,6 +265,11 @@ pub async fn server(
     let protected_resources_router = Router::new()
         .nest("/fhir", fhir_router)
         .route("/mcp", post(mcp::route::mcp_handler))
+        // The status URL of an asynchronous job: polled, or deleted to cancel.
+        .route(
+            "/jobs/{id}",
+            get(jobs::status_handler).delete(jobs::cancel_handler),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
