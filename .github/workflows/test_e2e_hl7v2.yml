@@ -3,26 +3,19 @@ name: <Test> E2E HL7v2 ingest
 # Sends real HL7 v2 messages over MLLP to the listener and confirms, through
 # TestScripts, that the resulting FHIR resources are correct.
 #
-# Separate from test_e2e.yml because it exercises a different entry point: every
-# other job drives the FHIR REST API, while this one drives a TCP socket and
-# checks the REST API for the result. It runs on Postgres only -- the ingest
+# Separate from test_e2e_base.yml because it exercises a different entry point:
+# every other job drives the FHIR REST API, while this one drives a TCP socket
+# and checks the REST API for the result. It runs on Postgres only -- the ingest
 # path does not vary by search backend, and the assertions here are about the
 # conversion rather than the query planner.
+#
+# Called by test_e2e.yml, which builds the binary this downloads.
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  # Run by audit_autofix.yml on its pull request branches.
-  workflow_dispatch: {}
+  workflow_call: {}
 
-# Also runs on Audit Autofix branches, so the token stays read-only.
 permissions:
   contents: read
-
-env:
-  CARGO_TERM_COLOR: always
 
 jobs:
   hl7v2-ingest:
@@ -38,7 +31,6 @@ jobs:
       HASTE_SEARCH.database_url: postgresql://postgres:postgres@localhost:5432/haste_health_search
       HASTE_SEARCH.max_connections: 20
       RUST_LOG: none
-      SQLX_OFFLINE: true
       MLLP_PORT: 2575
 
     services:
@@ -59,23 +51,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
-        with:
-          toolchain: stable
 
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          workspaces: "./backend -> target"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          name: haste-health-binary
+
+      - name: Install binary
+        run: |
+          mkdir -p backend/target/debug
+          tar -xzf haste-health.tar.gz -C backend/target/debug
 
       # The Postgres search backend indexes into its own database, kept apart
       # from the repo's.
       - name: Create search database
         run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
-
-      - name: Build
-        run: cargo build --locked --workspace
-        working-directory: ./backend
 
       - name: Run migrations
         run: |

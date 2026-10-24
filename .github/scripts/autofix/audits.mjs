@@ -65,13 +65,8 @@ export function run(
 const cargo = {
   workflow: "<Audit> Cargo",
   paths: ["backend"],
-  checks: [
-    "test_units.yml",
-    "test_e2e.yml",
-    "test_e2e_access_control.yml",
-    "test_e2e_core_testscripts.yml",
-    "test_e2e_hl7v2.yml",
-  ],
+  // test_e2e.yml runs every E2E suite against one build.
+  checks: ["test_units.yml", "test_e2e.yml"],
   claude: {
     commands: [
       "cargo audit",
