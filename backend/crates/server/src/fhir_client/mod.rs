@@ -43,7 +43,8 @@ use middleware::{
     capabilities::Capabilities,
     check_project::{CheckProject, SetProjectReadOnly},
     custom_models::{
-        access_policy_v3::AccessPolicyV3Validation, membership::MembershipSync,
+        access_policy_v3::AccessPolicyV3Validation,
+        deidentification_policy::DeidentificationPolicyValidation, membership::MembershipSync,
         project::ProjectSync, user::UserSync,
     },
     element_filtering::ElementFiltering,
@@ -272,6 +273,7 @@ enum Lane {
     ProjectAuth,
     TenantAuth,
     AccessPolicy,
+    DeidentificationPolicy,
     Operation,
     Capabilities,
 }
@@ -287,6 +289,7 @@ impl Lane {
             ResourceType::OperationDefinition => Lane::OperationDefinition,
             ResourceType::Membership => Lane::ProjectAuth,
             ResourceType::AccessPolicyV3 => Lane::AccessPolicy,
+            ResourceType::DeidentificationPolicy => Lane::DeidentificationPolicy,
             ResourceType::User | ResourceType::Project | ResourceType::IdentityProvider => {
                 Lane::TenantAuth
             }
@@ -382,6 +385,7 @@ struct Router<B: Backend> {
     project_auth: Pipeline<B>,
     tenant_auth: Pipeline<B>,
     access_policy: Pipeline<B>,
+    deidentification_policy: Pipeline<B>,
     operation: Pipeline<B>,
     capabilities: Pipeline<B>,
 }
@@ -400,6 +404,7 @@ impl<B: Backend> Handler<B> for Router<B> {
             Ok(Lane::ProjectAuth) => &self.project_auth,
             Ok(Lane::TenantAuth) => &self.tenant_auth,
             Ok(Lane::AccessPolicy) => &self.access_policy,
+            Ok(Lane::DeidentificationPolicy) => &self.deidentification_policy,
             Ok(Lane::Operation) => &self.operation,
             Ok(Lane::Capabilities) => &self.capabilities,
             Err(error) => return Box::pin(std::future::ready(Err(error.into()))),
@@ -528,6 +533,13 @@ impl<
                     // A PATCH runs as an update, so the patched policy is checked too.
                     Box::new(PatchAsUpdate),
                     Box::new(AccessPolicyV3Validation),
+                ],
+                Storage,
+            ),
+            deidentification_policy: Pipeline::new(
+                vec![
+                    Box::new(PatchAsUpdate),
+                    Box::new(DeidentificationPolicyValidation),
                 ],
                 Storage,
             ),
