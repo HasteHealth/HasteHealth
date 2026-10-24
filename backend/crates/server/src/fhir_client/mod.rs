@@ -105,6 +105,10 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     /// scope middleware when a `patient/` scope grants the request. Storage
     /// filters every search by it.
     pub compartment: Option<String>,
+    /// The request asked for `Prefer: respond-async`: an operation it invokes
+    /// is queued as a job and answered with `202 Accepted` instead of run in
+    /// the request. Other interactions ignore it, as the pattern allows.
+    pub prefer_async: bool,
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
@@ -121,6 +125,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             rate_limit: self.rate_limit.clone(),
             tracing_id: self.tracing_id.clone(),
             compartment: self.compartment.clone(),
+            prefer_async: self.prefer_async,
         }
     }
 
@@ -136,6 +141,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             rate_limit: self.rate_limit.clone(),
             tracing_id: self.tracing_id.clone(),
             compartment: Some(patient_id),
+            prefer_async: self.prefer_async,
         }
     }
 
@@ -156,6 +162,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             rate_limit,
             tracing_id: None,
             compartment: None,
+            prefer_async: false,
         }
     }
 
@@ -205,11 +212,18 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             rate_limit,
             tracing_id: None,
             compartment: None,
+            prefer_async: false,
         }
     }
 
     pub fn with_tracing_id(mut self, tracing_id: Option<String>) -> Self {
         self.tracing_id = tracing_id;
+        self
+    }
+
+    #[must_use]
+    pub fn with_prefer_async(mut self, prefer_async: bool) -> Self {
+        self.prefer_async = prefer_async;
         self
     }
 }

@@ -56,8 +56,8 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health config set-active-profile`↴](#haste-health-config-set-active-profile)
 * [`haste-health login`↴](#haste-health-login)
 * [`haste-health worker`↴](#haste-health-worker)
-* [`haste-health worker worker`↴](#haste-health-worker-worker)
-* [`haste-health worker wal-worker`↴](#haste-health-worker-wal-worker)
+* [`haste-health worker indexing`↴](#haste-health-worker-indexing)
+* [`haste-health worker async-jobs`↴](#haste-health-worker-async-jobs)
 * [`haste-health testscript`↴](#haste-health-testscript)
 * [`haste-health testscript run`↴](#haste-health-testscript-run)
 * [`haste-health admin`↴](#haste-health-admin)
@@ -95,7 +95,7 @@ Haste Health binary.
 * `api` — Make FHIR REST API calls against the active profile's server
 * `config` — Manage named server connection profiles used by other commands
 * `login` — Log in as a human user via the browser (authorization_code + PKCE flow)
-* `worker` — Run background workers (search indexing, WAL processing)
+* `worker` — Run the background workers (search indexing and async jobs), or only the one named
 * `testscript` — Run FHIR TestScript resources against the active profile's server
 * `admin` — Server-side administrative operations (tenants, users, clients, migrations)
 * `hl7v2` — Bridge HL7v2 messages to and from the FHIR server
@@ -692,30 +692,30 @@ Log in as a human user via the browser (authorization_code + PKCE flow)
 
 ## `haste-health worker`
 
-Run background workers (search indexing, WAL processing)
+Run the background workers (search indexing and async jobs), or only the one named
 
 **Usage:** `haste-health worker [COMMAND]`
 
 ###### **Subcommands:**
 
-* `worker` — Run the search-indexing worker. Default when no subcommand is given
-* `wal-worker` — Run the Postgres WAL (write-ahead log) worker. Not yet implemented
+* `indexing` — Run only the search-indexing worker
+* `async-jobs` — Run only the async-job worker
 
 
 
-## `haste-health worker worker`
+## `haste-health worker indexing`
 
-Run the search-indexing worker. Default when no subcommand is given
+Run only the search-indexing worker
 
-**Usage:** `haste-health worker worker`
+**Usage:** `haste-health worker indexing`
 
 
 
-## `haste-health worker wal-worker`
+## `haste-health worker async-jobs`
 
-Run the Postgres WAL (write-ahead log) worker. Not yet implemented
+Run only the async-job worker
 
-**Usage:** `haste-health worker wal-worker`
+**Usage:** `haste-health worker async-jobs`
 
 
 

@@ -7,7 +7,9 @@
 //!
 //! The work itself is an `async_jobs` row run by `haste-health worker`
 //! (see `haste_worker::async_jobs`). This module is the HTTP side: the
-//! status URL and the status and cancel endpoints.
+//! status URL, the status and cancel endpoints, and the `Prefer` header
+//! that asks for the pattern. [`operation`] is the first kind of job: an
+//! operation invoked with `Prefer: respond-async`.
 
 use crate::{auth_n::middleware::jwt::User, route_path::api_v1_path, services::ServerState};
 use axum::{
@@ -30,6 +32,24 @@ use sqlx::types::time::OffsetDateTime;
 use std::sync::Arc;
 use tower_sessions::cookie::time::{UtcOffset, format_description};
 use url::Url;
+
+pub mod operation;
+
+/// The `Prefer` token that asks for the asynchronous pattern.
+pub const RESPOND_ASYNC: &str = "respond-async";
+
+/// Whether the request's `Prefer` header(s) carry `respond-async`. The header
+/// is a comma-separated list of preferences (`respond-async, return=minimal`)
+/// and may be repeated.
+#[must_use]
+pub fn prefers_async(headers: &HeaderMap) -> bool {
+    headers
+        .get_all("prefer")
+        .iter()
+        .filter_map(|value| value.to_str().ok())
+        .flat_map(|value| value.split(','))
+        .any(|preference| preference.trim().eq_ignore_ascii_case(RESPOND_ASYNC))
+}
 
 /// The absolute URL the client polls for a job: sibling of the project's
 /// FHIR root, so the same token authorizes it, but outside the FHIR routes

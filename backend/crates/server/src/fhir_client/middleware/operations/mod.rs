@@ -7,7 +7,7 @@ use haste_fhir_client::request::{
     FHIRResponse, InvocationRequest, InvokeResponse,
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType},
+    resources::{OperationDefinition, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -88,6 +88,49 @@ impl<B: Backend> Operations<B> {
     }
 }
 
+/// The project's (custom, tenant-authored) `OperationDefinition` that defines
+/// `request`, if there is one. The search lists built-ins too, but none
+/// defines the request or the caller would have run it instead.
+async fn find_custom_operation<B: Backend>(
+    ctx: &Arc<ServerCTX<B>>,
+    request: &InvocationRequest,
+) -> Result<Option<OperationDefinition>, OperationOutcomeError> {
+    let (code, level, _) = invocation(request);
+    let bundle = ctx
+        .client
+        .search_type(
+            ctx.clone(),
+            ResourceType::OperationDefinition,
+            vec![
+                ("code".to_string(), vec![code.to_string()]),
+                (level.to_string(), vec!["true".to_string()]),
+            ]
+            .into(),
+        )
+        .await?;
+
+    Ok(bundle
+        .entry
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .filter_map(|entry| match entry.resource.as_deref() {
+            Some(Resource::OperationDefinition(definition)) => Some(definition),
+            _ => None,
+        })
+        .find(|definition| defines(definition, request))
+        .cloned())
+}
+
+/// The error for an invocation that neither a built-in nor the project defines.
+fn not_defined(request: &InvocationRequest) -> OperationOutcomeError {
+    let (code, _, invoked) = invocation(request);
+    OperationOutcomeError::error(
+        IssueType::not_found(),
+        format!("No operation '{code}' is defined {invoked}."),
+    )
+}
+
 /// What `request` invokes: the code, the OperationDefinition search parameter
 /// for its level, and where, for an error message.
 fn invocation(request: &InvocationRequest) -> (&str, &'static str, String) {
@@ -139,7 +182,30 @@ impl<B: Backend> Handler<B> for Operations<B> {
                 ));
             };
 
-            if let Some(operation) = self.find_operation(invoke_request) {
+            let builtin = self.find_operation(invoke_request);
+            let custom = match builtin {
+                Some(_) => None,
+                None => Some(
+                    find_custom_operation(&ctx, invoke_request)
+                        .await?
+                        .ok_or_else(|| not_defined(invoke_request))?,
+                ),
+            };
+
+            // `Prefer: respond-async`: the operation exists and the request
+            // has passed every check before this point, so queue it and
+            // answer 202. The worker runs it through this same pipeline later.
+            if ctx.prefer_async {
+                return crate::jobs::operation::submit(
+                    state.repo.as_ref(),
+                    state.config.as_ref(),
+                    ctx.as_ref(),
+                    invoke_request,
+                )
+                .await;
+            }
+
+            if let Some(operation) = builtin {
                 let output = operation
                     .execute(
                         ServerOperationContext {
@@ -155,46 +221,13 @@ impl<B: Backend> Handler<B> for Operations<B> {
                 return Ok(invoke_response(invoke_request, output));
             }
 
-            // The project's definitions of this code at this level. The
-            // search lists built-ins too, but none defines this request or it
-            // would have run above.
-            let (code, level, invoked) = invocation(invoke_request);
-            let bundle = ctx
-                .client
-                .search_type(
-                    ctx.clone(),
-                    ResourceType::OperationDefinition,
-                    vec![
-                        ("code".to_string(), vec![code.to_string()]),
-                        (level.to_string(), vec!["true".to_string()]),
-                    ]
-                    .into(),
-                )
-                .await?;
-
-            let Some(operation_definition) = bundle
-                .entry
-                .as_deref()
-                .unwrap_or_default()
-                .iter()
-                .filter_map(|entry| match entry.resource.as_deref() {
-                    Some(Resource::OperationDefinition(definition)) => Some(definition),
-                    _ => None,
-                })
-                .find(|definition| defines(definition, invoke_request))
-            else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::not_found(),
-                    format!("No operation '{code}' is defined {invoked}."),
-                ));
-            };
-
+            let operation_definition = custom.ok_or_else(|| not_defined(invoke_request))?;
             let output = self
                 .deno_pool
                 .execute_operation(
                     ctx.clone(),
                     ctx.client.clone(),
-                    operation_definition,
+                    &operation_definition,
                     invoke_request,
                 )
                 .await?;
