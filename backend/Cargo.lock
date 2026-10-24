@@ -2477,6 +2477,7 @@ dependencies = [
 name = "haste-fhir-profiling"
 version = "0.126.34"
 dependencies = [
+ "criterion",
  "haste-codegen",
  "haste-fhir-client",
  "haste-fhir-model",
@@ -2484,6 +2485,8 @@ dependencies = [
  "haste-fhirpath",
  "haste-pointer",
  "haste-reflect",
+ "serde_json",
+ "tokio",
  "tracing",
 ]
 

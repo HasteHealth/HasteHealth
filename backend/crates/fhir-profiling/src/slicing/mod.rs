@@ -409,35 +409,62 @@ fn is_conformant_to_value_discriminator(
 #[derive(Debug)]
 struct SplitSlicing(HashMap<usize, Vec<Path>>);
 
-async fn is_conformant_to_discriminators(
-    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
-    slice_index: &usize,
+async fn find_discriminator_definition<'a, Resolver: CanonicalResolver>(
+    ctx: &Arc<FHIRProfileCTX<'a, Resolver>>,
+    slice_index: usize,
+    discriminator_element_path: &str,
+    parent_path: Option<&str>,
+) -> Result<FoundDiscriminator<'a, Resolver>, OperationOutcomeError> {
+    find_element_definition_for_discriminator(
+        ctx.clone(),
+        discriminator_element_path,
+        slice_index,
+        parent_path,
+    )
+    .await?
+    .ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!(
+                "'{}' Failed to find element definition for discriminator path '{}'",
+                ctx.profile().id.as_deref().unwrap_or("unknown"),
+                discriminator_element_path
+            ),
+        )
+    })
+}
+
+/// `definitions` holds, per discriminator, the slice's element definition for it.
+/// That definition depends only on the slice, not on `loc`, so it is looked up for
+/// the first value that reaches the discriminator and reused for the other values.
+/// Looking it up on first use rather than up front keeps a failed lookup reported
+/// at the same point as before.
+async fn is_conformant_to_discriminators<'a, Resolver: CanonicalResolver>(
+    ctx: &Arc<FHIRProfileCTX<'a, Resolver>>,
+    slice_index: usize,
     discriminators: &[ElementDefinitionSlicingDiscriminator],
     discriminator_element_paths: &[String],
     parent_path: Option<&str>,
+    definitions: &mut [Option<FoundDiscriminator<'a, Resolver>>],
     loc: &Path,
 ) -> Result<bool, OperationOutcomeError> {
     for (discriminator_element_index, discriminator_element_path) in
         discriminator_element_paths.iter().enumerate()
     {
         let discriminator = &discriminators[discriminator_element_index];
-        let Some(slice_descriminator_value_definition) = find_element_definition_for_discriminator(
-            ctx.clone(),
-            discriminator_element_path,
-            *slice_index,
-            parent_path,
-        )
-        .await?
-        else {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                format!(
-                    "'{}' Failed to find element definition for discriminator path '{}'",
-                    ctx.profile().id.as_deref().unwrap_or("unknown"),
-                    discriminator_element_path
+        let slice_descriminator_value_definition =
+            match &mut definitions[discriminator_element_index] {
+                Some(definition) => definition,
+                slot => slot.insert(
+                    find_discriminator_definition(
+                        ctx,
+                        slice_index,
+                        discriminator_element_path,
+                        parent_path,
+                    )
+                    .await?,
                 ),
-            ));
-        };
+            };
 
         if !is_conformant_to_slice_descriptor(
             discriminator,
@@ -495,14 +522,16 @@ async fn split_slicing(
     for slice_index in &slicing_descriptor.slices {
         let mut remainder_locs = vec![];
         let mut slice_locations = vec![];
+        let mut definitions: Vec<_> = discriminators.iter().map(|_| None).collect();
 
         for loc in &locs {
             if is_conformant_to_discriminators(
-                ctx.clone(),
-                slice_index,
+                &ctx,
+                *slice_index,
                 discriminators,
                 &discriminator_element_paths,
                 parent_path,
+                &mut definitions,
                 loc,
             )
             .await?
