@@ -18,7 +18,7 @@ use axum::{
     body::{Body, Bytes, to_bytes},
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
-    http::{HeaderName, HeaderValue, Method, Uri},
+    http::{HeaderName, HeaderValue, Method, Uri, header},
     middleware::from_fn,
     response::{IntoResponse, Response},
     routing::{any, get, post},
@@ -399,6 +399,13 @@ pub async fn server(
                         .allow_methods(Any)
                         .allow_origin(Any)
                         .allow_headers(AllowHeaders::mirror_request())
+                        // Asynchronous from browser need these headers.
+                        .expose_headers([
+                            header::CONTENT_LOCATION,
+                            header::ETAG,
+                            header::RETRY_AFTER,
+                            HeaderName::from_static("x-progress"),
+                        ])
                         // Set the max age for CORS preflight requests to 2 hours.
                         .max_age(std::time::Duration::from_secs(7200)),
                 ),
