@@ -56,6 +56,10 @@
         {
             "code": "AccessPolicyV3Assignment",
             "display": "AccessPolicyV3Assignment"
+        },
+        {
+            "code": "DeidentificationPolicy",
+            "display": "DeidentificationPolicy"
         }
     ]
 }

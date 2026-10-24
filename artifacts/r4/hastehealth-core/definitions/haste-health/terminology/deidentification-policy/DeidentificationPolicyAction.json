@@ -1,0 +1,86 @@
+{
+    "resourceType": "Bundle",
+    "id": "deidentificationpolicyaction",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyAction",
+            "resource": {
+                "id": "deidentificationpolicyaction-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyAction",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyAction",
+                "title": "DeidentificationPolicyAction",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification actions.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyAction",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "keep",
+                        "display": "keep"
+                    },
+                    {
+                        "code": "redact",
+                        "display": "redact"
+                    },
+                    {
+                        "code": "substitute",
+                        "display": "substitute"
+                    },
+                    {
+                        "code": "cryptoHash",
+                        "display": "cryptoHash"
+                    },
+                    {
+                        "code": "pseudonymize",
+                        "display": "pseudonymize"
+                    },
+                    {
+                        "code": "encrypt",
+                        "display": "encrypt"
+                    },
+                    {
+                        "code": "dateShift",
+                        "display": "dateShift"
+                    },
+                    {
+                        "code": "generalize",
+                        "display": "generalize"
+                    },
+                    {
+                        "code": "perturb",
+                        "display": "perturb"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/DeidentificationPolicyAction",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "deidentificationpolicyaction",
+                "url": "https://haste.health/fhir/ValueSet/DeidentificationPolicyAction",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyAction",
+                "title": "DeidentificationPolicyAction",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification actions.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyAction"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
