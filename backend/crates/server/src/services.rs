@@ -116,8 +116,33 @@ impl<
 
 pub use haste_fhir_search::config::SearchEngineBackend;
 
+/// The services of the HTTP server. Owns the search index's shape: this is the
+/// one place that may migrate it.
 pub async fn create_services(
     config: Arc<crate::config::ServerConfig>,
+) -> Result<
+    Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
+    OperationOutcomeError,
+> {
+    build_services(config, true).await
+}
+
+/// The same services for a worker process (one that runs asynchronous jobs):
+/// everything a request has, so a job can go through the FHIR client exactly
+/// as the request that queued it would have, but never a change to the index's
+/// shape under the running server.
+pub async fn create_worker_services(
+    config: Arc<crate::config::ServerConfig>,
+) -> Result<
+    Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
+    OperationOutcomeError,
+> {
+    build_services(config, false).await
+}
+
+async fn build_services(
+    config: Arc<crate::config::ServerConfig>,
+    migrate_search: bool,
 ) -> Result<
     Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
@@ -126,10 +151,12 @@ pub async fn create_services(
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
-    // The server owns migrations; the indexing worker passes false so it can
-    // never change the index's shape under a running server.
-    let search_engine =
-        haste_fhir_search::config::create_search_engine(&config.search, pool.clone(), true).await?;
+    let search_engine = haste_fhir_search::config::create_search_engine(
+        &config.search,
+        pool.clone(),
+        migrate_search,
+    )
+    .await?;
 
     // [TODO] refactor later into generic operation executor.
     // Cannot just rebuild in each request because it would create multiple DenoPools,

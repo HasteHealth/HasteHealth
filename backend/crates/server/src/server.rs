@@ -18,7 +18,7 @@ use axum::{
     body::{Body, Bytes, to_bytes},
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
-    http::{HeaderName, HeaderValue, Method, Uri, header},
+    http::{HeaderMap, HeaderName, HeaderValue, Method, Uri, header},
     middleware::from_fn,
     response::{IntoResponse, Response},
     routing::{any, get, post},
@@ -155,6 +155,7 @@ async fn fhir_handler<
     OriginalUri(original_uri): OriginalUri,
     Path(path): Path<ProjectPath>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    headers: HeaderMap,
     body: Bytes,
 ) -> Result<Response, OperationOutcomeError> {
     // Nested under the FHIR root, so the request URI is what follows it: the
@@ -197,7 +198,8 @@ async fn fhir_handler<
             state.fhir_client.clone(),
             state.rate_limit.clone(),
         )
-        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8))))),
+        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))))
+        .with_prefer_async(jobs::prefers_async(&headers)),
     );
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;

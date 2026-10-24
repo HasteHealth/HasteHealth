@@ -1,0 +1,84 @@
+---
+id: async-requests
+title: Asynchronous requests
+description: How to run a FHIR operation as a background job with the Prefer respond-async header, poll its status, read its result and cancel it.
+sidebar_position: 1
+---
+
+# Asynchronous Requests
+
+Some operations take longer than a request should wait. Haste Health supports
+the FHIR [Asynchronous Request Pattern](https://hl7.org/fhir/R4/async.html)
+for operation invocations: send the request with `Prefer: respond-async` and
+the server queues it as a job, answers `202 Accepted` at once, and runs it in
+the background. The response's `Content-Location` header is the job's status
+URL, which you poll for the result.
+
+Every check the synchronous form of the request makes (authentication, scopes,
+access policies, rate limits, and that the operation exists) happens before the
+job is accepted, and the job runs later with exactly the permissions the
+request had.
+
+## Kick off a job
+
+```bash
+curl -i -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/Patient/123/\$everything" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -H "Prefer: respond-async" \
+     -H "Content-Type: application/fhir+json" \
+     -d '{"resourceType": "Parameters"}'
+```
+
+```http
+HTTP/1.1 202 Accepted
+Content-Location: https://api.haste.health/w/[tenant]/[project]/api/v1/jobs/9zcd19zskhafie1nseogaz2nmp
+```
+
+Without the `Prefer` header the operation runs synchronously, as before. The
+header is ignored on interactions other than operation invocations.
+
+A project may have a limited number of queued or running jobs at once
+(ten by default). A kick-off past that limit is refused with
+`429 Too Many Requests`; wait for a job to finish, or cancel one.
+
+## Poll the status
+
+`GET` the `Content-Location` URL with the same access token.
+
+| Job state          | Response                                                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Queued or running  | `202 Accepted` with no body. `X-Progress` describes where the job is and `Retry-After` says how many seconds to wait.       |
+| Completed          | `200 OK` and the response the synchronous request would have had, as `application/fhir+json`. `Expires` says how long it stays available (24 hours by default). |
+| Failed             | The error status code and an `OperationOutcome`, exactly as the synchronous request would have failed.                       |
+| Cancelled, expired or unknown | `404 Not Found` with an `OperationOutcome`.                                                                      |
+
+```bash
+curl -i "https://api.haste.health/w/[tenant]/[project]/api/v1/jobs/9zcd19zskhafie1nseogaz2nmp" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+```http
+HTTP/1.1 202 Accepted
+X-Progress: in-progress
+Retry-After: 5
+```
+
+Only the user or client that started a job, and tenant owners and admins, can
+see it. Anyone else gets `404 Not Found`.
+
+## Cancel a job
+
+`DELETE` the status URL. A queued job never runs, a running one is stopped,
+and a finished one gives up its result. The response is `202 Accepted`, and
+later requests for the job return `404 Not Found`.
+
+```bash
+curl -i -X DELETE "https://api.haste.health/w/[tenant]/[project]/api/v1/jobs/9zcd19zskhafie1nseogaz2nmp" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+## Running the worker
+
+Jobs are run by the `haste-health worker` process, the same one that indexes
+search. A deployment without a running worker accepts jobs but never finishes
+them, and they expire unrun.
