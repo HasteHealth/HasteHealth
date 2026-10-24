@@ -1,0 +1,19 @@
+---
+title: Conformance
+description: Every automated conformance test suite Haste Health runs in CI, with how many of its checks pass today, and a page per suite with each result.
+sidebar_label: Overview
+sidebar_position: 0
+hide_table_of_contents: true
+---
+
+import { ConformanceOverview } from "@site/src/components/TestSuites";
+
+# Conformance
+
+Haste Health's conformance claims come from FHIR `TestScript`s that run in CI on
+every change to `main`. Each suite below has its own page with every
+TestScript, every check it makes and the latest result, failures and known gaps
+included. The scripts themselves are in the public repository under
+[`backend/testscripts`](https://github.com/HasteHealth/HasteHealth/tree/main/backend/testscripts).
+
+<ConformanceOverview />

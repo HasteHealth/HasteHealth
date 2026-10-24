@@ -179,8 +179,18 @@ jobs:
       - name: Wait for US Core profiles to be indexed
         run: bash .github/scripts/wait_for_indexing.sh 600
 
+      # The website's US Core conformance page is built from these TestReports
+      # (deploy-website in test_e2e.yml).
       - name: Run US Core Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 0 --index-wait-ms 30000
+        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 0 --index-wait-ms 30000 -o us-core-${{ matrix.search-backend }}.json
         working-directory: ./backend
         env:
           RUST_LOG: info
+
+      - name: Upload US Core TestReports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: us-core-testreports-${{ matrix.search-backend }}
+          path: backend/us-core-${{ matrix.search-backend }}.json
+          if-no-files-found: ignore

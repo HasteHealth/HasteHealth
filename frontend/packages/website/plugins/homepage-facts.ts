@@ -30,13 +30,36 @@ export type HomepageFacts = {
     /** Checks that pass on every backend. */
     checksPassing: number;
   };
+  /**
+   * Every conformance test suite's totals, the core suite first: what the
+   * homepage's total check count and the conformance overview are built from.
+   */
+  suites: SuiteTotals[];
   /** Tools the MCP endpoint lists. */
   mcpTools: number;
+};
+
+/** One suite's line in static/test-reports/suites.json (generate test-suites). */
+export type SuiteTotals = {
+  id: string;
+  title: string;
+  /** The suite's conformance page. */
+  page: string;
+  generatedAt: string;
+  backends: string[];
+  testScripts: number;
+  testScriptsPassing: number;
+  /** TestScripts that fail today and are not run in CI, each explained. */
+  knownGaps: number;
+  assertions: number;
+  /** Assertions that pass on every backend the suite ran on. */
+  assertionsPassing: number;
 };
 
 export const PLUGIN_NAME = "homepage-facts";
 
 const SUPPORT_PATH = "static/test-reports/support.json";
+const SUITES_PATH = "static/test-reports/suites.json";
 const MCP_TOOLS_PATH = "static/mcp/tools.json";
 
 type Result = "pass" | "warn" | "fail" | "not-run";
@@ -72,6 +95,7 @@ function readJson<T>(siteDir: string, path: string): T {
 export function loadHomepageFacts(siteDir: string): HomepageFacts {
   const report = readJson<SupportReport>(siteDir, SUPPORT_PATH);
   const tools = readJson<unknown[]>(siteDir, MCP_TOOLS_PATH);
+  const { suites } = readJson<{ suites: SuiteTotals[] }>(siteDir, SUITES_PATH);
   const { backends } = report;
 
   // A resource type's result is its worst group on its worst backend.
@@ -113,6 +137,7 @@ export function loadHomepageFacts(siteDir: string): HomepageFacts {
         backends.every((backend) => assertion.results[backend] === "pass"),
       ).length,
     },
+    suites,
     mcpTools: tools.length,
   };
 }
@@ -123,7 +148,7 @@ export default function homepageFactsPlugin(
   return {
     name: PLUGIN_NAME,
     getPathsToWatch() {
-      return [SUPPORT_PATH, MCP_TOOLS_PATH].map((path) =>
+      return [SUPPORT_PATH, SUITES_PATH, MCP_TOOLS_PATH].map((path) =>
         join(context.siteDir, path),
       );
     },

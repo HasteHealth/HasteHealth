@@ -1,0 +1,46 @@
+---
+title: SMART scopes and access control
+sidebar_label: Access control
+description: Haste Health's results for what patients, users and backend clients can reach under SMART patient, user and system scopes, and for SMART EHR launches.
+sidebar_position: 4
+hide_table_of_contents: true
+---
+
+import {
+  SuiteKnownGaps,
+  SuiteLastVerified,
+  SuiteReportTable,
+  SuiteSummary,
+} from "@site/src/components/TestSuites";
+
+# SMART scopes and access control
+
+Each scenario in this suite signs a real principal in with a fixed set of SMART
+scopes, then checks what it can and cannot reach:
+
+- **Patient scopes:** a patient whose app holds `patient/*.rs` reads and
+  searches their own record, and is refused writes, history, other patients'
+  data and types outside their compartment.
+- **User scopes:** a user whose app holds `user/` scopes for a few types can use
+  exactly the granted interactions on those types.
+- **System scopes:** a backend client holding `system/` scopes for a few types,
+  the same way.
+- **SMART EHR launch:** a signed-in user starts EHR launches of an app for a
+  patient and encounter, and a launch the patient, encounter or app does not
+  allow is refused.
+
+Every scenario's principal also holds a full-access policy, so the scopes alone
+decide what it can do. See [scopes and permissions](/docs/auth/authorization/scopes) for how
+scopes and access policies combine.
+
+<SuiteLastVerified suite="access-control" />
+
+<SuiteSummary suite="access-control" />
+
+## Known gaps
+
+<SuiteKnownGaps suite="access-control" />
+
+## Every TestScript
+
+<SuiteReportTable suite="access-control" />
