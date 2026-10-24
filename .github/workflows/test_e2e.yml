@@ -5,7 +5,8 @@ name: <Test> E2E
 # it:
 #   test_e2e_base.yml              base, Postgres-only, R4 backport and US Core TestScripts
 #   test_e2e_access_control.yml    access control TestScripts
-#   test_e2e_core_testscripts.yml  CRUD + search coverage for every R4 resource type
+#   test_e2e_core_testscripts.yml  CRUD + search coverage for every R4 resource type,
+#                                  and US Core profile TestScripts
 #   test_e2e_hl7v2.yml             HL7v2 ingest over MLLP
 #   test_e2e_mcp.yml               MCP conformance
 on:

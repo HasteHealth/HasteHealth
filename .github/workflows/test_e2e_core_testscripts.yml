@@ -1,10 +1,15 @@
 name: <Test> Core TestScripts
 
-# Runs backend/testscripts/core (CRUD + search coverage for every R4 resource
-# type) against both search backends. Search indexing is asynchronous, so the
-# runner waits before each search until its latest write is indexed
+# Runs backend/testscripts/core/base (CRUD + search coverage for every R4
+# resource type) and backend/testscripts/core/us-core (US Core profile
+# conformance) against both search backends. Search indexing is asynchronous,
+# so the runner waits before each search until its latest write is indexed
 # (`--index-wait-ms`), which takes about as long as indexing does rather than
 # a fixed delay after every operation.
+#
+# The website's coverage page (generate-test-support.mjs) only reads the
+# core/base reports for now; core/us-core TestReports are uploaded as build
+# artifacts but not yet surfaced there.
 #
 # Called by test_e2e.yml, which builds the binary this downloads and deploys
 # the website with these TestReports.
@@ -158,10 +163,26 @@ jobs:
       # only be created there.
       - name: Run core TestScripts
         run: >-
-          ./target/debug/haste-health testscript run -i testscripts/core
+          ./target/debug/haste-health testscript run -i testscripts/core/base
           -w 0 --index-wait-ms 30000
           --allow-failure core-bundle
           -o ${{ matrix.search-backend }}.json
+        working-directory: ./backend
+        env:
+          RUST_LOG: info
+
+      - name: Load US Core Profiles
+        run: node scripts/load_us_core.mjs
+        working-directory: ./backend
+
+      - name: Wait for US Core profiles to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
+      - name: Run US Core profile TestScripts
+        run: >-
+          ./target/debug/haste-health testscript run -i testscripts/core/us-core
+          -w 0 --index-wait-ms 30000
+          -o ${{ matrix.search-backend }}-us-core.json
         working-directory: ./backend
         env:
           RUST_LOG: info
@@ -174,6 +195,14 @@ jobs:
         with:
           name: core-testreports-${{ matrix.search-backend }}
           path: backend/${{ matrix.search-backend }}.json
+          if-no-files-found: ignore
+
+      - name: Upload US Core TestReports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: core-testreports-${{ matrix.search-backend }}-us-core
+          path: backend/${{ matrix.search-backend }}-us-core.json
           if-no-files-found: ignore
 
       - name: Upload server logs

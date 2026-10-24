@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Regenerates everything on the site that is derived from somewhere else.
 //
-//   test-support  backend/testscripts/core + backend/testreports
+//   test-support  backend/testscripts/core/base + backend/testreports
 //                   -> static/test-reports/support.json
 //   server        the local Haste Health server (HASTE_HEALTH_* in .env)
 //                   -> static/fhir/R4/metadata.json
