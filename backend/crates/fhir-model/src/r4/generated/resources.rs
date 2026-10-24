@@ -244,6 +244,302 @@ impl AccessPolicyV2Assignment {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "The operation to retrieve the attribute."]
+pub struct AccessPolicyV3AttributeOperation {
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "The operation type."]
+    pub type_: terminology::BoundCode<terminology::AccessPolicyAttributeOperationTypes>,
+    #[primitive]
+    #[doc = "The resource type the operation targets."]
+    pub resourceType: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "Search string with %principal.* substitutions."]
+    pub parameters: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Policy information point entries referenced using %attributeId in expressions."]
+pub struct AccessPolicyV3Attribute {
+    #[primitive]
+    #[doc = "The id of the attribute referenced using %attributeId in expressions."]
+    pub attributeId: Box<FHIRId>,
+    #[primitive]
+    #[doc = "Whether the attribute is resolved once per principal or per request."]
+    pub scope: terminology::BoundCode<terminology::Accesspolicyv3attributescope>,
+    #[doc = "The operation to retrieve the attribute."]
+    pub operation: Option<AccessPolicyV3AttributeOperation>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "FHIRPath over %request and %principal; false or empty makes the rule not applicable."]
+pub struct AccessPolicyV3RuleTarget {
+    #[primitive]
+    #[doc = "Target expression."]
+    pub expression: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Decision rules only: FHIRPath over any attribute including %target."]
+pub struct AccessPolicyV3RuleCondition {
+    #[primitive]
+    #[doc = "Condition expression."]
+    pub expression: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Constraint rules only: the data the rule reaches."]
+pub struct AccessPolicyV3RuleData {
+    #[primitive]
+    #[doc = "The resource type constrained."]
+    pub resourceType: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Search string with %principal.* substitutions."]
+    pub search: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Permit rules only: per resource type element handling."]
+pub struct AccessPolicyV3RuleField {
+    #[primitive]
+    #[doc = "The resource type the field belongs to."]
+    pub resourceType: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Element path."]
+    pub path: Box<FHIRString>,
+    #[primitive]
+    #[doc = "How the element is handled."]
+    pub mode: terminology::BoundCode<terminology::Accesspolicyv3fieldmode>,
+    #[primitive]
+    #[doc = "Redaction applied when mode is mask."]
+    pub redaction: Option<terminology::BoundCode<terminology::Accesspolicyv3redaction>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Permit rules only: obligations the caller must satisfy."]
+pub struct AccessPolicyV3RuleObligation {
+    #[primitive]
+    #[doc = "The obligation."]
+    pub code: terminology::BoundCode<terminology::Accesspolicyv3obligation>,
+    #[primitive]
+    #[doc = "Obligation parameter, for example a rate or result limit."]
+    pub value: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Ordered rules that govern how the access policy is applied."]
+pub struct AccessPolicyV3Rule {
+    #[primitive]
+    #[doc = "Rule identifier."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Rule description."]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Whether the rule decides on the request or constrains the data it can reach."]
+    pub kind: terminology::BoundCode<terminology::Accesspolicyv3rulekind>,
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "Whether the rule permits or denies."]
+    pub type_: terminology::BoundCode<terminology::Accesspolicyv3ruletype>,
+    #[primitive]
+    #[doc = "How nested rule decisions are combined."]
+    pub combining: Option<terminology::BoundCode<terminology::Accesspolicyv3combining>>,
+    #[doc = "FHIRPath over %request and %principal; false or empty makes the rule not applicable."]
+    pub target: Option<AccessPolicyV3RuleTarget>,
+    #[doc = "Decision rules only: FHIRPath over any attribute including %target."]
+    pub condition: Option<AccessPolicyV3RuleCondition>,
+    #[doc = "Constraint rules only: the data the rule reaches."]
+    pub data: Option<Vec<AccessPolicyV3RuleData>>,
+    #[doc = "Permit rules only: per resource type element handling."]
+    pub field: Option<Vec<AccessPolicyV3RuleField>>,
+    #[doc = "Permit rules only: obligations the caller must satisfy."]
+    pub obligation: Option<Vec<AccessPolicyV3RuleObligation>>,
+    #[doc = "Nested rules; the parent carries its own combining."]
+    pub rule: Option<Vec<AccessPolicyV3Rule>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "AccessPolicyV3"]
+#[fhir_serialize_type = "resource"]
+#[doc = "AccessPolicyV3 resource."]
+pub struct AccessPolicyV3 {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The name of the access policy."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Description of the access policy."]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "How rule decisions are combined into one decision."]
+    pub combining: terminology::BoundCode<terminology::Accesspolicyv3combining>,
+    #[doc = "Policy information point entries referenced using %attributeId in expressions."]
+    pub attribute: Option<Vec<AccessPolicyV3Attribute>>,
+    #[doc = "Ordered rules that govern how the access policy is applied."]
+    pub rule: Option<Vec<AccessPolicyV3Rule>>,
+}
+impl AccessPolicyV3 {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "name",
+                "description",
+                "combining",
+                "attribute",
+                "rule",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV3".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.combining = self.combining;
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"attribute") {
+            out.attribute = self.attribute;
+        }
+        if fields.contains(&"rule") {
+            out.rule = self.rule;
+        }
+        Ok(out)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "AccessPolicyV3Assignment"]
+#[fhir_serialize_type = "resource"]
+#[doc = "AccessPolicyV3Assignment resource."]
+pub struct AccessPolicyV3Assignment {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    # [reference (targets = ["AccessPolicyV3"])]
+    #[doc = "The access policy that this assignment grants."]
+    pub accessPolicy: Box<Reference>,
+    # [reference (targets = ["ClientApplication" , "Membership" , "OperationDefinition"])]
+    #[doc = "The target reference the access policy applies to."]
+    pub link: Box<Reference>,
+    #[primitive]
+    #[doc = "Order of evaluation under first-applicable; lower first."]
+    pub priority: Option<Box<FHIRInteger>>,
+}
+impl AccessPolicyV3Assignment {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "accessPolicy", "link", "priority"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV3Assignment".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.accessPolicy = self.accessPolicy;
+        out.link = self.link;
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        Ok(out)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "ClientApplication"]
 #[fhir_serialize_type = "resource"]
 #[doc = "ClientApplication"]
@@ -45669,6 +45965,8 @@ impl ViewDefinition {
 pub enum Resource {
     AccessPolicyV2(AccessPolicyV2),
     AccessPolicyV2Assignment(AccessPolicyV2Assignment),
+    AccessPolicyV3(AccessPolicyV3),
+    AccessPolicyV3Assignment(AccessPolicyV3Assignment),
     ClientApplication(ClientApplication),
     HL7V2(HL7V2),
     IdentityProvider(IdentityProvider),
@@ -45833,6 +46131,10 @@ impl Resource {
             Resource::AccessPolicyV2(r) => Ok(Resource::AccessPolicyV2(r.filter(fields)?)),
             Resource::AccessPolicyV2Assignment(r) => {
                 Ok(Resource::AccessPolicyV2Assignment(r.filter(fields)?))
+            }
+            Resource::AccessPolicyV3(r) => Ok(Resource::AccessPolicyV3(r.filter(fields)?)),
+            Resource::AccessPolicyV3Assignment(r) => {
+                Ok(Resource::AccessPolicyV3Assignment(r.filter(fields)?))
             }
             Resource::ClientApplication(r) => Ok(Resource::ClientApplication(r.filter(fields)?)),
             Resource::HL7V2(r) => Ok(Resource::HL7V2(r.filter(fields)?)),
@@ -46071,6 +46373,8 @@ impl Resource {
         match self {
             Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
             Resource::AccessPolicyV2Assignment(_) => ResourceType::AccessPolicyV2Assignment,
+            Resource::AccessPolicyV3(_) => ResourceType::AccessPolicyV3,
+            Resource::AccessPolicyV3Assignment(_) => ResourceType::AccessPolicyV3Assignment,
             Resource::ClientApplication(_) => ResourceType::ClientApplication,
             Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,
@@ -46240,6 +46544,8 @@ impl Resource {
         match self {
             Resource::AccessPolicyV2(r) => &r.id,
             Resource::AccessPolicyV2Assignment(r) => &r.id,
+            Resource::AccessPolicyV3(r) => &r.id,
+            Resource::AccessPolicyV3Assignment(r) => &r.id,
             Resource::ClientApplication(r) => &r.id,
             Resource::HL7V2(r) => &r.id,
             Resource::IdentityProvider(r) => &r.id,
@@ -46407,6 +46713,8 @@ pub enum ResourceTypeError {
 pub enum ResourceType {
     AccessPolicyV2,
     AccessPolicyV2Assignment,
+    AccessPolicyV3,
+    AccessPolicyV3Assignment,
     ClientApplication,
     HL7V2,
     IdentityProvider,
@@ -46574,6 +46882,14 @@ impl ResourceType {
             }
             ResourceType::AccessPolicyV2Assignment => Ok(Resource::AccessPolicyV2Assignment(
                 serde_json::from_slice::<AccessPolicyV2Assignment>(data.as_ref())?,
+            )),
+            ResourceType::AccessPolicyV3 => {
+                Ok(Resource::AccessPolicyV3(serde_json::from_slice::<
+                    AccessPolicyV3,
+                >(data.as_ref())?))
+            }
+            ResourceType::AccessPolicyV3Assignment => Ok(Resource::AccessPolicyV3Assignment(
+                serde_json::from_slice::<AccessPolicyV3Assignment>(data.as_ref())?,
             )),
             ResourceType::ClientApplication => {
                 Ok(Resource::ClientApplication(serde_json::from_slice::<
@@ -47286,6 +47602,8 @@ impl AsRef<str> for ResourceType {
         match self {
             ResourceType::AccessPolicyV2 => "AccessPolicyV2",
             ResourceType::AccessPolicyV2Assignment => "AccessPolicyV2Assignment",
+            ResourceType::AccessPolicyV3 => "AccessPolicyV3",
+            ResourceType::AccessPolicyV3Assignment => "AccessPolicyV3Assignment",
             ResourceType::ClientApplication => "ClientApplication",
             ResourceType::HL7V2 => "HL7V2",
             ResourceType::IdentityProvider => "IdentityProvider",
@@ -47448,6 +47766,8 @@ impl TryFrom<String> for ResourceType {
         match s.as_str() {
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
             "AccessPolicyV2Assignment" => Ok(ResourceType::AccessPolicyV2Assignment),
+            "AccessPolicyV3" => Ok(ResourceType::AccessPolicyV3),
+            "AccessPolicyV3Assignment" => Ok(ResourceType::AccessPolicyV3Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
@@ -47615,6 +47935,8 @@ impl TryFrom<&str> for ResourceType {
         match s {
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
             "AccessPolicyV2Assignment" => Ok(ResourceType::AccessPolicyV2Assignment),
+            "AccessPolicyV3" => Ok(ResourceType::AccessPolicyV3),
+            "AccessPolicyV3Assignment" => Ok(ResourceType::AccessPolicyV3Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),

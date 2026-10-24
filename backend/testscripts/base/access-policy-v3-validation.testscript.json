@@ -1,0 +1,405 @@
+{
+    "resourceType": "TestScript",
+    "id": "access-policy-v3-validation",
+    "url": "https://haste.health/fhir/TestScript/access-policy-v3-validation",
+    "name": "AccessPolicyV3 structural validation",
+    "title": "AccessPolicyV3 structural validation",
+    "status": "active",
+    "description": "The example policy validates; rule kind, data, condition, field and obligation combinations that break the structural rules are rejected.",
+    "contained": [
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "care-team-nurse",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "careTeamPatients",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "CareTeam",
+                        "parameters": "participant=%principal.practitioner&status=active&_elements=subject"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Observation",
+                            "search": "patient=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Condition",
+                            "search": "patient=%principal.careTeamPatients"
+                        }
+                    ]
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type in ('read' | 'vread' | 'search' | 'history')"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "target": {
+                        "expression": "%request.resource_type = 'MedicationRequest' and %request.type in ('create' | 'update' | 'patch' | 'delete')"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "decision-with-data",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=1"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "constraint-with-condition",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=1"
+                        }
+                    ],
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "constraint-without-data",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-with-obligation",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "obligation": [
+                        {
+                            "code": "audit-purpose"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-with-field",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "field": [
+                        {
+                            "resourceType": "Patient",
+                            "path": "name",
+                            "mode": "hidden"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-validation"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-example",
+            "resource": {
+                "reference": "#care-team-nurse"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-decision-with-data",
+            "resource": {
+                "reference": "#decision-with-data"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-constraint-with-condition",
+            "resource": {
+                "reference": "#constraint-with-condition"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-constraint-without-data",
+            "resource": {
+                "reference": "#constraint-without-data"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-with-obligation",
+            "resource": {
+                "reference": "#deny-with-obligation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-with-field",
+            "resource": {
+                "reference": "#deny-with-field"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-example-valid",
+            "name": "The care team nurse example is accepted",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-example",
+                        "responseId": "r-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "targetId": "r-example",
+                        "responseId": "r-read",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Round-trips rules",
+                        "expression": "AccessPolicyV3.rule.count()",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-reject-decision-with-data",
+            "name": "A decision rule with data is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-decision-with-data",
+                        "responseId": "r-decision-with-data",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-reject-constraint-with-condition",
+            "name": "A constraint rule with a condition is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-constraint-with-condition",
+                        "responseId": "r-constraint-with-condition",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-reject-constraint-without-data",
+            "name": "A constraint rule without data is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-constraint-without-data",
+                        "responseId": "r-constraint-without-data",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-reject-deny-with-obligation",
+            "name": "A deny rule with an obligation is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-with-obligation",
+                        "responseId": "r-deny-with-obligation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-reject-deny-with-field",
+            "name": "A deny rule with a field is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-with-field",
+                        "responseId": "r-deny-with-field",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

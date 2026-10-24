@@ -4301,6 +4301,282 @@ resourceType: "AccessPolicyV2"
   target?: Array<AccessPolicyV2Target>;
 }
 
+export interface AccessPolicyV3Assignment {
+resourceType: "AccessPolicyV3Assignment"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * The access policy that this assignment grants.
+   */
+  accessPolicy: Reference;
+  /** 
+   * The target reference the access policy applies to.
+   */
+  link: Reference;
+  /** 
+   * Order of evaluation under first-applicable; lower first.
+   */
+  priority?: integer;
+  /** 
+   * Order of evaluation under first-applicable; lower first.
+   */
+  _priority?: Element
+}
+
+export interface AccessPolicyV3AttributeOperation {
+  /** 
+   * The operation type.
+   */
+  type: code;
+  /** 
+   * The operation type.
+   */
+  _type?: Element
+  /** 
+   * The resource type the operation targets.
+   */
+  resourceType?: code;
+  /** 
+   * The resource type the operation targets.
+   */
+  _resourceType?: Element
+  /** 
+   * Search string with %principal.* substitutions.
+   */
+  parameters?: string;
+  /** 
+   * Search string with %principal.* substitutions.
+   */
+  _parameters?: Element
+}
+export interface AccessPolicyV3Attribute {
+  /** 
+   * The id of the attribute referenced using %attributeId in expressions.
+   */
+  attributeId: id;
+  /** 
+   * The id of the attribute referenced using %attributeId in expressions.
+   */
+  _attributeId?: Element
+  /** 
+   * Whether the attribute is resolved once per principal or per request.
+   */
+  scope: code;
+  /** 
+   * Whether the attribute is resolved once per principal or per request.
+   */
+  _scope?: Element
+  /** 
+   * The operation to retrieve the attribute.
+   */
+  operation?: AccessPolicyV3AttributeOperation;
+}
+export interface AccessPolicyV3RuleTarget {
+  /** 
+   * Target expression.
+   */
+  expression: string;
+  /** 
+   * Target expression.
+   */
+  _expression?: Element
+}
+export interface AccessPolicyV3RuleCondition {
+  /** 
+   * Condition expression.
+   */
+  expression: string;
+  /** 
+   * Condition expression.
+   */
+  _expression?: Element
+}
+export interface AccessPolicyV3RuleData {
+  /** 
+   * The resource type constrained.
+   */
+  resourceType: code;
+  /** 
+   * The resource type constrained.
+   */
+  _resourceType?: Element
+  /** 
+   * Search string with %principal.* substitutions.
+   */
+  search: string;
+  /** 
+   * Search string with %principal.* substitutions.
+   */
+  _search?: Element
+}
+export interface AccessPolicyV3RuleField {
+  /** 
+   * The resource type the field belongs to.
+   */
+  resourceType: code;
+  /** 
+   * The resource type the field belongs to.
+   */
+  _resourceType?: Element
+  /** 
+   * Element path.
+   */
+  path: string;
+  /** 
+   * Element path.
+   */
+  _path?: Element
+  /** 
+   * How the element is handled.
+   */
+  mode: code;
+  /** 
+   * How the element is handled.
+   */
+  _mode?: Element
+  /** 
+   * Redaction applied when mode is mask.
+   */
+  redaction?: code;
+  /** 
+   * Redaction applied when mode is mask.
+   */
+  _redaction?: Element
+}
+export interface AccessPolicyV3RuleObligation {
+  /** 
+   * The obligation.
+   */
+  code: code;
+  /** 
+   * The obligation.
+   */
+  _code?: Element
+  /** 
+   * Obligation parameter, for example a rate or result limit.
+   */
+  value?: string;
+  /** 
+   * Obligation parameter, for example a rate or result limit.
+   */
+  _value?: Element
+}
+export interface AccessPolicyV3Rule {
+  /** 
+   * Rule identifier.
+   */
+  name?: string;
+  /** 
+   * Rule identifier.
+   */
+  _name?: Element
+  /** 
+   * Rule description.
+   */
+  description?: string;
+  /** 
+   * Rule description.
+   */
+  _description?: Element
+  /** 
+   * Whether the rule decides on the request or constrains the data it can reach.
+   */
+  kind: code;
+  /** 
+   * Whether the rule decides on the request or constrains the data it can reach.
+   */
+  _kind?: Element
+  /** 
+   * Whether the rule permits or denies.
+   */
+  type: code;
+  /** 
+   * Whether the rule permits or denies.
+   */
+  _type?: Element
+  /** 
+   * How nested rule decisions are combined.
+   */
+  combining?: code;
+  /** 
+   * How nested rule decisions are combined.
+   */
+  _combining?: Element
+  /** 
+   * FHIRPath over %request and %principal; false or empty makes the rule not applicable.
+   */
+  target?: AccessPolicyV3RuleTarget;
+  /** 
+   * Decision rules only: FHIRPath over any attribute including %target.
+   */
+  condition?: AccessPolicyV3RuleCondition;
+  /** 
+   * Constraint rules only: the data the rule reaches.
+   */
+  data?: Array<AccessPolicyV3RuleData>;
+  /** 
+   * Permit rules only: per resource type element handling.
+   */
+  field?: Array<AccessPolicyV3RuleField>;
+  /** 
+   * Permit rules only: obligations the caller must satisfy.
+   */
+  obligation?: Array<AccessPolicyV3RuleObligation>;
+  /** 
+   * Nested rules; the parent carries its own combining.
+   */
+  rule?: Array<AccessPolicyV3Rule>;
+}
+export interface AccessPolicyV3 {
+resourceType: "AccessPolicyV3"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * The name of the access policy.
+   */
+  name?: string;
+  /** 
+   * The name of the access policy.
+   */
+  _name?: Element
+  /** 
+   * Description of the access policy.
+   */
+  description?: string;
+  /** 
+   * Description of the access policy.
+   */
+  _description?: Element
+  /** 
+   * How rule decisions are combined into one decision.
+   */
+  combining: code;
+  /** 
+   * How rule decisions are combined into one decision.
+   */
+  _combining?: Element
+  /** 
+   * Policy information point entries referenced using %attributeId in expressions.
+   */
+  attribute?: Array<AccessPolicyV3Attribute>;
+  /** 
+   * Ordered rules that govern how the access policy is applied.
+   */
+  rule?: Array<AccessPolicyV3Rule>;
+}
+
 export interface ClientApplication {
 resourceType: "ClientApplication"
   /** 
@@ -45739,6 +46015,8 @@ resourceType: "VisionPrescription"
 export type ResourceMap = {
   AccessPolicyV2Assignment: AccessPolicyV2Assignment;
   AccessPolicyV2: AccessPolicyV2;
+  AccessPolicyV3Assignment: AccessPolicyV3Assignment;
+  AccessPolicyV3: AccessPolicyV3;
   ClientApplication: ClientApplication;
   HL7V2: HL7V2;
   IdentityProvider: IdentityProvider;

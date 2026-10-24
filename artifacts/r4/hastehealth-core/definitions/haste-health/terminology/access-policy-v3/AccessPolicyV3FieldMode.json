@@ -1,0 +1,62 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3fieldmode",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3FieldMode",
+            "resource": {
+                "id": "accesspolicyv3fieldmode-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3FieldMode",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3FieldMode",
+                "title": "AccessPolicyV3FieldMode",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 field modes.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "hidden",
+                        "display": "hidden"
+                    },
+                    {
+                        "code": "readonly",
+                        "display": "readonly"
+                    },
+                    {
+                        "code": "mask",
+                        "display": "mask"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3fieldmode",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3FieldMode",
+                "title": "AccessPolicyV3FieldMode",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 field modes.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3FieldMode"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

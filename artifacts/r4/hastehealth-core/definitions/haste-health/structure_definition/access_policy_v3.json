@@ -1,0 +1,558 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "AccessPolicyV3",
+    "url": "https://haste-health.com/StructureDefinition/AccessPolicyV3",
+    "version": "4.0.1",
+    "name": "AccessPolicyV3",
+    "status": "active",
+    "publisher": "haste-health",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "AccessPolicyV3",
+    "description": "A set of rules that govern how a system resource is accessed and used. Names mirror FHIR R6 Permission where one exists.",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+    "derivation": "specialization",
+    "snapshot": {
+        "element": [
+            {
+                "id": "AccessPolicyV3",
+                "path": "AccessPolicyV3",
+                "min": 0,
+                "max": "*",
+                "base": {
+                    "path": "AccessPolicyV3",
+                    "min": 0,
+                    "max": "*"
+                },
+                "definition": "AccessPolicyV3 resource.",
+                "isModifier": false,
+                "isSummary": false
+            },
+            {
+                "id": "AccessPolicyV3.id",
+                "path": "AccessPolicyV3.id",
+                "short": "Logical id of this artifact",
+                "min": 0,
+                "max": "1",
+                "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+                "base": {
+                    "path": "Resource.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "string"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV3.meta",
+                "path": "AccessPolicyV3.meta",
+                "short": "Metadata about the resource",
+                "min": 0,
+                "max": "1",
+                "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+                "base": {
+                    "path": "Resource.meta",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "code": "Meta"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children",
+                        "expression": "hasValue() or (children().count() > id.count())",
+                        "xpath": "@value|f:*|h:div",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV3.name",
+                "path": "AccessPolicyV3.name",
+                "definition": "The name of the access policy.",
+                "short": "The name of the access policy.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.description",
+                "path": "AccessPolicyV3.description",
+                "definition": "Description of the access policy.",
+                "short": "Description of the access policy.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.combining",
+                "path": "AccessPolicyV3.combining",
+                "definition": "How rule decisions are combined into one decision.",
+                "short": "How rule decisions are combined into one decision.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.attribute",
+                "path": "AccessPolicyV3.attribute",
+                "definition": "Policy information point entries referenced using %attributeId in expressions.",
+                "short": "Policy information point entries referenced using %attributeId in expressions.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.attribute.attributeId",
+                "path": "AccessPolicyV3.attribute.attributeId",
+                "definition": "The id of the attribute referenced using %attributeId in expressions.",
+                "short": "The id of the attribute referenced using %attributeId in expressions.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "id"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.attribute.scope",
+                "path": "AccessPolicyV3.attribute.scope",
+                "definition": "Whether the attribute is resolved once per principal or per request.",
+                "short": "Whether the attribute is resolved once per principal or per request.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.attribute.operation",
+                "path": "AccessPolicyV3.attribute.operation",
+                "definition": "The operation to retrieve the attribute.",
+                "short": "The operation to retrieve the attribute.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.attribute.operation.type",
+                "path": "AccessPolicyV3.attribute.operation.type",
+                "definition": "The operation type.",
+                "short": "The operation type.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.attribute.operation.resourceType",
+                "path": "AccessPolicyV3.attribute.operation.resourceType",
+                "definition": "The resource type the operation targets.",
+                "short": "The resource type the operation targets.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.attribute.operation.parameters",
+                "path": "AccessPolicyV3.attribute.operation.parameters",
+                "definition": "Search string with %principal.* substitutions.",
+                "short": "Search string with %principal.* substitutions.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule",
+                "path": "AccessPolicyV3.rule",
+                "definition": "Ordered rules that govern how the access policy is applied.",
+                "short": "Ordered rules that govern how the access policy is applied.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "apv3-1",
+                        "severity": "error",
+                        "human": "A constraint rule carries data and no condition",
+                        "expression": "kind = 'constraint' implies (data.exists() and condition.empty())"
+                    },
+                    {
+                        "key": "apv3-2",
+                        "severity": "error",
+                        "human": "A decision rule carries no data",
+                        "expression": "kind = 'decision' implies data.empty()"
+                    },
+                    {
+                        "key": "apv3-3",
+                        "severity": "error",
+                        "human": "Field and obligation appear on permit rules only",
+                        "expression": "(field.exists() or obligation.exists()) implies type = 'permit'"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.name",
+                "path": "AccessPolicyV3.rule.name",
+                "definition": "Rule identifier.",
+                "short": "Rule identifier.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.description",
+                "path": "AccessPolicyV3.rule.description",
+                "definition": "Rule description.",
+                "short": "Rule description.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.kind",
+                "path": "AccessPolicyV3.rule.kind",
+                "definition": "Whether the rule decides on the request or constrains the data it can reach.",
+                "short": "Whether the rule decides on the request or constrains the data it can reach.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.type",
+                "path": "AccessPolicyV3.rule.type",
+                "definition": "Whether the rule permits or denies.",
+                "short": "Whether the rule permits or denies.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleType|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.combining",
+                "path": "AccessPolicyV3.rule.combining",
+                "definition": "How nested rule decisions are combined.",
+                "short": "How nested rule decisions are combined.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.target",
+                "path": "AccessPolicyV3.rule.target",
+                "definition": "FHIRPath over %request and %principal; false or empty makes the rule not applicable.",
+                "short": "FHIRPath over %request and %principal; false or empty makes the rule not applicable.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.target.expression",
+                "path": "AccessPolicyV3.rule.target.expression",
+                "definition": "Target expression.",
+                "short": "Target expression.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.condition",
+                "path": "AccessPolicyV3.rule.condition",
+                "definition": "Decision rules only: FHIRPath over any attribute including %target.",
+                "short": "Decision rules only: FHIRPath over any attribute including %target.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.condition.expression",
+                "path": "AccessPolicyV3.rule.condition.expression",
+                "definition": "Condition expression.",
+                "short": "Condition expression.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.data",
+                "path": "AccessPolicyV3.rule.data",
+                "definition": "Constraint rules only: the data the rule reaches.",
+                "short": "Constraint rules only: the data the rule reaches.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.data.resourceType",
+                "path": "AccessPolicyV3.rule.data.resourceType",
+                "definition": "The resource type constrained.",
+                "short": "The resource type constrained.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.data.search",
+                "path": "AccessPolicyV3.rule.data.search",
+                "definition": "Search string with %principal.* substitutions.",
+                "short": "Search string with %principal.* substitutions.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.field",
+                "path": "AccessPolicyV3.rule.field",
+                "definition": "Permit rules only: per resource type element handling.",
+                "short": "Permit rules only: per resource type element handling.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.field.resourceType",
+                "path": "AccessPolicyV3.rule.field.resourceType",
+                "definition": "The resource type the field belongs to.",
+                "short": "The resource type the field belongs to.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.field.path",
+                "path": "AccessPolicyV3.rule.field.path",
+                "definition": "Element path.",
+                "short": "Element path.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.field.mode",
+                "path": "AccessPolicyV3.rule.field.mode",
+                "definition": "How the element is handled.",
+                "short": "How the element is handled.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.field.redaction",
+                "path": "AccessPolicyV3.rule.field.redaction",
+                "definition": "Redaction applied when mode is mask.",
+                "short": "Redaction applied when mode is mask.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.obligation",
+                "path": "AccessPolicyV3.rule.obligation",
+                "definition": "Permit rules only: obligations the caller must satisfy.",
+                "short": "Permit rules only: obligations the caller must satisfy.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.obligation.code",
+                "path": "AccessPolicyV3.rule.obligation.code",
+                "definition": "The obligation.",
+                "short": "The obligation.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV3.rule.obligation.value",
+                "path": "AccessPolicyV3.rule.obligation.value",
+                "definition": "Obligation parameter, for example a rate or result limit.",
+                "short": "Obligation parameter, for example a rate or result limit.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.rule.rule",
+                "path": "AccessPolicyV3.rule.rule",
+                "definition": "Nested rules; the parent carries its own combining.",
+                "short": "Nested rules; the parent carries its own combining.",
+                "min": 0,
+                "max": "*",
+                "contentReference": "#AccessPolicyV3.rule"
+            }
+        ]
+    }
+}
