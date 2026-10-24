@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.15.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.15.05-must-support",
+    "name": "g10-12.15.05-must-support",
+    "title": "12.15.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.15.05 (DAT-PAT-2; US Core 6.1.0: group 10.15). Every must support element of US Core Immunization Profile (including the USCDI ones) appears in at least one Immunization the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Immunization",
+                        "params": "_id=g10-imm-1,g10-imm-not-done",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.encounter is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).encounter.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.location is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).location.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.occurrenceDateTime is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).occurrence.ofType(dateTime).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.patient is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).patient.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.primarySource is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).primarySource.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.status is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.statusReason is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).statusReason.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Immunization.vaccineCode is present",
+                        "expression": "Bundle.entry.resource.ofType(Immunization).vaccineCode.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

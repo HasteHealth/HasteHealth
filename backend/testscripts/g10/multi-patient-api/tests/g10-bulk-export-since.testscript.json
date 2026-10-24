@@ -1,0 +1,63 @@
+{
+    "id": "g10-bulk-export-since",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-export-since",
+    "name": "g10 Bulk Export _since",
+    "title": "8.5.02 The _since parameter is accepted",
+    "status": "active",
+    "description": "g10 8.5.02 (DAT-PAT-10, Bulk Data 2.0.0 only). A kick-off with _since set to a FHIR instant is accepted; the export is then cancelled. Like Inferno, this does not check that the output is filtered.",
+    "resourceType": "TestScript",
+    "variable": [
+        {
+            "name": "statusUrl",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-since",
+            "name": "_since=2024-01-01T00:00:00Z",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export?_since=2024-01-01T00%3A00%3A00Z",
+                        "responseId": "kickoff",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export is cancelled",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -8,6 +8,7 @@ name: <Test> E2E
 #   test_e2e_core_testscripts.yml  CRUD + search coverage for every R4 resource type
 #   test_e2e_hl7v2.yml             HL7v2 ingest over MLLP
 #   test_e2e_mcp.yml               MCP conformance
+#   test_e2e_g10.yml               ONC (g)(10) Standardized API TestScripts
 on:
   push:
     branches: ["main"]
@@ -80,6 +81,10 @@ jobs:
   mcp:
     needs: build
     uses: ./.github/workflows/test_e2e_mcp.yml
+
+  g10:
+    needs: build
+    uses: ./.github/workflows/test_e2e_g10.yml
 
   # Deploys the website on every push to main, with the conformance page's
   # data refreshed from this run's core TestReports. `continue-on-error` plus

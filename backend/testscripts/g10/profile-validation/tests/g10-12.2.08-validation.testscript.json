@@ -1,0 +1,209 @@
+{
+    "id": "g10-12.2.08-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.2.08-validation",
+    "name": "g10-12.2.08-validation",
+    "title": "12.2.08 Patient conforms to US Core Patient Profile",
+    "status": "active",
+    "description": "g10 12.2.08 (DAT-PAT-2). Inferno validates the Patient resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Patient/g10-child-example that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Patient",
+            "id": "g10-val-12-2-08",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2028-9",
+                                "display": "Asian"
+                            }
+                        },
+                        {
+                            "url": "text",
+                            "valueString": "Asian"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+                },
+                {
+                    "extension": [
+                        {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2186-5",
+                                "display": "Not Hispanic or Latino"
+                            }
+                        },
+                        {
+                            "url": "text",
+                            "valueString": "Not Hispanic or Latino"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+                },
+                {
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+                    "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "248153007",
+                        "display": "Male (finding)"
+                    }
+                }
+            ],
+            "identifier": [
+                {
+                    "use": "usual",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR",
+                                "display": "Medical Record Number"
+                            }
+                        ],
+                        "text": "Medical Record Number"
+                    },
+                    "system": "http://example.org/patient/identifiers",
+                    "value": "1032704"
+                }
+            ],
+            "active": true,
+            "name": [
+                {
+                    "family": "Example",
+                    "given": [
+                        "Child"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-555-5555",
+                    "use": "home"
+                }
+            ],
+            "birthDate": "2016-01-15",
+            "address": [
+                {
+                    "line": [
+                        "49 MEADOW ST"
+                    ],
+                    "city": "MOUNDS",
+                    "state": "OK",
+                    "postalCode": "74047",
+                    "country": "US"
+                }
+            ],
+            "gender": "male"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-2-08",
+            "resource": {
+                "reference": "#g10-val-12-2-08"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Patient/g10-val-12-2-08 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-g10-val-12-2-08",
+                        "sourceId": "fixture-g10-val-12-2-08",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Patient is returned",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Patient",
+                    "targetId": "fixture-g10-val-12-2-08",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

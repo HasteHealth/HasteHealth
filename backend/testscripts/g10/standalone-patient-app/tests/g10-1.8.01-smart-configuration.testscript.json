@@ -1,0 +1,48 @@
+{
+    "id": "g10-1.8.01-smart-configuration",
+    "url": "https://haste.health/fhir/TestScript/g10-1.8.01-smart-configuration",
+    "name": "g10-1.8.01-smart-configuration",
+    "title": "1.8.01 SMART configuration is served",
+    "status": "active",
+    "description": "g10 1.8.01 / 1.2.01 / 3.7.01 / 3.2.01 (AUT-PAT-1). GET [FHIR base]/.well-known/smart-configuration answers 200 with a JSON body, without a valid token (an invalid bearer is sent, which a public endpoint ignores). The document's fields (1.8.02, 1.8.05) are not a FHIR resource and are not checked here.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.8.01 SMART configuration is served",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": ".well-known/smart-configuration",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "field": "Authorization",
+                                "value": "Bearer g10-invalid-token"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The configuration is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is JSON",
+                        "contentType": "application/json",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

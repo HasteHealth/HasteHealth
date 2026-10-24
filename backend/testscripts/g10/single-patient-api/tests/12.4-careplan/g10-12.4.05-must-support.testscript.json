@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.4.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.4.05-must-support",
+    "name": "g10-12.4.05-must-support",
+    "title": "12.4.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.4.05 (DAT-PAT-2; US Core 6.1.0: group 10.4). Every must support element of US Core CarePlan Profile (including the USCDI ones) appears in at least one CarePlan the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "CarePlan",
+                        "params": "_id=g10-careplan-ulcer-example,g10-colonoscopy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.category is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).category.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.category:AssessPlan is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).category.where(coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/careplan-category' and code = 'assess-plan').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.intent is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).intent.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.status is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.text is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).text.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.text.div is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).text.div.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan.text.status is present",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).text.status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

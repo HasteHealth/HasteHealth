@@ -1,0 +1,172 @@
+{
+    "id": "g10-12.3.04-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.3.04-validation",
+    "name": "g10-12.3.04-validation",
+    "title": "12.3.04 AllergyIntolerance conforms to US Core AllergyIntolerance Profile",
+    "status": "active",
+    "description": "g10 12.3.04 (DAT-PAT-2). Inferno validates the AllergyIntolerance resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's AllergyIntolerance/g10-79613 that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "AllergyIntolerance",
+            "id": "g10-val-12-3-04",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                        "code": "active",
+                        "display": "Active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                        "code": "confirmed",
+                        "display": "Confirmed"
+                    }
+                ]
+            },
+            "category": [
+                "medication"
+            ],
+            "criticality": "high",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "762952008",
+                        "display": "Peanuts"
+                    }
+                ],
+                "text": "Peanuts"
+            },
+            "patient": {
+                "reference": "Patient/g10-validation-patient"
+            },
+            "onsetDateTime": "2017-06-09",
+            "reaction": [
+                {
+                    "manifestation": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "version": "http://snomed.info/sct/731000124108",
+                                    "code": "247472004",
+                                    "display": "Hives"
+                                }
+                            ]
+                        }
+                    ],
+                    "onset": "2017-06-09"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-3-04",
+            "resource": {
+                "reference": "#g10-val-12-3-04"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT AllergyIntolerance/g10-val-12-3-04 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AllergyIntolerance",
+                        "targetId": "fixture-g10-val-12-3-04",
+                        "sourceId": "fixture-g10-val-12-3-04",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A AllergyIntolerance is returned",
+                        "resource": "AllergyIntolerance",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "AllergyIntolerance",
+                    "targetId": "fixture-g10-val-12-3-04",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

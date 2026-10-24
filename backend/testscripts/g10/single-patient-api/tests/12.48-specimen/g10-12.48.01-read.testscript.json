@@ -1,0 +1,398 @@
+{
+    "id": "g10-12.48.01-read",
+    "url": "https://haste.health/fhir/TestScript/g10-12.48.01-read",
+    "name": "g10-12.48.01-read",
+    "title": "12.48.01 Specimen read",
+    "status": "active",
+    "description": "g10 12.48.01 (DAT-PAT-18; US Core 6.1.0: group 10.44). Specimen read: a read of every referenced instance answers 200 with the requested resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Specimen",
+            "id": "g10-example-serum-lipemic",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://acme.com/labs/accession-ids",
+                    "value": "20241105-00124"
+                }
+            ],
+            "accessionIdentifier": {
+                "system": "http://acme.com/labs/accession-ids",
+                "value": "20241105-00124"
+            },
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "119364003",
+                        "display": "Serum sample"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0487",
+                        "code": "SER",
+                        "display": "Serum"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/g10-example"
+            },
+            "container": [
+                {
+                    "type": {
+                        "text": "Serum Separator Tube"
+                    }
+                }
+            ],
+            "condition": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "version": "http://snomed.info/sct/731000124108",
+                            "code": "118127007",
+                            "display": "Specimen lipemic"
+                        }
+                    ],
+                    "text": "Lipemic"
+                }
+            ]
+        },
+        {
+            "resourceType": "Specimen",
+            "id": "g10-specimen-example-serum",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "accessionIdentifier": {
+                "system": "http://acme.com/labs/accession-ids",
+                "value": "20220927-00124"
+            },
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "119364003",
+                        "display": "Serum sample"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0487",
+                        "code": "SER",
+                        "display": "Serum"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/g10-example"
+            },
+            "collection": {
+                "collectedDateTime": "2022-09-27T18:07:12Z",
+                "bodySite": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "49852007",
+                            "display": "Structure of median cubital vein"
+                        }
+                    ]
+                }
+            },
+            "container": [
+                {
+                    "type": {
+                        "text": "Serum Separator Tube"
+                    }
+                }
+            ]
+        },
+        {
+            "resourceType": "Specimen",
+            "id": "g10-specimen-example-urine",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "accessionIdentifier": {
+                "system": "http://acme.com/labs/accession-ids",
+                "value": "20220927-00125"
+            },
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "122575003",
+                        "display": "Urine specimen"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0487",
+                        "code": "UR",
+                        "display": "Urine"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/g10-example"
+            },
+            "collection": {
+                "collectedDateTime": "2022-09-27T18:07:12Z"
+            },
+            "container": [
+                {
+                    "type": {
+                        "text": "100mL Sterile Polycup"
+                    }
+                }
+            ]
+        },
+        {
+            "resourceType": "Specimen",
+            "id": "g10-specimen-example-whole-blood",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "accessionIdentifier": {
+                "system": "http://acme.com/labs/accession-ids",
+                "value": "20220927-00126"
+            },
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "258580003",
+                        "display": "Whole blood specimen"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0487",
+                        "code": "WB",
+                        "display": "Blood, Whole"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/g10-example"
+            },
+            "collection": {
+                "collectedDateTime": "2022-09-27T18:07:12Z"
+            },
+            "container": [
+                {
+                    "type": {
+                        "text": "Lavender Top Tube"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-example-serum-lipemic",
+            "resource": {
+                "reference": "#g10-example-serum-lipemic"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-specimen-example-serum",
+            "resource": {
+                "reference": "#g10-specimen-example-serum"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-specimen-example-urine",
+            "resource": {
+                "reference": "#g10-specimen-example-urine"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-specimen-example-whole-blood",
+            "resource": {
+                "reference": "#g10-specimen-example-whole-blood"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read",
+            "name": "Specimen read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Specimen",
+                        "targetId": "fixture-g10-example-serum-lipemic",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Specimen/g10-example-serum-lipemic is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen is returned",
+                        "resource": "Specimen",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "Specimen.id = 'g10-example-serum-lipemic'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Specimen",
+                        "targetId": "fixture-g10-specimen-example-serum",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Specimen/g10-specimen-example-serum is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen is returned",
+                        "resource": "Specimen",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "Specimen.id = 'g10-specimen-example-serum'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Specimen",
+                        "targetId": "fixture-g10-specimen-example-urine",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Specimen/g10-specimen-example-urine is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen is returned",
+                        "resource": "Specimen",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "Specimen.id = 'g10-specimen-example-urine'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Specimen",
+                        "targetId": "fixture-g10-specimen-example-whole-blood",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Specimen/g10-specimen-example-whole-blood is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen is returned",
+                        "resource": "Specimen",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "Specimen.id = 'g10-specimen-example-whole-blood'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

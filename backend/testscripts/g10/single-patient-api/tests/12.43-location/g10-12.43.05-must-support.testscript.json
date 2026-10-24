@@ -1,0 +1,130 @@
+{
+    "id": "g10-12.43.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.43.05-must-support",
+    "name": "g10-12.43.05-must-support",
+    "title": "12.43.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.43.05 (DAT-PAT-2; US Core 6.1.0: group None). Every must support element of US Core Location Profile (including the USCDI ones) appears in at least one Location the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Location",
+                        "params": "_id=g10-hl7east,g10-hospital",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.address is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).address.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.address.city is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).address.city.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.address.line is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).address.line.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.address.postalCode is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).address.postalCode.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.address.state is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).address.state.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.identifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.managingOrganization is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).managingOrganization.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.name is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).name.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.status is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.telecom is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).telecom.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Location).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

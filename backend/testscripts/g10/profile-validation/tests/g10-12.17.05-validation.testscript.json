@@ -1,0 +1,251 @@
+{
+    "id": "g10-12.17.05-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.17.05-validation",
+    "name": "g10-12.17.05-validation",
+    "title": "12.17.05 MedicationRequest conforms to US Core MedicationRequest Profile",
+    "status": "active",
+    "description": "g10 12.17.05 (). Inferno validates the MedicationRequest resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's MedicationRequest/g10-medicationrequest-coded-oral-axid that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "MedicationRequest",
+            "id": "g10-val-12-17-05",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "medicationAdherence",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://snomed.info/sct",
+                                        "version": "http://snomed.info/sct/731000124108",
+                                        "code": "275928001",
+                                        "display": "Drugs - partial non-compliance (finding)"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "url": "dateAsserted",
+                            "valueDateTime": "2023-08-11T08:15:49.449Z"
+                        },
+                        {
+                            "url": "informationSource",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://snomed.info/sct",
+                                        "version": "http://snomed.info/sct/731000124108",
+                                        "code": "116154003",
+                                        "display": "Patient (person)"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "url": "informationSource",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html",
+                                        "code": "1179-1",
+                                        "display": "Pharmacy"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence"
+                }
+            ],
+            "status": "active",
+            "intent": "order",
+            "medicationCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                        "code": "476872",
+                        "display": "Nizatidine 15 MG/ML Oral Solution"
+                    }
+                ],
+                "text": "Nizatidine 15 MG/ML Oral Solution"
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient",
+                "display": "Amy Shaw"
+            },
+            "authoredOn": "2008-04-05",
+            "requester": {
+                "reference": "Practitioner/g10-practitioner-1",
+                "display": "Ronald Bone, MD"
+            },
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "version": "http://snomed.info/sct/731000124108",
+                            "code": "51868009",
+                            "display": "Ulcer of duodenum (disorder)"
+                        }
+                    ],
+                    "text": "Active Duodenal Ulcer"
+                }
+            ],
+            "dosageInstruction": [
+                {
+                    "text": "10 mL bid",
+                    "timing": {
+                        "repeat": {
+                            "boundsPeriod": {
+                                "start": "2008-04-05"
+                            },
+                            "frequency": 2,
+                            "period": 1,
+                            "periodUnit": "d"
+                        }
+                    },
+                    "doseAndRate": [
+                        {
+                            "doseQuantity": {
+                                "value": 10,
+                                "unit": "ml",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "mL"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "dispenseRequest": {
+                "numberOfRepeatsAllowed": 1,
+                "quantity": {
+                    "value": 480,
+                    "unit": "mL",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mL"
+                },
+                "expectedSupplyDuration": {
+                    "value": 30,
+                    "unit": "days",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d"
+                }
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                            "code": "outpatient"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-17-05",
+            "resource": {
+                "reference": "#g10-val-12-17-05"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT MedicationRequest/g10-val-12-17-05 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "MedicationRequest",
+                        "targetId": "fixture-g10-val-12-17-05",
+                        "sourceId": "fixture-g10-val-12-17-05",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest is returned",
+                        "resource": "MedicationRequest",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "MedicationRequest",
+                    "targetId": "fixture-g10-val-12-17-05",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

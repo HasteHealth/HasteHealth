@@ -1,0 +1,124 @@
+{
+    "id": "g10-bulk-export-cancel",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-export-cancel",
+    "name": "g10 Bulk Export Cancel",
+    "title": "8.4.01 and 8.4.02 An export can be cancelled",
+    "status": "active",
+    "description": "g10 8.4.01 / 7.4.01 and 8.4.02 (DAT-PAT-12). A DELETE of an export's status URL answers 202, and a poll of the cancelled export answers 404 with an OperationOutcome.",
+    "resourceType": "TestScript",
+    "variable": [
+        {
+            "name": "statusUrl",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-kick-off",
+            "name": "Kick-off",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export",
+                        "responseId": "kickoff",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A status URL is returned",
+                        "headerField": "Content-Location",
+                        "operator": "notEmpty",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-cancel",
+            "name": "Cancel",
+            "action": [
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl}",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The cancel is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-poll-cancelled",
+            "name": "Poll the cancelled export",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "${statusUrl}",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The cancelled export is gone",
+                        "responseCode": "404",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An OperationOutcome is returned",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome has an issue",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

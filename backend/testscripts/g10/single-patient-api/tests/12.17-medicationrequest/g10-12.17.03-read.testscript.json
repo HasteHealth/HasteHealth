@@ -1,0 +1,210 @@
+{
+    "id": "g10-12.17.03-read",
+    "url": "https://haste.health/fhir/TestScript/g10-12.17.03-read",
+    "name": "g10-12.17.03-read",
+    "title": "12.17.03 MedicationRequest read",
+    "status": "active",
+    "description": "g10 12.17.03 (DAT-PAT-18; US Core 6.1.0: group 10.17). MedicationRequest read: a read of an instance the searches return answers 200 with the requested resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "MedicationRequest",
+            "id": "g10-medicationrequest-coded-oral-axid",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "medicationAdherence",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://snomed.info/sct",
+                                        "version": "http://snomed.info/sct/731000124108",
+                                        "code": "275928001",
+                                        "display": "Drugs - partial non-compliance (finding)"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "url": "dateAsserted",
+                            "valueDateTime": "2023-08-11T08:15:49.449Z"
+                        },
+                        {
+                            "url": "informationSource",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://snomed.info/sct",
+                                        "version": "http://snomed.info/sct/731000124108",
+                                        "code": "116154003",
+                                        "display": "Patient (person)"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "url": "informationSource",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html",
+                                        "code": "1179-1",
+                                        "display": "Pharmacy"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence"
+                }
+            ],
+            "status": "active",
+            "intent": "order",
+            "medicationCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                        "code": "476872",
+                        "display": "Nizatidine 15 MG/ML Oral Solution"
+                    }
+                ],
+                "text": "Nizatidine 15 MG/ML Oral Solution"
+            },
+            "subject": {
+                "reference": "Patient/g10-example",
+                "display": "Amy Shaw"
+            },
+            "authoredOn": "2008-04-05",
+            "requester": {
+                "reference": "Practitioner/g10-practitioner-1",
+                "display": "Ronald Bone, MD"
+            },
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "version": "http://snomed.info/sct/731000124108",
+                            "code": "51868009",
+                            "display": "Ulcer of duodenum (disorder)"
+                        }
+                    ],
+                    "text": "Active Duodenal Ulcer"
+                }
+            ],
+            "dosageInstruction": [
+                {
+                    "text": "10 mL bid",
+                    "timing": {
+                        "repeat": {
+                            "boundsPeriod": {
+                                "start": "2008-04-05"
+                            },
+                            "frequency": 2,
+                            "period": 1,
+                            "periodUnit": "d"
+                        }
+                    },
+                    "doseAndRate": [
+                        {
+                            "doseQuantity": {
+                                "value": 10,
+                                "unit": "ml",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "mL"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "dispenseRequest": {
+                "numberOfRepeatsAllowed": 1,
+                "quantity": {
+                    "value": 480,
+                    "unit": "mL",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mL"
+                },
+                "expectedSupplyDuration": {
+                    "value": 30,
+                    "unit": "days",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d"
+                }
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                            "code": "outpatient"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-medicationrequest-coded-oral-axid",
+            "resource": {
+                "reference": "#g10-medicationrequest-coded-oral-axid"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read",
+            "name": "MedicationRequest read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "MedicationRequest",
+                        "targetId": "fixture-g10-medicationrequest-coded-oral-axid",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "MedicationRequest/g10-medicationrequest-coded-oral-axid is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest is returned",
+                        "resource": "MedicationRequest",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "MedicationRequest.id = 'g10-medicationrequest-coded-oral-axid'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

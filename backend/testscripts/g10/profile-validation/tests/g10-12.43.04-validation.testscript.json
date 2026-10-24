@@ -1,0 +1,161 @@
+{
+    "id": "g10-12.43.04-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.43.04-validation",
+    "name": "g10-12.43.04-validation",
+    "title": "12.43.04 Location conforms to US Core Location Profile",
+    "status": "active",
+    "description": "g10 12.43.04 (DAT-PAT-2). Inferno validates the Location resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Location/g10-hl7east that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Location",
+            "id": "g10-val-12-43-04",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://www.acme.org/location",
+                    "value": "29"
+                }
+            ],
+            "status": "active",
+            "name": "Health Level Seven International - Amherst",
+            "description": "HL7 Headquarters - East",
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html",
+                            "code": "1184-1",
+                            "display": "Administrative Areas"
+                        }
+                    ],
+                    "text": "Administrative Office"
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "(+1) 734-677-7777"
+                }
+            ],
+            "address": {
+                "line": [
+                    "3300 WASHTENAW AVE STE 227"
+                ],
+                "city": "AMHERST",
+                "state": "MA",
+                "postalCode": "01002",
+                "country": "USA"
+            },
+            "position": {
+                "longitude": -72.519854,
+                "latitude": 42.373222
+            },
+            "managingOrganization": {
+                "display": "Health Level Seven International"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-43-04",
+            "resource": {
+                "reference": "#g10-val-12-43-04"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-location",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-location",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Location/g10-val-12-43-04 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Location",
+                        "targetId": "fixture-g10-val-12-43-04",
+                        "sourceId": "fixture-g10-val-12-43-04",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Location is returned",
+                        "resource": "Location",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Location",
+                    "targetId": "fixture-g10-val-12-43-04",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,181 @@
+{
+    "id": "g10-12.34.06-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.34.06-validation",
+    "name": "g10-12.34.06-validation",
+    "title": "12.34.06 Observation conforms to US Core Observation Screening Assessment Profile",
+    "status": "active",
+    "description": "g10 12.34.06 (DAT-PAT-2). Inferno validates the Observation resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Observation/g10-AHC-HRSN-item-example-68517-2 that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Observation",
+            "id": "g10-val-12-34-06",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+                            "code": "sdoh",
+                            "display": "SDOH"
+                        }
+                    ]
+                },
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "survey",
+                            "display": "Survey"
+                        }
+                    ]
+                },
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+                            "code": "functional-status"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "68517-2",
+                        "display": "How many times in the past year have you have X or more drinks in a day"
+                    }
+                ],
+                "text": "How many times in the past 12 months have you had 5 or more drinks in a day (males) or 4 or more drinks in a day (females)?"
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient"
+            },
+            "effectiveDateTime": "2022-03-29T22:38:59.084000+00:00",
+            "performer": [
+                {
+                    "reference": "Patient/g10-validation-patient"
+                }
+            ],
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "LA18934-2",
+                        "display": "Daily or almost daily"
+                    }
+                ],
+                "text": "Daily or almost daily"
+            },
+            "derivedFrom": [
+                {
+                    "display": "Questionnaire Response AHC HRSN Screening Example"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-34-06",
+            "resource": {
+                "reference": "#g10-val-12-34-06"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Observation/g10-val-12-34-06 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-g10-val-12-34-06",
+                        "sourceId": "fixture-g10-val-12-34-06",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Observation is returned",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Observation",
+                    "targetId": "fixture-g10-val-12-34-06",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

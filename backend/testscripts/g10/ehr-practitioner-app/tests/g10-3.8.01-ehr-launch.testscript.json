@@ -1,0 +1,122 @@
+{
+    "id": "g10-3.8.01-ehr-launch",
+    "url": "https://haste.health/fhir/TestScript/g10-3.8.01-ehr-launch",
+    "name": "g10-3.8.01-ehr-launch",
+    "title": "3.8.01 The EHR launches the app with a patient and encounter",
+    "status": "active",
+    "description": "g10 3.8.01 / 3.8.02 / 3.4.01 / 3.4.02 (AUT-PAT-2, AUT-PAT-17). The server side of an EHR launch: ClientApplication/[id]/$launch for a patient and encounter returns the launch value, the FHIR base as iss, and the app's launch URL carrying both. Opening the URL in a browser and the authorization that follows are not modelled.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "g10-ehr-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: EHR practitioner app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "launch openid fhirUser offline_access user/Medication.rs user/AllergyIntolerance.rs user/CarePlan.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Device.rs user/DiagnosticReport.rs user/DocumentReference.rs user/Encounter.rs user/Goal.rs user/Immunization.rs user/Location.rs user/MedicationDispense.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Patient.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/Provenance.rs user/QuestionnaireResponse.rs user/RelatedPerson.rs user/ServiceRequest.rs user/Specimen.rs",
+            "launchUri": "http://127.0.0.1:8977/launch"
+        },
+        {
+            "id": "g10-launch-parameters",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/g10-example"
+                    }
+                },
+                {
+                    "name": "encounter",
+                    "valueReference": {
+                        "reference": "Encounter/g10-example-1"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-ehr-app",
+            "resource": {
+                "reference": "#g10-ehr-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-launch-parameters",
+            "resource": {
+                "reference": "#g10-launch-parameters"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01",
+            "name": "3.8.01 The EHR launches the app with a patient and encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "resource": "ClientApplication",
+                        "url": "launch",
+                        "targetId": "fixture-g10-ehr-app",
+                        "sourceId": "fixture-g10-launch-parameters",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The launch succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A launch value is returned",
+                        "expression": "Parameters.parameter.where(name = 'launch').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The FHIR base is returned as iss",
+                        "expression": "Parameters.parameter.where(name = 'iss').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The launch URL carries launch and iss",
+                        "expression": "Parameters.parameter.where(name = 'url').value.select(contains('launch=') and contains('iss=')) = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

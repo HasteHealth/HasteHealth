@@ -1,0 +1,44 @@
+{
+    "id": "g10-2.3.07-diagnosticreport-restricted",
+    "url": "https://haste.health/fhir/TestScript/g10-2.3.07-diagnosticreport-restricted",
+    "name": "g10-2.3.07-diagnosticreport-restricted",
+    "title": "2.3.07 Access to DiagnosticReport restricted to the granted scopes",
+    "status": "active",
+    "description": "g10 2.3.07 (AUT-PAT-10, AUT-PAT-12, AUT-PAT-18, AUT-PAT-33, AUT-PAT-34, DAT-PAT-9). The user granted only Patient, Condition and Observation (the scenario requests just those scopes; a TestScript cannot use the consent screen). GET DiagnosticReport?patient=g10-example&category=LAB is refused with 401 or 403.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "2.3.07 Access to DiagnosticReport restricted to the granted scopes",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LAB",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The DiagnosticReport search is refused",
+                        "responseCode": "401,403",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The refusal is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
