@@ -1,0 +1,460 @@
+{
+    "id": "async-requests",
+    "title": "Asynchronous requests",
+    "name": "Asynchronous Requests",
+    "status": "active",
+    "url": "https://haste.health/fhir/TestScript/async-requests",
+    "description": "The FHIR Asynchronous Request Pattern for operations: Prefer: respond-async answers 202 with the job's status URL in Content-Location; polling that URL gives 202 until the job is done, then the synchronous response; a failed job gives the operation's own error; DELETE cancels, after which the job is 404. The header is ignored on interactions other than operations.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "async-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "async-requests-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Later",
+                    "given": [
+                        "Ada"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "async-requests-missing-patient",
+            "resourceType": "Patient"
+        },
+        {
+            "id": "no-params",
+            "resourceType": "Parameters"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#async-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-missing-patient",
+            "resource": {
+                "reference": "#async-requests-missing-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "variable": [
+        {
+            "name": "statusUrl",
+            "description": "The status URL of the job that completes.",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff"
+        },
+        {
+            "name": "failedStatusUrl",
+            "description": "The status URL of the job that fails.",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff-failing"
+        },
+        {
+            "name": "cancelledStatusUrl",
+            "description": "The status URL of the job that is cancelled.",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff-cancelled"
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-patient",
+                    "responseId": "patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "description": "Wait for the Patient to be indexed: $everything finds its compartment through search.",
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "search"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=async-requests-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "completed-job",
+            "name": "A job runs to completion",
+            "description": "Kick-off answers 202 with a status URL; polling it gives the synchronous response.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "patient",
+                        "sourceId": "fixture-no-params",
+                        "requestHeader": [
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "responseId": "kickoff",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Kick-off is 202",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Kick-off names the job's status URL",
+                        "headerField": "Content-Location",
+                        "operator": "contains",
+                        "value": "/jobs/",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "description": "Poll once, straight away.",
+                        "method": "get",
+                        "url": "${statusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A first poll is 202 (still running) or 200 (done)",
+                        "responseCode": "200,202",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Polls are not cached",
+                        "headerField": "Cache-Control",
+                        "value": "no-store",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "description": "Poll until the job is no longer running.",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll",
+                                "extension": [
+                                    {
+                                        "url": "whileResponseCode",
+                                        "valueString": "202"
+                                    },
+                                    {
+                                        "url": "timeoutSeconds",
+                                        "valueInteger": 60
+                                    }
+                                ]
+                            }
+                        ],
+                        "method": "get",
+                        "url": "${statusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Completed job is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Result is FHIR JSON",
+                        "contentType": "application/fhir+json",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Result says how long it stays available",
+                        "headerField": "Expires",
+                        "operator": "notEmpty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Result is the $everything Bundle",
+                        "expression": "Bundle.type = 'searchset'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Result holds the Patient",
+                        "expression": "Bundle.entry.resource.ofType(Patient).id",
+                        "operator": "equals",
+                        "compareToSourceId": "patient",
+                        "compareToSourceExpression": "Patient.id",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "failed-job",
+            "name": "A job that fails",
+            "description": "An operation that passes the kick-off checks but fails while running: polling gives the operation's own error, as the synchronous request would have failed.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-missing-patient",
+                        "sourceId": "fixture-no-params",
+                        "requestHeader": [
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "responseId": "kickoff-failing",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Kick-off for a missing Patient is still 202",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll",
+                                "extension": [
+                                    {
+                                        "url": "whileResponseCode",
+                                        "valueString": "202"
+                                    },
+                                    {
+                                        "url": "timeoutSeconds",
+                                        "valueInteger": 60
+                                    }
+                                ]
+                            }
+                        ],
+                        "method": "get",
+                        "url": "${failedStatusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Failed job has the synchronous status",
+                        "response": "notFound",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Failed job returns an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The outcome is the operation's, not a missing job",
+                        "expression": "OperationOutcome.issue.first().diagnostics",
+                        "operator": "contains",
+                        "value": "async-requests-missing-patient",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "cancelled-job",
+            "name": "A job that is cancelled",
+            "description": "DELETE of the status URL answers 202, and the job is 404 afterwards.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "patient",
+                        "sourceId": "fixture-no-params",
+                        "requestHeader": [
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "responseId": "kickoff-cancelled",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Kick-off is 202",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${cancelledStatusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Cancel is 202",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "${cancelledStatusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Cancelled job is 404",
+                        "response": "notFound",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Cancelled job returns an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${cancelledStatusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Cancelling again is 404",
+                        "response": "notFound",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "prefer-ignored",
+            "name": "Prefer is ignored outside operations",
+            "description": "A read with Prefer: respond-async runs synchronously.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "patient",
+                        "requestHeader": [
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Read is 200",
+                        "response": "okay",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Read returns the Patient",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=async-requests-test",
+                    "description": "Delete Patients created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

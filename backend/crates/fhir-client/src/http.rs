@@ -1,15 +1,16 @@
 use crate::{
     FHIRClient,
     request::{
-        self, CompartmentRequest, DeleteRequest, DeleteResponse, FHIRBatchRequest,
-        FHIRBatchResponse, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRCreateResponse,
-        FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
-        FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
-        FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest,
-        FHIRPatchRequest, FHIRPatchResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
-        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
-        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
+        self, CompartmentRequest, DeleteRequest, DeleteResponse, FHIRAcceptedResponse,
+        FHIRBatchRequest, FHIRBatchResponse, FHIRConditionalUpdateRequest, FHIRCreateRequest,
+        FHIRCreateResponse, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
+        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRPatchResponse, FHIRReadRequest,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchSystemRequest,
+        FHIRSearchTypeRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
+        FHIRVersionReadRequest, HistoryRequest, HistoryResponse, InvocationRequest, InvokeResponse,
+        Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
@@ -23,7 +24,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::VersionId;
-pub use http::{HeaderMap, HeaderName, HeaderValue};
+pub use http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header};
 use reqwest::{Request, RequestBuilder, Url};
 use std::future::Future;
 use std::{fmt::Debug, marker::PhantomData, pin::Pin, sync::Arc};
@@ -193,6 +194,48 @@ fn serialize_json<T: serde::Serialize>(value: &T) -> Result<String, OperationOut
         .map_err(Into::into)
 }
 
+/// Adds the configured authentication, if any, to `request`.
+async fn authenticate(
+    state: &FHIRHttpState,
+    request: &mut Request,
+) -> Result<(), OperationOutcomeError> {
+    if let Some(http_authentication_method) = state.http_authentication_method.as_ref() {
+        match http_authentication_method {
+            FHIRHttpAuthenticationMethod::BearerToken(get_access_token) => {
+                let token = get_access_token().await?;
+
+                request.headers_mut().insert(
+                    "Authorization",
+                    HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
+                        OperationOutcomeError::error(
+                            IssueType::invalid(),
+                            "Failed to create Authorization header.".to_string(),
+                        )
+                    })?,
+                );
+            }
+            FHIRHttpAuthenticationMethod::Basic(get_basic_credentials) => {
+                let credentials = get_basic_credentials().await?;
+
+                let basic_credentials =
+                    STANDARD.encode(format!("{}:{}", credentials.username, credentials.password));
+
+                request.headers_mut().insert(
+                    "Authorization",
+                    HeaderValue::from_str(&format!("Basic {basic_credentials}")).map_err(|_| {
+                        OperationOutcomeError::error(
+                            IssueType::invalid(),
+                            "Failed to create Authorization header.".to_string(),
+                        )
+                    })?,
+                );
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn fhir_request_to_http_request<'a>(
     state: &'a FHIRHttpState,
     request: &'a FHIRRequest,
@@ -215,42 +258,7 @@ fn fhir_request_to_http_request<'a>(
         };
 
         let mut request = request?;
-
-        if let Some(http_authentication_method) = state.http_authentication_method.as_ref() {
-            match http_authentication_method {
-                FHIRHttpAuthenticationMethod::BearerToken(get_access_token) => {
-                    let token = get_access_token().await?;
-
-                    request.headers_mut().insert(
-                        "Authorization",
-                        HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Failed to create Authorization header.".to_string(),
-                            )
-                        })?,
-                    );
-                }
-                FHIRHttpAuthenticationMethod::Basic(get_basic_credentials) => {
-                    let credentials = get_basic_credentials().await?;
-
-                    let basic_credentials = STANDARD
-                        .encode(format!("{}:{}", credentials.username, credentials.password));
-
-                    request.headers_mut().insert(
-                        "Authorization",
-                        HeaderValue::from_str(&format!("Basic {basic_credentials}")).map_err(
-                            |_| {
-                                OperationOutcomeError::error(
-                                    IssueType::invalid(),
-                                    "Failed to create Authorization header.".to_string(),
-                                )
-                            },
-                        )?,
-                    );
-                }
-            }
-        }
+        authenticate(state, &mut request).await?;
 
         Ok(request)
     })
@@ -668,6 +676,19 @@ fn http_response_to_fhir_response<'a>(
     response: reqwest::Response,
 ) -> Pin<Box<dyn Future<Output = Result<FHIRResponse, OperationOutcomeError>> + Send + 'a>> {
     Box::pin(async move {
+        // Any request may be taken on asynchronously (the FHIR Asynchronous
+        // Request Pattern): `202 Accepted` and the status URL to poll.
+        if response.status() == StatusCode::ACCEPTED
+            && let Some(content_location) = response
+                .headers()
+                .get(header::CONTENT_LOCATION)
+                .and_then(|value| value.to_str().ok())
+        {
+            return Ok(FHIRResponse::Accepted(FHIRAcceptedResponse {
+                content_location: content_location.to_string(),
+            }));
+        }
+
         let response_request = FHIRResponseRequest::response_request(fhir_request);
         let body = read_response(response).await?;
 
@@ -875,6 +896,154 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpClient<CTX
     }
 }
 
+/// Applies the caller's headers to a built request. Applied last so a
+/// caller-supplied header takes precedence over the configured authentication
+/// and the default `Accept`/`Content-Type`. `insert` replaces rather than
+/// appends, so a repeated name overwrites instead of stacking values.
+fn apply_request_headers<CTX: HttpRequestHeaders>(ctx: &CTX, request: &mut Request) {
+    if let Some(headers) = ctx.request_headers() {
+        let request_headers = request.headers_mut();
+        for (name, value) in headers {
+            request_headers.insert(name, value.clone());
+        }
+    }
+}
+
+/// The status and headers of an HTTP response.
+#[derive(Debug, Clone)]
+pub struct HttpResponseMetadata {
+    pub status: StatusCode,
+    pub headers: HeaderMap,
+}
+
+impl HttpResponseMetadata {
+    fn of(response: &reqwest::Response) -> Self {
+        HttpResponseMetadata {
+            status: response.status(),
+            headers: response.headers().clone(),
+        }
+    }
+}
+
+/// A request that is not a FHIR interaction, such as a poll of an
+/// asynchronous request's status URL.
+#[derive(Debug, Clone)]
+pub struct HttpRequest {
+    pub method: Method,
+    /// Absolute, or relative to the client's FHIR base URL.
+    pub url: String,
+    pub body: Option<String>,
+}
+
+/// The response to an [`HttpRequest`], whatever its status.
+#[derive(Debug, Clone)]
+pub struct HttpResponse {
+    pub metadata: HttpResponseMetadata,
+    pub body: bytes::Bytes,
+}
+
+/// What a FHIR client over HTTP offers beyond [`FHIRClient`]: the status and
+/// headers of a response, and requests outside the FHIR interactions.
+pub trait FHIRHttpExchange<CTX> {
+    /// Sends a FHIR interaction as [`FHIRClient::request`] does, also
+    /// returning the status and headers of its response, or `None` when no
+    /// response arrived.
+    fn request_with_metadata(
+        &self,
+        ctx: CTX,
+        request: FHIRRequest,
+    ) -> impl Future<
+        Output = (
+            Option<HttpResponseMetadata>,
+            Result<FHIRResponse, OperationOutcomeError>,
+        ),
+    > + Send;
+
+    /// Sends a request that is not a FHIR interaction. A non-success status is
+    /// a response like any other, not an error. The configured authentication
+    /// is sent only to the FHIR base URL's origin, so a URL taken from a
+    /// response cannot carry the credentials elsewhere.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the URL is invalid or no
+    /// response arrived.
+    fn send(
+        &self,
+        ctx: CTX,
+        request: HttpRequest,
+    ) -> impl Future<Output = Result<HttpResponse, OperationOutcomeError>> + Send;
+}
+
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpExchange<CTX>
+    for FHIRHttpClient<CTX>
+{
+    async fn request_with_metadata(
+        &self,
+        ctx: CTX,
+        request: FHIRRequest,
+    ) -> (
+        Option<HttpResponseMetadata>,
+        Result<FHIRResponse, OperationOutcomeError>,
+    ) {
+        let mut http_request = match fhir_request_to_http_request(&self.state, &request).await {
+            Ok(http_request) => http_request,
+            Err(error) => return (None, Err(error)),
+        };
+        apply_request_headers(&ctx, &mut http_request);
+
+        let response = match self.state.client.execute(http_request).await {
+            Ok(response) => response,
+            Err(error) => return (None, Err(FHIRHTTPError::ReqwestError(error).into())),
+        };
+        let metadata = HttpResponseMetadata::of(&response);
+
+        (
+            Some(metadata),
+            http_response_to_fhir_response(&request, response).await,
+        )
+    }
+
+    async fn send(
+        &self,
+        ctx: CTX,
+        request: HttpRequest,
+    ) -> Result<HttpResponse, OperationOutcomeError> {
+        // `join` resolves a relative URL against the base, and returns an
+        // absolute one as it is.
+        let url = self
+            .state
+            .api_url
+            .join(&request.url)
+            .map_err(|_| FHIRHTTPError::UrlParseError(request.url.clone()))?;
+        let same_origin = url.origin() == self.state.api_url.origin();
+
+        let mut builder = self.state.client.request(request.method, url);
+        if let Some(body) = request.body {
+            builder = builder.body(body);
+        }
+        let mut http_request = build_request(builder)?;
+        if same_origin {
+            authenticate(&self.state, &mut http_request).await?;
+        }
+        apply_request_headers(&ctx, &mut http_request);
+
+        let response = self
+            .state
+            .client
+            .execute(http_request)
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?;
+        let metadata = HttpResponseMetadata::of(&response);
+        let body = response
+            .bytes()
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?;
+
+        Ok(HttpResponse { metadata, body })
+    }
+}
+
 impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRClient<CTX, OperationOutcomeError>
     for FHIRHttpClient<CTX>
 {
@@ -883,27 +1052,7 @@ impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRClient<CTX, Op
         ctx: CTX,
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
-        let mut http_request = fhir_request_to_http_request(&self.state, &request).await?;
-
-        // Applied after the request is built so a caller-supplied header takes
-        // precedence over the configured authentication and the default
-        // `Accept`/`Content-Type`. `insert` replaces rather than appends, so a
-        // repeated name overwrites instead of stacking values.
-        if let Some(headers) = ctx.request_headers() {
-            let request_headers = http_request.headers_mut();
-            for (name, value) in headers {
-                request_headers.insert(name, value.clone());
-            }
-        }
-
-        let response = self
-            .state
-            .client
-            .execute(http_request)
-            .await
-            .map_err(FHIRHTTPError::ReqwestError)?;
-
-        http_response_to_fhir_response(&request, response).await
+        self.request_with_metadata(ctx, request).await.1
     }
 
     async fn capabilities(&self, ctx: CTX) -> Result<CapabilityStatement, OperationOutcomeError> {

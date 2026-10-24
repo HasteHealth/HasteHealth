@@ -107,8 +107,13 @@ jobs:
         run: ./target/debug/haste-health server start &
         working-directory: ./backend
 
-      - name: Start Worker
-        run: ./target/debug/haste-health worker &
+      # The two workers run as separate processes here, so the async request
+      # TestScripts check `worker async-jobs` on its own; the other e2e
+      # workflows run both in one `worker` process.
+      - name: Start Workers
+        run: |
+          ./target/debug/haste-health worker indexing &
+          ./target/debug/haste-health worker async-jobs &
         working-directory: ./backend
 
       - name: Migrate artifacts
