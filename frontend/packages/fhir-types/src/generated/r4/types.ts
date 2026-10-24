@@ -4689,6 +4689,180 @@ resourceType: "ClientApplication"
   _policyUri?: Element
 }
 
+export interface DeidentificationPolicyRuleTarget {
+  /** 
+   * Exact element path such as Patient.birthDate.
+   */
+  path?: string;
+  /** 
+   * Exact element path such as Patient.birthDate.
+   */
+  _path?: Element
+  /** 
+   * A datatype or primitive; matches every element of that type anywhere.
+   */
+  type?: code;
+  /** 
+   * A datatype or primitive; matches every element of that type anywhere.
+   */
+  _type?: Element
+  /** 
+   * Extension canonical URL; matches that extension wherever it appears.
+   */
+  extension?: uri;
+  /** 
+   * Extension canonical URL; matches that extension wherever it appears.
+   */
+  _extension?: Element
+}
+export interface DeidentificationPolicyRuleParam {
+  /** 
+   * cryptoHash, pseudonymize: Identifier parts left unchanged.
+   */
+  keep?: Array<code>;
+  /** 
+   * cryptoHash, pseudonymize: Identifier parts left unchanged.
+   */
+  _keep?: Array<Element>
+  /** 
+   * generalize: target precision (year, month, zip3).
+   */
+  to?: code;
+  /** 
+   * generalize: target precision (year, month, zip3).
+   */
+  _to?: Element
+  /** 
+   * generalize: only values for ages over this are generalized.
+   */
+  ageOver?: unsignedInt;
+  /** 
+   * generalize: only values for ages over this are generalized.
+   */
+  _ageOver?: Element
+  /** 
+   * dateShift: maximum shift in days.
+   */
+  rangeDays?: positiveInt;
+  /** 
+   * dateShift: maximum shift in days.
+   */
+  _rangeDays?: Element
+  /** 
+   * substitute: the replacement value.
+   */
+  value?: string;
+  /** 
+   * substitute: the replacement value.
+   */
+  _value?: Element
+  /** 
+   * perturb: maximum relative change in percent.
+   */
+  percent?: decimal;
+  /** 
+   * perturb: maximum relative change in percent.
+   */
+  _percent?: Element
+}
+export interface DeidentificationPolicyRule {
+  /** 
+   * What the rule matches; exactly one of path, type and extension is set.
+   */
+  target: DeidentificationPolicyRuleTarget;
+  /** 
+   * The action applied to matching elements.
+   */
+  action: code;
+  /** 
+   * The action applied to matching elements.
+   */
+  _action?: Element
+  /** 
+   * Action-specific parameters, validated per action.
+   */
+  param?: DeidentificationPolicyRuleParam;
+}
+export interface DeidentificationPolicy {
+resourceType: "DeidentificationPolicy"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * Canonical identity of the policy.
+   */
+  url: uri;
+  /** 
+   * Canonical identity of the policy.
+   */
+  _url?: Element
+  /** 
+   * SemVer version; basedOn and obligations pin a version.
+   */
+  version: string;
+  /** 
+   * SemVer version; basedOn and obligations pin a version.
+   */
+  _version?: Element
+  /** 
+   * Computer-friendly name.
+   */
+  name?: string;
+  /** 
+   * Computer-friendly name.
+   */
+  _name?: Element
+  /** 
+   * Human-friendly name.
+   */
+  title?: string;
+  /** 
+   * Human-friendly name.
+   */
+  _title?: Element
+  /** 
+   * What the policy is for.
+   */
+  description?: markdown;
+  /** 
+   * What the policy is for.
+   */
+  _description?: Element
+  /** 
+   * Only an active policy resolves from an unversioned reference.
+   */
+  status: code;
+  /** 
+   * Only an active policy resolves from an unversioned reference.
+   */
+  _status?: Element
+  /** 
+   * Parent policy; this policy's rules override the parent's by target identity.
+   */
+  basedOn?: canonical;
+  /** 
+   * Parent policy; this policy's rules override the parent's by target identity.
+   */
+  _basedOn?: Element
+  /** 
+   * Action for any element no rule matches.
+   */
+  default: code;
+  /** 
+   * Action for any element no rule matches.
+   */
+  _default?: Element
+  /** 
+   * Rules, sorted on save. Resolution is path > extension > type > default.
+   */
+  rule?: Array<DeidentificationPolicyRule>;
+}
+
 export interface HL7V2SegmentsFieldsValueValue {
   /** 
    * Component value
@@ -46018,6 +46192,7 @@ export type ResourceMap = {
   AccessPolicyV3Assignment: AccessPolicyV3Assignment;
   AccessPolicyV3: AccessPolicyV3;
   ClientApplication: ClientApplication;
+  DeidentificationPolicy: DeidentificationPolicy;
   HL7V2: HL7V2;
   IdentityProvider: IdentityProvider;
   Membership: Membership;

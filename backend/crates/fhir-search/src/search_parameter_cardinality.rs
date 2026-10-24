@@ -16,7 +16,7 @@
 
 /// (canonical URL, base) pairs of the single-valued parameters, sorted for
 /// binary search.
-static SINGLE_VALUED: [(&str, &str); 806] = [
+static SINGLE_VALUED: [(&str, &str); 810] = [
     (
         "http://hl7.org/fhir/SearchParameter/Account-name",
         "Account",
@@ -3066,6 +3066,22 @@ static SINGLE_VALUED: [(&str, &str); 806] = [
     (
         "https://haste.health/fhir/SearchParameter/ClientApplication-name",
         "ClientApplication",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-name",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-status",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-url",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-version",
+        "DeidentificationPolicy",
     ),
     (
         "https://haste.health/fhir/SearchParameter/IdentityProvider-accessType",

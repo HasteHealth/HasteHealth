@@ -1,0 +1,648 @@
+{
+    "resourceType": "TestScript",
+    "id": "deidentification-policy-validation",
+    "url": "https://haste.health/fhir/TestScript/deidentification-policy-validation",
+    "name": "DeidentificationPolicy validation",
+    "title": "DeidentificationPolicy validation",
+    "status": "active",
+    "description": "CRUD round-trips with rules sorted on save; unknown targets, unfitting params, duplicate targets and bad versions are rejected.",
+    "contained": [
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "valid",
+            "url": "http://example.org/deid/valid",
+            "version": "1.0.0",
+            "name": "valid",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "dateTime"
+                    },
+                    "action": "dateShift",
+                    "param": {
+                        "rangeDays": 365
+                    }
+                },
+                {
+                    "target": {
+                        "extension": "http://example.org/ext"
+                    },
+                    "action": "keep"
+                },
+                {
+                    "target": {
+                        "path": "Patient.birthDate"
+                    },
+                    "action": "generalize",
+                    "param": {
+                        "to": "year",
+                        "ageOver": 89
+                    }
+                },
+                {
+                    "target": {
+                        "type": "Identifier"
+                    },
+                    "action": "cryptoHash",
+                    "param": {
+                        "keep": [
+                            "system"
+                        ]
+                    }
+                },
+                {
+                    "target": {
+                        "path": "Observation.valueQuantity"
+                    },
+                    "action": "keep"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "unknown-path",
+            "url": "http://example.org/deid/unknown-path",
+            "version": "1.0.0",
+            "name": "unknown-path",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "path": "Patient.birthDay"
+                    },
+                    "action": "redact"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "unknown-type",
+            "url": "http://example.org/deid/unknown-type",
+            "version": "1.0.0",
+            "name": "unknown-type",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "Patient"
+                    },
+                    "action": "redact"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "two-targets",
+            "url": "http://example.org/deid/two-targets",
+            "version": "1.0.0",
+            "name": "two-targets",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "path": "Patient.id",
+                        "type": "id"
+                    },
+                    "action": "redact"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "param-mismatch",
+            "url": "http://example.org/deid/param-mismatch",
+            "version": "1.0.0",
+            "name": "param-mismatch",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "dateTime"
+                    },
+                    "action": "redact",
+                    "param": {
+                        "rangeDays": 3
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "param-missing",
+            "url": "http://example.org/deid/param-missing",
+            "version": "1.0.0",
+            "name": "param-missing",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "dateTime"
+                    },
+                    "action": "dateShift"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "duplicate-target",
+            "url": "http://example.org/deid/duplicate-target",
+            "version": "1.0.0",
+            "name": "duplicate-target",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "id"
+                    },
+                    "action": "redact"
+                },
+                {
+                    "target": {
+                        "type": "id"
+                    },
+                    "action": "keep"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "bad-version",
+            "url": "http://example.org/deid/bad-version",
+            "version": "1.0",
+            "name": "bad-version",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "id"
+                    },
+                    "action": "redact"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "DeidentificationPolicy",
+            "id": "update",
+            "url": "http://example.org/deid/valid",
+            "version": "1.1.0",
+            "name": "valid",
+            "status": "active",
+            "default": "redact",
+            "rule": [
+                {
+                    "target": {
+                        "type": "id"
+                    },
+                    "action": "keep"
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "deid-policy-validation"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-valid",
+            "resource": {
+                "reference": "#valid"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-unknown-path",
+            "resource": {
+                "reference": "#unknown-path"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-unknown-type",
+            "resource": {
+                "reference": "#unknown-type"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-two-targets",
+            "resource": {
+                "reference": "#two-targets"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-param-mismatch",
+            "resource": {
+                "reference": "#param-mismatch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-param-missing",
+            "resource": {
+                "reference": "#param-missing"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-duplicate-target",
+            "resource": {
+                "reference": "#duplicate-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bad-version",
+            "resource": {
+                "reference": "#bad-version"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-update",
+            "resource": {
+                "reference": "#update"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-crud-round-trip",
+            "name": "Create, read, update and search round-trip; rules are sorted",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-valid",
+                        "responseId": "r-create"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "DeidentificationPolicy.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "r-create",
+                        "responseId": "r-read"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Rules round-trip",
+                        "expression": "DeidentificationPolicy.rule.count()",
+                        "value": "5",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Path rules sort first",
+                        "expression": "DeidentificationPolicy.rule.first().target.path",
+                        "value": "Observation.valueQuantity",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Type rules sort last",
+                        "expression": "DeidentificationPolicy.rule.last().target.type",
+                        "value": "dateTime",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Param kept",
+                        "expression": "DeidentificationPolicy.rule.where(target.path = 'Patient.birthDate').param.ageOver",
+                        "value": "89",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "targetId": "r-create",
+                        "sourceId": "fixture-update",
+                        "responseId": "r-update"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Updated",
+                        "expression": "DeidentificationPolicy.version",
+                        "value": "1.1.0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "params": "url=http://example.org/deid/valid&status=active&_tag=deid-policy-validation"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Found by url",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "targetId": "r-create"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-reject-unknown-path",
+            "name": "An unknown path is rejected and named",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-unknown-path",
+                        "responseId": "r-unknown-path"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Names the path",
+                        "expression": "OperationOutcome.issue.first().diagnostics.contains('Patient.birthDay')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-reject-unknown-type",
+            "name": "An unknown datatype is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-unknown-type",
+                        "responseId": "r-unknown-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-reject-two-targets",
+            "name": "A target with two kinds is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-two-targets",
+                        "responseId": "r-two-targets"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-reject-param-mismatch",
+            "name": "A param that does not fit the action is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-param-mismatch",
+                        "responseId": "r-param-mismatch"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-reject-param-missing",
+            "name": "A missing required param is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-param-missing",
+                        "responseId": "r-param-missing"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-reject-duplicate-target",
+            "name": "A duplicate target is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-duplicate-target",
+                        "responseId": "r-duplicate-target"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-reject-bad-version",
+            "name": "A non-SemVer version is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "DeidentificationPolicy",
+                        "sourceId": "fixture-bad-version",
+                        "responseId": "r-bad-version"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

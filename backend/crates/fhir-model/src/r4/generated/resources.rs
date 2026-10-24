@@ -666,6 +666,172 @@ impl ClientApplication {
 )]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
+#[doc = "What the rule matches; exactly one of path, type and extension is set."]
+pub struct DeidentificationPolicyRuleTarget {
+    #[primitive]
+    #[doc = "Exact element path such as Patient.birthDate."]
+    pub path: Option<Box<FHIRString>>,
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "A datatype or primitive; matches every element of that type anywhere."]
+    pub type_: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "Extension canonical URL; matches that extension wherever it appears."]
+    pub extension: Option<Box<FHIRUri>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Action-specific parameters, validated per action."]
+pub struct DeidentificationPolicyRuleParam {
+    #[primitive]
+    #[doc = "cryptoHash, pseudonymize: Identifier parts left unchanged."]
+    pub keep: Option<Vec<FHIRCode>>,
+    #[primitive]
+    #[doc = "generalize: target precision (year, month, zip3)."]
+    pub to: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "generalize: only values for ages over this are generalized."]
+    pub ageOver: Option<Box<FHIRUnsignedInt>>,
+    #[primitive]
+    #[doc = "dateShift: maximum shift in days."]
+    pub rangeDays: Option<Box<FHIRPositiveInt>>,
+    #[primitive]
+    #[doc = "substitute: the replacement value."]
+    pub value: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "perturb: maximum relative change in percent."]
+    pub percent: Option<Box<FHIRDecimal>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Rules, sorted on save. Resolution is path > extension > type > default."]
+pub struct DeidentificationPolicyRule {
+    #[doc = "What the rule matches; exactly one of path, type and extension is set."]
+    pub target: DeidentificationPolicyRuleTarget,
+    #[primitive]
+    #[doc = "The action applied to matching elements."]
+    pub action: terminology::BoundCode<terminology::Deidentificationpolicyaction>,
+    #[doc = "Action-specific parameters, validated per action."]
+    pub param: Option<DeidentificationPolicyRuleParam>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "DeidentificationPolicy"]
+#[fhir_serialize_type = "resource"]
+#[doc = "AccessPolicyV3 resource."]
+pub struct DeidentificationPolicy {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "Canonical identity of the policy."]
+    pub url: Box<FHIRUri>,
+    #[primitive]
+    #[doc = "SemVer version; basedOn and obligations pin a version."]
+    pub version: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Computer-friendly name."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Human-friendly name."]
+    pub title: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "What the policy is for."]
+    pub description: Option<Box<FHIRMarkdown>>,
+    #[primitive]
+    #[doc = "Only an active policy resolves from an unversioned reference."]
+    pub status: terminology::BoundCode<terminology::Deidentificationpolicystatus>,
+    #[primitive]
+    #[doc = "Parent policy; this policy's rules override the parent's by target identity."]
+    pub basedOn: Option<Box<FHIRCanonical>>,
+    #[primitive]
+    #[doc = "Action for any element no rule matches."]
+    pub default: terminology::BoundCode<terminology::Deidentificationpolicydefault>,
+    #[doc = "Rules, sorted on save. Resolution is path > extension > type > default."]
+    pub rule: Option<Vec<DeidentificationPolicyRule>>,
+}
+impl DeidentificationPolicy {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "url",
+                "version",
+                "name",
+                "title",
+                "description",
+                "status",
+                "basedOn",
+                "default",
+                "rule",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeidentificationPolicy".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.version = self.version;
+        out.status = self.status;
+        out.default = self.default;
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"rule") {
+            out.rule = self.rule;
+        }
+        Ok(out)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
 #[doc = "The component when no sub-components are present."]
 pub struct HL7V2SegmentsFieldsValueValue {
     #[primitive]
@@ -45968,6 +46134,7 @@ pub enum Resource {
     AccessPolicyV3(AccessPolicyV3),
     AccessPolicyV3Assignment(AccessPolicyV3Assignment),
     ClientApplication(ClientApplication),
+    DeidentificationPolicy(DeidentificationPolicy),
     HL7V2(HL7V2),
     IdentityProvider(IdentityProvider),
     Membership(Membership),
@@ -46137,6 +46304,9 @@ impl Resource {
                 Ok(Resource::AccessPolicyV3Assignment(r.filter(fields)?))
             }
             Resource::ClientApplication(r) => Ok(Resource::ClientApplication(r.filter(fields)?)),
+            Resource::DeidentificationPolicy(r) => {
+                Ok(Resource::DeidentificationPolicy(r.filter(fields)?))
+            }
             Resource::HL7V2(r) => Ok(Resource::HL7V2(r.filter(fields)?)),
             Resource::IdentityProvider(r) => Ok(Resource::IdentityProvider(r.filter(fields)?)),
             Resource::Membership(r) => Ok(Resource::Membership(r.filter(fields)?)),
@@ -46376,6 +46546,7 @@ impl Resource {
             Resource::AccessPolicyV3(_) => ResourceType::AccessPolicyV3,
             Resource::AccessPolicyV3Assignment(_) => ResourceType::AccessPolicyV3Assignment,
             Resource::ClientApplication(_) => ResourceType::ClientApplication,
+            Resource::DeidentificationPolicy(_) => ResourceType::DeidentificationPolicy,
             Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,
             Resource::Membership(_) => ResourceType::Membership,
@@ -46547,6 +46718,7 @@ impl Resource {
             Resource::AccessPolicyV3(r) => &r.id,
             Resource::AccessPolicyV3Assignment(r) => &r.id,
             Resource::ClientApplication(r) => &r.id,
+            Resource::DeidentificationPolicy(r) => &r.id,
             Resource::HL7V2(r) => &r.id,
             Resource::IdentityProvider(r) => &r.id,
             Resource::Membership(r) => &r.id,
@@ -46716,6 +46888,7 @@ pub enum ResourceType {
     AccessPolicyV3,
     AccessPolicyV3Assignment,
     ClientApplication,
+    DeidentificationPolicy,
     HL7V2,
     IdentityProvider,
     Membership,
@@ -46894,6 +47067,13 @@ impl ResourceType {
             ResourceType::ClientApplication => {
                 Ok(Resource::ClientApplication(serde_json::from_slice::<
                     ClientApplication,
+                >(
+                    data.as_ref()
+                )?))
+            }
+            ResourceType::DeidentificationPolicy => {
+                Ok(Resource::DeidentificationPolicy(serde_json::from_slice::<
+                    DeidentificationPolicy,
                 >(
                     data.as_ref()
                 )?))
@@ -47605,6 +47785,7 @@ impl AsRef<str> for ResourceType {
             ResourceType::AccessPolicyV3 => "AccessPolicyV3",
             ResourceType::AccessPolicyV3Assignment => "AccessPolicyV3Assignment",
             ResourceType::ClientApplication => "ClientApplication",
+            ResourceType::DeidentificationPolicy => "DeidentificationPolicy",
             ResourceType::HL7V2 => "HL7V2",
             ResourceType::IdentityProvider => "IdentityProvider",
             ResourceType::Membership => "Membership",
@@ -47769,6 +47950,7 @@ impl TryFrom<String> for ResourceType {
             "AccessPolicyV3" => Ok(ResourceType::AccessPolicyV3),
             "AccessPolicyV3Assignment" => Ok(ResourceType::AccessPolicyV3Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
+            "DeidentificationPolicy" => Ok(ResourceType::DeidentificationPolicy),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),
@@ -47938,6 +48120,7 @@ impl TryFrom<&str> for ResourceType {
             "AccessPolicyV3" => Ok(ResourceType::AccessPolicyV3),
             "AccessPolicyV3Assignment" => Ok(ResourceType::AccessPolicyV3Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
+            "DeidentificationPolicy" => Ok(ResourceType::DeidentificationPolicy),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),

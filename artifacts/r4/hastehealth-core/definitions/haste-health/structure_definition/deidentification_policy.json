@@ -1,0 +1,375 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "DeidentificationPolicy",
+    "url": "https://haste-health.com/StructureDefinition/DeidentificationPolicy",
+    "version": "4.0.1",
+    "name": "DeidentificationPolicy",
+    "status": "active",
+    "publisher": "haste-health",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "DeidentificationPolicy",
+    "description": "A canonical, versioned policy that says how each element is de-identified. Masking is an action in its registry.",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+    "derivation": "specialization",
+    "snapshot": {
+        "element": [
+            {
+                "id": "DeidentificationPolicy",
+                "path": "DeidentificationPolicy",
+                "min": 0,
+                "max": "*",
+                "base": {
+                    "path": "AccessPolicyV3",
+                    "min": 0,
+                    "max": "*"
+                },
+                "definition": "AccessPolicyV3 resource.",
+                "isModifier": false,
+                "isSummary": false
+            },
+            {
+                "id": "DeidentificationPolicy.id",
+                "path": "DeidentificationPolicy.id",
+                "short": "Logical id of this artifact",
+                "min": 0,
+                "max": "1",
+                "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+                "base": {
+                    "path": "Resource.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "string"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "DeidentificationPolicy.meta",
+                "path": "DeidentificationPolicy.meta",
+                "short": "Metadata about the resource",
+                "min": 0,
+                "max": "1",
+                "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+                "base": {
+                    "path": "Resource.meta",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "code": "Meta"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children",
+                        "expression": "hasValue() or (children().count() > id.count())",
+                        "xpath": "@value|f:*|h:div",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "DeidentificationPolicy.url",
+                "path": "DeidentificationPolicy.url",
+                "definition": "Canonical identity of the policy.",
+                "short": "Canonical identity of the policy.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "uri"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.version",
+                "path": "DeidentificationPolicy.version",
+                "definition": "SemVer version; basedOn and obligations pin a version.",
+                "short": "SemVer version; basedOn and obligations pin a version.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.name",
+                "path": "DeidentificationPolicy.name",
+                "definition": "Computer-friendly name.",
+                "short": "Computer-friendly name.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.title",
+                "path": "DeidentificationPolicy.title",
+                "definition": "Human-friendly name.",
+                "short": "Human-friendly name.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.description",
+                "path": "DeidentificationPolicy.description",
+                "definition": "What the policy is for.",
+                "short": "What the policy is for.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "markdown"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.status",
+                "path": "DeidentificationPolicy.status",
+                "definition": "Only an active policy resolves from an unversioned reference.",
+                "short": "Only an active policy resolves from an unversioned reference.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus|4.0.1"
+                }
+            },
+            {
+                "id": "DeidentificationPolicy.basedOn",
+                "path": "DeidentificationPolicy.basedOn",
+                "definition": "Parent policy; this policy's rules override the parent's by target identity.",
+                "short": "Parent policy; this policy's rules override the parent's by target identity.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "canonical"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.default",
+                "path": "DeidentificationPolicy.default",
+                "definition": "Action for any element no rule matches.",
+                "short": "Action for any element no rule matches.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault|4.0.1"
+                }
+            },
+            {
+                "id": "DeidentificationPolicy.rule",
+                "path": "DeidentificationPolicy.rule",
+                "definition": "Rules, sorted on save. Resolution is path > extension > type > default.",
+                "short": "Rules, sorted on save. Resolution is path > extension > type > default.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.target",
+                "path": "DeidentificationPolicy.rule.target",
+                "definition": "What the rule matches; exactly one of path, type and extension is set.",
+                "short": "What the rule matches; exactly one of path, type and extension is set.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.target.path",
+                "path": "DeidentificationPolicy.rule.target.path",
+                "definition": "Exact element path such as Patient.birthDate.",
+                "short": "Exact element path such as Patient.birthDate.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.target.type",
+                "path": "DeidentificationPolicy.rule.target.type",
+                "definition": "A datatype or primitive; matches every element of that type anywhere.",
+                "short": "A datatype or primitive; matches every element of that type anywhere.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.target.extension",
+                "path": "DeidentificationPolicy.rule.target.extension",
+                "definition": "Extension canonical URL; matches that extension wherever it appears.",
+                "short": "Extension canonical URL; matches that extension wherever it appears.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "uri"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.action",
+                "path": "DeidentificationPolicy.rule.action",
+                "definition": "The action applied to matching elements.",
+                "short": "The action applied to matching elements.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyAction|4.0.1"
+                }
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param",
+                "path": "DeidentificationPolicy.rule.param",
+                "definition": "Action-specific parameters, validated per action.",
+                "short": "Action-specific parameters, validated per action.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.keep",
+                "path": "DeidentificationPolicy.rule.param.keep",
+                "definition": "cryptoHash, pseudonymize: Identifier parts left unchanged.",
+                "short": "cryptoHash, pseudonymize: Identifier parts left unchanged.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.to",
+                "path": "DeidentificationPolicy.rule.param.to",
+                "definition": "generalize: target precision (year, month, zip3).",
+                "short": "generalize: target precision (year, month, zip3).",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.ageOver",
+                "path": "DeidentificationPolicy.rule.param.ageOver",
+                "definition": "generalize: only values for ages over this are generalized.",
+                "short": "generalize: only values for ages over this are generalized.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "unsignedInt"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.rangeDays",
+                "path": "DeidentificationPolicy.rule.param.rangeDays",
+                "definition": "dateShift: maximum shift in days.",
+                "short": "dateShift: maximum shift in days.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "positiveInt"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.value",
+                "path": "DeidentificationPolicy.rule.param.value",
+                "definition": "substitute: the replacement value.",
+                "short": "substitute: the replacement value.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "DeidentificationPolicy.rule.param.percent",
+                "path": "DeidentificationPolicy.rule.param.percent",
+                "definition": "perturb: maximum relative change in percent.",
+                "short": "perturb: maximum relative change in percent.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "decimal"
+                    }
+                ]
+            }
+        ]
+    }
+}

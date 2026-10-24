@@ -122,6 +122,22 @@
       "resourceType": "SearchParameter"
     },
     {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/url.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/version.json",
+      "resourceType": "SearchParameter"
+    },
+    {
       "filename": "definitions/haste-health/search_parameter/identity_provider/access_type.json",
       "resourceType": "SearchParameter"
     },
@@ -183,6 +199,10 @@
     },
     {
       "filename": "definitions/haste-health/structure_definition/client_application.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/deidentification_policy.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -387,6 +407,30 @@
     },
     {
       "filename": "definitions/haste-health/terminology/canonical_resources.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyAction.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyAction.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyDefault.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyDefault.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyStatus.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyStatus.json",
       "resourceType": "ValueSet"
     },
     {
