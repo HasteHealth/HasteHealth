@@ -2233,57 +2233,62 @@ async fn evaluate_greater_than_equal<'a>(
     evaluate_ordered_comparison(left, right, context, config, Ordering::is_ge).await
 }
 
-async fn evaluate_boolean_binary<'a, F>(
+/// Three-valued logic: <https://hl7.org/fhirpath/N1/#boolean-logic>.
+/// Both operands are always evaluated (no short-circuit semantics).
+async fn evaluate_boolean_binary<'a>(
+    name: &str,
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
-    op: F,
-) -> Result<Context<'a>, FHIRPathError>
-where
-    F: FnOnce(bool, bool) -> bool + Copy + Send + 'static,
-{
-    operation_2(left, right, context, config, move |left, right| {
-        Box::pin(async move {
-            let l = downcast_bool(left.values[0])?;
-            let r = downcast_bool(right.values[0])?;
+    op: fn(Option<bool>, Option<bool>) -> Option<bool>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let left = evaluate_expression(left, context.clone(), config.clone()).await?;
+    let left = singleton_boolean(name, &left)?;
+    let right = evaluate_expression(right, context.clone(), config).await?;
+    let right = singleton_boolean(name, &right)?;
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
-                    value: Some(op(l, r)),
-                    ..Default::default()
-                })]),
-            )
-        })
-    })
-    .await
+    Ok(optional_boolean_result(&context, op(left, right)))
 }
 
+/// <https://hl7.org/fhirpath/N1/#and>
 async fn evaluate_and<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_boolean_binary(left, right, context, config, |l, r| l && r).await
+    evaluate_boolean_binary("and", left, right, context, config, |l, r| match (l, r) {
+        (Some(false), _) | (_, Some(false)) => Some(false),
+        (Some(true), Some(true)) => Some(true),
+        _ => None,
+    })
+    .await
 }
 
+/// <https://hl7.org/fhirpath/N1/#or>
 async fn evaluate_or<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_boolean_binary(left, right, context, config, |l, r| l || r).await
+    evaluate_boolean_binary("or", left, right, context, config, |l, r| match (l, r) {
+        (Some(true), _) | (_, Some(true)) => Some(true),
+        (Some(false), Some(false)) => Some(false),
+        _ => None,
+    })
+    .await
 }
 
+/// <https://hl7.org/fhirpath/N1/#xor>
 async fn evaluate_xor<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_boolean_binary(left, right, context, config, |l, r| l ^ r).await
+    evaluate_boolean_binary("xor", left, right, context, config, |l, r| Some(l? ^ r?)).await
 }
 
 async fn evaluate_equality<'a>(
