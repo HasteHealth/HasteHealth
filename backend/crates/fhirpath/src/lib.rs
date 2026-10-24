@@ -36,6 +36,7 @@ use std::{
 };
 
 mod allocators;
+mod date_arithmetic;
 mod fhir_functions;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
 
@@ -44,6 +45,7 @@ mod proptests;
 #[cfg(test)]
 mod spec_tests;
 use allocators::AllocatorTrait;
+use date_arithmetic::{Shifted, Temporal};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -2013,6 +2015,35 @@ async fn evaluate_operation<'a>(
     }
 }
 
+/// A Date, `DateTime` or Time plus or minus a time-valued Quantity. `None`
+/// when the operands are not such a pair; empty when the Quantity cannot
+/// shift the value.
+fn temporal_arithmetic<'a>(
+    left: &Context<'a>,
+    right: &Context<'a>,
+    subtract: bool,
+) -> Option<Context<'a>> {
+    let temporal = Temporal::of(left.values[0])?;
+    let quantity = right.values[0].as_any().downcast_ref::<Quantity>()?;
+    let amount = quantity.value.as_ref()?.value?;
+    let shifted = temporal.shift(amount, quantity_unit(quantity), subtract);
+    Some(left.new_context_from(match shifted {
+        Some(Shifted::Date(value)) => vec![left.allocate_literal(FHIRDate {
+            value: Some(value),
+            ..Default::default()
+        })],
+        Some(Shifted::DateTime(value)) => vec![left.allocate_literal(FHIRDateTime {
+            value: Some(value),
+            ..Default::default()
+        })],
+        Some(Shifted::Time(value)) => vec![left.allocate_literal(FHIRTime {
+            value: Some(value),
+            ..Default::default()
+        })],
+        None => vec![],
+    }))
+}
+
 async fn evaluate_add<'a>(
     left: &Expression,
     right: &Expression,
@@ -2021,7 +2052,9 @@ async fn evaluate_add<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if NUMBER_TYPES.contains(left.values[0].fhir_type())
+            if let Some(shifted) = temporal_arithmetic(&left, &right, false) {
+                Ok(shifted)
+            } else if NUMBER_TYPES.contains(left.values[0].fhir_type())
                 && NUMBER_TYPES.contains(right.values[0].fhir_type())
             {
                 let left_value = downcast_number(left.values[0])?;
@@ -2127,7 +2160,23 @@ async fn evaluate_subtraction<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l - r).await
+    operation_2(left, right, context, config, |left, right| {
+        Box::pin(async move {
+            if let Some(shifted) = temporal_arithmetic(&left, &right, true) {
+                return Ok(shifted);
+            }
+            let left_value = downcast_number(left.values[0])?;
+            let right_value = downcast_number(right.values[0])?;
+
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
+                    value: Some(left_value - right_value),
+                    ..Default::default()
+                })]),
+            )
+        })
+    })
+    .await
 }
 
 async fn evaluate_multiplication<'a>(
