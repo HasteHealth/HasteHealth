@@ -259,6 +259,63 @@ async fn not() {
     assert_evaluates("{}.not()", &[]).await;
 }
 
+/// <https://hl7.org/fhirpath/N1/#and>
+#[tokio::test]
+async fn and() {
+    assert_evaluates("true and true", &["true"]).await;
+    assert_evaluates("true and false", &["false"]).await;
+    assert_evaluates("true and {}", &[]).await;
+    assert_evaluates("false and true", &["false"]).await;
+    assert_evaluates("false and false", &["false"]).await;
+    assert_evaluates("false and {}", &["false"]).await;
+    assert_evaluates("{} and true", &[]).await;
+    assert_evaluates("{} and false", &["false"]).await;
+    assert_evaluates("{} and {}", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#or>
+#[tokio::test]
+async fn or() {
+    assert_evaluates("true or true", &["true"]).await;
+    assert_evaluates("true or false", &["true"]).await;
+    assert_evaluates("true or {}", &["true"]).await;
+    assert_evaluates("false or true", &["true"]).await;
+    assert_evaluates("false or false", &["false"]).await;
+    assert_evaluates("false or {}", &[]).await;
+    assert_evaluates("{} or true", &["true"]).await;
+    assert_evaluates("{} or false", &[]).await;
+    assert_evaluates("{} or {}", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#xor>
+#[tokio::test]
+async fn xor() {
+    assert_evaluates("true xor true", &["false"]).await;
+    assert_evaluates("true xor false", &["true"]).await;
+    assert_evaluates("true xor {}", &[]).await;
+    assert_evaluates("false xor true", &["true"]).await;
+    assert_evaluates("false xor false", &["false"]).await;
+    assert_evaluates("false xor {}", &[]).await;
+    assert_evaluates("{} xor true", &[]).await;
+    assert_evaluates("{} xor false", &[]).await;
+    assert_evaluates("{} xor {}", &[]).await;
+}
+
+/// A single non-Boolean operand counts as true; multiple items are an error.
+#[tokio::test]
+async fn boolean_operator_singleton_evaluation() {
+    assert_evaluates("'a' and true", &["true"]).await;
+    assert_evaluates("false or 1", &["true"]).await;
+    assert_evaluates("'a' xor true", &["false"]).await;
+    for expression in [
+        "(true | false) and true",
+        "false and (1 | 2)",
+        "true or (1 | 2)",
+    ] {
+        assert_errors(expression).await;
+    }
+}
+
 /// <https://hl7.org/fhirpath/N1/#implies>
 #[tokio::test]
 async fn implies() {
