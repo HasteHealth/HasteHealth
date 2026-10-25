@@ -14,10 +14,7 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{
-        DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_datetime, parse_partial_datetime,
-        parse_partial_time, parse_time,
-    },
+    datetime::{Date, DateTime, Time, parse_date, parse_partial_time, parse_time},
     generated::{
         resources::ResourceType,
         types::{
@@ -39,7 +36,9 @@ mod allocators;
 mod date_arithmetic;
 mod date_comparison;
 mod fhir_functions;
+mod partial_datetime;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
+pub use partial_datetime::PartialDateTime;
 
 #[cfg(test)]
 mod proptests;
@@ -48,6 +47,7 @@ mod spec_tests;
 use allocators::AllocatorTrait;
 use date_arithmetic::{Shifted, Temporal};
 use date_comparison::{TemporalOrder, temporal_order};
+use partial_datetime::{AnyDateTime, parse_any_datetime};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -114,16 +114,12 @@ fn evaluate_literal<'b>(
                 ..Default::default()
             }),
         ),
-        Literal::DateTime(datetime) => temporal_literal(
-            literal,
-            context,
-            parse_partial_datetime(datetime)
-                .ok()
-                .map(|value| FHIRDateTime {
-                    value: Some(value),
-                    ..Default::default()
-                }),
-        ),
+        // `@2020-01-01T` is a DateTime of the date's precision.
+        Literal::DateTime(datetime) => {
+            parse_any_datetime(datetime.strip_suffix('T').unwrap_or(datetime))
+                .map(|value| datetime_result(context, value))
+                .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
+        }
         Literal::Time(time) => temporal_literal(
             literal,
             context,
@@ -144,6 +140,17 @@ fn temporal_literal<'b, T: MetaValue + 'static>(
     value
         .map(|value| context.new_context_from(vec![context.allocate_literal(value)]))
         .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
+}
+
+/// A FHIRPath `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
+fn datetime_result<'b>(context: &Context<'b>, value: AnyDateTime) -> Context<'b> {
+    context.new_context_from(vec![match value {
+        AnyDateTime::Fhir(value) => context.allocate_literal(FHIRDateTime {
+            value: Some(value),
+            ..Default::default()
+        }),
+        AnyDateTime::Partial(value) => context.allocate_literal(value),
+    }])
 }
 
 async fn evaluate_invocation<'a>(
@@ -1368,6 +1375,8 @@ impl<'v> Convertible<'v> {
             Convertible::Number(Number::of(value)?)
         } else if STRING_TYPES.contains(fhir_type) {
             Convertible::String(downcast_string(value)?)
+        } else if let Some(datetime) = value.as_any().downcast_ref::<PartialDateTime>() {
+            Convertible::DateTime(datetime.to_string())
         } else if DATE_TIME_TYPES.contains(fhir_type) {
             Convertible::DateTime(downcast_datetime(value)?)
         } else if let Some(quantity) = value.as_any().downcast_ref::<Quantity>() {
@@ -1437,9 +1446,7 @@ fn to_date(value: Convertible) -> Option<Date> {
     let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
         return None;
     };
-    if !DATETIME_REGEX.is_match(&value) {
-        return None;
-    }
+    parse_any_datetime(&value)?;
     let date = value
         .split_once('T')
         .map_or(value.as_str(), |(date, _)| date);
@@ -1448,11 +1455,11 @@ fn to_date(value: Convertible) -> Option<Date> {
 
 /// <https://hl7.org/fhirpath/N1/#datetime-conversion-functions>: a `Date`,
 /// `DateTime` or datetime-formatted `String`, keeping its precision.
-fn to_date_time(value: Convertible) -> Option<DateTime> {
+fn to_date_time(value: Convertible) -> Option<AnyDateTime> {
     let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
         return None;
     };
-    parse_datetime(&value).ok()
+    parse_any_datetime(&value)
 }
 
 /// <https://hl7.org/fhirpath/N1/#time-conversion-functions>: a `Time` or
@@ -1634,12 +1641,7 @@ fn evaluate_conversion<'a>(
                 ..Default::default()
             })])
         }),
-        "DateTime" => to_date_time(value).map(|value| {
-            context.new_context_from(vec![context.allocate_literal(FHIRDateTime {
-                value: Some(value),
-                ..Default::default()
-            })])
-        }),
+        "DateTime" => to_date_time(value).map(|value| datetime_result(context, value)),
         "Time" => to_time(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRTime {
                 value: Some(value),
@@ -2031,6 +2033,7 @@ fn temporal_arithmetic<'a>(
             value: Some(value),
             ..Default::default()
         })],
+        Some(Shifted::PartialDateTime(value)) => vec![left.allocate_literal(value)],
         Some(Shifted::Time(value)) => vec![left.allocate_literal(FHIRTime {
             value: Some(value),
             ..Default::default()

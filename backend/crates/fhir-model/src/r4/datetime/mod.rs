@@ -24,10 +24,6 @@ pub enum DateTime {
     YearMonth(u16, u8),
     YearMonthDay(u16, u8, u8),
     Iso8601(chrono::DateTime<chrono::Utc>),
-    /// A FHIRPath `DateTime` that FHIR's `dateTime` cannot hold: its time stops at the hour
-    /// or minute, or it has no timezone offset (`@2015-02-04T14:34`, `@2015-02-04T14:34:28`).
-    /// Only FHIRPath makes one ([`parse_partial_datetime`]); FHIR data never parses to it.
-    Partial(chrono::NaiveDate, Time, Option<chrono::FixedOffset>),
 }
 
 impl ToString for DateTime {
@@ -39,12 +35,6 @@ impl ToString for DateTime {
                 format!("{:04}-{:02}-{:02}", year, month, day)
             }
             DateTime::Iso8601(dt) => dt.to_rfc3339(),
-            DateTime::Partial(date, time, offset) => format!(
-                "{}T{}{}",
-                date.format("%Y-%m-%d"),
-                time.to_string(),
-                offset.map(|offset| offset.to_string()).unwrap_or_default()
-            ),
         }
     }
 }
@@ -80,17 +70,6 @@ impl TryFrom<DateTime> for chrono::DateTime<chrono::Utc> {
                 Ok(datetime.with_timezone(&chrono::Utc))
             }
             DateTime::Iso8601(dt) => Ok(dt),
-            // Without an offset the time is read as UTC.
-            DateTime::Partial(date, time, offset) => {
-                let local = date.and_time(time.to_naive());
-                let utc = match offset {
-                    Some(offset) => local
-                        .checked_sub_offset(offset)
-                        .ok_or(ParseError::InvalidFormat)?,
-                    None => local,
-                };
-                Ok(utc.and_utc())
-            }
         }
     }
 }
@@ -144,20 +123,6 @@ pub enum Time {
     HourMinuteSecond(chrono::NaiveTime),
 }
 
-impl Time {
-    /// The clock time, with the parts below the precision at zero.
-    pub fn to_naive(&self) -> chrono::NaiveTime {
-        match self {
-            Time::Hour(hour) => chrono::NaiveTime::from_hms_opt(u32::from(*hour), 0, 0),
-            Time::HourMinute(hour, minute) => {
-                chrono::NaiveTime::from_hms_opt(u32::from(*hour), u32::from(*minute), 0)
-            }
-            Time::HourMinuteSecond(time) => Some(*time),
-        }
-        .unwrap_or_default()
-    }
-}
-
 impl ToString for Time {
     fn to_string(&self) -> String {
         match self {
@@ -198,13 +163,6 @@ pub static TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 /// A FHIR `time`, or one cut off after the hour or minute.
 static PARTIAL_TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^([01][0-9]|2[0-3])(?::([0-5][0-9])(?::([0-5][0-9]|60)(\.[0-9]+)?)?)?$").unwrap()
-});
-
-/// A FHIRPath `DateTime`'s time and offset: a [`PARTIAL_TIME_REGEX`] time, then `Z` or an
-/// offset in FHIR's range.
-static PARTIAL_DATETIME_TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"^(?<time>[0-9][0-9:.]*?)(?<offset>Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$")
-        .unwrap()
 });
 
 /// A capture the regex matched as digits.
@@ -315,54 +273,6 @@ pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
     } else {
         Err(ParseError::InvalidFormat)
     }
-}
-
-/// A FHIRPath `DateTime`, which unlike a FHIR `dateTime` may stop at the hour or minute and may
-/// have no timezone offset. A value FHIR's `dateTime` can hold parses as [`parse_datetime`]
-/// parses it; the others are [`DateTime::Partial`].
-pub fn parse_partial_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
-    let Some((date, time)) = datetime_string
-        .split_once('T')
-        .filter(|(_, time)| !time.is_empty())
-    else {
-        return parse_datetime(datetime_string.strip_suffix('T').unwrap_or(datetime_string));
-    };
-    let captures = PARTIAL_DATETIME_TIME_REGEX
-        .captures(time)
-        .ok_or(ParseError::InvalidFormat)?;
-    let offset = captures.name("offset").map(|offset| offset.as_str());
-    let time = parse_partial_time(&captures["time"])?;
-    if matches!(time, Time::HourMinuteSecond(_)) && offset.is_some() {
-        return parse_datetime(datetime_string);
-    }
-    let Date::YearMonthDay(year, month, day) = parse_date(date)? else {
-        return Err(ParseError::InvalidFormat);
-    };
-    let date = chrono::NaiveDate::from_ymd_opt(i32::from(year), u32::from(month), u32::from(day))
-        .ok_or(ParseError::InvalidFormat)?;
-    let offset = offset.map(parse_offset).transpose()?;
-    Ok(DateTime::Partial(date, time, offset))
-}
-
-/// `Z`, `+hh:mm` or `-hh:mm`, as [`PARTIAL_DATETIME_TIME_REGEX`] matched it.
-fn parse_offset(offset: &str) -> Result<chrono::FixedOffset, ParseError> {
-    let part = |range: std::ops::Range<usize>| {
-        offset
-            .get(range)
-            .and_then(|part| part.parse::<i32>().ok())
-            .ok_or(ParseError::InvalidFormat)
-    };
-    let seconds = if offset == "Z" {
-        0
-    } else {
-        part(1..3)? * 3600 + part(4..6)? * 60
-    };
-    chrono::FixedOffset::east_opt(if offset.starts_with('-') {
-        -seconds
-    } else {
-        seconds
-    })
-    .ok_or(ParseError::InvalidFormat)
 }
 
 pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {

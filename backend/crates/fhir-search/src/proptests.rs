@@ -149,7 +149,6 @@ fn render(value: &DateTime) -> String {
         DateTime::YearMonth(year, month) => format!("{year:04}-{month:02}"),
         DateTime::YearMonthDay(year, month, day) => format!("{year:04}-{month:02}-{day:02}"),
         DateTime::Iso8601(instant) => instant.to_rfc3339(),
-        DateTime::Partial(..) => value.to_string(),
     }
 }
 

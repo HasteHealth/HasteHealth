@@ -27,6 +27,8 @@ fn render(value: &dyn MetaValue) -> String {
         boolean.value.unwrap().to_string()
     } else if any.is::<FHIRDate>() || any.is::<FHIRDateTime>() || any.is::<FHIRTime>() {
         format!("'{}'", downcast_datetime(value).unwrap())
+    } else if let Some(datetime) = any.downcast_ref::<crate::PartialDateTime>() {
+        format!("'{datetime}'")
     } else {
         format!("'{}'", downcast_string(value).unwrap())
     }

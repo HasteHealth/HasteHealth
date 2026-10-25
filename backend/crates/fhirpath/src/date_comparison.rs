@@ -7,6 +7,7 @@
 //! `DateTime` of the same precision, and a FHIR `instant` as a `DateTime`. Times with a
 //! timezone offset are compared in UTC.
 
+use crate::partial_datetime::{PartialDateTime, naive_time};
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Timelike};
 use haste_fhir_model::r4::datetime::{Date, DateTime, Instant, Time};
 use haste_reflect::MetaValue;
@@ -82,6 +83,13 @@ impl Parts {
     }
 
     fn of(value: &dyn MetaValue) -> Option<Self> {
+        if let Some(datetime) = value.as_any().downcast_ref::<PartialDateTime>() {
+            return Some(Parts::date_time(
+                &datetime.utc()?,
+                3 + time_len(&datetime.time),
+                datetime.offset.is_some(),
+            ));
+        }
         // A FHIR primitive holds its System value in `value`, read the same way through a Box.
         let value = match value.fhir_type() {
             "date" | "dateTime" | "instant" | "time" => value.get_field("value")?,
@@ -106,19 +114,11 @@ impl Parts {
                     Parts::date(&[i64::from(*year), i64::from(*month), i64::from(*day)])
                 }
                 DateTime::Iso8601(utc) => Parts::date_time(&utc.naive_utc(), 6, true),
-                DateTime::Partial(date, time, offset) => {
-                    let local = date.and_time(time.to_naive());
-                    let utc = match offset {
-                        Some(offset) => local.checked_sub_offset(*offset)?,
-                        None => local,
-                    };
-                    Parts::date_time(&utc, 3 + time_len(time), offset.is_some())
-                }
             })
         } else if let Some(Instant::Iso8601(utc)) = any.downcast_ref::<Instant>() {
             Some(Parts::date_time(&utc.naive_utc(), 6, true))
         } else if let Some(time) = any.downcast_ref::<Time>() {
-            let clock = time.to_naive();
+            let clock = naive_time(time);
             Some(Parts {
                 kind: Kind::Time,
                 values: [

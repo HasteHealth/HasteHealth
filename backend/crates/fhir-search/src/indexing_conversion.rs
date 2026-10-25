@@ -1,6 +1,6 @@
 /// Reference of conversions found here <https://www.hl7.org/fhir/R4/search.html#table>
 use haste_fhir_model::r4::{
-    datetime::{Date, DateTime, Instant, Time},
+    datetime::{Date, DateTime, Instant},
     generated::{
         resources::{ResourceType, ResourceTypeError},
         terminology::SearchParamType,
@@ -854,21 +854,6 @@ pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexErr
             start: date_time.timestamp_millis(),
             end: date_time.timestamp_millis(),
         }),
-        // Only FHIRPath makes one: the hour or minute it names, or the second.
-        DateTime::Partial(_, time, _) => {
-            let start = chrono::DateTime::<chrono::Utc>::try_from(value.clone())
-                .map_err(|_| InsertableIndexError::FailedDowncast("DateTime".to_string()))?
-                .timestamp_millis();
-            let span = match time {
-                Time::Hour(_) => 60 * 60 * 1000,
-                Time::HourMinute(..) => 60 * 1000,
-                Time::HourMinuteSecond(_) => 1,
-            };
-            Ok(DateRange {
-                start,
-                end: start + span - 1,
-            })
-        }
     }
 }
 
