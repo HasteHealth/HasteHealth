@@ -34,6 +34,59 @@
             "subject": {
                 "reference": "Patient/get-ops-patient"
             }
+        },
+        {
+            "id": "get-ops-nested",
+            "resourceType": "OperationDefinition",
+            "name": "get-ops-nested",
+            "status": "draft",
+            "kind": "operation",
+            "code": "get-ops-nested",
+            "affectsState": false,
+            "system": true,
+            "type": false,
+            "instance": false,
+            "extension": [
+                {
+                    "url": "https://haste.health/Extension/custom-code",
+                    "valueString": "export default async function ({ request }) {\n  const code = request.parameters.parameter.find((p) => p.name === 'code').valueCode;\n  const output = await fhir.invokeType('ValueSet', 'validate-code', {\n    resourceType: 'Parameters',\n    parameter: [\n      { name: 'url', valueUri: 'http://hl7.org/fhir/ValueSet/administrative-gender' },\n      { name: 'system', valueUri: 'http://hl7.org/fhir/administrative-gender' },\n      { name: 'code', valueCode: code },\n    ],\n  });\n  const result = output.parameter.find((p) => p.name === 'result').valueBoolean;\n  return { resourceType: 'Parameters', parameter: [{ name: 'result', valueBoolean: result }] };\n}\n",
+                    "extension": [
+                        {
+                            "url": "https://haste.health/Extension/custom-code-type",
+                            "valueString": "text/typescript"
+                        }
+                    ]
+                }
+            ],
+            "parameter": [
+                {
+                    "name": "code",
+                    "use": "in",
+                    "min": 1,
+                    "max": "1",
+                    "type": "code"
+                },
+                {
+                    "name": "result",
+                    "use": "out",
+                    "min": 1,
+                    "max": "1",
+                    "type": "boolean"
+                }
+            ]
+        },
+        {
+            "id": "get-ops-batch",
+            "resourceType": "Bundle",
+            "type": "batch",
+            "entry": [
+                {
+                    "request": {
+                        "method": "GET",
+                        "url": "ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender"
+                    }
+                }
+            ]
         }
     ],
     "fixture": [
@@ -49,6 +102,22 @@
             "id": "fixture-observation",
             "resource": {
                 "reference": "#get-ops-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-nested-operation",
+            "resource": {
+                "reference": "#get-ops-nested"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-batch",
+            "resource": {
+                "reference": "#get-ops-batch"
             },
             "autocreate": false,
             "autodelete": false
@@ -77,6 +146,18 @@
                     "description": "An Observation in the patient's compartment.",
                     "targetId": "fixture-observation",
                     "sourceId": "fixture-observation",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "A custom operation that invokes $validate-code with typed parameters.",
+                    "targetId": "fixture-nested-operation",
+                    "sourceId": "fixture-nested-operation",
                     "encodeRequestUrl": false
                 }
             }
@@ -295,6 +376,93 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "get-custom-nested-invocation",
+            "name": "A custom operation invoked with GET passes typed parameters to the operations it invokes",
+            "action": [
+                {
+                    "operation": {
+                        "description": "A code in the ValueSet.",
+                        "method": "get",
+                        "url": "$get-ops-nested?code=male",
+                        "responseId": "nested-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET of the custom operation is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$validate-code received the typed url, system and code",
+                        "expression": "Parameters.parameter.where(name='result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "description": "A code not in the ValueSet.",
+                        "method": "get",
+                        "url": "$get-ops-nested?code=nope",
+                        "responseId": "nested-get-invalid",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET of the custom operation is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The code reached $validate-code",
+                        "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-in-batch",
+            "name": "A GET invocation in a batch is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "batch"
+                        },
+                        "description": "A batch whose entry GETs $expand.",
+                        "sourceId": "fixture-batch",
+                        "responseId": "batch-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Not supported is 501",
+                        "responseCode": "501",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An OperationOutcome explains why",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
         }
     ],
     "teardown": {
@@ -316,6 +484,16 @@
                         "code": "delete"
                     },
                     "targetId": "fixture-patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "targetId": "fixture-nested-operation",
                     "encodeRequestUrl": false
                 }
             }

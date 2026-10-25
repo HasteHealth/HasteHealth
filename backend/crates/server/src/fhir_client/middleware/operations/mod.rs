@@ -18,7 +18,7 @@ use haste_operation_executor::{
 use std::sync::Arc;
 
 mod custom_operations;
-mod query_parameters;
+pub mod query_parameters;
 
 /// What a built-in operation runs with: the caller's context and the state
 /// of the pipeline that invoked it.
@@ -191,37 +191,6 @@ impl<B: Backend> Handler<B> for Operations<B> {
                         .await?
                         .ok_or_else(|| not_defined(invoke_request))?,
                 ),
-            };
-
-            // A GET may only run an operation that leaves state alone, with
-            // its query string typed as the operation's input.
-            let mut typed_request;
-            let invoke_request = if ctx.query_invocation {
-                let definition = match (builtin, &custom) {
-                    (Some(builtin), _) => builtin.operation_definition(),
-                    (None, Some(custom)) => custom,
-                    (None, None) => return Err(not_defined(invoke_request)),
-                };
-                if definition
-                    .affectsState
-                    .as_ref()
-                    .and_then(|affects| affects.value)
-                    .unwrap_or(false)
-                {
-                    return Err(OperationOutcomeError::error(
-                        IssueType::business_rule(),
-                        format!(
-                            "Operation '{}' affects state and must be invoked with POST.",
-                            definition.code.value.as_deref().unwrap_or_default()
-                        ),
-                    ));
-                }
-                typed_request = invoke_request.clone();
-                let parameters = query_parameters::parameters_mut(&mut typed_request);
-                *parameters = query_parameters::typed_parameters(definition, parameters)?;
-                &typed_request
-            } else {
-                invoke_request
             };
 
             // `Prefer: respond-async`: the operation exists and the request

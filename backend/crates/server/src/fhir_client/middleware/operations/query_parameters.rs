@@ -1,12 +1,19 @@
 //! Types the query string of an operation invoked with GET. The spec allows
 //! GET only for operations with `affectsState = false` and primitive inputs.
+use super::{find_custom_operation, not_defined};
+use crate::fhir_client::{
+    ServerCTX,
+    middleware::{Backend, operation_definitions::Builtins},
+};
 use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_model::r4::generated::{
-    resources::{OperationDefinition, Parameters, ParametersParameterValueTypeChoice},
+    resources::{OperationDefinition, Parameters},
     terminology::{BoundCode, IssueType, OperationParameterUse},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_ops::defines;
 use serde_json::{Map, Number, Value, json};
+use std::sync::Arc;
 
 fn invalid(message: String) -> OperationOutcomeError {
     OperationOutcomeError::error(IssueType::invalid(), message)
@@ -36,31 +43,26 @@ fn primitive(kind: &str, raw: &str) -> Option<Result<Value, String>> {
     })
 }
 
-/// `query`'s untyped parameters as the typed input parameters of `definition`.
-pub fn typed_parameters(
+/// `query` as the typed input parameters of `definition`. Each query parameter
+/// becomes a parameter of that name, repeats included.
+fn typed_parameters(
     definition: &OperationDefinition,
-    query: &Parameters,
+    query: &str,
 ) -> Result<Parameters, OperationOutcomeError> {
     let inputs = definition.parameter.as_deref().unwrap_or_default();
     let mut typed = Vec::new();
 
-    for parameter in query.parameter.as_deref().unwrap_or_default() {
-        let name = parameter.name.value.as_deref().unwrap_or_default();
-        let Some(ParametersParameterValueTypeChoice::String(raw)) = &parameter.value else {
-            continue;
-        };
-        let raw = raw.value.as_deref().unwrap_or_default();
-
+    for (name, raw) in url::form_urlencoded::parse(query.as_bytes()) {
         let input = inputs
             .iter()
             .find(|input| {
                 input.use_ == OperationParameterUse::in_()
-                    && input.name.value.as_deref() == Some(name)
+                    && input.name.value.as_deref() == Some(name.as_ref())
             })
             .ok_or_else(|| invalid(format!("Unknown parameter '{name}'.")))?;
         let kind = input.type_.as_ref().and_then(BoundCode::as_str);
         let value = kind
-            .and_then(|kind| primitive(kind, raw))
+            .and_then(|kind| primitive(kind, &raw))
             .ok_or_else(|| {
                 invalid(format!(
                     "Parameter '{name}' is not a primitive and cannot be sent in a query string."
@@ -69,7 +71,7 @@ pub fn typed_parameters(
             .map_err(|expected| invalid(format!("Parameter '{name}' must be {expected}.")))?;
 
         let mut entry = Map::new();
-        entry.insert("name".to_string(), Value::String(name.to_string()));
+        entry.insert("name".to_string(), Value::String(name.into_owned()));
         let kind = kind.unwrap_or_default();
         entry.insert(
             format!("value{}{}", kind[..1].to_uppercase(), &kind[1..]),
@@ -83,7 +85,7 @@ pub fn typed_parameters(
 }
 
 /// `request`'s parameters.
-pub fn parameters_mut(request: &mut InvocationRequest) -> &mut Parameters {
+fn parameters_mut(request: &mut InvocationRequest) -> &mut Parameters {
     match request {
         InvocationRequest::Instance(request) => &mut request.parameters,
         InvocationRequest::Type(request) => &mut request.parameters,
@@ -91,47 +93,40 @@ pub fn parameters_mut(request: &mut InvocationRequest) -> &mut Parameters {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::fhir_http::get_operation_body;
-
-    fn definition() -> OperationDefinition {
-        serde_json::from_value(json!({
-            "resourceType": "OperationDefinition",
-            "name": "t", "status": "active", "kind": "operation", "code": "t",
-            "system": true, "type": false, "instance": false,
-            "parameter": [
-                {"name": "flag", "use": "in", "min": 0, "max": "1", "type": "boolean"},
-                {"name": "count", "use": "in", "min": 0, "max": "*", "type": "integer"},
-                {"name": "valueSet", "use": "in", "min": 0, "max": "1", "type": "ValueSet"}
-            ]
-        }))
-        .unwrap()
-    }
-
-    #[test]
-    fn types_and_repeats() {
-        let typed = typed_parameters(
-            &definition(),
-            &get_operation_body("flag=true&count=1&count=2"),
-        )
-        .unwrap();
-        let json = serde_json::to_value(&typed).unwrap();
-        assert_eq!(
-            json["parameter"],
-            json!([
-                {"name": "flag", "valueBoolean": true},
-                {"name": "count", "valueInteger": 1},
-                {"name": "count", "valueInteger": 2}
-            ])
-        );
-    }
-
-    #[test]
-    fn refuses_unknown_non_primitive_and_malformed() {
-        for query in ["nope=1", "valueSet=x", "flag=maybe", "count=1.5"] {
-            assert!(typed_parameters(&definition(), &get_operation_body(query)).is_err());
+/// Sets the parameters of `request`, invoked with GET, from its `query`
+/// string. A GET may only run an operation that leaves state alone.
+pub async fn type_query_invocation<B: Backend>(
+    builtins: &Builtins,
+    ctx: &Arc<ServerCTX<B>>,
+    request: &mut InvocationRequest,
+    query: &str,
+) -> Result<(), OperationOutcomeError> {
+    let custom;
+    let definition = match builtins.iter().find(|builtin| defines(builtin, request)) {
+        Some(builtin) => *builtin,
+        None => {
+            custom = find_custom_operation(ctx, request)
+                .await?
+                .ok_or_else(|| not_defined(request))?;
+            &custom
         }
+    };
+
+    if definition
+        .affectsState
+        .as_ref()
+        .and_then(|affects| affects.value)
+        .unwrap_or(false)
+    {
+        return Err(OperationOutcomeError::error(
+            IssueType::business_rule(),
+            format!(
+                "Operation '{}' affects state and must be invoked with POST.",
+                definition.code.value.as_deref().unwrap_or_default()
+            ),
+        ));
     }
+
+    *parameters_mut(request) = typed_parameters(definition, query)?;
+    Ok(())
 }

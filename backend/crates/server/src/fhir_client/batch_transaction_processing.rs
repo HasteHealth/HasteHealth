@@ -158,6 +158,7 @@ pub fn bundle_entry_to_fhir_request(
             ));
         };
 
+        let is_get = method == Method::GET;
         let http_request = HTTPRequest::new(
             method,
             path.to_string(),
@@ -173,6 +174,15 @@ pub fn bundle_entry_to_fhir_request(
 
         let fhir_request =
             fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)?;
+
+        // A GET invocation's parameters are typed by the HTTP handler, which
+        // an entry does not pass through.
+        if is_get && matches!(fhir_request, FHIRRequest::Invocation(_)) {
+            return Err(OperationOutcomeError::error(
+                IssueType::not_supported(),
+                "GET operation requests are not supported in a batch or transaction".to_string(),
+            ));
+        }
 
         Ok(fhir_request)
     } else {

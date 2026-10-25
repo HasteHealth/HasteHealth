@@ -48,8 +48,8 @@ use middleware::{
         project::ProjectSync, user::UserSync,
     },
     element_filtering::ElementFiltering,
-    operation_definitions::OperationDefinitions,
-    operations::Operations,
+    operation_definitions::{Builtins, OperationDefinitions},
+    operations::{Operations, query_parameters},
     patch_as_update::PatchAsUpdate,
     rate_limit::RateLimit,
     set_artifact_tenant::SetArtifactTenant,
@@ -113,9 +113,6 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     /// is queued as a job and answered with `202 Accepted` instead of run in
     /// the request. Other interactions ignore it, as the pattern allows.
     pub prefer_async: bool,
-    /// An operation invoked with GET: its parameters are the raw query
-    /// string, typed from the OperationDefinition when it runs.
-    pub query_invocation: bool,
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
@@ -133,7 +130,6 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             tracing_id: self.tracing_id.clone(),
             compartment: self.compartment.clone(),
             prefer_async: self.prefer_async,
-            query_invocation: self.query_invocation,
         }
     }
 
@@ -150,7 +146,6 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             tracing_id: self.tracing_id.clone(),
             compartment: Some(patient_id),
             prefer_async: self.prefer_async,
-            query_invocation: self.query_invocation,
         }
     }
 
@@ -172,7 +167,6 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             tracing_id: None,
             compartment: None,
             prefer_async: false,
-            query_invocation: false,
         }
     }
 
@@ -223,7 +217,6 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             tracing_id: None,
             compartment: None,
             prefer_async: false,
-            query_invocation: false,
         }
     }
 
@@ -235,12 +228,6 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
     #[must_use]
     pub fn with_prefer_async(mut self, prefer_async: bool) -> Self {
         self.prefer_async = prefer_async;
-        self
-    }
-
-    #[must_use]
-    pub fn with_query_invocation(mut self, query_invocation: bool) -> Self {
-        self.query_invocation = query_invocation;
         self
     }
 }
@@ -433,6 +420,8 @@ pub struct FHIRServerClient<
 > {
     state: ClientState<Self>,
     pipeline: Pipeline<Self>,
+    /// The built-in operations' definitions, for typing a GET invocation.
+    builtin_operations: Builtins,
 }
 
 impl<
@@ -514,7 +503,7 @@ impl<
                     // A PATCH runs as an update, so the patched resource gets
                     // the built-in collision checks.
                     Box::new(PatchAsUpdate),
-                    Box::new(OperationDefinitions::new(builtin_operations)),
+                    Box::new(OperationDefinitions::new(builtin_operations.clone())),
                 ],
                 Storage,
             ),
@@ -581,6 +570,7 @@ impl<
                 ],
                 router,
             ),
+            builtin_operations,
         }
     }
 
@@ -591,6 +581,18 @@ impl<
     /// worker threads.
     pub fn deno_pool(&self) -> Arc<DenoPool> {
         self.state.deno_pool.clone()
+    }
+
+    /// Sets the parameters of `request`, invoked with GET, from its `query`
+    /// string, typed against the operation's definition. Called before the
+    /// pipeline runs, so every layer sees the input a POST would carry.
+    pub async fn type_query_invocation(
+        &self,
+        ctx: &Arc<ServerCTX<Self>>,
+        request: &mut InvocationRequest,
+        query: &str,
+    ) -> Result<(), OperationOutcomeError> {
+        query_parameters::type_query_invocation(&self.builtin_operations, ctx, request, query).await
     }
 
     /// Runs `request` through the pipeline.

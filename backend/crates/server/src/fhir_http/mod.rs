@@ -11,11 +11,9 @@ use haste_fhir_client::request::{
 };
 use haste_fhir_client::url::{ParseError, ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{
-    Bundle, Parameters, ParametersParameter, ParametersParameterValueTypeChoice, Resource,
-    ResourceType, ResourceTypeError,
+    Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
 };
 use haste_fhir_model::r4::generated::terminology::BundleType;
-use haste_fhir_model::r4::generated::types::FHIRString;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_operation_error::derive::OperationOutcomeError;
 use haste_fhir_serialization_json::errors::DeserializeError;
@@ -109,38 +107,14 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
     Ok(params)
 }
 
-/// Whether `method` on `location` is a GET operation invocation.
-pub fn is_operation_get(method: &Method, location: &str) -> bool {
-    method == Method::GET
-        && location
-            .rsplit('/')
-            .next()
-            .is_some_and(|chunk| chunk.starts_with('$'))
-}
-
-/// The body a GET invocation is parsed with: each query parameter, repeats
-/// included, as an untyped `valueString` parameter. The operation handler types
-/// them against the OperationDefinition.
-pub fn get_operation_body(query: &str) -> Parameters {
-    let string = |value: String| {
-        Box::new(FHIRString {
-            value: Some(value),
-            ..Default::default()
-        })
-    };
-    Parameters {
-        parameter: Some(
-            url::form_urlencoded::parse(query.as_bytes())
-                .map(|(name, value)| ParametersParameter {
-                    name: string(name.into_owned()),
-                    value: Some(ParametersParameterValueTypeChoice::String(string(
-                        value.into_owned(),
-                    ))),
-                    ..Default::default()
-                })
-                .collect(),
-        ),
-        ..Default::default()
+/// An invocation's input parameters: a POST's body. A GET's are its query
+/// string, typed against the OperationDefinition once the operation is found
+/// (see `FHIRServerClient::type_query_invocation`), so they start empty.
+fn invocation_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingError> {
+    if req.method == Method::GET {
+        Ok(Parameters::default())
+    } else {
+        get_parameters(req)
     }
 }
 
@@ -217,11 +191,11 @@ fn parse_request_1_non_empty(
     if url_chunks[0].starts_with("$") {
         match req.method {
             Method::POST | Method::GET => {
-                // A GET carries its query parameters as the body (see `get_operation_body`).
+                // Handle operation request
                 Ok(FHIRRequest::Invocation(InvocationRequest::System(
                     FHIRInvokeSystemRequest {
                         operation: Operation::new(&url_chunks[0]),
-                        parameters: get_parameters(req)?,
+                        parameters: invocation_parameters(req)?,
                     },
                 )))
             }
@@ -376,12 +350,12 @@ fn parse_request_2(
     if url_chunks[1].starts_with("$") {
         match req.method {
             Method::POST | Method::GET => {
-                // A GET carries its query parameters as the body (see `get_operation_body`).
+                // Handle operation request
                 Ok(FHIRRequest::Invocation(InvocationRequest::Type(
                     FHIRInvokeTypeRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         operation: Operation::new(&url_chunks[1]),
-                        parameters: get_parameters(req)?,
+                        parameters: invocation_parameters(req)?,
                     },
                 )))
             }
@@ -473,13 +447,13 @@ fn parse_request_3(
     if url_chunks[2].starts_with("$") {
         match req.method {
             Method::POST | Method::GET => {
-                // A GET carries its query parameters as the body (see `get_operation_body`).
+                // Handle operation request
                 Ok(FHIRRequest::Invocation(InvocationRequest::Instance(
                     FHIRInvokeInstanceRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         id: url_chunks[1].to_string(),
                         operation: Operation::new(&url_chunks[2]),
-                        parameters: get_parameters(req)?,
+                        parameters: invocation_parameters(req)?,
                     },
                 )))
             }
