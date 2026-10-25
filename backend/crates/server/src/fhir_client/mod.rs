@@ -40,7 +40,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions};
 use middleware::{
     auditing::Auditing,
     auth_z::{access_control::AccessControl, scope_check::SmartScopeAccess},
-    capabilities::{Capabilities, InvalidateCapabilities},
+    capabilities::Capabilities,
     check_project::{CheckProject, SetProjectReadOnly},
     custom_models::{
         access_policy_v3::AccessPolicyV3Validation,
@@ -494,13 +494,7 @@ impl<
 
         let router = Router {
             clinical: Pipeline::new(vec![], Storage),
-            artifact: Pipeline::new(
-                vec![
-                    Box::new(SetArtifactTenant),
-                    Box::new(InvalidateCapabilities),
-                ],
-                Storage,
-            ),
+            artifact: Pipeline::new(vec![Box::new(SetArtifactTenant)], Storage),
             // OperationDefinitions, served beside the built-in operations' own.
             operation_definition: Pipeline::new(
                 vec![

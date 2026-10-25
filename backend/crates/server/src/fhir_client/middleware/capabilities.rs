@@ -1,9 +1,9 @@
 use crate::{
     fhir_client::{
         ClientState, ServerCTX,
-        middleware::{Backend, Handler, Middleware, Next, Output},
+        middleware::{Backend, Handler, Output},
     },
-    load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps},
+    load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps, search_all},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -29,63 +29,24 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
+use moka::future::Cache;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, LazyLock};
-use std::time::{Duration, Instant};
-use tokio::sync::Mutex;
+use std::time::Duration;
 use tracing::instrument;
 
 /// How long a generated statement is served before profiles and search
 /// parameters loaded since are picked up.
 const CAPABILITIES_TTL: Duration = Duration::from_secs(30);
 
-/// Page size for the project's profile and search parameter lookups.
-const PROJECT_RESOURCES_COUNT: &str = "1000";
-
 // Keyed by (tenant, project): the statement lists that project's custom
 // operations, profiles and search parameters, so a single process-wide value
 // would serve one project's to every other tenant (and, through the public
 // metadata route, to unauthenticated callers).
-#[allow(clippy::type_complexity)]
-static CAPABILITIES: LazyLock<
-    Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), (Instant, CapabilityStatement)>>,
-> = LazyLock::new(|| Mutex::new(HashMap::new()));
-
-/// Drops a project's cached statement so the next `metadata` request sees
-/// profiles and search parameters written since.
-pub async fn invalidate(tenant: &haste_jwt::TenantId, project: &haste_jwt::ProjectId) {
-    CAPABILITIES
-        .lock()
-        .await
-        .remove(&(tenant.clone(), project.clone()));
-}
-
-/// The project's active resources of one type matching `filters`.
-async fn project_resources<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->(
-    ctx: Arc<ServerCTX<Client>>,
-    resource_type: ResourceType,
-    filters: &[(&str, &str)],
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    let parameters: Vec<(String, Vec<String>)> = filters
-        .iter()
-        .chain(&[("status", "active"), ("_count", PROJECT_RESOURCES_COUNT)])
-        .map(|(name, value)| ((*name).to_string(), vec![(*value).to_string()]))
-        .collect();
-
-    Ok(ctx
-        .client
-        .search_type(ctx.clone(), resource_type, parameters.into())
-        .await?
-        .entry
-        .unwrap_or_default()
-        .into_iter()
-        .filter_map(|e| e.resource)
-        .map(|r| *r)
-        .collect())
-}
+static CAPABILITIES: LazyLock<Cache<(TenantId, ProjectId), CapabilityStatement>> =
+    LazyLock::new(|| Cache::builder().time_to_live(CAPABILITIES_TTL).build());
 
 /// Build a `CapabilityStatementRestResourceOperation` entry from an `OperationDefinition`.
 ///
@@ -143,7 +104,7 @@ fn operations_for_type<'a>(
 
 fn create_capability_rest_statement(
     sd: StructureDefinition,
-    profiles: &[FHIRCanonical],
+    profiles: &HashMap<String, Vec<FHIRCanonical>>,
     all_sps: &[SearchParameter],
     all_operations: &[OperationDefinition],
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
@@ -156,8 +117,7 @@ fn create_capability_rest_statement(
             let types = sp
                 .base
                 .iter()
-                .map(|b| b.as_str())
-                .filter_map(|b: Option<&str>| b)
+                .filter_map(|b| b.as_str())
                 .collect::<Vec<_>>();
 
             types.contains(&shared_base_types[0].as_str())
@@ -180,7 +140,7 @@ fn create_capability_rest_statement(
             value: sd.url.value,
             ..Default::default()
         })),
-        supportedProfile: (!profiles.is_empty()).then(|| profiles.to_vec()),
+        supportedProfile: profiles.get(&sd_type).cloned(),
         searchParam: Some(
             resource_parameters
                 .into_iter()
@@ -240,30 +200,33 @@ async fn generate_capabilities<
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
-    let ctx_for_project = ctx.clone();
-    let (sds, sps, operations) = tokio::join!(
+    let (sds, mut sps, operations, project_sds, project_sps) = tokio::try_join!(
         get_all_sds(&["resource"], repo, search_engine),
         get_all_sps(repo, search_engine),
-        get_all_operation_definitions(ctx)
-    );
-
-    let sds = sds?;
-    let mut sps = sps?;
-    let operations = operations?;
-
-    // Profiles and search parameters loaded into the project itself.
-    let (profile_defs, extra_sps) = tokio::try_join!(
-        project_resources(
-            ctx_for_project.clone(),
+        get_all_operation_definitions(ctx.clone()),
+        // Loaded into the project itself: its active constraint profiles and
+        // search parameters.
+        search_all(
+            repo,
+            search_engine,
+            &ctx.tenant,
+            &ctx.project,
             ResourceType::StructureDefinition,
-            &[("derivation", "constraint")]
+            &[("derivation", &["constraint"]), ("status", &["active"])],
         ),
-        project_resources(ctx_for_project, ResourceType::SearchParameter, &[])
+        search_all(
+            repo,
+            search_engine,
+            &ctx.tenant,
+            &ctx.project,
+            ResourceType::SearchParameter,
+            &[("status", &["active"])],
+        ),
     )?;
 
     // Constraint profile urls grouped by the resource type they constrain.
     let mut profiles: HashMap<String, Vec<FHIRCanonical>> = HashMap::new();
-    for resource in profile_defs {
+    for resource in project_sds {
         if let Resource::StructureDefinition(sd) = resource
             && let (Some(url), Some(type_)) = (sd.url.value, sd.type_.value)
         {
@@ -274,11 +237,20 @@ async fn generate_capabilities<
         }
     }
 
-    let known: HashSet<Option<String>> = sps.iter().map(|sp| sp.url.value.clone()).collect();
-    sps.extend(extra_sps.into_iter().filter_map(|resource| match resource {
-        Resource::SearchParameter(sp) if !known.contains(&sp.url.value) => Some(sp),
-        _ => None,
-    }));
+    // A project's copy of a system parameter is listed once.
+    let known: HashSet<String> = sps.iter().filter_map(|sp| sp.url.value.clone()).collect();
+    sps.extend(
+        project_sps
+            .into_iter()
+            .filter_map(|resource| match resource {
+                Resource::SearchParameter(sp)
+                    if !sp.url.value.as_ref().is_some_and(|url| known.contains(url)) =>
+                {
+                    Some(sp)
+                }
+                _ => None,
+            }),
+    );
 
     // System-level operations are not tied to a resource type, so they are
     // documented once on the rest element itself.
@@ -311,15 +283,7 @@ async fn generate_capabilities<
             }),
             resource: Some(
                 sds.into_iter()
-                    .map(|sd| {
-                        let sd_profiles = sd
-                            .type_
-                            .value
-                            .as_ref()
-                            .and_then(|t| profiles.get(t))
-                            .map_or(&[][..], Vec::as_slice);
-                        create_capability_rest_statement(sd, sd_profiles, &sps, &operations)
-                    })
+                    .map(|sd| create_capability_rest_statement(sd, &profiles, &sps, &operations))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             // Interactions on the base URL itself; each resource type lists
@@ -346,7 +310,7 @@ async fn generate_capabilities<
 }
 
 /// Ends the capabilities lane: the CapabilityStatement, generated and then
-/// served from memory for a short time.
+/// served from memory until `CAPABILITIES_TTL` passes.
 #[derive(Debug)]
 pub struct Capabilities;
 
@@ -367,53 +331,22 @@ impl<B: Backend> Handler<B> for Capabilities {
                 ));
             }
 
-            let cache_key = (ctx.tenant.clone(), ctx.project.clone());
-            let mut guard = CAPABILITIES.lock().await;
-            let capabilities = match guard.get(&cache_key) {
-                Some((generated, capabilities)) if generated.elapsed() < CAPABILITIES_TTL => {
-                    capabilities.clone()
-                }
-                _ => {
-                    let capabilities =
-                        generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref())
-                            .await?;
-                    guard.insert(cache_key, (Instant::now(), capabilities.clone()));
-                    capabilities
-                }
-            };
+            // Concurrent requests for one project share a single generation.
+            let capabilities = CAPABILITIES
+                .try_get_with(
+                    (ctx.tenant.clone(), ctx.project.clone()),
+                    generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref()),
+                )
+                .await
+                .map_err(|error| {
+                    Arc::try_unwrap(error).unwrap_or_else(|shared| {
+                        OperationOutcomeError::new(None, shared.outcome().clone())
+                    })
+                })?;
 
             Ok(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
                 capabilities,
             }))
-        })
-    }
-}
-
-/// On the artifact lane: a successful write to a StructureDefinition or
-/// SearchParameter refreshes the project's cached statement.
-pub struct InvalidateCapabilities;
-
-impl<B: Backend> Middleware<B> for InvalidateCapabilities {
-    fn call<'a>(
-        &'a self,
-        state: &'a ClientState<B>,
-        ctx: Arc<ServerCTX<B>>,
-        request: FHIRRequest,
-        next: Next<'a, B>,
-    ) -> Output<'a> {
-        Box::pin(async move {
-            let is_write = matches!(
-                request,
-                FHIRRequest::Create(_)
-                    | FHIRRequest::Update(_)
-                    | FHIRRequest::Patch(_)
-                    | FHIRRequest::Delete(_)
-            );
-            let response = next.run(state, ctx.clone(), request).await?;
-            if is_write {
-                invalidate(&ctx.tenant, &ctx.project).await;
-            }
-            Ok(response)
         })
     }
 }
