@@ -12,12 +12,22 @@ pub mod derive;
 #[cfg(feature = "axum")]
 pub mod axum;
 
+/// An HTTP status that takes precedence over the one derived from the first issue's code.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum StatusOverride {
+    /// 422: the resource is well formed but violates an applicable profile.
+    UnprocessableEntity,
+}
+
 #[derive(Debug)]
 pub struct OperationOutcomeError {
     source: Option<anyhow::Error>,
     outcome: Box<OperationOutcome>,
-    /// HTTP status that takes precedence over the one derived from the issue code.
-    status_override: Option<u16>,
+    #[cfg_attr(
+        not(feature = "axum"),
+        expect(dead_code, reason = "read by the axum status mapping")
+    )]
+    status_override: Option<StatusOverride>,
 }
 
 fn create_operation_outcome(
@@ -49,11 +59,14 @@ impl OperationOutcomeError {
         }
     }
 
-    /// Answers with `status` rather than the one derived from the first issue's code.
+    /// An error that answers 422 Unprocessable Entity whatever its issue codes:
+    /// the resource is well formed but violates an applicable profile.
     #[must_use]
-    pub fn with_status(mut self, status: u16) -> Self {
-        self.status_override = Some(status);
-        self
+    pub fn unprocessable(outcome: OperationOutcome) -> Self {
+        OperationOutcomeError {
+            status_override: Some(StatusOverride::UnprocessableEntity),
+            ..OperationOutcomeError::new(None, outcome)
+        }
     }
 
     #[must_use]
