@@ -1,7 +1,7 @@
 use crate::{
     fhir_client::{
         ClientState, ServerCTX,
-        middleware::{Backend, Handler, Output},
+        middleware::{Backend, Handler, Middleware, Next, Output},
     },
     load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps},
 };
@@ -51,6 +51,15 @@ const PROJECT_RESOURCES_COUNT: &str = "1000";
 static CAPABILITIES: LazyLock<
     Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), (Instant, CapabilityStatement)>>,
 > = LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// Drops a project's cached statement so the next `metadata` request sees
+/// profiles and search parameters written since.
+pub async fn invalidate(tenant: &haste_jwt::TenantId, project: &haste_jwt::ProjectId) {
+    CAPABILITIES
+        .lock()
+        .await
+        .remove(&(tenant.clone(), project.clone()));
+}
 
 /// The project's active resources of one type matching `filters`.
 async fn project_resources<
@@ -376,6 +385,35 @@ impl<B: Backend> Handler<B> for Capabilities {
             Ok(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
                 capabilities,
             }))
+        })
+    }
+}
+
+/// On the artifact lane: a successful write to a StructureDefinition or
+/// SearchParameter refreshes the project's cached statement.
+pub struct InvalidateCapabilities;
+
+impl<B: Backend> Middleware<B> for InvalidateCapabilities {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        Box::pin(async move {
+            let is_write = matches!(
+                request,
+                FHIRRequest::Create(_)
+                    | FHIRRequest::Update(_)
+                    | FHIRRequest::Patch(_)
+                    | FHIRRequest::Delete(_)
+            );
+            let response = next.run(state, ctx.clone(), request).await?;
+            if is_write {
+                invalidate(&ctx.tenant, &ctx.project).await;
+            }
+            Ok(response)
         })
     }
 }
