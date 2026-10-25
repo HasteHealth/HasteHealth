@@ -1,3 +1,4 @@
+use crate::fhir_client::{Backend, ServerCTX};
 use axum::body::Bytes;
 use axum::http::Method;
 use haste_fhir_client::request::{
@@ -19,10 +20,9 @@ use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_jwt::VersionId;
 use haste_repository::types::SupportedFHIRVersions;
 use json_patch::Patch;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 mod invocation;
-pub use invocation::OperationDefinitionLookup;
 
 #[derive(Debug)]
 pub enum HTTPBody {
@@ -457,12 +457,12 @@ fn parse_request_4(
     }
 }
 
-/// The FHIR request `req` makes. An operation invoked with GET is typed
-/// against the definition `operations` finds for it.
-pub async fn http_request_to_fhir_request(
+/// The FHIR request `req` makes in `ctx`. An operation invoked with GET is
+/// typed against its definition.
+pub async fn http_request_to_fhir_request<B: Backend>(
     fhir_version: SupportedFHIRVersions,
     req: HTTPRequest<'_>,
-    operations: &impl OperationDefinitionLookup,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     let url_pieces = req
         .path
@@ -471,7 +471,7 @@ pub async fn http_request_to_fhir_request(
         .collect::<Vec<String>>();
 
     if let Some(target) = invocation::target(&url_pieces)? {
-        return invocation::invocation(target, req, operations).await;
+        return invocation::invocation(target, req, ctx).await;
     }
 
     match url_pieces.len() {

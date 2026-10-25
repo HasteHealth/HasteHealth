@@ -1,6 +1,6 @@
 use crate::{
     fhir_client::{ServerCTX, middleware::Backend, utilities::request_to_resource_type},
-    fhir_http::{self, HTTPRequest, OperationDefinitionLookup},
+    fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
 use haste_fhir_client::request::{
@@ -142,9 +142,9 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
     }
 }
 
-pub async fn bundle_entry_to_fhir_request(
+pub async fn bundle_entry_to_fhir_request<B: Backend>(
     entry: BundleEntry,
-    operations: &impl OperationDefinitionLookup,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     if let Some(request) = entry.request.as_ref() {
         let url = request.url.value.as_deref().unwrap_or_default();
@@ -169,8 +169,7 @@ pub async fn bundle_entry_to_fhir_request(
             query,
         );
 
-        fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request, operations)
-            .await
+        fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request, ctx).await
     } else {
         Err(OperationOutcomeError::error(
             IssueType::invalid(),

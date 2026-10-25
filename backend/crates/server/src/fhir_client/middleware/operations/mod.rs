@@ -1,9 +1,6 @@
-use crate::{
-    fhir_client::{
-        ClientState, ServerCTX,
-        middleware::{Backend, Handler, Output, operation_definitions},
-    },
-    fhir_http::OperationDefinitionLookup,
+use crate::fhir_client::{
+    ClientState, ServerCTX,
+    middleware::{Backend, Handler, Output, operation_definitions},
 };
 use haste_fhir_client::request::{
     FHIRInvokeInstanceResponse, FHIRInvokeSystemResponse, FHIRInvokeTypeResponse, FHIRRequest,
@@ -125,21 +122,20 @@ async fn find_custom_operation<B: Backend>(
         .cloned())
 }
 
-/// A built-in's definition, or else the project's own.
-impl<B: Backend> OperationDefinitionLookup for Arc<ServerCTX<B>> {
-    async fn operation_definition(
-        &self,
-        request: &InvocationRequest,
-    ) -> Result<Cow<'static, OperationDefinition>, OperationOutcomeError> {
-        let builtins = self.client.builtin_operations();
-        if let Some(builtin) = builtins.iter().find(|builtin| defines(builtin, request)) {
-            return Ok(Cow::Borrowed(*builtin));
-        }
-        find_custom_operation(self, request)
-            .await?
-            .map(Cow::Owned)
-            .ok_or_else(|| not_defined(request))
+/// The OperationDefinition that defines `request`: a built-in's, or else the
+/// project's own.
+pub async fn operation_definition<B: Backend>(
+    ctx: &Arc<ServerCTX<B>>,
+    request: &InvocationRequest,
+) -> Result<Cow<'static, OperationDefinition>, OperationOutcomeError> {
+    let builtins = ctx.client.builtin_operations();
+    if let Some(builtin) = builtins.iter().find(|builtin| defines(builtin, request)) {
+        return Ok(Cow::Borrowed(*builtin));
     }
+    find_custom_operation(ctx, request)
+        .await?
+        .map(Cow::Owned)
+        .ok_or_else(|| not_defined(request))
 }
 
 /// The error for an invocation that neither a built-in nor the project defines.

@@ -7,7 +7,10 @@ A POST carries the input parameters as its body. A GET carries them as its
 query string, typed against the operation's definition; the spec allows it only
 for an operation with affectsState = false and primitive inputs.
 */
-use crate::fhir_http::{FHIRRequestParsingError, HTTPRequest, get_parameters};
+use crate::{
+    fhir_client::{Backend, ServerCTX, operation_definition},
+    fhir_http::{FHIRRequestParsingError, HTTPRequest, get_parameters},
+};
 use axum::http::Method;
 use haste_fhir_client::request::{
     FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRRequest,
@@ -19,17 +22,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Map, Number, Value, json};
-use std::borrow::Cow;
-
-/// Finds the OperationDefinition a GET invocation's query string is typed
-/// against.
-pub trait OperationDefinitionLookup: Sync {
-    /// The definition of `request`'s operation, or an error if none defines it.
-    fn operation_definition(
-        &self,
-        request: &InvocationRequest,
-    ) -> impl Future<Output = Result<Cow<'static, OperationDefinition>, OperationOutcomeError>> + Send;
-}
+use std::sync::Arc;
 
 /// The operation `url_chunks` invokes, without its parameters, or `None` if
 /// they name no operation.
@@ -62,16 +55,14 @@ pub fn target(url_chunks: &[String]) -> Result<Option<InvocationRequest>, FHIRRe
 }
 
 /// `target` with the input parameters `req` carries.
-pub async fn invocation(
+pub async fn invocation<B: Backend>(
     mut target: InvocationRequest,
     req: HTTPRequest<'_>,
-    operations: &impl OperationDefinitionLookup,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     let parameters = match req.method {
         Method::POST => get_parameters(req)?,
-        Method::GET => {
-            query_parameters(&*operations.operation_definition(&target).await?, req.query)?
-        }
+        Method::GET => query_parameters(&*operation_definition(ctx, &target).await?, req.query)?,
         _ => Err(FHIRRequestParsingError::Unsupported(
             "Invalid method for invocation".to_string(),
         ))?,

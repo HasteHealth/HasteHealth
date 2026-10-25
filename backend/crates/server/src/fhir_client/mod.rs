@@ -2,7 +2,7 @@ use crate::{
     auth_n::middleware::jwt::User,
     config::ServerConfig,
     fhir_client::{
-        middleware::{Backend, Handler, Output, Pipeline},
+        middleware::{Handler, Output, Pipeline},
         utilities::request_to_resource_type,
     },
 };
@@ -66,6 +66,8 @@ mod middleware;
 mod resolver;
 mod subscription_limits;
 mod utilities;
+
+pub use middleware::{Backend, operations::operation_definition};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
