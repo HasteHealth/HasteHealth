@@ -709,7 +709,7 @@ fn evaluate_children<'a>(
 
 /// Most items the `repeat()` calls of one evaluation may produce. A projection can
 /// keep yielding new values (`1.repeat($this + 1)`), so evaluation fails past this.
-const REPEAT_ITEM_LIMIT: usize = 100_000;
+const REPEAT_ITEM_LIMIT: usize = 10_000;
 
 /// An item as `repeat()` tells it from the items it already produced: numbers, strings and
 /// booleans by value, as `=` compares them, anything else (dates and times included) only
