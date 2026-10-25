@@ -1910,31 +1910,33 @@ fn evaluate_get_resource_key<'a>(
     Ok(context.new_context_from(vec![context.allocate_literal(resource_key)]))
 }
 
-fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
-    value_equal(left.values[0], right.values[0])
+fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<Option<bool>, FHIRPathError> {
+    equality(left.values[0], right.values[0])
 }
 
+/// Equality as the collection functions use it: dates and times that cannot be compared are
+/// unequal.
 fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIRPathError> {
+    Ok(equality(left, right)?.unwrap_or(false))
+}
+
+/// `=` on two items, `None` for dates and times that cannot be compared.
+fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>, FHIRPathError> {
     // An element equals itself. Other complex values are unequal until
     // member-wise equality is implemented.
     if std::ptr::addr_eq(left, right) && left.fhir_type() == right.fhir_type() {
-        return Ok(true);
-    }
-
-    // Dates and times that cannot be compared count as unequal here; `=` itself gives empty.
-    if let Some(order) = temporal_order(left, right) {
-        return Ok(order == TemporalOrder::Ordered(Ordering::Equal));
+        return Ok(Some(true));
     }
 
     if NUMBER_TYPES.contains(left.fhir_type()) && NUMBER_TYPES.contains(right.fhir_type()) {
         let left_value = downcast_number(left)?;
         let right_value = downcast_number(right)?;
         #[allow(clippy::float_cmp)]
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
     } else if STRING_TYPES.contains(left.fhir_type()) && STRING_TYPES.contains(right.fhir_type()) {
         let left_value = downcast_string(left)?;
         let right_value = downcast_string(right)?;
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
     } else if BOOLEAN_TYPES.contains(left.fhir_type()) && BOOLEAN_TYPES.contains(right.fhir_type())
     {
         let left_value = downcast_bool(left)?;
@@ -1942,7 +1944,12 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
         // Suppress clippy warning because strict equality comparison for float values
         // is intentional and required by the FHIRPath specification.
         #[allow(clippy::float_cmp)]
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
+    } else if let Some(order) = temporal_order(left, right) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
+            TemporalOrder::Unknown => None,
+        })
     } else {
         // https://hl7.org/fhirpath/N1/#conversion for implicit conversion rules todo.
         //
@@ -1950,7 +1957,7 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
         // Should consider implicit conversion rules here but for now
         // FPs like 'Patient.deceased.exists() and Patient.deceased != false' (deceased is either boolean or dateTime)
         // Should return false rather than error.
-        Ok(false)
+        Ok(Some(false))
     }
 }
 
@@ -2303,12 +2310,10 @@ async fn evaluate_equality<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            // Dates and times of different precisions cannot be compared: the result is empty.
-            if temporal_order(left.values[0], right.values[0]) == Some(TemporalOrder::Unknown) {
+            let Some(mut result) = equal_check(&left, &right)? else {
+                // Dates and times of different precisions cannot be compared: the result is empty.
                 return Ok(left.new_context_from(vec![]));
-            }
-
-            let mut result = equal_check(&left, &right)?;
+            };
 
             if negate {
                 result = !result;

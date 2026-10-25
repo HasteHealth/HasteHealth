@@ -53,21 +53,6 @@ pub fn naive_time(time: &Time) -> NaiveTime {
     .unwrap_or_default()
 }
 
-/// `Z`, `+hh:mm` or `-hh:mm`, as [`TIME_AND_OFFSET_REGEX`] matched it.
-fn parse_offset(offset: &str) -> Option<FixedOffset> {
-    let seconds = if offset == "Z" {
-        0
-    } else {
-        let part = |range: std::ops::Range<usize>| offset.get(range)?.parse::<i32>().ok();
-        part(1..3)? * 3600 + part(4..6)? * 60
-    };
-    FixedOffset::east_opt(if offset.starts_with('-') {
-        -seconds
-    } else {
-        seconds
-    })
-}
-
 impl PartialDateTime {
     /// `text` as a `DateTime` with a time, a full date before it, or `None`.
     fn parse(text: &str) -> Option<Self> {
@@ -76,9 +61,11 @@ impl PartialDateTime {
         let Date::YearMonthDay(year, month, day) = parse_date(date).ok()? else {
             return None;
         };
-        let offset = match captures.name("offset") {
-            Some(offset) => Some(parse_offset(offset.as_str())?),
+        // chrono's offset parser does not take `Z`; the regex keeps the rest in FHIR's range.
+        let offset = match captures.name("offset").map(|offset| offset.as_str()) {
             None => None,
+            Some("Z") => Some(FixedOffset::east_opt(0)?),
+            Some(offset) => Some(offset.parse::<FixedOffset>().ok()?),
         };
         Some(PartialDateTime {
             date: NaiveDate::from_ymd_opt(i32::from(year), u32::from(month), u32::from(day))?,

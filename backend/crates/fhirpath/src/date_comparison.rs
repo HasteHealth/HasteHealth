@@ -82,7 +82,8 @@ impl Parts {
         }
     }
 
-    fn of(value: &dyn MetaValue) -> Option<Self> {
+    /// `value`'s parts, given its type, one [`is_temporal`] accepts.
+    fn of(value: &dyn MetaValue, fhir_type: &str) -> Option<Self> {
         if let Some(datetime) = value.as_any().downcast_ref::<PartialDateTime>() {
             return Some(Parts::date_time(
                 &datetime.utc()?,
@@ -91,7 +92,7 @@ impl Parts {
             ));
         }
         // A FHIR primitive holds its System value in `value`, read the same way through a Box.
-        let value = match value.fhir_type() {
+        let value = match fhir_type {
             "date" | "dateTime" | "instant" | "time" => value.get_field("value")?,
             _ => value,
         };
@@ -138,10 +139,34 @@ impl Parts {
     }
 }
 
+/// Whether `fhir_type` is a Date, `DateTime`, `instant` or Time type: a check on the name
+/// alone, so other values pay almost nothing for being asked.
+fn is_temporal(fhir_type: &str) -> bool {
+    matches!(
+        fhir_type,
+        "date"
+            | "dateTime"
+            | "instant"
+            | "time"
+            | "http://hl7.org/fhirpath/System.Date"
+            | "http://hl7.org/fhirpath/System.DateTime"
+            | "http://hl7.org/fhirpath/System.Instant"
+            | "http://hl7.org/fhirpath/System.Time"
+    )
+}
+
 /// How `left` compares with `right`, or `None` when they are not both Date or `DateTime`
 /// values, or both Time values.
 pub fn temporal_order(left: &dyn MetaValue, right: &dyn MetaValue) -> Option<TemporalOrder> {
-    let (left, right) = (Parts::of(left)?, Parts::of(right)?);
+    let left_type = left.fhir_type();
+    if !is_temporal(left_type) {
+        return None;
+    }
+    let right_type = right.fhir_type();
+    if !is_temporal(right_type) {
+        return None;
+    }
+    let (left, right) = (Parts::of(left, left_type)?, Parts::of(right, right_type)?);
     if left.kind != right.kind {
         return None;
     }
