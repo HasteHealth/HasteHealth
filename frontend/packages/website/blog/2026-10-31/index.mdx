@@ -1,0 +1,181 @@
+---
+slug: feature-updates/october-2026-feature-updates
+title: October 2026 Feature Updates
+description: October 2026 feature updates - SMART EHR launch and patient-scoped access, the FHIR asynchronous request pattern, a rebuilt request pipeline, FHIR operations as MCP tools, a large batch of FHIRPath and search specification work, ONC (g)(10) TestScripts, and a conformance site that reports every suite.
+authors: [ralph-parkison]
+tags: [hastehealth, feature-update]
+---
+
+October opened with a week of authentication hardening and a new self-service sign-up flow (verification codes, invitations, a bot check), then built SMART App Launch out from standalone to EHR launch: a `$launch` operation, launch context carried on tokens and refresh tokens, and `patient/` scopes bound to one compartment. Mid-month rebuilt the server's request pipeline around typed lanes, exposed every FHIR operation as an MCP tool with a conformance suite behind it, and landed the FHIR asynchronous request pattern. The last ten days were worked largely from the new agent task board: dozens of FHIRPath functions and operators, a dozen FHIR search result parameters and prefixes, `AccessPolicyV3` and `DeidentificationPolicy` definitions, a TestScript suite for the ONC (g)(10) test kit, and a conformance site that reports every suite.
+
+## Backend Changes
+
+### SMART App Launch: EHR launch
+- `ClientApplication/{id}/$launch` starts an EHR launch of an app for a patient and, optionally, one of the patient's encounters. Haste Health plays the EHR: the operation saves the launch context and returns the app's `launchUri` (a new `ClientApplication` element) with `iss` and `launch` added to its query. The launch value expires after five minutes, only a signed-in user can start one, and the same user must then authorize the app.
+- The authorize endpoint accepts `launch` alongside the `launch` scope and resolves it before consent, so nobody is asked to approve an app for a launch that cannot be used, and an `aud` parameter must name the project's FHIR base URL. The token response carries `patient`, `encounter` and `need_patient_banner`, the launch context rides on the refresh token so a refreshed token stays bound to the same patient and encounter, and a user who is a patient may only launch an app for themselves.
+- Follow-ups from the (g)(10) work: `smart_style_url` in launch token responses, backed by a `smart-style.json` endpoint; the OpenID configuration served at the id token issuer (`/w/{tenant}/{project}/.well-known/openid-configuration`) with the SMART configuration's `issuer` matching it; an unparseable scope redirected to the registered `redirect_uri` with `error=invalid_scope` and `state` instead of answered with a 501; and `authorize-post`, `permission-v1`, `context-banner`, `context-standalone-patient` and `context-style` advertised as capabilities.
+- A public client may omit `client_id` when refreshing, since the refresh token names the client it was issued to. The SMART on FHIR and client registration docs were rewritten around the flow.
+- PRs: [#1057](https://github.com/HasteHealth/HasteHealth/pull/1057), [#1059](https://github.com/HasteHealth/HasteHealth/pull/1059), [#1062](https://github.com/HasteHealth/HasteHealth/pull/1062), [#1065](https://github.com/HasteHealth/HasteHealth/pull/1065), [#1066](https://github.com/HasteHealth/HasteHealth/pull/1066), [#1067](https://github.com/HasteHealth/HasteHealth/pull/1067), [#1070](https://github.com/HasteHealth/HasteHealth/pull/1070), [#1068](https://github.com/HasteHealth/HasteHealth/pull/1068), [#1315](https://github.com/HasteHealth/HasteHealth/pull/1315), [#1316](https://github.com/HasteHealth/HasteHealth/pull/1316), [#1317](https://github.com/HasteHealth/HasteHealth/pull/1317), [#1321](https://github.com/HasteHealth/HasteHealth/pull/1321).
+
+### Patient-scoped access
+- SMART v1 `patient/` scopes are issued as read and search only, bound to one Patient compartment. The patient comes from the Membership's link or from the EHR launch; a patient-bound scope with no patient in context is dropped rather than issued unbound, and the response's `scope` tells the client what was issued.
+- A search on a compartment type runs with a filter over the R4 compartment parameters, a read outside the compartment answers exactly as one that does not exist, and writes, history, system-level search, chained and `_has` parameters are refused because none of them can be bounded. Reference data that no `CompartmentDefinition` can place (shared types) stays readable as a whole.
+- TestScript suites under `backend/testscripts/access-control` cover patient, user and system scopes and the SMART launch. A headless login script and an access-control workflow run them in CI, and the CLI gained `login --no-browser` and `admin user set-password` so a pipeline can sign in without a browser.
+- PRs: [#1048](https://github.com/HasteHealth/HasteHealth/pull/1048), [#1049](https://github.com/HasteHealth/HasteHealth/pull/1049), [#1052](https://github.com/HasteHealth/HasteHealth/pull/1052).
+
+### Asynchronous requests
+- Operation invocations accept `Prefer: respond-async`: the server queues a job, answers `202 Accepted` with the job's status URL in `Content-Location`, and runs it in the background with exactly the permissions the request had. Every check the synchronous form makes (authentication, scopes, access policies, rate limits, that the operation exists) happens before the job is accepted.
+- `GET` on the status URL answers `202` with `X-Progress` and `Retry-After` while the job runs, then the response the synchronous request would have had, or the operation's own error. `DELETE` cancels. Results stay available for 24 hours by default, a project may have ten queued or running jobs at once, and the CORS layer exposes the headers a browser client needs.
+- Jobs live in a new `async_jobs` table and run from the worker, which split into `haste-health worker indexing` and `haste-health worker async-jobs` so the two can scale on their own.
+- PRs: [#1115](https://github.com/HasteHealth/HasteHealth/pull/1115), [#1116](https://github.com/HasteHealth/HasteHealth/pull/1116), [#1273](https://github.com/HasteHealth/HasteHealth/pull/1273), [#1274](https://github.com/HasteHealth/HasteHealth/pull/1274), [#1275](https://github.com/HasteHealth/HasteHealth/pull/1275), [#1276](https://github.com/HasteHealth/HasteHealth/pull/1276).
+
+### FHIRPath
+- The evaluator closed most of its gap to the specification. New functions: `all`, `allTrue`, `anyTrue`, `allFalse`, `anyFalse`, `subsetOf`, `supersetOf`, `distinct`, `isDistinct`, `select`, `single`, `last`, `tail`, `skip`, `take`, `union`, `combine`, `intersect`, `exclude`, `iif`, `not`, the math functions, `indexOf`, `substring`, `length`, `toChars`, `replace`, `matches`, `replaceMatches`, `startsWith`, `endsWith`, `contains`, `trace`, `is`, every `toX` and `convertsToX` conversion including dates, times and quantities, `now`, `today`, `timeOfDay`, and `$index` inside iteration functions.
+- New operators: `in`, `contains`, `implies`, `div`, `mod`, unary `+` and `-`, `&`, `~` and `!~`, and ordered comparisons on strings as well as numbers. Date, DateTime, Time and Quantity literals parse, and `+` and `-` work between a date or time value and a time-valued quantity, with month ends clamped. The parser resolves string escapes (so the regexes in R4 invariants reach `matches` intact) and accepts comments.
+- The FHIR-specific functions (`extension`, `hasValue`, `getValue`, `htmlChecks`, `memberOf`, `subsumes`, `subsumedBy`, `conformsTo` and a real `resolve`) arrived behind a `FHIRServices` trait; the server does not wire its terminology service into it yet.
+- `and`, `or` and `xor` follow three-valued logic for empty operands. This changes what `Patient-deceased` indexes for patients without `deceased[x]`, so existing Patient data needs a reindex.
+- Compiled regular expressions are cached by pattern, like the expression ASTs, and the specification's own examples run as tests in the crate.
+- PRs: [#1063](https://github.com/HasteHealth/HasteHealth/pull/1063), [#1159](https://github.com/HasteHealth/HasteHealth/pull/1159), [#1160](https://github.com/HasteHealth/HasteHealth/pull/1160), [#1206](https://github.com/HasteHealth/HasteHealth/pull/1206), [#1208](https://github.com/HasteHealth/HasteHealth/pull/1208), [#1209](https://github.com/HasteHealth/HasteHealth/pull/1209), [#1210](https://github.com/HasteHealth/HasteHealth/pull/1210), [#1211](https://github.com/HasteHealth/HasteHealth/pull/1211), [#1212](https://github.com/HasteHealth/HasteHealth/pull/1212), [#1213](https://github.com/HasteHealth/HasteHealth/pull/1213), [#1214](https://github.com/HasteHealth/HasteHealth/pull/1214), [#1215](https://github.com/HasteHealth/HasteHealth/pull/1215), [#1227](https://github.com/HasteHealth/HasteHealth/pull/1227), [#1255](https://github.com/HasteHealth/HasteHealth/pull/1255), [#1257](https://github.com/HasteHealth/HasteHealth/pull/1257), [#1258](https://github.com/HasteHealth/HasteHealth/pull/1258), [#1277](https://github.com/HasteHealth/HasteHealth/pull/1277), [#1278](https://github.com/HasteHealth/HasteHealth/pull/1278), [#1293](https://github.com/HasteHealth/HasteHealth/pull/1293).
+
+### FHIR search: result parameters and prefixes
+- `_include=*` and `Type:*` expand to every reference parameter of the matched types; a system-level search resolves `_include` and marks every entry's `search.mode`; `_type` filters a system-level search; `_count=0` returns an accurate total with no entries; `_sort` accepts number, quantity and uri parameters; `_summary=data` drops `text`, and matches trimmed by `_elements` or `_summary` carry the `SUBSETTED` tag; `_format` and `_pretty` are accepted on searches; and `_list` restricts a search to a List's items (PostgreSQL only).
+- URI parameters gained `:above` and `:below`. Escaped `\,`, `\|` and `\$` in parameter values are honored by the server and the TypeScript client, and `ne` on a quantity negates the whole match, value and unit, on every backend.
+- Modifier and prefix parsing moved into shared enums used by the PostgreSQL, Elasticsearch and in-memory backends, and the in-memory backend now runs the same clause semantics as the other two.
+- New TestScripts pin `:missing` across parameter types, `eq` on numbers with the specification's precision examples, and every quantity prefix.
+- PRs: [#1074](https://github.com/HasteHealth/HasteHealth/pull/1074), [#1235](https://github.com/HasteHealth/HasteHealth/pull/1235), [#1251](https://github.com/HasteHealth/HasteHealth/pull/1251), [#1252](https://github.com/HasteHealth/HasteHealth/pull/1252), [#1253](https://github.com/HasteHealth/HasteHealth/pull/1253), [#1254](https://github.com/HasteHealth/HasteHealth/pull/1254), [#1259](https://github.com/HasteHealth/HasteHealth/pull/1259), [#1260](https://github.com/HasteHealth/HasteHealth/pull/1260), [#1261](https://github.com/HasteHealth/HasteHealth/pull/1261), [#1262](https://github.com/HasteHealth/HasteHealth/pull/1262), [#1263](https://github.com/HasteHealth/HasteHealth/pull/1263), [#1266](https://github.com/HasteHealth/HasteHealth/pull/1266), [#1267](https://github.com/HasteHealth/HasteHealth/pull/1267), [#1268](https://github.com/HasteHealth/HasteHealth/pull/1268), [#1269](https://github.com/HasteHealth/HasteHealth/pull/1269), [#1271](https://github.com/HasteHealth/HasteHealth/pull/1271), [#1285](https://github.com/HasteHealth/HasteHealth/pull/1285).
+
+### Search totals
+- `_total=estimate` and `_total=accurate` on PostgreSQL count exactly up to a bound (10,000 rows or 100 ms for an estimate, 50,000 rows or 500 ms for accurate) before falling back to the planner's estimate, and the page corrects the result: a short page is exact, a full page is a lower bound, an empty page past the start is an upper bound. A TestScript checks the total on every page shape.
+- PRs: [#1108](https://github.com/HasteHealth/HasteHealth/pull/1108), [#1260](https://github.com/HasteHealth/HasteHealth/pull/1260).
+
+### Operations
+- A `GET` on `/$op`, `/[type]/$op` or `/[type]/[id]/$op` runs the operation when its `affectsState` is false, with the query string typed into `Parameters` from the `OperationDefinition`. A state-changing operation answers 405, and the destructive built-ins (`$delete-refresh-token`, `$delete-scope`, `$launch`, `$tenant-customization`) are now marked `affectsState = true`.
+- The built-in operations' `OperationDefinition` resources are served beside a project's own through an in-memory search backend: a read of a built-in's id returns it, a type search lists it ahead of the project's, and a project definition that would shadow a built-in is refused.
+- Invocation responses come back at the level they were invoked at, so the typed client methods work for instance and type invocations, and `ValueSet/{id}/$expand` and `$validate-code` read the instance they target. `$viewdefinition-run` no longer needs `_since`: it walks the type's history, keeps each resource's current version, leaves deleted ones out, and the Binary it returns carries a `contentType`.
+- PRs: [#1319](https://github.com/HasteHealth/HasteHealth/pull/1319), [#1074](https://github.com/HasteHealth/HasteHealth/pull/1074), [#1107](https://github.com/HasteHealth/HasteHealth/pull/1107).
+
+### Request pipeline
+- The server's FHIR client was rebuilt around one `Pipeline` of `Middleware` layers ending in a `Handler`, generic over a single `Backend` type that names the repository, search engine and terminology, with `Next` borrowing the rest of the chain so a hop costs no allocation. The old generic middleware chain in `fhir-client` was removed.
+- A request is then dispatched to a typed lane (clinical, artifact, OperationDefinition, project auth, tenant auth, operation, capabilities), each a pipeline of its own. An interaction a lane does not serve answers not supported, and every variant is matched so a new one fails to compile unhandled.
+- Writes refuse a body whose `resourceType` differs from the URL and an update whose body id differs from the URL id. The CapabilityStatement is cached per (tenant, project) rather than process-wide, since it lists a project's custom operations, and batch entries run with the audit repository attached.
+- PRs: [#1078](https://github.com/HasteHealth/HasteHealth/pull/1078), [#1079](https://github.com/HasteHealth/HasteHealth/pull/1079), [#1109](https://github.com/HasteHealth/HasteHealth/pull/1109), [#1110](https://github.com/HasteHealth/HasteHealth/pull/1110), [#1089](https://github.com/HasteHealth/HasteHealth/pull/1089), [#1090](https://github.com/HasteHealth/HasteHealth/pull/1090).
+
+### Sign-up, invitations and roles
+- Self-service sign-up and login run through a verification-code flow with an optional Cloudflare Turnstile check and rate limiting. A `log` email backend writes the codes to the server log for local development, and `signup.enabled = false` turns self-service tenant creation off on a deployment that creates tenants with the CLI.
+- A user a tenant creates for someone else is an invitation: the person proves they own the address and accepts or declines, and `emailVerified`, which clients cannot set, is required to log in.
+- Writes to `User` enforce a role hierarchy: owners may modify any user, admins may modify admins and members, and a conditional update or delete needs an owner, so an admin cannot mint, demote or delete an owner. Tenant and project ids are lowercase letters and digits joined by single hyphens, at least three characters, so `{tenant}--{project}` is a valid subdomain label that splits back apart.
+- PRs: [#1021](https://github.com/HasteHealth/HasteHealth/pull/1021), [#1044](https://github.com/HasteHealth/HasteHealth/pull/1044), [#1038](https://github.com/HasteHealth/HasteHealth/pull/1038), [#1036](https://github.com/HasteHealth/HasteHealth/pull/1036), [#1081](https://github.com/HasteHealth/HasteHealth/pull/1081), [#1039](https://github.com/HasteHealth/HasteHealth/pull/1039).
+
+### Authentication hardening
+- OIDC: only the `code` response type is advertised or accepted; a code issued to a PKCE request can only be redeemed with its verifier, and `S256` is computed as RFC 7636 writes it; a confidential grant is refused for a client with no stored secret; registered redirect URIs are regex-escaped before matching; an error raised before the redirect URI is validated is answered directly rather than redirected; the session id rotates on login, TOTP verification and the federated callback; a password change revokes the user's refresh tokens; and OAuth errors use the `error` and `error_description` names from RFC 6749.
+- Federated login verifies that the provider's id token is signed with an asymmetric algorithm by a key in its JWKS and names the configured client id in `aud`. Haste Health's own id token took the same shape: `aud` is the client, `iss` is the project's issuer URL, and it carries `email`, `fhirUser`, tenant, project and role claims.
+- Timing: auth string comparisons are constant time, and login and password reset take the same time whether or not the account exists. HTML pages are sent uncompressed so a CSRF token cannot be read off response sizes, the MFA create route checks CSRF, and the TOTP redirect stays local.
+- Smaller changes: Basic auth's cached tokens live five minutes; `$evaluate-policy` lets only owners and admins evaluate as another user; login, expired and security issue types map to 401 and 403 instead of 500; PostgreSQL error detail stays in the log rather than the OperationOutcome; scope approval reads the client application's stored id and scope; and tenant logo uploads have a size limit.
+- PRs: [#1024](https://github.com/HasteHealth/HasteHealth/pull/1024), [#1026](https://github.com/HasteHealth/HasteHealth/pull/1026), [#1027](https://github.com/HasteHealth/HasteHealth/pull/1027), [#1030](https://github.com/HasteHealth/HasteHealth/pull/1030), [#1041](https://github.com/HasteHealth/HasteHealth/pull/1041), [#1042](https://github.com/HasteHealth/HasteHealth/pull/1042), [#1043](https://github.com/HasteHealth/HasteHealth/pull/1043), [#1045](https://github.com/HasteHealth/HasteHealth/pull/1045), [#1047](https://github.com/HasteHealth/HasteHealth/pull/1047), [#1053](https://github.com/HasteHealth/HasteHealth/pull/1053), [#1054](https://github.com/HasteHealth/HasteHealth/pull/1054), [#1055](https://github.com/HasteHealth/HasteHealth/pull/1055), [#1056](https://github.com/HasteHealth/HasteHealth/pull/1056), [#1064](https://github.com/HasteHealth/HasteHealth/pull/1064), [#1082](https://github.com/HasteHealth/HasteHealth/pull/1082), [#1083](https://github.com/HasteHealth/HasteHealth/pull/1083), [#1084](https://github.com/HasteHealth/HasteHealth/pull/1084), [#1085](https://github.com/HasteHealth/HasteHealth/pull/1085), [#1086](https://github.com/HasteHealth/HasteHealth/pull/1086), [#1087](https://github.com/HasteHealth/HasteHealth/pull/1087), [#1088](https://github.com/HasteHealth/HasteHealth/pull/1088), [#1091](https://github.com/HasteHealth/HasteHealth/pull/1091), [#1093](https://github.com/HasteHealth/HasteHealth/pull/1093), [#1094](https://github.com/HasteHealth/HasteHealth/pull/1094).
+
+### New resource definitions
+- `AccessPolicyV3` and `AccessPolicyV3Assignment` landed as StructureDefinitions, value sets and search parameters, with a validation lane that checks rule shapes: a constraint rule needs data and no condition, a decision rule carries no data, and `field` and `obligation` appear only on permit rules. Evaluation stays with the V2 engine for now.
+- `DeidentificationPolicy` describes how `$deidentify` will treat elements. Each rule targets a `path`, `type` or `extension`, checked against the StructureDefinitions; the parameters for each action are validated; and a `merge` lets a policy build on a parent, with the child's rules overriding by target.
+- PRs: [#1283](https://github.com/HasteHealth/HasteHealth/pull/1283), [#1284](https://github.com/HasteHealth/HasteHealth/pull/1284).
+
+### Resource author
+- The author extension on `meta` is a canonical (`https://haste.health/fhir/Membership/<id>`) rather than a Reference, since an author can be a Haste Health type that other FHIR systems reject as a reference target. The server overwrites any author a client sends, and `_haste-health-author` finds a resource by it.
+- PRs: [#1072](https://github.com/HasteHealth/HasteHealth/pull/1072).
+
+### HL7v2 parser
+- A malformed message is rejected as `invalid` (HTTP 400) instead of indexing past the end of its bytes, `MSH-2` is kept as one value rather than split on the encoding characters it defines, and the empty-value marker is set only on fields that are empty.
+- PRs: [#1040](https://github.com/HasteHealth/HasteHealth/pull/1040), [#1112](https://github.com/HasteHealth/HasteHealth/pull/1112), [#1113](https://github.com/HasteHealth/HasteHealth/pull/1113).
+
+### Document storage
+- A new `document-storage` crate defines a `DocumentStorage` trait for document bodies (Binary content, attachments, exports) with a Google Cloud Storage provider behind a feature flag. Nothing in the server uses it yet.
+- PRs: [#1077](https://github.com/HasteHealth/HasteHealth/pull/1077).
+
+## Product and UX
+
+### MCP: operations as tools
+- Every invocable operation is an MCP tool named `fhir_op_<code>`, discovered from `OperationDefinition` resources, so a project's own Deno-backed operations show up in `tools/list` with a typed schema and no registration. Tools carry annotations (read-only, destructive, idempotent) and human titles, and the FHIR version comes from the token.
+- The server sends `instructions` on initialize: the order to work in, FHIR search syntax, and when to confirm with the user. Search parameter descriptions include each type's value syntax, an example and the modifiers it accepts, and a mistyped resource type gets the closest supported one as a suggestion.
+- A tool that runs and fails returns a result with `isError` and every OperationOutcome issue on its own line with its element path, so a model can correct the call. Unknown tools and server faults stay JSON-RPC protocol errors, authentication and rate-limit failures stay HTTP statuses, and Bundle schemas no longer require `entry`.
+- A specification-based conformance suite in `frontend/packages/mcp-conformance` runs the protocol and every listed tool against a live server in CI, with the known gaps in a continue-on-error step.
+- PRs: [#996](https://github.com/HasteHealth/HasteHealth/pull/996), [#1096](https://github.com/HasteHealth/HasteHealth/pull/1096), [#1097](https://github.com/HasteHealth/HasteHealth/pull/1097), [#1098](https://github.com/HasteHealth/HasteHealth/pull/1098), [#1099](https://github.com/HasteHealth/HasteHealth/pull/1099), [#1100](https://github.com/HasteHealth/HasteHealth/pull/1100), [#1101](https://github.com/HasteHealth/HasteHealth/pull/1101), [#1102](https://github.com/HasteHealth/HasteHealth/pull/1102), [#1103](https://github.com/HasteHealth/HasteHealth/pull/1103), [#1104](https://github.com/HasteHealth/HasteHealth/pull/1104), [#1105](https://github.com/HasteHealth/HasteHealth/pull/1105), [#1106](https://github.com/HasteHealth/HasteHealth/pull/1106), [#1111](https://github.com/HasteHealth/HasteHealth/pull/1111), [#1114](https://github.com/HasteHealth/HasteHealth/pull/1114).
+
+### Admin console
+- Operation invocation panels in the components package build an input form from an `OperationDefinition`'s parameters at the system, type or instance level, run it, and show the output parameters. The console and the resource editor both use them.
+- A launch button on Patient and Encounter views starts a SMART EHR launch of any `ClientApplication` with a `launchUri`, opening the app in a new tab signed in as the console user. The ViewDefinition view's state handling was fixed, and console routes refuse resource types and ids that are not valid before joining them into a URL.
+- The admin app is deployed to Cloudflare Workers by a hand-started release workflow.
+- PRs: [#1058](https://github.com/HasteHealth/HasteHealth/pull/1058), [#1069](https://github.com/HasteHealth/HasteHealth/pull/1069), [#1076](https://github.com/HasteHealth/HasteHealth/pull/1076), [#1095](https://github.com/HasteHealth/HasteHealth/pull/1095), [#1080](https://github.com/HasteHealth/HasteHealth/pull/1080).
+
+### Website
+- The homepage was restyled and then laid out as a product grid: nine feature tiles, an agent session walkthrough, a conformance grid, and a facts plugin that pulls resource-type, search-parameter, check and MCP-tool counts from the generated reports at build time. The contact and pricing pages followed the new system, and the social card is generated by a script.
+- Conformance moved from one core page to a page per suite (FHIR R4 core, US Core, ONC (g)(10), SMART access control) plus an overview. A `test-suites` generate step turns each suite's TestReports into static JSON, and the homepage's automated-checks figure is the total across suites.
+- PRs: [#1019](https://github.com/HasteHealth/HasteHealth/pull/1019), [#1037](https://github.com/HasteHealth/HasteHealth/pull/1037), [#1117](https://github.com/HasteHealth/HasteHealth/pull/1117), [#1295](https://github.com/HasteHealth/HasteHealth/pull/1295).
+
+### TypeScript client
+- The HTTP client refuses a request whose URL resolves outside the FHIR base, so a resource type or id taken from a browser route cannot send the bearer token to another origin or path. Query parsing honors escaped separators.
+- PRs: [#1095](https://github.com/HasteHealth/HasteHealth/pull/1095), [#1263](https://github.com/HasteHealth/HasteHealth/pull/1263).
+
+## Platform and Runtime
+
+### Indexing watermark and sequence index
+- `max_safe_seq` makes one pass over `pg_locks` grouped by pid instead of a self-join that rescanned the lock table once per registrant: 20 to 170 ms per call became 0.8 ms under the same load. The registration marker lock now blocks instead of silently dropping a writer out of the watermark, and the indexing loop's idle sleep is configurable (`poll_interval_ms`).
+- The resources sequence index leads with (tenant, project, sequence). A poll for a caught-up project whose sibling in the same tenant was a million rows ahead read about 805k buffers for zero rows; it now reads six.
+- PRs: [#1018](https://github.com/HasteHealth/HasteHealth/pull/1018), [#1023](https://github.com/HasteHealth/HasteHealth/pull/1023).
+
+### Search backend fixes
+- `_count` and `_offset` are capped at what the backends accept, and wildcard characters in string searches are escaped on both Elasticsearch and PostgreSQL (the PostgreSQL fix came from an outside contributor, below), with a TestScript pinning the behaviour.
+- PRs: [#1025](https://github.com/HasteHealth/HasteHealth/pull/1025), [#1046](https://github.com/HasteHealth/HasteHealth/pull/1046), [#1264](https://github.com/HasteHealth/HasteHealth/pull/1264).
+
+### Validation performance
+- Profile validation looks up each slice's discriminator definition once, on first use, and reuses it for the other values instead of walking the StructureDefinition per value. A benchmark and slicing tests came with it.
+- PRs: [#1288](https://github.com/HasteHealth/HasteHealth/pull/1288).
+
+### Custom operation runtime
+- The Deno pool worker enters its tokio runtime for the whole loop, so warm isolates built between jobs no longer abort the process when V8 posts a delayed task.
+- PRs: [#1092](https://github.com/HasteHealth/HasteHealth/pull/1092).
+
+### Testing
+- Property tests (`proptest`) cover the pure parsing and range code in six crates, with FHIR primitive generators behind a `testing` feature. They found and fixed four bugs: short years were not padded, impossible days such as `2023-02-30` now carry into the next month instead of failing, number range bounds lost their rounding tolerance above about seven significant digits, and a search number written with an exponent (`1e2`) got the implicit range of a plain integer.
+- The TestScript runner gained HTTP-level assertions (`responseCode`, `headerField`, `contentType`), plain HTTP requests for URLs that are not FHIR interactions, and a poll-while extension that repeats a request while its status matches and honors `Retry-After`. An async-requests TestScript uses all three.
+- `backend/testscripts/g10` holds 441 TestScripts for the checks of the ONC (g)(10) Standardized API test kit that a TestScript can express: SMART standalone, limited and EHR launch, the US Core 7 Single Patient API, Bulk Data, and v1 and fine-grained scopes. A `known-failures.txt` lists what does not pass yet, and a dedicated workflow runs the suite on the PostgreSQL backend.
+- The e2e workflows share one build of the server across every suite, so no suite runs a binary built with different compiler settings.
+- PRs: [#1118](https://github.com/HasteHealth/HasteHealth/pull/1118), [#1282](https://github.com/HasteHealth/HasteHealth/pull/1282), [#1294](https://github.com/HasteHealth/HasteHealth/pull/1294), [#1289](https://github.com/HasteHealth/HasteHealth/pull/1289).
+
+## Artifacts, Tooling, and Maintenance
+
+### Releases and distribution
+- Every release sets one version across the Cargo workspace and the pnpm packages, and the login pages show it as a watermark. Linux binaries are static musl builds for x86_64 and arm64, with OpenSSL gone from the dependency tree, alongside Apple Silicon.
+- The CLI is on npm as `haste-health`: a wrapper package picks the binary for the platform. The README and CLI docs cover the install.
+- PRs: [#1031](https://github.com/HasteHealth/HasteHealth/pull/1031), [#1032](https://github.com/HasteHealth/HasteHealth/pull/1032), [#1033](https://github.com/HasteHealth/HasteHealth/pull/1033), [#1034](https://github.com/HasteHealth/HasteHealth/pull/1034), [#1035](https://github.com/HasteHealth/HasteHealth/pull/1035).
+
+### Agent task board
+- `AGENTS.md`, imported by `CLAUDE.md`, carries the protocol for coding agents working the issue board: only `ready-for-agent` issues are eligible, one PR per issue against `main`, proposals are filed as `agent-proposed`, and anything security-sensitive goes to the private repository. New issue templates require machine-checkable acceptance criteria, and labeling an issue `ready-for-agent` fires a workflow that dispatches it. Most of the FHIRPath and search PRs above came through it.
+
+### Dependency audits
+- An audit autofix workflow opens a PR when the cargo, frontend or Docker image audit fails on `main`, and leaves that audit alone until the PR is merged or closed; seven such PRs merged this month (quinn-proto, rustls, ctutils, handlebars, storybook, body-parser, multer and undici). The cargo audit scans the lockfile and its ignores moved to `.cargo/audit.toml`, and `crypto-bigint` is ignored until jsonwebtoken moves to elliptic-curve 0.14.
+- PRs: [#1060](https://github.com/HasteHealth/HasteHealth/pull/1060), [#1061](https://github.com/HasteHealth/HasteHealth/pull/1061), [#1071](https://github.com/HasteHealth/HasteHealth/pull/1071), [#1073](https://github.com/HasteHealth/HasteHealth/pull/1073), [#1075](https://github.com/HasteHealth/HasteHealth/pull/1075), [#1265](https://github.com/HasteHealth/HasteHealth/pull/1265), [#1270](https://github.com/HasteHealth/HasteHealth/pull/1270), [#1280](https://github.com/HasteHealth/HasteHealth/pull/1280), [#1029](https://github.com/HasteHealth/HasteHealth/pull/1029), [#1162](https://github.com/HasteHealth/HasteHealth/pull/1162), [#1290](https://github.com/HasteHealth/HasteHealth/pull/1290).
+
+### Dependency upgrades
+- sqlx moved to a git pin of upstream `main` for a dangling-transaction fix. The unused `wal-worker` crate was removed, and backend and frontend dependencies were brought current across several Dependabot rounds.
+- PRs: [#1015](https://github.com/HasteHealth/HasteHealth/pull/1015), [#1016](https://github.com/HasteHealth/HasteHealth/pull/1016), [#1020](https://github.com/HasteHealth/HasteHealth/pull/1020), [#1050](https://github.com/HasteHealth/HasteHealth/pull/1050), [#1051](https://github.com/HasteHealth/HasteHealth/pull/1051), [#1204](https://github.com/HasteHealth/HasteHealth/pull/1204), [#1291](https://github.com/HasteHealth/HasteHealth/pull/1291).
+
+### CI hygiene
+- GitHub Actions are pinned to commit SHAs, the Rust toolchain is pinned for clippy so a new release cannot fail PRs, and two rounds of Sonar fixes went in across the frontend packages and the server.
+- PRs: [#1028](https://github.com/HasteHealth/HasteHealth/pull/1028), [#1017](https://github.com/HasteHealth/HasteHealth/pull/1017), [#1022](https://github.com/HasteHealth/HasteHealth/pull/1022).
+
+### Docs
+- The SMART on FHIR, client registration, federated login and refresh grant pages were rewritten for the launch work, asynchronous requests and the `[signup]` configuration got pages of their own, and the OAuth error and MCP endpoint docs were corrected.
+- PRs: [#1068](https://github.com/HasteHealth/HasteHealth/pull/1068), [#1064](https://github.com/HasteHealth/HasteHealth/pull/1064), [#1081](https://github.com/HasteHealth/HasteHealth/pull/1081), [#1276](https://github.com/HasteHealth/HasteHealth/pull/1276), [#1035](https://github.com/HasteHealth/HasteHealth/pull/1035).
+
+## Standalone Commits (No PR Link)
+
+- Agent task board: `AGENTS.md` and the `CLAUDE.md` import, the issue templates, and the `ready-for-agent` pickup workflow.
+- CI: workflows renamed into `test_*`, `release_*` and `audit_*` groups, Postgres pulled from `mirror.gcr.io`, and audit autofix adjustments.
+- Tests: a TestScript for `LIKE` wildcards in string searches, plus clippy and borrow fixes in the search crates and the HL7v2 parser.
+- CLI: the `fhirpath` and `api` commands read a multi-line resource from stdin.
+- npm: publish config for the `haste-health` package, and the TypeScript CLI made private.
+- Small backend follow-ups: the server client's remaining unimplemented typed methods filled in, and a formatting pass.
+- Version bumps: automated since [#1031](https://github.com/HasteHealth/HasteHealth/pull/1031), from [`841f36ef4`](https://github.com/HasteHealth/HasteHealth/commit/841f36ef4) (0.126.3) to [`6193673d7`](https://github.com/HasteHealth/HasteHealth/commit/6193673d7) (0.126.38).
+
+## Contributors
+
+Thanks to [masyarakatai](https://github.com/masyarakatai) for escaping `%`, `_` and backslash in PostgreSQL string searches ([#1264](https://github.com/HasteHealth/HasteHealth/pull/1264)): the generated `LIKE` predicates now carry an explicit `ESCAPE` clause, exact-match values are left as they are, and unit tests cover both.
