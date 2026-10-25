@@ -41,7 +41,17 @@ where
             .bind(window_in_seconds)
             .fetch_one(executor)
             .await
-            .map_err(|e| RateLimitError::Error(e.to_string()))?;
+            .map_err(|e| match &e {
+                // `check_rate_limit` raises once the points pass the maximum.
+                // That is the limit doing its job, not a failure to check it,
+                // so surface it as `Exceeded` rather than a generic error.
+                sqlx::Error::Database(db_error)
+                    if db_error.message().starts_with("Rate limit exceeded") =>
+                {
+                    RateLimitError::Exceeded
+                }
+                _ => RateLimitError::Error(e.to_string()),
+            })?;
 
     Ok(result.0)
 }
@@ -168,6 +178,25 @@ impl RateLimit for PGConnection {
             let res =
                 check_rate_limit(connection, rate_key, max, points, window_in_seconds).await?;
             Ok(res)
+        })
+    }
+
+    /// Goes straight to Postgres, skipping [`MEMORY`]. `check_rate_limit` takes
+    /// a per-key advisory transaction lock, so concurrent callers are counted
+    /// one at a time with no lost increments. The in-memory cache is what makes
+    /// [`RateLimit::check`] fast but imprecise under a burst; this trades that
+    /// for an exact count on every call.
+    fn check_uncached<'a>(
+        &'a self,
+        rate_key: &'a str,
+        max: i32,
+        points: i32,
+        window_in_seconds: i32,
+    ) -> Pin<Box<dyn Future<Output = Result<i32, haste_rate_limit::RateLimitError>> + Send + 'a>>
+    {
+        let connection = self.clone();
+        Box::pin(async move {
+            check_rate_limit_remote(connection, rate_key, max, points, window_in_seconds).await
         })
     }
 }
