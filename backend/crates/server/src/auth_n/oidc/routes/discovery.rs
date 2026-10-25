@@ -511,7 +511,13 @@ pub fn create_smart_configuration(
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let smart_document = SmartConfigurationDocument {
-        issuer: Some(api_url.to_string()),
+        issuer: Some(
+            issuer_url(api_url_string, tenant, project)
+                .map_err(|e| {
+                    OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None)
+                })?
+                .to_string(),
+        ),
         authorization_endpoint: Some(
             api_url
                 .join(authorize_path.to_str().unwrap_or_default())
