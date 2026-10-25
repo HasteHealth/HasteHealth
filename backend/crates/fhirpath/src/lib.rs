@@ -15,8 +15,8 @@ use haste_fhir_model::r4::{
         downcast_datetime, downcast_number, downcast_string,
     },
     datetime::{
-        DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_datetime, parse_partial_time,
-        parse_time,
+        DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_datetime, parse_partial_datetime,
+        parse_partial_time, parse_time,
     },
     generated::{
         resources::ResourceType,
@@ -37,6 +37,7 @@ use std::{
 
 mod allocators;
 mod date_arithmetic;
+mod date_comparison;
 mod fhir_functions;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
 
@@ -46,6 +47,7 @@ mod proptests;
 mod spec_tests;
 use allocators::AllocatorTrait;
 use date_arithmetic::{Shifted, Temporal};
+use date_comparison::{TemporalOrder, temporal_order};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -115,10 +117,12 @@ fn evaluate_literal<'b>(
         Literal::DateTime(datetime) => temporal_literal(
             literal,
             context,
-            parse_datetime_literal(datetime).map(|value| FHIRDateTime {
-                value: Some(value),
-                ..Default::default()
-            }),
+            parse_partial_datetime(datetime)
+                .ok()
+                .map(|value| FHIRDateTime {
+                    value: Some(value),
+                    ..Default::default()
+                }),
         ),
         Literal::Time(time) => temporal_literal(
             literal,
@@ -140,20 +144,6 @@ fn temporal_literal<'b, T: MetaValue + 'static>(
     value
         .map(|value| context.new_context_from(vec![context.allocate_literal(value)]))
         .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
-}
-
-/// A `DateTime` literal, whose time part may be cut short (`@2020-01-01T`) or lack
-/// a timezone, which is read as UTC.
-fn parse_datetime_literal(literal: &str) -> Option<DateTime> {
-    let literal = literal.strip_suffix('T').unwrap_or(literal);
-    let zoned = literal
-        .split_once('T')
-        .is_none_or(|(_, time)| time.ends_with('Z') || time.contains(['+', '-']));
-    if zoned {
-        parse_datetime(literal).ok()
-    } else {
-        parse_datetime(&format!("{literal}Z")).ok()
-    }
 }
 
 async fn evaluate_invocation<'a>(
@@ -1929,6 +1919,11 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
         return Ok(true);
     }
 
+    // Dates and times that cannot be compared count as unequal here; `=` itself gives empty.
+    if let Some(order) = temporal_order(left, right) {
+        return Ok(order == TemporalOrder::Ordered(Ordering::Equal));
+    }
+
     if NUMBER_TYPES.contains(left.fhir_type()) && NUMBER_TYPES.contains(right.fhir_type()) {
         let left_value = downcast_number(left)?;
         let right_value = downcast_number(right)?;
@@ -2127,7 +2122,12 @@ async fn evaluate_ordered_comparison<'a>(
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
             let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
+            let ordering = if let Some(order) = temporal_order(l, r) {
+                match order {
+                    TemporalOrder::Ordered(ordering) => Some(ordering),
+                    TemporalOrder::Unknown => None,
+                }
+            } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
                 l.partial_cmp(&r)
             } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
                 Some(l.cmp(&r))
@@ -2300,6 +2300,11 @@ async fn evaluate_equality<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
+            // Dates and times of different precisions cannot be compared: the result is empty.
+            if temporal_order(left.values[0], right.values[0]) == Some(TemporalOrder::Unknown) {
+                return Ok(left.new_context_from(vec![]));
+            }
+
             let mut result = equal_check(&left, &right)?;
 
             if negate {

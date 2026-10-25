@@ -149,6 +149,34 @@ fn shift_datetime(datetime: &DateTime, duration: Duration) -> Option<DateTime> {
             };
             return shifted.map(DateTime::Iso8601);
         }
+        DateTime::Partial(date, time, offset) => {
+            let local = date.and_time(time.to_naive());
+            let shifted = match duration {
+                Duration::Months(months) => {
+                    let count = Months::new(u32::try_from(months.unsigned_abs()).ok()?);
+                    if months >= 0 {
+                        local.checked_add_months(count)
+                    } else {
+                        local.checked_sub_months(count)
+                    }
+                }
+                Duration::Days(days) => local.checked_add_signed(TimeDelta::try_days(days)?),
+                Duration::Millis(millis) => {
+                    local.checked_add_signed(TimeDelta::try_milliseconds(millis)?)
+                }
+            }?;
+            // A year outside 1 to 9999 is empty, as for the other precisions.
+            year(i64::from(chrono::Datelike::year(&shifted)))?;
+            let time = match time {
+                Time::Hour(_) => Time::Hour(u8::try_from(shifted.hour()).ok()?),
+                Time::HourMinute(..) => Time::HourMinute(
+                    u8::try_from(shifted.hour()).ok()?,
+                    u8::try_from(shifted.minute()).ok()?,
+                ),
+                Time::HourMinuteSecond(_) => Time::HourMinuteSecond(shifted.time()),
+            };
+            return Some(DateTime::Partial(shifted.date(), time, *offset));
+        }
     };
     Some(match shift_date(&partial, duration)? {
         Date::Year(y) => DateTime::Year(y),
