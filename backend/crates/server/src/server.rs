@@ -332,6 +332,11 @@ pub async fn server(
     let tenant_router = Router::new()
         .route("/branding/logo", get(auth_n::tenant::routes::logo))
         .nest("/auth", auth_n::tenant::routes::create_router())
+        // OpenID Connect Discovery 1.0 §4: the document lives at `[iss]/.well-known/openid-configuration`.
+        .route(
+            "/{project}/.well-known/openid-configuration",
+            get(auth_n::oidc::routes::discovery::openid_configuration),
+        )
         .nest("/{project}/api/v1", project_router)
         .nest(
             "/mfa",
