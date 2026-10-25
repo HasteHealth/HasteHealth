@@ -565,6 +565,7 @@ pub fn create_smart_configuration(
             "launch-ehr".to_string(),
             "context-ehr-patient".to_string(),
             "context-ehr-encounter".to_string(),
+            "context-style".to_string(),
             "permission-offline".to_string(),
             "permission-patient".to_string(),
             "permission-user".to_string(),

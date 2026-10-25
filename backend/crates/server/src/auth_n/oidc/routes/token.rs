@@ -6,13 +6,13 @@ use crate::{
             code_verification,
             error::{OIDCError, OIDCErrorCode},
             extract::{body::OAuthTokenBody, client_app::find_client_app},
-            routes::scope::verify_requested_scope_is_subset,
+            routes::{scope::verify_requested_scope_is_subset, style},
             schemas,
         },
     },
     config::ServerConfig,
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    route_path::{api_fhir_root_url, issuer_url},
+    route_path::{api_fhir_root_url, api_v1_oidc_path, issuer_url},
     services::ServerState,
 };
 use axum::{
@@ -60,6 +60,7 @@ use jsonwebtoken::{Algorithm, Header};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{sync::Arc, time::Duration};
+use url::Url;
 
 #[derive(TypedPath)]
 #[typed_path("/token")]
@@ -96,6 +97,9 @@ pub struct TokenResponse {
     /// banner around it, so this is true for every EHR launch.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     need_patient_banner: Option<bool>,
+    /// SMART launch context: where the app fetches the EHR's style parameters.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    smart_style_url: Option<String>,
 }
 
 struct TokenResponseArguments {
@@ -457,6 +461,21 @@ async fn create_token_response<Repo: Repository>(
         None
     };
 
+    let smart_style_url = if launch_granted {
+        let style_path = api_v1_oidc_path(&args.tenant, &args.project).join(
+            style::SmartStylePath
+                .to_string()
+                .strip_prefix('/')
+                .unwrap_or_default(),
+        );
+        let api_url = Url::parse(&config.api_uri)
+            .and_then(|u| u.join(style_path.to_str().unwrap_or_default()))
+            .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?;
+        Some(api_url.to_string())
+    } else {
+        None
+    };
+
     let mut response = TokenResponse {
         access_token,
         id_token,
@@ -472,6 +491,7 @@ async fn create_token_response<Repo: Repository>(
             .filter(|_| launch_granted || args.scopes.0.iter().any(is_patient_bound_scope)),
         encounter: args.encounter.clone().filter(|_| launch_granted),
         need_patient_banner: launch_granted.then_some(true),
+        smart_style_url,
     };
 
     // If offline means refresh token should be generated.
