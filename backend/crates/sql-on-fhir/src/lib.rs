@@ -194,19 +194,10 @@ fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
         .and_then(|limit| usize::try_from(limit).ok())
 }
 
-async fn get_resources_to_process<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
+/// The resource type a view runs over (`ViewDefinition.resource`).
+fn view_resource_type(
     view_definition: &ViewDefinition,
-    input: &ViewDefinitionRun::Input,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    if let Some(input_resources) = input.resource.clone() {
-        return Ok(input_resources);
-    }
-
+) -> Result<ResourceType, OperationOutcomeError> {
     let Some(resource_type) = view_definition.resource.as_str() else {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
@@ -214,9 +205,23 @@ async fn get_resources_to_process<
         ));
     };
 
-    let resource_type = ResourceType::try_from(resource_type).map_err(|e| {
+    ResourceType::try_from(resource_type).map_err(|e| {
         OperationOutcomeError::error(IssueType::invalid(), format!("Invalid resource type: {e}"))
-    })?;
+    })
+}
+
+async fn get_resources_to_process<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    resource_type: &ResourceType,
+    input: &ViewDefinitionRun::Input,
+) -> Result<Vec<Resource>, OperationOutcomeError> {
+    if let Some(input_resources) = input.resource.clone() {
+        return Ok(input_resources);
+    }
 
     let since_instant = input.since.as_ref().and_then(|since| since.value.clone());
 
@@ -228,7 +233,7 @@ async fn get_resources_to_process<
         return compartment::resources_for_patients(
             context,
             client,
-            resource_type,
+            resource_type.clone(),
             &patient_references,
             last_updated_filter.as_deref(),
         )
@@ -590,24 +595,27 @@ async fn process_select_context<'a>(
     Ok(output_result)
 }
 
-fn flatten_results(resource: Vec<Resource>) -> Vec<Resource> {
-    let mut resources = Vec::new();
-    for resource in resource {
-        match resource {
-            Resource::Bundle(bundle) => {
-                for entry in bundle.entry.into_iter().flatten() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-            }
-            _ => {
-                resources.push(resource);
-            }
+/// The resources a view runs over: those of its resource type. A Bundle of another type stands
+/// for its entries, so its entries of that type are kept. Resources sent with the request can be
+/// of any type, and a view gives rows only for its own.
+fn resources_of_type(resources: Vec<Resource>, resource_type: &ResourceType) -> Vec<Resource> {
+    let mut matching = Vec::new();
+    for resource in resources {
+        if &resource.resource_type() == resource_type {
+            matching.push(resource);
+        } else if let Resource::Bundle(bundle) = resource {
+            matching.extend(
+                bundle
+                    .entry
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|entry| entry.resource.map(|resource| *resource))
+                    .filter(|resource| &resource.resource_type() == resource_type),
+            );
         }
     }
 
-    resources
+    matching
 }
 
 async fn passes_where_clauses(
@@ -675,8 +683,10 @@ async fn process_view_definition<
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     let limit = requested_limit(input);
 
-    let input_ = flatten_results(
-        get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
+    let resource_type = view_resource_type(view_definition)?;
+    let input_ = resources_of_type(
+        get_resources_to_process(context.clone(), client.as_ref(), &resource_type, input).await?,
+        &resource_type,
     );
 
     let mut tasks = FuturesOrdered::new();
