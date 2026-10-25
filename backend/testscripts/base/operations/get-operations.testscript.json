@@ -1,0 +1,598 @@
+{
+    "id": "get-operations-test",
+    "url": "https://haste.health/fhir/TestScript/get-operations",
+    "name": "GET Operations Test",
+    "title": "GET operation invocation",
+    "status": "active",
+    "description": "Tests invoking operations with GET: allowed when affectsState is not true and every input is primitive, with the query string as the parameters.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "get-ops-patient",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "GetOps",
+                    "given": [
+                        "Gale"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "get-ops-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/get-ops-patient"
+            }
+        },
+        {
+            "id": "get-ops-nested",
+            "resourceType": "OperationDefinition",
+            "name": "get-ops-nested",
+            "status": "draft",
+            "kind": "operation",
+            "code": "get-ops-nested",
+            "affectsState": false,
+            "system": true,
+            "type": false,
+            "instance": false,
+            "extension": [
+                {
+                    "url": "https://haste.health/Extension/custom-code",
+                    "valueString": "export default async function ({ request }) {\n  const code = request.parameters.parameter.find((p) => p.name === 'code').valueCode;\n  const output = await fhir.invokeType('ValueSet', 'validate-code', {\n    resourceType: 'Parameters',\n    parameter: [\n      { name: 'url', valueUri: 'http://hl7.org/fhir/ValueSet/administrative-gender' },\n      { name: 'system', valueUri: 'http://hl7.org/fhir/administrative-gender' },\n      { name: 'code', valueCode: code },\n    ],\n  });\n  const result = output.parameter.find((p) => p.name === 'result').valueBoolean;\n  return { resourceType: 'Parameters', parameter: [{ name: 'result', valueBoolean: result }] };\n}\n",
+                    "extension": [
+                        {
+                            "url": "https://haste.health/Extension/custom-code-type",
+                            "valueString": "text/typescript"
+                        }
+                    ]
+                }
+            ],
+            "parameter": [
+                {
+                    "name": "code",
+                    "use": "in",
+                    "min": 1,
+                    "max": "1",
+                    "type": "code"
+                },
+                {
+                    "name": "result",
+                    "use": "out",
+                    "min": 1,
+                    "max": "1",
+                    "type": "boolean"
+                }
+            ]
+        },
+        {
+            "id": "get-ops-batch",
+            "resourceType": "Bundle",
+            "type": "batch",
+            "entry": [
+                {
+                    "request": {
+                        "method": "GET",
+                        "url": "ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender"
+                    }
+                },
+                {
+                    "request": {
+                        "method": "GET",
+                        "url": "ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&system=http://hl7.org/fhir/administrative-gender&code=male"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-ops-transaction",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "request": {
+                        "method": "GET",
+                        "url": "ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&system=http://hl7.org/fhir/administrative-gender&code=male"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#get-ops-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation",
+            "resource": {
+                "reference": "#get-ops-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-nested-operation",
+            "resource": {
+                "reference": "#get-ops-nested"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-batch",
+            "resource": {
+                "reference": "#get-ops-batch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-transaction",
+            "resource": {
+                "reference": "#get-ops-transaction"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "The patient under test, at a client-supplied id.",
+                    "targetId": "fixture-patient",
+                    "sourceId": "fixture-patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "An Observation in the patient's compartment.",
+                    "targetId": "fixture-observation",
+                    "sourceId": "fixture-observation",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "A custom operation that invokes $validate-code with typed parameters.",
+                    "targetId": "fixture-nested-operation",
+                    "sourceId": "fixture-nested-operation",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "description": "Wait for the writes to be indexed: $everything finds the compartment through search.",
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "search"
+                    },
+                    "resource": "Observation",
+                    "params": "_id=get-ops-observation",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "get-expand",
+            "name": "GET $expand with the query string as parameters",
+            "action": [
+                {
+                    "operation": {
+                        "description": "GET at the type level.",
+                        "method": "get",
+                        "url": "ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender",
+                        "responseId": "expand-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET $expand is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The expansion holds the same codes as the POST",
+                        "expression": "ValueSet.expansion.contains.where(code = 'male').exists() and ValueSet.expansion.contains.where(code = 'female').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-validate-code",
+            "name": "GET $validate-code",
+            "action": [
+                {
+                    "operation": {
+                        "description": "A code in the ValueSet.",
+                        "method": "get",
+                        "url": "ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&system=http://hl7.org/fhir/administrative-gender&code=male",
+                        "responseId": "validate-code-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET $validate-code is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The code is valid",
+                        "expression": "Parameters.parameter.where(name='result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "description": "A code not in the ValueSet.",
+                        "method": "get",
+                        "url": "ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&system=http://hl7.org/fhir/administrative-gender&code=nope",
+                        "responseId": "validate-code-get-invalid",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The code is invalid",
+                        "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-everything",
+            "name": "GET Patient/[id]/$everything",
+            "action": [
+                {
+                    "operation": {
+                        "description": "GET at the instance level.",
+                        "method": "get",
+                        "url": "Patient/get-ops-patient/$everything",
+                        "responseId": "everything-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET $everything is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle",
+                        "expression": "Bundle.type = 'searchset'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is returned once",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'get-ops-patient').count() = 1",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'get-ops-observation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-affects-state",
+            "name": "GET of an operation that affects state is refused",
+            "action": [
+                {
+                    "operation": {
+                        "description": "$delete-refresh-token has affectsState = true.",
+                        "method": "get",
+                        "url": "$delete-refresh-token?client_id=get-operations-test",
+                        "responseId": "affects-state-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "405 Method Not Allowed",
+                        "response": "methodNotAllowed",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An OperationOutcome explains why",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-unknown-parameter",
+            "name": "GET with a parameter the operation does not have is refused",
+            "action": [
+                {
+                    "operation": {
+                        "description": "Unknown parameter.",
+                        "method": "get",
+                        "url": "ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&no-such-parameter=1",
+                        "responseId": "unknown-parameter-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Unknown parameter is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An OperationOutcome explains why",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-non-primitive-parameter",
+            "name": "GET with a non-primitive parameter is refused",
+            "action": [
+                {
+                    "operation": {
+                        "description": "$expand's valueSet is a resource.",
+                        "method": "get",
+                        "url": "ValueSet/$expand?valueSet=%7B%7D",
+                        "responseId": "non-primitive-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Non-primitive parameter is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An OperationOutcome explains why",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-custom-nested-invocation",
+            "name": "A custom operation invoked with GET passes typed parameters to the operations it invokes",
+            "action": [
+                {
+                    "operation": {
+                        "description": "A code in the ValueSet.",
+                        "method": "get",
+                        "url": "$get-ops-nested?code=male",
+                        "responseId": "nested-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET of the custom operation is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$validate-code received the typed url, system and code",
+                        "expression": "Parameters.parameter.where(name='result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "description": "A code not in the ValueSet.",
+                        "method": "get",
+                        "url": "$get-ops-nested?code=nope",
+                        "responseId": "nested-get-invalid",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "GET of the custom operation is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The code reached $validate-code",
+                        "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-in-batch",
+            "name": "GET invocations in a batch run with the query string as parameters",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "batch"
+                        },
+                        "description": "A batch whose entries GET $expand and $validate-code.",
+                        "sourceId": "fixture-batch",
+                        "responseId": "batch-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The batch is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A batch-response",
+                        "expression": "Bundle.type = 'batch-response'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The expansion holds the same codes as the POST",
+                        "expression": "Bundle.entry.resource.ofType(ValueSet).expansion.contains.where(code = 'male').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$validate-code received the typed url, system and code",
+                        "expression": "Bundle.entry.resource.ofType(Parameters).parameter.where(name = 'result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "get-in-transaction",
+            "name": "A GET invocation in a transaction runs with the query string as parameters",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "description": "A transaction whose entry GETs $validate-code.",
+                        "sourceId": "fixture-transaction",
+                        "responseId": "transaction-get",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The transaction is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A transaction-response",
+                        "expression": "Bundle.type = 'transaction-response'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$validate-code received the typed url, system and code",
+                        "expression": "Bundle.entry.resource.ofType(Parameters).parameter.where(name = 'result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "targetId": "fixture-observation",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "targetId": "fixture-patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "targetId": "fixture-nested-operation",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

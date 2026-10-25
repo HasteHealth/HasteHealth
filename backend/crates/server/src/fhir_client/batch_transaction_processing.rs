@@ -1,11 +1,10 @@
 use crate::{
-    fhir_client::{ServerCTX, utilities::request_to_resource_type},
+    fhir_client::{ServerCTX, middleware::Backend, utilities::request_to_resource_type},
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
-use haste_fhir_client::{
-    FHIRClient,
-    request::{FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse},
+use haste_fhir_client::request::{
+    FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
@@ -143,8 +142,9 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
     }
 }
 
-pub fn bundle_entry_to_fhir_request(
+pub async fn bundle_entry_to_fhir_request<B: Backend>(
     entry: BundleEntry,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     if let Some(request) = entry.request.as_ref() {
         let url = request.url.value.as_deref().unwrap_or_default();
@@ -166,15 +166,10 @@ pub fn bundle_entry_to_fhir_request(
             } else {
                 fhir_http::HTTPBody::Bytes(axum::body::Bytes::new())
             },
-            url::form_urlencoded::parse(query.as_bytes())
-                .into_owned()
-                .collect(),
+            query,
         );
 
-        let fhir_request =
-            fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)?;
-
-        Ok(fhir_request)
+        fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request, ctx).await
     } else {
         Err(OperationOutcomeError::error(
             IssueType::invalid(),
@@ -183,16 +178,14 @@ pub fn bundle_entry_to_fhir_request(
     }
 }
 
-pub async fn process_batch_bundle<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
->(
+pub async fn process_batch_bundle<Client: Backend>(
     fhir_client: &Client,
     ctx: Arc<ServerCTX<Client>>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<Bundle, OperationOutcomeError> {
     let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
     for e in request_bundle_entries.into_iter() {
-        let fhir_request = bundle_entry_to_fhir_request(e)?;
+        let fhir_request = bundle_entry_to_fhir_request(e, &ctx).await?;
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
         bundle_response_entries.push(convert_bundle_entry(fhir_response));
@@ -323,10 +316,7 @@ pub async fn build_sorted_transaction_graph<'a>(
 
 /// Process a transaction bundle, ensuring that references between entries are resolved correctly.
 /// Sorts transactions using topological sort to ensure that dependencies are processed first.
-pub async fn process_transaction_bundle<
-    'a,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
->(
+pub async fn process_transaction_bundle<'a, Client: Backend>(
     fhir_client: &Client,
     ctx: Arc<ServerCTX<Client>>,
     mut sorted_transaction: SortedTransaction<'a>,
@@ -368,7 +358,8 @@ pub async fn process_transaction_bundle<
             )
         })?;
 
-        let fhir_request = bundle_entry_to_fhir_request(sorted_transaction_entry.entry)?;
+        let fhir_request =
+            bundle_entry_to_fhir_request(sorted_transaction_entry.entry, &ctx).await?;
         let resource_type = request_to_resource_type(&fhir_request).cloned();
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;

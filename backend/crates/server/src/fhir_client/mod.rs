@@ -2,7 +2,7 @@ use crate::{
     auth_n::middleware::jwt::User,
     config::ServerConfig,
     fhir_client::{
-        middleware::{Backend, Handler, Output, Pipeline},
+        middleware::{Handler, Output, Pipeline},
         utilities::request_to_resource_type,
     },
 };
@@ -48,7 +48,7 @@ use middleware::{
         project::ProjectSync, user::UserSync,
     },
     element_filtering::ElementFiltering,
-    operation_definitions::OperationDefinitions,
+    operation_definitions::{Builtins, OperationDefinitions},
     operations::Operations,
     patch_as_update::PatchAsUpdate,
     rate_limit::RateLimit,
@@ -66,6 +66,8 @@ mod middleware;
 mod resolver;
 mod subscription_limits;
 mod utilities;
+
+pub use middleware::{Backend, operations::operation_definition};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
@@ -420,6 +422,7 @@ pub struct FHIRServerClient<
 > {
     state: ClientState<Self>,
     pipeline: Pipeline<Self>,
+    builtin_operations: Builtins,
 }
 
 impl<
@@ -431,6 +434,10 @@ impl<
     type Repo = Repo;
     type Search = Search;
     type Terminology = Terminology;
+
+    fn builtin_operations(&self) -> &Builtins {
+        &self.builtin_operations
+    }
 }
 
 pub struct ServerClientConfig<
@@ -501,7 +508,7 @@ impl<
                     // A PATCH runs as an update, so the patched resource gets
                     // the built-in collision checks.
                     Box::new(PatchAsUpdate),
-                    Box::new(OperationDefinitions::new(builtin_operations)),
+                    Box::new(OperationDefinitions::new(builtin_operations.clone())),
                 ],
                 Storage,
             ),
@@ -568,6 +575,7 @@ impl<
                 ],
                 router,
             ),
+            builtin_operations,
         }
     }
 

@@ -106,7 +106,8 @@ pub fn evaluate_policy_op<B: Backend>() -> OperationExecutor<
                                     "EvaluatePolicy operation requires a request entry".to_string(),
                                 ));
                             };
-                            let fhir_request = bundle_entry_to_fhir_request(entry.clone())?;
+                            let fhir_request =
+                                bundle_entry_to_fhir_request(entry.clone(), &context.ctx).await?;
 
                             let result = haste_access_control::evaluate_policy(
                                 Arc::new(PolicyContext::new(
