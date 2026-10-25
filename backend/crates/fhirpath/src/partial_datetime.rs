@@ -1,7 +1,7 @@
-//! FHIRPath `DateTime` values that FHIR's `dateTime` cannot hold. FHIR requires seconds and a
-//! timezone offset whenever a `dateTime` has a time, while a FHIRPath `DateTime` may stop at
+//! `FHIRPath` `DateTime` values that FHIR's `dateTime` cannot hold. FHIR requires seconds and a
+//! timezone offset whenever a `dateTime` has a time, while a `FHIRPath` `DateTime` may stop at
 //! the hour or minute and may have no offset (`@2015-02-04T14:34`, `@2015-02-04T14:34:28`).
-//! Only FHIRPath makes these, so they live here and not in the FHIR model; every other
+//! Only `FHIRPath` makes these, so they live here and not in the FHIR model; every other
 //! `DateTime` the engine makes is a FHIR `dateTime`.
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
@@ -18,7 +18,7 @@ static TIME_AND_OFFSET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 
-/// A FHIRPath `DateTime` whose time FHIR's `dateTime` cannot hold.
+/// A `FHIRPath` `DateTime` whose time FHIR's `dateTime` cannot hold.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PartialDateTime {
     pub date: NaiveDate,
@@ -27,13 +27,13 @@ pub struct PartialDateTime {
     pub offset: Option<FixedOffset>,
 }
 
-/// A FHIRPath `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
+/// A `FHIRPath` `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
 pub enum AnyDateTime {
     Fhir(DateTime),
     Partial(PartialDateTime),
 }
 
-/// `text` as a FHIRPath `DateTime`, or `None` when it is not one.
+/// `text` as a `FHIRPath` `DateTime`, or `None` when it is not one.
 pub fn parse_any_datetime(text: &str) -> Option<AnyDateTime> {
     match parse_datetime(text) {
         Ok(value) => Some(AnyDateTime::Fhir(value)),
@@ -75,11 +75,13 @@ impl PartialDateTime {
     }
 
     /// The date and clock time as written, the parts below the precision at zero.
+    #[must_use]
     pub fn local(&self) -> NaiveDateTime {
         self.date.and_time(naive_time(&self.time))
     }
 
     /// The date and clock time in UTC, or as written when there is no offset.
+    #[must_use]
     pub fn utc(&self) -> Option<NaiveDateTime> {
         match self.offset {
             Some(offset) => self.local().checked_sub_offset(offset),
@@ -103,7 +105,7 @@ impl fmt::Display for PartialDateTime {
     }
 }
 
-/// A FHIRPath `System.DateTime`: there is no FHIR type for it.
+/// A `FHIRPath` `System.DateTime`: there is no FHIR type for it.
 impl MetaValue for PartialDateTime {
     fn fields(&self) -> Vec<&'static str> {
         vec![]

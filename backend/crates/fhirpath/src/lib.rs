@@ -142,7 +142,7 @@ fn temporal_literal<'b, T: MetaValue + 'static>(
         .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
 }
 
-/// A FHIRPath `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
+/// A `FHIRPath` `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
 fn datetime_result<'b>(context: &Context<'b>, value: AnyDateTime) -> Context<'b> {
     context.new_context_from(vec![match value {
         AnyDateTime::Fhir(value) => context.allocate_literal(FHIRDateTime {

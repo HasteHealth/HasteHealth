@@ -41,7 +41,7 @@ struct Parts {
     zoned: Option<bool>,
 }
 
-fn nanoseconds(time: &NaiveTime) -> i64 {
+fn nanoseconds(time: NaiveTime) -> i64 {
     i64::from(time.second()) * 1_000_000_000 + i64::from(time.nanosecond())
 }
 
@@ -75,7 +75,7 @@ impl Parts {
                 i64::from(value.day()),
                 i64::from(value.hour()),
                 i64::from(value.minute()),
-                nanoseconds(&value.time()),
+                nanoseconds(value.time()),
             ],
             len,
             zoned: Some(zoned),
@@ -125,7 +125,7 @@ impl Parts {
                 values: [
                     i64::from(clock.hour()),
                     i64::from(clock.minute()),
-                    nanoseconds(&clock),
+                    nanoseconds(clock),
                     0,
                     0,
                     0,
