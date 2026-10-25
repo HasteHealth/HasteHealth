@@ -48,6 +48,9 @@ pub trait Backend:
     type Repo: Repository + Send + Sync + 'static;
     type Search: SearchEngine + Send + Sync + 'static;
     type Terminology: FHIRTerminology + Send + Sync + 'static;
+
+    /// The OperationDefinitions of the server's built-in operations.
+    fn builtin_operations(&self) -> &operation_definitions::Builtins;
 }
 
 /// The future a layer or handler returns: the response, once the rest of the

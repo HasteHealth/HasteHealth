@@ -49,7 +49,7 @@ use middleware::{
     },
     element_filtering::ElementFiltering,
     operation_definitions::{Builtins, OperationDefinitions},
-    operations::{Operations, query_parameters},
+    operations::Operations,
     patch_as_update::PatchAsUpdate,
     rate_limit::RateLimit,
     set_artifact_tenant::SetArtifactTenant,
@@ -420,7 +420,6 @@ pub struct FHIRServerClient<
 > {
     state: ClientState<Self>,
     pipeline: Pipeline<Self>,
-    /// The built-in operations' definitions, for typing a GET invocation.
     builtin_operations: Builtins,
 }
 
@@ -433,6 +432,10 @@ impl<
     type Repo = Repo;
     type Search = Search;
     type Terminology = Terminology;
+
+    fn builtin_operations(&self) -> &Builtins {
+        &self.builtin_operations
+    }
 }
 
 pub struct ServerClientConfig<
@@ -581,18 +584,6 @@ impl<
     /// worker threads.
     pub fn deno_pool(&self) -> Arc<DenoPool> {
         self.state.deno_pool.clone()
-    }
-
-    /// Sets the parameters of `request`, invoked with GET, from its `query`
-    /// string, typed against the operation's definition. Called before the
-    /// pipeline runs, so every layer sees the input a POST would carry.
-    pub async fn type_query_invocation(
-        &self,
-        ctx: &Arc<ServerCTX<Self>>,
-        request: &mut InvocationRequest,
-        query: &str,
-    ) -> Result<(), OperationOutcomeError> {
-        query_parameters::type_query_invocation(&self.builtin_operations, ctx, request, query).await
     }
 
     /// Runs `request` through the pipeline.
