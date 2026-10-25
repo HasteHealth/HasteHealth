@@ -113,6 +113,9 @@ pub struct OIDCError {
     /// and the token endpoint (§5.2) never redirects: both leave this `None`.
     #[serde(skip_serializing)]
     pub redirect_uri: Option<String>,
+    /// The request's `state`, echoed in the redirect (RFC 6749 §4.1.2.1).
+    #[serde(skip_serializing)]
+    pub state: Option<String>,
 }
 
 impl OIDCError {
@@ -125,7 +128,14 @@ impl OIDCError {
             error,
             error_description,
             redirect_uri,
+            state: None,
         }
+    }
+
+    #[must_use]
+    pub fn with_state(mut self, state: &str) -> Self {
+        self.state = Some(state.to_string());
+        self
     }
 
     /// The URL the user agent is redirected to, with `error` and
@@ -146,6 +156,10 @@ impl OIDCError {
 
             if let Some(description) = self.error_description.as_deref() {
                 query.append_pair("error_description", description);
+            }
+
+            if let Some(state) = self.state.as_deref() {
+                query.append_pair("state", state);
             }
         }
 
@@ -183,5 +197,25 @@ impl IntoResponse for OIDCError {
             )
                 .into_response()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalid_scope_redirects_with_error_and_state() {
+        let response = OIDCError::new(
+            OIDCErrorCode::InvalidScope,
+            Some("bad".to_string()),
+            Some("https://app.example/cb".to_string()),
+        )
+        .with_state("abc")
+        .into_response();
+
+        let location = response.headers()[header::LOCATION].to_str().unwrap();
+        assert!(location.starts_with("https://app.example/cb?error=invalid_scope"));
+        assert!(location.ends_with("&state=abc"));
     }
 }
