@@ -62,7 +62,7 @@ fn unsupported_type_error(type_name: &str) -> OperationOutcomeError {
     )
 }
 
-/// The FHIRPath System types whose values a FHIR primitive type's values can be, as FHIR maps
+/// The `FHIRPath` System types whose values a FHIR primitive type's values can be, as FHIR maps
 /// them (<https://hl7.org/fhir/R4/fhirpath.html#types>). `url` and `canonical` specialize
 /// `uri`; `date` and `instant` values can also be the engine's `System.Date` and
 /// `System.Instant`.
