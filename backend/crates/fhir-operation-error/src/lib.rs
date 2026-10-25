@@ -16,6 +16,8 @@ pub mod axum;
 pub struct OperationOutcomeError {
     source: Option<anyhow::Error>,
     outcome: Box<OperationOutcome>,
+    /// HTTP status that takes precedence over the one derived from the issue code.
+    status_override: Option<u16>,
 }
 
 fn create_operation_outcome(
@@ -43,7 +45,15 @@ impl OperationOutcomeError {
         OperationOutcomeError {
             source,
             outcome: Box::new(outcome),
+            status_override: None,
         }
+    }
+
+    /// Answers with `status` rather than the one derived from the first issue's code.
+    #[must_use]
+    pub fn with_status(mut self, status: u16) -> Self {
+        self.status_override = Some(status);
+        self
     }
 
     #[must_use]

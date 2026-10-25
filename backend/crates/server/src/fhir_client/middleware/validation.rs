@@ -97,10 +97,11 @@ impl<B: Backend> Middleware<B> for Validation {
                         .await?;
 
                     if !validation_operation_outcome.issue.is_empty() {
-                        return Err(OperationOutcomeError::new(
-                            None,
-                            validation_operation_outcome,
-                        ));
+                        // 422: the resource violates an applicable profile.
+                        return Err(
+                            OperationOutcomeError::new(None, validation_operation_outcome)
+                                .with_status(422),
+                        );
                     }
                 }
             }
