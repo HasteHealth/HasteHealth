@@ -513,9 +513,7 @@ pub fn create_smart_configuration(
     let smart_document = SmartConfigurationDocument {
         issuer: Some(
             issuer_url(api_url_string, tenant, project)
-                .map_err(|e| {
-                    OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None)
-                })?
+                .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?
                 .to_string(),
         ),
         authorization_endpoint: Some(
