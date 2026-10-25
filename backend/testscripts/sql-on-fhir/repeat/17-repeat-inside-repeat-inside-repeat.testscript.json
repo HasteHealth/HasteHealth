@@ -1,0 +1,220 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-repeat-17",
+  "url": "https://haste.health/fhir/TestScript/sof-repeat-17",
+  "name": "sof-repeat-17",
+  "title": "SQL on FHIR repeat: repeat inside repeat inside repeat",
+  "status": "active",
+  "description": "Recursive traversal with repeat directive Suite test 17 of tests/repeat.json (repeat), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Questionnaire",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  }
+                ]
+              },
+              {
+                "repeat": [
+                  "item"
+                ],
+                "select": [
+                  {
+                    "column": [
+                      {
+                        "name": "level1",
+                        "path": "linkId",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "repeat": [
+                      "item"
+                    ],
+                    "select": [
+                      {
+                        "column": [
+                          {
+                            "name": "level2",
+                            "path": "linkId",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      {
+                        "repeat": [
+                          "item"
+                        ],
+                        "column": [
+                          {
+                            "name": "level3",
+                            "path": "linkId",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Questionnaire",
+            "id": "q1",
+            "status": "active",
+            "item": [
+              {
+                "linkId": "g1",
+                "text": "Group 1",
+                "type": "group",
+                "item": [
+                  {
+                    "linkId": "g1.1",
+                    "text": "Question 1.1",
+                    "type": "string",
+                    "item": [
+                      {
+                        "linkId": "g1.1.1",
+                        "text": "Sub-question 1.1.1",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "linkId": "g2",
+                "text": "Group 2",
+                "type": "display"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "QuestionnaireResponse",
+            "id": "qr1",
+            "questionnaire": "http://example.com/Questionnaire/q1",
+            "status": "completed",
+            "item": [
+              {
+                "linkId": "1",
+                "text": "Group 1",
+                "item": [
+                  {
+                    "linkId": "1.1",
+                    "text": "Question 1.1",
+                    "answer": [
+                      {
+                        "valueString": "Answer 1.1",
+                        "item": [
+                          {
+                            "linkId": "1.1.1",
+                            "text": "Follow-up to 1.1"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "linkId": "1.2",
+                    "text": "Question 1.2",
+                    "item": [
+                      {
+                        "linkId": "1.2.1",
+                        "text": "Question 1.2.1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "linkId": "2",
+                "text": "Group 2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "repeat inside repeat inside repeat",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 1 in all. [{\"id\": \"q1\", \"level1\": \"g1\", \"level2\": \"g1.1\", \"level3\": \"g1.1.1\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJxMSIsImxldmVsMSI6ImcxIiwibGV2ZWwyIjoiZzEuMSIsImxldmVsMyI6ImcxLjEuMSJ9XQ=='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

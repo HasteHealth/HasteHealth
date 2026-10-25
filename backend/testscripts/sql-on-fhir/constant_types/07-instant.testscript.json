@@ -1,0 +1,556 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-constant-types-07",
+  "url": "https://haste.health/fhir/TestScript/sof-constant-types-07",
+  "name": "sof-constant-types-07",
+  "title": "SQL on FHIR constant_types: instant",
+  "status": "active",
+  "description": "tests for all types of constants Suite test 7 of tests/constant_types.json (constant_types), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Observation",
+            "status": "active",
+            "constant": [
+              {
+                "name": "eff",
+                "valueInstant": "2015-02-07T13:28:17.239+02:00"
+              }
+            ],
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  },
+                  {
+                    "name": "bool",
+                    "path": "effective.ofType(instant) = %eff",
+                    "type": "boolean"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Organization",
+            "name": "o1",
+            "id": "o1"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Device",
+            "id": "d1",
+            "udiCarrier": [
+              {
+                "carrierAIDC": "aGVsbG8K",
+                "deviceIdentifier": "device-id",
+                "issuer": "issuer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Device",
+            "id": "d2",
+            "udiCarrier": [
+              {
+                "carrierAIDC": "YnllCg==",
+                "deviceIdentifier": "device-id",
+                "issuer": "issuer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Device",
+            "id": "d3"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "gender": "female",
+            "birthDate": "1978-03-12"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "gender": "male",
+            "birthDate": "1941-09-09"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ClaimResponse",
+            "id": "cr1",
+            "use": "claim",
+            "patient": {
+              "reference": "Patient/pt1"
+            },
+            "created": "2021-09-02",
+            "insurer": {
+              "reference": "Organization/o1"
+            },
+            "type": {
+              "text": "type"
+            },
+            "outcome": "complete",
+            "status": "active",
+            "item": [
+              {
+                "itemSequence": 1,
+                "adjudication": [
+                  {
+                    "category": {
+                      "text": "category"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ClaimResponse",
+            "id": "cr2",
+            "use": "claim",
+            "patient": {
+              "reference": "Patient/pt1"
+            },
+            "created": "2021-09-02",
+            "insurer": {
+              "reference": "Organization/o1"
+            },
+            "type": {
+              "text": "type"
+            },
+            "outcome": "complete",
+            "status": "active",
+            "item": [
+              {
+                "itemSequence": 2,
+                "adjudication": [
+                  {
+                    "category": {
+                      "text": "category"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ClaimResponse",
+            "id": "cr3",
+            "use": "claim",
+            "patient": {
+              "reference": "Patient/pt1"
+            },
+            "created": "2021-09-02",
+            "insurer": {
+              "reference": "Organization/o1"
+            },
+            "type": {
+              "text": "type"
+            },
+            "outcome": "complete",
+            "status": "active"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "DetectedIssue",
+            "id": "di1",
+            "status": "final",
+            "identifiedDateTime": "2023-02-08"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "DetectedIssue",
+            "id": "di2",
+            "status": "final",
+            "identifiedDateTime": "2016-11-12"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "DetectedIssue",
+            "id": "di3",
+            "status": "final"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o1",
+            "status": "final",
+            "code": {
+              "text": "code"
+            },
+            "valueQuantity": {
+              "value": 1.0
+            },
+            "effectiveInstant": "2015-02-07T13:28:17.239+02:00"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o2",
+            "status": "final",
+            "code": {
+              "text": "code"
+            },
+            "valueQuantity": {
+              "value": 1.8
+            },
+            "effectiveInstant": "2022-02-07T13:28:17.239+02:00"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o3",
+            "status": "final",
+            "code": {
+              "text": "code"
+            }
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o4",
+            "status": "final",
+            "code": {
+              "text": "code"
+            },
+            "valueTime": "18:12:00"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o5",
+            "status": "final",
+            "code": {
+              "text": "code"
+            },
+            "valueTime": "18:32:00"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ImagingStudy",
+            "id": "is1",
+            "status": "available",
+            "subject": {
+              "reference": "Patient/pt1"
+            },
+            "numberOfSeries": 9
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ImagingStudy",
+            "id": "is2",
+            "status": "available",
+            "subject": {
+              "reference": "Patient/pt1"
+            },
+            "numberOfSeries": 12
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "ImagingStudy",
+            "id": "is3",
+            "status": "available",
+            "subject": {
+              "reference": "Patient/pt1"
+            }
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Measure",
+            "id": "m1",
+            "url": "urn:uuid:53fefa32-fcbb-4ff8-8a92-55ee120877b7",
+            "status": "active"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Measure",
+            "id": "m2",
+            "url": "urn:uuid:c4669fc3-0d14-4e54-a77f-525f6d4e8385",
+            "status": "active"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Measure",
+            "id": "m3",
+            "status": "active"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t1",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueUrl": "http://example.org"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t2",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueUrl": "http://another.example.org"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t3",
+            "intent": "order",
+            "status": "requested"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t4",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueOid": "urn:oid:1.0"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t5",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueOid": "urn:oid:1.2.3"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t6",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueUuid": "urn:uuid:53fefa32-fcbb-4ff8-8a92-55ee120877b7"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t7",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueUuid": "urn:uuid:c4669fc3-0d14-4e54-a77f-525f6d4e8385"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t8",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueId": "id1"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Task",
+            "id": "t9",
+            "intent": "order",
+            "status": "requested",
+            "output": [
+              {
+                "type": {
+                  "text": "type"
+                },
+                "valueId": "id2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "instant",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 5 in all. [{\"id\": \"o1\", \"bool\": true}, {\"id\": \"o2\", \"bool\": false}, {\"id\": \"o3\", \"bool\": null}, {\"id\": \"o4\", \"bool\": null}, {\"id\": \"o5\", \"bool\": null}]",
+            "expression": "Binary.data = 'W3siaWQiOiJvMSIsImJvb2wiOnRydWV9LHsiaWQiOiJvMiIsImJvb2wiOmZhbHNlfSx7ImlkIjoibzMiLCJib29sIjpudWxsfSx7ImlkIjoibzQiLCJib29sIjpudWxsfSx7ImlkIjoibzUiLCJib29sIjpudWxsfV0='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

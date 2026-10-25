@@ -9,6 +9,7 @@ name: <Test> E2E
 #   test_e2e_hl7v2.yml             HL7v2 ingest over MLLP
 #   test_e2e_mcp.yml               MCP conformance
 #   test_e2e_g10.yml               ONC (g)(10) Standardized API TestScripts
+#   test_e2e_sql_on_fhir.yml       SQL on FHIR v2 shared test suite TestScripts
 on:
   push:
     branches: ["main"]
@@ -85,6 +86,10 @@ jobs:
   g10:
     needs: build
     uses: ./.github/workflows/test_e2e_g10.yml
+
+  sql-on-fhir:
+    needs: build
+    uses: ./.github/workflows/test_e2e_sql_on_fhir.yml
 
   # Deploys the website on every push to main, with the conformance pages'
   # data refreshed from this run's TestReports: core, US Core (base), g10 and
