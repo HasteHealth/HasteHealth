@@ -669,7 +669,7 @@ fn verify_client(
 
     if client_app.id.as_ref() != token_request_body.client_id.as_ref() {
         return Err(OIDCError::new(
-            OIDCErrorCode::AccessDenied,
+            OIDCErrorCode::InvalidClient,
             Some("Invalid credentials".to_string()),
             None,
         ));
@@ -680,7 +680,7 @@ fn verify_client(
         token_request_body.client_secret.as_deref(),
     ) {
         return Err(OIDCError::new(
-            OIDCErrorCode::AccessDenied,
+            OIDCErrorCode::InvalidClient,
             Some("Invalid credentials".to_string()),
             None,
         ));
@@ -701,7 +701,7 @@ fn require_client_secret(client_app: &ClientApplication) -> Result<(), OIDCError
         Ok(())
     } else {
         Err(OIDCError::new(
-            OIDCErrorCode::AccessDenied,
+            OIDCErrorCode::InvalidClient,
             Some("Invalid credentials".to_string()),
             None,
         ))
@@ -1251,7 +1251,7 @@ pub async fn token<
             .await
             .map_err(|_| {
                 OIDCError::new(
-                    OIDCErrorCode::AccessDenied,
+                    OIDCErrorCode::InvalidGrant,
                     Some("Invalid authorization code.".to_string()),
                     None,
                 )
@@ -1267,7 +1267,7 @@ pub async fn token<
 
             if code.is_expired.unwrap_or(true) {
                 return Err(OIDCError::new(
-                    OIDCErrorCode::AccessDenied,
+                    OIDCErrorCode::InvalidGrant,
                     Some("Authorization code has expired.".to_string()),
                     None,
                 ));
