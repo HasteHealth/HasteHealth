@@ -711,33 +711,30 @@ fn evaluate_children<'a>(
 /// keep yielding new values (`1.repeat($this + 1)`), so evaluation fails past this.
 const REPEAT_ITEM_LIMIT: usize = 100_000;
 
-/// The items a `repeat()` has produced, kept so that membership matches
-/// [`value_equal`]: numbers, strings and booleans by value, anything else only
+/// An item as `repeat()` tells it from the items it already produced: numbers, strings and
+/// booleans by value, as `=` compares them, anything else (dates and times included) only
 /// equal to itself.
-#[derive(Default)]
-struct SeenValues {
-    numbers: HashSet<u64>,
-    strings: HashSet<String>,
-    booleans: HashSet<bool>,
-    nodes: HashSet<(usize, &'static str)>,
+#[derive(PartialEq, Eq, Hash)]
+enum SeenKey {
+    Number(u64),
+    String(String),
+    Boolean(bool),
+    Item(usize, &'static str),
 }
 
-impl SeenValues {
-    /// Records `value`, returning whether it was not seen before.
-    fn insert(&mut self, value: &dyn MetaValue) -> Result<bool, FHIRPathError> {
+impl SeenKey {
+    fn of(value: &dyn MetaValue) -> Result<Self, FHIRPathError> {
         let fhir_type = value.fhir_type();
         Ok(if NUMBER_TYPES.contains(fhir_type) {
             let number = downcast_number(value)?;
             // -0.0 = 0.0
-            let number = if number == 0.0 { 0.0 } else { number };
-            self.numbers.insert(number.to_bits())
+            SeenKey::Number(if number == 0.0 { 0.0 } else { number }.to_bits())
         } else if STRING_TYPES.contains(fhir_type) {
-            self.strings.insert(downcast_string(value)?)
+            SeenKey::String(downcast_string(value)?)
         } else if BOOLEAN_TYPES.contains(fhir_type) {
-            self.booleans.insert(downcast_bool(value)?)
+            SeenKey::Boolean(downcast_bool(value)?)
         } else {
-            let address = std::ptr::from_ref(value).cast::<()>().addr();
-            self.nodes.insert((address, fhir_type))
+            SeenKey::Item(std::ptr::from_ref(value).cast::<()>().addr(), fhir_type)
         })
     }
 }
@@ -752,7 +749,7 @@ async fn evaluate_repeat<'a>(
 
     let projection = &function.arguments[0];
     let mut end_result = vec![];
-    let mut seen = SeenValues::default();
+    let mut seen = HashSet::new();
     let mut cur = context;
 
     // Repeats only as long as the projection yields items not already in the output.
@@ -761,14 +758,13 @@ async fn evaluate_repeat<'a>(
         for (index, value) in cur.values.iter().enumerate() {
             let item = cur.new_item_context(*value, index);
             let projected = evaluate_expression(projection, item, config.clone()).await?;
-            let before = next.len();
             for projected_value in projected.values {
-                if seen.insert(projected_value)? {
+                if seen.insert(SeenKey::of(projected_value)?) {
                     next.push(projected_value);
                 }
             }
-            cur.count_repeat_items(next.len() - before)?;
         }
+        cur.count_repeat_items(next.len())?;
         end_result.extend_from_slice(&next);
         cur = cur.new_context_from(next);
     }
