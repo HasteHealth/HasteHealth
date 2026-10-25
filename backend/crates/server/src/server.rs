@@ -3,7 +3,9 @@ use crate::{
     auth_n::{self, certificates::get_certification_provider, middleware::jwt::User},
     config::ServerConfig,
     fhir_client::ServerCTX,
-    fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
+    fhir_http::{
+        HTTPBody, HTTPRequest, get_operation_body, http_request_to_fhir_request, is_operation_get,
+    },
     jobs, mcp,
     middleware::{
         errors::{log_operationoutcome_errors, operation_outcome_error_handle},
@@ -28,7 +30,7 @@ use haste_fhir_client::{
     FHIRClient,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse},
 };
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -174,12 +176,15 @@ async fn fhir_handler<
     let format = query.get("_format").cloned();
     let pretty = query.get("_pretty").cloned();
 
-    let http_req = HTTPRequest::new(
-        method,
-        fhir_location.to_string(),
-        HTTPBody::Bytes(body),
-        query,
-    );
+    let query_invocation = is_operation_get(&method, fhir_location);
+    let body = if query_invocation {
+        HTTPBody::Resource(Resource::Parameters(get_operation_body(
+            original_uri.query().unwrap_or_default(),
+        )))
+    } else {
+        HTTPBody::Bytes(body)
+    };
+    let http_req = HTTPRequest::new(method, fhir_location.to_string(), body, query);
 
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
     // Searches only: `_format` is also an operation parameter.
@@ -199,7 +204,8 @@ async fn fhir_handler<
             state.rate_limit.clone(),
         )
         .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))))
-        .with_prefer_async(jobs::prefers_async(&headers)),
+        .with_prefer_async(jobs::prefers_async(&headers))
+        .with_query_invocation(query_invocation),
     );
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;

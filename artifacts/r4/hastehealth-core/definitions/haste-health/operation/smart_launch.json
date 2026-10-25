@@ -13,6 +13,7 @@
     "system": false,
     "type": false,
     "instance": true,
+    "affectsState": true,
     "resource": ["ClientApplication"],
     "parameter": [
         {
