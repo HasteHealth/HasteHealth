@@ -16,8 +16,8 @@ use haste_fhir_model::r4::{
             CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestInteraction,
             CapabilityStatementRestResource, CapabilityStatementRestResourceInteraction,
             CapabilityStatementRestResourceOperation, CapabilityStatementRestResourceSearchParam,
-            CapabilityStatementRestSecurity, OperationDefinition, SearchParameter,
-            StructureDefinition,
+            CapabilityStatementRestSecurity, OperationDefinition, Resource, ResourceType,
+            SearchParameter, StructureDefinition,
         },
         terminology::{
             BoundCode, CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus,
@@ -30,19 +30,53 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_repository::Repository;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, LazyLock};
+use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 use tracing::instrument;
 
+/// How long a generated statement is served before profiles and search
+/// parameters loaded since are picked up.
+const CAPABILITIES_TTL: Duration = Duration::from_secs(30);
+
+/// Page size for the project's profile and search parameter lookups.
+const PROJECT_RESOURCES_COUNT: &str = "1000";
+
 // Keyed by (tenant, project): the statement lists that project's custom
-// operations, so a single process-wide value would serve one project's
-// operations to every other tenant (and, through the public metadata route,
-// to unauthenticated callers).
+// operations, profiles and search parameters, so a single process-wide value
+// would serve one project's to every other tenant (and, through the public
+// metadata route, to unauthenticated callers).
 #[allow(clippy::type_complexity)]
 static CAPABILITIES: LazyLock<
-    Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), CapabilityStatement>>,
+    Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), (Instant, CapabilityStatement)>>,
 > = LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// The project's active resources of one type matching `filters`.
+async fn project_resources<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
+    resource_type: ResourceType,
+    filters: &[(&str, &str)],
+) -> Result<Vec<Resource>, OperationOutcomeError> {
+    let parameters: Vec<(String, Vec<String>)> = filters
+        .iter()
+        .chain(&[("status", "active"), ("_count", PROJECT_RESOURCES_COUNT)])
+        .map(|(name, value)| ((*name).to_string(), vec![(*value).to_string()]))
+        .collect();
+
+    Ok(ctx
+        .client
+        .search_type(ctx.clone(), resource_type, parameters.into())
+        .await?
+        .entry
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|e| e.resource)
+        .map(|r| *r)
+        .collect())
+}
 
 /// Build a `CapabilityStatementRestResourceOperation` entry from an `OperationDefinition`.
 ///
@@ -100,7 +134,8 @@ fn operations_for_type<'a>(
 
 fn create_capability_rest_statement(
     sd: StructureDefinition,
-    all_sps: &Vec<SearchParameter>,
+    profiles: &[FHIRCanonical],
+    all_sps: &[SearchParameter],
     all_operations: &[OperationDefinition],
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
     let sd_type = sd.type_.value.unwrap_or_default();
@@ -136,6 +171,7 @@ fn create_capability_rest_statement(
             value: sd.url.value,
             ..Default::default()
         })),
+        supportedProfile: (!profiles.is_empty()).then(|| profiles.to_vec()),
         searchParam: Some(
             resource_parameters
                 .into_iter()
@@ -195,6 +231,7 @@ async fn generate_capabilities<
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
+    let ctx_for_project = ctx.clone();
     let (sds, sps, operations) = tokio::join!(
         get_all_sds(&["resource"], repo, search_engine),
         get_all_sps(repo, search_engine),
@@ -202,8 +239,37 @@ async fn generate_capabilities<
     );
 
     let sds = sds?;
-    let sps = sps?;
+    let mut sps = sps?;
     let operations = operations?;
+
+    // Profiles and search parameters loaded into the project itself.
+    let (profile_defs, extra_sps) = tokio::try_join!(
+        project_resources(
+            ctx_for_project.clone(),
+            ResourceType::StructureDefinition,
+            &[("derivation", "constraint")]
+        ),
+        project_resources(ctx_for_project, ResourceType::SearchParameter, &[])
+    )?;
+
+    // Constraint profile urls grouped by the resource type they constrain.
+    let mut profiles: HashMap<String, Vec<FHIRCanonical>> = HashMap::new();
+    for resource in profile_defs {
+        if let Resource::StructureDefinition(sd) = resource
+            && let (Some(url), Some(type_)) = (sd.url.value, sd.type_.value)
+        {
+            profiles.entry(type_).or_default().push(FHIRCanonical {
+                value: Some(url),
+                ..Default::default()
+            });
+        }
+    }
+
+    let known: HashSet<Option<String>> = sps.iter().map(|sp| sp.url.value.clone()).collect();
+    sps.extend(extra_sps.into_iter().filter_map(|resource| match resource {
+        Resource::SearchParameter(sp) if !known.contains(&sp.url.value) => Some(sp),
+        _ => None,
+    }));
 
     // System-level operations are not tied to a resource type, so they are
     // documented once on the rest element itself.
@@ -236,7 +302,15 @@ async fn generate_capabilities<
             }),
             resource: Some(
                 sds.into_iter()
-                    .map(|sd| create_capability_rest_statement(sd, &sps, &operations))
+                    .map(|sd| {
+                        let sd_profiles = sd
+                            .type_
+                            .value
+                            .as_ref()
+                            .and_then(|t| profiles.get(t))
+                            .map_or(&[][..], Vec::as_slice);
+                        create_capability_rest_statement(sd, sd_profiles, &sps, &operations)
+                    })
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             // Interactions on the base URL itself; each resource type lists
@@ -262,8 +336,8 @@ async fn generate_capabilities<
     })
 }
 
-/// Ends the capabilities lane: the CapabilityStatement, generated once and
-/// then served from memory.
+/// Ends the capabilities lane: the CapabilityStatement, generated and then
+/// served from memory for a short time.
 #[derive(Debug)]
 pub struct Capabilities;
 
@@ -287,12 +361,14 @@ impl<B: Backend> Handler<B> for Capabilities {
             let cache_key = (ctx.tenant.clone(), ctx.project.clone());
             let mut guard = CAPABILITIES.lock().await;
             let capabilities = match guard.get(&cache_key) {
-                Some(capabilities) => capabilities.clone(),
-                None => {
+                Some((generated, capabilities)) if generated.elapsed() < CAPABILITIES_TTL => {
+                    capabilities.clone()
+                }
+                _ => {
                     let capabilities =
                         generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref())
                             .await?;
-                    guard.insert(cache_key, capabilities.clone());
+                    guard.insert(cache_key, (Instant::now(), capabilities.clone()));
                     capabilities
                 }
             };
