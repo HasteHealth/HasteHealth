@@ -45,6 +45,9 @@ impl OperationOutcomeError {
                     || issue.code == IssueType::suppressed()
                 {
                     axum::http::StatusCode::FORBIDDEN
+                } else if issue.code == IssueType::business_rule() {
+                    // An operation that affects state invoked with GET.
+                    axum::http::StatusCode::METHOD_NOT_ALLOWED
                 } else if issue.code == IssueType::not_supported() {
                     axum::http::StatusCode::NOT_IMPLEMENTED
                 } else {

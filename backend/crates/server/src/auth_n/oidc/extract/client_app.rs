@@ -56,12 +56,25 @@ pub async fn find_client_app<
                 client_id,
             )
             .await
-            .map_err(|_| {
-                OIDCError::new(
-                    OIDCErrorCode::ServerError,
-                    Some("Failed to retrieve client application.".to_string()),
-                    None,
-                )
+            .map_err(|e| {
+                // An unknown client is a failed client authentication, not a server fault.
+                let unknown = e.outcome().issue.first().is_some_and(|issue| {
+                    matches!(issue.code.as_str(), Some("not-found" | "deleted"))
+                });
+
+                if unknown {
+                    OIDCError::new(
+                        OIDCErrorCode::InvalidClient,
+                        Some("Client application not found".to_string()),
+                        None,
+                    )
+                } else {
+                    OIDCError::new(
+                        OIDCErrorCode::ServerError,
+                        Some("Failed to retrieve client application.".to_string()),
+                        None,
+                    )
+                }
             })?;
 
         if let Some(Resource::ClientApplication(client_app)) = client_app {

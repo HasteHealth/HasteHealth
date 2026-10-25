@@ -19,6 +19,7 @@ pub mod interactions;
 mod jwks;
 pub mod route_string;
 pub mod scope;
+pub mod style;
 pub mod token;
 
 static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
@@ -57,6 +58,7 @@ pub fn create_router<
 ) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
+        .merge(Router::new().typed_get(style::smart_style_get))
         .merge(federated::federated_router())
         .nest(
             "/auth",

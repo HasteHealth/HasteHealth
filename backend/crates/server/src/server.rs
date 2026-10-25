@@ -36,7 +36,6 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::generate_id};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
@@ -110,14 +109,21 @@ fn request_fhir_version(
     Ok(project_version)
 }
 
-/// Whether a search asked for `_pretty=true`. `_format` must name JSON, the
-/// only format served (<https://hl7.org/fhir/R4/http.html#parameters>); a raw
-/// `+` in `application/fhir+json` reaches here as a space.
-fn pretty_requested(
-    format: Option<&str>,
-    pretty: Option<&str>,
-) -> Result<bool, OperationOutcomeError> {
-    if let Some(format) = format
+/// Whether a search's `query` asks for `_pretty=true`. `_format` must name
+/// JSON, the only format served
+/// (<https://hl7.org/fhir/R4/http.html#parameters>); a raw `+` in
+/// `application/fhir+json` decodes to a space. A repeated parameter's last
+/// value counts.
+fn pretty_requested(query: &str) -> Result<bool, OperationOutcomeError> {
+    let (mut format, mut pretty) = (None, None);
+    for (name, value) in url::form_urlencoded::parse(query.as_bytes()) {
+        match name.as_ref() {
+            "_format" => format = Some(value),
+            "_pretty" => pretty = Some(value),
+            _ => {}
+        }
+    }
+    if let Some(format) = format.as_deref()
         && !matches!(
             format,
             "json" | "application/json" | "application/fhir+json" | "application/fhir json"
@@ -128,7 +134,7 @@ fn pretty_requested(
             format!("_format '{format}' is not supported; only JSON is served."),
         ));
     }
-    Ok(pretty == Some("true"))
+    Ok(pretty.as_deref() == Some("true"))
 }
 
 async fn pretty_print(response: Response) -> Result<Response, OperationOutcomeError> {
@@ -163,32 +169,6 @@ async fn fhir_handler<
     let (requested_version, fhir_location) = split_fhir_version(uri.path());
     let fhir_version = request_fhir_version(&user, &path, requested_version)?;
 
-    let query: HashMap<String, String> = original_uri
-        .query()
-        .map(|q| {
-            url::form_urlencoded::parse(q.as_bytes())
-                .into_owned()
-                .collect()
-        })
-        .unwrap_or_default();
-    let format = query.get("_format").cloned();
-    let pretty = query.get("_pretty").cloned();
-
-    let http_req = HTTPRequest::new(
-        method,
-        fhir_location.to_string(),
-        HTTPBody::Bytes(body),
-        query,
-    );
-
-    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
-    // Searches only: `_format` is also an operation parameter.
-    let pretty = if matches!(fhir_request, FHIRRequest::Search(_)) {
-        pretty_requested(format.as_deref(), pretty.as_deref())?
-    } else {
-        false
-    };
-
     let ctx = Arc::new(
         ServerCTX::new(
             path.tenant,
@@ -201,6 +181,19 @@ async fn fhir_handler<
         .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))))
         .with_prefer_async(jobs::prefers_async(&headers)),
     );
+
+    let query = original_uri.query().unwrap_or_default();
+    let http_req = HTTPRequest::new(
+        method,
+        fhir_location.to_string(),
+        HTTPBody::Bytes(body),
+        query,
+    );
+    let fhir_request =
+        http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req, &ctx).await?;
+
+    // Searches only: `_format` is also an operation parameter.
+    let pretty = matches!(fhir_request, FHIRRequest::Search(_)) && pretty_requested(query)?;
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
 
@@ -332,6 +325,11 @@ pub async fn server(
     let tenant_router = Router::new()
         .route("/branding/logo", get(auth_n::tenant::routes::logo))
         .nest("/auth", auth_n::tenant::routes::create_router())
+        // OpenID Connect Discovery 1.0 §4: the document lives at `[iss]/.well-known/openid-configuration`.
+        .route(
+            "/{project}/.well-known/openid-configuration",
+            get(auth_n::oidc::routes::discovery::openid_configuration),
+        )
         .nest("/{project}/api/v1", project_router)
         .nest(
             "/mfa",
@@ -451,12 +449,18 @@ mod tests {
 
     #[test]
     fn format_and_pretty_parameters() {
-        for format in ["json", "application/json", "application/fhir+json"] {
-            assert!(!pretty_requested(Some(format), None).unwrap());
+        for format in [
+            "json",
+            "application/json",
+            "application/fhir%2Bjson",
+            "application/fhir+json",
+        ] {
+            assert!(!pretty_requested(&format!("_format={format}")).unwrap());
         }
-        assert!(pretty_requested(None, Some("true")).unwrap());
-        assert!(!pretty_requested(None, Some("false")).unwrap());
-        assert!(pretty_requested(Some("xml"), None).is_err());
+        assert!(pretty_requested("name=x&_pretty=true").unwrap());
+        assert!(!pretty_requested("_pretty=false").unwrap());
+        assert!(!pretty_requested("_pretty=true&_pretty=false").unwrap());
+        assert!(pretty_requested("_format=xml").is_err());
     }
 
     #[test]

@@ -1,4 +1,7 @@
 [workspace]
 allow_dirty = true
 changelog_update = false
+# The repository is versioned by its own release tags (release_version_bump.yml);
+# release-plz only publishes crates and must not push a tag per crate.
+git_tag_enable = false
 git_release_enable = false
