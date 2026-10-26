@@ -136,6 +136,19 @@ impl TryFrom<&str> for SmartResourceScopeLevel {
     }
 }
 
+impl SmartResourceScopeLevel {
+    /// Whether this level reaches every resource type `other` names: `*`
+    /// reaches them all, a resource type only itself.
+    #[must_use]
+    pub fn covers(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::AllResources, _) => true,
+            (Self::ResourceType(_), Self::AllResources) => false,
+            (Self::ResourceType(held), Self::ResourceType(wanted)) => held == wanted,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SmartResourceScopePermission {
     Create,
@@ -163,6 +176,19 @@ impl SmartResourceScopePermissions {
         if !self.has_permission(&permission) {
             self.0.push(permission);
         }
+    }
+
+    pub fn iter(&self) -> std::slice::Iter<'_, SmartResourceScopePermission> {
+        self.0.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a SmartResourceScopePermissions {
+    type Item = &'a SmartResourceScopePermission;
+    type IntoIter = std::slice::Iter<'a, SmartResourceScopePermission>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
     }
 }
 
@@ -434,6 +460,38 @@ impl Scopes {
     #[must_use]
     pub fn contains_scope(&self, scope: &Scope) -> bool {
         self.0.contains(scope)
+    }
+
+    /// Whether these scopes grant everything `scope` grants.
+    ///
+    /// A SMART resource scope is covered when the scopes of the same context
+    /// (`patient/`, `user/` or `system/`) that reach its resource type (`*`
+    /// reaches every type) together carry each of its permissions. So
+    /// `patient/*.rs` covers `patient/Medication.rs`, and `patient/Medication.rs`
+    /// covers `patient/Medication.s`: per SMART App Launch, "Observation.rs"
+    /// is "Observation.r Observation.s", and scopes combine into a union of
+    /// access. A permission never implies another (write does not imply
+    /// read), so `patient/Medication.cud` does not cover `patient/Medication.r`.
+    /// Any other scope is covered only by itself.
+    #[must_use]
+    pub fn covers_scope(&self, scope: &Scope) -> bool {
+        let Scope::SMART(SmartScope::Resource(wanted)) = scope else {
+            return self.contains_scope(scope);
+        };
+        let reaching = || {
+            self.0.iter().filter_map(|held| match held {
+                Scope::SMART(SmartScope::Resource(held))
+                    if held.user == wanted.user && held.level.covers(&wanted.level) =>
+                {
+                    Some(&held.permissions)
+                }
+                _ => None,
+            })
+        };
+        wanted
+            .permissions
+            .iter()
+            .all(|permission| reaching().any(|held| held.has_permission(permission)))
     }
 }
 

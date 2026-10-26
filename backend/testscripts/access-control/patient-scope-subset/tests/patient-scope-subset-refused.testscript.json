@@ -1,0 +1,124 @@
+{
+    "id": "access-control-patient-scope-subset-refused",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scope-subset-refused",
+    "name": "Access Control Patient Scope Subset Refused",
+    "title": "Patient scope subset: refused requests",
+    "status": "active",
+    "description": "Run as acps-patient through an app allowed openid fhirUser offline_access launch/patient patient/*.rs, signed in with patient/Medication.rs patient/Patient.r patient/Observation.s. The token carries the requested scopes, not the allowed ones: what the app could have requested but did not is refused with 403.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acps-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acps-patient"
+            }
+        },
+        {
+            "id": "acps-encounter",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acps-patient"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acps-observation",
+            "resource": {
+                "reference": "#acps-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-encounter",
+            "resource": {
+                "reference": "#acps-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-permission-not-requested",
+            "name": "A permission the allowed scopes hold but the requested ones lack is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "encodeRequestUrl": false,
+                        "description": "patient/Patient.r has no s, although patient/*.rs would have allowed it."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Patient search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acps-observation",
+                        "encodeRequestUrl": false,
+                        "description": "patient/Observation.s has no r, although patient/*.rs would have allowed it."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-type-not-requested",
+            "name": "A type the wildcard allows but the app did not request is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acps-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

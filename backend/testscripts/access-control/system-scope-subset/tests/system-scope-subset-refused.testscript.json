@@ -1,0 +1,124 @@
+{
+    "id": "access-control-system-scope-subset-refused",
+    "url": "https://haste.health/fhir/TestScript/access-control-system-scope-subset-refused",
+    "name": "Access Control System Scope Subset Refused",
+    "title": "System scope subset: refused requests",
+    "status": "active",
+    "description": "Run as the system-scope-subset login, allowed system/*.rs system/Observation.cud and signed in with system/Patient.rs system/Observation.cs system/Encounter.r. The token carries the requested scopes, not the allowed ones: what the client could have requested but did not is refused with 403.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acss-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acss-patient"
+            }
+        },
+        {
+            "id": "acss-practitioner",
+            "resourceType": "Practitioner",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acss-observation",
+            "resource": {
+                "reference": "#acss-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acss-practitioner",
+            "resource": {
+                "reference": "#acss-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-permission-not-requested",
+            "name": "A permission the allowed scopes hold but the requested ones lack is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acss-observation",
+                        "encodeRequestUrl": false,
+                        "description": "system/Observation.cs has no r, although system/*.rs would have allowed it."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "encodeRequestUrl": false,
+                        "description": "system/Encounter.r has no s, although system/*.rs would have allowed it."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-type-not-requested",
+            "name": "A type the wildcard allows but the client did not request is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-acss-practitioner",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Practitioner read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

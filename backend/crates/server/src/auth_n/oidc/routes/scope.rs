@@ -55,12 +55,17 @@ pub struct ScopeForm {
     pub accept: Option<String>,
 }
 
+/// Every requested scope must be within what the client is configured to
+/// request. The configured scopes are a ceiling, not a list of exact strings:
+/// `patient/*.rs` lets a client request `patient/Medication.rs`, and
+/// `patient/Medication.rs` lets it request `patient/Medication.s` (see
+/// [`Scopes::covers_scope`]).
 pub fn verify_requested_scope_is_subset(
     requested: &Scopes,
     allowed: &Scopes,
 ) -> Result<(), OIDCError> {
     for scope in requested.0.iter() {
-        if !allowed.0.contains(scope) {
+        if !allowed.covers_scope(scope) {
             return Err(OIDCError::new(
                 OIDCErrorCode::InvalidScope,
                 Some(format!(
