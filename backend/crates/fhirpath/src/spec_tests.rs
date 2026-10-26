@@ -27,6 +27,8 @@ fn render(value: &dyn MetaValue) -> String {
         boolean.value.unwrap().to_string()
     } else if any.is::<FHIRDate>() || any.is::<FHIRDateTime>() || any.is::<FHIRTime>() {
         format!("'{}'", downcast_datetime(value).unwrap())
+    } else if let Some(datetime) = any.downcast_ref::<crate::PartialDateTime>() {
+        format!("'{datetime}'")
     } else {
         format!("'{}'", downcast_string(value).unwrap())
     }
@@ -599,7 +601,7 @@ async fn temporal_literals() {
     assert_evaluates("@2020-01-01", &["'2020-01-01'"]).await;
     assert_evaluates("@2020-01-01T", &["'2020-01-01'"]).await;
     assert_evaluates("@2020-01-01T12:00:00Z", &["'2020-01-01T12:00:00+00:00'"]).await;
-    assert_evaluates("@2020-01-01T12:00:00", &["'2020-01-01T12:00:00+00:00'"]).await;
+    assert_evaluates("@2020-01-01T12:00:00", &["'2020-01-01T12:00:00'"]).await;
     assert_evaluates(
         "@2020-01-01T12:00:00+05:00",
         &["'2020-01-01T07:00:00+00:00'"],
