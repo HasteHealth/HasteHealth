@@ -1,0 +1,193 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-repeat-01",
+  "url": "https://haste.health/fhir/TestScript/sof-repeat-01",
+  "name": "sof-repeat-01",
+  "title": "SQL on FHIR repeat: basic",
+  "status": "active",
+  "description": "Recursive traversal with repeat directive Suite test 1 of tests/repeat.json (repeat), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "QuestionnaireResponse",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  }
+                ]
+              },
+              {
+                "repeat": [
+                  "item"
+                ],
+                "column": [
+                  {
+                    "name": "linkId",
+                    "path": "linkId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "text",
+                    "path": "text",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Questionnaire",
+            "id": "q1",
+            "status": "active",
+            "item": [
+              {
+                "linkId": "g1",
+                "text": "Group 1",
+                "type": "group",
+                "item": [
+                  {
+                    "linkId": "g1.1",
+                    "text": "Question 1.1",
+                    "type": "string",
+                    "item": [
+                      {
+                        "linkId": "g1.1.1",
+                        "text": "Sub-question 1.1.1",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "linkId": "g2",
+                "text": "Group 2",
+                "type": "display"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "QuestionnaireResponse",
+            "id": "qr1",
+            "questionnaire": "http://example.com/Questionnaire/q1",
+            "status": "completed",
+            "item": [
+              {
+                "linkId": "1",
+                "text": "Group 1",
+                "item": [
+                  {
+                    "linkId": "1.1",
+                    "text": "Question 1.1",
+                    "answer": [
+                      {
+                        "valueString": "Answer 1.1",
+                        "item": [
+                          {
+                            "linkId": "1.1.1",
+                            "text": "Follow-up to 1.1"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "linkId": "1.2",
+                    "text": "Question 1.2",
+                    "item": [
+                      {
+                        "linkId": "1.2.1",
+                        "text": "Question 1.2.1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "linkId": "2",
+                "text": "Group 2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "basic",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 5 in all. [{\"id\": \"qr1\", \"linkId\": \"1\", \"text\": \"Group 1\"}, {\"id\": \"qr1\", \"linkId\": \"1.1\", \"text\": \"Question 1.1\"}, {\"id\": \"qr1\", \"linkId\": \"1.2\", \"text\": \"Question 1.2\"}, {\"id\": \"qr1\", \"linkId\": \"1.2.1\", \"text\": \"Question 1.2.1\"}, {\"id\": \"qr1\", \"linkId\": \"2\", \"text\": \"Group 2\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJxcjEiLCJsaW5rSWQiOiIxIiwidGV4dCI6Ikdyb3VwIDEifSx7ImlkIjoicXIxIiwibGlua0lkIjoiMS4xIiwidGV4dCI6IlF1ZXN0aW9uIDEuMSJ9LHsiaWQiOiJxcjEiLCJsaW5rSWQiOiIxLjIiLCJ0ZXh0IjoiUXVlc3Rpb24gMS4yIn0seyJpZCI6InFyMSIsImxpbmtJZCI6IjEuMi4xIiwidGV4dCI6IlF1ZXN0aW9uIDEuMi4xIn0seyJpZCI6InFyMSIsImxpbmtJZCI6IjIiLCJ0ZXh0IjoiR3JvdXAgMiJ9XQ=='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}
