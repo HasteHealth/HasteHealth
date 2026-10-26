@@ -1519,11 +1519,13 @@ fn to_string(value: Convertible) -> Option<String> {
         Convertible::String(value) | Convertible::DateTime(value) => Some(value),
         Convertible::Quantity(quantity) => {
             let value = quantity.value.as_ref()?.value?;
-            Some(format!(
-                "{} '{}'",
-                decimal_string(value),
-                quantity_unit(quantity)
-            ))
+            let unit = quantity_unit(quantity);
+            // Calendar keywords are bare, UCUM units are quoted.
+            Some(if CALENDAR_UNITS.contains(&unit) {
+                format!("{value} {unit}")
+            } else {
+                format!("{value} '{unit}'")
+            })
         }
     }
 }
@@ -1597,8 +1599,14 @@ fn to_quantity(value: Convertible, unit: Option<&str>) -> Option<Quantity> {
         Convertible::String(value) => {
             let captures = QUANTITY_STRING.captures(&value)?;
             let number = captures[1].parse().ok()?;
-            let unit = captures.get(2).or_else(|| captures.get(3));
-            new_quantity(number, unit.map_or("1", |unit| unit.as_str()))
+            let unit = match (captures.get(2), captures.get(3)) {
+                (Some(quoted), _) => quoted.as_str(),
+                // A bare word must be a calendar keyword.
+                (None, Some(bare)) if CALENDAR_UNITS.contains(&bare.as_str()) => bare.as_str(),
+                (None, Some(_)) => return None,
+                (None, None) => "1",
+            };
+            new_quantity(number, unit)
         }
         Convertible::DateTime(_) => return None,
     };

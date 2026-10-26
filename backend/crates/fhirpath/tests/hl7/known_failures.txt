@@ -47,7 +47,6 @@ testLiteralUnicodeInvalid
 testIntegerLiteralIsInteger
 testIntegerLiteralIsSystemInteger
 testDecimalLiteralIsDecimal
-testStringQuantityWeekConvertsToQuantityFalse
 testIntegerLiteralToQuantity
 testDecimalLiteralToQuantity
 testStringQuantityLiteralToQuantity
@@ -58,8 +57,6 @@ testStringQuantityYearLiteralToQuantity
 testStringQuantityMonthToQuantityEquivalent
 testStringQuantityYearToQuantityEquivalent
 testStringDecimalLiteralToQuantity
-testQuantityLiteralWkToString
-testQuantityLiteralWeekToString
 
 # testSubSetOf
 testSubSetOf1
