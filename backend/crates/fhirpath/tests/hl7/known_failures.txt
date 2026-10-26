@@ -41,25 +41,9 @@ testLiteralTimeHour
 testLiteralTimeMinute
 testLiteralTimeSecond
 testLiteralTimeMillisecond
-testDateEqual
-testDateNotEqual
-testDateNotEqualTimezoneOffsetBefore
-testDateNotEqualTimezoneOffsetAfter
-testDateNotEqualUTC
-testDateNotEqualToday
-testDateTimeGreaterThanDate1
-testDateGreaterThanDate
-testDateTimeGreaterThanDate2
-testLiteralDateTimeTZGreater
-testLiteralDateTimeTZLess
-testLiteralDateTimeTZEqualTrue
 testLiteralUnicodeInvalid
 
 # testTypes
-testStringHourConvertsToDateTime
-testStringMinuteConvertsToDateTime
-testStringSecondConvertsToDateTime
-testStringMillisecondConvertsToDateTime
 testIntegerLiteralIsInteger
 testIntegerLiteralIsSystemInteger
 testDecimalLiteralIsDecimal
@@ -195,12 +179,6 @@ testSplit8
 # testJoin
 testJoinEmpty
 
-# testToday
-testToday1
-
-# testNow
-testNow1
-
 # testSort
 testSort1
 testSort2
@@ -217,63 +195,29 @@ testSort10
 testEquality5
 testEquality6
 testEquality7
-testEquality17
-testEquality19
-testEquality21
-testEquality23
-testEquality24
 testEquality25
 testEquality26
 testEquality27
 testEquality28
 testEquality36
-testEquality37
-testEquality38
-testEquality39
-testEquality40
 
 # testNEquality
-testNEquality11
-testNEquality13
-testNEquality15
-testNEquality17
-testNEquality18
 testNEquality19
 testNEquality20
 testNEquality21
-testNEquality27
 
 # testEquivalent
 testEquivalent11
-testEquivalent14
-testEquivalent17
 testEquivalent22
 testEquivalent24
 testEquivalent25
 testEquivalent26
-testEquivalent30
 
 # testNotEquivalent
-testNotEquivalent14
-testNotEquivalent17
 testNotEquivalent24
 
 # testLessThan
-testLessThan5
-testLessThan6
-testLessThan7
-testLessThan12
-testLessThan13
-testLessThan14
-testLessThan19
-testLessThan20
-testLessThan21
 testLessThan22
-testLessThan23
-testLessThan24
-testLessThan25
-testLessThan26
-testLessThan27
 testLessThan28
 
 # testQuantityUnitComparison
@@ -285,55 +229,13 @@ testQuantityUnitVsNoUnitEqual
 testQuantityNoUnitVsUnitEqual
 
 # testLessOrEqual
-testLessOrEqual5
-testLessOrEqual6
-testLessOrEqual7
-testLessOrEqual12
-testLessOrEqual13
-testLessOrEqual14
-testLessOrEqual19
-testLessOrEqual20
-testLessOrEqual21
 testLessOrEqual22
-testLessOrEqual23
-testLessOrEqual24
-testLessOrEqual25
-testLessOrEqual26
-testLessOrEqual27
 
 # testGreatorOrEqual
-testGreatorOrEqual5
-testGreatorOrEqual6
-testGreatorOrEqual7
-testGreatorOrEqual12
-testGreatorOrEqual13
-testGreatorOrEqual14
-testGreatorOrEqual19
-testGreatorOrEqual20
-testGreatorOrEqual21
 testGreatorOrEqual22
-testGreatorOrEqual23
-testGreatorOrEqual24
-testGreatorOrEqual25
-testGreatorOrEqual26
-testGreatorOrEqual27
 
 # testGreaterThan
-testGreaterThan5
-testGreaterThan6
-testGreaterThan7
-testGreaterThan12
-testGreaterThan13
-testGreaterThan14
-testGreaterThan19
-testGreaterThan20
-testGreaterThan21
 testGreaterThan22
-testGreaterThan23
-testGreaterThan24
-testGreaterThan25
-testGreaterThan26
-testGreaterThan27
 
 # testCombine()
 testCombine2
@@ -342,7 +244,6 @@ testCombine3
 # testUnion
 testUnion10
 testUnion11
-testUnion12
 
 # testExclude
 testExclude1
@@ -364,13 +265,10 @@ testPlusDate19
 testPlusDate20
 testPlusDate21
 testPlusDate22
-testPlusDate23
-testPlusDate24
 
 # testMinus
 testMinus3
 testMinus6
-testMinus7
 
 # testDivide
 testDivide6
@@ -509,7 +407,6 @@ PrecisionTimeMilliseconds
 testPolymorphicsB
 
 # period
-testPeriodInvariantOld
 testPeriodInvariantNew
 
 # testInheritance
