@@ -2050,17 +2050,25 @@ async fn evaluate_operation<'a>(
 
 /// A Date, `DateTime` or Time plus or minus a time-valued Quantity. `None`
 /// when the operands are not such a pair; empty when the Quantity cannot
-/// shift the value.
+/// shift the value; an error for a unit that is not a fixed-length time unit.
 fn temporal_arithmetic<'a>(
     left: &Context<'a>,
     right: &Context<'a>,
     subtract: bool,
-) -> Option<Context<'a>> {
-    let temporal = Temporal::of(left.values[0])?;
-    let quantity = right.values[0].as_any().downcast_ref::<Quantity>()?;
-    let amount = quantity.value.as_ref()?.value?;
-    let shifted = temporal.shift(amount, quantity_unit(quantity), subtract);
-    Some(left.new_context_from(match shifted {
+) -> Result<Option<Context<'a>>, FHIRPathError> {
+    let (Some(temporal), Some(quantity)) = (
+        Temporal::of(left.values[0]),
+        right.values[0].as_any().downcast_ref::<Quantity>(),
+    ) else {
+        return Ok(None);
+    };
+    let Some(amount) = quantity.value.as_ref().and_then(|value| value.value) else {
+        return Ok(None);
+    };
+    let shifted = temporal
+        .shift(amount, quantity_unit(quantity), subtract)
+        .map_err(FHIRPathError::OperationError)?;
+    Ok(Some(left.new_context_from(match shifted {
         Some(Shifted::Date(value)) => vec![left.allocate_literal(FHIRDate {
             value: Some(value),
             ..Default::default()
@@ -2075,7 +2083,7 @@ fn temporal_arithmetic<'a>(
             ..Default::default()
         })],
         None => vec![],
-    }))
+    })))
 }
 
 async fn evaluate_add<'a>(
@@ -2086,7 +2094,7 @@ async fn evaluate_add<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if let Some(shifted) = temporal_arithmetic(&left, &right, false) {
+            if let Some(shifted) = temporal_arithmetic(&left, &right, false)? {
                 Ok(shifted)
             } else if NUMBER_TYPES.contains(left.values[0].fhir_type())
                 && NUMBER_TYPES.contains(right.values[0].fhir_type())
@@ -2201,7 +2209,7 @@ async fn evaluate_subtraction<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if let Some(shifted) = temporal_arithmetic(&left, &right, true) {
+            if let Some(shifted) = temporal_arithmetic(&left, &right, true)? {
                 return Ok(shifted);
             }
             let left_value = downcast_number(left.values[0])?;

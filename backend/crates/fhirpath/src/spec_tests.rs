@@ -821,11 +821,15 @@ async fn date_time_arithmetic() {
     assert_evaluates("@T10:00 + 1 hour", &["'11:00'"]).await;
     assert_evaluates("@T23:30:00 + 1 hour", &["'00:30:00'"]).await;
     assert_evaluates("@T10 + 90 minutes", &["'11'"]).await;
-    // Units the value's precision cannot take, or not time units, are empty.
+    // Units the value's precision cannot take are empty.
     assert_evaluates("@2020-01-01 + 1 hour", &[]).await;
     assert_evaluates("@T10:00 + 1 day", &[]).await;
     assert_evaluates("@2014 + 1 day", &[]).await;
-    assert_evaluates("@2020-01-01 + 1 'mg'", &[]).await;
+    // Units of no fixed length, or no time units, are errors.
+    assert_errors("@2020-01-01 + 1 'mg'").await;
+    assert_errors("@1973-12-25 + 1 'mo'").await;
+    assert_errors("@1973-12-25 + 1 'a'").await;
+    assert_errors("@1974-12-25 - 1 'cm'").await;
     assert_evaluates("@2020-01-01 + {}", &[]).await;
     assert_evaluates("1 + 2", &["3.0"]).await;
     assert_evaluates("5 - 2", &["3.0"]).await;
