@@ -28,7 +28,7 @@ use haste_reflect_derive::Reflect;
 use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     sync::{Arc, LazyLock, Mutex},
 };
 
@@ -437,7 +437,7 @@ async fn evaluate_function<'a>(
         "exists" => evaluate_exists(function, context, config).await,
         "children" => evaluate_children(function, &context),
         "repeat" => evaluate_repeat(function, context, config).await,
-        "descendants" => evaluate_descendants(context, config).await,
+        "descendants" => Ok(evaluate_descendants(&context)),
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
         "single" | "last" | "tail" => evaluate_subsetting(function, &context),
@@ -684,14 +684,8 @@ async fn evaluate_exists<'a>(
     )
 }
 
-fn evaluate_children<'a>(
-    function: &FunctionInvocation,
-    context: &Context<'a>,
-) -> Result<Context<'a>, FHIRPathError> {
-    validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-    let children = context
-        .values
+fn children_of<'a>(values: &[&'a dyn MetaValue]) -> Vec<&'a dyn MetaValue> {
+    values
         .iter()
         .flat_map(|value| {
             value
@@ -701,11 +695,51 @@ fn evaluate_children<'a>(
                 .flatten()
                 .collect::<Vec<_>>()
         })
-        .collect();
-
-    Ok(context.new_context_from(children))
+        .collect()
 }
 
+fn evaluate_children<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    Ok(context.new_context_from(children_of(&context.values)))
+}
+
+/// Most items the `repeat()` calls of one evaluation may produce. A projection can
+/// keep yielding new values (`1.repeat($this + 1)`), so evaluation fails past this.
+const REPEAT_ITEM_LIMIT: usize = 10_000;
+
+/// An item as `repeat()` tells it from the items it already produced: numbers, strings and
+/// booleans by value, as `=` compares them, anything else (dates and times included) only
+/// equal to itself.
+#[derive(PartialEq, Eq, Hash)]
+enum SeenKey {
+    Number(u64),
+    String(String),
+    Boolean(bool),
+    Item(usize, &'static str),
+}
+
+impl SeenKey {
+    fn of(value: &dyn MetaValue) -> Result<Self, FHIRPathError> {
+        let fhir_type = value.fhir_type();
+        Ok(if NUMBER_TYPES.contains(fhir_type) {
+            let number = downcast_number(value)?;
+            // -0.0 = 0.0
+            SeenKey::Number(if number == 0.0 { 0.0 } else { number }.to_bits())
+        } else if STRING_TYPES.contains(fhir_type) {
+            SeenKey::String(downcast_string(value)?)
+        } else if BOOLEAN_TYPES.contains(fhir_type) {
+            SeenKey::Boolean(downcast_bool(value)?)
+        } else {
+            SeenKey::Item(std::ptr::from_ref(value).cast::<()>().addr(), fhir_type)
+        })
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#repeatprojection-expression-collection>
 async fn evaluate_repeat<'a>(
     function: &FunctionInvocation,
     context: Context<'a>,
@@ -715,18 +749,22 @@ async fn evaluate_repeat<'a>(
 
     let projection = &function.arguments[0];
     let mut end_result = vec![];
+    let mut seen = HashSet::new();
     let mut cur = context;
 
+    // Repeats only as long as the projection yields items not already in the output.
     while !cur.values.is_empty() {
         let mut next = vec![];
         for (index, value) in cur.values.iter().enumerate() {
             let item = cur.new_item_context(*value, index);
-            next.extend(
-                evaluate_expression(projection, item, config.clone())
-                    .await?
-                    .values,
-            );
+            let projected = evaluate_expression(projection, item, config.clone()).await?;
+            for projected_value in projected.values {
+                if seen.insert(SeenKey::of(projected_value)?) {
+                    next.push(projected_value);
+                }
+            }
         }
+        cur.count_repeat_items(next.len())?;
         end_result.extend_from_slice(&next);
         cur = cur.new_context_from(next);
     }
@@ -734,28 +772,19 @@ async fn evaluate_repeat<'a>(
     Ok(cur.new_context_from(end_result))
 }
 
-async fn evaluate_descendants<'a>(
-    context: Context<'a>,
-    config: Option<Arc<Config<'a>>>,
-) -> Result<Context<'a>, FHIRPathError> {
-    let result = evaluate_expression(
-        &Expression::Singular(vec![Term::Invocation(Invocation::Function(
-            FunctionInvocation {
-                name: Identifier("repeat".to_string()),
-                arguments: vec![Expression::Singular(vec![Term::Invocation(
-                    Invocation::Function(FunctionInvocation {
-                        name: Identifier("children".to_string()),
-                        arguments: vec![],
-                    }),
-                )])],
-            },
-        ))]),
-        context,
-        config,
-    )
-    .await?;
+/// `repeat(children())` without removing equal items, so two equal values at
+/// different places in the resource are both returned. A resource is a finite
+/// tree, so this ends.
+fn evaluate_descendants<'a>(context: &Context<'a>) -> Context<'a> {
+    let mut end_result = vec![];
+    let mut children = children_of(&context.values);
 
-    Ok(result)
+    while !children.is_empty() {
+        end_result.extend_from_slice(&children);
+        children = children_of(&children);
+    }
+
+    context.new_context_from(end_result)
 }
 
 fn evaluate_type<'a>(
@@ -2734,6 +2763,23 @@ impl<'a> Context<'a> {
             .now()
     }
 
+    /// Counts items `repeat()` produced, failing once the evaluation's total passes
+    /// [`REPEAT_ITEM_LIMIT`].
+    fn count_repeat_items(&self, count: usize) -> Result<(), FHIRPathError> {
+        let total = self
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .add_repeat_items(count);
+        if total > REPEAT_ITEM_LIMIT {
+            return Err(FunctionError::InvalidFunctionCall(format!(
+                "repeat() produced more than {REPEAT_ITEM_LIMIT} items"
+            ))
+            .into());
+        }
+        Ok(())
+    }
+
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
         self.allocator
             .lock()
@@ -3610,19 +3656,14 @@ mod tests {
             .await
             .unwrap();
 
+        // The System values under the primitives equal them, so they are not new items.
         assert_eq!(
             result
                 .values
                 .iter()
                 .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
-            vec![
-                "HumanName",
-                "boolean",
-                "string",
-                "http://hl7.org/fhirpath/System.Boolean",
-                "http://hl7.org/fhirpath/System.String"
-            ]
+            vec!["HumanName", "boolean", "string"]
         );
     }
     #[tokio::test]
