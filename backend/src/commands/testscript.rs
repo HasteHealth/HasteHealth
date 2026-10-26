@@ -49,9 +49,10 @@ pub(crate) enum TestScriptCommands {
         /// Delay between operations within a TestScript, in milliseconds.
         #[arg(short, long)]
         wait_between_operations_ms: Option<u64>,
-        /// Before a search (or conditional delete/update), wait up to this many
-        /// milliseconds for the TestScript's latest write to be indexed. Search
-        /// indexing is asynchronous; this waits only as long as it takes.
+        /// Before a search, an operation or a conditional delete/update, wait up
+        /// to this many milliseconds for the TestScript's latest writes to be
+        /// indexed. Search indexing is asynchronous; this waits only as long as
+        /// it takes.
         #[arg(long)]
         index_wait_ms: Option<u64>,
         /// A TestScript id whose failure is known and shouldn't fail the run.

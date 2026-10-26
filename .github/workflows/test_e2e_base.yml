@@ -148,8 +148,9 @@ jobs:
 
         working-directory: ./backend
 
-      # `--index-wait-ms` makes each search wait until the TestScript's latest
-      # write is indexed, instead of a fixed delay after every operation.
+      # `--index-wait-ms` makes each search and operation wait until the
+      # TestScript's latest writes are indexed, instead of a fixed delay after
+      # every operation.
       - name: Run Base Testscripts
         run: ./target/debug/haste-health testscript run -i testscripts/base -w 0 --index-wait-ms 30000
         working-directory: ./backend
