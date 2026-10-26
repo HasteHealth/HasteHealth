@@ -1,5 +1,5 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::{StreamExt as _, stream::FuturesOrdered};
+use futures::{StreamExt as _, future::BoxFuture, stream::FuturesOrdered};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::generated::{
@@ -314,9 +314,9 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
     hashmap
 }
 
-fn cartesian_product(
-    select_statement_results: Vec<Vec<OrderMap<String, OutputResults>>>,
-) -> Vec<OrderMap<String, OutputResults>> {
+type Row = OrderMap<String, OutputResults>;
+
+fn cartesian_product(select_statement_results: Vec<Vec<Row>>) -> Vec<Row> {
     let mut output_results = Vec::new();
 
     for combination in select_statement_results
@@ -354,46 +354,31 @@ async fn process_resource<
     variables: Arc<HashMap<String, &dyn MetaValue>>,
     view_definition: &ViewDefinition,
     input: Resource,
-) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
+) -> Result<Vec<Row>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
+    let fp_config = Arc::new(
+        Config::builder()
+            .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
+                variables,
+            ))
+            .with_resource_id(input.id().clone().unwrap_or_default()),
+    );
 
     let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
     for select_statement in &view_definition.select {
-        let fp_config = Arc::new(
-            Config::builder()
-                .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
-                    variables.clone(),
-                ))
-                .with_resource_id(input.id().clone().unwrap_or_default()),
-        );
-
-        let (iterable_context, set_null) =
-            build_iterable_context(&fp_engine, fp_config.clone(), select_statement, &input).await?;
-
-        let select_results = process_select_statement(
-            &fp_engine,
-            fp_config,
-            select_statement,
-            &input,
-            iterable_context,
-            set_null,
-        )
-        .await?;
-
-        select_statement_results.push(select_results);
+        select_statement_results
+            .push(process_select(&fp_engine, fp_config.clone(), select_statement, &input).await?);
     }
 
-    let output_results = cartesian_product(select_statement_results);
-
-    Ok(output_results)
+    Ok(cartesian_product(select_statement_results))
 }
 
 async fn build_iterable_context<'a>(
     fp_engine: &FPEngine,
     fp_config: Arc<Config<'a>>,
     select_statement: &'a ViewDefinitionSelect,
-    input: &'a Resource,
+    input: &'a dyn MetaValue,
 ) -> Result<(Option<Vec<haste_fhirpath::Context<'a>>>, bool), OperationOutcomeError> {
     let mut iterable_context = None;
     let mut set_null = false;
@@ -461,46 +446,67 @@ async fn build_iterable_context<'a>(
     Ok((iterable_context, set_null))
 }
 
-async fn process_select_statement<'a>(
-    fp_engine: &FPEngine,
+/// Rows of a select on one focus node: the cross product of its own columns, its nested
+/// selects' rows and its `unionAll` rows. `forEach`, `forEachOrNull` and `repeat` give one focus
+/// node per item.
+fn process_select<'a>(
+    fp_engine: &'a FPEngine,
     fp_config: Arc<Config<'a>>,
     select_statement: &'a ViewDefinitionSelect,
-    input: &'a Resource,
-    iterable_context: Option<Vec<haste_fhirpath::Context<'a>>>,
-    set_null: bool,
-) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
-    let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
-        iterable
-            .iter()
-            .flat_map(haste_fhirpath::Context::iter)
-            .collect()
-    } else {
-        vec![input]
-    };
+    input: &'a dyn MetaValue,
+) -> BoxFuture<'a, Result<Vec<Row>, OperationOutcomeError>> {
+    Box::pin(async move {
+        let (iterable_context, set_null) =
+            build_iterable_context(fp_engine, fp_config.clone(), select_statement, input).await?;
 
-    let mut select_results = Vec::with_capacity(select_context.len());
+        let focus_nodes: Vec<&dyn MetaValue> = match iterable_context.as_ref() {
+            Some(iterable) => iterable
+                .iter()
+                .flat_map(haste_fhirpath::Context::iter)
+                .collect(),
+            None => vec![input],
+        };
 
-    if set_null && select_context.is_empty() {
-        let output_result = build_null_result(select_statement)?;
-        select_results.push(output_result);
-    }
+        if set_null && focus_nodes.is_empty() {
+            let mut null_row = Row::new();
+            collect_null_columns(select_statement, &mut null_row)?;
+            return Ok(vec![null_row]);
+        }
 
-    for context in select_context {
-        let output_result =
-            process_select_context(fp_engine, fp_config.clone(), select_statement, context).await?;
+        let mut rows = Vec::with_capacity(focus_nodes.len());
 
-        select_results.push(output_result);
-    }
+        for focus in focus_nodes {
+            let mut parts = vec![vec![
+                process_select_context(fp_engine, fp_config.clone(), select_statement, focus)
+                    .await?,
+            ]];
 
-    Ok(select_results)
+            for nested in select_statement.select.iter().flatten() {
+                parts.push(process_select(fp_engine, fp_config.clone(), nested, focus).await?);
+            }
+
+            if let Some(branches) = &select_statement.unionAll {
+                let mut union_rows = Vec::new();
+                for branch in branches {
+                    union_rows
+                        .extend(process_select(fp_engine, fp_config.clone(), branch, focus).await?);
+                }
+                parts.push(union_rows);
+            }
+
+            rows.extend(cartesian_product(parts));
+        }
+
+        Ok(rows)
+    })
 }
 
-fn build_null_result(
+/// Adds a null for every column of the select, its nested selects and its `unionAll` branches.
+fn collect_null_columns(
     select_statement: &ViewDefinitionSelect,
-) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
-    let mut output_result = OrderMap::new();
-
-    for column in select_statement.column.as_ref().into_iter().flatten() {
+    row: &mut Row,
+) -> Result<(), OperationOutcomeError> {
+    for column in select_statement.column.iter().flatten() {
         let Some(name) = column.name.value.as_deref() else {
             return Err(OperationOutcomeError::error(
                 IssueType::invalid(),
@@ -508,10 +514,19 @@ fn build_null_result(
             ));
         };
 
-        output_result.insert(name.to_string(), OutputResults::Scalar(None));
+        row.insert(name.to_string(), OutputResults::Scalar(None));
     }
 
-    Ok(output_result)
+    for nested in select_statement
+        .select
+        .iter()
+        .flatten()
+        .chain(select_statement.unionAll.iter().flatten())
+    {
+        collect_null_columns(nested, row)?;
+    }
+
+    Ok(())
 }
 
 async fn process_select_context<'a>(

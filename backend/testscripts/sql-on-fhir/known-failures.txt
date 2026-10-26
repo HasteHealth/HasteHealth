@@ -43,23 +43,14 @@ sof-repeat-11            # sibling repeats at top level
 # the other five rows are there.
 sof-repeat-02            # item and answer.item
 
-# `unionAll` branches add no rows: a select made only of a `unionAll` returns `{}`, and one with
-# columns returns just its columns.
-sof-constant-04          # constant in unionAll
+# Still failing after nested `select` and `unionAll` were evaluated; they need `%rowIndex` (#1336)
+# or the depth-first `repeat` row order (#1338).
 sof-repeat-07            # combined with unionAll
 sof-repeat-16            # unionAll inside repeat
 sof-repeat-19            # unionAll with repeat and non-repeat branches
 sof-row-index-06         # %rowIndex with unionAll
 sof-row-index-07         # %rowIndex in unionAll without forEach
 sof-row-index-08         # %rowIndex in unionAll inside forEach
-sof-union-01             # basic
-sof-union-02             # unionAll + column
-sof-union-03             # duplicates
-sof-union-04             # empty results
-sof-union-05             # empty with forEachOrNull
-sof-union-06             # forEachOrNull and forEach
-sof-union-07             # nested
-sof-union-08             # one empty operand
 
 # `%rowIndex` is always null.
 sof-row-index-01         # %rowIndex at top level
@@ -69,11 +60,7 @@ sof-row-index-04         # %rowIndex with nested forEach
 sof-row-index-05         # %rowIndex with repeat
 sof-row-index-09         # %rowIndex for surrogate key
 
-# A `forEach`, `forEachOrNull` or `repeat` select's nested `select`s and columns add no rows.
-sof-collection-03        # collection = false relative to forEach parent
-sof-collection-04        # collection = false relative to forEachOrNull parent
-sof-foreach-08           # nested forEach
-sof-foreach-09           # nested forEach: select & column
+# `repeat` TestScripts that may now pass; not run locally, left until CI confirms.
 sof-repeat-05            # combined with forEach
 sof-repeat-06            # combined with forEachOrNull
 sof-repeat-08            # repeat inside forEach
