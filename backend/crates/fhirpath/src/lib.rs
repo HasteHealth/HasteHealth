@@ -461,7 +461,7 @@ async fn evaluate_function<'a>(
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
-        "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
+        "indexOf" | "substring" | "length" | "toChars" | "trim" | "replace" | "matches"
         | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
@@ -1275,6 +1275,10 @@ fn char_count(value: &str) -> Result<i64, FHIRPathError> {
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
 }
 
+fn trim(value: &str) -> String {
+    value.trim_matches([' ', '\t', '\r', '\n']).to_owned()
+}
+
 /// <https://hl7.org/fhirpath/N1/#indexofsubstring-string-integer> through
 /// <https://hl7.org/fhirpath/N1/#tochars-collection>: empty when the input or
 /// a required argument is empty.
@@ -1285,7 +1289,7 @@ async fn evaluate_string_function<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let name = function.name.0.as_str();
     let cardinality = match name {
-        "length" | "toChars" => Cardinality::Zero,
+        "length" | "toChars" | "trim" => Cardinality::Zero,
         "indexOf" | "matches" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
@@ -1325,6 +1329,7 @@ async fn evaluate_string_function<'a>(
 
     let result = match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
+        "trim" => string_result(&context, trim(&input)),
         "toChars" => {
             let chars = input.chars().map(|c| {
                 context.allocate_literal(FHIRString {
