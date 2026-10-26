@@ -7,8 +7,10 @@ the `tests/` directory of [FHIR/sql-on-fhir.js](https://github.com/FHIR/sql-on-f
 here is its license.
 
 The suite has 144 tests in 22 files. Each test a TestScript can express is one TestScript here
-(106). The 38 it cannot are listed under [Not covered](#not-covered). Nothing in a TestScript comes
-from anywhere but its suite test.
+(106). The 38 it cannot are listed under [Not covered](#not-covered). Nothing in those TestScripts
+comes from anywhere but its suite test. One more, `validate/06-invalid-column-path`
+(`sof-validate-column-path`), is Haste Health's own: a column path that does not parse is refused
+with a client error. That makes 107.
 
 ## From a suite test to a TestScript
 
@@ -74,29 +76,23 @@ while read -r id; do allowed+=(--allow-failure "$id"); done < <(
 | `repeat/`            | 19          | 19          |
 | `row_index/`         | 9           | 9           |
 | `union/`             | 10          | 10          |
-| `validate/`          | 5           | 2           |
+| `validate/`          | 5           | 3           |
 | `view_resource/`     | 3           | 2           |
 | `where/`             | 8           | 0           |
-| **Total**            | **144**     | **106**     |
+| **Total**            | **144**     | **107**     |
 
 ## Known failures
 
-On 2026-10-25, 48 of the 106 pass. The other 58 are in `known-failures.txt`, by cause. A
+On 2026-10-25, 78 of the 107 pass. The other 29 are in `known-failures.txt`, by cause. A
 TestScript that fails for several causes is listed under the first that shows.
 
-| TestScripts | Cause                                                                                                                                                                                                                                                                                                              |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 15          | `unionAll` branches add no rows: a `select` made only of a `unionAll` returns empty rows, `{}`, and one with columns returns just its columns (`sof-union-01` to `-08`, `sof-row-index-06` to `-08`, `sof-repeat-07`, `-16`, `-19`, `sof-constant-04`).                                                            |
-| 15          | A `forEach`, `forEachOrNull` or `repeat` select's nested `select`s and columns add no rows or columns (`sof-repeat-05`, `-06`, `-08` to `-10`, `-12` to `-15`, `-17`, `-18`, `sof-foreach-08`, `-09`, `sof-collection-03`, `-04`).                                                                                 |
-| 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                                                                                                                                                                                                  |
-| 6           | `%rowIndex` is always null (`sof-row-index-01` to `-05`, `-09`).                                                                                                                                                                                                                                                   |
-| 5           | A constant compared or added in an expression answers 500 with a downcast or decimal type error (`sof-constant-05`, `-06`, `sof-constant-types-05`, `-09`, `-11`).                                                                                                                                                 |
-| 3           | A `repeat` returns the rows the suite expects, but level by level (all first-level items, then the second level) where the suite lists them depth first. The suite compares rows in any order and the specification sets none for `repeat`; a TestScript compares the rows' bytes (`sof-repeat-01`, `-04`, `-11`). |
-| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`).                                                                                                                                                                           |
-| 1           | A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`sof-repeat-02`).                                                                                                                                                                                                              |
-| 1           | An undefined constant (`%wrong_name`) evaluates to empty instead of raising an error (`sof-constant-07`).                                                                                                                                                                                                          |
-| 1           | An invalid FHIRPath expression (`forEach: "@@"`) answers 500 instead of a client error (`sof-validate-03`).                                                                                                                                                                                                        |
-| 1           | A `where` path that is empty for a resource keeps the resource (`sof-basic-07`).                                                                                                                                                                                                                                   |
+| TestScripts | Cause                                                                                                                                                                                                                                                                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9           | `%rowIndex` is not defined, so a view that uses it is refused with 400 "Undefined constant: %rowIndex" (`sof-row-index-01` to `-09`).                                                                                                                                                                                                          |
+| 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                                                                                                                                                                                                                              |
+| 7           | A `repeat` returns the rows the suite expects, but level by level (all first-level items, then the second level) where the suite lists them depth first. The suite compares rows in any order and the specification sets none for `repeat`; a TestScript compares the rows' bytes (`sof-repeat-01`, `-04`, `-06`, `-11`, `-13`, `-16`, `-19`). |
+| 3           | A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`sof-repeat-02`, `-07`, `-18`).                                                                                                                                                                                                                            |
+| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`).                                                                                                                                                                                                       |
 
 ## Not covered
 

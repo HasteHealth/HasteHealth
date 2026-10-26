@@ -57,6 +57,20 @@
       "knownGaps": 0,
       "assertions": 136,
       "assertionsPassing": 136
+    },
+    {
+      "id": "sql-on-fhir",
+      "title": "SQL on FHIR v2",
+      "page": "/docs/reference/conformance/sql-on-fhir",
+      "generatedAt": "2026-10-26T03:03:29.414Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 107,
+      "testScriptsPassing": 78,
+      "knownGaps": 29,
+      "assertions": 314,
+      "assertionsPassing": 251
     }
   ]
 }
