@@ -2702,7 +2702,12 @@ async fn resolve_external_constant<'a>(
 
             result.map(|result| context.allocate(result))
         }
-        Some(ExternalConstantResolver::Variable(map)) => map.get(name).copied(),
+        // A name missing from a fixed set of variables is an error, not empty.
+        Some(ExternalConstantResolver::Variable(map)) => Some(
+            map.get(name)
+                .copied()
+                .ok_or_else(|| FHIRPathError::UndefinedConstant(name.to_string()))?,
+        ),
         None => None,
     };
 
@@ -3066,12 +3071,12 @@ mod tests {
 
         assert_eq!(p.id, patient.id);
 
-        let result_failed = engine
-            .evaluate_with_config("%nobody", vec![], config)
-            .await
-            .unwrap();
+        let result_failed = engine.evaluate_with_config("%nobody", vec![], config).await;
 
-        assert_eq!(result_failed.values.len(), 0);
+        assert!(matches!(
+            result_failed,
+            Err(FHIRPathError::UndefinedConstant(name)) if name == "nobody"
+        ));
     }
 
     #[tokio::test]
