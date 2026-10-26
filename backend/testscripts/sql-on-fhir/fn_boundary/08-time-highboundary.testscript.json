@@ -1,0 +1,158 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-fn-boundary-08",
+  "url": "https://haste.health/fhir/TestScript/sof-fn-boundary-08",
+  "name": "sof-fn-boundary-08",
+  "title": "SQL on FHIR fn_boundary: time highBoundary",
+  "status": "active",
+  "description": "TBD Suite test 8 of tests/fn_boundary.json (fn_boundary), tagged experimental, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Observation",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  },
+                  {
+                    "name": "time",
+                    "path": "value.ofType(time).highBoundary()",
+                    "type": "time"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o1",
+            "code": {
+              "text": "code"
+            },
+            "status": "final",
+            "valueQuantity": {
+              "value": 1.0
+            }
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o2",
+            "code": {
+              "text": "code"
+            },
+            "status": "final",
+            "valueDateTime": "2010-10-10"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o3",
+            "code": {
+              "text": "code"
+            },
+            "status": "final"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o4",
+            "code": {
+              "text": "code"
+            },
+            "status": "final",
+            "valueTime": "12:34:00"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "p1",
+            "birthDate": "1970-06"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "time highBoundary",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 4 in all. [{\"id\": \"o1\", \"time\": null}, {\"id\": \"o2\", \"time\": null}, {\"id\": \"o3\", \"time\": null}, {\"id\": \"o4\", \"time\": \"12:34:00.999\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJvMSIsInRpbWUiOm51bGx9LHsiaWQiOiJvMiIsInRpbWUiOm51bGx9LHsiaWQiOiJvMyIsInRpbWUiOm51bGx9LHsiaWQiOiJvNCIsInRpbWUiOiIxMjozNDowMC45OTkifV0='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

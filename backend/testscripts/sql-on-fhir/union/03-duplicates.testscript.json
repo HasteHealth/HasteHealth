@@ -1,0 +1,224 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-union-03",
+  "url": "https://haste.health/fhir/TestScript/sof-union-03",
+  "name": "sof-union-03",
+  "title": "SQL on FHIR union: duplicates",
+  "status": "active",
+  "description": "TBD Suite test 3 of tests/union.json (union), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  }
+                ],
+                "unionAll": [
+                  {
+                    "forEach": "telecom",
+                    "column": [
+                      {
+                        "name": "tel",
+                        "path": "value",
+                        "type": "string"
+                      },
+                      {
+                        "name": "sys",
+                        "path": "system",
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "forEach": "telecom",
+                    "column": [
+                      {
+                        "name": "tel",
+                        "path": "value",
+                        "type": "string"
+                      },
+                      {
+                        "name": "sys",
+                        "path": "system",
+                        "type": "code"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "telecom": [
+              {
+                "value": "t1.1",
+                "system": "phone"
+              },
+              {
+                "value": "t1.2",
+                "system": "fax"
+              },
+              {
+                "value": "t1.3",
+                "system": "email"
+              }
+            ],
+            "contact": [
+              {
+                "telecom": [
+                  {
+                    "value": "t1.c1.1",
+                    "system": "pager"
+                  }
+                ]
+              },
+              {
+                "telecom": [
+                  {
+                    "value": "t1.c2.1",
+                    "system": "url"
+                  },
+                  {
+                    "value": "t1.c2.2",
+                    "system": "sms"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "telecom": [
+              {
+                "value": "t2.1",
+                "system": "phone"
+              },
+              {
+                "value": "t2.2",
+                "system": "fax"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3",
+            "contact": [
+              {
+                "telecom": [
+                  {
+                    "value": "t3.c1.1",
+                    "system": "email"
+                  },
+                  {
+                    "value": "t3.c1.2",
+                    "system": "pager"
+                  }
+                ]
+              },
+              {
+                "telecom": [
+                  {
+                    "value": "t3.c2.1",
+                    "system": "sms"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt4"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "duplicates",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 10 in all. [{\"id\": \"pt1\", \"tel\": \"t1.1\", \"sys\": \"phone\"}, {\"id\": \"pt1\", \"tel\": \"t1.2\", \"sys\": \"fax\"}, {\"id\": \"pt1\", \"tel\": \"t1.3\", \"sys\": \"email\"}, {\"id\": \"pt1\", \"tel\": \"t1.1\", \"sys\": \"phone\"}, {\"id\": \"pt1\", \"tel\": \"t1.2\", \"sys\": \"fax\"}, {\"id\": \"pt1\", \"tel\": \"t1.3\", \"sys\": \"email\"}, {\"id\": \"pt2\", \"tel\": \"t2.1\", \"sys\": \"phone\"}, {\"id\": \"pt2\", \"tel\": \"t2.2\", \"sys\": \"fax\"}, {\"id\": \"pt2\", \"tel\": \"t2.1\", \"sys\": \"phone\"}, {\"id\": \"pt2\", \"tel\": \"t2.2\", \"sys\": \"fax\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJ0ZWwiOiJ0MS4xIiwic3lzIjoicGhvbmUifSx7ImlkIjoicHQxIiwidGVsIjoidDEuMiIsInN5cyI6ImZheCJ9LHsiaWQiOiJwdDEiLCJ0ZWwiOiJ0MS4zIiwic3lzIjoiZW1haWwifSx7ImlkIjoicHQxIiwidGVsIjoidDEuMSIsInN5cyI6InBob25lIn0seyJpZCI6InB0MSIsInRlbCI6InQxLjIiLCJzeXMiOiJmYXgifSx7ImlkIjoicHQxIiwidGVsIjoidDEuMyIsInN5cyI6ImVtYWlsIn0seyJpZCI6InB0MiIsInRlbCI6InQyLjEiLCJzeXMiOiJwaG9uZSJ9LHsiaWQiOiJwdDIiLCJ0ZWwiOiJ0Mi4yIiwic3lzIjoiZmF4In0seyJpZCI6InB0MiIsInRlbCI6InQyLjEiLCJzeXMiOiJwaG9uZSJ9LHsiaWQiOiJwdDIiLCJ0ZWwiOiJ0Mi4yIiwic3lzIjoiZmF4In1d'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}
