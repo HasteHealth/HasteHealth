@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/hl7.fhir.r4.core",
-  "version": "0.127.0",
+  "version": "0.127.1",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",

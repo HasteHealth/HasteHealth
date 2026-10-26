@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/mcp-conformance",
-  "version": "0.127.0",
+  "version": "0.127.1",
   "private": true,
   "type": "module",
   "description": "Checks the Haste Health MCP server against the MCP specification and exercises every tool it lists.",
