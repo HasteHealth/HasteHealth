@@ -27,6 +27,14 @@ mod compartment;
 mod conversions;
 mod output;
 
+/// An undefined constant is the caller's mistake; any other FHIRPath failure stays a server error.
+fn fhirpath_issue_type(e: &haste_fhirpath::FHIRPathError) -> IssueType {
+    match e {
+        haste_fhirpath::FHIRPathError::UndefinedConstant(_) => IssueType::invalid(),
+        _ => IssueType::exception(),
+    }
+}
+
 fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeError> {
     reference
         .reference
@@ -409,7 +417,7 @@ async fn build_iterable_context<'a>(
                 .await
                 .map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::exception(),
+                        fhirpath_issue_type(&e),
                         format!("Error evaluating forEach expression: {e}"),
                     )
                 })?,
@@ -425,7 +433,7 @@ async fn build_iterable_context<'a>(
                 .await
                 .map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::exception(),
+                        fhirpath_issue_type(&e),
                         format!("Error evaluating forEachOrNull expression: {e}"),
                     )
                 })?,
@@ -448,7 +456,7 @@ async fn build_iterable_context<'a>(
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
-                            IssueType::exception(),
+                            fhirpath_issue_type(&e),
                             format!("Error evaluating repeat expression: {e}"),
                         )
                     })?,
@@ -542,7 +550,7 @@ async fn process_select_context<'a>(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::exception(),
+                    fhirpath_issue_type(&e),
                     format!("Error evaluating expression: {e}"),
                 )
             })?;
@@ -636,7 +644,7 @@ async fn passes_where_clauses(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::exception(),
+                    fhirpath_issue_type(&e),
                     format!("Error evaluating where clause expression: {e}"),
                 )
             })?;
