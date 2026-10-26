@@ -27,10 +27,12 @@ mod compartment;
 mod conversions;
 mod output;
 
-/// An undefined constant is the caller's mistake; any other `FHIRPath` failure stays a server error.
+/// An undefined constant or an unparsable expression is the caller's mistake; any other
+/// `FHIRPath` failure stays a server error.
 fn fhirpath_issue_type(e: &haste_fhirpath::FHIRPathError) -> BoundCode<IssueType> {
     match e {
-        haste_fhirpath::FHIRPathError::UndefinedConstant(_) => IssueType::invalid(),
+        haste_fhirpath::FHIRPathError::UndefinedConstant(_)
+        | haste_fhirpath::FHIRPathError::ParseError(_) => IssueType::invalid(),
         _ => IssueType::exception(),
     }
 }
