@@ -80,11 +80,6 @@ testQuantity9
 testQuantity10
 testQuantity11
 
-# testWhere
-testWhere2
-testWhere3
-testWhere4
-
 # testAggregate
 testAggregate1
 testAggregate2
@@ -92,32 +87,11 @@ testAggregate3
 testAggregate4
 
 # testIndexer
-testIndexer1
 testIndexer3
-
-# testFirstLast
-testFirstLast1
-testFirstLast2
-
-# testTail
-testTail1
-testTail2
-
-# testSkip
-testSkip1
-testSkip3
-
-# testTake
-testTake2
-testTake3
-testTake4
 
 # testIif
 testIif6
 testIif10
-
-# testToChars
-testToChars1
 
 # testStartsWith
 testStartsWithNonString1
@@ -192,19 +166,8 @@ testSort9
 testSort10
 
 # testEquality
-testEquality5
-testEquality6
-testEquality7
-testEquality25
-testEquality26
-testEquality27
 testEquality28
 testEquality36
-
-# testNEquality
-testNEquality19
-testNEquality20
-testNEquality21
 
 # testEquivalent
 testEquivalent11
@@ -244,11 +207,6 @@ testCombine3
 # testUnion
 testUnion10
 testUnion11
-
-# testExclude
-testExclude1
-testExclude2
-testExclude3
 
 # testPlus
 testPlusDate3
