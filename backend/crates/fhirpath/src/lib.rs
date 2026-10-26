@@ -3382,6 +3382,31 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_positive_and_unsigned_int() {
+        let engine = FPEngine::new();
+        let study = serde_json::from_str::<Resource>(
+            r#"{"resourceType":"ImagingStudy","status":"available","subject":{"reference":"Patient/1"},"numberOfSeries":9,"numberOfInstances":4}"#,
+        )
+        .unwrap();
+
+        for (expression, expected) in [
+            ("ImagingStudy.numberOfSeries = 9", true),
+            ("ImagingStudy.numberOfSeries > 3", true),
+            ("ImagingStudy.numberOfInstances < 3", false),
+        ] {
+            let result = engine.evaluate(expression, vec![&study]).await.unwrap();
+            let b = result.values[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+
+        let sum = engine
+            .evaluate("ImagingStudy.numberOfSeries + 1", vec![&study])
+            .await
+            .unwrap();
+        assert_eq!(sum.values[0].as_any().downcast_ref::<i64>(), Some(&10));
+    }
+
+    #[tokio::test]
     async fn test_simple() {
         let root = A {
             a: vec![B {
