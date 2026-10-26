@@ -15,9 +15,6 @@ sof-fn-boundary-07       # time lowBoundary
 sof-fn-boundary-08       # time highBoundary
 
 # A constant compared or added in an expression answers 500 (a downcast or decimal type error).
-sof-constant-05          # integer constant
-sof-constant-06          # boolean constant
-sof-constant-types-05    # decimal
 sof-constant-types-09    # positiveInt
 sof-constant-types-11    # unsignedInt
 
