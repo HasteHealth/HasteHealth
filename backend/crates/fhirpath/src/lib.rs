@@ -3395,7 +3395,10 @@ mod tests {
             ("ImagingStudy.numberOfInstances < 3", false),
         ] {
             let result = engine.evaluate(expression, vec![&study]).await.unwrap();
-            let b = result.values[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
             assert_eq!(b.value, Some(expected), "{expression}");
         }
 
@@ -3403,7 +3406,11 @@ mod tests {
             .evaluate("ImagingStudy.numberOfSeries + 1", vec![&study])
             .await
             .unwrap();
-        assert_eq!(sum.values[0].as_any().downcast_ref::<i64>(), Some(&10));
+        let sum = sum.values[0]
+            .as_any()
+            .downcast_ref::<FHIRDecimal>()
+            .unwrap();
+        assert_eq!(sum.value, Some(10.0));
     }
 
     #[tokio::test]
