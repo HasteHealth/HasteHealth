@@ -2791,6 +2791,11 @@ impl<'a> Context<'a> {
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().copied())
     }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
 }
 
 impl Clone for Context<'_> {
