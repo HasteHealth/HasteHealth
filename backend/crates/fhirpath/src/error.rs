@@ -35,6 +35,8 @@ pub enum FHIRPathError {
     ParseError(#[from] peg::error::ParseError<LineCol>),
     #[error("Invalid literal: {0:?}")]
     InvalidLiteral(Literal),
+    #[error("Undefined constant: %{0}")]
+    UndefinedConstant(String),
     #[error("Not implemented: {0}")]
     NotImplemented(String),
     #[error("Internal error: {0}")]

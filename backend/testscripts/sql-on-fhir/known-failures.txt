@@ -15,17 +15,11 @@ sof-fn-boundary-07       # time lowBoundary
 sof-fn-boundary-08       # time highBoundary
 
 # A constant compared or added in an expression answers 500 (a downcast or decimal type error).
-sof-constant-05          # integer constant
-sof-constant-06          # boolean constant
-sof-constant-types-05    # decimal
 sof-constant-types-09    # positiveInt
 sof-constant-types-11    # unsignedInt
 
 # An invalid FHIRPath expression (`forEach: "@@"`) answers 500 instead of a client error.
 sof-validate-03          # wrong fhirpath
-
-# An undefined constant (`%wrong_name`) evaluates to empty instead of raising an error.
-sof-constant-07          # accessing an undefined constant
 
 # `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
 # expects an error).

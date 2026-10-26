@@ -27,6 +27,14 @@ mod compartment;
 mod conversions;
 mod output;
 
+/// An undefined constant is the caller's mistake; any other FHIRPath failure stays a server error.
+fn fhirpath_issue_type(e: &haste_fhirpath::FHIRPathError) -> BoundCode<IssueType> {
+    match e {
+        haste_fhirpath::FHIRPathError::UndefinedConstant(_) => IssueType::invalid(),
+        _ => IssueType::exception(),
+    }
+}
+
 fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeError> {
     reference
         .reference
@@ -305,8 +313,12 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
 
     if let Some(constants) = &viewdefinition.constant {
         for constant in constants {
-            if let Some(name) = &constant.name.value.as_ref() {
-                hashmap.insert((*name).clone(), &constant.value as &dyn MetaValue);
+            // Pass the inner primitive: the choice enum's `as_any` is its Box, which number and boolean downcasts reject.
+            if let (Some(name), Some(value)) = (
+                constant.name.value.as_ref(),
+                constant.value.flatten().first().copied(),
+            ) {
+                hashmap.insert(name.clone(), value);
             }
         }
     }
@@ -394,7 +406,7 @@ async fn build_iterable_context<'a>(
                 .await
                 .map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::exception(),
+                        fhirpath_issue_type(&e),
                         format!("Error evaluating forEach expression: {e}"),
                     )
                 })?,
@@ -410,7 +422,7 @@ async fn build_iterable_context<'a>(
                 .await
                 .map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::exception(),
+                        fhirpath_issue_type(&e),
                         format!("Error evaluating forEachOrNull expression: {e}"),
                     )
                 })?,
@@ -433,7 +445,7 @@ async fn build_iterable_context<'a>(
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
-                            IssueType::exception(),
+                            fhirpath_issue_type(&e),
                             format!("Error evaluating repeat expression: {e}"),
                         )
                     })?,
@@ -557,7 +569,7 @@ async fn process_select_context<'a>(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::exception(),
+                    fhirpath_issue_type(&e),
                     format!("Error evaluating expression: {e}"),
                 )
             })?;
@@ -651,7 +663,7 @@ async fn passes_where_clauses(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::exception(),
+                    fhirpath_issue_type(&e),
                     format!("Error evaluating where clause expression: {e}"),
                 )
             })?;

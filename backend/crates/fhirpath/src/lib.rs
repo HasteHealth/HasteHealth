@@ -2702,7 +2702,12 @@ async fn resolve_external_constant<'a>(
 
             result.map(|result| context.allocate(result))
         }
-        Some(ExternalConstantResolver::Variable(map)) => map.get(name).copied(),
+        // A name missing from a fixed set of variables is an error, not empty.
+        Some(ExternalConstantResolver::Variable(map)) => Some(
+            map.get(name)
+                .copied()
+                .ok_or_else(|| FHIRPathError::UndefinedConstant(name.to_string()))?,
+        ),
         None => None,
     };
 
@@ -2790,6 +2795,11 @@ impl<'a> Context<'a> {
     #[must_use]
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().copied())
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
     }
 }
 
@@ -3061,12 +3071,12 @@ mod tests {
 
         assert_eq!(p.id, patient.id);
 
-        let result_failed = engine
-            .evaluate_with_config("%nobody", vec![], config)
-            .await
-            .unwrap();
+        let result_failed = engine.evaluate_with_config("%nobody", vec![], config).await;
 
-        assert_eq!(result_failed.values.len(), 0);
+        assert!(matches!(
+            result_failed,
+            Err(FHIRPathError::UndefinedConstant(name)) if name == "nobody"
+        ));
     }
 
     #[tokio::test]
@@ -3379,6 +3389,38 @@ mod tests {
             let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
             assert_eq!(s.value, Some("Bob Miller".to_string()));
         }
+    }
+
+    #[tokio::test]
+    async fn test_positive_and_unsigned_int() {
+        let engine = FPEngine::new();
+        let study = serde_json::from_str::<Resource>(
+            r#"{"resourceType":"ImagingStudy","status":"available","subject":{"reference":"Patient/1"},"numberOfSeries":9,"numberOfInstances":4}"#,
+        )
+        .unwrap();
+
+        for (expression, expected) in [
+            ("ImagingStudy.numberOfSeries = 9", true),
+            ("ImagingStudy.numberOfSeries > 3", true),
+            ("ImagingStudy.numberOfInstances < 3", false),
+        ] {
+            let result = engine.evaluate(expression, vec![&study]).await.unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+
+        let sum = engine
+            .evaluate("ImagingStudy.numberOfSeries + 1", vec![&study])
+            .await
+            .unwrap();
+        let sum = sum.values[0]
+            .as_any()
+            .downcast_ref::<FHIRDecimal>()
+            .unwrap();
+        assert_eq!(sum.value, Some(10.0));
     }
 
     #[tokio::test]
