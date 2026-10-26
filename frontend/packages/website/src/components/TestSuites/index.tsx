@@ -7,6 +7,7 @@ import { BACKEND_NAMES } from "../TestCoverage/data";
 import styles from "../TestCoverage/styles.module.css";
 import {
   BACKEND_SHORT,
+  ISSUES,
   REPOSITORY,
   type Backend,
   type Result,
@@ -97,6 +98,34 @@ function Chevron({ open }: Readonly<{ open: boolean }>) {
 
 function sourceUrl(script: SuiteScript): string {
   return `${REPOSITORY}/${script.path}`;
+}
+
+/** A known-failure reason: `code` spans and #123 issue links. */
+function Reason({ text }: Readonly<{ text: string }>) {
+  return (
+    <>
+      {text.split(/(`[^`]+`|#\d+\b)/).map((part, index) => {
+        if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+          return <code key={index}>{part.slice(1, -1)}</code>;
+        }
+        if (/^#\d+$/.test(part)) {
+          return (
+            <a key={index} href={`${ISSUES}/${part.slice(1)}`}>
+              {part}
+            </a>
+          );
+        }
+        return part;
+      })}
+    </>
+  );
+}
+
+/** How CI treats a suite's known gaps, for the gap notes. */
+function gapRun(report: SuiteReport): string {
+  return report.knownFailuresRun
+    ? "run in CI and expected to fail"
+    : "not run in CI";
 }
 
 // ---------------------------------------------------------------------------
@@ -196,7 +225,7 @@ export function SuiteSummary({ suite }: Readonly<{ suite: SuiteId }>) {
                 totals.knownGaps > 0 ? (
                   <span className="text-amber-700 dark:text-amber-300">
                     {totals.knownGaps} known gap
-                    {totals.knownGaps === 1 ? "" : "s"}, not run in CI
+                    {totals.knownGaps === 1 ? "" : "s"}, {gapRun(data)}
                   </span>
                 ) : (
                   "every TestScript passes"
@@ -283,7 +312,7 @@ function GapRow({
         <StatusIcon result={result} className="mt-0.5 h-5 w-5" />
         <div className="min-w-0 flex-1">
           <p className="m-0 text-sm text-slate-800 dark:text-slate-100">
-            {reason}
+            <Reason text={reason} />
           </p>
           <button
             type="button"
@@ -330,8 +359,11 @@ function matches(script: SuiteScript, query: string): boolean {
 
 function ScriptDetail({
   script,
-  backends,
-}: Readonly<{ script: SuiteScript; backends: Backend[] }>) {
+  report,
+}: Readonly<{ script: SuiteScript; report: SuiteReport }>) {
+  const { backends } = report;
+  // A skipped known gap has no results of its own; one that ran does.
+  const skipped = Boolean(script.knownFailure) && !report.knownFailuresRun;
   return (
     <div className="grid gap-3 px-4 py-3 text-xs">
       {script.description ? (
@@ -341,7 +373,8 @@ function ScriptDetail({
       ) : null}
       {script.knownFailure ? (
         <p className="m-0 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          <strong>Known gap, not run in CI.</strong> {script.knownFailure}
+          <strong>Known gap, {gapRun(report)}.</strong>{" "}
+          <Reason text={script.knownFailure} />
         </p>
       ) : null}
       {script.tests.map((test, testIndex) => (
@@ -373,7 +406,7 @@ function ScriptDetail({
                       {backends.length > 1 ? BACKEND_SHORT[backend] : null}
                       <StatusIcon
                         result={
-                          script.knownFailure
+                          skipped
                             ? "warn"
                             : (assertion.results[backend] ?? "not-run")
                         }
@@ -396,15 +429,16 @@ function ScriptDetail({
 
 function GroupTable({
   group,
-  backends,
+  report,
   query,
   issuesOnly,
 }: Readonly<{
   group: SuiteGroup;
-  backends: Backend[];
+  report: SuiteReport;
   query: string;
   issuesOnly: boolean;
 }>) {
+  const { backends } = report;
   const [open, setOpen] = useState<string>();
   const scripts = group.scripts.filter(
     (script) =>
@@ -497,7 +531,7 @@ function GroupTable({
                   {expanded ? (
                     <tr>
                       <td colSpan={columns} className={styles.detail}>
-                        <ScriptDetail script={script} backends={backends} />
+                        <ScriptDetail script={script} report={report} />
                       </td>
                     </tr>
                   ) : null}
@@ -560,7 +594,7 @@ function Report({ data }: Readonly<{ data: SuiteReport }>) {
         <GroupTable
           key={group.id}
           group={group}
-          backends={data.backends}
+          report={data}
           query={deferredQuery}
           issuesOnly={issuesOnly}
         />
@@ -589,6 +623,8 @@ const SUITE_BLURBS: Record<string, string> = {
   g10: "The checks of the ONC (g)(10) Standardized API test kit that can run unattended: SMART launch scenarios, the US Core 7 single patient API, Bulk Data and fine-grained scopes.",
   "access-control":
     "What patients, users and backend clients can reach under SMART patient, user and system scopes, and EHR launches.",
+  "sql-on-fhir":
+    "The SQL on FHIR v2 shared test suite: ViewDefinitions run with $viewdefinition-run, checking the rows that come back and the views that must be refused.",
 };
 
 export function ConformanceOverview() {

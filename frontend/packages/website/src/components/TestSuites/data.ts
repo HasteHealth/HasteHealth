@@ -24,7 +24,10 @@ export type SuiteScript = {
   /** Repository-relative path of the TestScript. */
   path: string;
   subgroup?: string;
-  /** Why the script fails today; it is not run in CI. */
+  /**
+   * Why the script fails today. CI skips it, or, when the report's
+   * `knownFailuresRun` is set, runs it and expects it to fail.
+   */
   knownFailure?: string;
   result: Partial<Record<Backend, Result>>;
   tests: SuiteTest[];
@@ -41,13 +44,17 @@ export type SuiteReport = {
   title: string;
   generatedAt: string;
   backends: Backend[];
+  /** CI runs the known failures and expects them to fail, instead of skipping them. */
+  knownFailuresRun?: boolean;
   groups: SuiteGroup[];
 };
 
-export type SuiteId = "us-core" | "g10" | "access-control";
+export type SuiteId = "us-core" | "g10" | "access-control" | "sql-on-fhir";
 
 export const REPOSITORY =
   "https://github.com/HasteHealth/HasteHealth/blob/main";
+
+export const ISSUES = "https://github.com/HasteHealth/HasteHealth/issues";
 
 export const BACKEND_SHORT: Record<Backend, string> = {
   postgres: "PG",
