@@ -14,10 +14,7 @@ use haste_fhir_model::r4::{
         BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_datetime, downcast_number, downcast_string,
     },
-    datetime::{
-        DATETIME_REGEX, Date, DateTime, Time, parse_date, parse_datetime, parse_partial_time,
-        parse_time,
-    },
+    datetime::{Date, DateTime, Time, parse_date, parse_partial_time, parse_time},
     generated::{
         resources::ResourceType,
         types::{
@@ -31,14 +28,17 @@ use haste_reflect_derive::Reflect;
 use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     sync::{Arc, LazyLock, Mutex},
 };
 
 mod allocators;
 mod date_arithmetic;
+mod date_comparison;
 mod fhir_functions;
+mod partial_datetime;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
+pub use partial_datetime::PartialDateTime;
 
 #[cfg(test)]
 mod proptests;
@@ -46,6 +46,8 @@ mod proptests;
 mod spec_tests;
 use allocators::AllocatorTrait;
 use date_arithmetic::{Shifted, Temporal};
+use date_comparison::{TemporalOrder, temporal_order};
+use partial_datetime::{AnyDateTime, parse_any_datetime};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -112,14 +114,12 @@ fn evaluate_literal<'b>(
                 ..Default::default()
             }),
         ),
-        Literal::DateTime(datetime) => temporal_literal(
-            literal,
-            context,
-            parse_datetime_literal(datetime).map(|value| FHIRDateTime {
-                value: Some(value),
-                ..Default::default()
-            }),
-        ),
+        // `@2020-01-01T` is a DateTime of the date's precision.
+        Literal::DateTime(datetime) => {
+            parse_any_datetime(datetime.strip_suffix('T').unwrap_or(datetime))
+                .map(|value| datetime_result(context, value))
+                .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
+        }
         Literal::Time(time) => temporal_literal(
             literal,
             context,
@@ -142,18 +142,15 @@ fn temporal_literal<'b, T: MetaValue + 'static>(
         .ok_or_else(|| FHIRPathError::InvalidLiteral(literal.to_owned()))
 }
 
-/// A `DateTime` literal, whose time part may be cut short (`@2020-01-01T`) or lack
-/// a timezone, which is read as UTC.
-fn parse_datetime_literal(literal: &str) -> Option<DateTime> {
-    let literal = literal.strip_suffix('T').unwrap_or(literal);
-    let zoned = literal
-        .split_once('T')
-        .is_none_or(|(_, time)| time.ends_with('Z') || time.contains(['+', '-']));
-    if zoned {
-        parse_datetime(literal).ok()
-    } else {
-        parse_datetime(&format!("{literal}Z")).ok()
-    }
+/// A `FHIRPath` `DateTime`: a FHIR `dateTime` when FHIR's type can hold it.
+fn datetime_result<'b>(context: &Context<'b>, value: AnyDateTime) -> Context<'b> {
+    context.new_context_from(vec![match value {
+        AnyDateTime::Fhir(value) => context.allocate_literal(FHIRDateTime {
+            value: Some(value),
+            ..Default::default()
+        }),
+        AnyDateTime::Partial(value) => context.allocate_literal(value),
+    }])
 }
 
 async fn evaluate_invocation<'a>(
@@ -440,7 +437,7 @@ async fn evaluate_function<'a>(
         "exists" => evaluate_exists(function, context, config).await,
         "children" => evaluate_children(function, &context),
         "repeat" => evaluate_repeat(function, context, config).await,
-        "descendants" => evaluate_descendants(context, config).await,
+        "descendants" => Ok(evaluate_descendants(&context)),
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
         "single" | "last" | "tail" => evaluate_subsetting(function, &context),
@@ -687,14 +684,8 @@ async fn evaluate_exists<'a>(
     )
 }
 
-fn evaluate_children<'a>(
-    function: &FunctionInvocation,
-    context: &Context<'a>,
-) -> Result<Context<'a>, FHIRPathError> {
-    validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-    let children = context
-        .values
+fn children_of<'a>(values: &[&'a dyn MetaValue]) -> Vec<&'a dyn MetaValue> {
+    values
         .iter()
         .flat_map(|value| {
             value
@@ -704,11 +695,51 @@ fn evaluate_children<'a>(
                 .flatten()
                 .collect::<Vec<_>>()
         })
-        .collect();
-
-    Ok(context.new_context_from(children))
+        .collect()
 }
 
+fn evaluate_children<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    Ok(context.new_context_from(children_of(&context.values)))
+}
+
+/// Most items the `repeat()` calls of one evaluation may produce. A projection can
+/// keep yielding new values (`1.repeat($this + 1)`), so evaluation fails past this.
+const REPEAT_ITEM_LIMIT: usize = 10_000;
+
+/// An item as `repeat()` tells it from the items it already produced: numbers, strings and
+/// booleans by value, as `=` compares them, anything else (dates and times included) only
+/// equal to itself.
+#[derive(PartialEq, Eq, Hash)]
+enum SeenKey {
+    Number(u64),
+    String(String),
+    Boolean(bool),
+    Item(usize, &'static str),
+}
+
+impl SeenKey {
+    fn of(value: &dyn MetaValue) -> Result<Self, FHIRPathError> {
+        let fhir_type = value.fhir_type();
+        Ok(if NUMBER_TYPES.contains(fhir_type) {
+            let number = downcast_number(value)?;
+            // -0.0 = 0.0
+            SeenKey::Number(if number == 0.0 { 0.0 } else { number }.to_bits())
+        } else if STRING_TYPES.contains(fhir_type) {
+            SeenKey::String(downcast_string(value)?)
+        } else if BOOLEAN_TYPES.contains(fhir_type) {
+            SeenKey::Boolean(downcast_bool(value)?)
+        } else {
+            SeenKey::Item(std::ptr::from_ref(value).cast::<()>().addr(), fhir_type)
+        })
+    }
+}
+
+/// <https://hl7.org/fhirpath/N1/#repeatprojection-expression-collection>
 async fn evaluate_repeat<'a>(
     function: &FunctionInvocation,
     context: Context<'a>,
@@ -718,18 +749,22 @@ async fn evaluate_repeat<'a>(
 
     let projection = &function.arguments[0];
     let mut end_result = vec![];
+    let mut seen = HashSet::new();
     let mut cur = context;
 
+    // Repeats only as long as the projection yields items not already in the output.
     while !cur.values.is_empty() {
         let mut next = vec![];
         for (index, value) in cur.values.iter().enumerate() {
             let item = cur.new_item_context(*value, index);
-            next.extend(
-                evaluate_expression(projection, item, config.clone())
-                    .await?
-                    .values,
-            );
+            let projected = evaluate_expression(projection, item, config.clone()).await?;
+            for projected_value in projected.values {
+                if seen.insert(SeenKey::of(projected_value)?) {
+                    next.push(projected_value);
+                }
+            }
         }
+        cur.count_repeat_items(next.len())?;
         end_result.extend_from_slice(&next);
         cur = cur.new_context_from(next);
     }
@@ -737,28 +772,19 @@ async fn evaluate_repeat<'a>(
     Ok(cur.new_context_from(end_result))
 }
 
-async fn evaluate_descendants<'a>(
-    context: Context<'a>,
-    config: Option<Arc<Config<'a>>>,
-) -> Result<Context<'a>, FHIRPathError> {
-    let result = evaluate_expression(
-        &Expression::Singular(vec![Term::Invocation(Invocation::Function(
-            FunctionInvocation {
-                name: Identifier("repeat".to_string()),
-                arguments: vec![Expression::Singular(vec![Term::Invocation(
-                    Invocation::Function(FunctionInvocation {
-                        name: Identifier("children".to_string()),
-                        arguments: vec![],
-                    }),
-                )])],
-            },
-        ))]),
-        context,
-        config,
-    )
-    .await?;
+/// `repeat(children())` without removing equal items, so two equal values at
+/// different places in the resource are both returned. A resource is a finite
+/// tree, so this ends.
+fn evaluate_descendants<'a>(context: &Context<'a>) -> Context<'a> {
+    let mut end_result = vec![];
+    let mut children = children_of(&context.values);
 
-    Ok(result)
+    while !children.is_empty() {
+        end_result.extend_from_slice(&children);
+        children = children_of(&children);
+    }
+
+    context.new_context_from(end_result)
 }
 
 fn evaluate_type<'a>(
@@ -1378,6 +1404,8 @@ impl<'v> Convertible<'v> {
             Convertible::Number(Number::of(value)?)
         } else if STRING_TYPES.contains(fhir_type) {
             Convertible::String(downcast_string(value)?)
+        } else if let Some(datetime) = value.as_any().downcast_ref::<PartialDateTime>() {
+            Convertible::DateTime(datetime.to_string())
         } else if DATE_TIME_TYPES.contains(fhir_type) {
             Convertible::DateTime(downcast_datetime(value)?)
         } else if let Some(quantity) = value.as_any().downcast_ref::<Quantity>() {
@@ -1447,9 +1475,7 @@ fn to_date(value: Convertible) -> Option<Date> {
     let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
         return None;
     };
-    if !DATETIME_REGEX.is_match(&value) {
-        return None;
-    }
+    parse_any_datetime(&value)?;
     let date = value
         .split_once('T')
         .map_or(value.as_str(), |(date, _)| date);
@@ -1458,11 +1484,11 @@ fn to_date(value: Convertible) -> Option<Date> {
 
 /// <https://hl7.org/fhirpath/N1/#datetime-conversion-functions>: a `Date`,
 /// `DateTime` or datetime-formatted `String`, keeping its precision.
-fn to_date_time(value: Convertible) -> Option<DateTime> {
+fn to_date_time(value: Convertible) -> Option<AnyDateTime> {
     let (Convertible::String(value) | Convertible::DateTime(value)) = value else {
         return None;
     };
-    parse_datetime(&value).ok()
+    parse_any_datetime(&value)
 }
 
 /// <https://hl7.org/fhirpath/N1/#time-conversion-functions>: a `Time` or
@@ -1644,12 +1670,7 @@ fn evaluate_conversion<'a>(
                 ..Default::default()
             })])
         }),
-        "DateTime" => to_date_time(value).map(|value| {
-            context.new_context_from(vec![context.allocate_literal(FHIRDateTime {
-                value: Some(value),
-                ..Default::default()
-            })])
-        }),
+        "DateTime" => to_date_time(value).map(|value| datetime_result(context, value)),
         "Time" => to_time(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRTime {
                 value: Some(value),
@@ -1918,26 +1939,33 @@ fn evaluate_get_resource_key<'a>(
     Ok(context.new_context_from(vec![context.allocate_literal(resource_key)]))
 }
 
-fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
-    value_equal(left.values[0], right.values[0])
+fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<Option<bool>, FHIRPathError> {
+    equality(left.values[0], right.values[0])
 }
 
+/// Equality as the collection functions use it: dates and times that cannot be compared are
+/// unequal.
 fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIRPathError> {
+    Ok(equality(left, right)?.unwrap_or(false))
+}
+
+/// `=` on two items, `None` for dates and times that cannot be compared.
+fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>, FHIRPathError> {
     // An element equals itself. Other complex values are unequal until
     // member-wise equality is implemented.
     if std::ptr::addr_eq(left, right) && left.fhir_type() == right.fhir_type() {
-        return Ok(true);
+        return Ok(Some(true));
     }
 
     if NUMBER_TYPES.contains(left.fhir_type()) && NUMBER_TYPES.contains(right.fhir_type()) {
         let left_value = downcast_number(left)?;
         let right_value = downcast_number(right)?;
         #[allow(clippy::float_cmp)]
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
     } else if STRING_TYPES.contains(left.fhir_type()) && STRING_TYPES.contains(right.fhir_type()) {
         let left_value = downcast_string(left)?;
         let right_value = downcast_string(right)?;
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
     } else if BOOLEAN_TYPES.contains(left.fhir_type()) && BOOLEAN_TYPES.contains(right.fhir_type())
     {
         let left_value = downcast_bool(left)?;
@@ -1945,7 +1973,12 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
         // Suppress clippy warning because strict equality comparison for float values
         // is intentional and required by the FHIRPath specification.
         #[allow(clippy::float_cmp)]
-        Ok(left_value == right_value)
+        Ok(Some(left_value == right_value))
+    } else if let Some(order) = temporal_order(left, right) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
+            TemporalOrder::Unknown => None,
+        })
     } else {
         // https://hl7.org/fhirpath/N1/#conversion for implicit conversion rules todo.
         //
@@ -1953,7 +1986,7 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
         // Should consider implicit conversion rules here but for now
         // FPs like 'Patient.deceased.exists() and Patient.deceased != false' (deceased is either boolean or dateTime)
         // Should return false rather than error.
-        Ok(false)
+        Ok(Some(false))
     }
 }
 
@@ -2036,6 +2069,7 @@ fn temporal_arithmetic<'a>(
             value: Some(value),
             ..Default::default()
         })],
+        Some(Shifted::PartialDateTime(value)) => vec![left.allocate_literal(value)],
         Some(Shifted::Time(value)) => vec![left.allocate_literal(FHIRTime {
             value: Some(value),
             ..Default::default()
@@ -2127,7 +2161,12 @@ async fn evaluate_ordered_comparison<'a>(
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
             let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
+            let ordering = if let Some(order) = temporal_order(l, r) {
+                match order {
+                    TemporalOrder::Ordered(ordering) => Some(ordering),
+                    TemporalOrder::Unknown => None,
+                }
+            } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
                 l.partial_cmp(&r)
             } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
                 Some(l.cmp(&r))
@@ -2300,7 +2339,10 @@ async fn evaluate_equality<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let mut result = equal_check(&left, &right)?;
+            let Some(mut result) = equal_check(&left, &right)? else {
+                // Dates and times of different precisions cannot be compared: the result is empty.
+                return Ok(left.new_context_from(vec![]));
+            };
 
             if negate {
                 result = !result;
@@ -2719,6 +2761,23 @@ impl<'a> Context<'a> {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .now()
+    }
+
+    /// Counts items `repeat()` produced, failing once the evaluation's total passes
+    /// [`REPEAT_ITEM_LIMIT`].
+    fn count_repeat_items(&self, count: usize) -> Result<(), FHIRPathError> {
+        let total = self
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .add_repeat_items(count);
+        if total > REPEAT_ITEM_LIMIT {
+            return Err(FunctionError::InvalidFunctionCall(format!(
+                "repeat() produced more than {REPEAT_ITEM_LIMIT} items"
+            ))
+            .into());
+        }
+        Ok(())
     }
 
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
@@ -3597,19 +3656,14 @@ mod tests {
             .await
             .unwrap();
 
+        // The System values under the primitives equal them, so they are not new items.
         assert_eq!(
             result
                 .values
                 .iter()
                 .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
-            vec![
-                "HumanName",
-                "boolean",
-                "string",
-                "http://hl7.org/fhirpath/System.Boolean",
-                "http://hl7.org/fhirpath/System.String"
-            ]
+            vec!["HumanName", "boolean", "string"]
         );
     }
     #[tokio::test]

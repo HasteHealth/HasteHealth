@@ -7,7 +7,7 @@ use axum::{
 };
 use url::Url;
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize, Debug, PartialEq, Eq)]
 pub enum OIDCErrorCode {
     /**
      * The request is missing a required parameter, includes aninvalid parameter value,
@@ -113,6 +113,9 @@ pub struct OIDCError {
     /// and the token endpoint (§5.2) never redirects: both leave this `None`.
     #[serde(skip_serializing)]
     pub redirect_uri: Option<String>,
+    /// The request's `state`, echoed in the redirect (RFC 6749 §4.1.2.1).
+    #[serde(skip_serializing)]
+    pub state: Option<String>,
 }
 
 impl OIDCError {
@@ -125,7 +128,14 @@ impl OIDCError {
             error,
             error_description,
             redirect_uri,
+            state: None,
         }
+    }
+
+    #[must_use]
+    pub fn with_state(mut self, state: &str) -> Self {
+        self.state = Some(state.to_string());
+        self
     }
 
     /// The URL the user agent is redirected to, with `error` and
@@ -147,6 +157,10 @@ impl OIDCError {
             if let Some(description) = self.error_description.as_deref() {
                 query.append_pair("error_description", description);
             }
+
+            if let Some(state) = self.state.as_deref() {
+                query.append_pair("state", state);
+            }
         }
 
         Some(url)
@@ -164,16 +178,17 @@ impl IntoResponse for OIDCError {
             let status = match self.error {
                 OIDCErrorCode::InvalidRequest
                 | OIDCErrorCode::InvalidGrant
-                | OIDCErrorCode::InvalidClient
                 | OIDCErrorCode::InvalidScope => StatusCode::BAD_REQUEST,
-                OIDCErrorCode::UnauthorizedClient => StatusCode::UNAUTHORIZED,
+                OIDCErrorCode::UnauthorizedClient | OIDCErrorCode::InvalidClient => {
+                    StatusCode::UNAUTHORIZED
+                }
                 OIDCErrorCode::UnsupportedResponseType => StatusCode::UNPROCESSABLE_ENTITY,
                 OIDCErrorCode::ServerError => StatusCode::INTERNAL_SERVER_ERROR,
                 OIDCErrorCode::TemporarilyUnavailable => StatusCode::SERVICE_UNAVAILABLE,
                 OIDCErrorCode::AccessDenied => StatusCode::FORBIDDEN,
             };
 
-            (
+            let mut response = (
                 status,
                 [(
                     header::CONTENT_TYPE,
@@ -181,7 +196,52 @@ impl IntoResponse for OIDCError {
                 )],
                 json_body,
             )
-                .into_response()
+                .into_response();
+
+            // RFC 6749 §5.2: a 401 `invalid_client` names the scheme the client may use.
+            if self.error == OIDCErrorCode::InvalidClient {
+                response.headers_mut().insert(
+                    header::WWW_AUTHENTICATE,
+                    HeaderValue::from_static("Basic realm=\"token\""),
+                );
+            }
+
+            response
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalid_client_is_401_with_www_authenticate() {
+        let response = OIDCError::new(OIDCErrorCode::InvalidClient, None, None).into_response();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        assert!(response.headers().contains_key(header::WWW_AUTHENTICATE));
+    }
+
+    #[test]
+    fn invalid_grant_is_400() {
+        let response = OIDCError::new(OIDCErrorCode::InvalidGrant, None, None).into_response();
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn invalid_scope_redirects_with_error_and_state() {
+        let response = OIDCError::new(
+            OIDCErrorCode::InvalidScope,
+            Some("bad".to_string()),
+            Some("https://app.example/cb".to_string()),
+        )
+        .with_state("abc")
+        .into_response();
+
+        let location = response.headers()[header::LOCATION].to_str().unwrap();
+        assert!(location.starts_with("https://app.example/cb?error=invalid_scope"));
+        assert!(location.ends_with("&state=abc"));
     }
 }
