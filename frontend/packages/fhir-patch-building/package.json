@@ -28,7 +28,7 @@
     "immer": "^10.2.0"
   },
   "files": [
-    "readme.md",
+    "README.md",
     "lib/**",
     "src/**"
   ]

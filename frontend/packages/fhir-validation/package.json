@@ -41,7 +41,7 @@
   },
   "files": [
     "lib/**",
-    "readme.md"
+    "README.md"
   ],
   "exports": {
     ".": "./lib/index.js",
