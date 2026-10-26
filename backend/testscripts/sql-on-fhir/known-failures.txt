@@ -18,9 +18,6 @@ sof-fn-boundary-08       # time highBoundary
 sof-constant-types-09    # positiveInt
 sof-constant-types-11    # unsignedInt
 
-# An invalid FHIRPath expression (`forEach: "@@"`) answers 500 instead of a client error.
-sof-validate-03          # wrong fhirpath
-
 # `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
 # expects an error).
 sof-union-09             # column mismatch
