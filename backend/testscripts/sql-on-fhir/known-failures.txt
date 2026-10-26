@@ -27,11 +27,6 @@ sof-validate-03          # wrong fhirpath
 # An undefined constant (`%wrong_name`) evaluates to empty instead of raising an error.
 sof-constant-07          # accessing an undefined constant
 
-# `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
-# expects an error).
-sof-union-09             # column mismatch
-sof-union-10             # column order mismatch
-
 # A `repeat` gives the rows the suite expects but level by level (all first-level items, then
 # the second level), while the suite lists them depth first. The suite compares rows in any order
 # and the spec sets no order for `repeat`; a TestScript compares the rows' bytes.

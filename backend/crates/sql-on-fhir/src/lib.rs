@@ -26,6 +26,7 @@ use crate::conversions::primitives::PrimitiveValue;
 mod compartment;
 mod conversions;
 mod output;
+mod union;
 
 fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeError> {
     reference
@@ -685,6 +686,8 @@ async fn process_view_definition<
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
+    union::check_union_columns(&view_definition.select)?;
+
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     let limit = requested_limit(input);
 
