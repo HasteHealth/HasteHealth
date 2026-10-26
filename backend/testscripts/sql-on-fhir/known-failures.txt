@@ -80,6 +80,3 @@ sof-repeat-14            # forEach with repeat with forEach (triple nesting)
 sof-repeat-15            # repeat with forEach with repeat (triple nesting)
 sof-repeat-17            # repeat inside repeat inside repeat
 sof-repeat-18            # multi-path repeat inside forEach
-
-# A `where` path that is empty for a resource keeps the resource.
-sof-basic-07             # where returns non-boolean for some cases
