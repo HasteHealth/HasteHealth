@@ -441,8 +441,8 @@ async fn string_escapes() {
 /// <https://hl7.org/fhirpath/N1/#comments>
 #[tokio::test]
 async fn comments() {
-    assert_evaluates("2 + 2 // This is a single-line comment", &["4.0"]).await;
-    assert_evaluates("/*\nThis is a multi-line comment\n*/ 2 + 2", &["4.0"]).await;
+    assert_evaluates("2 + 2 // This is a single-line comment", &["4"]).await;
+    assert_evaluates("/*\nThis is a multi-line comment\n*/ 2 + 2", &["4"]).await;
     assert_evaluates("'a//b' /* not in strings */", &["'a//b'"]).await;
 }
 
@@ -827,8 +827,15 @@ async fn date_time_arithmetic() {
     assert_evaluates("@2014 + 1 day", &[]).await;
     assert_evaluates("@2020-01-01 + 1 'mg'", &[]).await;
     assert_evaluates("@2020-01-01 + {}", &[]).await;
-    assert_evaluates("1 + 2", &["3.0"]).await;
-    assert_evaluates("5 - 2", &["3.0"]).await;
+    assert_evaluates("1 + 2", &["3"]).await;
+    assert_evaluates("5 - 2", &["3"]).await;
+    assert_evaluates("2 * 3", &["6"]).await;
+    assert_evaluates("5 - 7", &["-2"]).await;
+    assert_evaluates("2 + 2.0", &["4.0"]).await;
+    assert_evaluates("4 / 2", &["2.0"]).await;
+    assert_evaluates("1 / 0", &[]).await;
+    assert_evaluates("0.0 / 0", &[]).await;
+    assert_evaluates("9223372036854775807 + 1", &[]).await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#functions>

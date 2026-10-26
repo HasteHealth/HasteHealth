@@ -880,6 +880,20 @@ impl Number {
     fn decimal_from(value: f64) -> Option<Number> {
         value.is_finite().then_some(Number::Decimal(value))
     }
+
+    /// Two Integers use `integer_op` (`None` on overflow), anything else
+    /// uses `decimal_op`. Empty when the result is not finite.
+    fn combine(
+        self,
+        other: Number,
+        integer_op: fn(i64, i64) -> Option<i64>,
+        decimal_op: fn(f64, f64) -> f64,
+    ) -> Option<Number> {
+        match (self, other) {
+            (Number::Integer(l), Number::Integer(r)) => integer_op(l, r).map(Number::Integer),
+            (l, r) => Number::decimal_from(decimal_op(l.as_f64(), r.as_f64())),
+        }
+    }
 }
 
 fn number_result<'a>(context: &Context<'a>, number: Option<Number>) -> Context<'a> {
@@ -2091,15 +2105,13 @@ async fn evaluate_add<'a>(
             } else if NUMBER_TYPES.contains(left.values[0].fhir_type())
                 && NUMBER_TYPES.contains(right.values[0].fhir_type())
             {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
+                let sum = Number::of(left.values[0])?.combine(
+                    Number::of(right.values[0])?,
+                    i64::checked_add,
+                    |l, r| l + r,
+                );
 
-                Ok(
-                    left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                        value: Some(left_value + right_value),
-                        ..Default::default()
-                    })]),
-                )
+                Ok(number_result(&left, sum))
             } else if STRING_TYPES.contains(left.values[0].fhir_type())
                 && STRING_TYPES.contains(right.values[0].fhir_type())
             {
@@ -2123,27 +2135,23 @@ async fn evaluate_add<'a>(
     .await
 }
 
-async fn evaluate_numeric_binary<'a, F>(
+async fn evaluate_numeric_binary<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
-    op: F,
-) -> Result<Context<'a>, FHIRPathError>
-where
-    F: FnOnce(f64, f64) -> f64 + Copy + Send + 'static,
-{
+    integer_op: fn(i64, i64) -> Option<i64>,
+    decimal_op: fn(f64, f64) -> f64,
+) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+            let result = Number::of(left.values[0])?.combine(
+                Number::of(right.values[0])?,
+                integer_op,
+                decimal_op,
+            );
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                    value: Some(op(left_value, right_value)),
-                    ..Default::default()
-                })]),
-            )
+            Ok(number_result(&left, result))
         })
     })
     .await
@@ -2204,15 +2212,13 @@ async fn evaluate_subtraction<'a>(
             if let Some(shifted) = temporal_arithmetic(&left, &right, true) {
                 return Ok(shifted);
             }
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+            let difference = Number::of(left.values[0])?.combine(
+                Number::of(right.values[0])?,
+                i64::checked_sub,
+                |l, r| l - r,
+            );
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                    value: Some(left_value - right_value),
-                    ..Default::default()
-                })]),
-            )
+            Ok(number_result(&left, difference))
         })
     })
     .await
@@ -2224,7 +2230,7 @@ async fn evaluate_multiplication<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l * r).await
+    evaluate_numeric_binary(left, right, context, config, i64::checked_mul, |l, r| l * r).await
 }
 
 async fn evaluate_division<'a>(
@@ -2233,7 +2239,16 @@ async fn evaluate_division<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l / r).await
+    // `/` is always a Decimal; dividing by 0 is empty.
+    operation_2(left, right, context, config, |left, right| {
+        Box::pin(async move {
+            let quotient =
+                Number::of(left.values[0])?.as_f64() / Number::of(right.values[0])?.as_f64();
+
+            Ok(number_result(&left, Number::decimal_from(quotient)))
+        })
+    })
+    .await
 }
 
 async fn evaluate_less_than<'a>(
@@ -3418,9 +3433,9 @@ mod tests {
             .unwrap();
         let sum = sum.values[0]
             .as_any()
-            .downcast_ref::<FHIRDecimal>()
+            .downcast_ref::<FHIRInteger>()
             .unwrap();
-        assert_eq!(sum.value, Some(10.0));
+        assert_eq!(sum.value, Some(10));
     }
 
     #[tokio::test]
@@ -3462,9 +3477,9 @@ mod tests {
         let result = engine.evaluate("45 + 2  * 3", vec![]).await.unwrap();
 
         for r in &result {
-            let s = r.as_any().downcast_ref::<FHIRDecimal>().unwrap().clone();
+            let s = r.as_any().downcast_ref::<FHIRInteger>().unwrap().clone();
 
-            assert_eq!(s.value, Some(51.0));
+            assert_eq!(s.value, Some(51));
         }
     }
 

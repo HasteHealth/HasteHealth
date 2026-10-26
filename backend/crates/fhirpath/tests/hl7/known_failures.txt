@@ -1,13 +1,6 @@
 # HL7 FHIRPath suite tests that fail today, by group. Regenerate with
 # HL7_UPDATE_KNOWN_FAILURES=1 cargo test -p haste-fhirpath --test hl7_suite
 
-# comments
-testComment1
-testComment2
-testComment3
-testComment4
-testComment5
-
 # testBasics
 testEscapedIdentifier
 testEscapedIdentifierUnicode
@@ -20,8 +13,6 @@ testPolymorphismB
 testPolymorphismAsB
 
 # testDollar
-testDollarThis1
-testDollarThis2
 testDollarOrderNotAllowed
 
 # testLiterals
@@ -269,10 +260,6 @@ testPlusDate22
 # testMinus
 testMinus3
 testMinus6
-
-# testDivide
-testDivide6
-testDivide7
 
 # testMod
 testMod4
