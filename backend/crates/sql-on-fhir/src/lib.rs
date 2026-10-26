@@ -389,12 +389,89 @@ async fn process_resource<
     Ok(output_results)
 }
 
+/// The nodes a select iterates over. `owners` keeps alive the evaluations that produced them.
+struct IterableNodes<'a> {
+    nodes: Vec<&'a dyn MetaValue>,
+    #[allow(dead_code)]
+    owners: Vec<haste_fhirpath::Context<'a>>,
+}
+
+impl<'a> IterableNodes<'a> {
+    fn from_context(context: haste_fhirpath::Context<'a>) -> Self {
+        Self {
+            nodes: context.values().to_vec(),
+            owners: vec![context],
+        }
+    }
+}
+
+/// Same limit as `FHIRPath` `repeat()`.
+const REPEAT_ITEM_LIMIT: usize = 10_000;
+
+/// Walks a `repeat` depth first in document order: each path is evaluated from a node, and every
+/// item found is emitted and then walked the same way. A node is emitted once, so any
+/// expression ends.
+async fn walk_repeat<'a>(
+    fp_engine: &FPEngine,
+    fp_config: &Arc<Config<'a>>,
+    paths: &[&str],
+    input: &'a Resource,
+) -> Result<IterableNodes<'a>, OperationOutcomeError> {
+    let mut walked = IterableNodes {
+        nodes: Vec::new(),
+        owners: Vec::new(),
+    };
+    let mut seen = HashSet::new();
+    let mut pending = Vec::new();
+    let mut current: &'a dyn MetaValue = input;
+
+    loop {
+        // Children are pushed in reverse so the first is popped (emitted) first.
+        let mut children = Vec::new();
+        for path in paths {
+            let found = fp_engine
+                .evaluate_with_config(path, vec![current], fp_config.clone())
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::exception(),
+                        format!("Error evaluating repeat expression: {e}"),
+                    )
+                })?;
+            children.extend_from_slice(found.values());
+            walked.owners.push(found);
+        }
+        pending.extend(children.into_iter().rev());
+
+        let next = loop {
+            let Some(item) = pending.pop() else {
+                return Ok(walked);
+            };
+            if seen.insert((
+                std::ptr::from_ref(item).cast::<()>().addr(),
+                item.fhir_type(),
+            )) {
+                break item;
+            }
+        };
+
+        if walked.nodes.len() >= REPEAT_ITEM_LIMIT {
+            return Err(OperationOutcomeError::error(
+                IssueType::exception(),
+                format!("repeat produced more than {REPEAT_ITEM_LIMIT} items"),
+            ));
+        }
+        walked.nodes.push(next);
+        current = next;
+    }
+}
+
 async fn build_iterable_context<'a>(
     fp_engine: &FPEngine,
     fp_config: Arc<Config<'a>>,
     select_statement: &'a ViewDefinitionSelect,
     input: &'a Resource,
-) -> Result<(Option<Vec<haste_fhirpath::Context<'a>>>, bool), OperationOutcomeError> {
+) -> Result<(Option<IterableNodes<'a>>, bool), OperationOutcomeError> {
     let mut iterable_context = None;
     let mut set_null = false;
 
@@ -403,7 +480,7 @@ async fn build_iterable_context<'a>(
         .as_ref()
         .and_then(|f| f.value.as_ref())
     {
-        iterable_context = Some(vec![
+        iterable_context = Some(IterableNodes::from_context(
             fp_engine
                 .evaluate_with_config(for_each_fp, vec![input], fp_config.clone())
                 .await
@@ -413,13 +490,13 @@ async fn build_iterable_context<'a>(
                         format!("Error evaluating forEach expression: {e}"),
                     )
                 })?,
-        ]);
+        ));
     } else if let Some(for_each_or_null_fp) = select_statement
         .forEachOrNull
         .as_ref()
         .and_then(|f| f.value.as_ref())
     {
-        iterable_context = Some(vec![
+        iterable_context = Some(IterableNodes::from_context(
             fp_engine
                 .evaluate_with_config(for_each_or_null_fp, vec![input], fp_config.clone())
                 .await
@@ -429,33 +506,12 @@ async fn build_iterable_context<'a>(
                         format!("Error evaluating forEachOrNull expression: {e}"),
                     )
                 })?,
-        ]);
+        ));
 
         set_null = true;
-    } else if let Some(repeat) = select_statement
-        .repeat
-        .as_ref()
-        .map(|r| r.iter().filter_map(|r| r.value.as_ref()))
-    {
-        let mut repeat_fps = vec![];
-
-        for repeat_fp in repeat {
-            let repeat = format!("$this.repeat({repeat_fp})");
-
-            repeat_fps.push(
-                fp_engine
-                    .evaluate_with_config(&repeat, vec![input], fp_config.clone())
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::error(
-                            IssueType::exception(),
-                            format!("Error evaluating repeat expression: {e}"),
-                        )
-                    })?,
-            );
-        }
-
-        iterable_context = Some(repeat_fps);
+    } else if let Some(repeat) = select_statement.repeat.as_ref() {
+        let paths: Vec<&str> = repeat.iter().filter_map(|r| r.value.as_deref()).collect();
+        iterable_context = Some(walk_repeat(fp_engine, &fp_config, &paths, input).await?);
     }
 
     Ok((iterable_context, set_null))
@@ -466,14 +522,11 @@ async fn process_select_statement<'a>(
     fp_config: Arc<Config<'a>>,
     select_statement: &'a ViewDefinitionSelect,
     input: &'a Resource,
-    iterable_context: Option<Vec<haste_fhirpath::Context<'a>>>,
+    iterable_context: Option<IterableNodes<'a>>,
     set_null: bool,
 ) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
     let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
-        iterable
-            .iter()
-            .flat_map(haste_fhirpath::Context::iter)
-            .collect()
+        iterable.nodes.clone()
     } else {
         vec![input]
     };
@@ -813,4 +866,63 @@ pub async fn view_definition_run<
     .await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn response(json: &str) -> Resource {
+        serde_json::from_str(json).unwrap()
+    }
+
+    async fn walked_link_ids(paths: &[&str], resource: &Resource) -> Vec<String> {
+        let config = Arc::new(Config::builder());
+        let walked = walk_repeat(&FPEngine::new(), &config, paths, resource)
+            .await
+            .unwrap();
+        let mut link_ids = Vec::new();
+        for node in &walked.nodes {
+            let found = FPEngine::new()
+                .evaluate("linkId", vec![*node])
+                .await
+                .unwrap();
+            link_ids.extend(found.iter().map(|v| {
+                v.as_any()
+                    .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRString>()
+                    .and_then(|s| s.value.clone())
+                    .unwrap_or_default()
+            }));
+        }
+        link_ids
+    }
+
+    const QR: &str = r#"{"resourceType":"QuestionnaireResponse","status":"completed","item":[
+        {"linkId":"1","item":[
+            {"linkId":"1.1","answer":[{"item":[{"linkId":"1.1.1"}]}]},
+            {"linkId":"1.2"}]},
+        {"linkId":"2"}]}"#;
+
+    #[tokio::test]
+    async fn repeat_is_depth_first_and_combines_paths() {
+        let resource = response(QR);
+        assert_eq!(
+            walked_link_ids(&["item", "answer.item"], &resource).await,
+            ["1", "1.1", "1.1.1", "1.2", "2"]
+        );
+    }
+
+    #[tokio::test]
+    async fn repeat_over_this_ends() {
+        let resource = response(QR);
+        let walked = walk_repeat(
+            &FPEngine::new(),
+            &Arc::new(Config::builder()),
+            &["$this"],
+            &resource,
+        )
+        .await
+        .unwrap();
+        assert_eq!(walked.nodes.len(), 1);
+    }
 }

@@ -2787,6 +2787,12 @@ impl<'a> Context<'a> {
             .allocate_literal(value)
     }
 
+    /// The values, which live as long as `'a` rather than this borrow.
+    #[must_use]
+    pub fn values(&self) -> &[&'a dyn MetaValue] {
+        &self.values
+    }
+
     #[must_use]
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().copied())

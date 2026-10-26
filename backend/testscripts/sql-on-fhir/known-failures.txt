@@ -35,13 +35,9 @@ sof-union-10             # column order mismatch
 # A `repeat` gives the rows the suite expects but level by level (all first-level items, then
 # the second level), while the suite lists them depth first. The suite compares rows in any order
 # and the spec sets no order for `repeat`; a TestScript compares the rows' bytes.
-sof-repeat-01            # basic
-sof-repeat-04            # empty child expression
-sof-repeat-11            # sibling repeats at top level
 
 # A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`1.1.1`);
 # the other five rows are there.
-sof-repeat-02            # item and answer.item
 
 # `unionAll` branches add no rows: a select made only of a `unionAll` returns `{}`, and one with
 # columns returns just its columns.
