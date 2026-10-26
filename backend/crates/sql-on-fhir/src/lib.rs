@@ -669,7 +669,7 @@ async fn passes_where_clauses(
             })?;
 
         // An empty result excludes the resource, like `false`.
-        if result.iter().next().is_none() {
+        if result.is_empty() {
             return Ok(false);
         }
 
