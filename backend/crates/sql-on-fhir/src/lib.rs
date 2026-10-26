@@ -313,8 +313,12 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
 
     if let Some(constants) = &viewdefinition.constant {
         for constant in constants {
-            if let Some(name) = &constant.name.value.as_ref() {
-                hashmap.insert((*name).clone(), &constant.value as &dyn MetaValue);
+            // Pass the inner primitive: the choice enum's `as_any` is its Box, which number and boolean downcasts reject.
+            if let (Some(name), Some(value)) = (
+                constant.name.value.as_ref(),
+                constant.value.flatten().first().copied(),
+            ) {
+                hashmap.insert(name.clone(), value);
             }
         }
     }
@@ -650,7 +654,7 @@ async fn passes_where_clauses(
             })?;
 
         // An empty result excludes the resource, like `false`.
-        if result.is_empty() {
+        if result.iter().next().is_none() {
             return Ok(false);
         }
 
