@@ -461,7 +461,7 @@ async fn evaluate_function<'a>(
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
-        "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
+        "indexOf" | "substring" | "length" | "toChars" | "trim" | "replace" | "matches"
         | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
@@ -1275,6 +1275,10 @@ fn char_count(value: &str) -> Result<i64, FHIRPathError> {
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
 }
 
+fn trim(value: &str) -> String {
+    value.trim_matches([' ', '\t', '\r', '\n']).to_owned()
+}
+
 /// <https://hl7.org/fhirpath/N1/#indexofsubstring-string-integer> through
 /// <https://hl7.org/fhirpath/N1/#tochars-collection>: empty when the input or
 /// a required argument is empty.
@@ -1285,7 +1289,7 @@ async fn evaluate_string_function<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let name = function.name.0.as_str();
     let cardinality = match name {
-        "length" | "toChars" => Cardinality::Zero,
+        "length" | "toChars" | "trim" => Cardinality::Zero,
         "indexOf" | "matches" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
@@ -1325,6 +1329,7 @@ async fn evaluate_string_function<'a>(
 
     let result = match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
+        "trim" => string_result(&context, trim(&input)),
         "toChars" => {
             let chars = input.chars().map(|c| {
                 context.allocate_literal(FHIRString {
@@ -2330,6 +2335,24 @@ async fn evaluate_xor<'a>(
     evaluate_boolean_binary("xor", left, right, context, config, |l, r| Some(l? ^ r?)).await
 }
 
+/// <https://hl7.org/fhirpath/N1/#equals>. Collections are equal when they have the same length
+/// and each pair, in order, is equal. `None` when a pair cannot be compared.
+fn collection_equal<'b>(
+    left: &Context<'b>,
+    right: &Context<'b>,
+) -> Result<Option<bool>, FHIRPathError> {
+    if left.values.len() != right.values.len() {
+        return Ok(Some(false));
+    }
+    for (l, r) in left.values.iter().zip(&right.values) {
+        match equality(*l, *r)? {
+            Some(true) => {}
+            other => return Ok(other),
+        }
+    }
+    Ok(Some(true))
+}
+
 async fn evaluate_equality<'a>(
     left: &Expression,
     right: &Expression,
@@ -2337,23 +2360,22 @@ async fn evaluate_equality<'a>(
     config: Option<Arc<Config<'a>>>,
     negate: bool,
 ) -> Result<Context<'a>, FHIRPathError> {
-    operation_2(left, right, context, config, move |left, right| {
-        Box::pin(async move {
-            let Some(mut result) = equal_check(&left, &right)? else {
-                // Dates and times of different precisions cannot be compared: the result is empty.
-                return Ok(left.new_context_from(vec![]));
-            };
+    operation_n(left, right, context, config, |left, right| {
+        // An empty side gives an empty result.
+        if left.values.is_empty() || right.values.is_empty() {
+            return Ok(left.new_context_from(vec![]));
+        }
 
-            if negate {
-                result = !result;
-            }
+        let result = if left.values.len() == 1 && right.values.len() == 1 {
+            equal_check(&left, &right)?
+        } else {
+            collection_equal(&left, &right)?
+        };
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
-                    value: Some(result),
-                    ..Default::default()
-                })]),
-            )
+        // Dates and times of different precisions cannot be compared: the result is empty.
+        Ok(match result {
+            Some(result) => boolean_result(&left, result != negate),
+            None => left.new_context_from(vec![]),
         })
     })
     .await

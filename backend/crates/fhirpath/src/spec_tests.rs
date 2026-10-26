@@ -425,7 +425,13 @@ async fn string_functions() {
     assert_evaluates("'abc'.toChars()", &["'a'", "'b'", "'c'"]).await;
     assert_evaluates("{}.toChars()", &[]).await;
 
+    assert_evaluates(r"' \t\r\n123456\n\r\t '.trim()", &["'123456'"]).await;
+    assert_evaluates("'  '.trim() = ''", &["true"]).await;
+    assert_evaluates("{}.trim()", &[]).await;
+    assert_evaluates("' 123456 '.trim()", &["' 123456 '"]).await;
+
     assert_errors("('a' | 'b').length()").await;
+    assert_errors("('a' | 'b').trim()").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#string>
