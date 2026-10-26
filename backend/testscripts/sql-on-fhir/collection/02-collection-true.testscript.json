@@ -1,0 +1,163 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-collection-02",
+  "url": "https://haste.health/fhir/TestScript/sof-collection-02",
+  "name": "sof-collection-02",
+  "title": "SQL on FHIR collection: collection = true",
+  "status": "active",
+  "description": "TBD Suite test 2 of tests/collection.json (collection), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  },
+                  {
+                    "name": "last_name",
+                    "path": "name.family",
+                    "type": "string",
+                    "collection": true
+                  },
+                  {
+                    "name": "first_name",
+                    "path": "name.given",
+                    "type": "string",
+                    "collection": true
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "use": "official",
+                "family": "f1.1",
+                "given": [
+                  "g1.1"
+                ]
+              },
+              {
+                "family": "f1.2",
+                "given": [
+                  "g1.2",
+                  "g1.3"
+                ]
+              }
+            ],
+            "gender": "male",
+            "birthDate": "1950-01-01",
+            "address": [
+              {
+                "city": "c1"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "f2.1",
+                "given": [
+                  "g2.1"
+                ]
+              },
+              {
+                "use": "official",
+                "family": "f2.2",
+                "given": [
+                  "g2.2",
+                  "g2.3"
+                ]
+              }
+            ],
+            "gender": "female",
+            "birthDate": "1950-01-01"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "collection = true",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 2 in all. [{\"id\": \"pt1\", \"last_name\": [\"f1.1\", \"f1.2\"], \"first_name\": [\"g1.1\", \"g1.2\", \"g1.3\"]}, {\"id\": \"pt2\", \"last_name\": [\"f2.1\", \"f2.2\"], \"first_name\": [\"g2.1\", \"g2.2\", \"g2.3\"]}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJsYXN0X25hbWUiOlsiZjEuMSIsImYxLjIiXSwiZmlyc3RfbmFtZSI6WyJnMS4xIiwiZzEuMiIsImcxLjMiXX0seyJpZCI6InB0MiIsImxhc3RfbmFtZSI6WyJmMi4xIiwiZjIuMiJdLCJmaXJzdF9uYW1lIjpbImcyLjEiLCJnMi4yIiwiZzIuMyJdfV0='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

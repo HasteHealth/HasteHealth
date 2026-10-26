@@ -1,0 +1,136 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-fn-oftype-02",
+  "url": "https://haste.health/fhir/TestScript/sof-fn-oftype-02",
+  "name": "sof-fn-oftype-02",
+  "title": "SQL on FHIR fn_oftype: select integer values",
+  "status": "active",
+  "description": "TBD Suite test 2 of tests/fn_oftype.json (fn_oftype), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Observation",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "path": "id",
+                    "name": "id",
+                    "type": "id"
+                  },
+                  {
+                    "path": "value.ofType(integer)",
+                    "name": "integer_value",
+                    "type": "integer"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o1",
+            "code": {
+              "text": "code"
+            },
+            "status": "final",
+            "valueString": "foo"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o2",
+            "code": {
+              "text": "code"
+            },
+            "status": "final",
+            "valueInteger": 42
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "o3",
+            "code": {
+              "text": "code"
+            },
+            "status": "final"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "select integer values",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 3 in all. [{\"id\": \"o1\", \"integer_value\": null}, {\"id\": \"o2\", \"integer_value\": 42}, {\"id\": \"o3\", \"integer_value\": null}]",
+            "expression": "Binary.data = 'W3siaWQiOiJvMSIsImludGVnZXJfdmFsdWUiOm51bGx9LHsiaWQiOiJvMiIsImludGVnZXJfdmFsdWUiOjQyfSx7ImlkIjoibzMiLCJpbnRlZ2VyX3ZhbHVlIjpudWxsfV0='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

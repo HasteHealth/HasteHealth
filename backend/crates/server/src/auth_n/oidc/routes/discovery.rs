@@ -511,7 +511,11 @@ pub fn create_smart_configuration(
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let smart_document = SmartConfigurationDocument {
-        issuer: Some(api_url.to_string()),
+        issuer: Some(
+            issuer_url(api_url_string, tenant, project)
+                .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?
+                .to_string(),
+        ),
         authorization_endpoint: Some(
             api_url
                 .join(authorize_path.to_str().unwrap_or_default())
@@ -555,15 +559,20 @@ pub fn create_smart_configuration(
         ],
         capabilities: vec![
             "sso-openid-connect".to_string(),
+            "authorize-post".to_string(),
             "client-public".to_string(),
             "client-confidential-symmetric".to_string(),
             "launch-standalone".to_string(),
             "launch-ehr".to_string(),
             "context-ehr-patient".to_string(),
             "context-ehr-encounter".to_string(),
+            "context-banner".to_string(),
+            "context-standalone-patient".to_string(),
+            "context-style".to_string(),
             "permission-offline".to_string(),
             "permission-patient".to_string(),
             "permission-user".to_string(),
+            "permission-v1".to_string(),
             "permission-v2".to_string(),
         ],
         code_challenge_methods_supported: vec!["S256".to_string()],

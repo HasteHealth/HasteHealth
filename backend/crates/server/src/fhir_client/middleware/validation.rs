@@ -97,8 +97,7 @@ impl<B: Backend> Middleware<B> for Validation {
                         .await?;
 
                     if !validation_operation_outcome.issue.is_empty() {
-                        return Err(OperationOutcomeError::new(
-                            None,
+                        return Err(OperationOutcomeError::unprocessable(
                             validation_operation_outcome,
                         ));
                     }

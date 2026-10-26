@@ -2,6 +2,7 @@
 //! added to or subtracted from a Date, `DateTime` or Time, at the value's
 //! precision.
 
+use crate::partial_datetime::PartialDateTime;
 use chrono::{Months, NaiveDate, NaiveTime, TimeDelta, Timelike};
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Time},
@@ -45,6 +46,7 @@ fn duration(amount: f64, unit: &str) -> Option<Duration> {
 pub enum Shifted {
     Date(Date),
     DateTime(DateTime),
+    PartialDateTime(PartialDateTime),
     Time(Time),
 }
 
@@ -52,6 +54,7 @@ pub enum Shifted {
 pub enum Temporal<'v> {
     Date(&'v Date),
     DateTime(&'v DateTime),
+    PartialDateTime(&'v PartialDateTime),
     Time(&'v Time),
 }
 
@@ -62,6 +65,8 @@ impl<'v> Temporal<'v> {
             date.value.as_ref().map(Temporal::Date)
         } else if let Some(datetime) = any.downcast_ref::<FHIRDateTime>() {
             datetime.value.as_ref().map(Temporal::DateTime)
+        } else if let Some(datetime) = any.downcast_ref::<PartialDateTime>() {
+            Some(Temporal::PartialDateTime(datetime))
         } else {
             any.downcast_ref::<FHIRTime>()?
                 .value
@@ -78,6 +83,9 @@ impl<'v> Temporal<'v> {
             Temporal::Date(date) => shift_date(date, duration).map(Shifted::Date),
             Temporal::DateTime(datetime) => {
                 shift_datetime(datetime, duration).map(Shifted::DateTime)
+            }
+            Temporal::PartialDateTime(datetime) => {
+                shift_partial_datetime(datetime, duration).map(Shifted::PartialDateTime)
             }
             Temporal::Time(time) => shift_time(time, duration).map(Shifted::Time),
         }
@@ -154,6 +162,41 @@ fn shift_datetime(datetime: &DateTime, duration: Duration) -> Option<DateTime> {
         Date::Year(y) => DateTime::Year(y),
         Date::YearMonth(y, m) => DateTime::YearMonth(y, m),
         Date::YearMonthDay(y, m, d) => DateTime::YearMonthDay(y, m, d),
+    })
+}
+
+/// The time moves by `duration` and is cut back to the value's precision.
+fn shift_partial_datetime(
+    datetime: &PartialDateTime,
+    duration: Duration,
+) -> Option<PartialDateTime> {
+    let local = datetime.local();
+    let shifted = match duration {
+        Duration::Months(months) => {
+            let count = Months::new(u32::try_from(months.unsigned_abs()).ok()?);
+            if months >= 0 {
+                local.checked_add_months(count)
+            } else {
+                local.checked_sub_months(count)
+            }
+        }
+        Duration::Days(days) => local.checked_add_signed(TimeDelta::try_days(days)?),
+        Duration::Millis(millis) => local.checked_add_signed(TimeDelta::try_milliseconds(millis)?),
+    }?;
+    // A year outside 1 to 9999 is empty, as for the other precisions.
+    year(i64::from(chrono::Datelike::year(&shifted)))?;
+    let time = match datetime.time {
+        Time::Hour(_) => Time::Hour(u8::try_from(shifted.hour()).ok()?),
+        Time::HourMinute(..) => Time::HourMinute(
+            u8::try_from(shifted.hour()).ok()?,
+            u8::try_from(shifted.minute()).ok()?,
+        ),
+        Time::HourMinuteSecond(_) => Time::HourMinuteSecond(shifted.time()),
+    };
+    Some(PartialDateTime {
+        date: shifted.date(),
+        time,
+        offset: datetime.offset,
     })
 }
 

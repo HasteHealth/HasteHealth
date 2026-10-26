@@ -126,7 +126,7 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
                 .downcast_ref::<FHIRPositiveInt>()
                 .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
-            downcast_number(fp_positive_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_positive_int.value.unwrap_or(0) as f64)
         }
         "unsignedInt" => {
             let fp_unsigned_int = value
@@ -134,7 +134,7 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
                 .downcast_ref::<FHIRUnsignedInt>()
                 .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
-            downcast_number(fp_unsigned_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_unsigned_int.value.unwrap_or(0) as f64)
         }
         "http://hl7.org/fhirpath/System.Integer" => value
             .as_any()

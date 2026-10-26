@@ -1,0 +1,134 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-basic-03",
+  "url": "https://haste.health/fhir/TestScript/sof-basic-03",
+  "name": "sof-basic-03",
+  "title": "SQL on FHIR basic: two columns",
+  "status": "active",
+  "description": "basic view definition Suite test 3 of tests/basic.json (basic), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  },
+                  {
+                    "name": "last_name",
+                    "path": "name.family.first()",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "F1"
+              }
+            ],
+            "active": true
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "F2"
+              }
+            ],
+            "active": false
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "two columns",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 3 in all. [{\"id\": \"pt1\", \"last_name\": \"F1\"}, {\"id\": \"pt2\", \"last_name\": \"F2\"}, {\"id\": \"pt3\", \"last_name\": null}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJsYXN0X25hbWUiOiJGMSJ9LHsiaWQiOiJwdDIiLCJsYXN0X25hbWUiOiJGMiJ9LHsiaWQiOiJwdDMiLCJsYXN0X25hbWUiOm51bGx9XQ=='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

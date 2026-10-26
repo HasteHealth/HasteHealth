@@ -1,0 +1,136 @@
+name: <Test> E2E SQL on FHIR
+
+# Runs backend/testscripts/sql-on-fhir: one TestScript per test of the SQL on
+# FHIR v2 shared test suite (backend/testscripts/sql-on-fhir/README.md). Each
+# runs the test's view over the test's resources with ViewDefinition/$run.
+# The TestScripts listed in backend/testscripts/sql-on-fhir/known-failures.txt
+# fail today: they still run, their TestReports stay `fail`, marked as
+# expected, and they don't fail the job.
+#
+# Postgres search backend only: the views run over resources sent with the
+# request, so the search backend makes no difference.
+#
+# Called by test_e2e.yml, which builds the binary this downloads.
+on:
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  sql-on-fhir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HASTE_CERTIFICATION_DIR: certifications
+      HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
+      HASTE_API_URI: http://localhost:3000
+      HASTE_REPO.backend: postgres
+      HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      HASTE_SEARCH.backend: postgres
+      HASTE_SEARCH.database_url: postgresql://postgres:postgres@localhost:5432/haste_health_search
+      HASTE_SEARCH.max_connections: 20
+      RUST_LOG: none
+
+    services:
+      postgres:
+        # Google's mirror of Docker Hub, which rate-limits anonymous pulls from runners.
+        image: mirror.gcr.io/library/postgres:18.1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: haste-health-binary
+
+      - name: Install binary
+        run: |
+          mkdir -p backend/target/debug
+          tar -xzf haste-health.tar.gz -C backend/target/debug
+
+      # The Postgres search backend indexes into its own database, apart from
+      # the repo's.
+      - name: Create search database
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
+
+      - name: Run migrations
+        run: ./target/debug/haste-health admin migrate search && ./target/debug/haste-health admin migrate repo
+        working-directory: ./backend
+
+      - name: Start server and worker
+        run: |
+          ./target/debug/haste-health server start > server.log 2>&1 &
+          ./target/debug/haste-health worker > worker.log 2>&1 &
+        working-directory: ./backend
+
+      - name: Migrate artifacts
+        run: ./target/debug/haste-health admin migrate artifacts
+        working-directory: ./backend
+
+      - name: Set up tenant and admin client
+        run: |
+          ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
+          ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
+        working-directory: ./backend
+
+      # A token's access policies come from search, so index before the first one.
+      - name: Wait for indexing
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if ./target/debug/haste-health api capabilities > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not become ready" >&2
+          exit 1
+        working-directory: ./backend
+
+      # Exits non-zero if a TestScript fails that known-failures.txt does not
+      # list. Each listed id is passed as `--allow-failure`; the run warns when
+      # a listed TestScript passes, so remove it from the list then.
+      - name: Run SQL on FHIR TestScripts
+        run: |
+          allowed=()
+          while read -r id; do
+            allowed+=(--allow-failure "$id")
+          done < <(sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' testscripts/sql-on-fhir/known-failures.txt)
+          ./target/debug/haste-health testscript run -i testscripts/sql-on-fhir -w 0 \
+            "${allowed[@]}" -o sql-on-fhir-postgres.json
+        working-directory: ./backend
+        env:
+          RUST_LOG: info
+
+      - name: Upload TestReports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sql-on-fhir-testreports
+          path: backend/sql-on-fhir-postgres.json
+          if-no-files-found: ignore
+
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sql-on-fhir-logs
+          path: |
+            backend/server.log
+            backend/worker.log
+          if-no-files-found: ignore

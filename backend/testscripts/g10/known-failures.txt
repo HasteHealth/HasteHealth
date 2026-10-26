@@ -12,10 +12,6 @@ fine-grained-scopes-2/
 smart-v1-scopes/tests/g10-9.22.5.07-device-v1-access.testscript.json
 standalone-patient-app/tests/g10-1.7.07-device-access.testscript.json
 
-# OpenID configuration: nothing is served at the id_token issuer + /.well-known/openid-configuration
-# (404); the server publishes it only at /.well-known/openid-configuration/w/[tenant]/[project].
-standalone-patient-app/tests/g10-1.11.02-openid-configuration.testscript.json
-
 # Bulk Data: no $export operation, and GET operation invocations answer 501. The kick-off scripts
 # stop with an execution error when no Content-Location comes back.
 multi-patient-api/tests/g10-bulk-capability-statement.testscript.json

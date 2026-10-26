@@ -1,14 +1,31 @@
-use crate::OperationOutcomeError;
+use crate::{OperationOutcomeError, StatusOverride};
 use axum::response::IntoResponse;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use std::sync::Arc;
 
+impl StatusOverride {
+    fn status(self) -> axum::http::StatusCode {
+        match self {
+            StatusOverride::UnprocessableEntity => axum::http::StatusCode::UNPROCESSABLE_ENTITY,
+        }
+    }
+}
+
 impl OperationOutcomeError {
     #[must_use]
     pub fn status(&self) -> axum::http::StatusCode {
+        if let Some(status_override) = self.status_override {
+            return status_override.status();
+        }
         match self.outcome.issue.first() {
             Some(issue) => {
-                if issue.code == IssueType::invalid() {
+                // Children of `invalid` in the IssueType hierarchy.
+                if issue.code == IssueType::invalid()
+                    || issue.code == IssueType::structure()
+                    || issue.code == IssueType::required()
+                    || issue.code == IssueType::value()
+                    || issue.code == IssueType::invariant()
+                {
                     axum::http::StatusCode::BAD_REQUEST
                 } else if issue.code == IssueType::not_found() {
                     axum::http::StatusCode::NOT_FOUND
@@ -28,6 +45,9 @@ impl OperationOutcomeError {
                     || issue.code == IssueType::suppressed()
                 {
                     axum::http::StatusCode::FORBIDDEN
+                } else if issue.code == IssueType::business_rule() {
+                    // An operation that affects state invoked with GET.
+                    axum::http::StatusCode::METHOD_NOT_ALLOWED
                 } else if issue.code == IssueType::not_supported() {
                     axum::http::StatusCode::NOT_IMPLEMENTED
                 } else {
