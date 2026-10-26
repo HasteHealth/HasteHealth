@@ -641,6 +641,11 @@ async fn passes_where_clauses(
                 )
             })?;
 
+        // An empty result excludes the resource, like `false`.
+        if result.is_empty() {
+            return Ok(false);
+        }
+
         let bool_results = result
             .iter()
             .map(|v| match v.fhir_type() {
