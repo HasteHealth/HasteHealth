@@ -71,17 +71,17 @@ while read -r id; do allowed+=(--allow-failure "$id"); done < <(
 | `fn_reference_keys/` | 3           | 0           |
 | `foreach/`           | 13          | 9           |
 | `logic/`             | 3           | 0           |
-| `repeat/`            | 19          | 19          |
+| `repeat/`            | 20          | 20          |
 | `row_index/`         | 9           | 9           |
 | `union/`             | 10          | 10          |
 | `validate/`          | 5           | 2           |
 | `view_resource/`     | 3           | 2           |
 | `where/`             | 8           | 0           |
-| **Total**            | **144**     | **106**     |
+| **Total**            | **145**     | **107**     |
 
 ## Known failures
 
-On 2026-10-25, 48 of the 106 pass. The other 58 are in `known-failures.txt`, by cause. A
+On 2026-10-26, 53 of the 107 pass. The other 54 are in `known-failures.txt`, by cause. A
 TestScript that fails for several causes is listed under the first that shows.
 
 | TestScripts | Cause                                                                                                                                                                                                                                                                                                              |
@@ -91,9 +91,6 @@ TestScript that fails for several causes is listed under the first that shows.
 | 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                                                                                                                                                                                                  |
 | 6           | `%rowIndex` is always null (`sof-row-index-01` to `-05`, `-09`).                                                                                                                                                                                                                                                   |
 | 5           | A constant compared or added in an expression answers 500 with a downcast or decimal type error (`sof-constant-05`, `-06`, `sof-constant-types-05`, `-09`, `-11`).                                                                                                                                                 |
-| 3           | A `repeat` returns the rows the suite expects, but level by level (all first-level items, then the second level) where the suite lists them depth first. The suite compares rows in any order and the specification sets none for `repeat`; a TestScript compares the rows' bytes (`sof-repeat-01`, `-04`, `-11`). |
-| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`).                                                                                                                                                                           |
-| 1           | A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`sof-repeat-02`).                                                                                                                                                                                                              |
 | 1           | An undefined constant (`%wrong_name`) evaluates to empty instead of raising an error (`sof-constant-07`).                                                                                                                                                                                                          |
 | 1           | An invalid FHIRPath expression (`forEach: "@@"`) answers 500 instead of a client error (`sof-validate-03`).                                                                                                                                                                                                        |
 | 1           | A `where` path that is empty for a resource keeps the resource (`sof-basic-07`).                                                                                                                                                                                                                                   |
