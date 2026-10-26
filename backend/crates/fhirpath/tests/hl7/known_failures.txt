@@ -158,14 +158,6 @@ testUnescapeJson2
 testUnescapeJson3
 testUnescapeJson4
 
-# testTrim
-testTrim1
-testTrim2
-testTrim3
-testTrim4
-testTrim5
-testTrim6
-
 # testSplit
 testSplit1
 testSplit2
