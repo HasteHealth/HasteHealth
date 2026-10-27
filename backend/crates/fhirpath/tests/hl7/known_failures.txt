@@ -202,9 +202,6 @@ testPlusDate5
 testPlusDate6
 testPlusDate7
 testPlusDate8
-testPlusDate14
-testPlusDate16
-testPlusDate17
 testPlusDate18
 testPlusDate19
 testPlusDate20
@@ -213,7 +210,6 @@ testPlusDate22
 
 # testMinus
 testMinus3
-testMinus6
 
 # testDivide
 testDivide6

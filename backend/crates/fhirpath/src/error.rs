@@ -19,6 +19,8 @@ pub enum OperationError {
     InvalidIndex,
     #[error("Index is out of bounds for the target pointer width")]
     IndexOutOfBounds,
+    #[error("'{0}' is not a time unit of fixed length for date/time arithmetic")]
+    InvalidTimeUnit(String),
 }
 
 #[derive(Debug, Error)]
