@@ -511,11 +511,13 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
             }
             QueryState { sort, ..state }
         }
-        // Handled in middleware. `_include` adds entries to the Bundle from
-        // the references on this page of matches; it does not filter, sort or
-        // page, so there is nothing for the query to do with it.
+        // Handled in middleware. `_include` and `_revinclude` add entries to
+        // the Bundle beside this page of matches; neither filters, sorts or
+        // pages, so there is nothing for the query to do with them.
         // `_type` is applied as a filter in `execute_search`.
-        "_summary" | "_elements" | "_include" | "_type" | "_format" | "_pretty" => state,
+        "_summary" | "_elements" | "_include" | "_revinclude" | "_type" | "_format" | "_pretty" => {
+            state
+        }
         _ => return Err(QueryBuildError::UnsupportedParameter(param.name.clone()).into()),
     })
 }

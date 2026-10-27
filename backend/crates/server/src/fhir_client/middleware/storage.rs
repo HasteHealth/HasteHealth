@@ -672,21 +672,12 @@ impl<B: Backend> Handler<B> for Storage {
                         )
                         .await?;
 
-                    // `_include` reads the references on this page of
-                    // matches. It adds entries; it never changes which
-                    // resources matched, so `total` is untouched.
-                    let directives = search_includes::include_directives(
-                        search_request_parameters(&search_request),
-                    );
-
-                    let included = search_includes::resolve_includes(
-                        state.repo.as_ref(),
-                        &ctx.tenant,
-                        &ctx.project,
-                        &resources,
-                        directives,
-                    )
-                    .await?;
+                    // `_include` and `_revinclude` add entries beside this
+                    // page of matches; neither changes which resources
+                    // matched, so `total` is untouched.
+                    let parameters = search_request_parameters(&search_request);
+                    let included =
+                        search_includes::resolve(state, &ctx, parameters, &resources).await?;
 
                     let bundle = to_bundle(
                         BundleType::searchset(),
