@@ -223,8 +223,6 @@ Each group below is one server gap.
   list Condition that claims its profile, with "Condition.category:us-core ... found '0'". The
   slice is a value discriminator on a required binding, which the validator does not match. It
   answers 500 rather than a 4xx.
-- **`_revinclude` (40 TestScripts, every 12.x Provenance revinclude test).** The server answers
-  501 "Unsupported parameter: '\_revinclude'".
 
 ## Not covered
 
