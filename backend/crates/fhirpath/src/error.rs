@@ -47,6 +47,8 @@ pub enum FHIRPathError {
     OperationError(OperationError),
     #[error("Failed to downcast value to type '{0}'")]
     FailedDowncast(String),
+    #[error("Unknown type '{0}'")]
+    UnknownType(String),
     #[error("Failed to derive type name")]
     FailedTypeNameDerivation,
     #[error("Function error: {0}")]

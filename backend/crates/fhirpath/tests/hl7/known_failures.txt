@@ -293,11 +293,7 @@ testPolymorphicsB
 testPeriodInvariantNew
 
 # testInheritance
-testFHIRPathIsFunction2
-testFHIRPathIsFunction9
 testFHIRPathAsFunction21
-testFHIRPathAsFunction23
-testFHIRPathAsFunction24
 
 # miscEngineTests
 testContainedId
