@@ -365,6 +365,112 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
     }
 }
 
+/// R4 primitive types, all specialising `Element`.
+const PRIMITIVE_TYPES: &[&str] = &[
+    "base64Binary",
+    "boolean",
+    "canonical",
+    "code",
+    "date",
+    "dateTime",
+    "decimal",
+    "id",
+    "instant",
+    "integer",
+    "markdown",
+    "oid",
+    "positiveInt",
+    "string",
+    "time",
+    "unsignedInt",
+    "uri",
+    "url",
+    "uuid",
+    "xhtml",
+];
+
+/// R4 complex data types (other than the `Quantity` specialisations) specialising `Element`.
+const DATA_TYPES: &[&str] = &[
+    "Address",
+    "Annotation",
+    "Attachment",
+    "BackboneElement",
+    "CodeableConcept",
+    "Coding",
+    "ContactDetail",
+    "ContactPoint",
+    "Contributor",
+    "DataRequirement",
+    "Dosage",
+    "ElementDefinition",
+    "Expression",
+    "Extension",
+    "HumanName",
+    "Identifier",
+    "MarketingStatus",
+    "Meta",
+    "Money",
+    "Narrative",
+    "ParameterDefinition",
+    "Period",
+    "Population",
+    "ProdCharacteristic",
+    "ProductShelfLife",
+    "Quantity",
+    "Range",
+    "Ratio",
+    "Reference",
+    "RelatedArtifact",
+    "SampledData",
+    "Signature",
+    "SubstanceAmount",
+    "Timing",
+    "TriggerDefinition",
+    "UsageContext",
+];
+
+/// Types of the `FHIRPath` `System` namespace.
+const SYSTEM_TYPES: &[&str] = &[
+    "Boolean", "String", "Integer", "Decimal", "Date", "DateTime", "Time", "Quantity",
+];
+
+/// The type a FHIR type specialises, if any.
+fn parent_type(type_name: &str) -> Option<&'static str> {
+    match type_name {
+        "code" | "id" | "markdown" => Some("string"),
+        "canonical" | "oid" | "url" | "uuid" => Some("uri"),
+        "positiveInt" | "unsignedInt" => Some("integer"),
+        "Age" | "Count" | "Distance" | "Duration" | "MoneyQuantity" | "SimpleQuantity" => {
+            Some("Quantity")
+        }
+        "DomainResource" => Some("Resource"),
+        "Resource" | "Element" => None,
+        _ if PRIMITIVE_TYPES.contains(&type_name) || DATA_TYPES.contains(&type_name) => {
+            Some("Element")
+        }
+        _ if ResourceType::try_from(type_name).is_ok() => Some("DomainResource"),
+        _ => None,
+    }
+}
+
+fn is_known_type(type_name: &str) -> bool {
+    // Namespace qualifiers are the first term of a function-form specifier like `is(System.Boolean)`.
+    matches!(
+        type_name,
+        "Element" | "Resource" | "DomainResource" | "System" | "FHIR"
+    ) || SYSTEM_TYPES.contains(&type_name)
+        || parent_type(type_name).is_some()
+}
+
+fn validate_type_name(type_name: &str) -> Result<(), FHIRPathError> {
+    if is_known_type(type_name) {
+        Ok(())
+    } else {
+        Err(FHIRPathError::UnknownType(type_name.to_string()))
+    }
+}
+
+/// Exact match, except that every resource is a `Resource` or `DomainResource`.
 fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
     match type_to_check {
         "Resource" | "DomainResource" => ResourceType::try_from(type_name).is_ok(),
@@ -372,7 +478,28 @@ fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
     }
 }
 
+/// True when `type_name` is `type_to_check` or specialises it.
+fn is_subtype_name(type_name: &str, type_to_check: &str) -> bool {
+    let mut current = Some(type_name);
+    while let Some(name) = current {
+        if name == type_to_check {
+            return true;
+        }
+        current = parent_type(name);
+    }
+    false
+}
+
 fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
+    matches_type(value, type_to_check, check_type_name)
+}
+
+/// `is` also accepts values of a specialising type.
+fn check_subtype(value: &dyn MetaValue, type_to_check: &str) -> bool {
+    matches_type(value, type_to_check, is_subtype_name)
+}
+
+fn matches_type(value: &dyn MetaValue, type_to_check: &str, check: fn(&str, &str) -> bool) -> bool {
     let fhir_type_name = value.fhir_type();
 
     match fhir_type_name {
@@ -391,7 +518,7 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
             }
             false
         }
-        fhir_type_name => check_type_name(fhir_type_name, type_to_check),
+        fhir_type_name => check(fhir_type_name, type_to_check),
     }
 }
 
@@ -523,6 +650,7 @@ fn evaluate_of_type<'a>(
     validate_arguments(&function.arguments, &Cardinality::One)?;
 
     let type_name = derive_typename(&function.arguments[0])?;
+    validate_type_name(&type_name)?;
 
     Ok(filter_by_type(&type_name, context))
 }
@@ -1776,10 +1904,11 @@ async fn evaluate_trace<'a>(
 /// `is` as an operator or function, per <https://hl7.org/fhirpath/N1/#is-type-specifier>:
 /// empty for an empty input and an error for more than one item.
 fn is_type<'a>(input: &Context<'a>, type_name: &str) -> Result<Context<'a>, FHIRPathError> {
+    validate_type_name(type_name)?;
     let value = singleton("is", input)?;
     Ok(optional_boolean_result(
         input,
-        value.map(|value| check_type(value, type_name)),
+        value.map(|value| check_subtype(value, type_name)),
     ))
 }
 
@@ -2699,6 +2828,8 @@ async fn evaluate_type_operation<'a>(
     let Some(Identifier(type_name)) = type_name.0.last() else {
         return Ok(left.new_context_from(vec![]));
     };
+
+    validate_type_name(type_name)?;
 
     if return_context {
         // <https://hl7.org/fhirpath/N1/#as-type-specifier>
