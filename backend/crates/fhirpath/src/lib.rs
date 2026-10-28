@@ -37,6 +37,7 @@ mod date_arithmetic;
 mod date_comparison;
 mod fhir_functions;
 mod partial_datetime;
+mod quantity_comparison;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
 pub use partial_datetime::PartialDateTime;
 
@@ -48,6 +49,7 @@ use allocators::AllocatorTrait;
 use date_arithmetic::{Shifted, Temporal};
 use date_comparison::{TemporalOrder, temporal_order};
 use partial_datetime::{AnyDateTime, parse_any_datetime};
+use quantity_comparison::{time_equivalent, time_order};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -2044,6 +2046,11 @@ fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>,
             TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
             TemporalOrder::Unknown => None,
         })
+    } else if let Some(order) = time_order(left, right) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
+            TemporalOrder::Unknown => None,
+        })
     } else if let Some((left, right)) = as_quantities(left, right) {
         Ok(quantity_order(left, right).map(Ordering::is_eq))
     } else {
@@ -2231,7 +2238,7 @@ async fn evaluate_ordered_comparison<'a>(
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
             let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let Some(order) = temporal_order(l, r) {
+            let ordering = if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
                 match order {
                     TemporalOrder::Ordered(ordering) => Some(ordering),
                     TemporalOrder::Unknown => None,
@@ -2484,6 +2491,8 @@ fn value_equivalent(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool,
                 .collect::<Vec<_>>()
         };
         Ok(normalize(&downcast_string(left)?) == normalize(&downcast_string(right)?))
+    } else if let Some(equivalent) = time_equivalent(left, right) {
+        Ok(equivalent)
     } else {
         value_equal(left, right)
     }

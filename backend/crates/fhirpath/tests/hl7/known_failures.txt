@@ -34,8 +34,6 @@ testLiteralTimeMillisecond
 testIntegerLiteralIsInteger
 testIntegerLiteralIsSystemInteger
 testDecimalLiteralIsDecimal
-testStringQuantityDayLiteralToQuantity
-testStringQuantityWeekLiteralToQuantity
 
 # testSubSetOf
 testSubSetOf1
@@ -49,10 +47,6 @@ testQuantity1
 testQuantity2
 testQuantity3
 testQuantity4
-testQuantity5
-testQuantity6
-testQuantity7
-testQuantity8
 testQuantity9
 testQuantity10
 testQuantity11
@@ -138,12 +132,6 @@ testNEquality24
 
 # testEquivalent
 testEquivalent11
-testEquivalent24
-testEquivalent25
-testEquivalent26
-
-# testNotEquivalent
-testNotEquivalent24
 
 # testLessThan
 testLessThan28

@@ -253,6 +253,31 @@ async fn math() {
     assert_errors("(1 | 2).abs()").await;
 }
 
+/// <https://hl7.org/fhirpath/N1/#time-valued-quantities>
+#[tokio::test]
+async fn time_valued_quantities() {
+    for expression in [
+        "7 days = 1 week",
+        "7 days = 1 'wk'",
+        "6 days < 1 week",
+        "8 days > 1 week",
+        "1 year ~ 1 'a'",
+        "1 month ~ 1 'mo'",
+        "1 hour = 60 minutes",
+        "1 year = 1 year",
+    ] {
+        assert_evaluates(expression, &["true"]).await;
+    }
+    assert_evaluates("1 month !~ 1 'mo'", &["false"]).await;
+    for expression in [
+        "1 year = 1 'a'",
+        "'1 \\'mo\\''.toQuantity() = 1 month",
+        "1 year < 1 'a'",
+    ] {
+        assert_evaluates(expression, &[]).await;
+    }
+}
+
 /// <https://hl7.org/fhirpath/N1/#not-boolean>
 #[tokio::test]
 async fn not() {
