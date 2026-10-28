@@ -32,9 +32,10 @@ use crate::{
 /// A refresh is one small search per project per TTL, paid by the first
 /// lookup after expiry, and only for projects being indexed or searched.
 /// A new parameter does not wait for it (see the module doc), so the TTL
-/// only sets how long an update, a delete or a second worker can go
-/// unnoticed. A minute keeps that short at a negligible refresh rate.
-pub const PROJECT_PARAMETERS_TTL: Duration = Duration::from_secs(60);
+/// only bounds what the refreshes miss: an update or delete seen by a
+/// server, a list by type, and a second worker process. Fifteen minutes
+/// keeps rebuilds rare on the indexing path.
+pub const PROJECT_PARAMETERS_TTL: Duration = Duration::from_mins(15);
 
 /// A search backend's index, as far as the resolver needs it: a type-level
 /// search whose parameters are resolved with the base parameters alone.
