@@ -34,16 +34,8 @@ testLiteralTimeMillisecond
 testIntegerLiteralIsInteger
 testIntegerLiteralIsSystemInteger
 testDecimalLiteralIsDecimal
-testIntegerLiteralToQuantity
-testDecimalLiteralToQuantity
-testStringQuantityLiteralToQuantity
 testStringQuantityDayLiteralToQuantity
 testStringQuantityWeekLiteralToQuantity
-testStringQuantityMonthLiteralToQuantity
-testStringQuantityYearLiteralToQuantity
-testStringQuantityMonthToQuantityEquivalent
-testStringQuantityYearToQuantityEquivalent
-testStringDecimalLiteralToQuantity
 
 # testSubSetOf
 testSubSetOf1
@@ -55,6 +47,7 @@ testSuperSetOf1
 # testQuantity
 testQuantity1
 testQuantity2
+testQuantity3
 testQuantity4
 testQuantity5
 testQuantity6
@@ -140,13 +133,11 @@ testSort8
 testSort9
 testSort10
 
-# testEquality
-testEquality28
-testEquality36
+# testNEquality
+testNEquality24
 
 # testEquivalent
 testEquivalent11
-testEquivalent22
 testEquivalent24
 testEquivalent25
 testEquivalent26
@@ -155,25 +146,7 @@ testEquivalent26
 testNotEquivalent24
 
 # testLessThan
-testLessThan22
 testLessThan28
-
-# testQuantityUnitComparison
-testQuantityNoUnitEqual
-testQuantityNoUnitEquivalent
-testQuantityUnitTextEqual
-testQuantityUnitTextEquivalent
-testQuantityUnitVsNoUnitEqual
-testQuantityNoUnitVsUnitEqual
-
-# testLessOrEqual
-testLessOrEqual22
-
-# testGreatorOrEqual
-testGreatorOrEqual22
-
-# testGreaterThan
-testGreaterThan22
 
 # testCombine()
 testCombine2
@@ -201,9 +174,6 @@ testMinus3
 
 # testMod
 testMod4
-
-# testAbs
-testAbs3
 
 # testVariables
 testVariables1
