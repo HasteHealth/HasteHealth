@@ -429,7 +429,7 @@ const DATA_TYPES: &[&str] = &[
     "UsageContext",
 ];
 
-/// Types of the FHIRPath `System` namespace.
+/// Types of the `FHIRPath` `System` namespace.
 const SYSTEM_TYPES: &[&str] = &[
     "Boolean", "String", "Integer", "Decimal", "Date", "DateTime", "Time", "Quantity",
 ];
