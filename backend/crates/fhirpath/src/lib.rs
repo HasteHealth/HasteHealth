@@ -1976,6 +1976,44 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
     Ok(equality(left, right)?.unwrap_or(false))
 }
 
+/// A Quantity's unit as written: the code, else the unit text, `None` when
+/// it has neither.
+fn quantity_unit_text(quantity: &Quantity) -> Option<&str> {
+    let code = quantity
+        .code
+        .as_ref()
+        .and_then(|code| code.value.as_deref());
+    let unit = quantity
+        .unit
+        .as_ref()
+        .and_then(|unit| unit.value.as_deref());
+    code.filter(|code| !code.is_empty())
+        .or_else(|| unit.filter(|unit| !unit.is_empty()))
+}
+
+/// Both items as Quantities, `None` when either is another type.
+fn as_quantities<'v>(
+    left: &'v dyn MetaValue,
+    right: &'v dyn MetaValue,
+) -> Option<(&'v Quantity, &'v Quantity)> {
+    Some((
+        left.as_any().downcast_ref::<Quantity>()?,
+        right.as_any().downcast_ref::<Quantity>()?,
+    ))
+}
+
+/// How two Quantities order by value; `None` when they have different units
+/// or no value. Units compare case-sensitively and are not converted.
+fn quantity_order(left: &Quantity, right: &Quantity) -> Option<Ordering> {
+    if quantity_unit_text(left) != quantity_unit_text(right) {
+        return None;
+    }
+    let value = |quantity: &Quantity| quantity.value.as_ref().and_then(|value| value.value);
+    value(left)
+        .zip(value(right))
+        .and_then(|(left, right)| left.partial_cmp(&right))
+}
+
 /// `=` on two items, `None` for dates and times that cannot be compared.
 fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>, FHIRPathError> {
     // An element equals itself. Other complex values are unequal until
@@ -2006,6 +2044,8 @@ fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>,
             TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
             TemporalOrder::Unknown => None,
         })
+    } else if let Some((left, right)) = as_quantities(left, right) {
+        Ok(quantity_order(left, right).map(Ordering::is_eq))
     } else {
         // https://hl7.org/fhirpath/N1/#conversion for implicit conversion rules todo.
         //
@@ -2178,7 +2218,8 @@ async fn evaluate_numeric_binary<'a>(
     .await
 }
 
-/// Ordered comparison of two numbers or two strings (code point order).
+/// Ordered comparison of two numbers, strings (code point order) or
+/// same-unit Quantities.
 /// Empty when unordered (NaN); errors on any other operand types.
 async fn evaluate_ordered_comparison<'a>(
     left: &Expression,
@@ -2199,6 +2240,8 @@ async fn evaluate_ordered_comparison<'a>(
                 l.partial_cmp(&r)
             } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
                 Some(l.cmp(&r))
+            } else if let Some((l, r)) = as_quantities(l, r) {
+                quantity_order(l, r)
             } else {
                 return Err(FHIRPathError::OperationError(OperationError::InvalidType(
                     l.fhir_type(),
@@ -2538,6 +2581,19 @@ async fn evaluate_polarity<'a>(
     let Some(value) = singleton("polarity", &operand)? else {
         return Ok(operand);
     };
+
+    if let Some(quantity) = value.as_any().downcast_ref::<Quantity>() {
+        return Ok(match polarity {
+            Polarity::Positive => operand,
+            Polarity::Negative => {
+                let mut quantity = quantity.clone();
+                if let Some(value) = quantity.value.as_mut() {
+                    value.value = value.value.map(|value| -value);
+                }
+                operand.new_context_from(vec![operand.allocate_literal(quantity)])
+            }
+        });
+    }
 
     let result = match (polarity, Number::of(value)?) {
         (Polarity::Positive, number) => Some(number),

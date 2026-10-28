@@ -864,3 +864,24 @@ async fn index_in_iteration_functions() {
     // Outside an iteration there is no index.
     assert_evaluates("$index", &[]).await;
 }
+
+/// <https://hl7.org/fhirpath/N1/#quantity>: same-unit quantities compare and
+/// negate; different units are empty for `=` and false for `~`.
+#[tokio::test]
+async fn same_unit_quantities() {
+    assert_evaluates("1 'mg' = 1 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 2 'mg'", &["false"]).await;
+    assert_evaluates("1 'mg' != 2 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 1 'g'", &[]).await;
+    assert_evaluates("1 'mg' ~ 1 'g'", &["false"]).await;
+    assert_evaluates("1 'mg' ~ 1 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 1 'MG'", &[]).await;
+    assert_evaluates("1 'mg' < 2 'mg'", &["true"]).await;
+    assert_evaluates("2 'mg' <= 2 'mg'", &["true"]).await;
+    assert_evaluates("2 'mg' > 2 'mg'", &["false"]).await;
+    assert_evaluates("2 'mg' >= 3 'mg'", &["false"]).await;
+    assert_evaluates("1 'mg' < 2 'g'", &[]).await;
+    assert_evaluates("(-5.5 'mg').abs() = 5.5 'mg'", &["true"]).await;
+    assert_evaluates("-(-5.5 'mg') = 5.5 'mg'", &["true"]).await;
+    assert_evaluates("+5.5 'mg' = 5.5 'mg'", &["true"]).await;
+}
