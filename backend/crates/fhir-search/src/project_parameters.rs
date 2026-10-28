@@ -88,10 +88,11 @@ impl<Index: IndexSearch, Repo: Repository + Send + Sync> ProjectParameterResolve
             count_limit: Some(MAX_COUNT),
             any_of: None,
         };
-        let found = self
-            .index
-            .search(tenant, project, &request, &options)
-            .await?;
+        // Boxed because this is a whole search running inside a parameter
+        // lookup, which itself runs inside a search. Inline, the nested
+        // future types go deep enough that release builds overflow rustc's
+        // query depth limit. Only a rebuild pays the allocation.
+        let found = Box::pin(self.index.search(tenant, project, &request, &options)).await?;
         let version_ids = found
             .entries
             .iter()
