@@ -1,0 +1,320 @@
+{
+    "resourceType": "TestScript",
+    "id": "us-core-condition-problems-health-concerns",
+    "url": "https://haste.health/fhir/TestScript/us-core-condition-problems-health-concerns",
+    "name": "US Core Condition Problems and Health Concerns",
+    "title": "US Core Condition Problems and Health Concerns tests",
+    "status": "active",
+    "description": "The profile's mandatory category slice is defined by a required ValueSet binding alone: a problem-list-item or health-concern category fills it, an encounter-diagnosis category does not.",
+    "contained": [
+        {
+            "resourceType": "Condition",
+            "id": "problem-list-item",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "us-core-condition-problems-health-concerns"
+                    }
+                ],
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "problem-list-item",
+                            "display": "Problem List Item"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "38341003",
+                        "display": "Hypertensive disorder"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "recordedDate": "2024-01-15"
+        },
+        {
+            "resourceType": "Condition",
+            "id": "health-concern",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "us-core-condition-problems-health-concerns"
+                    }
+                ],
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/condition-category",
+                            "code": "health-concern",
+                            "display": "Health Concern"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "38341003",
+                        "display": "Hypertensive disorder"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "recordedDate": "2024-01-15"
+        },
+        {
+            "resourceType": "Condition",
+            "id": "encounter-diagnosis",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "us-core-condition-problems-health-concerns"
+                    }
+                ],
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis",
+                            "display": "Encounter Diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "38341003",
+                        "display": "Hypertensive disorder"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "recordedDate": "2024-01-15"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "problem-list-item",
+            "resource": {
+                "reference": "#problem-list-item"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "health-concern",
+            "resource": {
+                "reference": "#health-concern"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "encounter-diagnosis",
+            "resource": {
+                "reference": "#encounter-diagnosis"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "problem-list-item",
+            "name": "Problem list item",
+            "description": "A Condition whose category is problem-list-item (THO CodeSystem) is created.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Condition",
+                        "sourceId": "problem-list-item",
+                        "responseId": "problem-list-item-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Created",
+                        "responseCode": "201",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A Condition is returned",
+                        "direction": "response",
+                        "resource": "Condition",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "health-concern",
+            "name": "Health concern",
+            "description": "A Condition whose category is health-concern (US Core CodeSystem) is created.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Condition",
+                        "sourceId": "health-concern",
+                        "responseId": "health-concern-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Created",
+                        "responseCode": "201",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A Condition is returned",
+                        "direction": "response",
+                        "resource": "Condition",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "encounter-diagnosis",
+            "name": "Encounter diagnosis is refused",
+            "description": "A Condition whose only category is encounter-diagnosis does not fill Condition.category:us-core and is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Condition",
+                        "sourceId": "encounter-diagnosis",
+                        "responseId": "encounter-diagnosis-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Profile violation is 422",
+                        "responseCode": "422",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The issue names the slice",
+                        "expression": "OperationOutcome.issue.where(diagnostics.contains('Condition.category:us-core')).exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Condition",
+                    "params": "_tag=us-core-condition-problems-health-concerns",
+                    "description": "Delete Conditions created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

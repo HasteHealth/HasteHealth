@@ -8,11 +8,17 @@ use haste_codegen::{
     utilities::extract::{Max, cardinality, field_name},
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
-use haste_fhir_model::r4::generated::{
-    resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
-    terminology::{DiscriminatorType, IssueSeverity, IssueType},
-    types::{
-        CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator, FHIRUri,
+use haste_fhir_model::r4::{
+    conversion::downcast_string,
+    generated::{
+        resources::{
+            OperationOutcome, OperationOutcomeIssue, Resource, ResourceType, StructureDefinition,
+            ValueSetComposeInclude,
+        },
+        terminology::{BindingStrength, DiscriminatorType, IssueSeverity, IssueType},
+        types::{
+            CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator,
+        },
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -82,6 +88,9 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
     ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
 
     discriminator_element_index: usize,
+
+    /// For a `value` discriminator on a slice defined by its binding alone, the codes it allows.
+    binding: Option<ValueSetCodes>,
 }
 
 /// The discriminator element specifies a path from which to compare with.
@@ -126,6 +135,7 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
         return Ok(Some(FoundDiscriminator {
             ctx: ctx.clone(),
             discriminator_element_index: current_index,
+            binding: None,
         }));
     }
 
@@ -228,6 +238,7 @@ static FP_ENGINE: LazyLock<haste_fhirpath::FPEngine> = LazyLock::new(haste_fhirp
 async fn is_conformant_to_slice_descriptor(
     discriminator: &ElementDefinitionSlicingDiscriminator,
     slice_value_element_definition: &ElementDefinition,
+    binding: Option<&ValueSetCodes>,
     root: &dyn MetaValue,
     path: &Path,
 ) -> Result<bool, OperationOutcomeError> {
@@ -271,7 +282,7 @@ async fn is_conformant_to_slice_descriptor(
         }
         // Observation us-core has pattern even though it's value based slicing
         discriminator_type if discriminator_type == &DiscriminatorType::value() => {
-            is_conformant_to_value_discriminator(&values, slice_value_element_definition)
+            is_conformant_to_value_discriminator(&values, slice_value_element_definition, binding)
         }
         discriminator_type if discriminator_type == &DiscriminatorType::null() => {
             Err(OperationOutcomeError::error(
@@ -337,6 +348,7 @@ fn is_conformant_to_type_discriminator(
 fn is_conformant_to_value_discriminator(
     values: &[&dyn MetaValue],
     element: &ElementDefinition,
+    binding: Option<&ValueSetCodes>,
 ) -> Result<bool, OperationOutcomeError> {
     if let Some(fixed_value) = element.fixed.as_ref() {
         for value in values {
@@ -358,52 +370,198 @@ fn is_conformant_to_value_discriminator(
         return Ok(false);
     }
 
-    if let Some(binding) = element.binding.as_ref() {
-        let value_set = binding
-            .valueSet
-            .as_ref()
-            .and_then(|vs| vs.value.as_ref())
-            .and_then(|s| s.split('|').next());
-
-        let coding_pattern = Coding {
-            system: value_set.map(|s| {
-                Box::new(FHIRUri {
-                    value: Some(s.to_string()),
-                    ..Default::default()
-                })
-            }),
-            ..Default::default()
-        };
-
-        let codeable_concept_pattern = CodeableConcept {
-            coding: Some(vec![coding_pattern.clone()]),
-            ..Default::default()
-        };
-
-        for value in values {
-            match value.fhir_type() {
-                "Coding" => {
-                    if validate_pattern(*value, &coding_pattern)? {
-                        return Ok(true);
-                    }
-                }
-                "CodeableConcept" if validate_pattern(*value, &codeable_concept_pattern)? => {
-                    return Ok(true);
-                }
-                // Not supporting coding for now as it would require validating
-                // terminology which is not yet supported.
-                _ => {}
-            }
-        }
-
-        return Ok(false);
+    if let Some(binding) = binding {
+        return Ok(values.iter().any(|value| binding.matches(*value)));
     }
 
     Err(OperationOutcomeError::error(
         IssueType::invalid(),
-        "Slice value element definition must have either a fixed value or a pattern for value discriminator"
+        "Slice value element definition must have a fixed value, a pattern or a binding for value discriminator"
             .to_string(),
     ))
+}
+
+/// Bounds how deeply value sets may include each other, so a cycle ends.
+const MAX_VALUE_SET_DEPTH: u8 = 8;
+
+/// The codes a value set's `compose` allows, read without expanding it. A listed concept matches
+/// on its system and code, a whole system on the system alone. Filters are not evaluated, so an
+/// include or exclude with one allows no codes.
+#[derive(Debug, Default)]
+struct ValueSetCodes {
+    include: Vec<ComposeRule>,
+    exclude: Vec<ComposeRule>,
+}
+
+/// One `compose.include` or `compose.exclude`: a code is in it when it meets every part given.
+#[derive(Debug)]
+struct ComposeRule {
+    system: Option<String>,
+    /// `None` for every code in `system`.
+    codes: Option<HashSet<String>>,
+    value_sets: Vec<ValueSetCodes>,
+}
+
+impl ComposeRule {
+    /// `system` is `None` for a bare `code`, whose system the binding implies.
+    fn contains(&self, system: Option<&str>, code: &str) -> bool {
+        (system.is_none() || self.system.is_none() || system == self.system.as_deref())
+            && self.codes.as_ref().is_none_or(|codes| codes.contains(code))
+            && self
+                .value_sets
+                .iter()
+                .all(|value_set| value_set.contains(system, code))
+    }
+}
+
+impl ValueSetCodes {
+    fn contains(&self, system: Option<&str>, code: &str) -> bool {
+        self.include.iter().any(|rule| rule.contains(system, code))
+            && !self.exclude.iter().any(|rule| rule.contains(system, code))
+    }
+
+    /// A `Coding` matches on its system and code, a `CodeableConcept` when any of its codings does,
+    /// and a `code` or `string` on the code.
+    fn matches(&self, value: &dyn MetaValue) -> bool {
+        let coding_matches = |coding: &Coding| {
+            let system = coding
+                .system
+                .as_ref()
+                .and_then(|system| system.value.as_deref());
+            let code = coding.code.as_ref().and_then(|code| code.value.as_deref());
+            system
+                .zip(code)
+                .is_some_and(|(system, code)| self.contains(Some(system), code))
+        };
+        match value.fhir_type() {
+            "Coding" => downcast::<Coding>(value).is_some_and(coding_matches),
+            "CodeableConcept" => downcast::<CodeableConcept>(value)
+                .and_then(|concept| concept.coding.as_ref())
+                .is_some_and(|codings| codings.iter().any(coding_matches)),
+            _ => downcast_string(value).is_ok_and(|code| self.contains(None, &code)),
+        }
+    }
+}
+
+/// `value` as a `T`, which a singular field holds in a `Box`.
+fn downcast<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
+    let value = value.as_any();
+    value
+        .downcast_ref()
+        .or_else(|| value.downcast_ref::<Box<T>>().map(AsRef::as_ref))
+}
+
+/// `None` when the value set at `url`, or one it includes, cannot be resolved.
+async fn value_set_codes(
+    resolver: &impl CanonicalResolver,
+    url: &str,
+    depth: u8,
+) -> Result<Option<ValueSetCodes>, OperationOutcomeError> {
+    let Some(depth) = depth.checked_sub(1) else {
+        return Ok(None);
+    };
+    let resource = resolver.resolve(ResourceType::ValueSet, url).await?;
+    let Some(Resource::ValueSet(value_set)) = resource.as_deref() else {
+        return Ok(None);
+    };
+    let Some(compose) = &value_set.compose else {
+        return Ok(Some(ValueSetCodes::default()));
+    };
+    let exclude = compose.exclude.as_deref().unwrap_or_default();
+    let include = compose_rules(resolver, &compose.include, depth).await?;
+    let exclude = compose_rules(resolver, exclude, depth).await?;
+    Ok(include
+        .zip(exclude)
+        .map(|(include, exclude)| ValueSetCodes { include, exclude }))
+}
+
+async fn compose_rules(
+    resolver: &impl CanonicalResolver,
+    rules: &[ValueSetComposeInclude],
+    depth: u8,
+) -> Result<Option<Vec<ComposeRule>>, OperationOutcomeError> {
+    let mut compose_rules = Vec::with_capacity(rules.len());
+    for rule in rules {
+        let mut value_sets = Vec::new();
+        for url in rule
+            .valueSet
+            .iter()
+            .flatten()
+            .filter_map(|url| url.value.as_deref())
+        {
+            let Some(value_set) = Box::pin(value_set_codes(resolver, url, depth)).await? else {
+                return Ok(None);
+            };
+            value_sets.push(value_set);
+        }
+        let system = rule.system.as_ref().and_then(|system| system.value.clone());
+        let codes = if rule.filter.is_some() || (system.is_none() && value_sets.is_empty()) {
+            Some(HashSet::new())
+        } else {
+            rule.concept.as_ref().map(|concepts| {
+                concepts
+                    .iter()
+                    .filter_map(|concept| concept.code.value.clone())
+                    .collect()
+            })
+        };
+        compose_rules.push(ComposeRule {
+            system,
+            codes,
+            value_sets,
+        });
+    }
+    Ok(Some(compose_rules))
+}
+
+/// For a `value` discriminator on a slice defined by its binding alone (no `fixed[x]` or
+/// `pattern[x]`), the codes that binding allows. Only a required binding discriminates; any other
+/// allows none. A value set that cannot be resolved allows none, or is reported when the slice is
+/// mandatory.
+async fn binding_codes(
+    ctx: &FHIRProfileCTX<'_, impl CanonicalResolver>,
+    slice_index: usize,
+    discriminator: &ElementDefinitionSlicingDiscriminator,
+    element: &ElementDefinition,
+    loc: &Path,
+) -> Result<Option<ValueSetCodes>, OperationOutcomeError> {
+    let Some(binding) = element.binding.as_ref().filter(|_| {
+        discriminator.type_ == DiscriminatorType::value()
+            && element.fixed.is_none()
+            && element.pattern.is_none()
+    }) else {
+        return Ok(None);
+    };
+    let Some(url) = binding
+        .valueSet
+        .as_ref()
+        .and_then(|url| url.value.as_deref())
+        .filter(|_| binding.strength == BindingStrength::required())
+    else {
+        return Ok(Some(ValueSetCodes::default()));
+    };
+    if let Some(codes) = value_set_codes(ctx.resolver.as_ref(), url, MAX_VALUE_SET_DEPTH).await? {
+        return Ok(Some(codes));
+    }
+
+    let profile = ctx.profile();
+    let slice = get_element(profile, slice_index)?;
+    if cardinality(slice).0 == 0 {
+        return Ok(Some(ValueSetCodes::default()));
+    }
+    Err(OperationOutcomeError::unprocessable(OperationOutcome {
+        issue: vec![outcome_issue(
+            loc,
+            IssueSeverity::error(),
+            IssueType::not_found(),
+            format!(
+                "Profile: '{}' Element: '{}' The slice's ValueSet '{url}' could not be resolved",
+                profile.id.as_deref().unwrap_or("unknown"),
+                slice.id.as_deref().unwrap_or("unknown"),
+            ),
+        )],
+        ..Default::default()
+    }))
 }
 
 #[derive(Debug)]
@@ -455,15 +613,22 @@ async fn is_conformant_to_discriminators<'a, Resolver: CanonicalResolver>(
         let slice_descriminator_value_definition =
             match &mut definitions[discriminator_element_index] {
                 Some(definition) => definition,
-                slot => slot.insert(
-                    find_discriminator_definition(
+                slot => {
+                    let mut definition = find_discriminator_definition(
                         ctx,
                         slice_index,
                         discriminator_element_path,
                         parent_path,
                     )
-                    .await?,
-                ),
+                    .await?;
+                    let element = get_element(
+                        definition.ctx.profile(),
+                        definition.discriminator_element_index,
+                    )?;
+                    definition.binding =
+                        binding_codes(ctx, slice_index, discriminator, element, loc).await?;
+                    slot.insert(definition)
+                }
             };
 
         if !is_conformant_to_slice_descriptor(
@@ -472,6 +637,7 @@ async fn is_conformant_to_discriminators<'a, Resolver: CanonicalResolver>(
                 slice_descriminator_value_definition.ctx.profile(),
                 slice_descriminator_value_definition.discriminator_element_index,
             )?,
+            slice_descriminator_value_definition.binding.as_ref(),
             ctx.root,
             loc,
         )
