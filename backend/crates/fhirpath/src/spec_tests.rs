@@ -55,6 +55,52 @@ async fn assert_errors(expression: &str) {
     assert!(result.is_err(), "{expression} should signal an error");
 }
 
+/// <https://hl7.org/fhirpath/N1/#models>. Input data matches `System` names too, which the
+/// spec reserves for literals and results.
+#[tokio::test]
+async fn system_type_names() {
+    for expression in [
+        "true is Boolean",
+        "true.is(System.Boolean)",
+        "1.is(Integer)",
+        "1.0.is(Decimal)",
+        "'a'.is(String)",
+        "@2015.is(Date)",
+        "@2015-02-04T14.is(DateTime)",
+        "@T14.is(Time)",
+        "(1 + 1).is(System.Integer)",
+        "true.is(FHIR.boolean)",
+    ] {
+        assert_evaluates(expression, &["true"]).await;
+    }
+    for expression in [
+        "true is Integer",
+        "true.is(FHIR.string)",
+        "true.is(Other.Boolean)",
+    ] {
+        assert_evaluates(expression, &["false"]).await;
+    }
+    assert_evaluates("1.ofType(System.Integer)", &["1"]).await;
+    assert_evaluates("1.ofType(FHIR.string)", &[]).await;
+
+    let patient = Patient {
+        active: Some(Box::new(FHIRBoolean {
+            value: Some(true),
+            ..Default::default()
+        })),
+        ..Default::default()
+    };
+    for (expression, expected) in [
+        ("Patient.active is Boolean", "true"),
+        ("Patient.active is System.Boolean", "true"),
+        ("Patient.active.is(FHIR.boolean)", "true"),
+        ("Patient.active.is(FHIR.string)", "false"),
+    ] {
+        let result = evaluate_on(expression, vec![&patient]).await;
+        assert_eq!(result, [expected], "{expression}");
+    }
+}
+
 /// <https://hl7.org/fhirpath/N1/#allcriteria-expression-boolean>
 #[tokio::test]
 async fn all() {
