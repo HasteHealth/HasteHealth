@@ -141,13 +141,8 @@ testMinus3
 testMod4
 
 # testVariables
-testVariables1
-testVariables2
-testVariables3
-testVariables4
 
 # testExtension
-testExtension2
 
 # testType
 testType1
