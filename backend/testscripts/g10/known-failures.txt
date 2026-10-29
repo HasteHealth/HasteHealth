@@ -22,8 +22,3 @@ multi-patient-api/tests/g10-bulk-group-export.testscript.json
 
 # The CapabilityStatement lists no US Core supportedProfile.
 single-patient-api/tests/12.1-capability-statement/g10-12.1.05-profile-support.testscript.json
-
-# Profile validation: the server refuses a conformant US Core 7 problem list Condition with its
-# meta.profile (Condition.category:us-core is not matched, a value discriminator on a required
-# binding) and answers 500.
-profile-validation/tests/g10-12.7.05-validation.testscript.json
