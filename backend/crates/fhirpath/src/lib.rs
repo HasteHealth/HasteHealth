@@ -2869,11 +2869,36 @@ impl<'a> Config<'a> {
     }
 }
 
+/// Variables FHIR defines for every evaluation, resolved before the caller's resolver.
+fn fhir_environment_variable(name: &str) -> Option<String> {
+    match name {
+        "sct" => Some("http://snomed.info/sct".to_string()),
+        "loinc" => Some("http://loinc.org".to_string()),
+        "ucum" => Some("http://unitsofmeasure.org".to_string()),
+        _ => name
+            .strip_prefix("vs-")
+            .map(|n| format!("http://hl7.org/fhir/ValueSet/{n}"))
+            .or_else(|| {
+                name.strip_prefix("ext-")
+                    .map(|n| format!("http://hl7.org/fhir/StructureDefinition/{n}"))
+            }),
+    }
+}
+
 async fn resolve_external_constant<'a>(
     name: &str,
     resolver: Option<&ExternalConstantResolver<'a>>,
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
+    if let Some(value) = fhir_environment_variable(name) {
+        return Ok(
+            context.new_context_from(vec![context.allocate_literal(FHIRString {
+                value: Some(value),
+                ..Default::default()
+            })]),
+        );
+    }
+
     let external_constant = match resolver {
         Some(ExternalConstantResolver::Function(func)) => {
             let result = func(name.to_string()).await;
