@@ -58,7 +58,6 @@ testMatchesFullWithinUrl1a
 testMatchesFullWithinUrl2
 
 # testReplaceMatches
-testReplaceMatches2
 
 # testEncodeDecode
 testEncodeBase64A
