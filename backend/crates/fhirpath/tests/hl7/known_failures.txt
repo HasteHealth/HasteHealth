@@ -12,29 +12,6 @@ testPolymorphismAsB
 # testDollar
 testDollarOrderNotAllowed
 
-# testLiterals
-testLiteralDateYear
-testLiteralDateMonth
-testLiteralDateDay
-testLiteralDateTimeYear
-testLiteralDateTimeMonth
-testLiteralDateTimeDay
-testLiteralDateTimeHour
-testLiteralDateTimeMinute
-testLiteralDateTimeSecond
-testLiteralDateTimeMillisecond
-testLiteralDateTimeUTC
-testLiteralDateTimeTimezoneOffset
-testLiteralTimeHour
-testLiteralTimeMinute
-testLiteralTimeSecond
-testLiteralTimeMillisecond
-
-# testTypes
-testIntegerLiteralIsInteger
-testIntegerLiteralIsSystemInteger
-testDecimalLiteralIsDecimal
-
 # testSubSetOf
 testSubSetOf1
 testSubSetOf3
@@ -179,22 +156,9 @@ testType2
 testType2a
 testType3
 testType4
-testType5
-testType6
-testType7
-testType8
 testType9
-testType13
 testType15
-testType18
-testType19
-testType21
-testType23
-testTypeA1
-testTypeA2
-testTypeA3
 testTypeA4
-testTypeA
 
 # testConformsTo
 testConformsTo1

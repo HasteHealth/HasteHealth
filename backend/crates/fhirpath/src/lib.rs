@@ -244,7 +244,11 @@ async fn evaluate_first_term<'a>(
     match term {
         Term::Invocation(invocation) => match invocation {
             Invocation::Identifier(identifier) => {
-                let type_filter = filter_by_type(&identifier.0, &context);
+                let spec = TypeSpecifier {
+                    model: TypeModel::Fhir,
+                    name: &identifier.0,
+                };
+                let type_filter = filter_by_type(&spec, &context);
                 if type_filter.values.is_empty() {
                     evaluate_invocation(invocation, context, config).await
                 } else {
@@ -355,52 +359,109 @@ fn validate_arguments(
     Ok(())
 }
 
-fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError> {
+/// Which model a type specifier names: <https://hl7.org/fhirpath/N1/#models>.
+#[derive(Clone, Copy)]
+enum TypeModel {
+    /// Unqualified: `FHIR` is searched first, then `System`.
+    Any,
+    Fhir,
+    System,
+    /// A qualifier that is neither, so no type matches.
+    Unknown,
+}
+
+struct TypeSpecifier<'n> {
+    model: TypeModel,
+    name: &'n str,
+}
+
+impl<'n> TypeSpecifier<'n> {
+    /// From the parts of a possibly qualified name, as in `FHIR.boolean`, read in place by
+    /// `name_of`. `None` when a part is not a name.
+    fn new<T>(parts: &'n [T], name_of: impl Fn(&'n T) -> Option<&'n str>) -> Option<Self> {
+        let (name, qualifier) = parts.split_last()?;
+        let model = match qualifier {
+            [] => TypeModel::Any,
+            [qualifier] => match name_of(qualifier)? {
+                "FHIR" => TypeModel::Fhir,
+                "System" => TypeModel::System,
+                _ => TypeModel::Unknown,
+            },
+            _ => TypeModel::Unknown,
+        };
+        Some(Self {
+            model,
+            name: name_of(name)?,
+        })
+    }
+}
+
+fn derive_typename(expression_ast: &Expression) -> Result<TypeSpecifier<'_>, FHIRPathError> {
     match expression_ast {
-        Expression::Singular(ast) => match &ast[0] {
-            Term::Invocation(Invocation::Identifier(type_id)) => Ok(type_id.0.clone()),
-            _ => Err(FHIRPathError::FailedTypeNameDerivation),
-        },
-        Expression::Operation(_) => Err(FHIRPathError::FailedTypeNameDerivation),
+        Expression::Singular(terms) => TypeSpecifier::new(terms, |term| match term {
+            Term::Invocation(Invocation::Identifier(id)) => Some(id.0.as_str()),
+            _ => None,
+        }),
+        Expression::Operation(_) => None,
+    }
+    .ok_or(FHIRPathError::FailedTypeNameDerivation)
+}
+
+/// The `System` type a value's type maps to, as in `boolean` to `Boolean`.
+fn system_type_name(type_name: &str) -> Option<&str> {
+    if let Some(name) = type_name.strip_prefix("http://hl7.org/fhirpath/System.") {
+        return Some(name);
+    }
+    match type_name {
+        "boolean" => Some("Boolean"),
+        "integer" | "positiveInt" | "unsignedInt" => Some("Integer"),
+        "decimal" => Some("Decimal"),
+        "string" | "code" | "id" | "markdown" => Some("String"),
+        "date" => Some("Date"),
+        "dateTime" | "instant" => Some("DateTime"),
+        "time" => Some("Time"),
+        "Quantity" => Some("Quantity"),
+        _ => None,
     }
 }
 
-fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
-    match type_to_check {
+/// Whether a value of type `type_name` is of the type `spec` names. A FHIR primitive is also of
+/// the `System` type it maps to, so `Patient.active is Boolean` is true. The spec reserves
+/// `System` types for literals and results, but the engine stores those as FHIR types too and
+/// does not tell them apart from the input data.
+fn check_type_name(type_name: &str, spec: &TypeSpecifier) -> bool {
+    let fhir = || match spec.name {
         "Resource" | "DomainResource" => ResourceType::try_from(type_name).is_ok(),
-        _ => type_name == type_to_check,
+        name => type_name == name,
+    };
+    let system = || system_type_name(type_name) == Some(spec.name);
+    match spec.model {
+        TypeModel::Any => fhir() || system(),
+        TypeModel::Fhir => fhir(),
+        TypeModel::System => system(),
+        TypeModel::Unknown => false,
     }
 }
 
-fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
-    let fhir_type_name = value.fhir_type();
-
-    match fhir_type_name {
-        // Special handling for reference which is to check the reference type.
-        "Reference" => {
-            if type_to_check == "Reference" {
-                return true;
-            } else if let Some(reference) = value.as_any().downcast_ref::<Reference>()
-                && let Some(resource_type) = reference
-                    .reference
-                    .as_ref()
-                    .and_then(|r| r.value.as_ref())
-                    .and_then(|r| r.split('/').next())
-            {
-                return check_type_name(resource_type, type_to_check);
-            }
-            false
-        }
-        fhir_type_name => check_type_name(fhir_type_name, type_to_check),
-    }
+fn check_type(value: &dyn MetaValue, spec: &TypeSpecifier) -> bool {
+    let fhir_type = value.fhir_type();
+    check_type_name(fhir_type, spec)
+        // A reference is also of the type of the resource it points to.
+        || fhir_type == "Reference"
+            && value
+                .as_any()
+                .downcast_ref::<Reference>()
+                .and_then(|reference| reference.reference.as_ref()?.value.as_deref())
+                .and_then(|reference| reference.split('/').next())
+                .is_some_and(|resource_type| check_type_name(resource_type, spec))
 }
 
-fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
+fn filter_by_type<'a>(spec: &TypeSpecifier, context: &Context<'a>) -> Context<'a> {
     context.new_context_from(
         context
             .values
             .iter()
-            .filter(|v| check_type(**v, type_name))
+            .filter(|v| check_type(**v, spec))
             .copied()
             .collect(),
     )
@@ -1775,11 +1836,11 @@ async fn evaluate_trace<'a>(
 
 /// `is` as an operator or function, per <https://hl7.org/fhirpath/N1/#is-type-specifier>:
 /// empty for an empty input and an error for more than one item.
-fn is_type<'a>(input: &Context<'a>, type_name: &str) -> Result<Context<'a>, FHIRPathError> {
+fn is_type<'a>(input: &Context<'a>, spec: &TypeSpecifier) -> Result<Context<'a>, FHIRPathError> {
     let value = singleton("is", input)?;
     Ok(optional_boolean_result(
         input,
-        value.map(|value| check_type(value, type_name)),
+        value.map(|value| check_type(value, spec)),
     ))
 }
 
@@ -2695,17 +2756,16 @@ async fn evaluate_type_operation<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(expression, context, config).await?;
 
-    // The last part names the type, as in FHIR.Patient.
-    let Some(Identifier(type_name)) = type_name.0.last() else {
+    let Some(type_name) = TypeSpecifier::new(&type_name.0, |id| Some(id.0.as_str())) else {
         return Ok(left.new_context_from(vec![]));
     };
 
     if return_context {
         // <https://hl7.org/fhirpath/N1/#as-type-specifier>
-        let value = singleton("as", &left)?.filter(|value| check_type(*value, type_name));
+        let value = singleton("as", &left)?.filter(|value| check_type(*value, &type_name));
         Ok(left.new_context_from(value.into_iter().collect()))
     } else {
-        is_type(&left, type_name)
+        is_type(&left, &type_name)
     }
 }
 
