@@ -20,7 +20,7 @@ use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_jwt::VersionId;
 use haste_repository::types::SupportedFHIRVersions;
 use json_patch::Patch;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 mod invocation;
 
@@ -105,21 +105,19 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
     Ok(params)
 }
 
-/// `query` decoded as search parameters read it: a name that repeats keeps
-/// its last value.
-fn query_map(query: &str) -> HashMap<String, String> {
-    url::form_urlencoded::parse(query.as_bytes())
+/// Decodes the query string preserving parameter order and duplicates.
+fn parse_query(query: &str) -> Result<ParsedParameters, FHIRRequestParsingError> {
+    let pairs: Vec<(String, String)> = url::form_urlencoded::parse(query.as_bytes())
         .into_owned()
-        .collect()
+        .collect();
+    Ok(ParsedParameters::try_from(pairs.as_slice())?)
 }
 
 /// Search parameters for a POST `_search`, from the form-encoded body combined
 /// with the query string.
 ///
 /// Per the spec a parameter means the same thing in either place, and one that
-/// appears in both is the same as repeating it. A repeat is carried as a
-/// comma-joined value, which is how `ParsedParameters` already represents
-/// several values for one parameter.
+/// appears in both is the same as repeating it.
 ///
 /// The body is read as `application/x-www-form-urlencoded` whenever there is
 /// one. An empty body leaves the query string as the whole search, which is
@@ -127,7 +125,9 @@ fn query_map(query: &str) -> HashMap<String, String> {
 fn get_search_parameters_body(
     req: HTTPRequest,
 ) -> Result<ParsedParameters, FHIRRequestParsingError> {
-    let mut parameters = query_map(req.query);
+    let mut pairs: Vec<(String, String)> = url::form_urlencoded::parse(req.query.as_bytes())
+        .into_owned()
+        .collect();
 
     let body = match &req.body {
         HTTPBody::Bytes(body) => body.as_ref(),
@@ -135,19 +135,9 @@ fn get_search_parameters_body(
         HTTPBody::Resource(_) => return Err(FHIRRequestParsingError::InvalidBody),
     };
 
-    for (name, value) in url::form_urlencoded::parse(body).into_owned() {
-        parameters
-            .entry(name)
-            .and_modify(|existing| {
-                // The same parameter in both places repeats it, rather than one
-                // side silently winning.
-                existing.push(',');
-                existing.push_str(&value);
-            })
-            .or_insert(value);
-    }
+    pairs.extend(url::form_urlencoded::parse(body).into_owned());
 
-    Ok(ParsedParameters::try_from(&parameters)?)
+    Ok(ParsedParameters::try_from(pairs.as_slice())?)
 }
 
 fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
@@ -201,7 +191,7 @@ fn parse_request_1_non_empty(
         }
         Method::PUT => {
             let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-            let parameters = ParsedParameters::try_from(&query_map(req.query))?;
+            let parameters = parse_query(req.query)?;
             let resource = get_resource(&resource_type, req)?;
             Ok(FHIRRequest::Update(UpdateRequest::Conditional(
                 FHIRConditionalUpdateRequest {
@@ -213,7 +203,7 @@ fn parse_request_1_non_empty(
         }
         Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::Type(
             FHIRDeleteTypeRequest {
-                parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                parameters: parse_query(req.query)?,
                 resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
             },
         ))),
@@ -225,7 +215,7 @@ fn parse_request_1_non_empty(
                 }
                 "_history" => Ok(FHIRRequest::History(HistoryRequest::System(
                     FHIRHistorySystemRequest {
-                        parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                        parameters: parse_query(req.query)?,
                     },
                 ))),
                 _ => {
@@ -233,7 +223,7 @@ fn parse_request_1_non_empty(
                     Ok(FHIRRequest::Search(SearchRequest::Type(
                         FHIRSearchTypeRequest {
                             resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                            parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                            parameters: parse_query(req.query)?,
                         },
                     )))
                 }
@@ -279,13 +269,13 @@ fn parse_request_1_empty(
             // Handle search system request
             Ok(FHIRRequest::Search(SearchRequest::System(
                 FHIRSearchSystemRequest {
-                    parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                    parameters: parse_query(req.query)?,
                 },
             )))
         }
         Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::System(
             FHIRDeleteSystemRequest {
-                parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                parameters: parse_query(req.query)?,
             },
         ))),
         _ => Err(FHIRRequestParsingError::Unsupported(
@@ -342,7 +332,7 @@ fn parse_request_2(
                 Ok(FHIRRequest::History(HistoryRequest::Type(
                     FHIRHistoryTypeRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                        parameters: parse_query(req.query)?,
                     },
                 )))
             } else {
@@ -402,7 +392,7 @@ fn parse_request_3(
                     FHIRHistoryInstanceRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         id: url_chunks[1].to_string(),
-                        parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                        parameters: parse_query(req.query)?,
                     },
                 )))
             }
@@ -414,7 +404,7 @@ fn parse_request_3(
                     request: Box::new(FHIRRequest::Search(SearchRequest::Type(
                         FHIRSearchTypeRequest {
                             resource_type: ResourceType::try_from(url_chunks[2].as_str())?,
-                            parameters: ParsedParameters::try_from(&query_map(req.query))?,
+                            parameters: parse_query(req.query)?,
                         },
                     ))),
                 }))
@@ -482,4 +472,58 @@ pub async fn http_request_to_fhir_request<B: Backend>(
         _ => Err(FHIRRequestParsingError::InvalidPath),
     }
     .map_err(|e| e.into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::url::ParsedParameter;
+
+    #[test]
+    fn parses_repeated_revinclude_and_include_parameters() {
+        let query = "_id=256897&_revinclude=Condition:encounter&_revinclude=Observation:encounter&_include=Encounter:patient";
+        let req = HTTPRequest::new(
+            Method::GET,
+            "Encounter".to_string(),
+            HTTPBody::Bytes(Bytes::new()),
+            query,
+        );
+        let fhir_req = parse_request_1(
+            SupportedFHIRVersions::R4,
+            vec!["Encounter".to_string()],
+            req,
+        )
+        .unwrap();
+        match fhir_req {
+            FHIRRequest::Search(SearchRequest::Type(search)) => {
+                let revincludes: Vec<_> = search
+                    .parameters
+                    .parameters()
+                    .iter()
+                    .filter_map(|p| match p {
+                        ParsedParameter::Result(p) if p.name == "_revinclude" => {
+                            Some(p.value.clone())
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(revincludes.len(), 2);
+                assert_eq!(revincludes[0], vec!["Condition:encounter"]);
+                assert_eq!(revincludes[1], vec!["Observation:encounter"]);
+
+                let includes: Vec<_> = search
+                    .parameters
+                    .parameters()
+                    .iter()
+                    .filter_map(|p| match p {
+                        ParsedParameter::Result(p) if p.name == "_include" => Some(p.value.clone()),
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(includes.len(), 1);
+                assert_eq!(includes[0], vec!["Encounter:patient"]);
+            }
+            _ => panic!("Expected Search::Type request"),
+        }
+    }
 }
