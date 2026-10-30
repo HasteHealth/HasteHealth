@@ -1322,6 +1322,20 @@ async fn evaluate_math<'a>(
     Ok(number_result(&context, result))
 }
 
+/// An empty pattern would match between every character, so it leaves the input as is.
+fn replace_matches(
+    input: String,
+    pattern: &str,
+    substitution: &str,
+) -> Result<String, FHIRPathError> {
+    if pattern.is_empty() {
+        return Ok(input);
+    }
+    Ok(compile_regex(pattern)?
+        .replace_all(&input, substitution)
+        .into_owned())
+}
+
 fn string_result<'a>(context: &Context<'a>, value: String) -> Context<'a> {
     context.new_context_from(vec![context.allocate_literal(FHIRString {
         value: Some(value),
@@ -1459,8 +1473,7 @@ async fn evaluate_string_function<'a>(
             else {
                 return Ok(empty);
             };
-            let replaced = compile_regex(&pattern)?.replace_all(&input, substitution.as_str());
-            string_result(&context, replaced.into_owned())
+            string_result(&context, replace_matches(input, &pattern, &substitution)?)
         }
         _ => unreachable!(),
     };
