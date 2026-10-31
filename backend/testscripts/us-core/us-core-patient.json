@@ -303,6 +303,13 @@
                 },
                 {
                     "assert": {
+                        "label": "Profile violation is 422",
+                        "responseCode": "422",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
                         "expression": "OperationOutcome.issue[0].code",
                         "operator": "equals",
                         "compareToSourceId": "create-invalid-response",

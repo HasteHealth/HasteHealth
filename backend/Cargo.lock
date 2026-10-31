@@ -1766,7 +1766,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2268,7 +2268,7 @@ dependencies = [
 
 [[package]]
 name = "haste-access-control"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
@@ -2282,7 +2282,7 @@ dependencies = [
 
 [[package]]
 name = "haste-artifact-patcher"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "json-patch",
  "pulldown-cmark",
@@ -2296,7 +2296,7 @@ dependencies = [
 
 [[package]]
 name = "haste-artifacts"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-jwt",
@@ -2306,7 +2306,7 @@ dependencies = [
 
 [[package]]
 name = "haste-codegen"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-client",
  "haste-fhir-generated-ops",
@@ -2325,7 +2325,7 @@ dependencies = [
 
 [[package]]
 name = "haste-config"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "dotenvy",
  "haste-fhir-model",
@@ -2335,7 +2335,7 @@ dependencies = [
 
 [[package]]
 name = "haste-document-storage"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "bytes",
  "futures-core",
@@ -2354,7 +2354,7 @@ dependencies = [
 
 [[package]]
 name = "haste-encryption"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "aes-gcm",
  "base64 0.22.1",
@@ -2365,7 +2365,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-client"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -2387,7 +2387,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-converter"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "clap",
  "haste-fhir-model",
@@ -2406,7 +2406,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-generated-ops"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -2416,7 +2416,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-model"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "chrono",
  "criterion",
@@ -2432,7 +2432,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-operation-error"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "anyhow",
  "axum",
@@ -2444,7 +2444,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-operation-error-derive"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "proc-macro2",
@@ -2454,7 +2454,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-ops"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
@@ -2465,7 +2465,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-ops-derive"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "proc-macro2",
@@ -2475,7 +2475,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-profiling"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "criterion",
  "haste-codegen",
@@ -2492,7 +2492,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-search"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "bytes",
  "chrono",
@@ -2519,7 +2519,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-serialization-json"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-serialization-json-derive",
  "serde",
@@ -2529,7 +2529,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-serialization-json-derive"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2538,7 +2538,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-subscription-processor"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "criterion",
  "haste-artifacts",
@@ -2553,7 +2553,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-terminology"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "chrono",
  "haste-fhir-client",
@@ -2565,7 +2565,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhirpath"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "bumpalo",
  "chrono",
@@ -2587,7 +2587,7 @@ dependencies = [
 
 [[package]]
 name = "haste-health"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -2639,7 +2639,7 @@ dependencies = [
 
 [[package]]
 name = "haste-hl7v2"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "criterion",
  "haste-fhir-model",
@@ -2652,7 +2652,7 @@ dependencies = [
 
 [[package]]
 name = "haste-jwt"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "derivative",
  "haste-fhir-model",
@@ -2666,7 +2666,7 @@ dependencies = [
 
 [[package]]
 name = "haste-macro-loads"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -2675,7 +2675,7 @@ dependencies = [
 
 [[package]]
 name = "haste-openapi-schema-generator"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -2686,7 +2686,7 @@ dependencies = [
 
 [[package]]
 name = "haste-operation-executor"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "crossbeam-channel",
  "deno_ast",
@@ -2705,7 +2705,7 @@ dependencies = [
 
 [[package]]
 name = "haste-pointer"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-reflect",
@@ -2714,18 +2714,18 @@ dependencies = [
 
 [[package]]
 name = "haste-rate-limit"
-version = "0.126.35"
+version = "0.127.8"
 
 [[package]]
 name = "haste-reflect"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-reflect-derive",
 ]
 
 [[package]]
 name = "haste-reflect-derive"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -2733,7 +2733,7 @@ dependencies = [
 
 [[package]]
 name = "haste-repository"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "argon2",
  "chrono",
@@ -2756,7 +2756,7 @@ dependencies = [
 
 [[package]]
 name = "haste-sd-to-json-schema"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-codegen",
  "haste-fhir-model",
@@ -2769,7 +2769,7 @@ dependencies = [
 
 [[package]]
 name = "haste-server"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "axum",
  "axum-client-ip",
@@ -2841,7 +2841,7 @@ dependencies = [
 
 [[package]]
 name = "haste-sql-on-fhir"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "base64 0.22.1",
  "csv",
@@ -2863,7 +2863,7 @@ dependencies = [
 
 [[package]]
 name = "haste-subscription"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-jwt",
@@ -2873,7 +2873,7 @@ dependencies = [
 
 [[package]]
 name = "haste-testscript-runner"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "base64 0.22.1",
  "haste-fhir-client",
@@ -2891,7 +2891,7 @@ dependencies = [
 
 [[package]]
 name = "haste-worker"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "elasticsearch",
  "haste-artifacts",
@@ -2910,7 +2910,7 @@ dependencies = [
 
 [[package]]
 name = "haste-x-fhir-query"
-version = "0.126.35"
+version = "0.127.8"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -3342,9 +3342,9 @@ dependencies = [
 
 [[package]]
 name = "include-flate"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48f173716febb1ad596c16ea5637b5f1790ea32de8e627493ff82bc73b0876ce"
+checksum = "f677e494e19ac4aa62375916f64b496f6b2655964c7313231c959858608cd9eb"
 dependencies = [
  "include-flate-codegen",
  "include-flate-compress",
@@ -3352,22 +3352,22 @@ dependencies = [
 
 [[package]]
 name = "include-flate-codegen"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a7875b62a72ad3f3203cdd8950d4cf9947db036030b974b8b37ceae90c8d8c0"
+checksum = "51d3749676b6129ea4cf1e75adfb280a2148f03113806cb68cd7775fdfc65edf"
 dependencies = [
  "include-flate-compress",
  "proc-macro-error3",
  "proc-macro2",
  "quote",
- "syn 2.0.119",
+ "syn 3.0.5",
 ]
 
 [[package]]
 name = "include-flate-compress"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44fbb9c5ccb9a5b67b4afa2974c27e5507ea1bf6d22828cef418e4dfaeca51dd"
+checksum = "476a7e4feb3325e85ca85565893517e283a1e59d3c9b695c162791dead7f004d"
 dependencies = [
  "libflate",
  "zstd",
@@ -4064,7 +4064,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4856,9 +4856,9 @@ dependencies = [
 
 [[package]]
 name = "pulldown-cmark"
-version = "0.13.4"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e"
+checksum = "278e9268c93b9e498a2da46c34d90ba93a3255eb99009646398f34bc73ab36eb"
 dependencies = [
  "bitflags 2.13.1",
  "memchr",
@@ -4942,7 +4942,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5313,9 +5313,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed"
-version = "8.12.0"
+version = "8.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9e7760e252aaba7b09f4be00e36476cf585bdb68a53552ac954cdf504ab4bc9"
+checksum = "19afa5b4b6a611de00bd1bdae6ae6f39084c9399f0679c3f52d8469cf335cc23"
 dependencies = [
  "axum",
  "include-flate",
@@ -5328,9 +5328,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-impl"
-version = "8.12.0"
+version = "8.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bcfc4d6f53af43755f7a723e4b6b8794fcce052a178dd8c6c1dadc5f5343097"
+checksum = "e0d8afda6374eac59e066abee06d265247ebbaf3006cf878e2879e8356e34053"
 dependencies = [
  "mime_guess",
  "proc-macro2",
@@ -5342,9 +5342,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-utils"
-version = "8.12.0"
+version = "8.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42ffa149f6aa81b58a5b3011d01a857c4ed12c7a732d2c51947a4c7c692185f0"
+checksum = "0d84e8ba78bd384263e5922f084cbe1b081c3b7e69add59c8fb097b879ba968a"
 dependencies = [
  "globset",
  "include-flate",
@@ -5383,7 +5383,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.4.15",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5396,7 +5396,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5455,7 +5455,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -6881,10 +6881,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix 1.1.4",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -7901,7 +7901,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -8254,27 +8254,27 @@ dependencies = [
 
 [[package]]
 name = "zstd"
-version = "0.13.3"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e91ee311a569c327171651566e07972200e76fcfe2242a4fa446149a3881c08a"
+checksum = "db3ae9bf90af6e40197bef767eeefc46ad6397420fe873830bd85e5fbbfb3c70"
 dependencies = [
  "zstd-safe",
 ]
 
 [[package]]
 name = "zstd-safe"
-version = "7.3.0"
+version = "8.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64d80649ab6db9d9f6f9c80a40becd948eda4714a0a5ac8c4d157a32231c7882"
+checksum = "ded520f16b29e1a9b771c722221b2b0a0398c2316d9bb3c42b458a5414d7434b"
 dependencies = [
  "zstd-sys",
 ]
 
 [[package]]
 name = "zstd-sys"
-version = "2.1.0+zstd.1.5.7"
+version = "2.1.2+zstd.1.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ef0a8027ec3ee71300ab3bcbcd0393f434aa72b91ca6d635a39941deae8eea0"
+checksum = "481ada9c543b2323cbb7bbdbb5249177fbf0188ed959ed2c15e4b22421c84ed3"
 dependencies = [
  "cc",
  "pkg-config",

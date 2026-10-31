@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/fhir-patch-building",
-  "version": "0.126.35",
+  "version": "0.127.8",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
     "immer": "^10.2.0"
   },
   "files": [
-    "readme.md",
+    "README.md",
     "lib/**",
     "src/**"
   ]

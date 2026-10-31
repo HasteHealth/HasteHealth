@@ -1,0 +1,763 @@
+{
+    "id": "search-revinclude-test",
+    "url": "https://haste.health/fhir/TestScript/search-revinclude",
+    "name": "Search Revinclude Test",
+    "title": "_revinclude tests",
+    "status": "active",
+    "description": "Tests _revinclude: resources referencing the matches travel with them with search.mode = include, a whole page's ids resolve in one pass, referrers pointing elsewhere are not returned, :iterate follows referrers of what an earlier hop added in either direction, and system-level searches get the same.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "rev-patient-one",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Revinclude",
+                    "given": [
+                        "Rae"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "rev-patient-two",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Revinclude",
+                    "given": [
+                        "Rex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "rev-obs-one",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-one"
+            },
+            "valueQuantity": {
+                "value": 70,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "rev-obs-two",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-one"
+            },
+            "valueQuantity": {
+                "value": 64,
+                "unit": "/min",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            }
+        },
+        {
+            "id": "rev-obs-three",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-two"
+            },
+            "valueQuantity": {
+                "value": 81,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "rev-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-one"
+            }
+        },
+        {
+            "id": "rev-obs-unrelated",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-absent"
+            },
+            "valueQuantity": {
+                "value": 55,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "rev-obs-encounter",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-revinclude-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8302-2"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/rev-patient-two"
+            },
+            "encounter": {
+                "reference": "Encounter/rev-encounter"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-rev-patient-one",
+            "resource": {
+                "reference": "#rev-patient-one"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-patient-two",
+            "resource": {
+                "reference": "#rev-patient-two"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-obs-one",
+            "resource": {
+                "reference": "#rev-obs-one"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-obs-two",
+            "resource": {
+                "reference": "#rev-obs-two"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-obs-three",
+            "resource": {
+                "reference": "#rev-obs-three"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-encounter",
+            "resource": {
+                "reference": "#rev-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-obs-unrelated",
+            "resource": {
+                "reference": "#rev-obs-unrelated"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-rev-obs-encounter",
+            "resource": {
+                "reference": "#rev-obs-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-revinclude-adds-the-referring-resources",
+            "name": "_revinclude adds resources that reference the matches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-patient-one",
+                        "sourceId": "fixture-rev-patient-one",
+                        "encodeRequestUrl": false,
+                        "description": "Client-supplied ids, so the references below are static."
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-patient-two",
+                        "sourceId": "fixture-rev-patient-two",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-obs-one",
+                        "sourceId": "fixture-rev-obs-one",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-obs-two",
+                        "sourceId": "fixture-rev-obs-two",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-obs-three",
+                        "sourceId": "fixture-rev-obs-three",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-encounter",
+                        "sourceId": "fixture-rev-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-obs-unrelated",
+                        "sourceId": "fixture-rev-obs-unrelated",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-rev-obs-encounter",
+                        "sourceId": "fixture-rev-obs-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test&_revinclude=Observation:subject",
+                        "encodeRequestUrl": false,
+                        "description": "Both patients match; their Observations are pulled in backwards."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both patients match",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Patient).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation referencing a matched patient is included",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Observation).count()",
+                        "value": "4",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient one's first Observation is included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-one').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient one's second Observation is included: one match may have several referrers",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-two').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient two's Observation is included: the whole page's ids resolve, not just the first",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-three').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An Observation referencing a patient outside the page is not included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-unrelated').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The referrers are marked include, not match",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-no-revinclude-returns-only-matches",
+            "name": "Without _revinclude the Bundle carries only matches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patients are returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Observation is added when none was asked for",
+                        "expression": "Bundle.entry.resource.ofType(Observation).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-several-revinclude-values",
+            "name": "Two _revinclude values both resolve",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test&_revinclude=Observation:subject,Encounter:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The referring Observations are included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "4",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The referring Encounter is included",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'rev-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-a-target-type-restricts-which-matches-are-followed",
+            "name": "A target type restricts which matches a directive reads back from",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test&_revinclude=Observation:subject:Patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "subject:Patient still pulls the Observations back",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "4",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-an-unfollowable-revinclude-is-ignored",
+            "name": "A _revinclude naming an unknown type or parameter does not fail the search",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test&_revinclude=Observation:not-a-parameter&_revinclude=NotAType:subject",
+                        "encodeRequestUrl": false,
+                        "description": "Neither can be searched; neither is a reason to fail."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The matches are still returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing is included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-include-and-revinclude-together",
+            "name": "_include and _revinclude can be combined in one search",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-revinclude-test&_revinclude=Observation:subject&_include=Patient:general-practitioner",
+                        "encodeRequestUrl": false,
+                        "description": "The _include resolves nothing here; it must not disturb the _revinclude."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patients still match",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Patient).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The revincluded Observations are still returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "4",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "revinclude-iterate",
+            "name": "_revinclude:iterate finds the referrers of what the first hop added",
+            "action": [
+                {
+                    "operation": {
+                        "description": "The Encounter is a referrer of a match; the Observation refers to the Encounter.",
+                        "method": "get",
+                        "url": "Patient?_tag=search-revinclude-test&_revinclude=Encounter:subject&_revinclude:iterate=Observation:encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter referencing patient one is included",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Encounter).where(id = 'rev-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation referencing that Encounter is included by the second hop",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Observation).where(id = 'rev-obs-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An Observation that only references a patient is not pulled in: Observation:subject was not asked for",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-one').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "revinclude-no-iterate",
+            "name": "Without :iterate a _revinclude reads only the matches",
+            "action": [
+                {
+                    "operation": {
+                        "description": "Observation:encounter against a page of patients finds nothing.",
+                        "method": "get",
+                        "url": "Patient?_tag=search-revinclude-test&_revinclude=Encounter:subject,Observation:encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter is included",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'rev-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation referencing the Encounter is not: no hop followed the Encounter",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-encounter').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "include-iterate-over-revinclude",
+            "name": "_include:iterate follows the references of what _revinclude added",
+            "action": [
+                {
+                    "operation": {
+                        "description": "Patient two's Observations are revincluded; one of them references the Encounter.",
+                        "method": "get",
+                        "url": "Patient?_id=rev-patient-two&_revinclude=Observation:subject&_include:iterate=Observation:encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only patient two matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Patient).where(id = 'rev-patient-two').count() = 1 and Bundle.entry.where(search.mode = 'match').count() = 1",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient two's Observations are included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-three').exists() and Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter one of them references is included by the second hop",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Encounter).where(id = 'rev-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter's own patient is not pulled in: nothing asked for Encounter:subject",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'rev-patient-one').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "revinclude-system-search",
+            "name": "A system-level search gets the same _revinclude",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "The patients, through the system-level search.",
+                        "params": "_type=Patient&_tag=search-revinclude-test&_revinclude=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both patients match",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Patient).count() = 2",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation referencing a matched patient is included",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Observation).count() = 4",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation referencing a patient outside the page is not",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'rev-obs-unrelated').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -15,7 +15,7 @@ use haste_fhir_ops::{OperationInvocation, defines};
 use haste_operation_executor::{
     providers::deno_embedded::pool::DenoPool, traits::OperationExecutor,
 };
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 
 mod custom_operations;
 
@@ -120,6 +120,22 @@ async fn find_custom_operation<B: Backend>(
         })
         .find(|definition| defines(definition, request))
         .cloned())
+}
+
+/// The OperationDefinition that defines `request`: a built-in's, or else the
+/// project's own.
+pub async fn operation_definition<B: Backend>(
+    ctx: &Arc<ServerCTX<B>>,
+    request: &InvocationRequest,
+) -> Result<Cow<'static, OperationDefinition>, OperationOutcomeError> {
+    let builtins = ctx.client.builtin_operations();
+    if let Some(builtin) = builtins.iter().find(|builtin| defines(builtin, request)) {
+        return Ok(Cow::Borrowed(*builtin));
+    }
+    find_custom_operation(ctx, request)
+        .await?
+        .map(Cow::Owned)
+        .ok_or_else(|| not_defined(request))
 }
 
 /// The error for an invocation that neither a built-in nor the project defines.

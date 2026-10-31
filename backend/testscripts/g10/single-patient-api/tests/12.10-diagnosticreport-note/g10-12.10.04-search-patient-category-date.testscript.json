@@ -1,0 +1,266 @@
+{
+    "id": "g10-12.10.04-search-patient-category-date",
+    "url": "https://haste.health/fhir/TestScript/g10-12.10.04-search-patient-category-date",
+    "name": "g10-12.10.04-search-patient-category-date",
+    "title": "12.10.04 Server returns valid results for DiagnosticReport search by patient + category + date",
+    "status": "active",
+    "description": "g10 12.10.04 (SH-PAT-2; US Core 6.1.0: group 10.10). Server returns valid results for DiagnosticReport search by patient + category + date. US Core SHALL search. Every result must match every parameter, and the record's DiagnosticReport/g10-bone-density-report must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-diagnosticreport-patient-g10-example-category-lp29684-5-date-2021-11-10t19-30-46-08-00",
+            "name": "GET DiagnosticReport?patient=g10-example&category=LP29684-5&date=2021-11-10T19:30:46-08:00",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5&date=2021-11-10T19:30:46-08:00",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-diagnosticreport-patient-g10-example-category-http-loinc-org-lp29684-5-date-2021-11-10t19-30-46-08-00",
+            "name": "Token system|code form: GET DiagnosticReport?patient=g10-example&category=http://loinc.org|LP29684-5&date=2021-11-10T19:30:46-08:00",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=http://loinc.org|LP29684-5&date=2021-11-10T19:30:46-08:00",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://loinc.org' and code = 'LP29684-5').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-comparator-gt-get-diagnosticreport-patient-g10-example-category-lp29684-5-date-gt2021-11-10t03-30-46z",
+            "name": "Comparator gt: GET DiagnosticReport?patient=g10-example&category=LP29684-5&date=gt2021-11-10T03:30:46Z",
+            "description": "Every result's date satisfies gt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5&date=gt2021-11-10T03:30:46Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(date).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2021-11-10').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-comparator-ge-get-diagnosticreport-patient-g10-example-category-lp29684-5-date-ge2021-11-10t03-30-46z",
+            "name": "Comparator ge: GET DiagnosticReport?patient=g10-example&category=LP29684-5&date=ge2021-11-10T03:30:46Z",
+            "description": "Every result's date satisfies ge (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5&date=ge2021-11-10T03:30:46Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(date).where($this.toString().substring(0, 10) >= '2021-11-10').exists() or effective.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2021-11-10').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-comparator-lt-get-diagnosticreport-patient-g10-example-category-lp29684-5-date-lt2021-11-12t03-30-46z",
+            "name": "Comparator lt: GET DiagnosticReport?patient=g10-example&category=LP29684-5&date=lt2021-11-12T03:30:46Z",
+            "description": "Every result's date satisfies lt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5&date=lt2021-11-12T03:30:46Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(date).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2021-11-12').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-comparator-le-get-diagnosticreport-patient-g10-example-category-lp29684-5-date-le2021-11-12t03-30-46z",
+            "name": "Comparator le: GET DiagnosticReport?patient=g10-example&category=LP29684-5&date=le2021-11-12T03:30:46Z",
+            "description": "Every result's date satisfies le (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5&date=le2021-11-12T03:30:46Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()) and (effective.ofType(dateTime).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(instant).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(date).where($this.toString().substring(0, 10) <= '2021-11-12').exists() or effective.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2021-11-12').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

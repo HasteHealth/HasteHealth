@@ -3,6 +3,8 @@
 //
 //   test-support  backend/testscripts/core/base + backend/testreports
 //                   -> static/test-reports/support.json
+//   test-suites   backend/testscripts/{us-core,g10,access-control,sql-on-fhir} + their TestReports
+//                   -> static/test-reports/suites/<suite>.json, static/test-reports/suites.json
 //   server        the local Haste Health server (HASTE_HEALTH_* in .env)
 //                   -> static/fhir/R4/metadata.json
 //                      static/fhir/R4/OperationDefinition/<id>.json
@@ -21,9 +23,17 @@
 //   pnpm generate --check           fail when a committed output is stale; only
 //                                   the steps that can tell (social-card, pricing)
 //   pnpm generate test-support --postgres <bundle> --elasticsearch <bundle>
+//   pnpm generate test-suites --g10-postgres <dir> ...
 //                                   step options, documented in the step's module
 
-const STEPS = ["test-support", "server", "fhir", "social-card", "pricing"];
+const STEPS = [
+  "test-support",
+  "test-suites",
+  "server",
+  "fhir",
+  "social-card",
+  "pricing",
+];
 
 function parse(argv) {
   const steps = [];

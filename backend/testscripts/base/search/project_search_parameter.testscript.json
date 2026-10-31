@@ -1,0 +1,276 @@
+{
+    "id": "search-project-search-parameter-test",
+    "url": "https://haste.health/fhir/TestScript/search-project-search-parameter",
+    "name": "Project SearchParameter Test",
+    "title": "A project's own SearchParameter",
+    "status": "active",
+    "description": "A SearchParameter created in the project can be searched on as soon as it is indexed, by the server and the worker alike, even after both have already looked up the project's parameters.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "project-sp-marital-status",
+            "resourceType": "SearchParameter",
+            "url": "https://haste.health/fhir/SearchParameter/testscript-project-marital-status",
+            "name": "TestScriptProjectMaritalStatus",
+            "status": "active",
+            "description": "Patient.maritalStatus, under a name no base parameter uses.",
+            "code": "testscript-marital",
+            "base": [
+                "Patient"
+            ],
+            "type": "token",
+            "expression": "Patient.maritalStatus"
+        },
+        {
+            "id": "project-sp-before",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-project-search-parameter-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Before"
+                }
+            ]
+        },
+        {
+            "id": "project-sp-match",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-project-search-parameter-test"
+                    }
+                ]
+            },
+            "maritalStatus": {
+                "coding": [
+                    {
+                        "system": "https://haste.health/fhir/CodeSystem/testscript-marital",
+                        "code": "testscript-match"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "project-sp-other",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-project-search-parameter-test"
+                    }
+                ]
+            },
+            "maritalStatus": {
+                "coding": [
+                    {
+                        "system": "https://haste.health/fhir/CodeSystem/testscript-marital",
+                        "code": "testscript-other"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-search-parameter",
+            "resource": {
+                "reference": "#project-sp-marital-status"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-before",
+            "resource": {
+                "reference": "#project-sp-before"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-match",
+            "resource": {
+                "reference": "#project-sp-match"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-other",
+            "resource": {
+                "reference": "#project-sp-other"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-project-search-parameter",
+            "name": "A new project SearchParameter is searchable once indexed",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "description": "Index a Patient before the parameter exists, so the worker has looked up the project's parameters.",
+                        "targetId": "fixture-patient-before",
+                        "sourceId": "fixture-patient-before",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=search-project-search-parameter-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first Patient is indexed",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "Search on the parameter before it exists, so the server has looked up the project's parameters. Not asserted: a copy cached from an earlier run of this script may still know the parameter.",
+                        "resource": "Patient",
+                        "params": "testscript-marital=testscript-match&_tag=search-project-search-parameter-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "description": "Create the project SearchParameter.",
+                        "targetId": "fixture-search-parameter",
+                        "sourceId": "fixture-search-parameter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-patient-match",
+                        "sourceId": "fixture-patient-match",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-patient-other",
+                        "sourceId": "fixture-patient-other",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "testscript-marital=testscript-match&_tag=search-project-search-parameter-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The parameter matches the Patient written after it",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The match is the Patient with that code",
+                        "expression": "Bundle.entry.resource.id",
+                        "value": "project-sp-match",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "testscript-marital=https://haste.health/fhir/CodeSystem/testscript-marital|testscript-other&_tag=search-project-search-parameter-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "system|code matches the other Patient alone",
+                        "expression": "Bundle.entry.resource.id",
+                        "value": "project-sp-other",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove the project SearchParameter.",
+                    "resource": "SearchParameter",
+                    "targetId": "fixture-search-parameter",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=search-project-search-parameter-test",
+                    "description": "Delete the Patients created in this test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,58 @@
+---
+title: ONC (g)(10) Standardized API
+sidebar_label: ONC (g)(10)
+description: Haste Health's results for the checks of the ONC (g)(10) Standardized API certification test kit that run unattended, with every known gap and what cannot be automated.
+sidebar_position: 3
+hide_table_of_contents: true
+---
+
+import {
+  SuiteKnownGaps,
+  SuiteLastVerified,
+  SuiteReportTable,
+  SuiteSummary,
+} from "@site/src/components/TestSuites";
+
+# ONC (g)(10) Standardized API
+
+The ONC [(g)(10) Standardized API test kit](https://github.com/onc-healthit/onc-certification-g10-test-kit)
+(version 8.0.7, on Inferno) is what certifies an API for § 170.315(g)(10). This
+suite runs every check from that kit that a FHIR `TestScript` can express, for
+the options SMART App Launch 2.2.0, US Core 7.0.0 and Bulk Data 2.0.0. Each
+TestScript's title starts with the kit's own test number, so a result here maps
+back to a test there.
+
+The kit's scenarios each run as a different principal, and so do these:
+
+- **1 and 2:** a patient signed in to a standalone app, first with every US Core
+  type granted, then with only Patient, Condition and Observation.
+- **3:** a practitioner signed in to an EHR-launched app.
+- **12:** the US Core 7 single patient API: every SHALL search with its
+  variants, reads, `_revinclude` of Provenance, must-support elements, reference
+  resolution and profile validation.
+- **8:** a backend client using Bulk Data.
+- **9.22 and 9.25:** SMART v1 scopes and fine-grained, category-limited scopes.
+
+Some kit tests can't run in a TestScript at all: TLS version probing, the
+browser login and consent steps, requests to the token endpoint, the contents
+of token, id_token and discovery documents, Bulk Data NDJSON files, and the
+tester attestations. The
+[suite's README](https://github.com/HasteHealth/HasteHealth/blob/main/backend/testscripts/g10/README.md)
+lists each of them by test number, with the reason.
+
+<SuiteLastVerified suite="g10" />
+
+<SuiteSummary suite="g10" />
+
+## Known gaps
+
+TestScripts that fail against Haste Health today, grouped by cause. CI skips
+them until the gap is closed, and each counts as not passing above.
+
+<SuiteKnownGaps suite="g10" />
+
+## Every TestScript
+
+Expand a TestScript to see each check it makes and its result.
+
+<SuiteReportTable suite="g10" />

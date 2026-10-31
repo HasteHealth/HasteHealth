@@ -1,0 +1,8 @@
+{
+    "description": "g10 SMART App Launch with fine-grained scopes, group 1 (9.25.1): a patient (a member User linked to Patient/g10-granular-patient) signing in to an app granted only category-limited Condition and Observation scopes.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-granular-1@example.org",
+    "clientId": "g10-granular-1-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "launch/patient openid fhirUser offline_access patient/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis patient/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|social-history"
+}

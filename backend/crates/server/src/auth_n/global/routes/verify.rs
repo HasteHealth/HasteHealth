@@ -71,7 +71,8 @@ pub async fn verify_post<
 ) -> Result<Response, OperationOutcomeError> {
     check_csrf(&csrf_token, &form.csrf_token)?;
 
-    let error = match email_code::check(&session, &form.otp_code).await? {
+    let error = match email_code::check(&session, state.rate_limit.as_ref(), &form.otp_code).await?
+    {
         CheckOutcome::Verified(verified) => {
             return flow::finish(state.as_ref(), &session, &csrf_token, verified).await;
         }

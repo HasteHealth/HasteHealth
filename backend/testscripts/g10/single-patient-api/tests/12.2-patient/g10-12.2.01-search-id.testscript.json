@@ -1,0 +1,102 @@
+{
+    "id": "g10-12.2.01-search-id",
+    "url": "https://haste.health/fhir/TestScript/g10-12.2.01-search-id",
+    "name": "g10-12.2.01-search-id",
+    "title": "12.2.01 Server returns valid results for Patient search by _id",
+    "status": "active",
+    "description": "g10 12.2.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.2). Server returns valid results for Patient search by _id. US Core SHALL search. Every result must match every parameter, and the record's Patient/g10-child-example must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-patient-id-g10-child-example",
+            "name": "GET Patient?_id=g10-child-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=g10-child-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/g10-child-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'g10-child-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Patient returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Patient).all((id = 'g10-child-example'))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-post-patient-search-id-g10-child-example",
+            "name": "POST Patient/_search?_id=g10-child-example",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "Patient/_search?_id=g10-child-example",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

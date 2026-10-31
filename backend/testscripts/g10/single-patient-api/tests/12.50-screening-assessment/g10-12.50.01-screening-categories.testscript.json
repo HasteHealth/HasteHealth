@@ -1,0 +1,139 @@
+{
+    "id": "g10-12.50.01-screening-categories",
+    "url": "https://haste.health/fhir/TestScript/g10-12.50.01-screening-categories",
+    "name": "g10-12.50.01-screening-categories",
+    "title": "12.50.01 The required screening and assessment categories are returned",
+    "status": "active",
+    "description": "g10 12.50.01 (DAT-PAT-18; US Core 6.1.0: 10.47.01). A problem list or health concern Condition carries the sdoh category, and the patient's survey Observations carry the sdoh, functional-status, disability-status, cognitive-status, activity and social-history categories.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-condition-categories",
+            "name": "GET Condition?patient=g10-example&category=problem-list-item",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example&category=problem-list-item",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Condition with the sdoh category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'sdoh').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-health-concerns",
+            "name": "GET Condition?patient=g10-example&category=health-concern",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example&category=health-concern",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-survey-categories",
+            "name": "GET Observation?patient=g10-example&category=survey",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "patient=g10-example&category=survey",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the sdoh category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'sdoh').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the functional-status category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'functional-status').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the disability-status category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'disability-status').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the cognitive-status category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and code = 'cognitive-status').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the activity category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://terminology.hl7.org/CodeSystem/observation-category' and code = 'activity').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A survey Observation with the social-history category is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(category.coding.where(system = 'http://terminology.hl7.org/CodeSystem/observation-category' and code = 'social-history').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

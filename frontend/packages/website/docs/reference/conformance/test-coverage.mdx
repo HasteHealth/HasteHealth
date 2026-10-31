@@ -1,5 +1,6 @@
 ---
 title: Tested FHIR support
+sidebar_label: FHIR R4 core
 description: What Haste Health supports for each FHIR R4 resource type and search feature, on PostgreSQL and Elasticsearch, verified by automated TestScripts.
 sidebar_position: 1
 hide_table_of_contents: true
@@ -20,7 +21,9 @@ Everything on this page comes from test results, not a feature list. Each
 resource type has a FHIR [`TestScript`](https://github.com/hastehealth/hastehealth/tree/main/backend/testscripts/core/base)
 that creates, reads, updates, patches, deletes and searches real data. The same
 scripts run against both search backends, **PostgreSQL** and **Elasticsearch**,
-and a feature is shown as supported only when its checks pass.
+and a feature is shown as supported only when its checks pass. The
+[other conformance suites](./overview.mdx) cover US Core, ONC (g)(10), SMART
+access control and SQL on FHIR.
 
 <LastVerified />
 

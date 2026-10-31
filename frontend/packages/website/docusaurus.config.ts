@@ -199,7 +199,7 @@ const config: Config = {
           ],
         },
         {
-          to: "/docs/reference/conformance/test-coverage",
+          to: "/docs/reference/conformance/overview",
           label: "Conformance",
           position: "left",
           activeBaseRegex: "^/docs/reference/conformance/",

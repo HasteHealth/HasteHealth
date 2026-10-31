@@ -1,0 +1,122 @@
+{
+    "id": "g10-12.9.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.9.05-must-support",
+    "name": "g10-12.9.05-must-support",
+    "title": "12.9.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.9.05 (DAT-PAT-2; US Core 6.1.0: group 10.9). Every must support element of US Core Implantable Device Profile (including the USCDI ones) appears in at least one Device the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Device",
+                        "params": "_id=g10-udi-2,g10-udi-3,g10-udi-4,g10-udi-5",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.distinctIdentifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).distinctIdentifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.expirationDate is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).expirationDate.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.lotNumber is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).lotNumber.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.manufactureDate is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).manufactureDate.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.patient is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).patient.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.serialNumber is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).serialNumber.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.udiCarrier is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).udiCarrier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.udiCarrier.carrierHRF is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).udiCarrier.carrierHRF.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device.udiCarrier.deviceIdentifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Device).udiCarrier.deviceIdentifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

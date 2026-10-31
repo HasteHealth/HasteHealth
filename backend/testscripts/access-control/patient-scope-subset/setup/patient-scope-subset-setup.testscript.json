@@ -1,0 +1,451 @@
+{
+    "id": "access-control-patient-scope-subset-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scope-subset-setup",
+    "name": "Access Control Patient Scope Subset Setup",
+    "title": "Patient scope subset: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes a patient with an Observation and an Encounter, a Medication (shared reference data), and the login the tests use: a member User linked to the patient, a full-access policy, and an app allowed openid fhirUser offline_access launch/patient patient/*.rs; the scenario requests the narrower patient/Medication.rs patient/Patient.r patient/Observation.s.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acps-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Parker"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acps-medication",
+            "resourceType": "Medication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "code": {
+                "text": "Ibuprofen"
+            }
+        },
+        {
+            "id": "acps-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acps-patient"
+            }
+        },
+        {
+            "id": "acps-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acps-patient"
+            }
+        },
+        {
+            "id": "acps-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "acps-patient@example.org"
+        },
+        {
+            "id": "acps-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/acps-user"
+            },
+            "link": {
+                "reference": "Patient/acps-patient"
+            }
+        },
+        {
+            "id": "acps-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "name": "Access control: patient scope subset",
+            "description": "Full access, so only the patient scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "acps-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/acps-policy"
+            },
+            "link": {
+                "reference": "Membership/acps-membership"
+            }
+        },
+        {
+            "id": "acps-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scope-subset"
+                    }
+                ]
+            },
+            "name": "Access control: patient scope subset app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "openid fhirUser offline_access launch/patient patient/*.rs"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acps-patient",
+            "resource": {
+                "reference": "#acps-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-medication",
+            "resource": {
+                "reference": "#acps-medication"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-observation",
+            "resource": {
+                "reference": "#acps-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-encounter",
+            "resource": {
+                "reference": "#acps-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-user",
+            "resource": {
+                "reference": "#acps-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-membership",
+            "resource": {
+                "reference": "#acps-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-policy",
+            "resource": {
+                "reference": "#acps-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-policy-assignment",
+            "resource": {
+                "reference": "#acps-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-app",
+            "resource": {
+                "reference": "#acps-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "A patient, their data and shared reference data",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acps-patient",
+                        "sourceId": "fixture-acps-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acps-patient is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Medication",
+                        "targetId": "fixture-acps-medication",
+                        "sourceId": "fixture-acps-medication",
+                        "encodeRequestUrl": false,
+                        "description": "Shared reference data: readable under patient/Medication.rs."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Medication/acps-medication is written",
+                        "resource": "Medication",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acps-observation",
+                        "sourceId": "fixture-acps-observation",
+                        "encodeRequestUrl": false,
+                        "description": "Searchable but not readable: Observation.s is requested."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acps-observation is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acps-encounter",
+                        "sourceId": "fixture-acps-encounter",
+                        "encodeRequestUrl": false,
+                        "description": "Allowed by the wildcard but not requested."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/acps-encounter is written",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "The member User linked to the patient, its access policy and client application",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-acps-user",
+                        "sourceId": "fixture-acps-user",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/acps-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-acps-membership",
+                        "sourceId": "fixture-acps-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/acps-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-acps-policy",
+                        "sourceId": "fixture-acps-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/acps-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-acps-policy-assignment",
+                        "sourceId": "fixture-acps-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/acps-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-acps-app",
+                        "sourceId": "fixture-acps-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/acps-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-indexed",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=Membership/acps-membership",
+                        "encodeRequestUrl": false,
+                        "description": "Waits for indexing: token issuance finds access policies through search."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its principal",
+                        "expression": "Bundle.entry.resource.where(id = 'acps-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

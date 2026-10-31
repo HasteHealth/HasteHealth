@@ -4,13 +4,21 @@ use crate::{
     },
     services::ServerState,
 };
-use axum::{Router, middleware};
+use axum::{
+    Router,
+    http::{
+        HeaderValue,
+        header::{CACHE_CONTROL, PRAGMA},
+    },
+    middleware,
+};
 use axum_extra::routing::RouterExt;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 use tower::ServiceBuilder;
+use tower_http::set_header::SetResponseHeaderLayer;
 
 mod authorize;
 pub mod discovery;
@@ -19,6 +27,7 @@ pub mod interactions;
 mod jwks;
 pub mod route_string;
 pub mod scope;
+pub mod style;
 pub mod token;
 
 static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
@@ -57,11 +66,27 @@ pub fn create_router<
 ) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
+        .merge(Router::new().typed_get(style::smart_style_get))
         .merge(federated::federated_router())
         .nest(
             "/auth",
             Router::new()
-                .merge(Router::new().typed_post(token::token))
+                // Responses that carry tokens must not be cached (RFC 6749
+                // section 5.1): Cache-Control for HTTP/1.1 caches and Pragma
+                // for HTTP/1.0 ones.
+                .merge(
+                    Router::new().typed_post(token::token).route_layer(
+                        ServiceBuilder::new()
+                            .layer(SetResponseHeaderLayer::overriding(
+                                CACHE_CONTROL,
+                                HeaderValue::from_static("no-store"),
+                            ))
+                            .layer(SetResponseHeaderLayer::overriding(
+                                PRAGMA,
+                                HeaderValue::from_static("no-cache"),
+                            )),
+                    ),
+                )
                 .merge(
                     Router::new()
                         .merge(

@@ -1,0 +1,146 @@
+{
+    "id": "g10-12.10.08-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.10.08-must-support",
+    "name": "g10-12.10.08-must-support",
+    "title": "12.10.08 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.10.08 (DAT-PAT-2; US Core 6.1.0: group 10.10). Every must support element of US Core DiagnosticReport Profile for Report and Note Exchange (including the USCDI ones) appears in at least one DiagnosticReport the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "_id=g10-bone-density-report,g10-cardiology-report,g10-chest-xray-report,g10-pathology-report",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.category is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).category.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.category:us-core is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).category.where(coding.where(system = 'http://loinc.org' and (code = 'LP29684-5' or code = 'LP29708-2' or code = 'LP7839-6')).exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.code is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).code.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.effectiveDateTime is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).effective.ofType(dateTime).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.encounter is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).encounter.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.issued is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).issued.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.media is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).media.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.media.link is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).media.link.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.performer is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).performer.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.presentedForm is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).presentedForm.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.result is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).result.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.status is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

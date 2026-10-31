@@ -1,0 +1,24 @@
+# TestScripts that fail against Haste Health today, and scenarios that cannot run.
+# test_e2e_g10.yml does not run them; README.md explains each. Remove a line once
+# its TestScript passes. A scenario directory ending in / skips the whole scenario.
+
+# Granular (fine-grained) scopes: authorize answers 501 "Invalid smart resource scope" for
+# patient/[type].rs?category=..., so these scenarios cannot sign in (9.25, 9.14, 9.23, 9.24).
+fine-grained-scopes-1/
+fine-grained-scopes-2/
+
+# Patient-scoped tokens (scenario 1 and 9.22) are refused Device: the server treats Device as outside
+# the Patient compartment and not shared reference data, so every Device request answers 403.
+smart-v1-scopes/tests/g10-9.22.5.07-device-v1-access.testscript.json
+standalone-patient-app/tests/g10-1.7.07-device-access.testscript.json
+
+# Bulk Data: no $export operation, and GET operation invocations answer 501. The kick-off scripts
+# stop with an execution error when no Content-Location comes back.
+multi-patient-api/tests/g10-bulk-capability-statement.testscript.json
+multi-patient-api/tests/g10-bulk-export-cancel.testscript.json
+multi-patient-api/tests/g10-bulk-export-output-format.testscript.json
+multi-patient-api/tests/g10-bulk-export-since.testscript.json
+multi-patient-api/tests/g10-bulk-group-export.testscript.json
+
+# The CapabilityStatement lists no US Core supportedProfile.
+single-patient-api/tests/12.1-capability-statement/g10-12.1.05-profile-support.testscript.json

@@ -89,8 +89,9 @@ struct TestState {
     latest_request: Option<FHIRRequest>,
     latest_response: Option<RecordedResponse>,
     result: BoundCode<ReportResultCodes>,
-    /// Writes not yet confirmed visible to search. All are waited for, since a
-    /// search (a chained one especially) may filter on any of them.
+    /// Writes not yet confirmed visible to search, the latest per resource.
+    /// All are waited for, since a search (a chained one especially) may
+    /// filter on any of them.
     unindexed_writes: Vec<IndexedWrite>,
 }
 
@@ -1111,13 +1112,17 @@ fn indexed_write(response: &FHIRResponse) -> Option<IndexedWrite> {
     })
 }
 
-/// Whether a request's result depends on the search index.
+/// Whether a request's result depends on the search index. Operations
+/// count: `$everything`, `$expand` and `$viewdefinition-run` search for what
+/// they return, and for one that does not the wait is one `_id` search per
+/// pending write.
 fn reads_search_index(request: &FHIRRequest) -> bool {
     matches!(
         request,
         FHIRRequest::Search(_)
             | FHIRRequest::Delete(DeleteRequest::Type(_) | DeleteRequest::System(_))
             | FHIRRequest::Update(UpdateRequest::Conditional(_))
+            | FHIRRequest::Invocation(_)
     )
 }
 
@@ -1347,6 +1352,11 @@ async fn run_operation<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange
     let failure = match &recorded.response {
         Response::Interaction(response) => {
             if let Some(write) = indexed_write(response) {
+                // Search returns only a resource's current version, so an
+                // earlier write of the same resource could never be seen.
+                state_guard.unindexed_writes.retain(|earlier| {
+                    (&earlier.resource_type, &earlier.id) != (&write.resource_type, &write.id)
+                });
                 state_guard.unindexed_writes.push(write);
             }
             None
@@ -2318,10 +2328,11 @@ async fn run_tests<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX
 
 pub struct TestRunnerOptions {
     pub wait_between_operations: Option<Duration>,
-    /// Before a request that reads the search index (a search, conditional
-    /// delete or conditional update), wait up to this long for the latest
-    /// write to be indexed. Waits only as long as indexing takes, where
-    /// `wait_between_operations` waits a fixed time after every operation.
+    /// Before a request that reads the search index (a search, an operation,
+    /// a conditional delete or a conditional update), wait up to this long
+    /// for the latest writes to be indexed. Waits only as long as indexing
+    /// takes, where `wait_between_operations` waits a fixed time after every
+    /// operation.
     pub index_wait_timeout: Option<Duration>,
 }
 

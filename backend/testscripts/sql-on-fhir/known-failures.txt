@@ -1,0 +1,49 @@
+# SQL on FHIR TestScripts that fail against Haste Health today, by cause (README.md explains
+# each). test_e2e_sql_on_fhir.yml still runs them with `--allow-failure`: their TestReports stay
+# `fail`, marked as expected, and they don't fail the job. One TestScript id per line; remove a
+# line once its TestScript passes (the run warns when a listed one does). `#` starts a comment.
+# A TestScript that fails for several causes is listed under the first that shows.
+
+# `%rowIndex` is not defined, so a view that uses it is refused with 400 "Undefined constant:
+# %rowIndex" (#1336).
+sof-row-index-01         # %rowIndex at top level
+sof-row-index-02         # %rowIndex with forEach
+sof-row-index-03         # %rowIndex with forEachOrNull
+sof-row-index-04         # %rowIndex with nested forEach
+sof-row-index-05         # %rowIndex with repeat
+sof-row-index-06         # %rowIndex with unionAll
+sof-row-index-07         # %rowIndex in unionAll without forEach
+sof-row-index-08         # %rowIndex in unionAll inside forEach
+sof-row-index-09         # %rowIndex for surrogate key
+
+# `lowBoundary()` and `highBoundary()` are not implemented; the run answers 500.
+sof-fn-boundary-01       # decimal lowBoundary
+sof-fn-boundary-02       # decimal highBoundary
+sof-fn-boundary-03       # datetime lowBoundary
+sof-fn-boundary-04       # datetime highBoundary
+sof-fn-boundary-05       # date lowBoundary
+sof-fn-boundary-06       # date highBoundary
+sof-fn-boundary-07       # time lowBoundary
+sof-fn-boundary-08       # time highBoundary
+
+# A `repeat` gives the rows the suite expects but level by level (all first-level items, then
+# the second level), while the suite lists them depth first. The suite compares rows in any order
+# and the spec sets no order for `repeat`; a TestScript compares the rows' bytes (#1338).
+sof-repeat-01            # basic
+sof-repeat-04            # empty child expression
+sof-repeat-06            # combined with forEachOrNull
+sof-repeat-11            # sibling repeats at top level
+sof-repeat-13            # top-level repeat with sibling forEach containing repeat
+sof-repeat-16            # unionAll inside repeat
+sof-repeat-19            # unionAll with repeat and non-repeat branches
+
+# A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`1.1.1`);
+# the other rows are there (#1338).
+sof-repeat-02            # item and answer.item
+sof-repeat-07            # combined with unionAll
+sof-repeat-18            # multi-path repeat inside forEach
+
+# `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
+# expects an error).
+sof-union-09             # column mismatch
+sof-union-10             # column order mismatch

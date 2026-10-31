@@ -1,0 +1,173 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-foreach-03",
+  "url": "https://haste.health/fhir/TestScript/sof-foreach-03",
+  "name": "sof-foreach-03",
+  "title": "SQL on FHIR foreach: forEach: empty",
+  "status": "active",
+  "description": "TBD Suite test 3 of tests/foreach.json (foreach), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  }
+                ]
+              },
+              {
+                "forEach": "identifier",
+                "column": [
+                  {
+                    "name": "value",
+                    "path": "value",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "F1.1"
+              },
+              {
+                "family": "F1.2"
+              }
+            ],
+            "contact": [
+              {
+                "telecom": [
+                  {
+                    "system": "phone"
+                  }
+                ],
+                "name": {
+                  "family": "FC1.1",
+                  "given": [
+                    "N1",
+                    "N1`"
+                  ]
+                }
+              },
+              {
+                "telecom": [
+                  {
+                    "system": "email"
+                  }
+                ],
+                "gender": "unknown",
+                "name": {
+                  "family": "FC1.2",
+                  "given": [
+                    "N2"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "F2.1"
+              },
+              {
+                "family": "F2.2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "forEach: empty",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 0 in all. []",
+            "expression": "Binary.data = 'W10='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

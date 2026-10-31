@@ -1,0 +1,160 @@
+{
+    "id": "g10-12.8.02-read",
+    "url": "https://haste.health/fhir/TestScript/g10-12.8.02-read",
+    "name": "g10-12.8.02-read",
+    "title": "12.8.02 Coverage read",
+    "status": "active",
+    "description": "g10 12.8.02 (DAT-PAT-18; US Core 6.1.0: group 10.8). Coverage read: a read of an instance the searches return answers 200 with the requested resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Coverage",
+            "id": "g10-coverage-example",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB",
+                                "display": "Member Number"
+                            }
+                        ]
+                    },
+                    "system": "http://example.org/fhir/memberidentifier",
+                    "value": "88800933501"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "https://nahdo.org/sopt",
+                        "code": "3712",
+                        "display": "PPO"
+                    },
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "PPO",
+                        "display": "preferred provider organization policy"
+                    }
+                ],
+                "text": "PPO"
+            },
+            "subscriberId": "888009335",
+            "beneficiary": {
+                "reference": "Patient/g10-example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "self"
+                    }
+                ],
+                "text": "Self"
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/g10-acme-payer",
+                    "display": "Acme Health Plan"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group",
+                                "display": "Group"
+                            }
+                        ],
+                        "text": "An employee group"
+                    },
+                    "value": "xyz",
+                    "name": "XYZ employee Group Plan"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan",
+                                "display": "Plan"
+                            }
+                        ],
+                        "text": "A specific suite of benefits."
+                    },
+                    "value": "gold",
+                    "name": "Acme Gold Plan"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-coverage-example",
+            "resource": {
+                "reference": "#g10-coverage-example"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read",
+            "name": "Coverage read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Coverage",
+                        "targetId": "fixture-g10-coverage-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage/g10-coverage-example is read",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Coverage is returned",
+                        "resource": "Coverage",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the requested resource",
+                        "expression": "Coverage.id = 'g10-coverage-example'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

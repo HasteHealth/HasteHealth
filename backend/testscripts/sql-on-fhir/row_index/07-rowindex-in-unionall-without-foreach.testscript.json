@@ -1,0 +1,227 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-row-index-07",
+  "url": "https://haste.health/fhir/TestScript/sof-row-index-07",
+  "name": "sof-row-index-07",
+  "title": "SQL on FHIR row_index: %rowIndex in unionAll without forEach",
+  "status": "active",
+  "description": "When a unionAll branch has no iteration expression, %rowIndex inherits from the enclosing context Suite test 7 of tests/row_index.json (row_index), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "unionAll": [
+                  {
+                    "column": [
+                      {
+                        "name": "id",
+                        "path": "id",
+                        "type": "id"
+                      },
+                      {
+                        "name": "row_index",
+                        "path": "%rowIndex",
+                        "type": "integer"
+                      },
+                      {
+                        "name": "source",
+                        "path": "'a'",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "column": [
+                      {
+                        "name": "id",
+                        "path": "id",
+                        "type": "id"
+                      },
+                      {
+                        "name": "row_index",
+                        "path": "%rowIndex",
+                        "type": "integer"
+                      },
+                      {
+                        "name": "source",
+                        "path": "'b'",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "Smith",
+                "given": [
+                  "John",
+                  "James"
+                ]
+              },
+              {
+                "family": "Jones",
+                "given": [
+                  "Jane"
+                ]
+              }
+            ],
+            "contact": [
+              {
+                "name": {
+                  "family": "Contact1"
+                },
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "111-1111"
+                  },
+                  {
+                    "system": "email",
+                    "value": "a@example.com"
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "family": "Contact2"
+                },
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "222-2222"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "Brown"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "QuestionnaireResponse",
+            "id": "qr1",
+            "questionnaire": "http://example.com/Questionnaire/q1",
+            "status": "completed",
+            "item": [
+              {
+                "linkId": "1",
+                "text": "Group 1",
+                "item": [
+                  {
+                    "linkId": "1.1",
+                    "text": "Question 1.1"
+                  },
+                  {
+                    "linkId": "1.2",
+                    "text": "Question 1.2"
+                  }
+                ]
+              },
+              {
+                "linkId": "2",
+                "text": "Group 2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "%rowIndex in unionAll without forEach",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 6 in all. [{\"id\": \"pt1\", \"row_index\": 0, \"source\": \"a\"}, {\"id\": \"pt2\", \"row_index\": 0, \"source\": \"a\"}, {\"id\": \"pt3\", \"row_index\": 0, \"source\": \"a\"}, {\"id\": \"pt1\", \"row_index\": 0, \"source\": \"b\"}, {\"id\": \"pt2\", \"row_index\": 0, \"source\": \"b\"}, {\"id\": \"pt3\", \"row_index\": 0, \"source\": \"b\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJyb3dfaW5kZXgiOjAsInNvdXJjZSI6ImEifSx7ImlkIjoicHQyIiwicm93X2luZGV4IjowLCJzb3VyY2UiOiJhIn0seyJpZCI6InB0MyIsInJvd19pbmRleCI6MCwic291cmNlIjoiYSJ9LHsiaWQiOiJwdDEiLCJyb3dfaW5kZXgiOjAsInNvdXJjZSI6ImIifSx7ImlkIjoicHQyIiwicm93X2luZGV4IjowLCJzb3VyY2UiOiJiIn0seyJpZCI6InB0MyIsInJvd19pbmRleCI6MCwic291cmNlIjoiYiJ9XQ=='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

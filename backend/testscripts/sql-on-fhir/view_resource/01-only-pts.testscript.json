@@ -1,0 +1,121 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-view-resource-01",
+  "url": "https://haste.health/fhir/TestScript/sof-view-resource-01",
+  "name": "sof-view-resource-01",
+  "title": "SQL on FHIR view_resource: only pts",
+  "status": "active",
+  "description": "TBD Suite test 1 of tests/view_resource.json (view_resource), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "path": "id",
+                    "name": "id",
+                    "type": "id"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "id": "pt1",
+            "resourceType": "Patient"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "id": "pt2",
+            "resourceType": "Patient"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "id": "ob1",
+            "resourceType": "Observation",
+            "code": {
+              "text": "code"
+            },
+            "status": "final"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "only pts",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 2 in all. [{\"id\": \"pt1\"}, {\"id\": \"pt2\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEifSx7ImlkIjoicHQyIn1d'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

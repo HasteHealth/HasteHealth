@@ -1,0 +1,300 @@
+{
+    "id": "g10-12.10.01-search-patient-category",
+    "url": "https://haste.health/fhir/TestScript/g10-12.10.01-search-patient-category",
+    "name": "g10-12.10.01-search-patient-category",
+    "title": "12.10.01 Server returns valid results for DiagnosticReport search by patient + category",
+    "status": "active",
+    "description": "g10 12.10.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.10). Server returns valid results for DiagnosticReport search by patient + category. US Core SHALL search. Every result must match every parameter, and the record's DiagnosticReport/g10-bone-density-report must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-diagnosticreport-patient-g10-example-category-lp29684-5",
+            "name": "GET DiagnosticReport?patient=g10-example&category=LP29684-5",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29684-5",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-get-diagnosticreport-patient-g10-example-category-lp29708-2",
+            "name": "GET DiagnosticReport?patient=g10-example&category=LP29708-2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP29708-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-cardiology-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-cardiology-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29708-2').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-get-diagnosticreport-patient-g10-example-category-lp7839-6",
+            "name": "GET DiagnosticReport?patient=g10-example&category=LP7839-6",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=LP7839-6",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-pathology-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-pathology-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP7839-6').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-reference-form-get-diagnosticreport-patient-patient-g10-example-category-lp29684-5",
+            "name": "Reference form: GET DiagnosticReport?patient=Patient/g10-example&category=LP29684-5",
+            "description": "patient=Patient/[id] returns what patient=[id] returns.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=Patient/g10-example&category=LP29684-5",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'LP29684-5').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as patient=[id]",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-token-system-code-form-get-diagnosticreport-patient-g10-example-category-http-loinc-org-lp29684-5",
+            "name": "Token system|code form: GET DiagnosticReport?patient=g10-example&category=http://loinc.org|LP29684-5",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&category=http://loinc.org|LP29684-5",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://loinc.org' and code = 'LP29684-5').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-post-diagnosticreport-search-patient-g10-example-category-lp29684-5",
+            "name": "POST DiagnosticReport/_search?patient=g10-example&category=LP29684-5",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "DiagnosticReport/_search?patient=g10-example&category=LP29684-5",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

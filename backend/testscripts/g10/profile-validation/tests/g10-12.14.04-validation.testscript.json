@@ -1,0 +1,136 @@
+{
+    "id": "g10-12.14.04-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.14.04-validation",
+    "name": "g10-12.14.04-validation",
+    "title": "12.14.04 Goal conforms to US Core Goal Profile",
+    "status": "active",
+    "description": "g10 12.14.04 (DAT-PAT-2). Inferno validates the Goal resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Goal/g10-goal-1 that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Goal",
+            "id": "g10-val-12-14-04",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "lifecycleStatus": "active",
+            "description": {
+                "text": "Patient is targeting a pulse oximetry of 92% and a weight of 195 lbs"
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient",
+                "display": "Amy Shaw"
+            },
+            "target": [
+                {
+                    "dueDate": "2016-04-05"
+                }
+            ],
+            "expressedBy": {
+                "reference": "Practitioner/g10-practitioner-1",
+                "display": "Dr Ronald Bone"
+            },
+            "startDate": "2015-04-05"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-14-04",
+            "resource": {
+                "reference": "#g10-val-12-14-04"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT Goal/g10-val-12-14-04 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Goal",
+                        "targetId": "fixture-g10-val-12-14-04",
+                        "sourceId": "fixture-g10-val-12-14-04",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Goal is returned",
+                        "resource": "Goal",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "Goal",
+                    "targetId": "fixture-g10-val-12-14-04",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

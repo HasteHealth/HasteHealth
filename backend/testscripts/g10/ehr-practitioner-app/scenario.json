@@ -1,0 +1,8 @@
+{
+    "description": "g10 EHR Practitioner App: a practitioner (a member User linked to Practitioner/g10-practitioner-1) signing in to an app granted every US Core type with SMART v2 user scopes.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-practitioner@example.org",
+    "clientId": "g10-ehr-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "launch openid fhirUser offline_access user/Medication.rs user/AllergyIntolerance.rs user/CarePlan.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Device.rs user/DiagnosticReport.rs user/DocumentReference.rs user/Encounter.rs user/Goal.rs user/Immunization.rs user/Location.rs user/MedicationDispense.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Patient.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/Provenance.rs user/QuestionnaireResponse.rs user/RelatedPerson.rs user/ServiceRequest.rs user/Specimen.rs"
+}

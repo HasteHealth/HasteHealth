@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/fhir-pointer",
-  "version": "0.126.35",
+  "version": "0.127.8",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "typescript": "6.0.3"
   },
   "files": [
-    "readme.md",
+    "README.md",
     "lib/**",
     "src/**"
   ],

@@ -1,0 +1,278 @@
+# HL7 FHIRPath suite tests that fail today, by group. Regenerate with
+# HL7_UPDATE_KNOWN_FAILURES=1 cargo test -p haste-fhirpath --test hl7_suite
+
+# testBasics
+testSimpleFail
+testSimpleWithWrongContext
+
+# testObservations
+testPolymorphismB
+testPolymorphismAsB
+
+# testDollar
+testDollarOrderNotAllowed
+
+# testSubSetOf
+testSubSetOf1
+testSubSetOf3
+
+# testSuperSetOf
+testSuperSetOf1
+
+# testQuantity
+testQuantity1
+testQuantity2
+testQuantity3
+testQuantity4
+testQuantity9
+testQuantity10
+testQuantity11
+
+# testAggregate
+testAggregate1
+testAggregate2
+testAggregate3
+testAggregate4
+
+# testIndexer
+testIndexer3
+
+# testIif
+testIif6
+testIif10
+
+# testStartsWith
+testStartsWithNonString1
+
+# testEndsWith
+testEndsWithNonString1
+
+# testContainsString
+testContainsNonString1
+
+# testMatches
+testMatchesFullWithinUrl1
+testMatchesFullWithinUrl3
+testMatchesFullWithinUrl4
+testMatchesFullWithinUrl1a
+testMatchesFullWithinUrl2
+
+# testReplaceMatches
+
+# testEncodeDecode
+testEncodeBase64A
+testEncodeHex
+testEncodeBase64B
+testEncodeUrlBase64
+testDecodeBase64A
+testDecodeHex
+testDecodeBase64B
+testDecodeUrlBase64
+
+# testEscapeUnescape
+testEscapeHtml
+testEscapeJson
+testUnescapeHtml
+testUnescapeJson
+testUnescapeJson2
+testUnescapeJson3
+testUnescapeJson4
+
+# testSplit
+testSplit1
+testSplit2
+testSplit3
+testSplit4
+testSplit5
+testSplit6
+testSplit7
+testSplit8
+
+# testJoin
+testJoinEmpty
+
+# testSort
+testSort1
+testSort2
+testSort3
+testSort4
+testSort5
+testSort6
+testSort7
+testSort8
+testSort9
+testSort10
+
+# testNEquality
+testNEquality24
+
+# testEquivalent
+testEquivalent11
+
+# testLessThan
+testLessThan28
+
+# testCombine()
+testCombine2
+testCombine3
+
+# testUnion
+testUnion10
+testUnion11
+
+# testPlus
+testPlusDate3
+testPlusDate4
+testPlusDate5
+testPlusDate6
+testPlusDate7
+testPlusDate8
+testPlusDate18
+testPlusDate19
+testPlusDate20
+testPlusDate21
+testPlusDate22
+
+# testMinus
+testMinus3
+
+# testMod
+testMod4
+
+# testVariables
+
+# testExtension
+
+# testType
+testType1
+testType1a
+testType2
+testType2a
+testType3
+testType4
+testType9
+testType15
+testTypeA4
+
+# testConformsTo
+testConformsTo1
+testConformsTo2
+
+# LowBoundary
+LowBoundaryDecimalDefault
+LowBoundaryDecimal1
+LowBoundaryDecimal2
+LowBoundaryDecimal3
+LowBoundaryDecimal4
+LowBoundaryDecimal5
+LowBoundaryNegDecimalDefault
+LowBoundaryNegDecimal1
+LowBoundaryNegDecimal2
+LowBoundaryNegDecimal3
+LowBoundaryNegDecimal4
+LowBoundaryNegDecimal5
+LowBoundaryDecimal6
+LowBoundaryDecimal7
+LowBoundaryDecimal8
+LowBoundaryDecimal9
+LowBoundaryDecimal10
+LowBoundaryDecimal11
+LowBoundaryDecimal12
+LowBoundaryDecimal13
+LowBoundaryDecimal14
+LowBoundaryDecimal15
+LowBoundaryDecimalCarry1
+LowBoundaryDecimalCarry2
+LowBoundaryDecimalCarry3
+LowBoundaryDecimalBorrow1
+LowBoundaryDecimalBorrow2
+LowBoundaryDecimalExponent1
+LowBoundaryDecimalExponent2
+LowBoundaryDecimalExponent3
+LowBoundaryDecimalExponent4
+LowBoundaryQuantity
+LowBoundaryDateMonth
+LowBoundaryDateTimeMillisecond1
+LowBoundaryDateTimeMillisecond2
+LowBoundaryDateTimeMillisecond3
+LowBoundaryTimeMillisecond
+
+# HighBoundary
+HighBoundaryDecimalDefault
+HighBoundaryDecimal1
+HighBoundaryDecimal2
+HighBoundaryDecimal3
+HighBoundaryDecimal4
+HighBoundaryDecimal5
+HighBoundaryDecimal6
+HighBoundaryDecimal7
+HighBoundaryDecimal8
+HighBoundaryDecimal9
+HighBoundaryDecimal10
+HighBoundaryDecimal11
+HighBoundaryDecimal12
+HighBoundaryDecimal13
+HighBoundaryDecimal14
+HighBoundaryDecimal15
+HighBoundaryDecimal16
+HighBoundaryDecimal
+HighBoundaryDecimalCarry1
+HighBoundaryDecimalCarry2
+HighBoundaryDecimalCarry3
+HighBoundaryDecimalCarry4
+HighBoundaryDecimalExponent1
+HighBoundaryDecimalExponent2
+HighBoundaryDecimalExponent3
+HighBoundaryDecimalExponent4
+HighBoundaryDecimalExponent5
+HighBoundaryQuantity
+HighBoundaryDateMonth
+HighBoundaryDateTimeMillisecond1
+HighBoundaryDateTimeMillisecond2
+HighBoundaryDateTimeMillisecond3
+HighBoundaryTimeMillisecond
+
+# Comparable
+Comparable1
+Comparable2
+Comparable3
+
+# Precision
+PrecisionDecimal
+PrecisionYear
+PrecisionDateTimeMilliseconds
+PrecisionTimeMinutes
+PrecisionTimeMilliseconds
+
+# polymorphics
+testPolymorphicsB
+
+# period
+testPeriodInvariantNew
+
+# testInheritance
+testFHIRPathIsFunction2
+testFHIRPathIsFunction9
+testFHIRPathAsFunction21
+testFHIRPathAsFunction23
+testFHIRPathAsFunction24
+
+# miscEngineTests
+testContainedId
+
+# isSemanticChecks
+isEffectOnLogic3Base
+isGuardFnImpliesBad
+isGuardImpliesBad
+isGuardOrTypesImpliesBad
+isGuardOrFnTypesImpliesBad
+isGuardOrOtherImpliesBad
+isGuardOrOtherImpliesNoParensBad
+isGuardOrInnerImpliesBad
+isGuardAndBad
+isGuardOrBad
+isGuardXorBad
+isGuardNotImpliesBad
+isGuardIifBad
+isGuardSupertypeBad
+isGuardOtherExpressionBad

@@ -2,7 +2,7 @@ use crate::{
     auth_n::{
         oidc::{
             error::{OIDCError, OIDCErrorCode},
-            extract::{client_app::OIDCClientApplication, scopes::Scopes},
+            extract::client_app::OIDCClientApplication,
             middleware::OIDCParameters,
             routes::scope::{ScopeForm, verify_requested_scope_is_subset},
             utilities::is_valid_redirect_url,
@@ -192,7 +192,6 @@ pub async fn authorize<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: AuthorizePath,
-    Scopes(scopes): Scopes,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(Project(project_resource)): Cached<Project>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
@@ -237,6 +236,23 @@ pub async fn authorize<
             None,
         ));
     }
+
+    // Parsed here, not in an extractor, so a bad scope can be reported at the
+    // redirect URI once it is known to be valid.
+    let scopes = haste_jwt::scopes::Scopes::try_from(
+        oidc_params
+            .parameters
+            .get("scope")
+            .map_or("", String::as_str),
+    )
+    .map_err(|_| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidScope,
+            Some("Invalid or unsupported scope.".to_string()),
+            Some(redirect_uri.to_string()),
+        )
+        .with_state(state)
+    })?;
 
     let uri = Uri::try_from(redirect_uri).map_err(|_| {
         OIDCError::new(

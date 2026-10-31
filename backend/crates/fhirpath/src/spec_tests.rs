@@ -27,6 +27,8 @@ fn render(value: &dyn MetaValue) -> String {
         boolean.value.unwrap().to_string()
     } else if any.is::<FHIRDate>() || any.is::<FHIRDateTime>() || any.is::<FHIRTime>() {
         format!("'{}'", downcast_datetime(value).unwrap())
+    } else if let Some(datetime) = any.downcast_ref::<crate::PartialDateTime>() {
+        format!("'{datetime}'")
     } else {
         format!("'{}'", downcast_string(value).unwrap())
     }
@@ -51,6 +53,52 @@ async fn assert_evaluates(expression: &str, expected: &[&str]) {
 async fn assert_errors(expression: &str) {
     let result = FPEngine::new().evaluate(expression, vec![]).await;
     assert!(result.is_err(), "{expression} should signal an error");
+}
+
+/// <https://hl7.org/fhirpath/N1/#models>. Input data matches `System` names too, which the
+/// spec reserves for literals and results.
+#[tokio::test]
+async fn system_type_names() {
+    for expression in [
+        "true is Boolean",
+        "true.is(System.Boolean)",
+        "1.is(Integer)",
+        "1.0.is(Decimal)",
+        "'a'.is(String)",
+        "@2015.is(Date)",
+        "@2015-02-04T14.is(DateTime)",
+        "@T14.is(Time)",
+        "(1 + 1).is(System.Integer)",
+        "true.is(FHIR.boolean)",
+    ] {
+        assert_evaluates(expression, &["true"]).await;
+    }
+    for expression in [
+        "true is Integer",
+        "true.is(FHIR.string)",
+        "true.is(Other.Boolean)",
+    ] {
+        assert_evaluates(expression, &["false"]).await;
+    }
+    assert_evaluates("1.ofType(System.Integer)", &["1"]).await;
+    assert_evaluates("1.ofType(FHIR.string)", &[]).await;
+
+    let patient = Patient {
+        active: Some(Box::new(FHIRBoolean {
+            value: Some(true),
+            ..Default::default()
+        })),
+        ..Default::default()
+    };
+    for (expression, expected) in [
+        ("Patient.active is Boolean", "true"),
+        ("Patient.active is System.Boolean", "true"),
+        ("Patient.active.is(FHIR.boolean)", "true"),
+        ("Patient.active.is(FHIR.string)", "false"),
+    ] {
+        let result = evaluate_on(expression, vec![&patient]).await;
+        assert_eq!(result, [expected], "{expression}");
+    }
 }
 
 /// <https://hl7.org/fhirpath/N1/#allcriteria-expression-boolean>
@@ -251,12 +299,94 @@ async fn math() {
     assert_errors("(1 | 2).abs()").await;
 }
 
+/// <https://hl7.org/fhirpath/N1/#time-valued-quantities>
+#[tokio::test]
+async fn time_valued_quantities() {
+    for expression in [
+        "7 days = 1 week",
+        "7 days = 1 'wk'",
+        "6 days < 1 week",
+        "8 days > 1 week",
+        "1 year ~ 1 'a'",
+        "1 month ~ 1 'mo'",
+        "1 hour = 60 minutes",
+        "1 year = 1 year",
+    ] {
+        assert_evaluates(expression, &["true"]).await;
+    }
+    assert_evaluates("1 month !~ 1 'mo'", &["false"]).await;
+    for expression in [
+        "1 year = 1 'a'",
+        "'1 \\'mo\\''.toQuantity() = 1 month",
+        "1 year < 1 'a'",
+    ] {
+        assert_evaluates(expression, &[]).await;
+    }
+}
+
 /// <https://hl7.org/fhirpath/N1/#not-boolean>
 #[tokio::test]
 async fn not() {
     assert_evaluates("true.not()", &["false"]).await;
     assert_evaluates("false.not()", &["true"]).await;
     assert_evaluates("{}.not()", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#and>
+#[tokio::test]
+async fn and() {
+    assert_evaluates("true and true", &["true"]).await;
+    assert_evaluates("true and false", &["false"]).await;
+    assert_evaluates("true and {}", &[]).await;
+    assert_evaluates("false and true", &["false"]).await;
+    assert_evaluates("false and false", &["false"]).await;
+    assert_evaluates("false and {}", &["false"]).await;
+    assert_evaluates("{} and true", &[]).await;
+    assert_evaluates("{} and false", &["false"]).await;
+    assert_evaluates("{} and {}", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#or>
+#[tokio::test]
+async fn or() {
+    assert_evaluates("true or true", &["true"]).await;
+    assert_evaluates("true or false", &["true"]).await;
+    assert_evaluates("true or {}", &["true"]).await;
+    assert_evaluates("false or true", &["true"]).await;
+    assert_evaluates("false or false", &["false"]).await;
+    assert_evaluates("false or {}", &[]).await;
+    assert_evaluates("{} or true", &["true"]).await;
+    assert_evaluates("{} or false", &[]).await;
+    assert_evaluates("{} or {}", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#xor>
+#[tokio::test]
+async fn xor() {
+    assert_evaluates("true xor true", &["false"]).await;
+    assert_evaluates("true xor false", &["true"]).await;
+    assert_evaluates("true xor {}", &[]).await;
+    assert_evaluates("false xor true", &["true"]).await;
+    assert_evaluates("false xor false", &["false"]).await;
+    assert_evaluates("false xor {}", &[]).await;
+    assert_evaluates("{} xor true", &[]).await;
+    assert_evaluates("{} xor false", &[]).await;
+    assert_evaluates("{} xor {}", &[]).await;
+}
+
+/// A single non-Boolean operand counts as true; multiple items are an error.
+#[tokio::test]
+async fn boolean_operator_singleton_evaluation() {
+    assert_evaluates("'a' and true", &["true"]).await;
+    assert_evaluates("false or 1", &["true"]).await;
+    assert_evaluates("'a' xor true", &["false"]).await;
+    for expression in [
+        "(true | false) and true",
+        "false and (1 | 2)",
+        "true or (1 | 2)",
+    ] {
+        assert_errors(expression).await;
+    }
 }
 
 /// <https://hl7.org/fhirpath/N1/#implies>
@@ -366,7 +496,13 @@ async fn string_functions() {
     assert_evaluates("'abc'.toChars()", &["'a'", "'b'", "'c'"]).await;
     assert_evaluates("{}.toChars()", &[]).await;
 
+    assert_evaluates(r"' \t\r\n123456\n\r\t '.trim()", &["'123456'"]).await;
+    assert_evaluates("'  '.trim() = ''", &["true"]).await;
+    assert_evaluates("{}.trim()", &[]).await;
+    assert_evaluates("' 123456 '.trim()", &["' 123456 '"]).await;
+
     assert_errors("('a' | 'b').length()").await;
+    assert_errors("('a' | 'b').trim()").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#string>
@@ -382,8 +518,8 @@ async fn string_escapes() {
 /// <https://hl7.org/fhirpath/N1/#comments>
 #[tokio::test]
 async fn comments() {
-    assert_evaluates("2 + 2 // This is a single-line comment", &["4.0"]).await;
-    assert_evaluates("/*\nThis is a multi-line comment\n*/ 2 + 2", &["4.0"]).await;
+    assert_evaluates("2 + 2 // This is a single-line comment", &["4"]).await;
+    assert_evaluates("/*\nThis is a multi-line comment\n*/ 2 + 2", &["4"]).await;
     assert_evaluates("'a//b' /* not in strings */", &["'a//b'"]).await;
 }
 
@@ -542,7 +678,7 @@ async fn temporal_literals() {
     assert_evaluates("@2020-01-01", &["'2020-01-01'"]).await;
     assert_evaluates("@2020-01-01T", &["'2020-01-01'"]).await;
     assert_evaluates("@2020-01-01T12:00:00Z", &["'2020-01-01T12:00:00+00:00'"]).await;
-    assert_evaluates("@2020-01-01T12:00:00", &["'2020-01-01T12:00:00+00:00'"]).await;
+    assert_evaluates("@2020-01-01T12:00:00", &["'2020-01-01T12:00:00'"]).await;
     assert_evaluates(
         "@2020-01-01T12:00:00+05:00",
         &["'2020-01-01T07:00:00+00:00'"],
@@ -762,14 +898,25 @@ async fn date_time_arithmetic() {
     assert_evaluates("@T10:00 + 1 hour", &["'11:00'"]).await;
     assert_evaluates("@T23:30:00 + 1 hour", &["'00:30:00'"]).await;
     assert_evaluates("@T10 + 90 minutes", &["'11'"]).await;
-    // Units the value's precision cannot take, or not time units, are empty.
+    // Units the value's precision cannot take are empty.
     assert_evaluates("@2020-01-01 + 1 hour", &[]).await;
     assert_evaluates("@T10:00 + 1 day", &[]).await;
     assert_evaluates("@2014 + 1 day", &[]).await;
-    assert_evaluates("@2020-01-01 + 1 'mg'", &[]).await;
+    // Units of no fixed length, or no time units, are errors.
+    assert_errors("@2020-01-01 + 1 'mg'").await;
+    assert_errors("@1973-12-25 + 1 'mo'").await;
+    assert_errors("@1973-12-25 + 1 'a'").await;
+    assert_errors("@1974-12-25 - 1 'cm'").await;
     assert_evaluates("@2020-01-01 + {}", &[]).await;
-    assert_evaluates("1 + 2", &["3.0"]).await;
-    assert_evaluates("5 - 2", &["3.0"]).await;
+    assert_evaluates("1 + 2", &["3"]).await;
+    assert_evaluates("5 - 2", &["3"]).await;
+    assert_evaluates("2 * 3", &["6"]).await;
+    assert_evaluates("5 - 7", &["-2"]).await;
+    assert_evaluates("2 + 2.0", &["4.0"]).await;
+    assert_evaluates("4 / 2", &["2.0"]).await;
+    assert_evaluates("1 / 0", &[]).await;
+    assert_evaluates("0.0 / 0", &[]).await;
+    assert_evaluates("9223372036854775807 + 1", &[]).await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#functions>
@@ -787,4 +934,25 @@ async fn index_in_iteration_functions() {
     .await;
     // Outside an iteration there is no index.
     assert_evaluates("$index", &[]).await;
+}
+
+/// <https://hl7.org/fhirpath/N1/#quantity>: same-unit quantities compare and
+/// negate; different units are empty for `=` and false for `~`.
+#[tokio::test]
+async fn same_unit_quantities() {
+    assert_evaluates("1 'mg' = 1 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 2 'mg'", &["false"]).await;
+    assert_evaluates("1 'mg' != 2 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 1 'g'", &[]).await;
+    assert_evaluates("1 'mg' ~ 1 'g'", &["false"]).await;
+    assert_evaluates("1 'mg' ~ 1 'mg'", &["true"]).await;
+    assert_evaluates("1 'mg' = 1 'MG'", &[]).await;
+    assert_evaluates("1 'mg' < 2 'mg'", &["true"]).await;
+    assert_evaluates("2 'mg' <= 2 'mg'", &["true"]).await;
+    assert_evaluates("2 'mg' > 2 'mg'", &["false"]).await;
+    assert_evaluates("2 'mg' >= 3 'mg'", &["false"]).await;
+    assert_evaluates("1 'mg' < 2 'g'", &[]).await;
+    assert_evaluates("(-5.5 'mg').abs() = 5.5 'mg'", &["true"]).await;
+    assert_evaluates("-(-5.5 'mg') = 5.5 'mg'", &["true"]).await;
+    assert_evaluates("+5.5 'mg' = 5.5 'mg'", &["true"]).await;
 }

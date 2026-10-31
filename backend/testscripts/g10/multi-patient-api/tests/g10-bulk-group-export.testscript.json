@@ -1,0 +1,126 @@
+{
+    "id": "g10-bulk-group-export",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-group-export",
+    "name": "g10 Bulk Group Export",
+    "title": "8.2.04 and 8.2.05 Group export kick-off and status",
+    "status": "active",
+    "description": "g10 8.2.04 / 7.2.04 (SH-PAT-5, DAT-PAT-10) and 8.2.05 / 7.2.05 (DAT-PAT-13). GET Group/[id]/$export with Prefer: respond-async answers 202 with a Content-Location status URL; polling it answers 202 until the export completes, then 200 with an application/json manifest. The manifest's fields (8.2.06) and the NDJSON files (8.3) are not FHIR resources, which a TestScript cannot inspect.",
+    "resourceType": "TestScript",
+    "variable": [
+        {
+            "name": "statusUrl",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-kick-off",
+            "name": "Kick-off",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export",
+                        "responseId": "kickoff",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A status URL is returned",
+                        "headerField": "Content-Location",
+                        "operator": "notEmpty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The status URL is absolute",
+                        "headerField": "Content-Location",
+                        "operator": "contains",
+                        "value": "://",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-status",
+            "name": "Status poll until complete",
+            "action": [
+                {
+                    "operation": {
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-poll-while-response-code",
+                                "valueString": "202"
+                            }
+                        ],
+                        "method": "get",
+                        "url": "${statusUrl}",
+                        "responseId": "status",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export completes",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The manifest is JSON",
+                        "contentType": "application/json",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-release",
+            "name": "The completed export is released",
+            "action": [
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The DELETE is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

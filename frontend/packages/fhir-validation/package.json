@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/fhir-validation",
-  "version": "0.126.35",
+  "version": "0.127.8",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
   },
   "files": [
     "lib/**",
-    "readme.md"
+    "README.md"
   ],
   "exports": {
     ".": "./lib/index.js",

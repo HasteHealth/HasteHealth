@@ -1,0 +1,163 @@
+{
+    "id": "access-control-patient-scope-subset-granted",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scope-subset-granted",
+    "name": "Access Control Patient Scope Subset Granted",
+    "title": "Patient scope subset: granted requests",
+    "status": "active",
+    "description": "Run as acps-patient through an app allowed openid fhirUser offline_access launch/patient patient/*.rs, signed in with patient/Medication.rs patient/Patient.r patient/Observation.s. Each requested scope is within the allowed ones, so the sign-in succeeded and the requested access works.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acps-patient",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Parker"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acps-medication",
+            "resourceType": "Medication",
+            "code": {
+                "text": "Ibuprofen"
+            }
+        },
+        {
+            "id": "acps-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acps-patient"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acps-patient",
+            "resource": {
+                "reference": "#acps-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-medication",
+            "resource": {
+                "reference": "#acps-medication"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acps-observation",
+            "resource": {
+                "reference": "#acps-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-wildcard-type",
+            "name": "patient/*.rs allows requesting patient/Medication.rs",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Medication",
+                        "targetId": "fixture-acps-medication",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Medication is read",
+                        "expression": "Medication.id = 'acps-medication'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Medication",
+                        "params": "_id=acps-medication",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Medication is found",
+                        "expression": "Bundle.entry.resource.ofType(Medication).where(id = 'acps-medication').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-permission-subset-read",
+            "name": "patient/*.rs allows requesting patient/Patient.r",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acps-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient reads their own record",
+                        "expression": "Patient.id = 'acps-patient'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-permission-subset-search",
+            "name": "patient/*.rs allows requesting patient/Observation.s",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-patient-scope-subset",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is found",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acps-observation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

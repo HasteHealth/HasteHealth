@@ -1,0 +1,8 @@
+{
+    "description": "g10 Standalone Patient App, limited access: the same patient signing in to an app granted only Patient, Condition and Observation.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-limited@example.org",
+    "clientId": "g10-limited-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "launch/patient openid fhirUser offline_access patient/Patient.rs patient/Condition.rs patient/Observation.rs"
+}

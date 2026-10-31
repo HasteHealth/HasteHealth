@@ -1,0 +1,179 @@
+{
+    "id": "g10-1.7.01-granted-types",
+    "url": "https://haste.health/fhir/TestScript/g10-1.7.01-granted-types",
+    "name": "g10-1.7.01-granted-types",
+    "title": "1.7.01 Every US Core type is reachable",
+    "status": "active",
+    "description": "g10 1.7.01 (AUT-PAT-10, AUT-PAT-12, AUT-PAT-33, AUT-PAT-34). Inferno checks that the granted scope string covers every US Core type, which a TestScript cannot read. This checks the behaviour instead: the types the 1.7 searches do not reach (reference data and the remaining patient compartment types) can be searched with the patient's token.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.7.01 Every US Core type is reachable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Organization",
+                        "params": "",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Organization search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Practitioner",
+                        "params": "",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Practitioner search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "PractitionerRole",
+                        "params": "",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A PractitionerRole search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Location",
+                        "params": "",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Location search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Medication",
+                        "params": "",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Medication search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Provenance",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Provenance search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Specimen",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Specimen search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RelatedPerson",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A RelatedPerson search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "QuestionnaireResponse",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A QuestionnaireResponse search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

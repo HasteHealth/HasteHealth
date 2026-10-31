@@ -13,6 +13,7 @@ use elasticsearch::{
         request::Body,
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
+    params::Refresh,
 };
 use haste_fhir_client::request::SearchRequest;
 use haste_fhir_model::r4::generated::{
@@ -337,11 +338,15 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     /// bulk items independently, so one bad document does not prevent the
     /// rest of the batch from succeeding - only a request-level failure
     /// (unreachable cluster, malformed response) surfaces as `Err` here.
+    ///
+    /// `searchable` refreshes the index before answering, so the documents are
+    /// visible to the next search.
     async fn send_bulk_operations(
         &self,
         search_index_name: &'static str,
         bulk_lines: Vec<Bytes>,
         sent_resources: Vec<IndexResource>,
+        searchable: bool,
     ) -> Result<IndexOutcome, OperationOutcomeError> {
         if bulk_lines.is_empty() {
             return Ok(IndexOutcome {
@@ -350,13 +355,16 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
             });
         }
 
-        let res = self
+        let request = self
             .client
             .bulk(BulkParts::Index(search_index_name))
-            .body(bulk_lines)
-            .send()
-            .await
-            .map_err(SearchError::from)?;
+            .body(bulk_lines);
+        let request = if searchable {
+            request.refresh(Refresh::True)
+        } else {
+            request
+        };
+        let res = request.send().await.map_err(SearchError::from)?;
 
         let response_body = res.json::<BulkResponse>().await.map_err(|_e| {
             OperationOutcomeError::fatal(
@@ -366,6 +374,58 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         })?;
 
         process_bulk_response(&response_body, sent_resources)
+    }
+
+    /// Indexes `resources` with `_bulk` requests of about
+    /// `TARGET_BULK_BATCH_BYTES` each. `searchable` as in
+    /// [`Self::send_bulk_operations`].
+    async fn index_part(
+        &self,
+        resources: Vec<IndexResource>,
+        searchable: bool,
+    ) -> Result<IndexOutcome, OperationOutcomeError> {
+        let resources_total = resources.len();
+        let search_index_name = get_index_name();
+
+        tracing::trace!(
+            "Indexing {} resources into index: '{}'",
+            resources_total,
+            search_index_name
+        );
+
+        let tasks = self.spawn_index_tasks(resources, search_index_name);
+        let CollectedOperations {
+            bulk_lines,
+            sent_resources,
+            mut failed,
+        } = self.collect_bulk_operations(tasks).await?;
+
+        let built_count = bulk_lines.len();
+        let batches = batch_by_byte_size(bulk_lines, sent_resources, TARGET_BULK_BATCH_BYTES);
+
+        tracing::trace!(
+            "Bulk indexing {} resources into index '{}' across {} byte-sized batch(es)",
+            built_count,
+            search_index_name,
+            batches.len()
+        );
+
+        let mut outcome = IndexOutcome {
+            succeeded: 0,
+            failed: Vec::new(),
+        };
+
+        for (batch_lines, batch_resources) in batches {
+            let batch_outcome = self
+                .send_bulk_operations(search_index_name, batch_lines, batch_resources, searchable)
+                .await?;
+            outcome.succeeded += batch_outcome.succeeded;
+            outcome.failed.extend(batch_outcome.failed);
+        }
+
+        outcome.failed.append(&mut failed);
+
+        Ok(outcome)
     }
 
     fn spawn_index_tasks(
@@ -693,48 +753,12 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
         _fhir_version: SupportedFHIRVersions,
         resources: Vec<IndexResource>,
     ) -> Result<IndexOutcome, OperationOutcomeError> {
-        let resources_total = resources.len();
-        let search_index_name = get_index_name();
-
-        tracing::trace!(
-            "Indexing {} resources into index: '{}'",
-            resources_total,
-            search_index_name
-        );
-
-        let tasks = self.spawn_index_tasks(resources, search_index_name);
-        let CollectedOperations {
-            bulk_lines,
-            sent_resources,
-            mut failed,
-        } = self.collect_bulk_operations(tasks).await?;
-
-        let built_count = bulk_lines.len();
-        let batches = batch_by_byte_size(bulk_lines, sent_resources, TARGET_BULK_BATCH_BYTES);
-
-        tracing::trace!(
-            "Bulk indexing {} resources into index '{}' across {} byte-sized batch(es)",
-            built_count,
-            search_index_name,
-            batches.len()
-        );
-
-        let mut outcome = IndexOutcome {
-            succeeded: 0,
-            failed: Vec::new(),
-        };
-
-        for (batch_lines, batch_resources) in batches {
-            let batch_outcome = self
-                .send_bulk_operations(search_index_name, batch_lines, batch_resources)
-                .await?;
-            outcome.succeeded += batch_outcome.succeeded;
-            outcome.failed.extend(batch_outcome.failed);
-        }
-
-        outcome.failed.append(&mut failed);
-
-        Ok(outcome)
+        crate::project_parameters::index_search_parameters_first(
+            self.parameter_resolver.as_ref(),
+            resources,
+            |resources, searchable| self.index_part(resources, searchable),
+        )
+        .await
     }
 
     async fn migrate(

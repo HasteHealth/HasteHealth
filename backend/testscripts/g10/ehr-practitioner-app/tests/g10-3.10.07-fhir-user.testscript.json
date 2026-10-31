@@ -1,0 +1,130 @@
+{
+    "id": "g10-3.10.07-fhir-user",
+    "url": "https://haste.health/fhir/TestScript/g10-3.10.07-fhir-user",
+    "name": "g10-3.10.07-fhir-user",
+    "title": "3.10.07 and 3.10.08 The fhirUser can be read, with CORS",
+    "status": "active",
+    "description": "g10 3.10.07 / 3.10.08 / 3.9.07 (AUT-PAT-23). The practitioner the id_token's fhirUser claim names (the user's membership link) can be read, including from another origin.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Practitioner",
+            "id": "g10-practitioner-1",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://hl7.org/fhir/sid/us-npi",
+                    "value": "9941339100"
+                },
+                {
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-jurisdiction",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "https://www.usps.com/",
+                                        "code": "MA"
+                                    }
+                                ],
+                                "text": "Massachusetts"
+                            }
+                        }
+                    ],
+                    "system": "http://www.acme.org/practitioners",
+                    "value": "25456"
+                }
+            ],
+            "name": [
+                {
+                    "family": "Bone",
+                    "given": [
+                        "Ronald"
+                    ],
+                    "prefix": [
+                        "Dr"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "use": "work",
+                    "line": [
+                        "1003 HEALTHCARE DR"
+                    ],
+                    "city": "AMHERST",
+                    "state": "MA",
+                    "postalCode": "01002"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-practitioner-1",
+            "resource": {
+                "reference": "#g10-practitioner-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01",
+            "name": "3.10.07 and 3.10.08 The fhirUser can be read, with CORS",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-g10-practitioner-1",
+                        "encodeRequestUrl": false,
+                        "requestHeader": [
+                            {
+                                "field": "Origin",
+                                "value": "https://inferno.healthit.gov"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Practitioner is returned",
+                        "resource": "Practitioner",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The origin is allowed",
+                        "headerField": "Access-Control-Allow-Origin",
+                        "operator": "in",
+                        "value": "*,https://inferno.healthit.gov",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

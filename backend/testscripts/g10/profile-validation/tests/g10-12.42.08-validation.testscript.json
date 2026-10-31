@@ -1,0 +1,167 @@
+{
+    "id": "g10-12.42.08-validation",
+    "url": "https://haste.health/fhir/TestScript/g10-12.42.08-validation",
+    "name": "g10-12.42.08-validation",
+    "title": "12.42.08 ServiceRequest conforms to US Core ServiceRequest Profile",
+    "status": "active",
+    "description": "g10 12.42.08 (DAT-PAT-2). Inferno validates the ServiceRequest resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's ServiceRequest/g10-bmp that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "ServiceRequest",
+            "id": "g10-val-12-42-08",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest"
+                ],
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "status": "active",
+            "intent": "order",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "version": "http://snomed.info/sct/731000124108",
+                            "code": "108252007",
+                            "display": "Laboratory procedure (procedure)"
+                        }
+                    ],
+                    "text": "Laboratory Order"
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "24321-2",
+                        "display": "Basic metabolic 2000 panel - Serum or Plasma"
+                    }
+                ],
+                "text": "Basic Metabolic Panel (BMP)"
+            },
+            "subject": {
+                "reference": "Patient/g10-validation-patient",
+                "display": "Amy Shaw"
+            },
+            "encounter": {
+                "reference": "Encounter/g10-example-1",
+                "display": "Office Visit"
+            },
+            "authoredOn": "2024-10-13T10:59:38-08:00",
+            "requester": {
+                "reference": "Practitioner/g10-practitioner-1"
+            },
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                            "code": "Z00.00",
+                            "display": "Encounter for general adult medical examination without abnormal findings"
+                        }
+                    ],
+                    "text": "General adult medical examination"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-val-12-42-08",
+            "resource": {
+                "reference": "#g10-val-12-42-08"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-profile-loaded",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "StructureDefinition",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server has the profile",
+                        "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-validate",
+            "name": "PUT ServiceRequest/g10-val-12-42-08 with meta.profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ServiceRequest",
+                        "targetId": "fixture-g10-val-12-42-08",
+                        "sourceId": "fixture-g10-val-12-42-08",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The resource is accepted",
+                        "responseCode": "200,201",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A ServiceRequest is returned",
+                        "resource": "ServiceRequest",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "resource": "ServiceRequest",
+                    "targetId": "fixture-g10-val-12-42-08",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

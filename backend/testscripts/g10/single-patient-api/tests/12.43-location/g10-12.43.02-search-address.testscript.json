@@ -1,0 +1,102 @@
+{
+    "id": "g10-12.43.02-search-address",
+    "url": "https://haste.health/fhir/TestScript/g10-12.43.02-search-address",
+    "name": "g10-12.43.02-search-address",
+    "title": "12.43.02 Server returns valid results for Location search by address",
+    "status": "active",
+    "description": "g10 12.43.02 (SH-PAT-2; US Core 6.1.0: group None). Server returns valid results for Location search by address. US Core SHALL search. Every result must match every parameter, and the record's Location/g10-hl7east must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-location-address-amherst",
+            "name": "GET Location?address=AMHERST",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Location",
+                        "params": "address=AMHERST",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location/g10-hl7east is returned",
+                        "expression": "Bundle.entry.resource.ofType(Location).where(id = 'g10-hl7east').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Location returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Location).all((address.where(text.where($this.lower().startsWith('amherst')).exists() or line.where($this.lower().startsWith('amherst')).exists() or city.where($this.lower().startsWith('amherst')).exists() or district.where($this.lower().startsWith('amherst')).exists() or state.where($this.lower().startsWith('amherst')).exists() or postalCode.where($this.lower().startsWith('amherst')).exists() or country.where($this.lower().startsWith('amherst')).exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-post-location-search-address-amherst",
+            "name": "POST Location/_search?address=AMHERST",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "Location/_search?address=AMHERST",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
