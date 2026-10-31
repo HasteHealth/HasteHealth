@@ -40,6 +40,8 @@ overrides:
   multer@>=2.0.0 <2.5.0: ^2.5.0
   undici@>=7.18.0 <7.30.1: ^7.30.1
   fast-uri@>=3.0.0 <3.1.9: ^3.1.9
+  follow-redirects@>=1.16.0 <=1.16.1: ^1.16.2
+  joi@>=17.1.1 <17.13.9: ^17.13.9
 allowBuilds:
   '@swc/core': false
   core-js: true
@@ -96,10 +98,11 @@ minimumReleaseAgeExclude:
   - webpack-dev-middleware@7.4.6
   - browserslist@4.28.7
   - qs@6.15.4 || 6.16.0
-  - joi@17.13.5 || 17.13.6
+  - joi@17.13.5 || 17.13.6 || 17.13.9
   - colord@2.9.4
   - baseline-browser-mapping@2.11.0
   - sharp@0.35.4
   - multer@2.3.0 || 2.4.0 || 2.5.0
   - handlebars@4.7.10
   - storybook@10.6.2
+  - follow-redirects@1.16.2
