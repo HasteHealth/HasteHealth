@@ -38,6 +38,12 @@ pub enum PackageError {
 
     #[error(
         code = "too-costly",
+        diagnostic = "The package unpacks to more than {arg0} bytes."
+    )]
+    TooLargeUnpacked(u64),
+
+    #[error(
+        code = "too-costly",
         diagnostic = "The package has more than {arg0} files."
     )]
     TooManyFiles(usize),

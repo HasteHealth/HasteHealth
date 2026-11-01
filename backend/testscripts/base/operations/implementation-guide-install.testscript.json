@@ -42,6 +42,220 @@
   },
   {
    "resourceType": "Parameters",
+   "id": "install-too-many",
+   "parameter": [
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlprI1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDUJ77DsAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia11KVeFfPghhq4dL4zSSo/dqQ7Dbu5jXuylzRsjDy8BAAAAAAAAAAAAAAAAAFjIG1aMEx0AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS31Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN1ohuQAAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlprK1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDX5i7FAAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdjBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS31Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN3LPRk0AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlrrUq4K+fBDDF07XhillR67Ux2G/dzHvDhImzdGVi8BAAAAAAAAAAAAAAAAAFjIG2Y4uWsAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS31Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN2qVE3YAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDEC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS31Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTNy6+E8sAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDQC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS31Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTNyITudYAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NuwoCMRCF4TzKklpjImELH8RGLIJEN+pe2EQb8d2NWbCwlm38v+YMZwZmcIeLO/nVMKU6x74TP6az2tqS2XdqY+rPXPpcrK2otJjBLSY35vfiPz1k51ovN5VsXExeJR+TuoY2pKXRclHJux9j6Lv3hVFale7YhHE79TEvdtLmjZH7pwAAAAAAAAAAAAAAAAAAzOQFyDDtLwAoAAA="
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlobI1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDcSdRzIAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia1NKVeFfPghhq4dL4zSSo/dqQ7Dbu5jXuylzRsjDy8BAAAAAAAAAAAAAAAAAFjIG9BquBQAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3NRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN9zHEgkAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlobK1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDfiER1kAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdjBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3NRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN/Qp7UQAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlqbUq4K+fBDDF07XhillR67Ux2G/dzHvDhImzdGVi8BAAAAAAAAAAAAAAAAAFjIG+DeEmIAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3NRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN+xzuH8AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDEC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3NRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN6hYuMIAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDQC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3NRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN6T1Et8AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiHYJEG7U/NNFFvHdjCw7O0sX3Wb7Ddw6cwR0u7uQ3w5zqHPtO/JjOKmunzL5TG1N95qnPRWlFocUCbjG5Mb8X/+khO9d6uS1k42LyKvmY1DW0Ia1LLVeFvPsxhr57Xxil1dQdmzDu5j7mxV7avDGyfgoAAAAAAAAAAAAAAAAAwEJeQhsRNQAoAAA="
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia1LI1eFfPghhq4dL4zSSo/dqQ7Dbu5jXuylzRsjDy8BAAAAAAAAAAAAAAAAAFjIG062uygAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia3LUq4K+fBDDF07XhillR67Ux2G3dzHvNhLmzdGHl4CAAAAAAAAAAAAAAAAALCQN1pBRA4AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawxqaGDD+IiDkGijdpWmugivrtpCw7O0sX/W87l3Av35g4Xd/Kr25TqHLtW/JjOKmvHzL5TG1N95rHPRWlFocUM7jG5Pr8X/+kpW9d4uSlk7WLyKvmY1DU0IS3LtVwU8uH7GLp2uDBKKz10xzr026mPebGTNm+M3L8EAAAAAAAAAAAAAAAAAGAmb1bs7hMAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia1LK1eFfPghhq4dL4zSSo/dqQ7Dbu5jXuylzRsjDy8BAAAAAAAAAAAAAAAAAFjIG3Kvu0MAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKbGDF+IiDkGiRu0PTXQR7920BQdn6eL7LN/hOwdO5w5Xd/Krbkp1iW0jfkxnlbVjZt+pjak+89jnorSi0GIG95hcn9+L//SUjau93BTy7GLyKvmY1C3UIS3LtVwU8uH7GNpmuDBKKz10x3Pot1Mf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBM3n4CEV4AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia3LSq4K+fBDDF07XhillR67Ux2G3dzHvNhLmzdGHl4CAAAAAAAAAAAAAAAAALCQN2r17ngAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGCF+IiDkGiRu0PTXQR7920BQdn6eL7LN/hOwdO5w5Xd/Krbkp1iW0jfkxnlbVjZt+pjak+89jnorSi0GIG95hcn9+L//SUjau93BTy7GLyKvmY1C3UIS3LtVwU8uH7GNpmuDBKKz10x3Pot1Mf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBM3mZYRGUAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGIF+IiDkGiRu0PTXQR7920BQdn6eL7LN/hOwdO5w5Xd/Krbkp1iW0jfkxnlbVjZt+pjak+89jnorSi0GIG95hcn9+L//SUjau93BTy7GLyKvmY1C3UIS3LtVwU8uH7GNpmuDBKKz10x3Pot1Mf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBM3iJzRNgAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGgF+IiDkGiRu0PTXQR7920BQdn6eL7LN/hOwdO5w5Xd/Krbkp1iW0jfkxnlbVjZt+pjak+89jnorSi0GIG95hcn9+L//SUjau93BTy7GLyKvmY1C3UIS3LtVwU8uH7GNpmuDBKKz10x3Pot1Mf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBM3i7e7sUAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3EpDkGijdofmugi3ruxBQdn6eL7LN/hOwdO7w4Xd/Krfkp1jl0rfkxnpbVjZt+pjSk/89jnYm1FocUMbjG5Ib8X/+khW9d4uS1k7WLyKvmY1DU0IS03Wi4KefdDDF37vjBKq7E71mHYTX3Mi0ravDFy/xQAAAAAAAAAAAAAAAAAgJm8AMT9ujwAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS03Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN8hQECEAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawxqaGDD+IiDkGijdpWmugivrtpCw7O0sX/W87l3Av35g4Xd/Kr25TqHLtW/JjOKmvHzL5TG1N95rHPRWlFocUM7jG5Pr8X/+kpW9d4uSlk7WLyKvmY1DU0IS3XpVwU8uH7GLp2uDBKKz10xzr026mPebGTNm+M3L8EAAAAAAAAAAAAAAAAAGAmb9yn7wcAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawxsaGDD+IiDkGijdpWmugivrtpCw7O0sX/W87l3Av35g4Xd/Kr25TqHLtW/JjOKmvHzL5TG1N95rHPxdqKQosZ3GNyfX4v/tNTtq7xclPI2sXkVfIxqWtoQlqWpVwU8uH7GLp2uDBKKz10xzr026mPebGTNm+M3L8EAAAAAAAAAAAAAAAAAGAmb9AKRRoAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS03Vi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN/RJEEoAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawx0djBB3ERhyDRRm0tTXQR3920BQdn6eL/Ledy7oXbusPFnfyiHVOd460RP6az0tohs+/UxpSfeehzsbSi0GIC95hcl9+L//SUjau93BSycjF5lXxM6hrqkOartZwV8uG7GG5Nf2GUVrrvjlXotmMf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBE3vjkulcAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS03pVwU8uH7GNpmuDBKKz10pyr0u6mPebGXNm+MPLwEAAAAAAAAAAAAAAAAAGAmb+wTRXEAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawx0VDBB3ERhyDRRm0tTXQR3920BQdn6eL/Ledy7oXbusPFnfyiHVOd460RP6az0tohs+/UxpSfeehzsbSi0GIC95hcl9+L//SUjau93BSycjF5lXxM6hrqkOartZwV8uG7GG5Nf2GUVrrvjlXotmMf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBE3uC+72wAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawx0VDEB3ERhyDRRm0tTXQR3920BQdn6eL/Ledy7oXbusPFnfyiHVOd460RP6az0tohs+/UxpSfeehzsbSi0GIC95hcl9+L//SUjau93BSycjF5lXxM6hrqkOartZwV8uG7GG5Nf2GUVrrvjlXotmMf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBE3qSV79EAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NsQrCMBSF4TxKyawx0VDQB3ERhyDRRm0tTXQR3920BQdn6eL/Ledy7oXbusPFnfyiHVOd460RP6az0tohs+/UxpSfeehzsbSi0GIC95hcl9+L//SUjau93BSycjF5lXxM6hrqkOartZwV8uG7GG5Nf2GUVrrvjlXotmMf82Inbd4YuX8JAAAAAAAAAAAAAAAAAMBE3qg4RcwAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NuwoCMRCF4TzKklpjImELH8RGLIJEN+pe2EQb8d2NWbCwlm38v+YMZwZmcIeLO/nVMKU6x74TP6az2tqS2XdqY+rPXPpcrK2otJjBLSY35vfiPz1k51ovN5VsXExeJR+TuoY2pKXVclHJux9j6Lv3hVFale7YhHE79TEvdtLmjZH7pwAAAAAAAAAAAAAAAAAAzOQFVkzpAAAoAAA="
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlpbI1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDVrhQx0AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxKaGDF+IiDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOKmunzL5TG1N95qnPRWlFocUC7jG5Ib8X/+kpW9d4uS1k7WLyKvmY1C00Ia1tKVeFfPghhq4dL4zSSo/dqQ7Dbu5jXuylzRsjDy8BAAAAAAAAAAAAAAAAAFjIG04WvDsAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawx0dDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3tRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN0K7FiYAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlpbK1eFfPghhq4dL4zSSo/dqQ7Dfu5jXhykzRsjq5cAAAAAAAAAAAAAAAAAACzkDWb4Q3YAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdjBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3tRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN2pV6WsAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdDBC3GRDkGijdofmugi3rtpCw7O0sX3Wb7Ddw6c3h2v7uw3/ZzqErtW/JjOSmunzL5TG1N+5qnPxdaKQosF3GNyQ34v/tNTtq7xclfI2sXkVfIxqVtoQlrbUq4K+fBDDF07XhillR67Ux2G/dzHvDhImzdGVi8BAAAAAAAAAAAAAAAAAFjIG36iFk0AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3tRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN3IPvFAAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDEC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3tRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTNzYkvO0AKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkVDQC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS3tRi4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTNzqJFvAAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdjBC3EpDkGijdofmugi3ruxBQdn6eL7LN/hOwdO7w4Xd/Krfkp1jl0rfkxnpbVjZt+pjSk/89jnYm1FocUMbjG5Ib8X/+khW9d4uS1k7WLyKvmY1DU0IS03Wi4KefdDDF37vjBKq7E71mHYTX3Mi0ravDFy/xQAAAAAAAAAAAAAAAAAgJm8ANCqQgkAKAAA"
+    },
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAAAAAAAC/+3NvQrCMBSG4VxKyawxkdjBC3ERhyDRRu0PTXQR7920BQdn6eL7LN/hOwdO545Xd/arbkp1iW0jfkxnpbVjZt+pjSk/89jnYm1FocUM7jG5Pr8X/+kpG1d7uS1k5WLyKvmY1C3UIS03Ri4K+fB9DG0zXBillR66UxX63dTHvNhLmzdGHl4CAAAAAAAAAAAAAAAAADCTN9wH6BQAKAAA"
+    },
+    {
+     "name": "dependencies",
+     "valueBoolean": false
+    }
+   ]
+  },
+  {
+   "resourceType": "Parameters",
    "id": "uninstall",
    "parameter": [
     {
@@ -169,6 +383,14 @@
    "id": "fixture-install-nothing",
    "resource": {
     "reference": "#install-nothing"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-install-too-many",
+   "resource": {
+    "reference": "#install-too-many"
    },
    "autocreate": false,
    "autodelete": false
@@ -700,6 +922,61 @@
      "assert": {
       "label": "Uninstalling another version is 409",
       "responseCode": "409",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "limits",
+   "name": "An install past the per-install limits is refused",
+   "description": "One install may fetch or upload at most 50 packages (packages.max_install_packages). Past that the whole install is refused before anything is written.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Upload 51 packages in one install.",
+      "url": "install",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-install-too-many",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "An install of too many packages is 422",
+      "responseCode": "422",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The outcome names the limit",
+      "expression": "OperationOutcome.issue.where(code = 'too-costly' and diagnostics.contains('more than 50 packages')).exists()",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The first upload's record.",
+      "resource": "ImplementationGuide",
+      "params": "_id=haste.test.limit-01",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Nothing was installed",
+      "expression": "Bundle.entry.exists().not()",
+      "value": "true",
       "warningOnly": false
      }
     }

@@ -104,17 +104,24 @@ pub struct PackagesConfig {
     /// fetching, so packages can only be uploaded.
     pub registry_url: String,
     /// Packages not installed when another package depends on them: large
-    /// terminology packages, mostly, that would add thousands of resources to
-    /// every project that installs an IG. Naming one in `$install` still
+    /// terminology and cross-version packages, that would add thousands of
+    /// resources to every project that installs an IG. Naming one in `$install` still
     /// installs it. The FHIR core packages are always skipped, as the server
     /// has them built in.
     pub skip_dependencies: Vec<String>,
-    /// The largest package tarball fetched or uploaded, in bytes.
+    /// The largest package tarball fetched or uploaded, compressed, in bytes.
     pub max_package_bytes: u64,
-    /// The most one package may expand to, in bytes.
-    pub max_uncompressed_bytes: u64,
     /// The most files one package may hold.
     pub max_files: usize,
+    /// The most packages one install may fetch or upload, dependencies of
+    /// dependencies included. A fetch that fails still counts.
+    pub max_install_packages: usize,
+    /// The most the packages of one install may unpack to together, uploads
+    /// included, in bytes. It is enforced while unpacking. An install's peak
+    /// memory is about four times what its packages unpack to.
+    pub max_install_bytes: u64,
+    /// Installs this server runs at once; one more is refused with 429.
+    pub max_concurrent_installs: usize,
 }
 
 impl Default for PackagesConfig {
@@ -127,12 +134,18 @@ impl Default for PackagesConfig {
                 "hl7.terminology.r5",
                 "us.nlm.vsac",
                 "us.cdc.phinvads",
+                "hl7.fhir.uv.xver-r5.r4",
+                "hl7.fhir.uv.xver-r4b.r4",
+                "hl7.fhir.uv.xver-r3.r4",
+                "hl7.fhir.uv.xver-r2.r4",
             ]
             .map(str::to_string)
             .to_vec(),
-            max_package_bytes: 64 * 1024 * 1024,
-            max_uncompressed_bytes: 256 * 1024 * 1024,
+            max_package_bytes: 20 * 1024 * 1024,
             max_files: 20_000,
+            max_install_packages: 50,
+            max_install_bytes: 200 * 1024 * 1024,
+            max_concurrent_installs: 2,
         }
     }
 }

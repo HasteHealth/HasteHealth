@@ -90,7 +90,7 @@ The response is a `Parameters` with one `package` entry for every package consid
         { "name": "name", "valueString": "hl7.terminology.r4" },
         { "name": "version", "valueString": "5.0.0" },
         { "name": "status", "valueCode": "skipped" },
-        { "name": "reason", "valueString": "Not installed as a dependency, as it is a large terminology package. Install it by name to include it." }
+        { "name": "reason", "valueString": "Not installed as a dependency, as it is one of the large packages this server skips (packages.skip_dependencies). Install it by name to include it." }
       ]
     }
   ]
@@ -129,9 +129,11 @@ With `dependencies` on (the default), the packages a package depends on are inst
 Some dependencies are skipped:
 
 - **The FHIR core packages** (`hl7.fhir.r4.core` and its `.examples`, `.expansions` and `.elements`) are built into the server.
-- **Large terminology packages** (`hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`) hold thousands of resources most projects never use. Name one directly to install it. The list is configurable (below).
+- **Large terminology and cross-version packages** hold thousands of resources most projects never use: `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`, and the cross-version extensions `hl7.fhir.uv.xver-r5.r4`, `hl7.fhir.uv.xver-r4b.r4`, `hl7.fhir.uv.xver-r3.r4` and `hl7.fhir.uv.xver-r2.r4` (US Core 9.0.0 and SDC 4.0.0 depend on the 150 MB `xver-r5.r4`). Name one directly to install it: `hl7.terminology.r4` and the cross-version packages fit the default limits, while `us.nlm.vsac` is larger and needs them raised (below). The list is configurable.
 - **A dependency that is already installed**, in any version, is left as it is. Name it directly to upgrade it.
 - **A dependency that cannot be fetched** is skipped with the reason; the packages that depend on it still install.
+
+Each package name is considered once, so a cycle of dependencies ends. An install as a whole is bounded too: by default it fetches or uploads at most 50 packages, and they unpack to at most 200 MiB together, dependencies of dependencies included. The largest common IGs fit with room to spare: Da Vinci PDex 2.2.0 with its dependencies is 16 packages and 114 MB, QI-Core 7.0.2 is 89 MB, US Core 9.0.0 is 72 MB. Past either limit the whole install is refused with `422` before anything is written; install fewer packages at once, or turn `dependencies` off.
 
 ## Upgrading and uninstalling
 
@@ -145,21 +147,25 @@ Haste Health serves FHIR R4, so it installs packages for R4: those whose `packag
 
 ## Limits and configuration
 
-Packages are fetched from the registry by the server. The `[packages]` section of the [configuration](/docs/reference/configuration#packages) sets where from, what is skipped and how large a package may be:
+Packages are fetched from the registry by the server. The `[packages]` section of the [configuration](/docs/reference/configuration#packages) sets where from, what is skipped and how much one install may take:
 
 | Key | Default | What it does |
 | --- | --- | --- |
 | `packages.registry_url` | `https://packages.fhir.org` | The package registry. Set it to an empty string to turn off fetching, so packages can only be uploaded. |
 | `packages.skip_dependencies` | The five terminology packages above | Packages not installed as dependencies. |
-| `packages.max_package_bytes` | 64 MiB | Largest package download or upload, compressed. |
-| `packages.max_uncompressed_bytes` | 256 MiB | Largest package once unpacked. |
+| `packages.max_package_bytes` | 20 MiB | Largest package download or upload, compressed. |
 | `packages.max_files` | 20000 | Most files in one package. |
+| `packages.max_install_packages` | 50 | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
+| `packages.max_install_bytes` | 200 MiB | Most the packages of one install may unpack to together, uploads included. It is checked while unpacking, so a package past it is never read whole. |
+| `packages.max_concurrent_installs` | 2 | Installs one server runs at once. Another is refused with `429` until one finishes. |
+
+An install holds its packages in memory while it writes them in one transaction; its peak is about four times what they unpack to, so `max_install_bytes` times `max_concurrent_installs` times four bounds what installs can take from the server.
 
 The server fetches from that registry and nowhere else. Callers name packages and never give a URL, including for the dependencies an uploaded package lists. The registry must be an `https` URL, and a redirect is followed only while it stays on the registry's scheme, host and port. A private mirror can take credentials in the URL (`https://user:password@mirror.example.org`); they are never shown in error messages.
 
 An uploaded `.tgz` travels inside the request, base64 encoded (a third larger), so it is also bound by `max_request_body_size` (4 MB by default). Most IGs are well under that (US Core 6.1.0 is 1.6 MB); install larger ones by name, or raise the limit.
 
-Installing writes through the FHIR API as the caller, so it needs permission to write the resource types it installs, and it counts toward the project's limits like any other write.
+Installing writes through the FHIR API as the caller, so it needs permission to write the resource types it installs, and it counts toward the project's limits like any other write. Installing is not available on the Free tier, which allows no SearchParameters; uninstalling is.
 
 **Related Documentation**:
 - **[Profiling & Validation →](/docs/guides/profiling)**

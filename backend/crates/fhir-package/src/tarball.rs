@@ -9,7 +9,8 @@ use std::{
 /// input, and a small gzip can expand to far more than it weighs.
 #[derive(Debug, Clone, Copy)]
 pub struct Limits {
-    /// The most bytes the tarball may expand to, headers included.
+    /// The most bytes the tarball may expand to, headers included. It is
+    /// enforced while unpacking, so a package past it is never read whole.
     pub max_uncompressed_bytes: u64,
     /// The most entries (files, folders) it may hold.
     pub max_files: usize,
@@ -103,10 +104,13 @@ pub fn read(bytes: &[u8], limits: &Limits) -> Result<Package, PackageError> {
     let json_files = match json_files {
         Ok(files) => files,
         Err(_) if bounded.exceeded => {
-            return Err(PackageError::TooLarge(limits.max_uncompressed_bytes));
+            return Err(PackageError::TooLargeUnpacked(
+                limits.max_uncompressed_bytes,
+            ));
         }
         Err(error) => return Err(error),
     };
+    let unpacked_bytes = limits.max_uncompressed_bytes - bounded.remaining;
 
     // The package folder: package.json's, nearest the top.
     let root = json_files
@@ -164,6 +168,7 @@ pub fn read(bytes: &[u8], limits: &Limits) -> Result<Package, PackageError> {
         manifest,
         resources,
         examples,
+        unpacked_bytes,
     })
 }
 

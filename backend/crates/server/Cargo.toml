@@ -100,7 +100,7 @@ sqlx = { workspace = true, features = [
 ] }
 sqlx-postgres = { workspace = true }
 subtle = { version = "2.6.1", default-features = false }
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync"] }
 totp-rs = { version = "5.7.2", default-features = false, features = [
     "qr",
     "gen_secret",

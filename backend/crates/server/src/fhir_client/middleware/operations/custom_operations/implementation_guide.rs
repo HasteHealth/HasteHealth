@@ -13,9 +13,12 @@
 //! in one transaction: access control, plan limits and auditing apply to
 //! each resource, and a failure leaves the project as it was.
 
-use crate::fhir_client::{
-    middleware::{Backend, operations::ServerOperationContext},
-    resolver,
+use crate::{
+    config::PackagesConfig,
+    fhir_client::{
+        middleware::{Backend, operations::ServerOperationContext},
+        resolver,
+    },
 };
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use haste_fhir_client::request::InvocationRequest;
@@ -40,11 +43,15 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_package::{Limits, Manifest, Package, PackageFile, PackageSpec};
-use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_fhir_package::{Limits, Manifest, Package, PackageError, PackageFile, PackageSpec};
+use haste_jwt::{ProjectId, ResourceId, TenantId, claims::SubscriptionTier};
 use haste_reflect::MetaValue;
 use haste_repository::fhir::FHIRRepository;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    sync::OnceLock,
+};
+use tokio::sync::{Semaphore, SemaphorePermit};
 
 /// The `meta.tag` system marking a resource as installed from a package.
 pub const PACKAGE_TAG_SYSTEM: &str = "https://haste.health/fhir/CodeSystem/fhir-package";
@@ -340,18 +347,22 @@ struct Selected {
 
 /// Where a package to consider comes from.
 enum Source {
-    Uploaded(Package),
+    /// The name of an upload.
+    Uploaded(String),
     Named(PackageSpec),
-    Dependency { name: String, version: String },
+    Dependency {
+        name: String,
+        version: String,
+    },
 }
 
-/// Fetches `name` from the configured registry.
+/// Fetches `name` from the configured registry and reads it within `limits`.
 async fn fetch<B: Backend>(
     context: &ServerOperationContext<B>,
     name: &str,
     version: Option<&str>,
     limits: &Limits,
-) -> Result<Package, OperationOutcomeError> {
+) -> Result<Package, PackageError> {
     let config = &context.state.config.packages;
     let version = haste_fhir_package::resolve_version(&config.registry_url, name, version).await?;
     let bytes = haste_fhir_package::download(
@@ -361,12 +372,12 @@ async fn fetch<B: Backend>(
         config.max_package_bytes,
     )
     .await?;
-    Ok(haste_fhir_package::read(&bytes, limits)?)
+    haste_fhir_package::read(&bytes, limits)
 }
 
 fn decode_upload(
     content: &str,
-    max_bytes: u64,
+    config: &PackagesConfig,
     limits: &Limits,
 ) -> Result<Package, OperationOutcomeError> {
     let content = content
@@ -374,8 +385,11 @@ fn decode_upload(
         .filter(|c| !c.is_ascii_whitespace())
         .collect::<String>();
     // Base64 is 4 characters for 3 bytes.
-    if (content.len() as u64) / 4 * 3 > max_bytes {
-        return Err(haste_fhir_package::PackageError::TooLarge(max_bytes).into());
+    if (content.len() as u64) / 4 * 3 > config.max_package_bytes {
+        return Err(package_error(
+            PackageError::TooLarge(config.max_package_bytes),
+            config,
+        ));
     }
     let bytes = STANDARD.decode(content).map_err(|e| {
         OperationOutcomeError::error(
@@ -383,58 +397,185 @@ fn decode_upload(
             format!("npmContent is not valid base64: {e}"),
         )
     })?;
-    let package = haste_fhir_package::read(&bytes, limits)?;
+    let package = haste_fhir_package::read(&bytes, limits).map_err(|e| package_error(e, config))?;
     if !haste_fhir_package::valid_name(&package.manifest.name) {
-        return Err(
-            haste_fhir_package::PackageError::InvalidName(package.manifest.name.clone()).into(),
-        );
+        return Err(PackageError::InvalidName(package.manifest.name.clone()).into());
     }
     if !haste_fhir_package::valid_version(&package.manifest.version) {
-        return Err(haste_fhir_package::PackageError::InvalidVersion(
-            package.manifest.version.clone(),
-        )
-        .into());
+        return Err(PackageError::InvalidVersion(package.manifest.version.clone()).into());
     }
     Ok(package)
 }
 
-/// The packages to install: the ones asked for, then (when `dependencies`)
-/// the packages they depend on, breadth first, so the version a package
-/// nearer the top asks for wins.
+/// Installs running at once on this server.
+static INSTALLS: OnceLock<Semaphore> = OnceLock::new();
+
+/// A place among the installs this server runs at once
+/// (`packages.max_concurrent_installs`), or 429 when they are all taken: an
+/// install can hold a few hundred MB while it runs.
+fn install_permit(
+    config: &PackagesConfig,
+) -> Result<SemaphorePermit<'static>, OperationOutcomeError> {
+    INSTALLS
+        .get_or_init(|| Semaphore::new(config.max_concurrent_installs))
+        .try_acquire()
+        .map_err(|_| {
+            OperationOutcomeError::error(
+                IssueType::throttled(),
+                "The server is busy installing other packages. Try again in a minute.".to_string(),
+            )
+        })
+}
+
+/// What one install has used so far, against `packages.max_install_packages`
+/// and `packages.max_install_bytes`.
+#[derive(Default)]
+struct Usage {
+    packages: usize,
+    bytes: u64,
+}
+
+/// Counts one more package fetched or uploaded, refusing the install past
+/// `packages.max_install_packages`.
+fn count_package(usage: &mut Usage, config: &PackagesConfig) -> Result<(), OperationOutcomeError> {
+    usage.packages += 1;
+    if usage.packages > config.max_install_packages {
+        return Err(limit_error(format!(
+            "This install needs more than {} packages, counting their dependencies. \
+             Install fewer at once, or turn off 'dependencies' \
+             (the limit is packages.max_install_packages).",
+            config.max_install_packages
+        )));
+    }
+    Ok(())
+}
+
+/// Limits for reading the install's next package: what is left of its byte
+/// budget, so its packages together never unpack past it.
+fn read_limits(usage: &Usage, config: &PackagesConfig) -> Limits {
+    Limits {
+        max_uncompressed_bytes: config.max_install_bytes.saturating_sub(usage.bytes),
+        max_files: config.max_files,
+    }
+}
+
+/// `bytes` for a message: whole MiB when it is, else bytes.
+fn describe_bytes(bytes: u64) -> String {
+    const MIB: u64 = 1024 * 1024;
+    if bytes >= MIB && bytes.is_multiple_of(MIB) {
+        format!("{} MiB", bytes / MIB)
+    } else {
+        format!("{bytes} bytes")
+    }
+}
+
+/// A request that asks for more than one install may take: 422, as it is
+/// well formed but past this server's limits.
+fn limit_error(diagnostic: String) -> OperationOutcomeError {
+    as_limit(&OperationOutcomeError::error(
+        IssueType::too_costly(),
+        diagnostic,
+    ))
+}
+
+/// `error` answered with 422 rather than the status its issue code maps to.
+fn as_limit(error: &OperationOutcomeError) -> OperationOutcomeError {
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
+/// The install refused for unpacking past `packages.max_install_bytes`.
+fn over_budget(config: &PackagesConfig) -> OperationOutcomeError {
+    limit_error(format!(
+        "The packages in this install unpack to more than {} together, counting their \
+         dependencies. Install fewer at once, or turn off 'dependencies' \
+         (the limit is packages.max_install_bytes).",
+        describe_bytes(config.max_install_bytes)
+    ))
+}
+
+/// A package error as the install's error: a package that unpacks past what
+/// is left of the budget refuses the whole install.
+fn package_error(error: PackageError, config: &PackagesConfig) -> OperationOutcomeError {
+    match error {
+        PackageError::TooLargeUnpacked(_) => over_budget(config),
+        error @ (PackageError::TooLarge(_) | PackageError::TooManyFiles(_)) => {
+            as_limit(&error.into())
+        }
+        error => error.into(),
+    }
+}
+
+/// Fetches a dependency within the install's limits. `None` when it cannot
+/// be fetched, which is reported as a skip; going past the limits refuses
+/// the install.
+async fn fetch_dependency<B: Backend>(
+    context: &ServerOperationContext<B>,
+    name: &str,
+    version: &str,
+    usage: &mut Usage,
+    report: &mut Report,
+) -> Result<Option<Package>, OperationOutcomeError> {
+    let config = &context.state.config.packages;
+    count_package(usage, config)?;
+    match fetch(context, name, Some(version), &read_limits(usage, config)).await {
+        Ok(package) => {
+            usage.bytes += package.unpacked_bytes;
+            Ok(Some(package))
+        }
+        Err(PackageError::TooLargeUnpacked(_)) => Err(over_budget(config)),
+        Err(error) => {
+            let reason = OperationOutcomeError::from(error)
+                .outcome()
+                .issue
+                .first()
+                .and_then(|issue| issue.diagnostics.as_ref())
+                .and_then(|diagnostics| diagnostics.value.clone())
+                .unwrap_or_else(|| "It could not be fetched.".to_string());
+            report.skip(name, version, reason);
+            Ok(None)
+        }
+    }
+}
+
+/// The packages to install: the uploads and the ones named, then (when
+/// `dependencies`) the packages they depend on, breadth first, so the
+/// version a package nearer the top asks for wins. Each name is considered
+/// once, so a cycle ends, and `usage` (the uploads already counted) bounds
+/// how much more is fetched.
+#[allow(clippy::too_many_arguments)]
 async fn select<B: Backend>(
     context: &ServerOperationContext<B>,
     tenant: &TenantId,
     project: &ProjectId,
-    roots: Vec<Source>,
+    uploads: Vec<Package>,
+    named: Vec<PackageSpec>,
     dependencies: bool,
+    mut usage: Usage,
     report: &mut Report,
 ) -> Result<Vec<Selected>, OperationOutcomeError> {
     let config = &context.state.config.packages;
-    let limits = Limits {
-        max_uncompressed_bytes: config.max_uncompressed_bytes,
-        max_files: config.max_files,
-    };
 
-    let mut uploaded = HashMap::new();
+    // Uploads come first, so a dependency on one finds it already chosen.
     let mut queue = VecDeque::new();
-    for root in roots {
-        match root {
-            Source::Uploaded(package) => {
-                uploaded.insert(package.manifest.name.clone(), package.clone());
-                queue.push_back(Source::Uploaded(package));
-            }
-            source => queue.push_back(source),
-        }
+    let mut uploaded = HashMap::new();
+    for package in uploads {
+        let name = package.manifest.name.clone();
+        queue.push_back(Source::Uploaded(name.clone()));
+        uploaded.entry(name).or_insert(package);
     }
+    queue.extend(named.into_iter().map(Source::Named));
 
     let mut selected: Vec<Selected> = Vec::new();
     let mut seen = HashSet::new();
     while let Some(source) = queue.pop_front() {
         let (package, requested) = match source {
-            Source::Uploaded(package) => {
-                if !seen.insert(package.manifest.name.clone()) {
+            Source::Uploaded(name) => {
+                if !seen.insert(name.clone()) {
                     continue;
                 }
+                let Some(package) = uploaded.remove(&name) else {
+                    continue;
+                };
                 (package, true)
             }
             Source::Named(spec) => {
@@ -449,10 +590,12 @@ async fn select<B: Backend>(
                     );
                     continue;
                 }
-                let package = match uploaded.remove(&spec.name) {
-                    Some(package) => package,
-                    None => fetch(context, &spec.name, spec.version.as_deref(), &limits).await?,
-                };
+                count_package(&mut usage, config)?;
+                let limits = read_limits(&usage, config);
+                let package = fetch(context, &spec.name, spec.version.as_deref(), &limits)
+                    .await
+                    .map_err(|e| package_error(e, config))?;
+                usage.bytes += package.unpacked_bytes;
                 (package, true)
             }
             Source::Dependency { name, version } => {
@@ -466,8 +609,9 @@ async fn select<B: Backend>(
                     report.skip(
                         &name,
                         &version,
-                        "Not installed as a dependency, as it is a large terminology package. \
-                         Install it by name to include it."
+                        "Not installed as a dependency, as it is one of the large packages \
+                         this server skips (packages.skip_dependencies). Install it by name to \
+                         include it."
                             .to_string(),
                     );
                     continue;
@@ -485,22 +629,10 @@ async fn select<B: Backend>(
                     );
                     continue;
                 }
-                let package = match uploaded.remove(&name) {
-                    Some(package) => package,
-                    None => match fetch(context, &name, Some(&version), &limits).await {
-                        Ok(package) => package,
-                        Err(error) => {
-                            let reason = error
-                                .outcome()
-                                .issue
-                                .first()
-                                .and_then(|issue| issue.diagnostics.as_ref())
-                                .and_then(|diagnostics| diagnostics.value.clone())
-                                .unwrap_or_else(|| "It could not be fetched.".to_string());
-                            report.skip(&name, &version, reason);
-                            continue;
-                        }
-                    },
+                let Some(package) =
+                    fetch_dependency(context, &name, &version, &mut usage, report).await?
+                else {
+                    continue;
                 };
                 (package, false)
             }
@@ -555,30 +687,30 @@ struct Write {
 /// if it ships one. Files that cannot be read, or that another package in
 /// this install already wrote, are reported and left out.
 fn package_writes(
-    selected: &Selected,
+    selected: &mut Selected,
     examples: bool,
     claimed: &mut HashMap<Key, String>,
     report: &mut Report,
 ) -> (Vec<Write>, Option<ImplementationGuide>) {
     let manifest = &selected.package.manifest;
     let label = format!("{}@{}", manifest.name, manifest.version);
-    let example_files: &[PackageFile] = if examples && selected.requested {
-        &selected.package.examples
-    } else {
-        &[]
-    };
-    let files = selected
-        .package
-        .resources
-        .iter()
+    // The files are taken, so each one's bytes are freed once it is parsed
+    // and examples that are not installed are freed now.
+    let resources = std::mem::take(&mut selected.package.resources);
+    let mut example_files = std::mem::take(&mut selected.package.examples);
+    if !(examples && selected.requested) {
+        example_files = Vec::new();
+    }
+    let files = resources
+        .into_iter()
         .map(|file| (file, false))
-        .chain(example_files.iter().map(|file| (file, true)));
+        .chain(example_files.into_iter().map(|file| (file, true)));
 
     let mut own_guide = None;
     let mut writes = Vec::new();
     let mut retargeted = HashSet::new();
     for (file, example) in files {
-        let Some(resource) = parse_file(file, example, &label, &mut retargeted, report) else {
+        let Some(resource) = parse_file(&file, example, &label, &mut retargeted, report) else {
             continue;
         };
         let resource_type = resource.resource_type();
@@ -906,10 +1038,15 @@ async fn install<B: Backend>(
     input: Install::Input,
 ) -> Result<Install::Output, OperationOutcomeError> {
     let config = &context.state.config.packages;
-    let limits = Limits {
-        max_uncompressed_bytes: config.max_uncompressed_bytes,
-        max_files: config.max_files,
-    };
+    if context.ctx.user.claims.subscription_tier == SubscriptionTier::Free {
+        return Err(OperationOutcomeError::error(
+            IssueType::forbidden(),
+            "Installing packages is not available on the Free tier.".to_string(),
+        ));
+    }
+    // Held until the install returns.
+    let _permit = install_permit(config)?;
+
     let dependencies = input
         .dependencies
         .and_then(|value| value.value)
@@ -919,19 +1056,14 @@ async fn install<B: Backend>(
         .and_then(|value| value.value)
         .unwrap_or(false);
 
-    let mut roots = Vec::new();
-    for upload in input.npmContent.unwrap_or_default() {
-        let content = upload.value.unwrap_or_default();
-        roots.push(Source::Uploaded(decode_upload(
-            &content,
-            config.max_package_bytes,
-            &limits,
-        )?));
-    }
-    for name in input.package.unwrap_or_default() {
-        roots.push(Source::Named(name.value.unwrap_or_default().parse()?));
-    }
-    if roots.is_empty() {
+    let named = input
+        .package
+        .unwrap_or_default()
+        .into_iter()
+        .map(|name| name.value.unwrap_or_default().parse())
+        .collect::<Result<Vec<PackageSpec>, _>>()?;
+    let npm_content = input.npmContent.unwrap_or_default();
+    if named.is_empty() && npm_content.is_empty() {
         return Err(OperationOutcomeError::error(
             IssueType::required(),
             "Name a package to install ('package', for example 'hl7.fhir.us.core@6.1.0') \
@@ -940,13 +1072,29 @@ async fn install<B: Backend>(
         ));
     }
 
+    // Uploads count toward the install's limits like fetched packages.
+    let mut usage = Usage::default();
+    let mut uploads = Vec::new();
+    for upload in npm_content {
+        count_package(&mut usage, config)?;
+        let package = decode_upload(
+            &upload.value.unwrap_or_default(),
+            config,
+            &read_limits(&usage, config),
+        )?;
+        usage.bytes += package.unpacked_bytes;
+        uploads.push(package);
+    }
+
     let mut report = Report::default();
-    let selected = select(
+    let mut selected = select(
         &context,
         &tenant,
         &project,
-        roots,
+        uploads,
+        named,
         dependencies,
+        usage,
         &mut report,
     )
     .await?;
@@ -961,7 +1109,7 @@ async fn install<B: Backend>(
 
     let mut claimed = HashMap::new();
     let planned = selected
-        .iter()
+        .iter_mut()
         .map(|selected| package_writes(selected, examples, &mut claimed, &mut report))
         .collect::<Vec<_>>();
 

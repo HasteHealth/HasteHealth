@@ -2486,7 +2486,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-package"
-version = "0.127.9"
+version = "0.127.10"
 dependencies = [
  "flate2",
  "haste-fhir-model",

@@ -148,10 +148,12 @@ Settings for installing FHIR packages (implementation guides) with `Implementati
 | Key | Env var | Default | Notes |
 | --- | --- | --- | --- |
 | `packages.registry_url` | `HASTE_PACKAGES.registry_url` | `https://packages.fhir.org` | The FHIR package registry packages are fetched from. Must be `https`; redirects are followed only within it. Empty turns off fetching, so packages can only be uploaded. |
-| `packages.skip_dependencies` | `HASTE_PACKAGES.skip_dependencies` | `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads` | Packages not installed as a dependency. Naming one directly still installs it. |
-| `packages.max_package_bytes` | `HASTE_PACKAGES.max_package_bytes` | `67108864` (64 MiB) | Largest package download or upload, compressed. |
-| `packages.max_uncompressed_bytes` | `HASTE_PACKAGES.max_uncompressed_bytes` | `268435456` (256 MiB) | Largest package once unpacked. |
+| `packages.skip_dependencies` | `HASTE_PACKAGES.skip_dependencies` | `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`, `hl7.fhir.uv.xver-r5.r4`, `hl7.fhir.uv.xver-r4b.r4`, `hl7.fhir.uv.xver-r3.r4`, `hl7.fhir.uv.xver-r2.r4` | Packages not installed as a dependency. Naming one directly still installs it. |
+| `packages.max_package_bytes` | `HASTE_PACKAGES.max_package_bytes` | `20971520` (20 MiB) | Largest package download or upload, compressed. |
 | `packages.max_files` | `HASTE_PACKAGES.max_files` | `20000` | Most files in one package. |
+| `packages.max_install_packages` | `HASTE_PACKAGES.max_install_packages` | `50` | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
+| `packages.max_install_bytes` | `HASTE_PACKAGES.max_install_bytes` | `209715200` (200 MiB) | Most the packages of one install may unpack to together, uploads included. Checked while unpacking. An install's peak memory is about four times this. |
+| `packages.max_concurrent_installs` | `HASTE_PACKAGES.max_concurrent_installs` | `2` | Installs one server runs at once. Another is refused with `429`. |
 
 ### `[operations]`
 

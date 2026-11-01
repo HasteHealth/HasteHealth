@@ -60,6 +60,8 @@ pub struct Package {
     pub resources: Vec<PackageFile>,
     /// The JSON files in its example folder.
     pub examples: Vec<PackageFile>,
+    /// What the tarball expanded to, headers included.
+    pub unpacked_bytes: u64,
 }
 
 /// A package to install, named the way registries and `package.json`
