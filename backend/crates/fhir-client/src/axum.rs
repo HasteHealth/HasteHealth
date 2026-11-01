@@ -21,12 +21,12 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) {
 
     let last_modified = meta
         .and_then(|meta| meta.get_field("lastUpdated"))
-        .and_then(|lu| lu.as_any().downcast_ref::<Box<FHIRInstant>>())
+        .and_then(|lu| lu.as_any().downcast_ref::<FHIRInstant>())
         .and_then(|lu| lu.value.as_ref());
 
     let version_id = meta
         .and_then(|meta| meta.get_field("versionId"))
-        .and_then(|vid| vid.as_any().downcast_ref::<Box<FHIRId>>())
+        .and_then(|vid| vid.as_any().downcast_ref::<FHIRId>())
         .and_then(|vid| vid.value.as_ref());
 
     if let Some(last_modified) = last_modified {

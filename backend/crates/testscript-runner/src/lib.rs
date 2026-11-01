@@ -1004,9 +1004,8 @@ fn fixture_version_id(
             ))
         })?
         .as_any()
-        .downcast_ref::<Box<FHIRId>>()
-        .cloned()
-        .and_then(|v| v.value)
+        .downcast_ref::<FHIRId>()
+        .and_then(|v| v.value.clone())
         .ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
                 "Fixture '{fixture_name}' does not have a valid 'versionId' field."

@@ -136,11 +136,14 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
 
             Ok(fp_unsigned_int.value.unwrap_or(0) as f64)
         }
-        "http://hl7.org/fhirpath/System.Integer" => value
-            .as_any()
-            .downcast_ref::<i64>()
-            .map(|v| *v as f64)
-            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
+        // `integer` holds an i64, `positiveInt` and `unsignedInt` a u64.
+        "http://hl7.org/fhirpath/System.Integer" => {
+            let any = value.as_any();
+            any.downcast_ref::<i64>()
+                .map(|v| *v as f64)
+                .or_else(|| any.downcast_ref::<u64>().map(|v| *v as f64))
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))
+        }
 
         "http://hl7.org/fhirpath/System.Decimal" => value
             .as_any()

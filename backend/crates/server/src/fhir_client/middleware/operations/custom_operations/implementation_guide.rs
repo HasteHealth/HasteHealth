@@ -153,8 +153,7 @@ fn package_coding(manifest: &Manifest) -> Coding {
 fn meta(resource: &Resource) -> Option<&Meta> {
     resource
         .get_field("meta")
-        .and_then(|meta| meta.as_any().downcast_ref::<Box<Meta>>())
-        .map(AsRef::as_ref)
+        .and_then(|meta| meta.as_any().downcast_ref::<Meta>())
 }
 
 /// The package that installed `resource`, from its tag.
@@ -181,7 +180,7 @@ fn package_tag(meta: Option<&Meta>) -> Option<&str> {
 fn canonical_url(resource: &Resource) -> Option<&str> {
     resource
         .get_field("url")
-        .and_then(|url| url.as_any().downcast_ref::<Box<FHIRUri>>())
+        .and_then(|url| url.as_any().downcast_ref::<FHIRUri>())
         .and_then(|url| url.value.as_deref())
 }
 
