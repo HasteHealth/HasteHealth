@@ -4,7 +4,7 @@
     "name": "g10-2.3.12-observation-restricted",
     "title": "2.3.12 Access to Observation restricted to the granted scopes",
     "status": "active",
-    "description": "g10 2.3.12 (AUT-PAT-10, AUT-PAT-12, AUT-PAT-18, AUT-PAT-33, AUT-PAT-34, DAT-PAT-9). The user granted only Patient, Condition and Observation (the scenario requests just those scopes; a TestScript cannot use the consent screen). GET Observation?patient=g10-example&code=2708-6 answers 200, with only the launch patient's data.",
+    "description": "g10 2.3.12 (AUT-PAT-10, AUT-PAT-12, AUT-PAT-18, AUT-PAT-33, AUT-PAT-34, DAT-PAT-9). The app requested every US Core type and the user granted only Patient, Condition and Observation at consent. GET Observation?patient=g10-example&code=2708-6 answers 200, with only the launch patient's data.",
     "resourceType": "TestScript",
     "test": [
         {

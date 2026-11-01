@@ -4,7 +4,7 @@
     "name": "g10-2.3.22-coverage-restricted",
     "title": "2.3.22 Access to Coverage restricted to the granted scopes",
     "status": "active",
-    "description": "g10 2.3.22 / 2.3.18 (US Core 6) (AUT-PAT-10, AUT-PAT-12, AUT-PAT-18, AUT-PAT-33, AUT-PAT-34, DAT-PAT-9). The user granted only Patient, Condition and Observation (the scenario requests just those scopes; a TestScript cannot use the consent screen). GET Coverage?patient=g10-example is refused with 401 or 403.",
+    "description": "g10 2.3.22 / 2.3.18 (US Core 6) (AUT-PAT-10, AUT-PAT-12, AUT-PAT-18, AUT-PAT-33, AUT-PAT-34, DAT-PAT-9). The app requested every US Core type and the user granted only Patient, Condition and Observation at consent. GET Coverage?patient=g10-example is refused with 401 or 403.",
     "resourceType": "TestScript",
     "test": [
         {

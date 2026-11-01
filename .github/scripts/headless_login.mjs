@@ -1,6 +1,7 @@
 // `haste-health login` without a browser: submits the server's sign-in and
 // scope approval forms, then the CLI's loopback listener receives the code and
-// stores the tokens for the active profile.
+// stores the tokens for the active profile. Given `grantedScope` (space
+// separated), the user unchecks every other scope on the approval page.
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createInterface } from "node:readline";
@@ -12,7 +13,7 @@ const TIMEOUT_MS = 60_000;
 // The entities the server's HTML templates escape.
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
 
-export async function headlessLogin(cliPath, email, password) {
+export async function headlessLogin(cliPath, email, password, grantedScope) {
   const cli = spawn(cliPath, ["login", "--no-browser"], {
     stdio: ["ignore", "pipe", "inherit"],
   });
@@ -31,7 +32,7 @@ export async function headlessLogin(cliPath, email, password) {
     }
 
     cli.stdout.pipe(process.stdout);
-    await submitForms(authorizeUrl, email, password);
+    await submitForms(authorizeUrl, email, password, grantedScope);
 
     const [code] = await exited;
     if (code !== 0) {
@@ -47,13 +48,21 @@ export async function headlessLogin(cliPath, email, password) {
 
 // Follows the authorization flow from `authorizeUrl` until it redirects to the
 // CLI's redirect URI, submitting each page's form as a browser would.
-async function submitForms(authorizeUrl, email, password) {
+async function submitForms(authorizeUrl, email, password, grantedScope) {
   const redirectUri = new URL(authorizeUrl).searchParams.get("redirect_uri");
   if (!redirectUri) throw new Error(`No redirect_uri in ${authorizeUrl}`);
 
   // By hand: a cookie jar won't return the `Secure` session cookie over http.
   const cookies = new Map();
-  const session = { redirectUri, email, password, cookies, signedIn: false };
+  const granted = grantedScope && new Set(grantedScope.split(/\s+/));
+  const session = {
+    redirectUri,
+    email,
+    password,
+    granted,
+    cookies,
+    signedIn: false,
+  };
   await follow(session, { url: new URL(authorizeUrl), method: "GET" }, 0);
 }
 
@@ -108,7 +117,12 @@ async function submitForm(session, url, response) {
       `${url} answered ${response.status}: ${body.slice(0, 500)}`,
     );
   }
-  const form = firstForm(body);
+  // On the approval page, the scopes not to be granted.
+  const unchecked = (input) =>
+    session.granted !== undefined &&
+    input.name === "scope" &&
+    !session.granted.has(input.value);
+  const form = firstForm(body, unchecked);
   if (!form) throw new Error(`No form at ${url}: ${body.slice(0, 500)}`);
 
   if (form.fields.has("password")) {
@@ -123,22 +137,30 @@ async function submitForm(session, url, response) {
   return { url: new URL(form.action, url), method: "POST", body: form.fields };
 }
 
-// The page's first form and the fields a browser would submit: the sign-in
-// form, or the scope approval's accept form.
-function firstForm(html) {
+// The page's first form and the fields a browser would submit when its first
+// submit button is pressed: the sign-in form, or the scope approval form's
+// Allow. `unchecked(input)` says which checked boxes the user clears first.
+function firstForm(html, unchecked) {
   const form = html.match(/<form\b([^>]*)>([\s\S]*?)<\/form>/i);
   if (!form) return undefined;
 
   const fields = new URLSearchParams();
   for (const [, tag] of form[2].matchAll(/<input\b([^>]*)>/gi)) {
     const input = parseAttributes(tag);
-    if (!input.name) continue;
+    if (!input.name || "disabled" in input) continue;
     if (input.type === "checkbox") {
-      if ("checked" in input) fields.append(input.name, input.value || "on");
+      if ("checked" in input && !unchecked(input)) {
+        fields.append(input.name, input.value || "on");
+      }
     } else {
       fields.append(input.name, input.value ?? "");
     }
   }
+
+  const button = [...form[2].matchAll(/<button\b([^>]*)>/gi)]
+    .map(([, tag]) => parseAttributes(tag))
+    .find((attributes) => (attributes.type ?? "submit") === "submit");
+  if (button?.name) fields.append(button.name, button.value ?? "");
 
   return { action: parseAttributes(form[1]).action ?? "", fields };
 }
