@@ -159,6 +159,7 @@ Packages are fetched from the registry by the server. The `[packages]` section o
 | `packages.max_install_bytes` | 200 MiB | Most the packages of one install may unpack to together, uploads included. It is checked while unpacking, so a package past it is never read whole. |
 | `packages.max_concurrent_installs` | 1 | Installs one server runs at once. Another is refused with `429` until it finishes. |
 | `packages.free_tier_install_interval_seconds` | 120 | How often one Free tier tenant may start an install. Another within this time is refused with `429`. `0` turns the wait off. |
+| `packages.free_tier_shared_install_interval_seconds` | 60 | How often any Free tier tenant may start an install, all of them together, so Free tier installs cannot keep the install slot busy. Set it well above how long one install takes. `0` turns the wait off. |
 
 An install holds its packages in memory while it writes them in one transaction; its peak is about four times what they unpack to, so `max_install_bytes` times `max_concurrent_installs` times four bounds what installs can take from the server, however many requests arrive at once.
 
@@ -166,7 +167,7 @@ The server fetches from that registry and nowhere else. Callers name packages an
 
 An uploaded `.tgz` travels inside the request, base64 encoded (a third larger), so it is also bound by `max_request_body_size` (4 MB by default). Most IGs are well under that (US Core 6.1.0 is 1.6 MB); install larger ones by name, or raise the limit.
 
-Installing writes through the FHIR API as the caller, so it needs permission to write the resource types it installs, and it counts toward the project's limits like any other write. On the Free tier (the Developer plan) a tenant may start one install every 2 minutes, and a package's SearchParameters are not installed, as the plan allows none; the response's `outcome` says how many were left out.
+Installing writes through the FHIR API as the caller, so it needs permission to write the resource types it installs, and it counts toward the project's limits like any other write. On the Free tier (the Developer plan) a tenant may start one install every 2 minutes and the server starts at most one Free tier install a minute across all tenants, and a package's SearchParameters are not installed, as the plan allows none; the response's `outcome` says how many were left out.
 
 **Related Documentation**:
 - **[Profiling & Validation →](/docs/guides/profiling)**

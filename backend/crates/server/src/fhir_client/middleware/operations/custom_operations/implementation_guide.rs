@@ -429,29 +429,60 @@ fn install_permit(
         })
 }
 
-/// Refuses a Free tier tenant's install that starts within
-/// `packages.free_tier_install_interval_seconds` of its last one, with 429.
-/// The count is kept in the rate limit store, so it holds across servers.
+/// Refuses a Free tier install with 429 when its tenant started one within
+/// `packages.free_tier_install_interval_seconds`, or any Free tier tenant did
+/// within `packages.free_tier_shared_install_interval_seconds`. The shared
+/// one keeps many Free tier tenants taking turns from holding the install
+/// slot. The tenant's turn is checked first, so one tenant's refused
+/// attempts never use up the shared one.
 async fn free_tier_cooldown(
     rate_limit: &dyn RateLimit,
     tenant: &TenantId,
     config: &PackagesConfig,
 ) -> Result<(), OperationOutcomeError> {
+    let plan = haste_subscription::limits_for(&SubscriptionTier::Free).display_name;
     let interval = config.free_tier_install_interval_seconds;
+    cooldown(
+        rate_limit,
+        &format!("package_install:{}", tenant.as_ref()),
+        interval,
+        || {
+            format!(
+                "The {plan} plan allows one package install every {}. Try again later.",
+                describe_seconds(interval)
+            )
+        },
+    )
+    .await?;
+    let shared = config.free_tier_shared_install_interval_seconds;
+    cooldown(rate_limit, "package_install_free_tier", shared, || {
+        format!(
+            "The server is busy with {plan} plan installs, which start at most once every {} \
+             across all tenants. Try again later.",
+            describe_seconds(shared)
+        )
+    })
+    .await
+}
+
+/// Lets one request for `key` through every `interval` seconds and refuses
+/// the rest with 429 and `refusal`. The count is kept in the rate limit
+/// store, so it holds across servers. 0 lets every request through.
+async fn cooldown(
+    rate_limit: &dyn RateLimit,
+    key: &str,
+    interval: u64,
+    refusal: impl FnOnce() -> String,
+) -> Result<(), OperationOutcomeError> {
     if interval == 0 {
         return Ok(());
     }
-    let key = format!("package_install:{}", tenant.as_ref());
     let window = i32::try_from(interval).unwrap_or(i32::MAX);
-    match rate_limit.check_uncached(&key, 1, 1, window).await {
+    match rate_limit.check_uncached(key, 1, 1, window).await {
         Ok(_) => Ok(()),
         Err(RateLimitError::Exceeded) => Err(OperationOutcomeError::error(
             IssueType::throttled(),
-            format!(
-                "The {} plan allows one package install every {}. Try again later.",
-                haste_subscription::limits_for(&SubscriptionTier::Free).display_name,
-                describe_seconds(interval)
-            ),
+            refusal(),
         )),
         Err(RateLimitError::Error(message)) => {
             tracing::error!("Package install rate limit error: {message}");

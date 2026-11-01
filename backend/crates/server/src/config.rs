@@ -126,6 +126,12 @@ pub struct PackagesConfig {
     /// How often one Free tier tenant may start an install, in seconds;
     /// another within this time is refused with 429. 0 turns the wait off.
     pub free_tier_install_interval_seconds: u64,
+    /// How often any Free tier tenant may start an install, all of them
+    /// together, in seconds; another within this time is refused with 429.
+    /// It keeps many Free tier tenants taking turns from holding the
+    /// install slot, so set it well above how long one install takes.
+    /// 0 turns the wait off.
+    pub free_tier_shared_install_interval_seconds: u64,
 }
 
 impl Default for PackagesConfig {
@@ -151,6 +157,7 @@ impl Default for PackagesConfig {
             max_install_bytes: 200 * 1024 * 1024,
             max_concurrent_installs: 1,
             free_tier_install_interval_seconds: 120,
+            free_tier_shared_install_interval_seconds: 60,
         }
     }
 }
