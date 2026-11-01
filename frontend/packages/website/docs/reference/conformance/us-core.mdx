@@ -1,6 +1,6 @@
 ---
-title: US Core
-description: Haste Health's results writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile, plus a versioned conformance TestScript per US Core profile.
+title: US Core 9.0.0
+description: Haste Health's results for US Core 9.0.0, writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile, plus a versioned conformance TestScript per US Core profile.
 sidebar_position: 2
 hide_table_of_contents: true
 ---
@@ -12,7 +12,7 @@ import {
   SuiteSummary,
 } from "@site/src/components/TestSuites";
 
-# US Core
+# US Core 9.0.0
 
 With the [US Core](https://hl7.org/fhir/us/core/) package loaded into a
 project, Haste Health validates every write that claims a US Core profile in
@@ -30,9 +30,10 @@ back, and runs the search parameters US Core adds to base FHIR. Its
 `TestScript.metadata` links the profile and names the versioned US Core server
 CapabilityStatement.
 
-The full set of searches, reads and must-support checks US Core asks of a server
-run in the [ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US
-Core 7).
+[US Core 7.0.0](./us-core-7.mdx), the version the ONC (g)(10) test kit
+certifies against, has its own suite. The full set of searches, reads and
+must-support checks US Core asks of a server run in the
+[ONC (g)(10) suite](./onc-g10.mdx), as its single patient API.
 
 <SuiteLastVerified suite="us-core" />
 
@@ -45,6 +46,6 @@ Core 7).
 ## Every TestScript
 
 Examples are grouped by the resource type they write, and the profile
-conformance TestScripts by US Core version.
+conformance TestScripts follow in one group.
 
 <SuiteReportTable suite="us-core" />
