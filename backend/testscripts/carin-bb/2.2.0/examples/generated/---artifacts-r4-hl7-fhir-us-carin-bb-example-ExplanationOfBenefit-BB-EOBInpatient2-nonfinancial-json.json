@@ -1,0 +1,835 @@
+{
+  "resourceType": "TestScript",
+  "id": "---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json",
+  "contained": [
+    {
+      "resourceType": "ExplanationOfBenefit",
+      "id": "fixture-ExplanationOfBenefit-0",
+      "meta": {
+        "lastUpdated": "2020-04-28T19:39:36+00:00",
+        "profile": [
+          "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Inpatient-Institutional-Basis|2.2.0"
+        ],
+        "tag": [
+          {
+            "code": "---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json"
+          }
+        ]
+      },
+      "language": "en",
+      "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"><p class=\"res-header-id\"><b>Generated Narrative: ExplanationOfBenefit BB-EOBInpatient2-nonfinancial</b></p><a name=\"BB-EOBInpatient2-nonfinancial\"> </a><a name=\"hcBB-EOBInpatient2-nonfinancial\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Last updated: 2020-04-28 15:39:36-0400; Language: en</p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-C4BB-ExplanationOfBenefit-Inpatient-Institutional-Basis.html\">C4BB ExplanationOfBenefit Inpatient Institutional Basisversion: null2.2.0)</a></p></div><p><b>identifier</b>: Indicates that the claim identifier is that assigned by a payer for a claim received from a provider or subscriber/InpatientEOBExample1</p><p><b>status</b>: Active</p><p><b>type</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/claim-type institutional}\">Institutional</span></p><p><b>subType</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBInstitutionalClaimSubType inpatient}\">Inpatient</span></p><p><b>use</b>: Claim</p><p><b>patient</b>: <a href=\"Patient-Patient1.html\">Johnny Example1  Male, DoB: 1986-01-01 ( Member Number)</a></p><p><b>billablePeriod</b>: 2017-05-23 --&gt; 2017-05-23</p><p><b>created</b>: 2017-06-01 00:00:00-0400</p><p><b>insurer</b>: <a href=\"Organization-Payer2.html\">UPMC Health Plan</a></p><p><b>provider</b>: <a href=\"Organization-ProviderOrganization3.html\">Organization Green Medical Group</a></p><h3>Payees</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Type</b></td><td><b>Party</b></td></tr><tr><td style=\"display: none\">*</td><td><span title=\"Codes:{http://terminology.hl7.org/CodeSystem/payeetype provider}\">Any benefit payable will be paid to the provider (Assignment of Benefit).</span></td><td><a href=\"Organization-ProviderOrganization4.html\">Organization Blue Medical Group</a></td></tr></table><p><b>outcome</b>: Processing Complete</p><blockquote><p><b>careTeam</b></p><p><b>sequence</b>: 1</p><p><b>provider</b>: <a href=\"Practitioner-Practitioner2.html\">Practitioner Jack Brown </a></p><p><b>role</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimCareTeamRole attending}\">The attending physician</span></p></blockquote><blockquote><p><b>careTeam</b></p><p><b>sequence</b>: 2</p><p><b>provider</b>: <a href=\"Practitioner-Practitioner2.html\">Practitioner Jack Brown </a></p><p><b>role</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimCareTeamRole referring}\">The referring physician</span></p></blockquote><blockquote><p><b>supportingInfo</b></p><p><b>sequence</b>: 2</p><p><b>category</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType admissionperiod}\">Admission Period</span></p><p><b>timing</b>: 2017-05-23 --&gt; (ongoing)</p></blockquote><blockquote><p><b>supportingInfo</b></p><p><b>sequence</b>: 1</p><p><b>category</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType clmrecvddate}\">Claim Received Date</span></p><p><b>timing</b>: 2017-06-01</p></blockquote><blockquote><p><b>diagnosis</b></p><p><b>sequence</b>: 1</p><p><b>diagnosis</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm I21.4}\">Non-ST elevation (NSTEMI) myocardial infarction</span></p><p><b>type</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/ex-diagnosistype principal}\">The single medical diagnosis that is most relevant to the patient's chief complaint or need for treatment.</span></p></blockquote><blockquote><p><b>diagnosis</b></p><p><b>sequence</b>: 2</p><p><b>diagnosis</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm I25.118}\">Athscl heart disease of native cor art w oth ang pctrs</span></p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType other}\">Required when other conditions coexist or develop subsequently during the treatment</span></p></blockquote><blockquote><p><b>diagnosis</b></p><p><b>sequence</b>: 3</p><p><b>diagnosis</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm E78.5}\">Hyperlipidemia, unspecified</span></p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType other}\">Required when other conditions coexist or develop subsequently during the treatment</span></p></blockquote><blockquote><p><b>diagnosis</b></p><p><b>sequence</b>: 4</p><p><b>diagnosis</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm M19.90}\">Unspecified osteoarthritis, unspecified site</span></p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType other}\">Required when other conditions coexist or develop subsequently during the treatment</span></p></blockquote><blockquote><p><b>procedure</b></p><p><b>sequence</b>: 1</p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType principal}\">The Principal Procedure is based on the relation of the procedure to the Principal Diagnosis</span></p><p><b>date</b>: 2017-05-23</p><p><b>procedure</b>: <span title=\"Codes:{http://www.cms.gov/Medicare/Coding/ICD10 4A023N7}\">Measurement of Cardiac Sampling and Pressure, Left Heart, Percutaneous Approach</span></p></blockquote><blockquote><p><b>procedure</b></p><p><b>sequence</b>: 2</p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType other}\">Other procedures performed during the inpatient institutional admission</span></p><p><b>date</b>: 2017-05-23</p><p><b>procedure</b>: <span title=\"Codes:{http://www.cms.gov/Medicare/Coding/ICD10 B211YZZ}\">Fluoroscopy of Multiple Coronary Arteries using Other Contrast</span></p></blockquote><blockquote><p><b>procedure</b></p><p><b>sequence</b>: 3</p><p><b>type</b>: <span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType other}\">Other procedures performed during the inpatient institutional admission</span></p><p><b>date</b>: 2017-05-23</p><p><b>procedure</b>: <span title=\"Codes:{http://www.cms.gov/Medicare/Coding/ICD10 B215YZZ}\">Fluoroscopy of Left Heart using Other Contrast</span></p></blockquote><h3>Insurances</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Focal</b></td><td><b>Coverage</b></td></tr><tr><td style=\"display: none\">*</td><td>true</td><td><a href=\"Coverage-Coverage2.html\">Coverage: identifier = An identifier for the insured of an insurance policy (this insured always has a subscriber), usually assigned by the insurance carrier.: 88800933501; status = active; subscriberId = 888009335; dependent = 01; relationship = Self; period = 2017-01-01 --&gt; 2017-06-30; network = GI8-HMO DEDUCTIBLE</a></td></tr></table><blockquote><p><b>item</b></p><p><b>sequence</b>: 1</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0301}\">0301</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 2</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0260}\">0260</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 3</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0305}\">0305</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 4</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0324}\">0324</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 5</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0259}\">0259</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 6</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0250}\">0250</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 7</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0710}\">0710</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 8</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0210}\">0210</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 9</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0272}\">0272</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 10</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0370}\">0370</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 11</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0730}\">0730</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 12</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0450}\">0450</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><blockquote><p><b>item</b></p><p><b>sequence</b>: 13</p><p><b>revenue</b>: <span title=\"Codes:{https://www.nubc.org/CodeSystem/RevenueCodes 0481}\">0481</span></p><p><b>productOrService</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 99231}\">Subsequent hospital inpatient or observation care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded.</span></p><p><b>serviced</b>: 2017-05-23 --&gt; (ongoing)</p><p><b>location</b>: <span title=\"Codes:{https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set 21}\">HOSPITAL - INPATIENT HOSPITAL</span></p></blockquote><h3>Adjudications</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Category</b></td><td><b>Reason</b></td></tr><tr><td style=\"display: none\">*</td><td><span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator benefitpaymentstatus}\">Benefit Payment Status</span></td><td><span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus outofnetwork}\">Out Of Network</span></td></tr><tr><td style=\"display: none\">*</td><td><span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator billingnetworkstatus}\">Billing Network Status</span></td><td><span title=\"Codes:{http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus innetwork}\">Indicates the provider was in network for the service</span></td></tr></table></div>"
+      },
+      "identifier": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                "code": "uc",
+                "display": "Unique Claim ID"
+              }
+            ],
+            "text": "Indicates that the claim identifier is that assigned by a payer for a claim received from a provider or subscriber"
+          },
+          "system": "https://www.example.com/fhir/EOBIdentifier",
+          "value": "InpatientEOBExample1"
+        }
+      ],
+      "status": "active",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+            "version": "1.0.1",
+            "code": "institutional"
+          }
+        ],
+        "text": "Institutional"
+      },
+      "subType": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBInstitutionalClaimSubType",
+            "code": "inpatient"
+          }
+        ],
+        "text": "Inpatient"
+      },
+      "use": "claim",
+      "patient": {
+        "reference": "Patient/Patient1"
+      },
+      "billablePeriod": {
+        "start": "2017-05-23",
+        "end": "2017-05-23"
+      },
+      "created": "2017-06-01T04:00:00+00:00",
+      "insurer": {
+        "reference": "Organization/Payer2",
+        "display": "UPMC Health Plan"
+      },
+      "provider": {
+        "reference": "Organization/ProviderOrganization3"
+      },
+      "payee": {
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/payeetype",
+              "version": "1.0.1",
+              "code": "provider",
+              "display": "Provider"
+            }
+          ],
+          "text": "Any benefit payable will be paid to the provider (Assignment of Benefit)."
+        },
+        "party": {
+          "reference": "Organization/ProviderOrganization4"
+        }
+      },
+      "outcome": "complete",
+      "careTeam": [
+        {
+          "sequence": 1,
+          "provider": {
+            "reference": "Practitioner/Practitioner2"
+          },
+          "role": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimCareTeamRole",
+                "code": "attending",
+                "display": "Attending"
+              }
+            ],
+            "text": "The attending physician"
+          }
+        },
+        {
+          "sequence": 2,
+          "provider": {
+            "reference": "Practitioner/Practitioner2"
+          },
+          "role": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimCareTeamRole",
+                "code": "referring",
+                "display": "Referring"
+              }
+            ],
+            "text": "The referring physician"
+          }
+        }
+      ],
+      "supportingInfo": [
+        {
+          "sequence": 2,
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                "code": "admissionperiod"
+              }
+            ]
+          },
+          "timingPeriod": {
+            "start": "2017-05-23"
+          }
+        },
+        {
+          "sequence": 1,
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                "code": "clmrecvddate"
+              }
+            ]
+          },
+          "timingDate": "2017-06-01"
+        }
+      ],
+      "diagnosis": [
+        {
+          "sequence": 1,
+          "diagnosisCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "I21.4"
+              }
+            ]
+          },
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+                  "version": "1.0.1",
+                  "code": "principal",
+                  "display": "Principal Diagnosis"
+                }
+              ],
+              "text": "The single medical diagnosis that is most relevant to the patient's chief complaint or need for treatment."
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "diagnosisCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "I25.118"
+              }
+            ]
+          },
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType",
+                  "code": "other",
+                  "display": "Other"
+                }
+              ],
+              "text": "Required when other conditions coexist or develop subsequently during the treatment"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "diagnosisCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "E78.5"
+              }
+            ]
+          },
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType",
+                  "code": "other",
+                  "display": "Other"
+                }
+              ],
+              "text": "Required when other conditions coexist or develop subsequently during the treatment"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "diagnosisCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "M19.90"
+              }
+            ]
+          },
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimDiagnosisType",
+                  "code": "other",
+                  "display": "Other"
+                }
+              ],
+              "text": "Required when other conditions coexist or develop subsequently during the treatment"
+            }
+          ]
+        }
+      ],
+      "procedure": [
+        {
+          "sequence": 1,
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType",
+                  "code": "principal",
+                  "display": "Principal"
+                }
+              ],
+              "text": "The Principal Procedure is based on the relation of the procedure to the Principal Diagnosis"
+            }
+          ],
+          "date": "2017-05-23",
+          "procedureCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://www.cms.gov/Medicare/Coding/ICD10",
+                "code": "4A023N7"
+              }
+            ]
+          }
+        },
+        {
+          "sequence": 2,
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType",
+                  "code": "other",
+                  "display": "Other"
+                }
+              ],
+              "text": "Other procedures performed during the inpatient institutional admission"
+            }
+          ],
+          "date": "2017-05-23",
+          "procedureCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://www.cms.gov/Medicare/Coding/ICD10",
+                "code": "B211YZZ"
+              }
+            ]
+          }
+        },
+        {
+          "sequence": 3,
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBClaimProcedureType",
+                  "code": "other",
+                  "display": "Other"
+                }
+              ],
+              "text": "Other procedures performed during the inpatient institutional admission"
+            }
+          ],
+          "date": "2017-05-23",
+          "procedureCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://www.cms.gov/Medicare/Coding/ICD10",
+                "code": "B215YZZ"
+              }
+            ]
+          }
+        }
+      ],
+      "insurance": [
+        {
+          "focal": true,
+          "coverage": {
+            "reference": "Coverage/Coverage2"
+          }
+        }
+      ],
+      "item": [
+        {
+          "sequence": 1,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0301"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 2,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0260"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 3,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0305"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 4,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0324"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 5,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0259"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 6,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0250"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 7,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0710"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 8,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0210"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 9,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0272"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 10,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0370"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 11,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0730"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 12,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0450"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        },
+        {
+          "sequence": 13,
+          "revenue": {
+            "coding": [
+              {
+                "system": "https://www.nubc.org/CodeSystem/RevenueCodes",
+                "code": "0481"
+              }
+            ]
+          },
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99231"
+              }
+            ]
+          },
+          "servicedPeriod": {
+            "start": "2017-05-23"
+          },
+          "locationCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+                "code": "21"
+              }
+            ],
+            "text": "HOSPITAL - INPATIENT HOSPITAL"
+          }
+        }
+      ],
+      "adjudication": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator",
+                "code": "benefitpaymentstatus"
+              }
+            ]
+          },
+          "reason": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                "code": "outofnetwork"
+              }
+            ]
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator",
+                "code": "billingnetworkstatus"
+              }
+            ]
+          },
+          "reason": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                "code": "innetwork",
+                "display": "In Network"
+              }
+            ],
+            "text": "Indicates the provider was in network for the service"
+          }
+        }
+      ]
+    }
+  ],
+  "url": "---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json",
+  "name": "---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json",
+  "status": "active",
+  "fixture": [
+    {
+      "id": "fixture-ExplanationOfBenefit-0",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#fixture-ExplanationOfBenefit-0"
+      }
+    }
+  ],
+  "test": [
+    {
+      "name": "Test for resource with tag: ---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "resource": "ExplanationOfBenefit",
+            "encodeRequestUrl": true,
+            "responseId": "fixture-ExplanationOfBenefit-0",
+            "sourceId": "fixture-ExplanationOfBenefit-0"
+          }
+        },
+        {
+          "assert": {
+            "label": "Read created resource",
+            "description": "Confirm resource of type ExplanationOfBenefit created.",
+            "direction": "response",
+            "resource": "ExplanationOfBenefit",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ],
+  "teardown": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "description": "Delete resources created in test.",
+          "encodeRequestUrl": true,
+          "params": "_tag=---artifacts-r4-hl7-fhir-us-carin-bb-example-ExplanationOfBenefit-BB-EOBInpatient2-nonfinancial-json"
+        }
+      }
+    ]
+  }
+}

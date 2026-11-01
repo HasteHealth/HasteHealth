@@ -54,7 +54,8 @@ export type SuiteId =
   | "us-core-7"
   | "g10"
   | "access-control"
-  | "sql-on-fhir";
+  | "sql-on-fhir"
+  | "carin-bb";
 
 export const REPOSITORY =
   "https://github.com/HasteHealth/HasteHealth/blob/main";

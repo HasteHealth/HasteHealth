@@ -3,7 +3,7 @@
 //
 //   test-support  backend/testscripts/core/base + backend/testreports
 //                   -> static/test-reports/support.json
-//   test-suites   backend/testscripts/{us-core,g10,access-control,sql-on-fhir} + their TestReports
+//   test-suites   backend/testscripts/{us-core,g10,access-control,sql-on-fhir,carin-bb} + their TestReports
 //                   -> static/test-reports/suites/<suite>.json, static/test-reports/suites.json
 //   server        the local Haste Health server (HASTE_HEALTH_* in .env)
 //                   -> static/fhir/R4/metadata.json
