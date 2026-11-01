@@ -24,6 +24,7 @@ mod authorize;
 pub mod discovery;
 pub mod federated;
 pub mod interactions;
+pub mod introspect;
 mod jwks;
 pub mod route_string;
 pub mod scope;
@@ -73,19 +74,23 @@ pub fn create_router<
             Router::new()
                 // Responses that carry tokens must not be cached (RFC 6749
                 // section 5.1): Cache-Control for HTTP/1.1 caches and Pragma
-                // for HTTP/1.0 ones.
+                // for HTTP/1.0 ones. An introspection response describes a
+                // token, so it is not cached either.
                 .merge(
-                    Router::new().typed_post(token::token).route_layer(
-                        ServiceBuilder::new()
-                            .layer(SetResponseHeaderLayer::overriding(
-                                CACHE_CONTROL,
-                                HeaderValue::from_static("no-store"),
-                            ))
-                            .layer(SetResponseHeaderLayer::overriding(
-                                PRAGMA,
-                                HeaderValue::from_static("no-cache"),
-                            )),
-                    ),
+                    Router::new()
+                        .typed_post(token::token)
+                        .typed_post(introspect::introspect)
+                        .route_layer(
+                            ServiceBuilder::new()
+                                .layer(SetResponseHeaderLayer::overriding(
+                                    CACHE_CONTROL,
+                                    HeaderValue::from_static("no-store"),
+                                ))
+                                .layer(SetResponseHeaderLayer::overriding(
+                                    PRAGMA,
+                                    HeaderValue::from_static("no-cache"),
+                                )),
+                        ),
                 )
                 .merge(
                     Router::new()

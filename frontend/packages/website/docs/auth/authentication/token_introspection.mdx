@@ -1,0 +1,75 @@
+---
+title: Token Introspection
+description: How a resource server checks an access token issued by Haste Health with the OAuth 2.0 token introspection endpoint (RFC 7662), and the SMART fields it returns.
+sidebar_position: 7
+tags:
+  - authentication
+  - oauth2
+  - smart-on-fhir
+  - introspection
+---
+
+# Token Introspection
+
+A service that receives a Haste Health access token can ask the server whether the token is active, and what it grants, through the token introspection endpoint. The endpoint follows [RFC 7662](https://www.rfc-editor.org/rfc/rfc7662) and returns the extra fields from [SMART App Launch token introspection](https://hl7.org/fhir/smart-app-launch/STU2.2/token-introspection.html).
+
+Each project has its own endpoint. The SMART configuration lists it as `introspection_endpoint`:
+
+```
+POST https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/introspect
+```
+
+## Authenticating
+
+The caller authenticates as a confidential client: a `ClientApplication` in the same project that has a secret. Send its credentials in a Basic `Authorization` header (`client_secret_basic`) or as `client_id` and `client_secret` in the body (`client_secret_post`). A request without valid credentials gets `401` with an `invalid_client` error.
+
+The client can introspect a token issued to any client in the project, not only its own.
+
+## Request
+
+The body is a form with the token in `token`. `token_type_hint` is accepted and ignored.
+
+```bash
+curl -X POST "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/introspect" \
+  -u "resource-server:RESOURCE_SERVER_SECRET" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "token=ACCESS_TOKEN"
+```
+
+## Response
+
+An active token:
+
+```json
+{
+  "active": true,
+  "scope": "openid fhirUser launch patient/*.rs",
+  "client_id": "smart-app-id",
+  "token_type": "Bearer",
+  "exp": 1767225600,
+  "sub": "user-id",
+  "aud": "https://api.haste.health/w/{tenant}/{project}/api/v1/fhir",
+  "iss": "https://api.haste.health/w/{tenant}/{project}",
+  "fhirUser": "Practitioner/789",
+  "patient": "123",
+  "encounter": "456",
+  "need_patient_banner": true,
+  "smart_style_url": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/smart-style.json"
+}
+```
+
+| Field                                                 | Returned                                                                                           |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `active`, `scope`, `client_id`, `exp`                 | Always, for an active token. `scope` and `exp` match the token response.                           |
+| `token_type`, `sub`, `aud`, `iss`                     | Always, for an active token. `sub` is the user, or the client for a client credentials token.      |
+| `fhirUser`                                            | When the token was issued with the `fhirUser` scope and the user's membership links to a resource. |
+| `patient`                                             | When the token response returned it: with the `launch` scope, or with `patient/` scopes.           |
+| `encounter`, `need_patient_banner`, `smart_style_url` | For an EHR launch, as in the token response.                                                       |
+
+A token is active when the project's FHIR API would accept it: it was signed by this server, it was issued for this project, and it has not expired. Any other token, including an unknown string, an expired token, a token for another project, a refresh token or an id token, gets only:
+
+```json
+{ "active": false }
+```
+
+Introspection responses are sent with `Cache-Control: no-store`.

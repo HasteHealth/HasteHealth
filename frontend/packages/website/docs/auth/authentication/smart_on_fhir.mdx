@@ -337,6 +337,7 @@ Host: api.haste.health
   "issuer": "https://api.haste.health",
   "authorization_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/authorize",
   "token_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/token",
+  "introspection_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/introspect",
   "token_endpoint_auth_methods_supported": [
     "client_secret_basic",
     "client_secret_post",
@@ -384,7 +385,7 @@ Host: api.haste.health
 }
 ```
 
-`registration_endpoint` is omitted entirely (dynamic client registration isn't supported — register a `ClientApplication` resource directly instead; see [Client Registration](/docs/auth/authentication/client_registration)).
+`registration_endpoint` is omitted entirely (dynamic client registration isn't supported — register a `ClientApplication` resource directly instead; see [Client Registration](/docs/auth/authentication/client_registration)). For `introspection_endpoint`, see [Token Introspection](/docs/auth/authentication/token_introspection).
 
 #
 ## SMART Capabilities

@@ -35,7 +35,10 @@ pub struct User {
     pub claims: haste_jwt::claims::UserTokenClaims,
 }
 
-fn validate_jwt(
+/// The claims of `token` if it is an access token issued for `tenant` and
+/// `project`'s FHIR API: signed with one of the server's keys, addressed to
+/// that API and not expired.
+pub(crate) fn validate_jwt(
     config: &ServerConfig,
     tenant: &TenantId,
     project: &ProjectId,
