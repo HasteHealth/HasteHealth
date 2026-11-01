@@ -1,7 +1,7 @@
 name: <Test> US Core 7.0.0 TestScripts
 
 # Runs the US Core 7.0.0 TestScripts, backend/testscripts/us-core/7.0.0,
-# against both search backends, with the US Core 7.0.0 package loaded
+# against both search backends, with the US Core 7.0.0 package installed
 # (artifacts/r4/hl7.fhir.us.core-7.0.0, exactly as HL7 publishes it). 7.0.0 is
 # the US Core version the ONC (g)(10) test kit certifies against. It runs apart
 # from the 9.0.0 TestScripts (test_e2e_us_core.yml) because both packages use
@@ -156,8 +156,12 @@ jobs:
           exit 1
         working-directory: ./backend
 
-      - name: Load US Core 7.0.0 profiles
-        run: node scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0
+      # Installs the package from its folder in artifacts/ through
+      # ImplementationGuide/$install. Without its dependencies: the TestScripts
+      # need only US Core's own resources, and fetching the rest would make the
+      # job depend on the package registry.
+      - name: Install US Core 7.0.0
+        run: ./target/debug/haste-health package install ../artifacts/r4/hl7.fhir.us.core-7.0.0 --no-dependencies
         working-directory: ./backend
 
       - name: Wait for US Core profiles to be indexed

@@ -33,7 +33,7 @@ backend client. So the directory follows the access control layout. It runs with
 CI runs this in `.github/workflows/test_e2e_g10.yml` (called by `test_e2e.yml`), on the Postgres
 search backend. The steps are:
 
-1. Load the US Core 7.0.0 profiles (`scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0`).
+1. Install US Core 7.0.0 from `artifacts/r4/hl7.fhir.us.core-7.0.0`, without its dependencies.
 2. Wait until the CapabilityStatement lists them. The server caches it for up to 30 seconds, and
    12.1.05 checks its `supportedProfile`.
 3. Run the setup phase.
@@ -45,7 +45,7 @@ To run it locally against a server that has a tenant and the `testing` admin pro
 repository root (and give the CapabilityStatement 30 seconds after loading US Core):
 
 ```sh
-node backend/scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0
+(cd backend && ./target/debug/haste-health package install ../artifacts/r4/hl7.fhir.us.core-7.0.0 --no-dependencies)
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs setup
 bash .github/scripts/wait_for_indexing.sh 600
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs sign-in
