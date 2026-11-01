@@ -45,10 +45,12 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_package::{Limits, Manifest, Package, PackageError, PackageFile, PackageSpec};
 use haste_jwt::{ProjectId, ResourceId, TenantId, claims::SubscriptionTier};
+use haste_rate_limit::{RateLimit, RateLimitError};
 use haste_reflect::MetaValue;
 use haste_repository::fhir::FHIRRepository;
+use haste_subscription::ResourceLimit;
 use std::{
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{BTreeMap, HashMap, HashSet, VecDeque},
     sync::OnceLock,
 };
 use tokio::sync::{Semaphore, SemaphorePermit};
@@ -427,6 +429,50 @@ fn install_permit(
         })
 }
 
+/// Refuses a Free tier tenant's install that starts within
+/// `packages.free_tier_install_interval_seconds` of its last one, with 429.
+/// The count is kept in the rate limit store, so it holds across servers.
+async fn free_tier_cooldown(
+    rate_limit: &dyn RateLimit,
+    tenant: &TenantId,
+    config: &PackagesConfig,
+) -> Result<(), OperationOutcomeError> {
+    let interval = config.free_tier_install_interval_seconds;
+    if interval == 0 {
+        return Ok(());
+    }
+    let key = format!("package_install:{}", tenant.as_ref());
+    let window = i32::try_from(interval).unwrap_or(i32::MAX);
+    match rate_limit.check_uncached(&key, 1, 1, window).await {
+        Ok(_) => Ok(()),
+        Err(RateLimitError::Exceeded) => Err(OperationOutcomeError::error(
+            IssueType::throttled(),
+            format!(
+                "The {} plan allows one package install every {}. Try again later.",
+                haste_subscription::limits_for(&SubscriptionTier::Free).display_name,
+                describe_seconds(interval)
+            ),
+        )),
+        Err(RateLimitError::Error(message)) => {
+            tracing::error!("Package install rate limit error: {message}");
+            Err(OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "Failed to process rate limit".to_string(),
+            ))
+        }
+    }
+}
+
+/// `seconds` for a message: whole minutes when it is, else seconds.
+fn describe_seconds(seconds: u64) -> String {
+    match seconds {
+        1 => "second".to_string(),
+        60 => "minute".to_string(),
+        seconds if seconds.is_multiple_of(60) => format!("{} minutes", seconds / 60),
+        seconds => format!("{seconds} seconds"),
+    }
+}
+
 /// What one install has used so far, against `packages.max_install_packages`
 /// and `packages.max_install_bytes`.
 #[derive(Default)]
@@ -684,11 +730,13 @@ struct Write {
 }
 
 /// The resources of `selected` to install, and its own ImplementationGuide
-/// if it ships one. Files that cannot be read, or that another package in
-/// this install already wrote, are reported and left out.
+/// if it ships one. Files that cannot be read, that another package in this
+/// install already wrote, or whose type the caller's plan does not allow
+/// (`SearchParameter` on the Free tier) are reported and left out.
 fn package_writes(
     selected: &mut Selected,
     examples: bool,
+    tier: &SubscriptionTier,
     claimed: &mut HashMap<Key, String>,
     report: &mut Report,
 ) -> (Vec<Write>, Option<ImplementationGuide>) {
@@ -709,6 +757,7 @@ fn package_writes(
     let mut own_guide = None;
     let mut writes = Vec::new();
     let mut retargeted = HashSet::new();
+    let mut withheld = BTreeMap::<String, usize>::new();
     for (file, example) in files {
         let Some(resource) = parse_file(&file, example, &label, &mut retargeted, report) else {
             continue;
@@ -716,6 +765,12 @@ fn package_writes(
         let resource_type = resource.resource_type();
         if let Resource::ImplementationGuide(guide) = resource {
             own_guide.get_or_insert(guide);
+            continue;
+        }
+        if haste_subscription::resource_limit_for(tier, &resource_type) == ResourceLimit::Count(0) {
+            *withheld
+                .entry(resource_type.as_ref().to_string())
+                .or_default() += 1;
             continue;
         }
 
@@ -746,6 +801,13 @@ fn package_writes(
             "{label}: StructureDefinitions that name FHIR {} were installed as FHIR 4.0.1, \
              the version the package is for.",
             versions.join(", ")
+        ));
+    }
+    for (resource_type, count) in withheld {
+        report.warn(format!(
+            "{label}: {count} {resource_type} resources were not installed, as the {} plan \
+             does not allow them.",
+            haste_subscription::limits_for(tier).display_name
         ));
     }
     (writes, own_guide)
@@ -1038,15 +1100,7 @@ async fn install<B: Backend>(
     input: Install::Input,
 ) -> Result<Install::Output, OperationOutcomeError> {
     let config = &context.state.config.packages;
-    if context.ctx.user.claims.subscription_tier == SubscriptionTier::Free {
-        return Err(OperationOutcomeError::error(
-            IssueType::forbidden(),
-            "Installing packages is not available on the Free tier.".to_string(),
-        ));
-    }
-    // Held until the install returns.
-    let _permit = install_permit(config)?;
-
+    let tier = context.ctx.user.claims.subscription_tier.clone();
     let dependencies = input
         .dependencies
         .and_then(|value| value.value)
@@ -1071,6 +1125,14 @@ async fn install<B: Backend>(
                 .to_string(),
         ));
     }
+
+    // The cooldown comes before the permit, so the attempts it refuses never
+    // hold the place another install could use.
+    if tier == SubscriptionTier::Free {
+        free_tier_cooldown(context.ctx.rate_limit.as_ref(), &tenant, config).await?;
+    }
+    // Held until the install returns.
+    let _permit = install_permit(config)?;
 
     // Uploads count toward the install's limits like fetched packages.
     let mut usage = Usage::default();
@@ -1110,7 +1172,7 @@ async fn install<B: Backend>(
     let mut claimed = HashMap::new();
     let planned = selected
         .iter_mut()
-        .map(|selected| package_writes(selected, examples, &mut claimed, &mut report))
+        .map(|selected| package_writes(selected, examples, &tier, &mut claimed, &mut report))
         .collect::<Vec<_>>();
 
     // What is in the project now: every id about to be written, and

@@ -123,6 +123,9 @@ pub struct PackagesConfig {
     /// Installs this server runs at once; one more is refused with 429. One
     /// install at the byte limit can peak near 800 MB, so the default is 1.
     pub max_concurrent_installs: usize,
+    /// How often one Free tier tenant may start an install, in seconds;
+    /// another within this time is refused with 429. 0 turns the wait off.
+    pub free_tier_install_interval_seconds: u64,
 }
 
 impl Default for PackagesConfig {
@@ -147,6 +150,7 @@ impl Default for PackagesConfig {
             max_install_packages: 50,
             max_install_bytes: 200 * 1024 * 1024,
             max_concurrent_installs: 1,
+            free_tier_install_interval_seconds: 120,
         }
     }
 }

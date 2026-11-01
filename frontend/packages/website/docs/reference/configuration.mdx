@@ -154,6 +154,7 @@ Settings for installing FHIR packages (implementation guides) with `Implementati
 | `packages.max_install_packages` | `HASTE_PACKAGES.max_install_packages` | `50` | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
 | `packages.max_install_bytes` | `HASTE_PACKAGES.max_install_bytes` | `209715200` (200 MiB) | Most the packages of one install may unpack to together, uploads included. Checked while unpacking. An install's peak memory is about four times this. |
 | `packages.max_concurrent_installs` | `HASTE_PACKAGES.max_concurrent_installs` | `1` | Installs one server runs at once. Another is refused with `429`. |
+| `packages.free_tier_install_interval_seconds` | `HASTE_PACKAGES.free_tier_install_interval_seconds` | `120` | How often one Free tier tenant may start an install, in seconds. Another within this time is refused with `429`. `0` turns the wait off. |
 
 ### `[operations]`
 
