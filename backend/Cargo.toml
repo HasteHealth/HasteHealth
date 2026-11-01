@@ -28,6 +28,7 @@ members = [
     "crates/fhir-operation-error-derive",
     "crates/fhir-ops",
     "crates/fhir-ops-derive",
+    "crates/fhir-package",
     "crates/fhir-profiling",
     "crates/fhir-search",
     "crates/fhir-serialization-json",
@@ -184,8 +185,10 @@ haste-codegen = { path = "./crates/codegen" }
 haste-config = { path = "./crates/config" }
 haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
 haste-fhir-converter = { path = "./crates/fhir-converter" }
+haste-fhir-generated-ops = { path = "./crates/fhir-generated-ops" }
 haste-fhir-model = { path = "./crates/fhir-model" }
 haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
+haste-fhir-package = { path = "./crates/fhir-package" }
 haste-fhir-search = { path = "./crates/fhir-search" }
 haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 haste-fhirpath = { path = "./crates/fhirpath" }

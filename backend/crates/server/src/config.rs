@@ -31,6 +31,7 @@ pub struct ServerConfig {
     pub operations: OperationsConfig,
     pub signup: SignupConfig,
     pub jobs: JobsConfig,
+    pub packages: PackagesConfig,
 }
 
 /// Asynchronous jobs: an operation invoked with `Prefer: respond-async` today,
@@ -88,6 +89,75 @@ impl Default for JobsConfig {
             poll_interval_ms: 1000,
             max_concurrent: 4,
             maintenance_interval_seconds: 60,
+        }
+    }
+}
+
+/// Installing FHIR packages (implementation guides) into a project with
+/// `ImplementationGuide/$install`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct PackagesConfig {
+    /// The package registry a package named by `name@version` is fetched
+    /// from. It serves the npm-style API packages.fhir.org does and must be
+    /// an https URL; a redirect is followed only within it. Empty turns off
+    /// fetching, so packages can only be uploaded.
+    pub registry_url: String,
+    /// Packages not installed when another package depends on them: large
+    /// terminology and cross-version packages, that would add thousands of
+    /// resources to every project that installs an IG. Naming one in `$install` still
+    /// installs it. The FHIR core packages are always skipped, as the server
+    /// has them built in.
+    pub skip_dependencies: Vec<String>,
+    /// The largest package tarball fetched or uploaded, compressed, in bytes.
+    pub max_package_bytes: u64,
+    /// The most files one package may hold.
+    pub max_files: usize,
+    /// The most packages one install may fetch or upload, dependencies of
+    /// dependencies included. A fetch that fails still counts.
+    pub max_install_packages: usize,
+    /// The most the packages of one install may unpack to together, uploads
+    /// included, in bytes. It is enforced while unpacking. An install's peak
+    /// memory is about four times what its packages unpack to.
+    pub max_install_bytes: u64,
+    /// Installs this server runs at once; one more is refused with 429. One
+    /// install at the byte limit can peak near 800 MB, so the default is 1.
+    pub max_concurrent_installs: usize,
+    /// How often one Free tier tenant may start an install, in seconds;
+    /// another within this time is refused with 429. 0 turns the wait off.
+    pub free_tier_install_interval_seconds: u64,
+    /// How often any Free tier tenant may start an install, all of them
+    /// together, in seconds; another within this time is refused with 429.
+    /// It keeps many Free tier tenants taking turns from holding the
+    /// install slot, so set it well above how long one install takes.
+    /// 0 turns the wait off.
+    pub free_tier_shared_install_interval_seconds: u64,
+}
+
+impl Default for PackagesConfig {
+    fn default() -> Self {
+        Self {
+            registry_url: "https://packages.fhir.org".to_string(),
+            skip_dependencies: [
+                "hl7.terminology",
+                "hl7.terminology.r4",
+                "hl7.terminology.r5",
+                "us.nlm.vsac",
+                "us.cdc.phinvads",
+                "hl7.fhir.uv.xver-r5.r4",
+                "hl7.fhir.uv.xver-r4b.r4",
+                "hl7.fhir.uv.xver-r3.r4",
+                "hl7.fhir.uv.xver-r2.r4",
+            ]
+            .map(str::to_string)
+            .to_vec(),
+            max_package_bytes: 20 * 1024 * 1024,
+            max_files: 20_000,
+            max_install_packages: 50,
+            max_install_bytes: 200 * 1024 * 1024,
+            max_concurrent_installs: 1,
+            free_tier_install_interval_seconds: 120,
+            free_tier_shared_install_interval_seconds: 60,
         }
     }
 }
@@ -221,6 +291,7 @@ impl Default for ServerConfig {
             operations: OperationsConfig::default(),
             signup: SignupConfig::default(),
             jobs: JobsConfig::default(),
+            packages: PackagesConfig::default(),
         }
     }
 }

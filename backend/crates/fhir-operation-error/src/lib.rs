@@ -15,7 +15,7 @@ pub mod axum;
 /// An HTTP status that takes precedence over the one derived from the first issue's code.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum StatusOverride {
-    /// 422: the resource is well formed but violates an applicable profile.
+    /// 422: the request is well formed but cannot be processed as it is.
     UnprocessableEntity,
 }
 
@@ -60,7 +60,8 @@ impl OperationOutcomeError {
     }
 
     /// An error that answers 422 Unprocessable Entity whatever its issue codes:
-    /// the resource is well formed but violates an applicable profile.
+    /// the request is well formed but cannot be processed as it is, such as a
+    /// resource that violates an applicable profile.
     #[must_use]
     pub fn unprocessable(outcome: OperationOutcome) -> Self {
         OperationOutcomeError {

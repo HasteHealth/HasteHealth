@@ -500,6 +500,142 @@ pub mod HasteHealthIdpRegistrationInfo {
         }
     }
 }
+#[doc = "Install FHIR packages (implementation guides) into the current project: their profiles, extensions,"]
+#[doc = "`ValueSets`, `CodeSystems`, `ConceptMaps`, `NamingSystems` and `SearchParameters`. Name a package to"]
+#[doc = "fetch it from the package registry, or upload its .tgz. Each installed package is recorded as an"]
+#[doc = "`ImplementationGuide` whose id is the package name. Installing a package that is already installed"]
+#[doc = "replaces it with the version given. Everything is written in one transaction."]
+pub mod HasteHealthImplementationguideInstall {
+    use haste_fhir_model::r4::generated::resources::{
+        OperationDefinition, OperationOutcome, Parameters, ParametersParameter, Resource,
+    };
+    use haste_fhir_model::r4::generated::types::{
+        FHIRBase64Binary, FHIRBoolean, FHIRCode, FHIRInteger, FHIRString,
+    };
+    use haste_fhir_operation_error::OperationOutcomeError;
+    use haste_fhir_ops::derive::{FromParameters, ToParameters};
+    use std::sync::LazyLock;
+    pub const CODE: &str = "install";
+    const OPERATION_DEFINITION_JSON: &str = r#"{"resourceType":"OperationDefinition","id":"haste-health-implementationguide-install","url":"https://haste.health/OperationDefinition/implementationguide-install","version":"4.0.1","name":"Install Implementation Guide","status":"draft","kind":"operation","date":"2026-10-30T22:00:00+00:00","publisher":"HasteHealth","description":"Install FHIR packages (implementation guides) into the current project: their profiles, extensions, ValueSets, CodeSystems, ConceptMaps, NamingSystems and SearchParameters. Name a package to fetch it from the package registry, or upload its .tgz. Each installed package is recorded as an ImplementationGuide whose id is the package name. Installing a package that is already installed replaces it with the version given. Everything is written in one transaction.","affectsState":true,"code":"install","resource":["ImplementationGuide"],"system":false,"type":true,"instance":false,"parameter":[{"name":"package","use":"in","min":0,"max":"*","documentation":"A package to fetch from the package registry: 'name@version' (or 'name#version'), 'name@6.1.x' for the newest patch, or 'name' alone for the latest version. Example: 'hl7.fhir.us.core@6.1.0'.","type":"string"},{"name":"npmContent","use":"in","min":0,"max":"*","documentation":"A package tarball (.tgz), base64 encoded. Its dependencies are taken from the other uploaded tarballs first, then from the package registry.","type":"base64Binary"},{"name":"dependencies","use":"in","min":0,"max":"1","documentation":"Also install the packages these depend on (default true). A dependency that is already installed, in any version, is left as it is. The FHIR core packages are built in, and the server skips the large terminology packages (hl7.terminology, VSAC, PHIN VADS) unless they are named directly.","type":"boolean"},{"name":"examples","use":"in","min":0,"max":"1","documentation":"Also install the example resources of the packages named or uploaded (default false). Dependencies' examples are never installed.","type":"boolean"},{"name":"package","use":"out","min":0,"max":"*","documentation":"One for each package considered: the ones asked for and their dependencies.","part":[{"name":"name","use":"out","min":1,"max":"1","documentation":"The package name.","type":"string"},{"name":"version","use":"out","min":1,"max":"1","documentation":"The version installed, or for a skipped package the version asked for.","type":"string"},{"name":"status","use":"out","min":1,"max":"1","documentation":"installed (it was not installed before), updated (it replaced an installed version) or skipped (see reason).","type":"code"},{"name":"previousVersion","use":"out","min":0,"max":"1","documentation":"For updated, the version it replaced.","type":"string"},{"name":"resources","use":"out","min":0,"max":"1","documentation":"How many of its resources were written.","type":"integer"},{"name":"reason","use":"out","min":0,"max":"1","documentation":"Why a package was skipped.","type":"string"}]},{"name":"outcome","use":"out","min":0,"max":"1","documentation":"Warnings about resources that were not installed, for example a resource that could not be read or whose id is taken by a resource the package did not install.","type":"OperationOutcome"}]}"#;
+    #[doc = "The `OperationDefinition` this module was generated from."]
+    pub static OPERATION_DEFINITION: LazyLock<OperationDefinition> = LazyLock::new(|| {
+        serde_json::from_str(OPERATION_DEFINITION_JSON)
+            .expect("Generated OperationDefinition JSON must deserialize.")
+    });
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "A package to fetch from the package registry: 'name@version' (or 'name#version'), 'name@6.1.x' for"]
+        #[doc = "the newest patch, or `name` alone for the latest version. Example: 'hl7.fhir.us.core@6.1.0'."]
+        pub package: Option<Vec<FHIRString>>,
+        #[doc = "A package tarball (.tgz), base64 encoded. Its dependencies are taken from the other uploaded"]
+        #[doc = "tarballs first, then from the package registry."]
+        pub npmContent: Option<Vec<FHIRBase64Binary>>,
+        #[doc = "Also install the packages these depend on (default true). A dependency that is already installed, in"]
+        #[doc = "any version, is left as it is. The FHIR core packages are built in, and the server skips the large"]
+        #[doc = "terminology packages (hl7.terminology, VSAC, PHIN VADS) unless they are named directly."]
+        pub dependencies: Option<FHIRBoolean>,
+        #[doc = "Also install the example resources of the packages named or uploaded (default false). Dependencies'"]
+        #[doc = "examples are never installed."]
+        pub examples: Option<FHIRBoolean>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputPackage {
+        #[doc = "The package name."]
+        pub name: FHIRString,
+        #[doc = "The version installed, or for a skipped package the version asked for."]
+        pub version: FHIRString,
+        #[doc = "installed (it was not installed before), updated (it replaced an installed version) or skipped (see"]
+        #[doc = "reason)."]
+        pub status: FHIRCode,
+        #[doc = "For updated, the version it replaced."]
+        pub previousVersion: Option<FHIRString>,
+        #[doc = "How many of its resources were written."]
+        pub resources: Option<FHIRInteger>,
+        #[doc = "Why a package was skipped."]
+        pub reason: Option<FHIRString>,
+    }
+    impl From<OutputPackage> for Resource {
+        fn from(value: OutputPackage) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "One for each package considered: the ones asked for and their dependencies."]
+        #[parameter_nested]
+        pub package: Option<Vec<OutputPackage>>,
+        #[doc = "Warnings about resources that were not installed, for example a resource that could not be read or"]
+        #[doc = "whose id is taken by a resource the package did not install."]
+        pub outcome: Option<OperationOutcome>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Uninstall a package that $install installed in the current project: delete the resources it"]
+#[doc = "installed and its `ImplementationGuide` record. Packages it depends on stay installed."]
+pub mod HasteHealthImplementationguideUninstall {
+    use haste_fhir_model::r4::generated::resources::{
+        OperationDefinition, OperationOutcome, Parameters, ParametersParameter, Resource,
+    };
+    use haste_fhir_model::r4::generated::types::FHIRString;
+    use haste_fhir_operation_error::OperationOutcomeError;
+    use haste_fhir_ops::derive::{FromParameters, ToParameters};
+    use std::sync::LazyLock;
+    pub const CODE: &str = "uninstall";
+    const OPERATION_DEFINITION_JSON: &str = r#"{"resourceType":"OperationDefinition","id":"haste-health-implementationguide-uninstall","url":"https://haste.health/OperationDefinition/implementationguide-uninstall","version":"4.0.1","name":"Uninstall Implementation Guide","status":"draft","kind":"operation","date":"2026-10-30T22:00:00+00:00","publisher":"HasteHealth","description":"Uninstall a package that $install installed in the current project: delete the resources it installed and its ImplementationGuide record. Packages it depends on stay installed.","affectsState":true,"code":"uninstall","resource":["ImplementationGuide"],"system":false,"type":true,"instance":false,"parameter":[{"name":"name","use":"in","min":1,"max":"1","documentation":"The package name, for example 'hl7.fhir.us.core'.","type":"string"},{"name":"version","use":"in","min":0,"max":"1","documentation":"The installed version. When given and another version is installed, nothing is uninstalled.","type":"string"},{"name":"return","use":"out","min":1,"max":"1","documentation":"What was uninstalled.","type":"OperationOutcome"}]}"#;
+    #[doc = "The `OperationDefinition` this module was generated from."]
+    pub static OPERATION_DEFINITION: LazyLock<OperationDefinition> = LazyLock::new(|| {
+        serde_json::from_str(OPERATION_DEFINITION_JSON)
+            .expect("Generated OperationDefinition JSON must deserialize.")
+    });
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "The package name, for example 'hl7.fhir.us.core'."]
+        pub name: FHIRString,
+        #[doc = "The installed version. When given and another version is installed, nothing is uninstalled."]
+        pub version: Option<FHIRString>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[doc = "What was uninstalled."]
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
 #[doc = "Show resources that failed search indexing for the current tenant and project."]
 pub mod HasteHealthIndexingErrors {
     use haste_fhir_model::r4::generated::resources::{

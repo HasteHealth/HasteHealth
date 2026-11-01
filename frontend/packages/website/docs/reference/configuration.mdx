@@ -141,6 +141,22 @@ Tagged by `type`: `environment` (default), `gcp`, or `aws`.
 | `security.encryption.project_id` (gcp only) | `HASTE_SECURITY.encryption.project_id` | — |
 | `security.encryption.region` (aws only) | `HASTE_SECURITY.encryption.region` | — |
 
+### `[packages]`
+
+Settings for installing FHIR packages (implementation guides) with `ImplementationGuide/$install`. See [Implementation Guides](/docs/guides/implementation_guides).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `packages.registry_url` | `HASTE_PACKAGES.registry_url` | `https://packages.fhir.org` | The FHIR package registry packages are fetched from. Must be `https`; redirects are followed only within it. Empty turns off fetching, so packages can only be uploaded. |
+| `packages.skip_dependencies` | `HASTE_PACKAGES.skip_dependencies` | `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`, `hl7.fhir.uv.xver-r5.r4`, `hl7.fhir.uv.xver-r4b.r4`, `hl7.fhir.uv.xver-r3.r4`, `hl7.fhir.uv.xver-r2.r4` | Packages not installed as a dependency. Naming one directly still installs it. |
+| `packages.max_package_bytes` | `HASTE_PACKAGES.max_package_bytes` | `20971520` (20 MiB) | Largest package download or upload, compressed. |
+| `packages.max_files` | `HASTE_PACKAGES.max_files` | `20000` | Most files in one package. |
+| `packages.max_install_packages` | `HASTE_PACKAGES.max_install_packages` | `50` | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
+| `packages.max_install_bytes` | `HASTE_PACKAGES.max_install_bytes` | `209715200` (200 MiB) | Most the packages of one install may unpack to together, uploads included. Checked while unpacking. An install's peak memory is about four times this. |
+| `packages.max_concurrent_installs` | `HASTE_PACKAGES.max_concurrent_installs` | `1` | Installs one server runs at once. Another is refused with `429`. |
+| `packages.free_tier_install_interval_seconds` | `HASTE_PACKAGES.free_tier_install_interval_seconds` | `120` | How often one Free tier tenant may start an install, in seconds. Another within this time is refused with `429`. `0` turns the wait off. |
+| `packages.free_tier_shared_install_interval_seconds` | `HASTE_PACKAGES.free_tier_shared_install_interval_seconds` | `60` | How often any Free tier tenant may start an install, all of them together, in seconds. Another within this time is refused with `429`. Set it well above how long one install takes. `0` turns the wait off. |
+
 ### `[operations]`
 
 | Key | Env var | Default | Notes |
