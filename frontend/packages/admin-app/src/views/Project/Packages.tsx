@@ -99,11 +99,22 @@ function StatusBadge({ status }: Readonly<{ status: string }>) {
   );
 }
 
+/** What a result row says after the package's name. */
+function resultSummary(result: PackageResult): string | undefined {
+  if (result.status === "skipped") return result.reason;
+  const replaced = result.previousVersion
+    ? `, replaced ${result.previousVersion}`
+    : "";
+  return `${result.resources ?? 0} resources${replaced}`;
+}
+
 /** What the last install did: one row per package, then any warnings. */
 function InstallResult({ output }: Readonly<{ output: Install.Output }>) {
   const warnings = (output.outcome?.issue ?? [])
     .map((issue) => issue.diagnostics)
-    .filter((diagnostics): diagnostics is string => !!diagnostics);
+    .filter((diagnostics): diagnostics is string => !!diagnostics)
+    // Distinct, so each warning is its own key.
+    .filter((warning, index, all) => all.indexOf(warning) === index);
 
   return (
     <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4">
@@ -118,15 +129,7 @@ function InstallResult({ output }: Readonly<{ output: Install.Output }>) {
             <span className="font-medium text-slate-900">
               {result.name}@{result.version}
             </span>
-            <span className="text-slate-500">
-              {result.status === "skipped"
-                ? result.reason
-                : `${result.resources ?? 0} resources${
-                    result.previousVersion
-                      ? `, replaced ${result.previousVersion}`
-                      : ""
-                  }`}
-            </span>
+            <span className="text-slate-500">{resultSummary(result)}</span>
           </li>
         ))}
       </ul>
@@ -136,13 +139,41 @@ function InstallResult({ output }: Readonly<{ output: Install.Output }>) {
             {warnings.length} warning{warnings.length === 1 ? "" : "s"}
           </summary>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-4">
-            {warnings.map((warning, i) => (
-              <li key={i}>{warning}</li>
+            {warnings.map((warning) => (
+              <li key={warning}>{warning}</li>
             ))}
           </ul>
         </details>
       )}
     </div>
+  );
+}
+
+/**
+ * A button inside a table row. Its clicks and keys stay with it rather than
+ * reaching the row, which opens its resource on a click, Enter or Space.
+ */
+function RowButton({
+  className,
+  onClick,
+  children,
+}: Readonly<{
+  className: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}>) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -155,24 +186,20 @@ function UninstallControl({
 }>) {
   const [confirming, setConfirming] = useState(false);
 
-  // Clicks stay here rather than opening the row's resource.
   return (
-    <div
-      className="flex items-center justify-end gap-1"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="flex items-center justify-end gap-1">
       {confirming ? (
         <>
           <span className="mr-1 text-xs text-slate-600">
             Delete what it installed?
           </span>
-          <button
+          <RowButton
             className="rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
             onClick={() => setConfirming(false)}
           >
             Cancel
-          </button>
-          <button
+          </RowButton>
+          <RowButton
             className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
             onClick={() => {
               setConfirming(false);
@@ -180,15 +207,15 @@ function UninstallControl({
             }}
           >
             Uninstall
-          </button>
+          </RowButton>
         </>
       ) : (
-        <button
+        <RowButton
           className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50 hover:text-red-700"
           onClick={() => setConfirming(true)}
         >
           Uninstall
-        </button>
+        </RowButton>
       )}
     </div>
   );
@@ -354,7 +381,7 @@ export default function Packages() {
 
       Toaster.promise(promise, {
         loading: `Uninstalling ${guide.packageId}`,
-        success: (message) => String(message),
+        success: String,
         error: errorMessage,
       });
     },
