@@ -15,8 +15,15 @@ function flattenData(data) {
   return [data];
 }
 
+// The US Core package to load, a directory under artifacts/r4. US Core 9.0.0
+// by default; the US Core 7.0.0 TestScripts load hl7.fhir.us.core-7.0.0.
+// Both packages use the same canonical URLs, so a project gets one of them.
+//   node scripts/load_us_core.mjs [package directory]
+const packageName = process.argv[2] ?? "hl7.fhir.us.core";
+
 function loadUSCoreProfiles() {
-  const artifactsDir = join(__dirname, "../../artifacts/r4/hl7.fhir.us.core");
+  const artifactsDir = join(__dirname, "../../artifacts/r4", packageName);
+  console.log(`Loading US Core from artifacts/r4/${packageName} ...`);
   // The artifact directory is also an npm package, so skip its metadata files:
   // they are .json but not FHIR resources.
   const packageMetadata = new Set([".index.json", "package.json"]);

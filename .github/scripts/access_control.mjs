@@ -3,7 +3,9 @@
 // scenario:
 //   scenario.json  who signs in: a user through a client (grantType
 //                  authorization_code) or a client on its own
-//                  (client_credentials), and the scopes requested
+//                  (client_credentials), and the scopes requested. A user
+//                  approves every requested scope, or with grantedScope only
+//                  those, unchecking the rest on the approval page.
 //   setup/         TestScripts run as the admin: the data, the principal's
 //                  access policies, the client and any user
 //   tests/         TestScripts run as the principal
@@ -85,7 +87,12 @@ const signInBy = {
       ...profileFlags(scenario, "authorization-code"),
       "redirect-uri": scenario.redirectUri,
     });
-    await headlessLogin(cliPath, scenario.userEmail, password);
+    await headlessLogin(
+      cliPath,
+      scenario.userEmail,
+      password,
+      scenario.grantedScope,
+    );
   },
 
   // The client itself, with a secret.

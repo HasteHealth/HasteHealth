@@ -49,7 +49,12 @@ export type SuiteReport = {
   groups: SuiteGroup[];
 };
 
-export type SuiteId = "us-core" | "g10" | "access-control" | "sql-on-fhir";
+export type SuiteId =
+  | "us-core"
+  | "us-core-7"
+  | "g10"
+  | "access-control"
+  | "sql-on-fhir";
 
 export const REPOSITORY =
   "https://github.com/HasteHealth/HasteHealth/blob/main";

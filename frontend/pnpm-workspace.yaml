@@ -1,6 +1,10 @@
 packages:
   # - "."
   - "../artifacts/r4/*"
+  # The US Core 7.0.0 package exactly as HL7 publishes it, for the US Core
+  # 7.0.0 TestScripts. Its package.json depends on FHIR packages that are not
+  # on npm (hl7.fhir.r4.core and others), so it stays out of the workspace.
+  - "!../artifacts/r4/hl7.fhir.us.core-7.0.0"
   - "../artifacts/r4b/*"
   - "packages/*"
 overrides:

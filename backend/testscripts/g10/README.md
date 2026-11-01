@@ -22,7 +22,8 @@ backend client. So the directory follows the access control layout. It runs with
 - `setup/` runs first, as the admin client. It writes the shared US Core record that every
   scenario reads (see [The record](#the-record)).
 - Each other directory is a scenario:
-  - `scenario.json` says who signs in and with which scopes.
+  - `scenario.json` says who signs in and with which scopes. With `grantedScope`, the sign-in
+    approves only those on the consent screen and unchecks the rest.
   - `setup/` writes that principal as the admin: a User linked to a Patient or Practitioner, a
     full-access policy so only the scopes limit it, and the client.
   - `tests/` runs as the signed-in principal.
@@ -57,7 +58,7 @@ TestReports are written to `backend/g10-reports/`.
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ----------- |
 | `setup/`                                           | (shared)                                                                                   | admin client                                                                               | the record  |
 | `standalone-patient-app/`                          | 1 Standalone Patient App, full access (discovery 1.8, launch 1.9, OpenID 1.11, access 1.7) | patient linked to `Patient/g10-example`, `patient/[type].rs` for the 26 types g10 requests | 26          |
-| `limited-access-app/`                              | 2 Standalone Patient App, limited access (2.4, 2.3)                                        | the same patient, `patient/Patient.rs patient/Condition.rs patient/Observation.rs`         | 18          |
+| `limited-access-app/`                              | 2 Standalone Patient App, limited access (2.4, 2.3)                                        | the same patient, granting only Patient, Condition and Observation at consent              | 18          |
 | `ehr-practitioner-app/`                            | 3 EHR Practitioner App (3.8, 3.10), and 9.19.01                                            | practitioner linked to `Practitioner/g10-practitioner-1`, `user/[type].rs`                 | 6           |
 | `single-patient-api/`                              | 12 Single Patient API (US Core 7.0.0), one directory per group                             | practitioner linked to `Practitioner/g10-practitioner-2`, `user/[type].rs` (plus `Media`)  | 294         |
 | `profile-validation/`                              | 12 profile validation tests (12.x validation)                                              | backend client, `system/*.cruds`                                                           | 47          |
@@ -123,6 +124,9 @@ that the data conforms to US Core 9.0.0.
   the behaviour instead: the remaining types can be searched.
 
 ### 2 Standalone Patient App, limited access (`limited-access-app/`)
+
+The app requests the same scopes as scenario 1. At consent the sign-in unchecks every resource type
+but Patient, Condition and Observation (`grantedScope` in `scenario.json`), as the g10 tester does.
 
 - 2.4.09: the patient in context can be read.
 - 2.3.01 to 2.3.13 and 2.3.20 to 2.3.23: Patient, Condition and Observation searches answer 200;
@@ -242,8 +246,9 @@ are not covered for the same reasons.
   - The invalid `aud` launch (9.4).
   - The EHR launch navigation (3.8.01 and 3.8.02 beyond `$launch`, 9.19 beyond 9.19.01). An EHR
     launch sign-in would need the harness to pass a `launch` value.
-  - Granular scope selection on the consent screen (9.28, 9.15, 9.26, 9.27). The limited scenario
-    requests three scopes instead of deselecting the rest (scenario 2).
+  - Granular scope selection on the consent screen (9.28, 9.15, 9.26, 9.27). The tester swaps
+    the requested resource-level scopes for granular ones the app did not request. The consent
+    screen lets the user uncheck requested scopes, not add narrower ones.
 - **Requests to the token endpoint.** A plain HTTP operation in a TestScript cannot send a body.
   - Token exchange: 1.9.05, 2.4.05, 3.8.07.
   - Token response headers and token CORS: 1.9.07, 1.9.08, 2.4.07, 2.4.08, 3.8.09, 3.8.10.

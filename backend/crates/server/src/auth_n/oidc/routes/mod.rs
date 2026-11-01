@@ -93,11 +93,13 @@ pub fn create_router<
                             Router::new()
                                 .typed_post(authorize::authorize)
                                 .typed_get(authorize::authorize)
-                                .typed_post(scope::scope_post)
                                 .route_layer(ServiceBuilder::new().layer(
                                     OIDCParameterInjectLayer::new((*AUTHORIZE_PARAMETERS).clone()),
                                 )),
                         )
+                        // The approval form: it posts one `scope` field per
+                        // approved scope and reads its own parameters.
+                        .merge(Router::new().typed_post(scope::scope_post))
                         .route_layer(
                             ServiceBuilder::new()
                                 .layer(AuthSessionValidationLayer::new("interactions/login")),
