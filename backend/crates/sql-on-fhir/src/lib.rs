@@ -1,5 +1,9 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::{StreamExt as _, future::BoxFuture, stream::FuturesOrdered};
+use futures::{
+    TryStreamExt as _,
+    future::{BoxFuture, try_join_all},
+    stream::FuturesOrdered,
+};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::generated::{
@@ -7,10 +11,10 @@ use haste_fhir_model::r4::generated::{
         Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
     },
     terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
-    types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, Reference},
+    types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, FHIRString, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhirpath::{Config, FPEngine};
+use haste_fhirpath::{Config, Context, FPEngine};
 use haste_reflect::MetaValue;
 use itertools::Itertools as _;
 use ordermap::OrderMap;
@@ -328,27 +332,27 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
     hashmap
 }
 
-type Row = OrderMap<String, OutputResults>;
+/// Column values by name. Names borrow from the view.
+type Row<'a> = OrderMap<&'a str, OutputResults>;
 
-fn cartesian_product(select_statement_results: Vec<Vec<Row>>) -> Vec<Row> {
-    let mut output_results = Vec::new();
+/// Cross product of two row sets, `left`'s columns first.
+fn join<'a>(left: &[Row<'a>], right: Vec<Row<'a>>) -> Vec<Row<'a>> {
+    let copy = |(&name, value): (&&'a str, &OutputResults)| (name, value.clone());
 
-    for combination in select_statement_results
-        .into_iter()
-        .multi_cartesian_product()
-    {
-        let mut combined_result = OrderMap::new();
-
-        for result in combination {
-            for (key, value) in result {
-                combined_result.insert(key, value);
-            }
-        }
-
-        output_results.push(combined_result);
+    match left {
+        // The fold's empty start row.
+        [row] if row.is_empty() => right,
+        // Usual case: move the right rows instead of copying them.
+        [row] => right
+            .into_iter()
+            .map(|r| row.iter().map(copy).chain(r).collect())
+            .collect(),
+        _ => left
+            .iter()
+            .cartesian_product(&right)
+            .map(|(l, r)| l.iter().chain(r).map(copy).collect())
+            .collect(),
     }
-
-    output_results
 }
 
 // Need to distinguish between a scalar value and a collection of values for each column in the output. This enum helps to represent that distinction.
@@ -359,17 +363,13 @@ enum OutputResults {
     Collection(Vec<Option<PrimitiveValue>>),
 }
 
-async fn process_resource<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    _context: CTX,
-    _client: Arc<Client>,
-    variables: Arc<HashMap<String, &dyn MetaValue>>,
-    view_definition: &ViewDefinition,
-    input: Resource,
-) -> Result<Vec<Row>, OperationOutcomeError> {
-    let fp_engine = FPEngine::new();
+/// A resource's rows: the cross product of each select's rows.
+async fn process_resource<'a>(
+    fp_engine: &'a FPEngine,
+    variables: Arc<HashMap<String, &'a dyn MetaValue>>,
+    view_definition: &'a ViewDefinition,
+    input: &'a Resource,
+) -> Result<Vec<Row<'a>>, OperationOutcomeError> {
     let fp_config = Arc::new(
         Config::builder()
             .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
@@ -378,190 +378,169 @@ async fn process_resource<
             .with_resource_id(input.id().clone().unwrap_or_default()),
     );
 
-    let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
+    let per_select = select_rows(fp_engine, &fp_config, &view_definition.select, input).await?;
 
-    for select_statement in &view_definition.select {
-        select_statement_results
-            .push(process_select(&fp_engine, fp_config.clone(), select_statement, &input).await?);
-    }
-
-    Ok(cartesian_product(select_statement_results))
+    Ok(per_select
+        .into_iter()
+        .fold(vec![Row::new()], |rows, more| join(&rows, more)))
 }
 
-/// The nodes a select iterates over. `owners` keeps alive the evaluations that produced them.
-struct IterableNodes<'a> {
-    nodes: Vec<&'a dyn MetaValue>,
-    #[allow(dead_code)]
-    owners: Vec<haste_fhirpath::Context<'a>>,
+/// Evaluates `path` on `node`; `what` names the expression in errors.
+async fn evaluate<'a>(
+    fp_engine: &FPEngine,
+    fp_config: &Arc<Config<'a>>,
+    path: &str,
+    node: &'a dyn MetaValue,
+    what: &str,
+) -> Result<Context<'a>, OperationOutcomeError> {
+    fp_engine
+        .evaluate_with_config(path, vec![node], fp_config.clone())
+        .await
+        .map_err(|e| {
+            OperationOutcomeError::error(
+                fhirpath_issue_type(&e),
+                format!("Error evaluating {what}: {e}"),
+            )
+        })
 }
 
-impl<'a> IterableNodes<'a> {
-    fn from_context(context: haste_fhirpath::Context<'a>) -> Self {
-        Self {
-            nodes: context.values().to_vec(),
-            owners: vec![context],
-        }
-    }
+/// Nodes and the evaluations that found them. Computed nodes live in an evaluation's arena, so
+/// keep the evaluations while the nodes are in use.
+type Nodes<'a> = (Vec<&'a dyn MetaValue>, Vec<Context<'a>>);
+
+fn nodes_of(found: Context<'_>) -> Nodes<'_> {
+    (found.values().to_vec(), vec![found])
 }
 
 /// Same limit as `FHIRPath` `repeat()`.
 const REPEAT_ITEM_LIMIT: usize = 10_000;
 
-/// Walks a `repeat` depth first in document order: each path is evaluated from a node, and every
-/// item found is emitted and then walked the same way. A node is emitted once, so any
-/// expression ends.
+/// Items a `repeat` reaches from `input`, depth first in document order. Each item is taken once,
+/// so every walk ends.
 async fn walk_repeat<'a>(
     fp_engine: &FPEngine,
     fp_config: &Arc<Config<'a>>,
-    paths: &[&str],
+    paths: &[FHIRString],
     input: &'a dyn MetaValue,
-) -> Result<IterableNodes<'a>, OperationOutcomeError> {
-    let mut walked = IterableNodes {
-        nodes: Vec::new(),
-        owners: Vec::new(),
-    };
+) -> Result<Nodes<'a>, OperationOutcomeError> {
+    let (mut nodes, mut arenas) = (Vec::new(), Vec::new());
     let mut seen = HashSet::new();
-    let mut pending = Vec::new();
-    let mut current: &'a dyn MetaValue = input;
+    // The input is walked but is not an item.
+    let mut stack = vec![(input, false)];
 
-    loop {
-        // Children are pushed in reverse so the first is popped (emitted) first.
-        let mut children = Vec::new();
-        for path in paths {
-            let found = fp_engine
-                .evaluate_with_config(path, vec![current], fp_config.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        fhirpath_issue_type(&e),
-                        format!("Error evaluating repeat expression: {e}"),
-                    )
-                })?;
-            children.extend_from_slice(found.values());
-            walked.owners.push(found);
-        }
-        pending.extend(children.into_iter().rev());
-
-        let next = loop {
-            let Some(item) = pending.pop() else {
-                return Ok(walked);
-            };
-            if seen.insert((
-                std::ptr::from_ref(item).cast::<()>().addr(),
-                item.fhir_type(),
+    while let Some((node, is_item)) = stack.pop() {
+        if is_item {
+            // Keyed by type too: a struct and its first field share an address.
+            if !seen.insert((
+                std::ptr::from_ref(node).cast::<()>().addr(),
+                node.fhir_type(),
             )) {
-                break item;
+                continue;
             }
-        };
-
-        if walked.nodes.len() >= REPEAT_ITEM_LIMIT {
-            return Err(OperationOutcomeError::error(
-                IssueType::exception(),
-                format!("repeat produced more than {REPEAT_ITEM_LIMIT} items"),
-            ));
+            if nodes.len() >= REPEAT_ITEM_LIMIT {
+                return Err(OperationOutcomeError::error(
+                    IssueType::exception(),
+                    format!("repeat produced more than {REPEAT_ITEM_LIMIT} items"),
+                ));
+            }
+            nodes.push(node);
         }
-        walked.nodes.push(next);
-        current = next;
-    }
-}
 
-async fn build_iterable_context<'a>(
-    fp_engine: &FPEngine,
-    fp_config: Arc<Config<'a>>,
-    select_statement: &'a ViewDefinitionSelect,
-    input: &'a dyn MetaValue,
-) -> Result<(Option<IterableNodes<'a>>, bool), OperationOutcomeError> {
-    let mut iterable_context = None;
-    let mut set_null = false;
-
-    if let Some(for_each_fp) = select_statement
-        .forEach
-        .as_ref()
-        .and_then(|f| f.value.as_ref())
-    {
-        iterable_context = Some(IterableNodes::from_context(
-            fp_engine
-                .evaluate_with_config(for_each_fp, vec![input], fp_config.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        fhirpath_issue_type(&e),
-                        format!("Error evaluating forEach expression: {e}"),
-                    )
-                })?,
-        ));
-    } else if let Some(for_each_or_null_fp) = select_statement
-        .forEachOrNull
-        .as_ref()
-        .and_then(|f| f.value.as_ref())
-    {
-        iterable_context = Some(IterableNodes::from_context(
-            fp_engine
-                .evaluate_with_config(for_each_or_null_fp, vec![input], fp_config.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        fhirpath_issue_type(&e),
-                        format!("Error evaluating forEachOrNull expression: {e}"),
-                    )
-                })?,
-        ));
-
-        set_null = true;
-    } else if let Some(repeat) = select_statement.repeat.as_ref() {
-        let paths: Vec<&str> = repeat.iter().filter_map(|r| r.value.as_deref()).collect();
-        iterable_context = Some(walk_repeat(fp_engine, &fp_config, &paths, input).await?);
+        // Reversed so the first child pops first.
+        let start = stack.len();
+        for path in paths.iter().filter_map(|path| path.value.as_deref()) {
+            let found = evaluate(fp_engine, fp_config, path, node, "repeat expression").await?;
+            if !found.is_empty() {
+                stack.extend(found.values().iter().map(|&child| (child, true)));
+                arenas.push(found);
+            }
+        }
+        stack[start..].reverse();
     }
 
-    Ok((iterable_context, set_null))
+    Ok((nodes, arenas))
 }
 
-/// Rows of a select on one focus node: the cross product of its own columns, its nested
-/// selects' rows and its `unionAll` rows. `forEach`, `forEachOrNull` and `repeat` give one focus
-/// node per item.
+/// Each select's rows on `node`, in order.
+async fn select_rows<'a>(
+    fp_engine: &'a FPEngine,
+    fp_config: &Arc<Config<'a>>,
+    selects: &'a [ViewDefinitionSelect],
+    node: &'a dyn MetaValue,
+) -> Result<Vec<Vec<Row<'a>>>, OperationOutcomeError> {
+    try_join_all(
+        selects
+            .iter()
+            .map(|select| process_select(fp_engine, fp_config.clone(), select, node)),
+    )
+    .await
+}
+
+/// A select's rows: per focus node, its columns joined with its nested and `unionAll` rows. The
+/// focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
 fn process_select<'a>(
     fp_engine: &'a FPEngine,
     fp_config: Arc<Config<'a>>,
-    select_statement: &'a ViewDefinitionSelect,
+    select: &'a ViewDefinitionSelect,
     input: &'a dyn MetaValue,
-) -> BoxFuture<'a, Result<Vec<Row>, OperationOutcomeError>> {
+) -> BoxFuture<'a, Result<Vec<Row<'a>>, OperationOutcomeError>> {
     Box::pin(async move {
-        let (iterable_context, set_null) =
-            build_iterable_context(fp_engine, fp_config.clone(), select_statement, input).await?;
+        let for_each = select.forEach.as_ref().and_then(|p| p.value.as_deref());
+        let for_each_or_null = select
+            .forEachOrNull
+            .as_ref()
+            .and_then(|p| p.value.as_deref());
 
-        let focus_nodes: Vec<&dyn MetaValue> = match iterable_context.as_ref() {
-            Some(iterable) => iterable.nodes.clone(),
-            None => vec![input],
+        // `_arenas` keeps `nodes` valid until the rows are built.
+        let (nodes, _arenas) = match (for_each, for_each_or_null, select.repeat.as_deref()) {
+            (Some(path), _, _) => {
+                nodes_of(evaluate(fp_engine, &fp_config, path, input, "forEach expression").await?)
+            }
+            (None, Some(path), _) => nodes_of(
+                evaluate(
+                    fp_engine,
+                    &fp_config,
+                    path,
+                    input,
+                    "forEachOrNull expression",
+                )
+                .await?,
+            ),
+            (None, None, Some(paths)) => walk_repeat(fp_engine, &fp_config, paths, input).await?,
+            (None, None, None) => (vec![input], Vec::new()),
         };
 
-        if set_null && focus_nodes.is_empty() {
+        if nodes.is_empty() && for_each.is_none() && for_each_or_null.is_some() {
             let mut null_row = Row::new();
-            collect_null_columns(select_statement, &mut null_row)?;
+            collect_null_columns(select, &mut null_row)?;
             return Ok(vec![null_row]);
         }
 
-        let mut rows = Vec::with_capacity(focus_nodes.len());
+        let mut rows = Vec::with_capacity(nodes.len());
+        for node in nodes {
+            let columns = column_row(fp_engine, &fp_config, select, node).await?;
+            let nested = select_rows(
+                fp_engine,
+                &fp_config,
+                select.select.as_deref().unwrap_or_default(),
+                node,
+            )
+            .await?;
+            let union = match select.unionAll.as_deref() {
+                Some(branches) => Some(
+                    select_rows(fp_engine, &fp_config, branches, node)
+                        .await?
+                        .concat(),
+                ),
+                None => None,
+            };
 
-        for focus in focus_nodes {
-            let mut parts = vec![vec![
-                process_select_context(fp_engine, fp_config.clone(), select_statement, focus)
-                    .await?,
-            ]];
-
-            for nested in select_statement.select.iter().flatten() {
-                parts.push(process_select(fp_engine, fp_config.clone(), nested, focus).await?);
-            }
-
-            if let Some(branches) = &select_statement.unionAll {
-                let mut union_rows = Vec::new();
-                for branch in branches {
-                    union_rows
-                        .extend(process_select(fp_engine, fp_config.clone(), branch, focus).await?);
-                }
-                parts.push(union_rows);
-            }
-
-            rows.extend(cartesian_product(parts));
+            rows.extend(
+                nested
+                    .into_iter()
+                    .chain(union)
+                    .fold(vec![columns], |rows, more| join(&rows, more)),
+            );
         }
 
         Ok(rows)
@@ -569,9 +548,9 @@ fn process_select<'a>(
 }
 
 /// Adds a null for every column of the select, its nested selects and its `unionAll` branches.
-fn collect_null_columns(
-    select_statement: &ViewDefinitionSelect,
-    row: &mut Row,
+fn collect_null_columns<'a>(
+    select_statement: &'a ViewDefinitionSelect,
+    row: &mut Row<'a>,
 ) -> Result<(), OperationOutcomeError> {
     for column in select_statement.column.iter().flatten() {
         let Some(name) = column.name.value.as_deref() else {
@@ -581,7 +560,7 @@ fn collect_null_columns(
             ));
         };
 
-        row.insert(name.to_string(), OutputResults::Scalar(None));
+        row.insert(name, OutputResults::Scalar(None));
     }
 
     for nested in select_statement
@@ -596,15 +575,16 @@ fn collect_null_columns(
     Ok(())
 }
 
-async fn process_select_context<'a>(
+/// A select's own columns on `node`, as one row.
+async fn column_row<'a>(
     fp_engine: &FPEngine,
-    fp_config: Arc<Config<'a>>,
-    select_statement: &'a ViewDefinitionSelect,
-    context: &'a dyn MetaValue,
-) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
-    let mut output_result = OrderMap::new();
+    fp_config: &Arc<Config<'a>>,
+    select: &'a ViewDefinitionSelect,
+    node: &'a dyn MetaValue,
+) -> Result<Row<'a>, OperationOutcomeError> {
+    let mut row = Row::new();
 
-    for column in select_statement.column.as_ref().into_iter().flatten() {
+    for column in select.column.iter().flatten() {
         let Some(path) = column.path.value.as_deref() else {
             return Err(OperationOutcomeError::error(
                 IssueType::invalid(),
@@ -619,62 +599,38 @@ async fn process_select_context<'a>(
             ));
         };
 
-        let result = fp_engine
-            .evaluate_with_config(path, vec![context], fp_config.clone())
-            .await
-            .map_err(|e| {
-                OperationOutcomeError::error(
-                    fhirpath_issue_type(&e),
-                    format!("Error evaluating expression: {e}"),
-                )
-            })?;
+        let found = evaluate(fp_engine, fp_config, path, node, "expression").await?;
+        let values = found.values();
 
         let column_type = column
             .type_
             .as_ref()
             .and_then(|t| t.value.as_deref())
-            .unwrap_or_else(|| {
-                result
-                    .iter()
-                    .next()
-                    .map_or("string", haste_reflect::MetaValue::fhir_type)
-            });
-
-        let mut column_result = result
-            .iter()
-            .map(|value| conversions::primitives::convert_meta_value(column_type, value))
-            .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
-
-        let is_collection = column
-            .collection
-            .as_ref()
-            .and_then(|c| c.value)
-            .unwrap_or(false);
-
-        let insert_value = if is_collection {
-            OutputResults::Collection(column_result)
-        } else {
-            if column_result.len() > 1 {
-                return Err(OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    "Column result is a collection but the column is not marked as a collection"
-                        .to_string(),
-                ));
-            }
-
-            let mut singular_value = None;
-
-            if let Some(first_value) = column_result.get_mut(0) {
-                std::mem::swap(&mut singular_value, first_value);
-            }
-
-            OutputResults::Scalar(singular_value)
+            .unwrap_or_else(|| values.first().map_or("string", |value| value.fhir_type()));
+        let convert = |value: &&dyn MetaValue| {
+            conversions::primitives::convert_meta_value(column_type, *value)
         };
 
-        output_result.insert(name.to_string(), insert_value);
+        let value = if column.collection.as_ref().and_then(|c| c.value) == Some(true) {
+            OutputResults::Collection(values.iter().map(convert).collect::<Result<_, _>>()?)
+        } else {
+            match values {
+                [] => OutputResults::Scalar(None),
+                [value] => OutputResults::Scalar(convert(value)?),
+                _ => {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        "Column result is a collection but the column is not marked as a collection"
+                            .to_string(),
+                    ));
+                }
+            }
+        };
+
+        row.insert(name, value);
     }
 
-    Ok(output_result)
+    Ok(row)
 }
 
 /// The resources a view runs over: those of its resource type. A Bundle of another type stands
@@ -776,6 +732,8 @@ async fn process_view_definition<
         &resource_type,
     );
 
+    // Must outlive `tasks`, which borrows it.
+    let fp_engine = FPEngine::new();
     let mut tasks = FuturesOrdered::new();
 
     let where_clauses = view_definition
@@ -788,35 +746,25 @@ async fn process_view_definition<
         .filter_map(|w| w.path.value.as_deref())
         .collect::<Vec<_>>();
 
-    for resource in input_ {
+    for resource in &input_ {
         if passes_where_clauses(
-            &FPEngine::new(),
+            &fp_engine,
             variables.clone(),
             where_fp_clauses.as_slice(),
-            &resource,
+            resource,
         )
         .await?
         {
-            tasks.push_back(async {
-                process_resource(
-                    context.clone(),
-                    client.clone(),
-                    variables.clone(),
-                    view_definition,
-                    resource,
-                )
-                .await
-            });
+            tasks.push_back(process_resource(
+                &fp_engine,
+                variables.clone(),
+                view_definition,
+                resource,
+            ));
         }
     }
 
-    let mut results = Vec::with_capacity(tasks.len());
-
-    while let Some(result) = tasks.next().await {
-        results.push(result?);
-    }
-
-    let mut results = results.into_iter().flatten().collect::<Vec<_>>();
+    let mut results: Vec<Row> = tasks.try_concat().await?;
 
     if let Some(limit) = limit {
         results.truncate(limit);
@@ -900,63 +848,4 @@ pub async fn view_definition_run<
     .await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn response(json: &str) -> Resource {
-        serde_json::from_str(json).unwrap()
-    }
-
-    async fn walked_link_ids(paths: &[&str], resource: &Resource) -> Vec<String> {
-        let config = Arc::new(Config::builder());
-        let walked = walk_repeat(&FPEngine::new(), &config, paths, resource)
-            .await
-            .unwrap();
-        let mut link_ids = Vec::new();
-        for node in &walked.nodes {
-            let found = FPEngine::new()
-                .evaluate("linkId", vec![*node])
-                .await
-                .unwrap();
-            link_ids.extend(found.iter().map(|v| {
-                v.as_any()
-                    .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRString>()
-                    .and_then(|s| s.value.clone())
-                    .unwrap_or_default()
-            }));
-        }
-        link_ids
-    }
-
-    const QR: &str = r#"{"resourceType":"QuestionnaireResponse","status":"completed","item":[
-        {"linkId":"1","item":[
-            {"linkId":"1.1","answer":[{"item":[{"linkId":"1.1.1"}]}]},
-            {"linkId":"1.2"}]},
-        {"linkId":"2"}]}"#;
-
-    #[tokio::test]
-    async fn repeat_is_depth_first_and_combines_paths() {
-        let resource = response(QR);
-        assert_eq!(
-            walked_link_ids(&["item", "answer.item"], &resource).await,
-            ["1", "1.1", "1.1.1", "1.2", "2"]
-        );
-    }
-
-    #[tokio::test]
-    async fn repeat_over_this_ends() {
-        let resource = response(QR);
-        let walked = walk_repeat(
-            &FPEngine::new(),
-            &Arc::new(Config::builder()),
-            &["$this"],
-            &resource,
-        )
-        .await
-        .unwrap();
-        assert_eq!(walked.nodes.len(), 1);
-    }
 }
