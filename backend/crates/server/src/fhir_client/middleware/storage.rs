@@ -1,3 +1,5 @@
+use crate::error::ServerError;
+use crate::services::TransactionError;
 use crate::{
     fhir_client::{
         ClientState, FHIRServerClient, ServerCTX, ServerClientConfig,
@@ -64,12 +66,7 @@ pub async fn apply_patch<Repo: Repository>(
         ));
     };
 
-    let mut json: serde_json::Value = serde_json::to_value(&resource).map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            "Failed to deserialize JSON for patching: ".to_string() + (e.to_string().as_str()),
-        )
-    })?;
+    let mut json: serde_json::Value = serde_json::to_value(&resource).map_err(ServerError::from)?;
 
     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
         OperationOutcomeError::error(
@@ -271,12 +268,7 @@ async fn delete_matches<B: Backend>(
 
     let repo = Arc::new(state.repo.transaction(true).await?);
     let result = delete_each(state, repo.clone(), ctx, found.entries).await;
-    let repo = Arc::try_unwrap(repo).map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            "Failed to unwrap transaction client".to_string(),
-        )
-    })?;
+    let repo = Arc::try_unwrap(repo).map_err(|_| TransactionError::ClientStillShared)?;
     match result {
         Ok(()) => repo.commit().await,
         Err(error) => {
@@ -728,12 +720,8 @@ impl<B: Backend> Handler<B> for Storage {
                         .await
                     };
 
-                    let repo = Arc::try_unwrap(transaction_repo).map_err(|_e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            "Failed to unwrap transaction client".to_string(),
-                        )
-                    })?;
+                    let repo = Arc::try_unwrap(transaction_repo)
+                        .map_err(|_| TransactionError::ClientStillShared)?;
 
                     match bundle_response {
                         Ok(transaction_bundle) => {

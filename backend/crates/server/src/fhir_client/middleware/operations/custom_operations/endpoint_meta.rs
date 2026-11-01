@@ -1,3 +1,4 @@
+use crate::error::ServerError;
 use crate::{
     auth_n::{
         middleware::jwt::derive_well_known_openid_configuration_url,
@@ -43,22 +44,9 @@ pub fn endpoint_metadata_op<B: Backend>() -> OperationExecutor<
                         )
                     })?;
 
-                    let api_url = Url::parse(api_url_string).map_err(|e| {
-                        tracing::error!("Failed to parse API URL: {:?}", e);
-                        OperationOutcomeError::error(
-                            IssueType::invalid(),
-                            "Invalid API URL configured".to_string(),
-                        )
-                    })?;
+                    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
 
-                    let fhir_url =
-                        api_fhir_root_url(api_url_string, &tenant, &project).map_err(|e| {
-                            tracing::error!("Failed to derive FHIR Base URL: {:?}", e);
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Invalid API URL configured".to_string(),
-                            )
-                        })?;
+                    let fhir_url = api_fhir_root_url(api_url_string, &tenant, &project)?;
 
                     let fhir_meta_url =
                         append_path_segments(&fhir_url, ["metadata"]).ok_or_else(|| {
@@ -71,13 +59,7 @@ pub fn endpoint_metadata_op<B: Backend>() -> OperationExecutor<
 
                     let mcp_endpiont = api_url
                         .join(api_v1_mcp_path(&tenant, &project).to_str().unwrap())
-                        .map_err(|e| {
-                            tracing::error!("Failed to derive MCP Endpoint URL: {:?}", e);
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Invalid API URL configured".to_string(),
-                            )
-                        })?;
+                        .map_err(ServerError::from)?;
 
                     Ok(TenantEndpointInformation::Output {
                         fhir_r4_base_url: FHIRUri {
