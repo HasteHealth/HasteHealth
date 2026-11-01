@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&code=8302-2&_revinclude=Provenance:target",
+                        "params": "patient=g10-example&code=8302-2&_revinclude=Provenance:target&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

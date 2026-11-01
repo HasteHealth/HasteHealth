@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=vital-signs&date=gt2023-08-02T01:06:52Z",
+                        "params": "patient=g10-example&category=vital-signs&date=gt2023-08-02T01:06:52Z&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs&date=gt2023-08-02T01:06:52Z",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs&date=gt2023-08-02T01:06:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -114,7 +114,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=vital-signs&date=gt2023-08-02T01:06:52Z",
+                        "params": "patient=g10-example&category=vital-signs&date=gt2023-08-02T01:06:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -154,7 +154,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=vital-signs&date=ge2023-08-02T01:06:52Z",
+                        "params": "patient=g10-example&category=vital-signs&date=ge2023-08-02T01:06:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -194,7 +194,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=vital-signs&date=lt2023-08-04T01:06:52Z",
+                        "params": "patient=g10-example&category=vital-signs&date=lt2023-08-04T01:06:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -234,7 +234,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=vital-signs&date=le2023-08-04T01:06:52Z",
+                        "params": "patient=g10-example&category=vital-signs&date=le2023-08-04T01:06:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

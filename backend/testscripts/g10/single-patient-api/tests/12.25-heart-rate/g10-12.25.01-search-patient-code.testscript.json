@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&code=8867-4",
+                        "params": "patient=g10-example&code=8867-4&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -67,7 +67,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=Patient/g10-example&code=8867-4",
+                        "params": "patient=Patient/g10-example&code=8867-4&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -123,7 +123,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&code=http://loinc.org|8867-4",
+                        "params": "patient=g10-example&code=http://loinc.org|8867-4&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -167,7 +167,7 @@
                 {
                     "operation": {
                         "method": "post",
-                        "url": "Observation/_search?patient=g10-example&code=8867-4",
+                        "url": "Observation/_search?patient=g10-example&code=8867-4&_count=1000",
                         "requestHeader": [
                             {
                                 "field": "Content-Type",

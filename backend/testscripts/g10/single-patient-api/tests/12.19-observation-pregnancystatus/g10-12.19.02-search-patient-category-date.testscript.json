@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=social-history&date=2022-08-24T10:39:52+00:00",
+                        "params": "patient=g10-example&category=social-history&date=2022-08-24T10:39:52+00:00&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|social-history&date=2022-08-24T10:39:52+00:00",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|social-history&date=2022-08-24T10:39:52+00:00&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -114,7 +114,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=social-history&date=gt2022-08-23T10:39:52Z",
+                        "params": "patient=g10-example&category=social-history&date=gt2022-08-23T10:39:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -154,7 +154,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=social-history&date=ge2022-08-23T10:39:52Z",
+                        "params": "patient=g10-example&category=social-history&date=ge2022-08-23T10:39:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -194,7 +194,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=social-history&date=lt2022-08-25T10:39:52Z",
+                        "params": "patient=g10-example&category=social-history&date=lt2022-08-25T10:39:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -234,7 +234,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=social-history&date=le2022-08-25T10:39:52Z",
+                        "params": "patient=g10-example&category=social-history&date=le2022-08-25T10:39:52Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

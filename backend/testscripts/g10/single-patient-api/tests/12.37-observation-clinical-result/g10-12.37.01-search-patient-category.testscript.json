@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam",
+                        "params": "patient=g10-example&category=exam&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=imaging",
+                        "params": "patient=g10-example&category=imaging&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -113,7 +113,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=procedure",
+                        "params": "patient=g10-example&category=procedure&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -161,7 +161,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=Patient/g10-example&category=exam",
+                        "params": "patient=Patient/g10-example&category=exam&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -217,7 +217,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|exam",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|exam&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -261,7 +261,7 @@
                 {
                     "operation": {
                         "method": "post",
-                        "url": "Observation/_search?patient=g10-example&category=exam",
+                        "url": "Observation/_search?patient=g10-example&category=exam&_count=1000",
                         "requestHeader": [
                             {
                                 "field": "Content-Type",
