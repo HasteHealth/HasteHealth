@@ -1,3 +1,4 @@
+use crate::error::ServerError;
 use crate::{
     fhir_client::middleware::{Backend, operations::ServerOperationContext},
     route_path::api_v1_oidc_path,
@@ -53,13 +54,7 @@ pub fn idp_registration_info_op<B: Backend>() -> OperationExecutor<
                 Box::pin(async move {
                     let api_url_string = &context.state.config.api_uri;
 
-                    let api_url = Url::parse(api_url_string).map_err(|e| {
-                        tracing::error!("Failed to parse API URL: {:?}", e);
-                        OperationOutcomeError::error(
-                            IssueType::invalid(),
-                            "Invalid API URL configured".to_string(),
-                        )
-                    })?;
+                    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
 
                     let mut idp_callback_path = api_v1_oidc_path(&tenant, &ProjectId::System);
                     idp_callback_path.extend(["federated", &id, "callback"]);
@@ -70,13 +65,7 @@ pub fn idp_registration_info_op<B: Backend>() -> OperationExecutor<
                                 .to_str()
                                 .expect("failed to generate idp callback path"),
                         )
-                        .map_err(|e| {
-                            tracing::error!("Failed to derive FHIR URL: {:?}", e);
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Invalid API URL configured".to_string(),
-                            )
-                        })?
+                        .map_err(ServerError::from)?
                         .to_string();
 
                     Ok(HasteHealthIdpRegistrationInfo::Output {

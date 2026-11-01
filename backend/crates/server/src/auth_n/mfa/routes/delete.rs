@@ -1,4 +1,5 @@
 use crate::auth_n::constant_time;
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::session,
     extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
@@ -10,7 +11,6 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -58,20 +58,12 @@ pub async fn mfa_delete_post<
     Form(delete_body): Form<MFADeletePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
     if !constant_time::str_eq(&csrf_token, &delete_body.csrf_token) {
-        return Err(OperationOutcomeError::error(
-            IssueType::security(),
-            "Invalid CSRF token.".to_string(),
-        ));
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "User is not logged in.".to_string(),
-            )
-        })?;
+        .map_err(|_| AuthError::NotLoggedIn)?;
 
     let redirect_to_path = replace_mfa_route(&uri, &id, "/admin");
 

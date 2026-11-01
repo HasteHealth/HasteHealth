@@ -55,6 +55,13 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
+#[derive(OperationOutcomeError, Debug)]
+pub enum TransactionError {
+    /// `Arc::try_unwrap` on the transaction's repository found another holder.
+    #[fatal(code = "exception", diagnostic = "Transaction client is still in use.")]
+    ClientStillShared,
+}
+
 pub struct ServerState<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -101,12 +108,7 @@ impl<
         drop(self);
 
         Arc::try_unwrap(repo)
-            .map_err(|_e| {
-                OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "Failed to unwrap transaction client".to_string(),
-                )
-            })?
+            .map_err(|_| TransactionError::ClientStillShared)?
             .commit()
             .await?;
 
