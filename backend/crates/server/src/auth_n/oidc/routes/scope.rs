@@ -3,7 +3,7 @@ use crate::{
     auth_n::{
         oidc::{
             error::{OIDCError, OIDCErrorCode},
-            extract::client_app::OIDCClientApplication,
+            extract::client_app::find_client_app,
             routes::route_string::oidc_route_string,
             utilities::is_valid_redirect_url,
         },
@@ -16,20 +16,22 @@ use crate::{
     services::ServerState,
 };
 use axum::{
-    Form,
     extract::{OriginalUri, State},
     response::{IntoResponse, Response},
 };
-use axum_extra::{extract::Cached, routing::TypedPath};
+use axum_extra::{
+    extract::{Cached, Form},
+    routing::TypedPath,
+};
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::scopes::Scopes;
+use haste_jwt::scopes::{OIDCScope, Scope, Scopes, SmartScope};
 use haste_repository::{
     Repository,
     admin::ProjectModelAdmin,
     types::scope::{ClientId, CreateScope, UserId},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::sync::Arc;
 use tower_sessions::Session;
 
@@ -45,7 +47,11 @@ pub struct ScopeForm {
     pub state: String,
     pub code_challenge: String,
     pub code_challenge_method: String,
-    pub scope: haste_jwt::scopes::Scopes,
+    /// On the approval page, the scopes the app requested. Posted back, the
+    /// scopes the user approved: one `scope` field per checked scope, or a
+    /// single space-separated value.
+    #[serde(default, deserialize_with = "scopes_from_values")]
+    pub scope: Scopes,
     pub redirect_uri: String,
     /// SMART EHR launch: the launch value, carried back to authorize.
     pub launch: Option<String>,
@@ -53,6 +59,25 @@ pub struct ScopeForm {
     /// authorize so it is checked there.
     pub aud: Option<String>,
     pub accept: Option<String>,
+}
+
+/// Every value of a repeated `scope` field, joined and parsed as one scope
+/// string.
+fn scopes_from_values<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Scopes, D::Error> {
+    let values = Vec::<String>::deserialize(deserializer)?;
+    Scopes::try_from(values.join(" ").as_str()).map_err(serde::de::Error::custom)
+}
+
+/// Whether the approval page keeps `scope` checked. These scopes shape the
+/// flow rather than grant access to data: `openid` asks for the id_token, and
+/// the launch scopes for the context the app runs in (`launch` carries an EHR
+/// launch's patient and encounter). Every other scope the user may deselect.
+pub fn is_fixed_scope(scope: &Scope) -> bool {
+    matches!(
+        scope,
+        Scope::OIDC(OIDCScope::OpenId)
+            | Scope::SMART(SmartScope::LaunchSystem(_) | SmartScope::LaunchType(_))
+    )
 }
 
 /// Every requested scope must be within what the client is configured to
@@ -89,11 +114,20 @@ pub async fn scope_post<
     CSRFToken(csrf_token): CSRFToken,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
-    OIDCClientApplication(client_app): OIDCClientApplication,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OIDCError> {
+    // The client comes from the approval form, which repeats `scope` and so
+    // is not run through the OIDC parameter layer that authorize uses.
+    let client_app = find_client_app(
+        &app_state,
+        tenant.clone(),
+        project.clone(),
+        scope_data.client_id.clone(),
+    )
+    .await?;
+
     // The form's redirect URI is only redirected to once it is known to be
     // registered for the client (RFC 6749 §4.1.2.1); errors on a request that
     // names some other URI are answered in the response instead.
@@ -118,7 +152,12 @@ pub async fn scope_post<
             )
         })?;
 
-    if let Some("on") = scope_data.accept.as_deref() {
+    // Approving none of the scopes is a denial. Otherwise the approved subset
+    // is stored and authorize runs again with it, so the code and the token
+    // carry only what the user approved.
+    if let Some("on") = scope_data.accept.as_deref()
+        && !scope_data.scope.0.is_empty()
+    {
         let client_scope = client_app
             .scope
             .as_ref()
@@ -161,8 +200,9 @@ pub async fn scope_post<
             )
         })?;
 
-        // Back to authorize with the same request, encoded: the scope has
-        // spaces, and state, redirect_uri and launch are the client's own.
+        // Back to authorize with the same request, but the approved scopes,
+        // which now match the stored ones. Encoded: the scope has spaces, and
+        // state, redirect_uri and launch are the client's own.
         let mut query = url::form_urlencoded::Serializer::new(String::new());
         query
             .append_pair("client_id", client_id.as_str())

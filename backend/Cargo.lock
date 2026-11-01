@@ -382,6 +382,7 @@ dependencies = [
  "rustversion",
  "serde_core",
  "serde_html_form 0.2.8",
+ "serde_path_to_error",
  "tower-layer",
  "tower-service",
 ]
