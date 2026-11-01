@@ -1,0 +1,1553 @@
+{
+    "id": "us-core-9.0.0-condition-encounter-diagnosis",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-condition-encounter-diagnosis",
+    "title": "US Core 9.0.0 Condition Encounter Diagnosis Profile",
+    "name": "US Core 9.0.0 us-core-condition-encounter-diagnosis",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-condition-encounter-diagnosis.html",
+                "description": "US Core Condition Encounter Diagnosis Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Condition Encounter Diagnosis Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": "example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-condition-encounter-diagnosis-test"
+                    }
+                ]
+            },
+            "id": "uscore-create-1",
+            "resourceType": "Condition"
+        },
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": "example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-condition-encounter-diagnosis-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
+                ]
+            },
+            "extension": [
+                {
+                    "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate",
+                    "valueDateTime": "2022-05-01"
+                }
+            ],
+            "id": "condition-asserted-date-match-2",
+            "resourceType": "Condition"
+        },
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": "example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-condition-encounter-diagnosis-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
+                ]
+            },
+            "id": "condition-asserted-date-missing-3",
+            "resourceType": "Condition"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition-asserted-date-match-2",
+            "resource": {
+                "reference": "#condition-asserted-date-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition-asserted-date-missing-3",
+            "resource": {
+                "reference": "#condition-asserted-date-missing-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "Condition satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Condition",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.category.exists()",
+                        "warningOnly": false,
+                        "label": "has-category",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.code.exists()",
+                        "warningOnly": false,
+                        "label": "has-code",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.subject.exists()",
+                        "warningOnly": false,
+                        "label": "has-subject",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.encounter.exists()",
+                        "warningOnly": false,
+                        "label": "has-encounter",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.recordedDate.exists()",
+                        "warningOnly": false,
+                        "label": "has-recordeddate",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Condition.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-asserted-date",
+            "name": "Search Condition by asserted-date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-condition-asserted-date-match-2",
+                        "responseId": "asserted-date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=ne2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-ne",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=gt2022-04-30&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-gt-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=gt2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-gt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=lt2022-05-02&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-lt-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=lt2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-lt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=ge2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-ge-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=ge2022-05-02&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-ge-above",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=le2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-le-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=le2022-04-30&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-le-below",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=sa2022-04-30&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-sa-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=sa2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-sa-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=eb2022-05-02&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-eb-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=eb2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-eb-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date=ap2022-05-01&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-ap-smoke",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-condition-asserted-date-missing-3",
+                        "responseId": "asserted-date-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date:missing=true&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "params": "asserted-date:missing=false&_tag=us-core-9.0.0-condition-encounter-diagnosis-test&_tag=scope-asserted-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "asserted-date-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-condition-asserted-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "asserted-date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Condition",
+                    "params": "_tag=us-core-9.0.0-condition-encounter-diagnosis-test",
+                    "description": "Delete Condition resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

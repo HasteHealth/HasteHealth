@@ -1,6 +1,6 @@
 ---
 title: US Core
-description: Haste Health's results writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile.
+description: Haste Health's results writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile, plus a versioned conformance TestScript per US Core profile.
 sidebar_position: 2
 hide_table_of_contents: true
 ---
@@ -17,13 +17,22 @@ import {
 With the [US Core](https://hl7.org/fhir/us/core/) package loaded into a
 project, Haste Health validates every write that claims a US Core profile in
 `meta.profile` against that profile, and refuses it when it does not conform.
-This suite writes each example resource the US Core implementation guide
-publishes with its profile claimed, so a passing TestScript means the server
-validated a conformant resource and stored it. The US Core Patient TestScript
-also checks that a Patient breaking the profile is refused.
+This suite tests US Core 9.0.0, from `backend/testscripts/us-core/9.0.0`. Its
+`examples` TestScripts write each example resource the US Core 9.0.0
+implementation guide publishes with its profile claimed, so a passing
+TestScript means the server validated a conformant resource and stored it. The
+US Core Patient TestScript also checks that a Patient breaking the profile is
+refused.
 
-The searches, reads and must-support checks US Core asks of a server run in the
-[ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US Core 7).
+Its `profiles` TestScripts are one per US Core profile. Each writes a resource
+that fills the profile's must-support elements and fixed slice values, reads it
+back, and runs the search parameters US Core adds to base FHIR. Its
+`TestScript.metadata` links the profile and names the versioned US Core server
+CapabilityStatement.
+
+The full set of searches, reads and must-support checks US Core asks of a server
+run in the [ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US
+Core 7).
 
 <SuiteLastVerified suite="us-core" />
 
@@ -35,6 +44,7 @@ The searches, reads and must-support checks US Core asks of a server run in the
 
 ## Every TestScript
 
-Grouped by the resource type each example writes.
+Examples are grouped by the resource type they write, and the profile
+conformance TestScripts by US Core version.
 
 <SuiteReportTable suite="us-core" />

@@ -1,10 +1,10 @@
 name: <Test> Core TestScripts
 
-# Runs backend/testscripts/core (CRUD + search coverage for every R4 resource
-# type) against both search backends. Search indexing is asynchronous, so the
-# runner waits before each search until its latest write is indexed
-# (`--index-wait-ms`), which takes about as long as indexing does rather than
-# a fixed delay after every operation.
+# Runs backend/testscripts/core/base (CRUD + search coverage for every R4
+# resource type) against both search backends. Search indexing is
+# asynchronous, so the runner waits before each search until its latest write
+# is indexed (`--index-wait-ms`), which takes about as long as indexing does
+# rather than a fixed delay after every operation.
 #
 # Called by test_e2e.yml, which builds the binary this downloads and deploys
 # the website with these TestReports.
@@ -158,7 +158,7 @@ jobs:
       # only be created there.
       - name: Run core TestScripts
         run: >-
-          ./target/debug/haste-health testscript run -i testscripts/core
+          ./target/debug/haste-health testscript run -i testscripts/core/base
           -w 0 --index-wait-ms 30000
           --allow-failure core-bundle
           -o ${{ matrix.search-backend }}.json

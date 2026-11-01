@@ -1,0 +1,342 @@
+{
+    "id": "us-core-9.0.0-provenance",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-provenance",
+    "title": "US Core 9.0.0 Provenance Profile",
+    "name": "US Core 9.0.0 us-core-provenance",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-provenance.html",
+                "description": "US Core Provenance Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Provenance Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "target": [
+                {
+                    "reference": "example"
+                }
+            ],
+            "recorded": "2020-01-01T00:00:00Z",
+            "agent": [
+                {
+                    "who": {
+                        "reference": "Practitioner/example"
+                    },
+                    "type": {
+                        "text": "example"
+                    },
+                    "onBehalfOf": {
+                        "reference": "Practitioner/example"
+                    }
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-provenance-test"
+                    }
+                ]
+            },
+            "id": "uscore-create-1",
+            "resourceType": "Provenance"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "Provenance satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Provenance",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Provenance",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.target.exists()",
+                        "warningOnly": false,
+                        "label": "has-target",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.target.reference.exists()",
+                        "warningOnly": false,
+                        "label": "has-target-reference",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.recorded.exists()",
+                        "warningOnly": false,
+                        "label": "has-recorded",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.agent.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-agent-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.agent.who.exists()",
+                        "warningOnly": false,
+                        "label": "has-agent-who",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.agent.onBehalfOf.exists()",
+                        "warningOnly": false,
+                        "label": "has-agent-onbehalfof",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.agent.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-agent-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.agent.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-agent-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Provenance.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Provenance",
+                    "params": "_tag=us-core-9.0.0-provenance-test",
+                    "description": "Delete Provenance resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

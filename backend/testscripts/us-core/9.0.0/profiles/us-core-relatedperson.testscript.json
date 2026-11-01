@@ -1,0 +1,308 @@
+{
+    "id": "us-core-9.0.0-relatedperson",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-relatedperson",
+    "title": "US Core 9.0.0 RelatedPerson Profile",
+    "name": "US Core 9.0.0 us-core-relatedperson",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-relatedperson.html",
+                "description": "US Core RelatedPerson Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core RelatedPerson Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "active": true,
+            "relationship": [
+                {
+                    "text": "example"
+                }
+            ],
+            "name": [
+                {
+                    "family": "Example"
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "email",
+                    "value": "example@example.org"
+                }
+            ],
+            "address": [
+                {
+                    "text": "Example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-relatedperson-test"
+                    }
+                ]
+            },
+            "id": "uscore-create-1",
+            "resourceType": "RelatedPerson"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "RelatedPerson satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "RelatedPerson",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "RelatedPerson",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.active.exists()",
+                        "warningOnly": false,
+                        "label": "has-active",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.patient.exists()",
+                        "warningOnly": false,
+                        "label": "has-patient",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.relationship.exists()",
+                        "warningOnly": false,
+                        "label": "has-relationship",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.name.exists()",
+                        "warningOnly": false,
+                        "label": "has-name",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.telecom.exists()",
+                        "warningOnly": false,
+                        "label": "has-telecom",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.address.exists()",
+                        "warningOnly": false,
+                        "label": "has-address",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "RelatedPerson.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "RelatedPerson",
+                    "params": "_tag=us-core-9.0.0-relatedperson-test",
+                    "description": "Delete RelatedPerson resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
