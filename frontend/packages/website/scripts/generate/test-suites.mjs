@@ -88,13 +88,13 @@ const SUITES = [
     title: "US Core",
     page: "/docs/reference/conformance/us-core",
     backends: ["postgres", "elasticsearch"],
-    // A generated script is named after its example file:
-    // ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json
-    // Profile conformance scripts live in a directory named for their US Core
-    // version (9.0.0/us-core-patient.testscript.json), one group per version.
-    // Its lowercase id sorts after the resource type groups.
+    // Scripts live under their US Core version: 9.0.0/examples/ and
+    // 9.0.0/profiles/. A generated example script is named after its example
+    // file: ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json
+    // The profile conformance scripts are one group per version, whose
+    // lowercase id sorts after the resource type groups.
     group(relativePath, testScript) {
-      const version = /^(\d+\.\d+\.\d+)\//.exec(relativePath)?.[1];
+      const version = /^(\d+\.\d+\.\d+)\/profiles\//.exec(relativePath)?.[1];
       if (version) {
         return {
           id: `us-core-${version}`,

@@ -17,17 +17,18 @@ import {
 With the [US Core](https://hl7.org/fhir/us/core/) package loaded into a
 project, Haste Health validates every write that claims a US Core profile in
 `meta.profile` against that profile, and refuses it when it does not conform.
-This suite writes each example resource the US Core implementation guide
-publishes with its profile claimed, so a passing TestScript means the server
-validated a conformant resource and stored it. The US Core Patient TestScript
-also checks that a Patient breaking the profile is refused.
+This suite tests US Core 9.0.0, from `backend/testscripts/us-core/9.0.0`. Its
+`examples` TestScripts write each example resource the US Core 9.0.0
+implementation guide publishes with its profile claimed, so a passing
+TestScript means the server validated a conformant resource and stored it. The
+US Core Patient TestScript also checks that a Patient breaking the profile is
+refused.
 
-Each US Core profile also has a conformance TestScript for one US Core version,
-kept in a directory named for that version (for example
-`backend/testscripts/us-core/9.0.0`). It writes a resource that fills the
-profile's must-support elements and fixed slice values, reads it back, and runs
-the search parameters US Core adds to base FHIR. Its `TestScript.metadata`
-links the profile and names the versioned US Core server CapabilityStatement.
+Its `profiles` TestScripts are one per US Core profile. Each writes a resource
+that fills the profile's must-support elements and fixed slice values, reads it
+back, and runs the search parameters US Core adds to base FHIR. Its
+`TestScript.metadata` links the profile and names the versioned US Core server
+CapabilityStatement.
 
 The full set of searches, reads and must-support checks US Core asks of a server
 run in the [ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US

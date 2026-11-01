@@ -1,12 +1,13 @@
 name: <Test> US Core TestScripts
 
-# Runs every TestScript under backend/testscripts/us-core against both search
-# backends:
-#   generated/ and the scripts beside it   the US Core IG examples
-#   <version>/                             profile conformance for that US Core
-#                                          version (e.g. 9.0.0/), one script per
-#                                          profile, each naming the version in its
-#                                          TestScript.metadata
+# Runs the US Core 9.0.0 TestScripts, backend/testscripts/us-core/9.0.0,
+# against both search backends. 9.0.0 is the US Core package
+# scripts/load_us_core.mjs loads (artifacts/r4/hl7.fhir.us.core).
+#   examples/   each US Core 9.0.0 example written with its profile claimed
+#               (generated/, from scripts/testscript_build.sh) and hand-written
+#               profile validation checks
+#   profiles/   one profile conformance script per US Core profile, naming
+#               the version in its TestScript.metadata
 #
 # Called by test_e2e.yml, which builds the binary this downloads and deploys
 # the website's US Core conformance page from these TestReports.
@@ -165,7 +166,7 @@ jobs:
       # indexed.
       - name: Run US Core TestScripts
         run: >-
-          ./target/debug/haste-health testscript run -i testscripts/us-core
+          ./target/debug/haste-health testscript run -i testscripts/us-core/9.0.0
           -w 0 --index-wait-ms 30000
           -o us-core-${{ matrix.search-backend }}.json
         working-directory: ./backend
