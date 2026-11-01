@@ -1,0 +1,258 @@
+{
+    "id": "search-indexing-rejected-row",
+    "url": "https://haste.health/fhir/TestScript/search-indexing-rejected-row",
+    "name": "Search Indexing Rejected Row Test",
+    "title": "A resource Postgres cannot index is parked, not retried",
+    "status": "active",
+    "description": "A ValueSet whose url is longer than a B-tree entry may be (the uri index is over the whole value) cannot be written to the search index. The indexing worker parks that resource in the failed-indexing list, which $indexing-errors reports, and keeps indexing the project: resources created after it are searchable. Postgres only: Elasticsearch indexes the value.",
+    "extension": [
+        {
+            "url": "https://haste.health/fhir/StructureDefinition/testscript-search-backend",
+            "valueCode": "postgres"
+        }
+    ],
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "rejected-bundle",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "fullUrl": "urn:uuid:4e5c1a2e-7d1b-4f0a-9b1c-0d3e2f1a5b6c",
+                    "request": {
+                        "method": "PUT",
+                        "url": "ValueSet/indexing-rejected-row-valueset"
+                    },
+                    "resource": {
+                        "id": "indexing-rejected-row-valueset",
+                        "resourceType": "ValueSet",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "indexing-rejected-row-test"
+                                }
+                            ]
+                        },
+                        "url": "https://haste.health/fhir/ValueSet/indexing-rejected-row/dffxktqnck1z6x826rcbx3uy17k9lpobluli66x69l207xwx2kz37p5r566w33w935oukr4tt69760tn56xevamgddrog7irpnd1cdxxlpbfhebcbxqikl7aycpjcawhsv5bt29cqzj4ofugb2i7z56ujvqq0b9idqcikkg3o6cpo2eqfoxq1r7ajcy0kh6fpggblognb733t8ynn116bd07lg4xb7hxsxtb0ggtmb2d053neasbxteo5mhxz3iwzhqhhfvzngb4c5sw3jxr47405szok5q91fgewl8j0efcisyov2l7shj81gv7p6qkk3pzwj32bylz6d4rzq04x9vfo8mzyau373lgbznyngy9mrm5ia14q6l3newa58e5v3r63bfwlzqidk5y3sjas93axc8y2nt5i48tequtvtz7f6nz7j6ftco39o7rdhhyxnuwev3xk52s3i2nrukgp4mxlwiior9yzvr6uzs8extz4lqw24fluyibgwkwe1a8upy8s4jxum5gjnvqj0xqfvmppcvxdjle12riu7hvzodz45u8f685z3k0y72cg2ih6lezt3aqgwolbj1fv3d4pe4i9bi68ddm8a7v7pix5ai8hpg3ndnyvz76k6gjnlymtv1j1izutg9g4rs75ro0i9gb9mnmzcibq48dojucmgi8lf3snkur7e00c3thrbn0vq8z7m1ik23wy4qm42m4vtekx4oitn8tgabmudu8qv2e04bsinjkye2rf54pjtomvz70pn9dqpiz1h3zz4ysnpod87f8ady1zo6rgx6x75e3orbb4cijnup8djsg98fi1ict6r4d9wvgxgwxr4s6jbcv1aw8de86110plkcbwlsbcpozexhepo9mgazf6rod777z1ij1i3xdl7212k5iwjbqlj0q243m11rowczb1tb94qrp33x73p98k3sx0h6pyh1373fy2x9wkjol025l0quztquazcn3ghaxuuzluf74zp2gbwbt5idavz4a4noukvtz53rf6nxpxxlp8on3pzrn6kaz4xlml5ainnaf3mlrzbaxhtcx4yhe3lj3erj48e7ssb99ne0ilt3mcv3djowtgmjobuhrgxe6iwi1mt9bbvje8di50w4stejhafjwjt8ifoovfl1n0cv159wl7hciyj0or8hf6lme8ui6pp3z3guodwgzbhqw9pv1ocikikzjgt13ah1agcm1amyujlrrqo7tt054yszl0s371u8eaq03f6847rknxgon1i6m6yket3j6fxlo9c19cz8tokzomo6q9rqkbz6dd5m9usc3vl2dnxq2q6qdua0oly4i1seld0e8jbbxn841vgaenb77bjbsqhbbwrgyl0apnk18crgppdnplakhmpsvfnipgx5lnnysafotxs8tctf46iws11g8loie3fj4bjym4x7i1mgvvt1ipq4uacahnsd26onpecbhyh016bblhmofr78rhltmflbag33baoveprhkmf1r5hrjuyoom52h5zud3c13p909d7zrh2st0pkphbr8iy1cicdncq8lk5wf19kg0spanrdon4752bct077n1g337k9ltj8h7lbvdrzuiepjvudndmxda5zjd0euk77pgqqv5r3nv9aag0103r0aqbbkwnnf9wsvdhvtljqq5698qsu7931yfzf7jguz4f0z2r4b958x0mfalqbsc1tzp16ryzraqlsambmlurmvyibdgp0hytirmzc00ven2j83z4ro13p5rn4ybq7qtun0dfglkvs8omeg6q72v6jmoht75436vsj32b17zlou70s2irx0ckx7n1v8nritpea85a8mae9vkzlt0uja73byklph3nvoftdgr1ggmym0p4nei9fxmnw4wrl26r8fb78jv9ppop01sita163itv7gj7zxc05yff534clpwzuuq9300i7jmnngcd0ez83luyiabz0jl9tjghlnnmhvcpvc68jvc7spi9pp2d86zt57clpfwb4b1hoyv4gp3e68ojb42u242tis5tegb1hudtbnjwwjfrhejpaskcywft53kdpzqvl3vfstneev649aixxs46ajw8krqqjb0izyh6w0uqu5ctzsee4ilh09q7yb2cimai25bp9p7etjn83ns4ej5dpqrbdv7qy26awwoqadwzb6p2h3b92vk2usurj89ztdru6909skfitzx95eq3sh8rtg8g0cb0num39s3vxzva974p4m92nhz8jzykzuay0tdtgp9qsacvbxsy1ojc752lm1489dge1t1ur8m81fhma2f0lew084yrama49di7z41xkmsz0d00mz6x9i587mvfxchik3r2ghua5tq7nms2lmyq8dvbxt0t3wrnyks2xh3zix85bmscaeifabml6aw9wff4o0rp0dkwpt1z1mlz5rlzyong805hcgp5lpjxdwa8spmslbq474l1kfcny2fvietzrj87h8ylwj7vzfkhr2ppzrlny7uet5qa1ssrbqr4dzmf0uhq7x7huspif8f1jkj04x8e1vee3k0p9v175pw5ar7ndut8pxd2sfx1ljg7np6o2t88wmdlu9xv0w5lmt1wmrn7293o5vsv8xa21ubqnza7nc5lx3y49bnpvhnkoptg8icja3dpwxdqm94plvz9ojkto3qro0xn1eehkwz02ka3j51f09lsogf7p5rp3xu01nlg3avszf53jjtm2m0umpm7q1475oidoqcy4xuov396uvl2znf2tul4g7ahxu0vqk8glvpts8yu3og76wuhfnv9rf3qsfhlbh2p3gw46rerju0ym4s0g0zeb5sncbtk86vi4wn9qa96wv1z1t1bpesas4y54hww6owhizw4c9sfks6lidkfnaq8wctegq0vn1hkhc5j4sz5goywcws3ab5gl5291apdf5br4rp1gpp8hmec7sh8r9baqe6oyqni51c0fprhssjlkchj35iamn08njouuxtfygiqguz52tewwf5hx85zzfyneqam56oiux99xavkifvma0e6r00sw9vt4003ehve6d8c2kixmffbgnj5c6i6698026hy8n25ex8dp20fb8o2ex92rtteicle1mbq2qb8klh1hba2sgvhr3x7lqjsaot1b4gepd102rpehs84sy25mfflzxan7024bnf8juw3ly54xxuk4as6aqndbtzgoosdfyij9gt9rco3b573k8ibyltvi4xq8qgku6wyfxrapfoamgrzrfmgjjpota660v86itq5y03zh3w1e49dlo66q9dj7qde2t13q9fti1y4p8kbp01rtas65pjimtq8vw6ve3vzr3efjpe4ilwnvdvhni46z6dy38twot1aczh6dhbkw0ilmkaj67x27xi87wsixbgiepquz2df3w4e45r19lkilqfruvn2qq3nzrckg4fzu5fnt956fcqmhcbc4y3ft0vcyq29ohgd4oqzx3sqye3ym29xa1o8ee2xchnhb85b4l0hrr9m3qxo1uxgmb5oorza02d0p4vd86mhcd4nguwk1todm3a3c280x2qfsenwpuhbm70og5sb9wvlck9wkfbl4vseshtebzn3ljp27hxfgms37tf5641jsdbk8bmz3wiy8shiuvcckttpn1dtyeiprr1jbxhbqmz5nrpzud2582u4zshybfccfxxa4bet5gz5bcexbpkxfkhu9veyjtixd9x82dcjuij8dv70qm64pse42qzi92l5rxnvw51lodsnh032bkffa4tlwn7tsrsuha29u5yhs5mha1os4e0ch7fvxkwqwtmiaoch805xro2hfcsl3dz5hxua021nyeziup1l5j414z22t5asijkjvt4oahtr4azcsz8pr6izs0g87zgwh766h80qfe1hvzu55aaf5p41m990hyvwv5prdj9548xpeqag2m3lp0bdqvsbw1gy7mr6a9wngjfiouznja6qqw7zz4kihswmoro5xh7h7wnsrhnjqgm3689bjevf4xeixin58m21s8uj1dpfdrtdsd455rsrq1y3mwcid41iq6lozvjfgo5kuo9hqom8d410z5iegrgh0yjzcw3qufmpfcpiywlep0i6obcktz4alszttri0sikx8mwz078b5pd6ovcpz04ntb291fqh0ovdksyjzydzeglv0z8aqsxlrxsjqavxzlryw7gss1qmh8qvnardcbk5wlij9mf6z8ya5ck2mzapcybrvwy0i3idmzi7ma6hq1b2jlevqdw98pgscmhdtu919fjn3a1qquo71l3ooeo5xt20pcbmiotg570svuik4vxle09s6q04o8szbg665eqck9thmnm55swpm8fotfpfrri075eg4x95nl2w3zt22l3783q4315a2dbsdv4i8mpuiri3dx777fp6g402w76wemsjhw637t1mx93o5g4ewwmq8xdeqisqppzg2l54cdaqmmbtpwbo4mdsccu1wj9vzwehuqtkl61yue9siyh6zb5k059c5sr45bbb08jzg7nbgc618btru9j18ejwdv8nh9nhg3ttrpfukp5yq2ilqsuwq6t1xxutkenweg3eczx24p3cuhkstqbqmjf27srzwqevg1jrvqej4wazc5511f09tykwspi9146qrhpraq15o85ju2gzardh8rc56hz60df352dzs5nx42otexceisn6d06ees6kve474bghmp68uckocsahx0iazkrdmz72kkt6yq0xbcjcrxiij9dvi8i444nyimbwlsgnt43ymstbjsuhdbasbzude6mob1hwib2psy5ci04tyyxf5dvcnkvgw4sjdeeqnra3og8mwbqg9clzii9gpxhn3p3tyytz1xph19opyuj8gy9uaj7x59jcfumr4ovaxw3szpbejp8oem9x83wcifgznzcb0yhn48vgag2ar4n7vkylfgebh0z3w7el4dr91jt61tcdducu1yxtmggl79ehro0taky8iaxgaijtw77mygad2wjtv6s9m9s6kt87enu1inucfapzskrmrddzf6fpwydwxuvcsldqw9dvd5jnzrpj6semt963oxv8kfbic20d8bww6efa781c5a2ot9cgrjrlk5inoly8m1emy4tjdcccnb18z1",
+                        "name": "IndexingRejectedRow",
+                        "status": "active"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "indexed-after-valueset",
+            "resourceType": "ValueSet",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "indexing-rejected-row-test"
+                    }
+                ]
+            },
+            "url": "https://haste.health/fhir/ValueSet/indexing-rejected-row-after",
+            "name": "IndexedAfter",
+            "status": "active"
+        },
+        {
+            "id": "indexed-later-valueset",
+            "resourceType": "ValueSet",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "indexing-rejected-row-test"
+                    }
+                ]
+            },
+            "url": "https://haste.health/fhir/ValueSet/indexing-rejected-row-later",
+            "name": "IndexedLater",
+            "status": "active"
+        },
+        {
+            "id": "no-parameters",
+            "resourceType": "Parameters"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-rejected-bundle",
+            "resource": {
+                "reference": "#rejected-bundle"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indexed-after",
+            "resource": {
+                "reference": "#indexed-after-valueset"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indexed-later",
+            "resource": {
+                "reference": "#indexed-later-valueset"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-parameters",
+            "resource": {
+                "reference": "#no-parameters"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-rejected-row-is-parked",
+            "name": "The rejected resource is parked and later writes are indexed",
+            "description": "The rejected ValueSet is written in a transaction, which the runner does not wait on. Two more ValueSets are then created and each searched for in turn: the second search proves a later indexing pass ran, and a pass commits the previous pass's parked resources before it starts.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-rejected-bundle",
+                        "responseId": "rejected-response",
+                        "description": "A ValueSet whose url no B-tree entry can hold."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.id = 'indexing-rejected-row-valueset'",
+                        "warningOnly": false,
+                        "description": "The repository accepts it.",
+                        "value": "true"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-indexed-after",
+                        "responseId": "after-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "_tag=indexing-rejected-row-test",
+                        "description": "Waits for the ValueSet created after the rejected one."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "description": "Only the indexable ValueSet is found.",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.url = 'https://haste.health/fhir/ValueSet/indexing-rejected-row-after'",
+                        "warningOnly": false,
+                        "value": "true"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-indexed-later",
+                        "responseId": "later-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "_tag=indexing-rejected-row-test",
+                        "description": "Waits for a later indexing pass."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "description": "Indexing went on past the rejected resource.",
+                        "operator": "equals",
+                        "value": "2"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "encodeRequestUrl": false,
+                        "url": "indexing-errors",
+                        "sourceId": "fixture-no-parameters",
+                        "responseId": "errors-response",
+                        "description": "$indexing-errors lists the parked resource."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name = 'errors').where(part.where(name = 'id').value = 'indexing-rejected-row-valueset').exists()",
+                        "warningOnly": false,
+                        "description": "The rejected ValueSet is parked.",
+                        "value": "true"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name = 'errors').where(part.where(name = 'id').value = 'indexing-rejected-row-valueset' and part.where(name = 'resource_type').value = 'ValueSet' and part.where(name = 'error_message').value.exists()).exists()",
+                        "warningOnly": false,
+                        "description": "As a ValueSet, with the database's reason.",
+                        "value": "true"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "ValueSet",
+                    "params": "_tag=indexing-rejected-row-test",
+                    "description": "Delete data created during test."
+                }
+            }
+        ]
+    }
+}

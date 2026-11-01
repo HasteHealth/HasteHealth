@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
@@ -86,12 +87,7 @@ pub async fn get_idp<
             Resource::IdentityProvider(ip) => Some(ip),
             _ => None,
         })
-        .ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::not_found(),
-                "The specified identity provider was not found.".to_string(),
-            )
-        })?;
+        .ok_or(AuthError::IdentityProviderNotFound)?;
 
     Ok(identity_provider)
 }
@@ -112,12 +108,10 @@ pub async fn get_idp_session_info(
     session: &Session,
     idp: &IdentityProvider,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
-    let idp_id = idp.id.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Identity Provider resource is missing an ID.".to_string(),
-        )
-    })?;
+    let idp_id = idp
+        .id
+        .as_ref()
+        .ok_or(AuthError::IdentityProviderMissingId)?;
 
     let info: IDPSessionInfo = session
         .get(federated_session_info_key(idp_id).as_str())
@@ -144,12 +138,10 @@ async fn set_session_info(
     idp: &IdentityProvider,
     uri: &OriginalUri,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
-    let idp_id = idp.id.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Identity Provider resource is missing an ID.".to_string(),
-        )
-    })?;
+    let idp_id = idp
+        .id
+        .as_ref()
+        .ok_or(AuthError::IdentityProviderMissingId)?;
 
     let state = generate_id(Some(20));
 
@@ -282,10 +274,7 @@ async fn create_federated_authorization_url(
 
         Ok(authorization_url)
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "The specified identity provider was not found.".to_string(),
-        ))
+        Err(AuthError::IdentityProviderNotFound.into())
     }
 }
 

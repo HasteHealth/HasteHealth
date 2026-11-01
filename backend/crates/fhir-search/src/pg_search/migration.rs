@@ -6,7 +6,7 @@ use sqlx::{AssertSqlSafe, Pool, Postgres};
 
 use super::schema::{
     ColumnDef, IndexKind, ResourceTypeSchema, SHARED_TABLES, SchemaRegistry, SharedTable,
-    resource_table_name, shared_table_name, shared_value_columns, sql_type,
+    resource_table_name, shared_table_name, shared_value_columns, sql_type, string_prefix_expr,
 };
 
 /// Creates the anchor, the shared tables and one table per resource type.
@@ -165,17 +165,36 @@ CREATE INDEX IF NOT EXISTS idx_{name}_resource
     );
 
     // Lookup index: the identity (already one project), then the compared
-    // value. String searches compare `LOWER(value)`.
+    // value. String searches compare the truncated, lowered value.
+    let is_string = matches!(table, SharedTable::String);
     let value_key = match table {
-        SharedTable::String => "LOWER(value) text_pattern_ops",
-        SharedTable::Uri | SharedTable::Number => "value",
-        SharedTable::Token => "code",
-        SharedTable::Date => "start_ms, end_ms",
-        SharedTable::Quantity => "start_value, end_value",
-        SharedTable::Reference => "target_id",
+        SharedTable::String => format!("{} text_pattern_ops", string_prefix_expr("value")),
+        SharedTable::Uri | SharedTable::Number => "value".into(),
+        SharedTable::Token => "code".into(),
+        SharedTable::Date => "start_ms, end_ms".into(),
+        SharedTable::Quantity => "start_value, end_value".into(),
+        SharedTable::Reference => "target_id".into(),
+    };
+    // The string index and statistics are named for what they cover; they
+    // replaced ones over the whole value, which a long value could not enter,
+    // and a database migrated before that still has those to drop.
+    let value_index_name = if is_string { "prefix" } else { "value" };
+    let stats_name = if is_string {
+        "prefix_stats"
+    } else {
+        "identity_stats"
+    };
+    let legacy = if is_string {
+        format!(
+            "DROP INDEX IF EXISTS idx_{name}_value;
+DROP STATISTICS IF EXISTS {name}_identity_stats;
+"
+        )
+    } else {
+        String::new()
     };
     let value_index = format!(
-        "CREATE INDEX IF NOT EXISTS idx_{name}_value
+        "{legacy}CREATE INDEX IF NOT EXISTS idx_{name}_{value_index_name}
     ON {name} (param_identity, {value_key});
 "
     );
@@ -186,17 +205,17 @@ CREATE INDEX IF NOT EXISTS idx_{name}_resource
     // one parameter (e.g. a LOINC code under `combo-code`), and picks the wrong
     // driving index.
     let stats_key = match table {
-        SharedTable::String => Some("(LOWER(value))"),
-        SharedTable::Uri => Some("value"),
-        SharedTable::Token => Some("code"),
-        SharedTable::Reference => Some("target_id"),
+        SharedTable::String => Some(format!("({})", string_prefix_expr("value"))),
+        SharedTable::Uri => Some("value".into()),
+        SharedTable::Token => Some("code".into()),
+        SharedTable::Reference => Some("target_id".into()),
         SharedTable::Number | SharedTable::Date | SharedTable::Quantity => None,
     };
     let statistics = stats_key.map_or_else(String::new, |stats_key| {
         format!(
-            "CREATE STATISTICS IF NOT EXISTS {name}_identity_stats (mcv, ndistinct, dependencies)
+            "CREATE STATISTICS IF NOT EXISTS {name}_{stats_name} (mcv, ndistinct, dependencies)
     ON param_identity, {stats_key} FROM {name};
-ALTER STATISTICS {name}_identity_stats SET STATISTICS 1000;
+ALTER STATISTICS {name}_{stats_name} SET STATISTICS 1000;
 "
         )
     });
@@ -270,11 +289,15 @@ fn index_sql(table: &str, column: &ColumnDef, scope: &[&str]) -> String {
             "CREATE INDEX IF NOT EXISTS {name} ON {table} ({lead}, {ident} DESC NULLS LAST);\n"
         ),
         // B-tree for anchored `LIKE 'abc%'`, trigram GIN for `LIKE '%abc%'`.
+        // The B-tree replaced `{name}`, over the whole value, which a long
+        // value could not enter; a database migrated before that drops it.
         IndexKind::LoweredPrefix => format!(
-            "CREATE INDEX IF NOT EXISTS {name} \
-             ON {table} ({lead}, LOWER({ident}) text_pattern_ops);\n\
+            "DROP INDEX IF EXISTS {name};\n\
+             CREATE INDEX IF NOT EXISTS {name}_prefix \
+             ON {table} ({lead}, {} text_pattern_ops);\n\
              CREATE INDEX IF NOT EXISTS {name}_ct \
-             ON {table} USING GIN ({lead}, LOWER({ident}) gin_trgm_ops);\n"
+             ON {table} USING GIN ({lead}, LOWER({ident}) gin_trgm_ops);\n",
+            string_prefix_expr(&ident)
         ),
     }
 }
