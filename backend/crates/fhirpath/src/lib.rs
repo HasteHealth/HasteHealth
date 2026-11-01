@@ -512,6 +512,7 @@ async fn evaluate_function<'a>(
         }
         "subsetOf" | "supersetOf" => evaluate_subset(function, context, config).await,
         "distinct" | "isDistinct" => evaluate_distinct(function, &context),
+        "sort" => evaluate_sort(function, context, config).await,
         "select" => evaluate_select(function, context, config).await,
         "union" | "combine" | "intersect" | "exclude" => {
             evaluate_combining(function, context, config).await
@@ -1065,6 +1066,82 @@ async fn evaluate_all<'a>(
     }
 
     Ok(boolean_result(&context, true))
+}
+
+/// <https://hl7.org/fhirpath/N1/#sort>: stable sort by each key expression in turn. A key
+/// written with a leading unary minus sorts descending; an empty key sorts first.
+async fn evaluate_sort<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Many)?;
+
+    // Each key's expression with its direction, `None` being the item itself.
+    let keys: Vec<(Option<&Expression>, bool)> = if function.arguments.is_empty() {
+        vec![(None, false)]
+    } else {
+        function
+            .arguments
+            .iter()
+            .map(|key| match key {
+                Expression::Operation(operation) => match operation.as_ref() {
+                    Operation::Polarity(Polarity::Negative, inner) => (Some(inner), true),
+                    _ => (Some(key), false),
+                },
+                Expression::Singular(_) => (Some(key), false),
+            })
+            .collect()
+    };
+
+    // Evaluate every key once per item: `item_keys[item][key]`.
+    let mut item_keys = Vec::with_capacity(context.values.len());
+    for (index, value) in context.values.iter().enumerate() {
+        let mut values = Vec::with_capacity(keys.len());
+        for (key, _) in &keys {
+            values.push(match key {
+                None => Some(*value),
+                Some(expression) => {
+                    let item = context.new_item_context(*value, index);
+                    let result = evaluate_expression(expression, item, config.clone()).await?;
+                    singleton("sort", &result)?
+                }
+            });
+        }
+        item_keys.push(values);
+    }
+
+    let mut error = None;
+    let mut order: Vec<usize> = (0..context.values.len()).collect();
+    order.sort_by(|a, b| {
+        for (position, (_, descending)) in keys.iter().enumerate() {
+            let ordering = match (item_keys[*a][position], item_keys[*b][position]) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(l), Some(r)) => order_values(l, r)
+                    .unwrap_or_else(|e| {
+                        error.get_or_insert(e);
+                        None
+                    })
+                    .unwrap_or(Ordering::Equal),
+            };
+            let ordering = if *descending {
+                ordering.reverse()
+            } else {
+                ordering
+            };
+            if ordering != Ordering::Equal {
+                return ordering;
+            }
+        }
+        Ordering::Equal
+    });
+    if let Some(error) = error {
+        return Err(error);
+    }
+
+    Ok(context.new_context_from(order.into_iter().map(|i| context.values[i]).collect()))
 }
 
 /// <https://hl7.org/fhirpath/N1/#selectprojection-expression-collection>
@@ -2299,6 +2376,28 @@ async fn evaluate_numeric_binary<'a>(
     .await
 }
 
+/// Order of two numbers, strings (code point order), temporals or same-unit Quantities.
+/// `None` when unordered (NaN, imprecise dates); errors on any other operand types.
+fn order_values(l: &dyn MetaValue, r: &dyn MetaValue) -> Result<Option<Ordering>, FHIRPathError> {
+    if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering),
+            TemporalOrder::Unknown => None,
+        })
+    } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
+        Ok(l.partial_cmp(&r))
+    } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
+        Ok(Some(l.cmp(&r)))
+    } else if let Some((l, r)) = as_quantities(l, r) {
+        Ok(quantity_order(l, r))
+    } else {
+        Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            l.fhir_type(),
+            r.fhir_type(),
+        )))
+    }
+}
+
 /// Ordered comparison of two numbers, strings (code point order) or
 /// same-unit Quantities.
 /// Empty when unordered (NaN); errors on any other operand types.
@@ -2311,24 +2410,7 @@ async fn evaluate_ordered_comparison<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
-                match order {
-                    TemporalOrder::Ordered(ordering) => Some(ordering),
-                    TemporalOrder::Unknown => None,
-                }
-            } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
-                l.partial_cmp(&r)
-            } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
-                Some(l.cmp(&r))
-            } else if let Some((l, r)) = as_quantities(l, r) {
-                quantity_order(l, r)
-            } else {
-                return Err(FHIRPathError::OperationError(OperationError::InvalidType(
-                    l.fhir_type(),
-                    r.fhir_type(),
-                )));
-            };
+            let ordering = order_values(left.values[0], right.values[0])?;
 
             Ok(left.new_context_from(
                 ordering
@@ -4466,6 +4548,24 @@ mod tests {
         let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
 
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn sort_orders_by_keys() {
+        let engine = FPEngine::new();
+        for (expression, expected) in [
+            ("(3 | 2 | 1).sort() = (1 | 2 | 3)", true),
+            ("('a' | 'b' | 'c').sort(-$this) = ('c' | 'b' | 'a')", true),
+            ("{}.sort().empty()", true),
+        ] {
+            let result = engine.evaluate(expression, vec![]).await.unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+        assert!(engine.evaluate("(1 | 'a').sort()", vec![]).await.is_err());
     }
 
     #[tokio::test]
