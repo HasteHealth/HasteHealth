@@ -6,7 +6,8 @@ name: <Test> E2E
 #   test_e2e_base.yml              base, Postgres-only and R4 backport TestScripts
 #   test_e2e_access_control.yml    access control TestScripts
 #   test_e2e_core_testscripts.yml  CRUD + search coverage for every R4 resource type
-#   test_e2e_us_core.yml           US Core TestScripts: IG examples and versioned profile conformance
+#   test_e2e_us_core.yml           US Core 9.0.0 TestScripts: IG examples and versioned profile conformance
+#   test_e2e_us_core_7.yml         US Core 7.0.0 TestScripts, the version ONC (g)(10) certifies against
 #   test_e2e_hl7v2.yml             HL7v2 ingest over MLLP
 #   test_e2e_mcp.yml               MCP conformance
 #   test_e2e_g10.yml               ONC (g)(10) Standardized API TestScripts
@@ -80,6 +81,10 @@ jobs:
     needs: build
     uses: ./.github/workflows/test_e2e_us_core.yml
 
+  us-core-7:
+    needs: build
+    uses: ./.github/workflows/test_e2e_us_core_7.yml
+
   hl7v2:
     needs: build
     uses: ./.github/workflows/test_e2e_hl7v2.yml
@@ -97,12 +102,12 @@ jobs:
     uses: ./.github/workflows/test_e2e_sql_on_fhir.yml
 
   # Deploys the website on every push to main, with the conformance pages'
-  # data refreshed from this run's TestReports: core, US Core, g10,
-  # access control and SQL on FHIR. `continue-on-error` plus the file checks below mean a
+  # data refreshed from this run's TestReports: core, US Core 9.0.0 and 7.0.0,
+  # g10, access control and SQL on FHIR. `continue-on-error` plus the file checks below mean a
   # build/test failure upstream (no artifacts to download) still deploys, with
   # the previously committed data for whichever suites have no reports.
   deploy-website:
-    needs: [core-testscripts, us-core, g10, access-control, sql-on-fhir]
+    needs: [core-testscripts, us-core, us-core-7, g10, access-control, sql-on-fhir]
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -138,6 +143,8 @@ jobs:
           add() { if [ -e "$2" ]; then args+=("--$1" "$2"); fi; }
           add us-core-postgres reports/us-core-testreports-postgres/us-core-postgres.json
           add us-core-elasticsearch reports/us-core-testreports-elasticsearch/us-core-elasticsearch.json
+          add us-core-7-postgres reports/us-core-7-testreports-postgres/us-core-7-postgres.json
+          add us-core-7-elasticsearch reports/us-core-7-testreports-elasticsearch/us-core-7-elasticsearch.json
           add g10-postgres reports/g10-testreports
           add access-control-postgres reports/access-control-testreports-postgres
           add access-control-elasticsearch reports/access-control-testreports-elasticsearch

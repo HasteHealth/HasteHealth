@@ -17,7 +17,7 @@
     },
     {
       "id": "us-core",
-      "title": "US Core",
+      "title": "US Core 9.0.0",
       "page": "/docs/reference/conformance/us-core",
       "generatedAt": "2026-10-24T21:37:51.687Z",
       "backends": [
@@ -28,6 +28,20 @@
       "knownGaps": 0,
       "assertions": 225,
       "assertionsPassing": 225
+    },
+    {
+      "id": "us-core-7",
+      "title": "US Core 7.0.0",
+      "page": "/docs/reference/conformance/us-core-7",
+      "generatedAt": "2026-11-01T02:11:52.616Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 241,
+      "testScriptsPassing": 241,
+      "knownGaps": 0,
+      "assertions": 555,
+      "assertionsPassing": 555
     },
     {
       "id": "g10",
