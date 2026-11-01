@@ -1,0 +1,313 @@
+{
+    "id": "carin-bb-2.2.0-patient",
+    "url": "https://haste.health/fhir/TestScript/carin-bb-2.2.0-patient",
+    "title": "C4BB Patient (CARIN Blue Button 2.2.0)",
+    "name": "CARIN Blue Button 2.2.0 C4BB-Patient",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Patient|2.2.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/carin-bb/STU2.2",
+                "description": "CARIN Blue Button 2.2.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/carin-bb/STU2.2/StructureDefinition-C4BB-Patient.html",
+                "description": "C4BB Patient (CARIN Blue Button 2.2.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "CARIN Blue Button 2.2.0 server: C4BB Patient",
+                "capabilities": "http://hl7.org/fhir/us/carin-bb/CapabilityStatement/c4bb|2.2.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Patient",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Patient"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-patient-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "version": "5.0.0",
+                                "code": "MB"
+                            }
+                        ]
+                    },
+                    "system": "http://example.org/fhir/example",
+                    "value": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "um"
+                            }
+                        ]
+                    },
+                    "system": "http://example.org/fhir/example",
+                    "value": "example"
+                }
+            ],
+            "name": [
+                {
+                    "family": "example",
+                    "given": [
+                        "example"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "birthDate": "2020-01-01",
+            "deceasedBoolean": true,
+            "address": [
+                {
+                    "line": [
+                        "example"
+                    ],
+                    "city": "example",
+                    "state": "example",
+                    "postalCode": "example",
+                    "country": "example"
+                }
+            ],
+            "id": "profile-create-1"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-profile-create-1",
+            "resource": {
+                "reference": "#profile-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "Patient satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-profile-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.identifier.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.name.exists()",
+                        "warningOnly": false,
+                        "label": "has-name",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.gender.exists()",
+                        "warningOnly": false,
+                        "label": "has-gender",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.birthDate.exists()",
+                        "warningOnly": false,
+                        "label": "has-birthdate",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.deceased.exists()",
+                        "warningOnly": false,
+                        "label": "has-deceasedboolean",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.profile.exists($this = 'http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Patient')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=carin-bb-2.2.0-patient-test",
+                    "description": "Delete Patient resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

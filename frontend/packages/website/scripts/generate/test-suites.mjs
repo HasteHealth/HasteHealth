@@ -14,6 +14,7 @@
 //   --g10-postgres <path>
 //   --access-control-postgres <path>  --access-control-elasticsearch <path>
 //   --sql-on-fhir-postgres <path>
+//   --carin-bb-postgres <path>        --carin-bb-elasticsearch <path>
 //
 // Defaults: backend/testreports/<suite>/<backend>(.json). A suite with no
 // reports at all keeps its committed file, so a run whose job failed still
@@ -82,39 +83,40 @@ const ACCESS_CONTROL_GROUPS = {
   "smart-launch": "SMART EHR launch",
 };
 
-// A generated US Core example script is named after its example file:
-//   ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json (9.0.0)
-//   ---artifacts-r4-hl7-fhir-us-core-7-0-0-example-Observation-bmi-json (7.0.0)
-const US_CORE_EXAMPLE_ID = /(?:us_core|example)-([A-Z][A-Za-z]+)-(.+)-json$/;
+// A generated example script is named after its example file:
+//   ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json (US Core 9.0.0)
+//   ---artifacts-r4-hl7-fhir-us-core-7-0-0-example-Observation-bmi-json (a package's example/)
+const EXAMPLE_ID = /(?:us_core|example)-([A-Z][A-Za-z]+)-(.+)-json$/;
 
 /**
- * One US Core version's suite, backend/testscripts/us-core/<version>: its
- * examples/ grouped by the resource type they write, and its profiles/ in one
- * group, whose lowercase id sorts after the resource type groups.
+ * One implementation guide version's suite, backend/testscripts/<dir>/<version>:
+ * its examples/ grouped by the resource type they write, and its profiles/ in
+ * one group, whose lowercase id sorts after the resource type groups.
  */
-function usCoreSuite({ id, version, page }) {
+function guideSuite({ id, title, dir, version, page, ...rest }) {
   return {
     id,
-    title: `US Core ${version}`,
+    title: `${title} ${version}`,
     page,
-    dir: path.join("us-core", version),
+    dir: path.join(dir, version),
     backends: ["postgres", "elasticsearch"],
+    ...rest,
     group(relativePath, testScript) {
       if (relativePath.split(path.sep)[0] === "profiles") {
         return {
-          id: `us-core-${version}-profiles`,
-          title: `US Core ${version} profiles`,
+          id: `${dir}-${version}-profiles`,
+          title: `${title} ${version} profiles`,
         };
       }
       // A hand-written example script is grouped by the resource it writes.
       const type =
-        US_CORE_EXAMPLE_ID.exec(testScript.id)?.[1] ??
+        EXAMPLE_ID.exec(testScript.id)?.[1] ??
         testScript.contained?.[0]?.resourceType ??
         "Other";
       return { id: type, title: type };
     },
     scriptTitle(testScript) {
-      const match = US_CORE_EXAMPLE_ID.exec(testScript.id);
+      const match = EXAMPLE_ID.exec(testScript.id);
       return match ? `${match[1]} ${match[2]}` : testScript.title;
     },
   };
@@ -122,14 +124,18 @@ function usCoreSuite({ id, version, page }) {
 
 /** How each suite is found, grouped and named. */
 const SUITES = [
-  usCoreSuite({
+  guideSuite({
     id: "us-core",
+    title: "US Core",
+    dir: "us-core",
     version: "9.0.0",
     page: "/docs/reference/conformance/us-core",
   }),
   // The version the ONC (g)(10) test kit certifies against.
-  usCoreSuite({
+  guideSuite({
     id: "us-core-7",
+    title: "US Core",
+    dir: "us-core",
     version: "7.0.0",
     page: "/docs/reference/conformance/us-core-7",
   }),
@@ -201,6 +207,13 @@ const SUITES = [
         : assert.expression,
     order: Object.keys(SQL_ON_FHIR_GROUPS),
   },
+  guideSuite({
+    id: "carin-bb",
+    title: "CARIN Blue Button",
+    dir: "carin-bb",
+    version: "2.2.0",
+    page: "/docs/reference/conformance/carin-bb",
+  }),
 ];
 
 /** A TestReport action result as the website's Result. Mirrors test-support.mjs. */

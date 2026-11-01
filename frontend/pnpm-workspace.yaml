@@ -5,6 +5,9 @@ packages:
   # 7.0.0 TestScripts. Its package.json depends on FHIR packages that are not
   # on npm (hl7.fhir.r4.core and others), so it stays out of the workspace.
   - "!../artifacts/r4/hl7.fhir.us.core-7.0.0"
+  # The CARIN Blue Button 2.2.0 package exactly as HL7 publishes it, for its TestScripts;
+  # out of the workspace for the same reason.
+  - "!../artifacts/r4/hl7.fhir.us.carin-bb"
   - "../artifacts/r4b/*"
   - "packages/*"
 overrides:

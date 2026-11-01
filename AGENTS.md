@@ -136,6 +136,9 @@ in an issue, a comment, a pull request or a file in the repository.
   publishes it, installed for the US Core 7.0.0 and (g)(10) TestScripts. It is never edited
   and stays out of the pnpm workspace (its package.json depends on FHIR packages
   that are not on npm).
+- artifacts/r4/hl7.fhir.us.carin-bb is the CARIN Blue Button 2.2.0 package exactly as HL7
+  publishes it, installed (after US Core 7.0.0) for the CARIN Blue Button TestScripts in
+  backend/testscripts/carin-bb. Never edited, out of the pnpm workspace for the same reason.
 - artifacts/r4/hastehealth-core/definitions/haste-health/operation-frontend-only -
   OperationDefinitions used only by the TypeScript packages; excluded from the
   backend's generated ops and embedded resources on purpose.
