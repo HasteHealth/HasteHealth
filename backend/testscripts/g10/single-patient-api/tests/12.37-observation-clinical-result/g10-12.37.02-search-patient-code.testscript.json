@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&code=44963-7",
+                        "params": "patient=g10-example&code=44963-7&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&code=http://loinc.org|44963-7",
+                        "params": "patient=g10-example&code=http://loinc.org|44963-7&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

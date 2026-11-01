@@ -74,7 +74,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=survey",
+                        "params": "patient=g10-example&category=survey&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
