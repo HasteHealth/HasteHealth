@@ -81,6 +81,7 @@ pub enum SearchError {
         diagnostic = "Elasticsearch server responded with an error: '{arg0}'"
     )]
     ElasticSearchResponseError(u16),
+    #[fatal(code = "transient", diagnostic = "Elasticsearch is not reachable.")]
     NotConnected,
 }
 
