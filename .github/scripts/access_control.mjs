@@ -53,7 +53,7 @@ const knownFailures = readKnownFailures();
 const phases = {
   // Writes the scenario's data, user and client as the admin.
   setup(scenario) {
-    cli("config set-active-profile", { name: ADMIN_PROFILE });
+    cli(`profile use ${ADMIN_PROFILE}`);
     runTestScripts(join(scenario.dir, "setup"), `${scenario.name}-setup.json`);
   },
 
@@ -68,7 +68,7 @@ const phases = {
 
   // Runs the scenario's tests as the principal.
   test(scenario) {
-    cli("config set-active-profile", { name: scenario.profile });
+    cli(`profile use ${scenario.profile}`);
     runTestScripts(join(scenario.dir, "tests"), `${scenario.name}.json`);
   },
 };
@@ -83,7 +83,7 @@ const signInBy = {
       email: scenario.userEmail,
       password,
     });
-    cli("config create-profile", {
+    cli(`profile create ${scenario.profile}`, {
       ...profileFlags(scenario, "authorization-code"),
       "redirect-uri": scenario.redirectUri,
     });
@@ -98,33 +98,32 @@ const signInBy = {
   // The client itself, with a secret.
   client_credentials(scenario) {
     const secret = randomBytes(24).toString("base64");
-    cli("config set-active-profile", { name: ADMIN_PROFILE });
+    cli(`profile use ${ADMIN_PROFILE}`);
     // Quiet: it prints the client, secret included.
     cli(
       `api patch ClientApplication ${scenario.clientId}`,
       { data: JSON.stringify([{ op: "add", path: "/secret", value: secret }]) },
       { quiet: true },
     );
-    cli("config create-profile", {
+    cli(`profile create ${scenario.profile}`, {
       ...profileFlags(scenario, "client-credentials"),
-      secret,
+      "client-secret": secret,
     });
   },
 };
 
 function profileFlags(scenario, authMode) {
   return {
-    name: scenario.profile,
     "auth-mode": authMode,
     "r4-url": `${HASTE_API_URI}/w/${TENANT}/${PROJECT}/api/v1/fhir/r4`,
     "discovery-uri": `${HASTE_API_URI}/.well-known/openid-configuration/w/${TENANT}/${PROJECT}`,
-    id: scenario.clientId,
+    "client-id": scenario.clientId,
     scope: scenario.scope,
   };
 }
 
-// `cli("config set-active-profile", { name: "testing" })` runs
-// `haste-health config set-active-profile --name testing` from backend/, where
+// `cli("profile create testing", { "auth-mode": "none" })` runs
+// `haste-health profile create testing --auth-mode none` from backend/, where
 // `admin` commands read haste.toml and .env. An array value repeats its flag.
 function cli(command, flags = {}, { quiet = false } = {}) {
   const args = [
@@ -184,7 +183,7 @@ function readKnownFailures() {
 function deleteProfile(name) {
   spawnSync(
     cliPath,
-    ["config", "delete-profile", "--name", name, "--confirm", "true"],
+    ["profile", "delete", name, "--yes"],
     { cwd: backendDir },
   );
 }
@@ -223,7 +222,7 @@ const failed = [];
 if (phaseName === "setup" && existsSync(sharedSetupDir)) {
   console.log("=== setup: shared");
   try {
-    cli("config set-active-profile", { name: ADMIN_PROFILE });
+    cli(`profile use ${ADMIN_PROFILE}`);
     runTestScripts(sharedSetupDir, "shared-setup.json");
   } catch (error) {
     console.error(error.message);
@@ -244,7 +243,7 @@ for (const scenario of loadScenarios()) {
 }
 
 // Whatever runs next uses the admin profile.
-cli("config set-active-profile", { name: ADMIN_PROFILE });
+cli(`profile use ${ADMIN_PROFILE}`);
 
 if (failed.length) {
   console.error(`${phaseName} failed for: ${failed.join(", ")}`);

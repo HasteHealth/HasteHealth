@@ -34,7 +34,7 @@ A server started in WSL is reachable from Windows on `localhost`.
 | `haste-health worker`       | Run the background workers: search indexing and async jobs                          |
 | `haste-health admin`        | Server-side administration: migrations, tenants, users, client applications         |
 | `haste-health login`        | Log in as a user through the browser (authorization code + PKCE)                    |
-| `haste-health config`       | Manage named server connection profiles used by the client commands                 |
+| `haste-health profile`      | Manage named server connection profiles used by the client commands                 |
 | `haste-health api`          | Make FHIR REST calls (create, read, search, update, ...) against the active profile |
 | `haste-health testscript`   | Run FHIR TestScript resources against the active profile's server                   |
 | `haste-health fhirpath`     | Evaluate a FHIRPath expression against a resource read from stdin                   |

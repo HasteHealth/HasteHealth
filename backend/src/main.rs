@@ -65,9 +65,9 @@ enum CliCommand {
         command: commands::api::ApiCommands,
     },
     /// Manage named server connection profiles used by other commands.
-    Config {
+    Profile {
         #[command(subcommand)]
-        command: commands::config::ConfigCommands,
+        command: commands::profile::ProfileCommands,
     },
     /// Log in as a human user via the browser (authorization_code + PKCE flow).
     Login {

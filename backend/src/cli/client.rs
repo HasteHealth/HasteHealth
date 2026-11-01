@@ -2,7 +2,7 @@
 //! (`api`, `testscript`, `hl7v2`), based on the active profile's auth mode.
 
 use crate::cli::{
-    config::ProfileAuth,
+    config::{DEFAULT_CLIENT_CREDENTIALS_SCOPE, ProfileAuth},
     secrets::StoredTokens,
     state::{CliState, SECRETS_LOCATION},
 };
@@ -69,13 +69,7 @@ pub(crate) async fn fetch_discovery_document(
         return Ok(well_known_doc.clone());
     }
 
-    let Some(active_profile) = current_state.config.current_profile().cloned() else {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "No active profile set. Please set an active profile using the config command."
-                .to_string(),
-        ));
-    };
+    let active_profile = current_state.config.require_current_profile()?.clone();
 
     let res = reqwest::get(&active_profile.oidc_discovery_uri)
         .await
@@ -175,13 +169,7 @@ async fn config_to_fhir_http_state(
     state: Arc<Mutex<CliState>>,
 ) -> Result<FHIRHttpState, OperationOutcomeError> {
     let current_state = state.lock().await;
-    let Some(active_profile) = current_state.config.current_profile().cloned() else {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "No active profile set. Please set an active profile using the config command."
-                .to_string(),
-        ));
-    };
+    let active_profile = current_state.config.require_current_profile()?.clone();
 
     let profile_name = active_profile.name.clone();
     let client_secret = current_state
@@ -200,7 +188,7 @@ async fn config_to_fhir_http_state(
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
                         format!(
-                            "No client secret stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            "No client secret stored for profile '{}'. Recreate it with `haste-health profile create`.",
                             profile_name
                         ),
                     ));
@@ -213,7 +201,7 @@ async fn config_to_fhir_http_state(
                         let client_secret = client_secret.clone();
                         let scope = scope
                             .clone()
-                            .unwrap_or_else(|| "openid system/*.*".to_string());
+                            .unwrap_or_else(|| DEFAULT_CLIENT_CREDENTIALS_SCOPE.to_string());
                         Box::pin(async move {
                             {
                                 let current_state = state.lock().await;
@@ -355,7 +343,7 @@ async fn config_to_fhir_http_state(
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
                         format!(
-                            "No password stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            "No password stored for profile '{}'. Recreate it with `haste-health profile create`.",
                             profile_name
                         ),
                     ));

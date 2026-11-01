@@ -49,11 +49,12 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health api delete-type`↴](#haste-health-api-delete-type)
 * [`haste-health api delete-system`↴](#haste-health-api-delete-system)
 * [`haste-health api invoke-instance`↴](#haste-health-api-invoke-instance)
-* [`haste-health config`↴](#haste-health-config)
-* [`haste-health config show-profile`↴](#haste-health-config-show-profile)
-* [`haste-health config create-profile`↴](#haste-health-config-create-profile)
-* [`haste-health config delete-profile`↴](#haste-health-config-delete-profile)
-* [`haste-health config set-active-profile`↴](#haste-health-config-set-active-profile)
+* [`haste-health profile`↴](#haste-health-profile)
+* [`haste-health profile list`↴](#haste-health-profile-list)
+* [`haste-health profile show`↴](#haste-health-profile-show)
+* [`haste-health profile create`↴](#haste-health-profile-create)
+* [`haste-health profile use`↴](#haste-health-profile-use)
+* [`haste-health profile delete`↴](#haste-health-profile-delete)
 * [`haste-health login`↴](#haste-health-login)
 * [`haste-health worker`↴](#haste-health-worker)
 * [`haste-health worker indexing`↴](#haste-health-worker-indexing)
@@ -77,6 +78,10 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health hl7v2`↴](#haste-health-hl7v2)
 * [`haste-health hl7v2 receiver`↴](#haste-health-hl7v2-receiver)
 * [`haste-health hl7v2 sender`↴](#haste-health-hl7v2-sender)
+* [`haste-health package`↴](#haste-health-package)
+* [`haste-health package install`↴](#haste-health-package-install)
+* [`haste-health package uninstall`↴](#haste-health-package-uninstall)
+* [`haste-health package list`↴](#haste-health-package-list)
 * [`haste-health doc`↴](#haste-health-doc)
 
 ## `haste-health`
@@ -93,12 +98,13 @@ Haste Health binary.
 * `subscription` — Publish what each subscription tier allows
 * `server` — Run the FHIR server
 * `api` — Make FHIR REST API calls against the active profile's server
-* `config` — Manage named server connection profiles used by other commands
+* `profile` — Manage named server connection profiles used by other commands
 * `login` — Log in as a human user via the browser (authorization_code + PKCE flow)
 * `worker` — Run the background workers (search indexing and async jobs), or only the one named
 * `testscript` — Run FHIR TestScript resources against the active profile's server
 * `admin` — Server-side administrative operations (tenants, users, clients, migrations)
 * `hl7v2` — Bridge HL7v2 messages to and from the FHIR server
+* `package` — Install FHIR packages (implementation guides) into the active profile's project
 * `doc` — Generate Markdown documentation for this CLI's commands
 
 
@@ -599,82 +605,102 @@ Invoke an instance-level operation (`POST [base]/[type]/[id]/$[operation_name]`)
 
 
 
-## `haste-health config`
+## `haste-health profile`
 
 Manage named server connection profiles used by other commands
 
-**Usage:** `haste-health config <COMMAND>`
+**Usage:** `haste-health profile <COMMAND>`
 
 ###### **Subcommands:**
 
-* `show-profile` — Print the currently active profile (never includes secrets or tokens)
-* `create-profile` — Create a new profile and set it as active. Prompts interactively for any option not passed on the command line
-* `delete-profile` — Delete a profile and its stored secrets
-* `set-active-profile` — Change which profile is used by default
+* `list` — List all profiles. `*` marks the active one
+* `show` — Show a profile's settings (never secrets or tokens). Defaults to the active profile
+* `create` — Create a profile and make it active. Prompts for anything not passed as an option
+* `use` — Switch the active profile that other commands use. Without NAME, pick from a list
+* `delete` — Delete a profile and its stored secrets. Without NAME, pick from a list
 
 
 
-## `haste-health config show-profile`
+## `haste-health profile list`
 
-Print the currently active profile (never includes secrets or tokens)
+List all profiles. `*` marks the active one
 
-**Usage:** `haste-health config show-profile`
+**Usage:** `haste-health profile list`
 
 
 
-## `haste-health config create-profile`
+## `haste-health profile show`
 
-Create a new profile and set it as active. Prompts interactively for any option not passed on the command line
+Show a profile's settings (never secrets or tokens). Defaults to the active profile
 
-**Usage:** `haste-health config create-profile [OPTIONS]`
+**Usage:** `haste-health profile show [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
+
+
+
+## `haste-health profile create`
+
+Create a profile and make it active. Prompts for anything not passed as an option
+
+**Usage:** `haste-health profile create [OPTIONS] [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
 
 ###### **Options:**
 
-* `-n`, `--name <NAME>` — Name to identify this profile by
 * `-r`, `--r4-url <R4_URL>` — Base URL of the FHIR R4 server
-* `-d`, `--discovery-uri <DISCOVERY_URI>` — OIDC discovery (`.well-known/openid-configuration`) URI
-* `--auth-mode <AUTH_MODE>` — How the CLI should authenticate as this profile
+* `--auth-mode <AUTH_MODE>` — How the CLI authenticates for this profile
 
   Possible values:
+  - `authorization-code`:
+    A human logs in through the browser (authorization_code + PKCE) with a public client. Run `haste-health login` afterwards to sign in
   - `client-credentials`:
     A confidential (server-to-server) client authenticated with a client secret
-  - `authorization-code`:
-    A public client a human logs into via the browser (authorization_code + PKCE). Use `haste-health login` afterwards to obtain tokens
   - `basic-auth`:
-    Basic authentication with a username and password
+    HTTP basic authentication with a username and password
+  - `none`:
+    No authentication: requests are sent anonymously
 
-* `-i`, `--id <ID>` — OIDC client ID
-* `-s`, `--secret <SECRET>` — Client secret. Required for --auth-mode client-credentials, ignored otherwise. Stored in the secrets file, not the profile itself
-* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client)
-* `--scope <SCOPE>` — OAuth scope to request. For --auth-mode client-credentials, defaults to `openid system/*.*`
+* `-d`, `--discovery-uri <DISCOVERY_URI>` — OIDC discovery (`.well-known/openid-configuration`) URI. Used by authorization-code and client-credentials
+* `--client-id <CLIENT_ID>` — OAuth client ID. Used by authorization-code and client-credentials
+* `--client-secret <CLIENT_SECRET>` — OAuth client secret, for client-credentials. Stored in the secrets file, not the profile
+* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for authorization-code (must be registered on the client). Defaults to `http://127.0.0.1:8976/callback`
+* `--scope <SCOPE>` — OAuth scope to request. Defaults to `openid profile fhirUser offline_access user/*.*` for authorization-code and `openid system/*.*` for client-credentials
+* `--username <USERNAME>` — Username, for basic-auth
+* `--password <PASSWORD>` — Password, for basic-auth. Stored in the secrets file, not the profile
 
 
 
-## `haste-health config delete-profile`
+## `haste-health profile use`
 
-Delete a profile and its stored secrets
+Switch the active profile that other commands use. Without NAME, pick from a list
 
-**Usage:** `haste-health config delete-profile [OPTIONS]`
+**Usage:** `haste-health profile use [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
+
+
+
+## `haste-health profile delete`
+
+Delete a profile and its stored secrets. Without NAME, pick from a list
+
+**Usage:** `haste-health profile delete [OPTIONS] [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
 
 ###### **Options:**
 
-* `-n`, `--name <NAME>` — Name of the profile to delete
-* `-c`, `--confirm <CONFIRM>` — Skip the interactive confirmation prompt
-
-  Possible values: `true`, `false`
-
-
-
-
-## `haste-health config set-active-profile`
-
-Change which profile is used by default
-
-**Usage:** `haste-health config set-active-profile [OPTIONS]`
-
-###### **Options:**
-
-* `-n`, `--name <NAME>` — Name of the profile to activate
+* `-y`, `--yes` — Delete without asking for confirmation
 
 
 
@@ -742,7 +768,7 @@ Run every TestScript resource found under the given input path(s), in parallel, 
 * `-i`, `--input <INPUT>` — File or directory to search for TestScript resources (JSON). Repeatable
 * `-o`, `--output <OUTPUT>` — Write the resulting TestReport bundle to this file instead of stdout
 * `-w`, `--wait-between-operations-ms <WAIT_BETWEEN_OPERATIONS_MS>` — Delay between operations within a TestScript, in milliseconds
-* `--index-wait-ms <INDEX_WAIT_MS>` — Before a search (or conditional delete/update), wait up to this many milliseconds for the TestScript's latest write to be indexed. Search indexing is asynchronous; this waits only as long as it takes
+* `--index-wait-ms <INDEX_WAIT_MS>` — Before a search, an operation or a conditional delete/update, wait up to this many milliseconds for the TestScript's latest writes to be indexed. Search indexing is asynchronous; this waits only as long as it takes
 * `--allow-failure <TESTSCRIPT_ID>` — A TestScript id whose failure is known and shouldn't fail the run. Its TestReport is still recorded as `fail`. Repeatable
 
 
@@ -981,6 +1007,62 @@ Send HL7v2 messages over MLLP
 * `--timeout-secs <TIMEOUT_SECS>` — How long to wait for the ACK, in seconds
 
   Default value: `30`
+
+
+
+## `haste-health package`
+
+Install FHIR packages (implementation guides) into the active profile's project
+
+**Usage:** `haste-health package <COMMAND>`
+
+###### **Subcommands:**
+
+* `install` — Install packages, with the packages they depend on
+* `uninstall` — Uninstall a package: delete what it installed. Packages it depends on stay installed
+* `list` — List the installed packages
+
+
+
+## `haste-health package install`
+
+Install packages, with the packages they depend on
+
+**Usage:** `haste-health package install [OPTIONS] <PACKAGES>...`
+
+###### **Arguments:**
+
+* `<PACKAGES>` — What to install: `name@version` from the package registry (for example `hl7.fhir.us.core@6.1.0`, `hl7.fhir.us.core@6.1.x`, or a name alone for the latest), a package tarball (`.tgz`), or a package folder (one holding `package.json`)
+
+###### **Options:**
+
+* `--no-dependencies` — Install only the packages given, not the packages they depend on
+* `--examples` — Also install the example resources of the packages given
+* `--json` — Print the server's response (a Parameters resource) instead of a summary
+
+
+
+## `haste-health package uninstall`
+
+Uninstall a package: delete what it installed. Packages it depends on stay installed
+
+**Usage:** `haste-health package uninstall <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The package name, for example `hl7.fhir.us.core`
+
+###### **Options:**
+
+* `--version <VERSION>` — Only uninstall if this version is the one installed
+
+
+
+## `haste-health package list`
+
+List the installed packages
+
+**Usage:** `haste-health package list`
 
 
 

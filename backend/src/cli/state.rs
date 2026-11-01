@@ -26,7 +26,7 @@ pub(crate) static CONFIG_LOCATION: LazyLock<PathBuf> =
     LazyLock::new(|| CONFIG_DIR.join("config.toml"));
 
 /// Client secrets and cached OAuth tokens, kept out of `CONFIG_LOCATION` so they never
-/// show up via `config show-profile` or similar.
+/// show up via `profile show` or similar.
 pub(crate) static SECRETS_LOCATION: LazyLock<PathBuf> =
     LazyLock::new(|| CONFIG_DIR.join(".secrets.toml"));
 

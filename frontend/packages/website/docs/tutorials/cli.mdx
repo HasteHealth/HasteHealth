@@ -69,7 +69,7 @@ haste-health admin client create \
 
 This creates a public (no secret) `ClientApplication` with ID `cli` supporting the `authorization_code` and `refresh_token` grants. Because it's a public client used by a signed-in human, it does not need an `AccessPolicyV2` of its own — access is governed by whichever policy is attached to the user who logs in.
 
-The `--scope` above is what `haste-health config create-profile` defaults to as well; adjust it to whatever scopes the logged-in users should be able to request. See the [Scopes documentation](/docs/auth/authorization/scopes) for the full syntax.
+The `--scope` above is what `haste-health profile create` defaults to as well; adjust it to whatever scopes the logged-in users should be able to request. See the [Scopes documentation](/docs/auth/authorization/scopes) for the full syntax.
 
 To register it through the Admin App instead, open your project's console, pick **ClientApplication** from the sidebar's resource types, click **New ClientApplication**, and set the grant type to `authorization_code`, response type to `code`, add the redirect URI above, and set the same scopes. Save with **Actions → Create**.
 
@@ -78,17 +78,40 @@ To register it through the Admin App instead, open your project's console, pick 
 Before using the CLI, you need to configure at least one profile (FHIR server):
 
 ```bash
-haste-health config create-profile
+haste-health profile create
 ```
 
-This interactive command will prompt you for:
+This prompts you for:
 - **Profile name**: A unique identifier for this configuration
 - **FHIR R4 Server URL**: The FHIR R4 endpoint URL (in the Admin App under **Settings → FHIR and OIDC Endpoints**, as **FHIR R4 Base URL**)
+- **Auth Mode**: Press Enter to accept the default, `authorization-code`
 - **OIDC discovery URI**: Same card, as **OIDC Discovery URL**
 - **Client ID**: The `ClientApplication` ID from step 1 (e.g. `cli`)
-- **Auth Mode**: Press Enter to accept the default, `authorization-code`
 - **Loopback Redirect URI**: Press Enter to accept the default, `http://127.0.0.1:8976/callback`
 - **OAuth Scope**: Press Enter to accept the default, or enter whatever scopes you registered the client with in step 1 (see the [Scopes documentation](/docs/auth/authorization/scopes))
+
+Every prompt can be skipped by passing its value as an option instead, which is how you'd create a profile from a script:
+
+```bash
+haste-health profile create local \
+  --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4 \
+  --auth-mode authorization-code \
+  --discovery-uri https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project] \
+  --client-id cli
+```
+
+Outside a terminal, options with a default (`--redirect-uri`, `--scope`) fall back to it, and any other missing option is an error. Run `haste-health profile create --help` for the options of the other auth modes (`client-credentials`, `basic-auth` and `none`).
+
+The new profile becomes the active one, which other commands use. To manage profiles:
+
+```bash
+haste-health profile list            # all profiles; * marks the active one
+haste-health profile show [name]     # a profile's settings, never its secrets
+haste-health profile use [name]      # switch the active profile
+haste-health profile delete [name]   # delete a profile and its stored secrets
+```
+
+Leave out the name to pick from a list.
 
 ### 3. Log In
 
@@ -96,7 +119,7 @@ This interactive command will prompt you for:
 haste-health login
 ```
 
-This opens your browser to sign in against the active profile's OIDC provider, then stores the resulting access/refresh tokens in the CLI config.
+This opens your browser to sign in against the active profile's OIDC provider, then stores the resulting access/refresh tokens in the CLI's secrets file.
 
 Without a browser (over SSH, for example), run `haste-health login --no-browser` and open the printed URL in a browser that can reach the loopback redirect URI. Over SSH, forward its port.
 
@@ -123,7 +146,7 @@ redirect_uri = "http://127.0.0.1:8976/callback"
 scope = "openid profile fhirUser offline_access user/*.*"
 ```
 
-Tokens obtained via `haste-health login` are cached under `profiles.tokens` in this same file.
+Secrets are kept out of this file. Client secrets, passwords and the tokens from `haste-health login` are stored per profile in `~/.haste_health/.secrets.toml`, so `config.toml` is safe to inspect or share.
 
 ## API Commands
 
@@ -164,4 +187,4 @@ If you encounter issues:
 1. Check the CLI help: `haste-health --help`
 2. Review command-specific help: `haste-health api --help`
 3. Check the [GitHub Issues](https://github.com/HasteHealth/HasteHealth/issues)
-4. Verify your configuration: `haste-health config show-profile`
+4. Verify your configuration: `haste-health profile show`

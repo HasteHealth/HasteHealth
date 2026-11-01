@@ -2,12 +2,12 @@ pub(crate) mod admin;
 pub(crate) mod api;
 pub(crate) mod artifacts;
 pub(crate) mod codegen;
-pub(crate) mod config;
 pub(crate) mod doc;
 pub(crate) mod fhirpath;
 pub(crate) mod hl7v2;
 pub(crate) mod login;
 pub(crate) mod package;
+pub(crate) mod profile;
 pub(crate) mod server;
 pub(crate) mod subscription;
 pub(crate) mod testscript;
@@ -30,7 +30,7 @@ pub(crate) async fn run(
         CliCommand::Subscription { command } => subscription::run(command).await,
         CliCommand::Server { command } => server::run(command).await,
         CliCommand::Worker { command } => worker::run(command).await,
-        CliCommand::Config { command } => config::run(state, command).await,
+        CliCommand::Profile { command } => profile::run(state, command).await,
         CliCommand::Login { no_browser } => login::run(state, *no_browser).await,
         CliCommand::Api { command } => api::run(state, command).await,
         CliCommand::Testscript { command } => testscript::run(state, command).await,

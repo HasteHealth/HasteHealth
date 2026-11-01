@@ -170,13 +170,7 @@ pub(crate) async fn run(
 ) -> Result<(), OperationOutcomeError> {
     let (client_id, redirect_uri, scope, profile_name) = {
         let current_state = state.lock().await;
-        let Some(profile) = current_state.config.current_profile().cloned() else {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                "No active profile set. Please set an active profile using the config command."
-                    .to_string(),
-            ));
-        };
+        let profile = current_state.config.require_current_profile()?.clone();
 
         match profile.auth {
             ProfileAuth::AuthorizationCode {
@@ -187,7 +181,7 @@ pub(crate) async fn run(
             _ => {
                 return Err(OperationOutcomeError::error(
                     IssueType::invalid(),
-                    "The active profile is not configured for authorization-code login. Create one with `haste-health config create-profile --auth-mode authorization-code`."
+                    "The active profile is not configured for authorization-code login. Create one with `haste-health profile create --auth-mode authorization-code`."
                         .to_string(),
                 ));
             }
