@@ -1,6 +1,7 @@
 use crate::{ui::components::TenantContext, ui::pages::error::error_html};
 use axum::{
-    extract::Request,
+    extract::{OriginalUri, Request},
+    http::{HeaderName, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -9,31 +10,56 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use maud::html;
 use std::sync::Arc;
 
-// Log operation outcome errors encountered during request processing.
+/// The header that carries the request id the server assigns (or the client sent).
+pub const REQUEST_ID_HEADER: HeaderName = HeaderName::from_static("x-request-id");
+
+/// Logs the error a response carries: at error level when the server failed
+/// (5xx), at warn for a feature it does not implement (501) and at debug
+/// when it rejected the request. The error's Debug output has the issues,
+/// origin, context trail, source chain and backtrace.
 pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Response {
+    // The request is consumed before we know whether it failed. These are
+    // reference-count bumps, not copies. The original URI still has the
+    // `/w/{tenant}` prefix the nested router strips.
+    let method = request.method().clone();
+    let uri = request
+        .extensions()
+        .get::<OriginalUri>()
+        .map_or_else(|| request.uri().clone(), |original| original.0.clone());
+    let request_id = request.headers().get(&REQUEST_ID_HEADER).cloned();
+
     let response = next.run(request).await;
-    // If the response contains an OperationOutcomeError Extension, log it.
-    if let Some(err) = response.extensions().get::<Arc<OperationOutcomeError>>() {
-        tracing::error!(?err);
+
+    if let Some(error) = response.extensions().get::<Arc<OperationOutcomeError>>() {
+        let request_id = request_id
+            .as_ref()
+            .and_then(|id| id.to_str().ok())
+            .unwrap_or("");
+        let status = response.status();
+        if status == StatusCode::NOT_IMPLEMENTED {
+            tracing::warn!(%method, %uri, request_id, origin = %error.origin(), ?error, "request unsupported");
+        } else if status.is_server_error() {
+            tracing::error!(%method, %uri, request_id, origin = %error.origin(), ?error, "request failed");
+        } else {
+            tracing::debug!(%method, %uri, request_id, origin = %error.origin(), ?error, "request rejected");
+        }
     }
 
     response
 }
 
-/// Middleware to handle OperationOutcomeErrors and return appropriate HTML or FHIR+JSON responses.
-/// If the client accepts HTML, an error page is rendered.
-/// Otherwise, a FHIR OperationOutcome JSON response is returned.
+/// Answers an `OperationOutcomeError` as an HTML error page when the client
+/// accepts HTML, otherwise as the FHIR `OperationOutcome` JSON.
 pub async fn operation_outcome_error_handle(
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     request: Request,
     next: Next,
 ) -> Response {
-    let content_type = request
+    let accepts_html = request
         .headers()
         .get(axum::http::header::ACCEPT)
         .and_then(|v| v.to_str().ok())
-        .unwrap_or("")
-        .to_string();
+        .is_some_and(|accept| accept.contains("text/html"));
 
     let mut response = next.run(request).await;
 
@@ -43,7 +69,7 @@ pub async fn operation_outcome_error_handle(
         .cloned();
 
     if let Some(err) = error {
-        if content_type.contains("text/html") {
+        if accepts_html {
             let (parts, _) = response.into_parts();
 
             let outcome = err.outcome();
@@ -52,14 +78,12 @@ pub async fn operation_outcome_error_handle(
                 &tenant,
                 &html! {
                     div class ="text-xl font-semibold text-red-600 mb-4" {
-                       (issue.as_ref().map(|i| &i.code)
-                            .and_then(|s| s.as_str())
+                       (issue.and_then(|i| i.code.as_str())
                             .unwrap_or("UNKNOWN_ERROR").to_ascii_uppercase())
                     }
                     div class= "text-sm text-red-500" {
-                        (issue.as_ref().and_then(|i| i.diagnostics.as_ref())
-                            .and_then(|d| d.value.as_ref())
-                            .map(|s| s.as_str())
+                        (issue.and_then(|i| i.diagnostics.as_ref())
+                            .and_then(|d| d.value.as_deref())
                             .unwrap_or("An unexpected error occurred."))
                     }
                 },

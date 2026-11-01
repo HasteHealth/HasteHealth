@@ -6,7 +6,7 @@ use crate::{
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     jobs, mcp,
     middleware::{
-        errors::{log_operationoutcome_errors, operation_outcome_error_handle},
+        errors::{REQUEST_ID_HEADER, log_operationoutcome_errors, operation_outcome_error_handle},
         security_headers::security_headers,
     },
     openapi,
@@ -47,6 +47,7 @@ use tower_http::{
     },
     cors::{Any, CorsLayer},
     normalize_path::NormalizePathLayer,
+    request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer},
     set_header::SetResponseHeaderLayer,
     trace::TraceLayer,
 };
@@ -373,6 +374,11 @@ pub async fn server(
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                // Every request gets an id (a client's own is kept) that the
+                // error log and the response carry, so a support report can
+                // be matched to the log line.
+                .layer(SetRequestIdLayer::new(REQUEST_ID_HEADER, MakeRequestUuid))
+                .layer(PropagateRequestIdLayer::new(REQUEST_ID_HEADER))
                 .layer(CatchPanicLayer::new())
                 .layer(ip_source.into_extension())
                 .layer(NewSentryLayer::<Request<Body>>::new_from_top())

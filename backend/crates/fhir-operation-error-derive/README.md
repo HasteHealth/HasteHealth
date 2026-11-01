@@ -24,7 +24,9 @@ pub enum LookupError {
 }
 ```
 
-`code` must be a code from the FHIR `IssueType` value set; the macro checks it at compile time. See the `haste-fhir-operation-error` README for the HTTP status each code maps to.
+`code` must be a code from the FHIR `IssueType` value set; the macro checks it at compile time. See the `haste-fhir-operation-error` README for the HTTP status each code maps to. Variants are unit or tuple variants, and a `#[from]` variant has that one field.
+
+The generated `From` is `#[track_caller]`, so an error converted with `?` reports that `?` as its origin.
 
 ## Links
 

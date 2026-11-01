@@ -114,6 +114,7 @@ tower-http = { version = "0.6.11", default-features = false, features = [
     "trace",
     "set-header",
     "catch-panic",
+    "request-id",
 ] }
 tower-sessions = { version = "0.15.0", default-features = false, features = [
     "axum-core",
