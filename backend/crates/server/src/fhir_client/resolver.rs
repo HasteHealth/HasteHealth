@@ -54,7 +54,7 @@ pub fn invalidate_project(tenant_id: &TenantId, project_id: &ProjectId) {
 fn version(resource: &Resource) -> Option<&str> {
     resource
         .get_field("version")
-        .and_then(|version| version.as_any().downcast_ref::<Box<FHIRString>>())
+        .and_then(|version| version.as_any().downcast_ref::<FHIRString>())
         .and_then(|version| version.value.as_deref())
 }
 
