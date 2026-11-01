@@ -1036,9 +1036,23 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
             }
             Ok(vec![])
         }
-        _ => Err(InsertableIndexError::FailedDowncast(
-            value.fhir_type().to_string(),
-        )),
+        // An embedded resource, as Bundle `composition` and `message` select
+        // (`Bundle.entry[0].resource`), is indexed as its own type and id.
+        fhir_type => {
+            let resource_type = ResourceType::try_from(fhir_type)
+                .map_err(|_| InsertableIndexError::FailedDowncast(fhir_type.to_string()))?;
+            let id = value
+                .get_field("id")
+                .and_then(|id| id.as_any().downcast_ref::<String>());
+            Ok(id
+                .map(|id| ReferenceIndex {
+                    resource_type: Some(resource_type.as_ref().to_string()),
+                    id: Some(id.clone()),
+                    uri: None,
+                })
+                .into_iter()
+                .collect())
+        }
     }
 }
 
