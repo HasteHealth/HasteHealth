@@ -105,9 +105,10 @@ jobs:
         working-directory: ./backend
 
       # The US Core profiles and search parameters the record is checked against:
-      # US Core 7.0.0, one of the versions (g)(10) certifies.
-      - name: Load US Core profiles
-        run: node scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0
+      # US Core 7.0.0, one of the versions (g)(10) certifies, installed from its
+      # folder in artifacts/ without its dependencies (see test_e2e_us_core_7.yml).
+      - name: Install US Core 7.0.0
+        run: ./target/debug/haste-health package install ../artifacts/r4/hl7.fhir.us.core-7.0.0 --no-dependencies
         working-directory: ./backend
 
       - name: Wait for US Core profiles to be indexed
