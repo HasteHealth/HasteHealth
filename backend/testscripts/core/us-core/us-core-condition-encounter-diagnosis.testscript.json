@@ -65,6 +65,14 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-condition-encounter-diagnosis-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
                 ]
             },
             "extension": [
@@ -100,6 +108,14 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-condition-encounter-diagnosis-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
                 ]
             },
             "id": "condition-asserted-date-missing-3",

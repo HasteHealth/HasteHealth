@@ -62,6 +62,14 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-careteam-test"
+                    },
+                    {
+                        "code": "scope-role"
+                    }
                 ]
             },
             "id": "careteam-role-match-2",
@@ -92,29 +100,17 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-careteam-test"
+                    },
+                    {
+                        "code": "scope-role"
+                    }
                 ]
             },
             "id": "careteam-role-other-3",
-            "resourceType": "CareTeam"
-        },
-        {
-            "status": "proposed",
-            "subject": {
-                "reference": "Patient/example"
-            },
-            "participant": [
-                {
-                    "member": {
-                        "reference": "Practitioner/example"
-                    }
-                }
-            ],
-            "meta": {
-                "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam"
-                ]
-            },
-            "id": "careteam-role-missing-4",
             "resourceType": "CareTeam"
         }
     ],
@@ -139,14 +135,6 @@
             "id": "fixture-careteam-role-other-3",
             "resource": {
                 "reference": "#careteam-role-other-3"
-            },
-            "autocreate": false,
-            "autodelete": false
-        },
-        {
-            "id": "fixture-careteam-role-missing-4",
-            "resource": {
-                "reference": "#careteam-role-missing-4"
             },
             "autocreate": false,
             "autodelete": false
@@ -763,161 +751,6 @@
                                     {
                                         "url": "variant",
                                         "valueCode": "not"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "create"
-                        },
-                        "encodeRequestUrl": false,
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "create"
-                                    }
-                                ]
-                            }
-                        ],
-                        "resource": "CareTeam",
-                        "sourceId": "fixture-careteam-role-missing-4",
-                        "responseId": "role-missing-response"
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "search"
-                        },
-                        "encodeRequestUrl": false,
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "search"
-                                    },
-                                    {
-                                        "url": "searchParameterUrl",
-                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-careteam-role"
-                                    },
-                                    {
-                                        "url": "searchParameterCode",
-                                        "valueCode": "role"
-                                    },
-                                    {
-                                        "url": "variant",
-                                        "valueCode": "missing-true"
-                                    }
-                                ]
-                            }
-                        ],
-                        "resource": "CareTeam",
-                        "params": "role:missing=true&_tag=us-core-careteam-test&_tag=scope-role"
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Bundle.entry.count()",
-                        "warningOnly": false,
-                        "label": "role-missing-true",
-                        "operator": "equals",
-                        "value": "1",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "search"
-                                    },
-                                    {
-                                        "url": "searchParameterUrl",
-                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-careteam-role"
-                                    },
-                                    {
-                                        "url": "searchParameterCode",
-                                        "valueCode": "role"
-                                    },
-                                    {
-                                        "url": "variant",
-                                        "valueCode": "missing-true"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "search"
-                        },
-                        "encodeRequestUrl": false,
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "search"
-                                    },
-                                    {
-                                        "url": "searchParameterUrl",
-                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-careteam-role"
-                                    },
-                                    {
-                                        "url": "searchParameterCode",
-                                        "valueCode": "role"
-                                    },
-                                    {
-                                        "url": "variant",
-                                        "valueCode": "missing-false"
-                                    }
-                                ]
-                            }
-                        ],
-                        "resource": "CareTeam",
-                        "params": "role:missing=false&_tag=us-core-careteam-test&_tag=scope-role"
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Bundle.entry.count()",
-                        "warningOnly": false,
-                        "label": "role-missing-false",
-                        "operator": "equals",
-                        "value": "2",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "search"
-                                    },
-                                    {
-                                        "url": "searchParameterUrl",
-                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-careteam-role"
-                                    },
-                                    {
-                                        "url": "searchParameterCode",
-                                        "valueCode": "role"
-                                    },
-                                    {
-                                        "url": "variant",
-                                        "valueCode": "missing-false"
                                     }
                                 ]
                             }

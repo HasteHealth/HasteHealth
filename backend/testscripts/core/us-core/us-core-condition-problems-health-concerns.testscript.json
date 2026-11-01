@@ -73,6 +73,14 @@
                 "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-condition-problems-health-concerns-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
                 ]
             },
             "clinicalStatus": {
@@ -122,6 +130,14 @@
                 "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-condition-problems-health-concerns-test"
+                    },
+                    {
+                        "code": "scope-asserted-date"
+                    }
                 ]
             },
             "clinicalStatus": {

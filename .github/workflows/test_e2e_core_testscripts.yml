@@ -122,6 +122,12 @@ jobs:
           ./target/debug/haste-health worker > worker.log 2>&1 &
         working-directory: ./backend
 
+      # The base FHIR definitions (SimpleQuantity, the core extensions) that
+      # US Core profile validation resolves, as in test_e2e_base.yml.
+      - name: Migrate artifacts
+        run: ./target/debug/haste-health admin migrate artifacts
+        working-directory: ./backend
+
       - name: Set up tenant and client
         run: |
           ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
@@ -129,10 +135,12 @@ jobs:
           ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
-      # The client's access policy is found through search when a token is
-      # issued, and the CLI caches its token. A token issued before the worker
-      # indexes the policy carries none, and every request with it is denied,
-      # so wait before the first authenticated call (the check below).
+      # The artifacts load in the background and profile validation finds them
+      # through search. The client's access policy is found through search too
+      # when a token is issued, and the CLI caches its token. A token issued
+      # before the worker indexes the policy carries none, and every request
+      # with it is denied, so wait before the first authenticated call (the
+      # check below).
       - name: Wait for indexing
         run: bash .github/scripts/wait_for_indexing.sh 600
 

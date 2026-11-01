@@ -50,6 +50,14 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-goal-test"
+                    },
+                    {
+                        "code": "scope-description"
+                    }
                 ]
             },
             "id": "goal-description-match-2",
@@ -74,6 +82,14 @@
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-goal-test"
+                    },
+                    {
+                        "code": "scope-description"
+                    }
                 ]
             },
             "id": "goal-description-other-3",

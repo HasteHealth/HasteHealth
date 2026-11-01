@@ -94,6 +94,14 @@
                 "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
                 ]
             },
             "identifier": [
@@ -171,6 +179,14 @@
                 "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
                 ]
             },
             "identifier": [
@@ -248,6 +264,14 @@
                 "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
                 ]
             },
             "identifier": [
