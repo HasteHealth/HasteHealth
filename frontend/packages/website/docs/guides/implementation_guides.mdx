@@ -157,7 +157,7 @@ Packages are fetched from the registry by the server. The `[packages]` section o
 | `packages.max_files` | 20000 | Most files in one package. |
 | `packages.max_install_packages` | 50 | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
 | `packages.max_install_bytes` | 200 MiB | Most the packages of one install may unpack to together, uploads included. It is checked while unpacking, so a package past it is never read whole. |
-| `packages.max_concurrent_installs` | 2 | Installs one server runs at once. Another is refused with `429` until one finishes. |
+| `packages.max_concurrent_installs` | 1 | Installs one server runs at once. Another is refused with `429` until it finishes. |
 
 An install holds its packages in memory while it writes them in one transaction; its peak is about four times what they unpack to, so `max_install_bytes` times `max_concurrent_installs` times four bounds what installs can take from the server.
 

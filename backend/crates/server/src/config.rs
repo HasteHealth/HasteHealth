@@ -120,7 +120,8 @@ pub struct PackagesConfig {
     /// included, in bytes. It is enforced while unpacking. An install's peak
     /// memory is about four times what its packages unpack to.
     pub max_install_bytes: u64,
-    /// Installs this server runs at once; one more is refused with 429.
+    /// Installs this server runs at once; one more is refused with 429. One
+    /// install at the byte limit can peak near 800 MB, so the default is 1.
     pub max_concurrent_installs: usize,
 }
 
@@ -145,7 +146,7 @@ impl Default for PackagesConfig {
             max_files: 20_000,
             max_install_packages: 50,
             max_install_bytes: 200 * 1024 * 1024,
-            max_concurrent_installs: 2,
+            max_concurrent_installs: 1,
         }
     }
 }
