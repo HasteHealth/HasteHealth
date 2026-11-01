@@ -12,7 +12,7 @@
             "id": "g10-medicationrequest-coded-oral-axid",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|7.0.0"
                 ],
                 "tag": [
                     {

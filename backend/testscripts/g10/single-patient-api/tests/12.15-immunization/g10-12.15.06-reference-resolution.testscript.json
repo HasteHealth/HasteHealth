@@ -12,7 +12,7 @@
             "id": "g10-example",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                 ],
                 "tag": [
                     {
@@ -255,7 +255,7 @@
             "id": "g10-example-1",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                 ],
                 "tag": [
                     {
@@ -350,7 +350,7 @@
             "id": "g10-hospital",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|7.0.0"
                 ],
                 "tag": [
                     {

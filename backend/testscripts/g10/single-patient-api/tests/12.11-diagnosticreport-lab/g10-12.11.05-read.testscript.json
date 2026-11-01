@@ -12,7 +12,7 @@
             "id": "g10-cbc",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|7.0.0"
                 ],
                 "tag": [
                     {

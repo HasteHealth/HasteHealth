@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Device",
-                        "params": "_id=g10-udi-2,g10-udi-3,g10-udi-4,g10-udi-5",
+                        "params": "_id=g10-udi-2,g10-udi-3",
                         "encodeRequestUrl": false
                     }
                 },

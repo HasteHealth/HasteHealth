@@ -12,7 +12,7 @@
             "id": "g10-height",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|7.0.0"
                 ],
                 "tag": [
                     {

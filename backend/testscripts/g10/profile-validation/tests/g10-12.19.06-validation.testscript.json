@@ -4,7 +4,7 @@
     "name": "g10-12.19.06-validation",
     "title": "12.19.06 Observation conforms to US Core Observation Pregnancy Status Profile",
     "status": "active",
-    "description": "g10 12.19.06 (DAT-PAT-2). Inferno validates the Observation resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Observation/g10-pregnancy-status that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "description": "g10 12.19.06 (DAT-PAT-2). Inferno validates the Observation resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Observation/g10-pregnancy-status that claims it is accepted, which the server allows only after validating it against the profile (US Core 7.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
     "resourceType": "TestScript",
     "contained": [
         {

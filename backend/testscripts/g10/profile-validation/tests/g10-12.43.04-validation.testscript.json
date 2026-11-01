@@ -4,7 +4,7 @@
     "name": "g10-12.43.04-validation",
     "title": "12.43.04 Location conforms to US Core Location Profile",
     "status": "active",
-    "description": "g10 12.43.04 (DAT-PAT-2). Inferno validates the Location resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Location/g10-hl7east that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "description": "g10 12.43.04 (DAT-PAT-2). Inferno validates the Location resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Location/g10-hl7east that claims it is accepted, which the server allows only after validating it against the profile (US Core 7.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
     "resourceType": "TestScript",
     "contained": [
         {

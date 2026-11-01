@@ -104,13 +104,30 @@ jobs:
           exit 1
         working-directory: ./backend
 
-      # The US Core profiles and search parameters the record is checked against.
+      # The US Core profiles and search parameters the record is checked against:
+      # US Core 7.0.0, one of the versions (g)(10) certifies.
       - name: Load US Core profiles
-        run: node scripts/load_us_core.mjs
+        run: node scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0
         working-directory: ./backend
 
       - name: Wait for US Core profiles to be indexed
         run: bash .github/scripts/wait_for_indexing.sh 600
+
+      # The server caches the CapabilityStatement for up to 30 seconds, so the
+      # one cached by "Wait for server" can still lack the US Core profiles
+      # that 12.1.05 looks for. Wait until it lists them.
+      - name: Wait for the CapabilityStatement to list US Core
+        run: |
+          for i in {1..60}; do
+            if capabilities=$(./target/debug/haste-health api capabilities) \
+              && [[ "$capabilities" == *us-core-implantable-device* ]]; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "The CapabilityStatement does not list the US Core profiles" >&2
+          exit 1
+        working-directory: ./backend
 
       # The admin writes the shared US Core record, then each scenario's data,
       # client and any user.

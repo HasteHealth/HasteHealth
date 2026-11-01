@@ -12,7 +12,7 @@
             "id": "g10-example",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                 ],
                 "tag": [
                     {
@@ -255,7 +255,7 @@
             "id": "g10-example-1",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                 ],
                 "tag": [
                     {
@@ -350,7 +350,7 @@
             "id": "g10-acme-lab",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {
@@ -409,7 +409,7 @@
             "id": "g10-cbc-leukocytes",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                 ],
                 "tag": [
                     {
