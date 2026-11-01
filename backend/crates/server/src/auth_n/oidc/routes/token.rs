@@ -172,7 +172,7 @@ impl LaunchContext {
 }
 
 /// Whether `scope` needs a patient in context.
-fn is_patient_bound_scope(scope: &Scope) -> bool {
+pub(crate) fn is_patient_bound_scope(scope: &Scope) -> bool {
     matches!(
         scope,
         Scope::SMART(SmartScope::Resource(SMARTResourceScope {
@@ -307,6 +307,26 @@ fn bind_smart_context(
     })
 }
 
+/// Where an EHR-launched app fetches the project's style parameters (SMART
+/// `smart_style_url`).
+pub(crate) fn smart_style_url(
+    api_uri: &str,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<String, OIDCError> {
+    let style_path = api_v1_oidc_path(tenant, project).join(
+        style::SmartStylePath
+            .to_string()
+            .strip_prefix('/')
+            .unwrap_or_default(),
+    );
+
+    Url::parse(api_uri)
+        .and_then(|u| u.join(style_path.to_str().unwrap_or_default()))
+        .map(|url| url.to_string())
+        .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))
+}
+
 async fn create_token_response<Repo: Repository>(
     config: &ServerConfig,
     user_agent: &Option<TypedHeader<UserAgent>>,
@@ -380,6 +400,13 @@ async fn create_token_response<Repo: Repository>(
     let mut header = Header::new(Algorithm::RS256);
     header.kid = Some(encoding_key.kid.clone());
 
+    let launch_granted = args.launch.is_some()
+        && args
+            .scopes
+            .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope)));
+    // Returned only with the launch, as in the token response below.
+    let encounter = args.encounter.clone().filter(|_| launch_granted);
+
     let access_token = jsonwebtoken::encode(
         &header,
         &UserTokenClaims {
@@ -399,6 +426,8 @@ async fn create_token_response<Repo: Repository>(
             access_policy_version_ids: args.access_policy_version_ids,
             fhir_user: args.fhir_user.clone(),
             patient: args.patient.clone(),
+            encounter: encounter.clone(),
+            client_id: Some(args.client_id.clone()),
             fhir_version: project_fhir_version,
         },
         &encoding_key.encoding_key,
@@ -410,11 +439,6 @@ async fn create_token_response<Repo: Repository>(
             None,
         )
     })?;
-
-    let launch_granted = args.launch.is_some()
-        && args
-            .scopes
-            .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope)));
 
     // An id token describes the signed-in user to the client that asked for
     // the login (OpenID Connect Core §2), so unlike the access token it is
@@ -462,16 +486,11 @@ async fn create_token_response<Repo: Repository>(
     };
 
     let smart_style_url = if launch_granted {
-        let style_path = api_v1_oidc_path(&args.tenant, &args.project).join(
-            style::SmartStylePath
-                .to_string()
-                .strip_prefix('/')
-                .unwrap_or_default(),
-        );
-        let api_url = Url::parse(&config.api_uri)
-            .and_then(|u| u.join(style_path.to_str().unwrap_or_default()))
-            .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?;
-        Some(api_url.to_string())
+        Some(smart_style_url(
+            &config.api_uri,
+            &args.tenant,
+            &args.project,
+        )?)
     } else {
         None
     };
@@ -489,7 +508,7 @@ async fn create_token_response<Repo: Repository>(
             .patient
             .clone()
             .filter(|_| launch_granted || args.scopes.0.iter().any(is_patient_bound_scope)),
-        encounter: args.encounter.clone().filter(|_| launch_granted),
+        encounter,
         need_patient_banner: launch_granted.then_some(true),
         smart_style_url,
     };
@@ -667,7 +686,22 @@ fn verify_client(
         }
     }
 
-    if client_app.id.as_ref() != token_request_body.client_id.as_ref() {
+    verify_client_credentials(
+        client_app,
+        token_request_body.client_id.as_deref(),
+        token_request_body.client_secret.as_deref(),
+    )
+}
+
+/// Checks that `client_id` names `client_app` and `client_secret` matches its
+/// stored secret. Two missing secrets match, so a confidential caller must
+/// also pass [`require_client_secret`].
+pub(crate) fn verify_client_credentials(
+    client_app: &ClientApplication,
+    client_id: Option<&str>,
+    client_secret: Option<&str>,
+) -> Result<(), OIDCError> {
+    if client_app.id.as_deref() != client_id {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidClient,
             Some("Invalid credentials".to_string()),
@@ -677,7 +711,7 @@ fn verify_client(
 
     if !constant_time::optional_str_eq(
         client_app.secret.as_ref().and_then(|s| s.value.as_deref()),
-        token_request_body.client_secret.as_deref(),
+        client_secret,
     ) {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidClient,
@@ -690,7 +724,7 @@ fn verify_client(
 }
 
 /// Refuses a confidential grant for a client that has no secret stored.
-fn require_client_secret(client_app: &ClientApplication) -> Result<(), OIDCError> {
+pub(crate) fn require_client_secret(client_app: &ClientApplication) -> Result<(), OIDCError> {
     let has_secret = client_app
         .secret
         .as_ref()

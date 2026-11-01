@@ -469,6 +469,8 @@ mod tests {
                 scope: Scopes(vec![]),
                 fhir_user: None,
                 patient: None,
+                encounter: None,
+                client_id: None,
                 user_id: AuthorId::new(user_id.to_string()),
                 resource_type: AuthorKind::Membership,
                 access_policy_version_ids: vec![],
