@@ -19,6 +19,3 @@ multi-patient-api/tests/g10-bulk-export-cancel.testscript.json
 multi-patient-api/tests/g10-bulk-export-output-format.testscript.json
 multi-patient-api/tests/g10-bulk-export-since.testscript.json
 multi-patient-api/tests/g10-bulk-group-export.testscript.json
-
-# The CapabilityStatement lists no US Core supportedProfile.
-single-patient-api/tests/12.1-capability-statement/g10-12.1.05-profile-support.testscript.json

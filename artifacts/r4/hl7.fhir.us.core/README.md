@@ -2,7 +2,7 @@
 
 The HL7 US Core Implementation Guide, STU9 (version 9.0.0, FHIR R4 4.0.1), redistributed unchanged as an npm package: 55 profiles and 15 extensions, 110 search parameters, the US Core value sets and code systems, the `$docref` operation and the server and client CapabilityStatements. US Core defines the minimum a conformant US server must support for patient data and underlies the ONC (g)(10) certification criteria.
 
-Haste Health validates resources against these profiles at write time. The TypeScript validation tests in `@haste-health/fhir-validation` and the Rust `haste-fhir-profiling` crate read this package as their US Core fixture set, and the repository's `backend/scripts/load_us_core.mjs` pushes the whole package into a project as one transaction before the US Core TestScripts run.
+Haste Health validates resources against these profiles at write time. The TypeScript validation tests in `@haste-health/fhir-validation` and the Rust `haste-fhir-profiling` crate read this package as their US Core fixture set, and the US Core TestScripts run after `haste-health package install` installs it into a project.
 
 ## Install
 

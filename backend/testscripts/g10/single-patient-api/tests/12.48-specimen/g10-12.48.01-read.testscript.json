@@ -12,7 +12,7 @@
             "id": "g10-example-serum-lipemic",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                 ],
                 "tag": [
                     {
@@ -75,7 +75,7 @@
             "id": "g10-specimen-example-serum",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                 ],
                 "tag": [
                     {
@@ -131,7 +131,7 @@
             "id": "g10-specimen-example-urine",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                 ],
                 "tag": [
                     {
@@ -178,7 +178,7 @@
             "id": "g10-specimen-example-whole-blood",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                 ],
                 "tag": [
                     {

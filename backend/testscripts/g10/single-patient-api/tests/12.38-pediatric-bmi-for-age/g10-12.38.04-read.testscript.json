@@ -12,7 +12,7 @@
             "id": "g10-pediatric-bmi-example",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age|7.0.0"
                 ],
                 "tag": [
                     {

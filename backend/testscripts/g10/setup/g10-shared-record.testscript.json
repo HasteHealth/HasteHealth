@@ -95,7 +95,7 @@
                         "id": "g10-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -174,7 +174,7 @@
                         "id": "g10-non-pharmacologic-agent-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -253,7 +253,7 @@
                         "id": "g10-careplan-ulcer-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -321,7 +321,7 @@
                         "id": "g10-colonoscopy",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -369,7 +369,7 @@
                         "id": "g10-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -471,7 +471,7 @@
                         "id": "g10-missing-coded-data-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -990,7 +990,7 @@
                         "id": "g10-encounter-diagnosis-example1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1051,7 +1051,7 @@
                         "id": "g10-encounter-diagnosis-example2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1200,7 +1200,7 @@
                         "id": "g10-coverage-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1305,7 +1305,7 @@
                         "id": "g10-udi-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1362,7 +1362,7 @@
                         "id": "g10-udi-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1418,9 +1418,6 @@
                         "resourceType": "Device",
                         "id": "g10-udi-4",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -1474,9 +1471,6 @@
                         "resourceType": "Device",
                         "id": "g10-udi-5",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -1522,7 +1516,7 @@
                         "id": "g10-bone-density-report",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1603,7 +1597,7 @@
                         "id": "g10-cardiology-report",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1705,7 +1699,7 @@
                         "id": "g10-cbc",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1804,7 +1798,7 @@
                         "id": "g10-chest-xray-report",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1890,7 +1884,7 @@
                         "id": "g10-metabolic-panel",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -1990,7 +1984,7 @@
                         "id": "g10-pathology-report",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -2049,9 +2043,6 @@
                         "resourceType": "DocumentReference",
                         "id": "g10-adi-dnr",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -2422,7 +2413,7 @@
                         "resourceType": "DocumentReference",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -2486,7 +2477,7 @@
                         "id": "g10-episode-summary",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -2780,9 +2771,6 @@
                         "resourceType": "DocumentReference",
                         "id": "g10-living-will",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -2922,9 +2910,6 @@
                         "resourceType": "DocumentReference",
                         "id": "g10-polst",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -3213,7 +3198,7 @@
                         "id": "g10-1036",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3276,7 +3261,7 @@
                         "id": "g10-delivery",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3329,7 +3314,7 @@
                         "id": "g10-example-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3430,9 +3415,6 @@
                         "resourceType": "FamilyMemberHistory",
                         "id": "g10-familymemberhistory-example",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -3491,7 +3473,7 @@
                         "id": "g10-goal-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3531,7 +3513,7 @@
                         "id": "g10-goal-sdoh-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3578,7 +3560,7 @@
                         "id": "g10-imm-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3639,7 +3621,7 @@
                         "id": "g10-imm-not-done",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3708,7 +3690,7 @@
                         "id": "g10-hl7east",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3773,7 +3755,7 @@
                         "id": "g10-hospital",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3934,7 +3916,7 @@
                         "id": "g10-uscore-med1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3966,7 +3948,7 @@
                         "id": "g10-uscore-med2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -3998,7 +3980,7 @@
                         "id": "g10-medicationdispense-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4094,7 +4076,7 @@
                         "id": "g10-medicationrequest-coded-oral-axid",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4249,7 +4231,7 @@
                         "id": "g10-medicationrequest-contained-oral-axid",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4375,7 +4357,7 @@
                         "id": "g10-medicationrequest-referenced-oral-axid",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4478,7 +4460,7 @@
                         "id": "g10-self-tylenol",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4597,7 +4579,7 @@
                         "id": "g10-10-minute-apgar-color",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4668,7 +4650,7 @@
                         "id": "g10-10-minute-apgar-heart-rate",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4739,7 +4721,7 @@
                         "id": "g10-10-minute-apgar-muscle-tone",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4810,7 +4792,7 @@
                         "id": "g10-10-minute-apgar-reflex-irritability",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4881,7 +4863,7 @@
                         "id": "g10-10-minute-apgar-respiratory-effort",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -4952,7 +4934,7 @@
                         "id": "g10-10-minute-apgar-score",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5035,7 +5017,7 @@
                         "id": "g10-10-minute-apgar-score-panel",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5115,9 +5097,6 @@
                         "resourceType": "Observation",
                         "id": "g10-ADI-example",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -5204,7 +5183,7 @@
                         "id": "g10-AHC-HRSN-item-example-68517-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5289,7 +5268,7 @@
                         "id": "g10-AUDIT-C-item-example-68517-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5367,7 +5346,7 @@
                         "id": "g10-AUDIT-C-item-example-68519-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5444,7 +5423,7 @@
                         "id": "g10-AUDIT-C-item-example-68520-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5521,7 +5500,7 @@
                         "id": "g10-AUDIT-C-item-example-75626-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5591,7 +5570,7 @@
                         "id": "g10-AUDIT-C-panel-example-72109-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5664,7 +5643,7 @@
                         "id": "g10-EVS-item-example-68516-4",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5724,7 +5703,7 @@
                         "id": "g10-EVS-item-example-89555-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5784,7 +5763,7 @@
                         "id": "g10-EVS-panel-example-89574-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5851,7 +5830,7 @@
                         "id": "g10-HVS-item-example-88122-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -5934,7 +5913,7 @@
                         "id": "g10-HVS-item-example-88123-5",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6017,7 +5996,7 @@
                         "id": "g10-HVS-item-example-88124-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6094,7 +6073,7 @@
                         "id": "g10-HVS-panel-example-88121-9",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6176,7 +6155,7 @@
                         "id": "g10-PHQ9-item-example-44250-9",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6253,7 +6232,7 @@
                         "id": "g10-PHQ9-item-example-44251-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6330,7 +6309,7 @@
                         "id": "g10-PHQ9-item-example-44252-5",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6407,7 +6386,7 @@
                         "id": "g10-PHQ9-item-example-44253-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6484,7 +6463,7 @@
                         "id": "g10-PHQ9-item-example-44254-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6561,7 +6540,7 @@
                         "id": "g10-PHQ9-item-example-44255-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6638,7 +6617,7 @@
                         "id": "g10-PHQ9-item-example-44258-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6715,7 +6694,7 @@
                         "id": "g10-PHQ9-item-example-44259-0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6792,7 +6771,7 @@
                         "id": "g10-PHQ9-item-example-44260-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6869,7 +6848,7 @@
                         "id": "g10-PHQ9-item-example-44261-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -6937,7 +6916,7 @@
                         "id": "g10-PHQ9-item-example-69722-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7014,7 +6993,7 @@
                         "id": "g10-PHQ9-panel-example-44249-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7116,7 +7095,7 @@
                         "id": "g10-PRAPARE-item-example-54899-0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7193,7 +7172,7 @@
                         "id": "g10-PRAPARE-item-example-56051-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7270,7 +7249,7 @@
                         "id": "g10-PRAPARE-item-example-56799-0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7338,7 +7317,7 @@
                         "id": "g10-PRAPARE-item-example-63512-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7408,7 +7387,7 @@
                         "id": "g10-PRAPARE-item-example-63586-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7476,7 +7455,7 @@
                         "id": "g10-PRAPARE-item-example-67875-5",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7553,7 +7532,7 @@
                         "id": "g10-PRAPARE-item-example-71802-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7630,7 +7609,7 @@
                         "id": "g10-PRAPARE-item-example-76437-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7707,7 +7686,7 @@
                         "id": "g10-PRAPARE-item-example-76501-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7784,7 +7763,7 @@
                         "id": "g10-PRAPARE-item-example-82589-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7861,7 +7840,7 @@
                         "id": "g10-PRAPARE-item-example-93026-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -7938,7 +7917,7 @@
                         "id": "g10-PRAPARE-item-example-93027-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8015,7 +7994,7 @@
                         "id": "g10-PRAPARE-item-example-93028-9",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8092,7 +8071,7 @@
                         "id": "g10-PRAPARE-item-example-93029-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8169,7 +8148,7 @@
                         "id": "g10-PRAPARE-item-example-93030-5",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8246,7 +8225,7 @@
                         "id": "g10-PRAPARE-item-example-93033-9",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8323,7 +8302,7 @@
                         "id": "g10-PRAPARE-item-example-93034-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8400,7 +8379,7 @@
                         "id": "g10-PRAPARE-item-example-93035-4",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8477,7 +8456,7 @@
                         "id": "g10-PRAPARE-item-example-93038-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8554,7 +8533,7 @@
                         "id": "g10-PRAPARE-multiselect-item-example-32624-9-answer0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8631,7 +8610,7 @@
                         "id": "g10-PRAPARE-multiselect-item-example-32624-9-answer1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8708,7 +8687,7 @@
                         "id": "g10-PRAPARE-multiselect-item-example-93031-3-answer0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8785,7 +8764,7 @@
                         "id": "g10-PRAPARE-multiselect-item-example-93031-3-answer1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8862,7 +8841,7 @@
                         "id": "g10-PRAPARE-panel-example-93025-5",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -8946,7 +8925,7 @@
                         "id": "g10-PRAPARE-panel-example-93039-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9027,7 +9006,7 @@
                         "id": "g10-PRAPARE-panel-example-93040-4",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9102,7 +9081,7 @@
                         "id": "g10-PRAPARE-panel-example-93041-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9192,7 +9171,7 @@
                         "id": "g10-PRAPARE-panel-example-93042-0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9273,7 +9252,7 @@
                         "id": "g10-PRAPARE-panel-example-93043-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9360,7 +9339,7 @@
                         "id": "g10-TAPS-item-example-75889-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9434,7 +9413,7 @@
                         "id": "g10-TAPS-item-example-88037-7",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9508,7 +9487,7 @@
                         "id": "g10-TAPS-item-example-96842-0",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9577,7 +9556,7 @@
                         "id": "g10-TAPS-item-example-96843-8",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9646,7 +9625,7 @@
                         "id": "g10-TAPS-item-example-96844-6",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9706,7 +9685,7 @@
                         "id": "g10-TAPS-panel-example-96841-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9782,7 +9761,7 @@
                         "id": "g10-alcohol-use-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9849,7 +9828,7 @@
                         "id": "g10-alcoholic-drinks-per-day",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9909,7 +9888,7 @@
                         "id": "g10-at-home-in-vitro-test",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -9980,7 +9959,7 @@
                         "id": "g10-average-blood-pressure",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10099,7 +10078,7 @@
                         "id": "g10-average-blood-pressure-absent",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10220,7 +10199,7 @@
                         "id": "g10-blood-pressure",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10317,7 +10296,7 @@
                         "id": "g10-blood-pressure-systolic-absent",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10416,7 +10395,7 @@
                         "id": "g10-bmi",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10481,7 +10460,7 @@
                         "id": "g10-bp-data-absent",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10582,7 +10561,7 @@
                         "id": "g10-capillary-refill-time-nail-bed",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10647,7 +10626,7 @@
                         "id": "g10-care-experience-preference",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10704,7 +10683,7 @@
                         "id": "g10-care-experience-preference-coded",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10763,7 +10742,7 @@
                         "id": "g10-cbc-erythrocytes",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10867,7 +10846,7 @@
                         "id": "g10-cbc-hematocrit",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -10971,7 +10950,7 @@
                         "id": "g10-cbc-hemoglobin",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11075,7 +11054,7 @@
                         "id": "g10-cbc-leukocytes",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11179,7 +11158,7 @@
                         "id": "g10-cbc-mch",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11283,7 +11262,7 @@
                         "id": "g10-cbc-mchc",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11387,7 +11366,7 @@
                         "id": "g10-cbc-mcv",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11491,7 +11470,7 @@
                         "id": "g10-cbc-platelets",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11595,7 +11574,7 @@
                         "id": "g10-dxa-femur-l-armass-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11660,7 +11639,7 @@
                         "id": "g10-dxa-femur-l-t-score-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11725,7 +11704,7 @@
                         "id": "g10-dxa-femur-l-z-score-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11790,7 +11769,7 @@
                         "id": "g10-dxa-hip-l-armass-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11855,7 +11834,7 @@
                         "id": "g10-dxa-hip-l-t-score-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11920,7 +11899,7 @@
                         "id": "g10-dxa-hip-l-z-score-bmd",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -11985,7 +11964,7 @@
                         "id": "g10-e-cig-user",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12053,7 +12032,7 @@
                         "id": "g10-ekg-impression",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12113,7 +12092,7 @@
                         "id": "g10-ekg-lead",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12173,7 +12152,7 @@
                         "id": "g10-exercise-per-day",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12245,7 +12224,7 @@
                         "id": "g10-exercise-per-week",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12317,7 +12296,7 @@
                         "id": "g10-head-circumference",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-head-circumference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-head-circumference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12378,7 +12357,7 @@
                         "id": "g10-heart-rate",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12443,7 +12422,7 @@
                         "id": "g10-heart-rate-rhythm",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12503,7 +12482,7 @@
                         "id": "g10-height",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12568,7 +12547,7 @@
                         "id": "g10-jugular-vein-distension",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12637,7 +12616,7 @@
                         "id": "g10-lab-value-string",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12710,7 +12689,7 @@
                         "id": "g10-length",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -12779,9 +12758,6 @@
                         "resourceType": "Observation",
                         "id": "g10-no-ADI-example",
                         "meta": {
-                            "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation|9.0.0"
-                            ],
                             "tag": [
                                 {
                                     "system": "https://haste.health/fhir/testscript",
@@ -13153,7 +13129,7 @@
                         "id": "g10-observation-occupation",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13238,7 +13214,7 @@
                         "id": "g10-observation-occupation-industry-unknown",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13301,7 +13277,7 @@
                         "id": "g10-observation-occupation-unknown",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13385,7 +13361,7 @@
                         "id": "g10-ofc-percentile",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13452,7 +13428,7 @@
                         "id": "g10-oxygen-saturation",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13522,7 +13498,7 @@
                         "id": "g10-p-r-interval-ekg-lead",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13587,7 +13563,7 @@
                         "id": "g10-pack-years-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13650,7 +13626,7 @@
                         "id": "g10-pediatric-bmi-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13720,7 +13696,7 @@
                         "id": "g10-pediatric-wt-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13790,7 +13766,7 @@
                         "id": "g10-pregnancy-intent",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancyintent|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancyintent|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13857,7 +13833,7 @@
                         "id": "g10-pregnancy-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13924,7 +13900,7 @@
                         "id": "g10-pulse-intensity-palpation",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -13993,7 +13969,7 @@
                         "id": "g10-q-t-interval-ekg-lead",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14058,7 +14034,7 @@
                         "id": "g10-qrs-dur-ekg-lead",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14123,7 +14099,7 @@
                         "id": "g10-respiratory-rate",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14188,7 +14164,7 @@
                         "id": "g10-satO2-fiO2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14332,7 +14308,7 @@
                         "id": "g10-serum-bun",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14435,7 +14411,7 @@
                         "id": "g10-serum-calcium",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14538,7 +14514,7 @@
                         "id": "g10-serum-chloride",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14642,7 +14618,7 @@
                         "id": "g10-serum-co2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14746,7 +14722,7 @@
                         "id": "g10-serum-creatinine",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14850,7 +14826,7 @@
                         "id": "g10-serum-glucose",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -14954,7 +14930,7 @@
                         "id": "g10-serum-potassium",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15058,7 +15034,7 @@
                         "id": "g10-serum-sodium",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15162,7 +15138,7 @@
                         "id": "g10-simple-observation-cognitive-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15215,7 +15191,7 @@
                         "id": "g10-simple-observation-disability-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15282,7 +15258,7 @@
                         "id": "g10-simple-observation-functional-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15344,7 +15320,7 @@
                         "id": "g10-simple-observation-sdoh",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15399,7 +15375,7 @@
                         "id": "g10-some-day-smoker",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15467,7 +15443,7 @@
                         "id": "g10-substance-use-status",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15576,7 +15552,7 @@
                         "id": "g10-temperature",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15641,7 +15617,7 @@
                         "id": "g10-treatment-intervention-preference",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15698,7 +15674,7 @@
                         "id": "g10-treatment-intervention-preference-coded",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15757,7 +15733,7 @@
                         "id": "g10-urobilinogen",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15851,7 +15827,7 @@
                         "id": "g10-weight",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15916,7 +15892,7 @@
                         "id": "g10-xray-chest-findings",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -15976,7 +15952,7 @@
                         "id": "g10-xray-chest-impression",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16036,7 +16012,7 @@
                         "id": "g10-acme-lab",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16102,7 +16078,7 @@
                         "id": "g10-acme-payer",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16164,7 +16140,7 @@
                         "id": "g10-example-organization-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16230,7 +16206,7 @@
                         "id": "g10-holy-healthcare",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16292,7 +16268,7 @@
                         "id": "g10-saint-luke-w-endpoint",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16383,7 +16359,7 @@
                         "id": "g10-child-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16496,7 +16472,7 @@
                         "id": "g10-deceased-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16633,7 +16609,7 @@
                         "id": "g10-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -16918,7 +16894,7 @@
                         "id": "g10-infant-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17142,7 +17118,7 @@
                         "id": "g10-practitioner-1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17210,7 +17186,7 @@
                         "id": "g10-practitioner-2",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17277,7 +17253,7 @@
                         "id": "g10-practitioner-3",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17345,7 +17321,7 @@
                         "id": "g10-practitioner-pharmacist",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17468,7 +17444,7 @@
                         "id": "g10-defib-implant",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -17543,7 +17519,7 @@
                         "id": "g10-rehab",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20100,7 +20076,7 @@
                         "id": "g10-AUDIT-C",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20179,7 +20155,7 @@
                         "id": "g10-TAPS",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20275,7 +20251,7 @@
                         "id": "g10-exercise-vital-sign",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20328,7 +20304,7 @@
                         "id": "g10-glascow-coma-score",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20397,7 +20373,7 @@
                         "id": "g10-hunger-vital-sign-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20479,7 +20455,7 @@
                         "id": "g10-phq-9-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20651,7 +20627,7 @@
                         "id": "g10-prapare-example",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -20993,7 +20969,7 @@
                         "id": "g10-shaw-niece",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21064,7 +21040,7 @@
                         "id": "g10-bmp",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21135,7 +21111,7 @@
                         "id": "g10-cbc",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21207,7 +21183,7 @@
                         "id": "g10-chest-xray",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21280,7 +21256,7 @@
                         "id": "g10-ekg",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21352,7 +21328,7 @@
                         "id": "g10-foodpantry-referral",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21413,7 +21389,7 @@
                         "id": "g10-rehab",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21490,7 +21466,7 @@
                         "id": "g10-servicerequest-dnr-example1",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21585,7 +21561,7 @@
                         "id": "g10-example-serum-lipemic",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21655,7 +21631,7 @@
                         "id": "g10-specimen-example-serum",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21718,7 +21694,7 @@
                         "id": "g10-specimen-example-urine",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                             ],
                             "tag": [
                                 {
@@ -21772,7 +21748,7 @@
                         "id": "g10-specimen-example-whole-blood",
                         "meta": {
                             "profile": [
-                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|9.0.0"
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|7.0.0"
                             ],
                             "tag": [
                                 {

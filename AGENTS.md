@@ -133,7 +133,7 @@ in an issue, a comment, a pull request or a file in the repository.
   build `cargo run artifacts build <manifest>`, list every change `cargo run artifacts diff <manifest>`.
   After changing a patch or rule, rebuild, then run the Code generation steps.
 - artifacts/r4/hl7.fhir.us.core-7.0.0 is the US Core 7.0.0 package exactly as HL7
-  publishes it, loaded only for the US Core 7.0.0 TestScripts. It is never edited
+  publishes it, installed for the US Core 7.0.0 and (g)(10) TestScripts. It is never edited
   and stays out of the pnpm workspace (its package.json depends on FHIR packages
   that are not on npm).
 - artifacts/r4/hastehealth-core/definitions/haste-health/operation-frontend-only -

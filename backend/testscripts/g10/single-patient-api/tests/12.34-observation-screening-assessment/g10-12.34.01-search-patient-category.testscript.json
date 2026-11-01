@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=survey",
+                        "params": "patient=g10-example&category=survey&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -67,7 +67,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=Patient/g10-example&category=survey",
+                        "params": "patient=Patient/g10-example&category=survey&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -123,7 +123,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|survey",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|survey&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -167,7 +167,7 @@
                 {
                     "operation": {
                         "method": "post",
-                        "url": "Observation/_search?patient=g10-example&category=survey",
+                        "url": "Observation/_search?patient=g10-example&category=survey&_count=1000",
                         "requestHeader": [
                             {
                                 "field": "Content-Type",

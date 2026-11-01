@@ -4,7 +4,7 @@
     "name": "g10-12.9.04-validation",
     "title": "12.9.04 Device conforms to US Core Implantable Device Profile",
     "status": "active",
-    "description": "g10 12.9.04 (DAT-PAT-2). Inferno validates the Device resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Device/g10-udi-2 that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). US Core 9.0.0 names the profile http://hl7.org/fhir/us/core/StructureDefinition/us-core-device. The copy is deleted afterwards.",
+    "description": "g10 12.9.04 (DAT-PAT-2). Inferno validates the Device resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's Device/g10-udi-2 that claims it is accepted, which the server allows only after validating it against the profile (US Core 7.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
     "resourceType": "TestScript",
     "contained": [
         {
@@ -12,7 +12,7 @@
             "id": "g10-val-12-9-04",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device"
                 ],
                 "tag": [
                     {
@@ -71,7 +71,7 @@
     "test": [
         {
             "id": "01-profile-loaded",
-            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-device",
+            "name": "StructureDefinition http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device",
             "action": [
                 {
                     "operation": {
@@ -80,7 +80,7 @@
                             "code": "search"
                         },
                         "resource": "StructureDefinition",
-                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-device",
+                        "params": "url=http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device",
                         "encodeRequestUrl": false
                     }
                 },

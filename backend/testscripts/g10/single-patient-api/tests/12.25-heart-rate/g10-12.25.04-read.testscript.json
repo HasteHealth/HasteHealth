@@ -12,7 +12,7 @@
             "id": "g10-heart-rate",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate|7.0.0"
                 ],
                 "tag": [
                     {

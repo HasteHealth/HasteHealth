@@ -12,7 +12,7 @@
             "id": "g10-1036",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0"
                 ],
                 "tag": [
                     {
