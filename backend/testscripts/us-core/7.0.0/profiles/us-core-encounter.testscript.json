@@ -1,0 +1,1439 @@
+{
+    "id": "us-core-7.0.0-encounter",
+    "url": "https://haste.health/fhir/TestScript/us-core-7.0.0-encounter",
+    "title": "US Core 7.0.0 Encounter Profile",
+    "name": "US Core 7.0.0 us-core-encounter",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|7.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU7",
+                "description": "US Core 7.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU7/StructureDefinition-us-core-encounter.html",
+                "description": "US Core Encounter Profile (US Core 7.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 7.0.0 server: US Core Encounter Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|7.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "planned",
+            "class": {
+                "system": "http://example.org/codes",
+                "code": "example"
+            },
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-encounter-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "value": "example",
+                    "system": "http://example.org/fhir/example"
+                }
+            ],
+            "type": [
+                {
+                    "text": "example"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "text": "example"
+                        }
+                    ],
+                    "period": {
+                        "start": "2020-01-01"
+                    },
+                    "individual": {
+                        "reference": "Practitioner/example"
+                    }
+                }
+            ],
+            "period": {
+                "start": "2020-01-01"
+            },
+            "reasonCode": [
+                {
+                    "text": "example"
+                }
+            ],
+            "reasonReference": [
+                {
+                    "reference": "Condition/example"
+                }
+            ],
+            "hospitalization": {
+                "dischargeDisposition": {
+                    "text": "example"
+                }
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/example"
+                    }
+                }
+            ],
+            "serviceProvider": {
+                "reference": "Organization/example"
+            },
+            "id": "uscore-create-1",
+            "resourceType": "Encounter"
+        },
+        {
+            "status": "planned",
+            "class": {
+                "system": "http://example.org/codes",
+                "code": "example"
+            },
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "value": "example",
+                    "system": "http://example.org/fhir/example"
+                }
+            ],
+            "type": [
+                {
+                    "text": "example"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "text": "example"
+                        }
+                    ],
+                    "period": {
+                        "start": "2020-01-01"
+                    },
+                    "individual": {
+                        "reference": "Practitioner/example"
+                    }
+                }
+            ],
+            "period": {
+                "start": "2020-01-01"
+            },
+            "reasonCode": [
+                {
+                    "text": "example"
+                }
+            ],
+            "reasonReference": [
+                {
+                    "reference": "Condition/example"
+                }
+            ],
+            "hospitalization": {
+                "dischargeDisposition": {
+                    "coding": [
+                        {
+                            "system": "http://example.org/dischargedisposition",
+                            "code": "dischargedisposition-a"
+                        }
+                    ]
+                }
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/example"
+                    }
+                }
+            ],
+            "serviceProvider": {
+                "reference": "Organization/example"
+            },
+            "id": "encounter-discharge-disposition-match-2",
+            "resourceType": "Encounter"
+        },
+        {
+            "status": "planned",
+            "class": {
+                "system": "http://example.org/codes",
+                "code": "example"
+            },
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "value": "example",
+                    "system": "http://example.org/fhir/example"
+                }
+            ],
+            "type": [
+                {
+                    "text": "example"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "text": "example"
+                        }
+                    ],
+                    "period": {
+                        "start": "2020-01-01"
+                    },
+                    "individual": {
+                        "reference": "Practitioner/example"
+                    }
+                }
+            ],
+            "period": {
+                "start": "2020-01-01"
+            },
+            "reasonCode": [
+                {
+                    "text": "example"
+                }
+            ],
+            "reasonReference": [
+                {
+                    "reference": "Condition/example"
+                }
+            ],
+            "hospitalization": {
+                "dischargeDisposition": {
+                    "coding": [
+                        {
+                            "system": "http://example.org/dischargedisposition",
+                            "code": "dischargedisposition-b"
+                        }
+                    ]
+                }
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/example"
+                    }
+                }
+            ],
+            "serviceProvider": {
+                "reference": "Organization/example"
+            },
+            "id": "encounter-discharge-disposition-other-3",
+            "resourceType": "Encounter"
+        },
+        {
+            "status": "planned",
+            "class": {
+                "system": "http://example.org/codes",
+                "code": "example"
+            },
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-encounter-test"
+                    },
+                    {
+                        "code": "scope-discharge-disposition"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "value": "example",
+                    "system": "http://example.org/fhir/example"
+                }
+            ],
+            "type": [
+                {
+                    "text": "example"
+                }
+            ],
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "text": "example"
+                        }
+                    ],
+                    "period": {
+                        "start": "2020-01-01"
+                    },
+                    "individual": {
+                        "reference": "Practitioner/example"
+                    }
+                }
+            ],
+            "period": {
+                "start": "2020-01-01"
+            },
+            "reasonCode": [
+                {
+                    "text": "example"
+                }
+            ],
+            "reasonReference": [
+                {
+                    "reference": "Condition/example"
+                }
+            ],
+            "hospitalization": {},
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/example"
+                    }
+                }
+            ],
+            "serviceProvider": {
+                "reference": "Organization/example"
+            },
+            "id": "encounter-discharge-disposition-missing-4",
+            "resourceType": "Encounter"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-discharge-disposition-match-2",
+            "resource": {
+                "reference": "#encounter-discharge-disposition-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-discharge-disposition-other-3",
+            "resource": {
+                "reference": "#encounter-discharge-disposition-other-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-discharge-disposition-missing-4",
+            "resource": {
+                "reference": "#encounter-discharge-disposition-missing-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "Encounter satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Encounter",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.meta.lastUpdated.exists()",
+                        "warningOnly": false,
+                        "label": "has-meta-lastupdated",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.identifier.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.identifier.system.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier-system",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.identifier.value.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier-value",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.status.exists()",
+                        "warningOnly": false,
+                        "label": "has-status",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.class.exists()",
+                        "warningOnly": false,
+                        "label": "has-class",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.subject.exists()",
+                        "warningOnly": false,
+                        "label": "has-subject",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.participant.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-participant-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.participant.period.exists()",
+                        "warningOnly": false,
+                        "label": "has-participant-period",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.participant.individual.exists()",
+                        "warningOnly": false,
+                        "label": "has-participant-individual",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.period.exists()",
+                        "warningOnly": false,
+                        "label": "has-period",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.reasonCode.exists()",
+                        "warningOnly": false,
+                        "label": "has-reasoncode",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.reasonReference.exists()",
+                        "warningOnly": false,
+                        "label": "has-reasonreference",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.hospitalization.dischargeDisposition.exists()",
+                        "warningOnly": false,
+                        "label": "has-hospitalization-dischargedisposition",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.location.location.exists()",
+                        "warningOnly": false,
+                        "label": "has-location-location",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.serviceProvider.exists()",
+                        "warningOnly": false,
+                        "label": "has-serviceprovider",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-discharge-disposition",
+            "name": "Search Encounter by discharge-disposition (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-discharge-disposition-match-2",
+                        "responseId": "discharge-disposition-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-discharge-disposition-other-3",
+                        "responseId": "discharge-disposition-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition=dischargedisposition-a&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition=http://example.org/dischargedisposition|dischargedisposition-a&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition=|dischargedisposition-a&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition=http://example.org/dischargedisposition|&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition=|&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition:not=dischargedisposition-a&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-discharge-disposition-missing-4",
+                        "responseId": "discharge-disposition-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition:missing=true&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Encounter",
+                        "params": "discharge-disposition:missing=false&_tag=us-core-7.0.0-encounter-test&_tag=scope-discharge-disposition"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "discharge-disposition-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/us/core/SearchParameter/us-core-encounter-discharge-disposition"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "discharge-disposition"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Encounter",
+                    "params": "_tag=us-core-7.0.0-encounter-test",
+                    "description": "Delete Encounter resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

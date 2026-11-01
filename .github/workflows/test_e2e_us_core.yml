@@ -1,8 +1,9 @@
-name: <Test> US Core TestScripts
+name: <Test> US Core 9.0.0 TestScripts
 
 # Runs the US Core 9.0.0 TestScripts, backend/testscripts/us-core/9.0.0,
 # against both search backends. 9.0.0 is the US Core package
 # scripts/load_us_core.mjs loads (artifacts/r4/hl7.fhir.us.core).
+# US Core 7.0.0 runs in test_e2e_us_core_7.yml.
 #   examples/   each US Core 9.0.0 example written with its profile claimed
 #               (generated/, from scripts/testscript_build.sh) and hand-written
 #               profile validation checks
