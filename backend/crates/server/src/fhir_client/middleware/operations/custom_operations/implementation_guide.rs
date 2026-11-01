@@ -614,6 +614,63 @@ async fn fetch_dependency<B: Backend>(
     }
 }
 
+/// The dependency to install, or `None` when it is skipped: the FHIR core
+/// package, one of `packages.skip_dependencies`, a package the project has
+/// already, or one that cannot be fetched.
+async fn resolve_dependency<B: Backend>(
+    context: &ServerOperationContext<B>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    name: &str,
+    version: &str,
+    usage: &mut Usage,
+    report: &mut Report,
+) -> Result<Option<Package>, OperationOutcomeError> {
+    if is_core_package(name) {
+        return Ok(None);
+    }
+    if context
+        .state
+        .config
+        .packages
+        .skip_dependencies
+        .iter()
+        .any(|skipped| skipped == name)
+    {
+        report.skip(
+            name,
+            version,
+            "Not installed as a dependency, as it is one of the large packages \
+             this server skips (packages.skip_dependencies). Install it by name to \
+             include it."
+                .to_string(),
+        );
+        return Ok(None);
+    }
+    if let Some(record) = installed_record(context, tenant, project, name).await? {
+        let installed = record
+            .version
+            .as_ref()
+            .and_then(|version| version.value.clone())
+            .unwrap_or_default();
+        report.skip(
+            name,
+            &installed,
+            format!("Already installed (version {installed})."),
+        );
+        return Ok(None);
+    }
+    fetch_dependency(context, name, version, usage, report).await
+}
+
+/// The package name a source stands for.
+fn source_name(source: &Source) -> &str {
+    match source {
+        Source::Uploaded(name) | Source::Dependency { name, .. } => name,
+        Source::Named(spec) => &spec.name,
+    }
+}
+
 /// The packages to install: the uploads and the ones named, then (when
 /// `dependencies`) the packages they depend on, breadth first, so the
 /// version a package nearer the top asks for wins. Each name is considered
@@ -645,20 +702,17 @@ async fn select<B: Backend>(
     let mut selected: Vec<Selected> = Vec::new();
     let mut seen = HashSet::new();
     while let Some(source) = queue.pop_front() {
+        if !seen.insert(source_name(&source).to_string()) {
+            continue;
+        }
         let (package, requested) = match source {
             Source::Uploaded(name) => {
-                if !seen.insert(name.clone()) {
-                    continue;
-                }
                 let Some(package) = uploaded.remove(&name) else {
                     continue;
                 };
                 (package, true)
             }
             Source::Named(spec) => {
-                if !seen.insert(spec.name.clone()) {
-                    continue;
-                }
                 if is_core_package(&spec.name) {
                     report.skip(
                         &spec.name,
@@ -676,38 +730,10 @@ async fn select<B: Backend>(
                 (package, true)
             }
             Source::Dependency { name, version } => {
-                if !seen.insert(name.clone()) {
-                    continue;
-                }
-                if is_core_package(&name) {
-                    continue;
-                }
-                if config.skip_dependencies.contains(&name) {
-                    report.skip(
-                        &name,
-                        &version,
-                        "Not installed as a dependency, as it is one of the large packages \
-                         this server skips (packages.skip_dependencies). Install it by name to \
-                         include it."
-                            .to_string(),
-                    );
-                    continue;
-                }
-                if let Some(record) = installed_record(context, tenant, project, &name).await? {
-                    let installed = record
-                        .version
-                        .as_ref()
-                        .and_then(|version| version.value.clone())
-                        .unwrap_or_default();
-                    report.skip(
-                        &name,
-                        &installed,
-                        format!("Already installed (version {installed})."),
-                    );
-                    continue;
-                }
-                let Some(package) =
-                    fetch_dependency(context, &name, &version, &mut usage, report).await?
+                let Some(package) = resolve_dependency(
+                    context, tenant, project, &name, &version, &mut usage, report,
+                )
+                .await?
                 else {
                     continue;
                 };
@@ -1124,6 +1150,27 @@ async fn write_examples<B: Backend>(
     Ok(())
 }
 
+/// Deletes for what the replaced version of package `name` installed and
+/// this one does not (`written`), limited to what the package still owns.
+fn removals(
+    previous: &ImplementationGuide,
+    written: &[(Key, bool)],
+    existing: &HashMap<Key, Resource>,
+    name: &str,
+) -> Vec<BundleEntry> {
+    let kept = written.iter().map(|(key, _)| key).collect::<HashSet<_>>();
+    record_resources(previous)
+        .into_iter()
+        .filter(|key| {
+            !kept.contains(key)
+                && existing
+                    .get(key)
+                    .is_some_and(|resource| installed_by(resource) == Some(name))
+        })
+        .map(|key| entry(HttpVerb::delete(), &key, None))
+        .collect()
+}
+
 async fn install<B: Backend>(
     context: ServerOperationContext<B>,
     tenant: TenantId,
@@ -1253,18 +1300,8 @@ async fn install<B: Backend>(
             written.push((write.key, write.example));
         }
 
-        // What the replaced version installed and this one does not.
         if let Some(previous) = &selected.previous {
-            let kept = written.iter().map(|(key, _)| key).collect::<HashSet<_>>();
-            for key in record_resources(previous) {
-                if !kept.contains(&key)
-                    && existing
-                        .get(&key)
-                        .is_some_and(|resource| installed_by(resource) == Some(&manifest.name))
-                {
-                    entries.push(entry(HttpVerb::delete(), &key, None));
-                }
-            }
+            entries.extend(removals(previous, &written, &existing, &manifest.name));
         }
 
         let record = package_record(manifest, own_guide, &written, &canonicals);
