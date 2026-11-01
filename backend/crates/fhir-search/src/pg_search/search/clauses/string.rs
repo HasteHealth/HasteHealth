@@ -32,8 +32,9 @@ fn string_predicate(
     Ok(match values {
         // Case-insensitive prefix.
         StringValues::Prefix(_) => format!("LOWER({column}) LIKE LOWER(${i} || '%') ESCAPE '\\'"),
-        // Case-sensitive equality.
-        StringValues::Exact(_) => format!("{column} = ${i}"),
+        // Case-sensitive equality. The `LOWER` term lets the `LOWER(value)`
+        // index find the rows; `column = $i` keeps the match case-sensitive.
+        StringValues::Exact(_) => format!("LOWER({column}) = LOWER(${i}) AND {column} = ${i}"),
         // Case-insensitive substring.
         StringValues::Contains(_) => {
             format!("LOWER({column}) LIKE LOWER('%' || ${i} || '%') ESCAPE '\\'")
@@ -99,5 +100,23 @@ mod tests {
             [SqlParam::Text(value)] if value == "100%_\\"
         ));
         assert!(!clause.sql.contains("ESCAPE"), "{}", clause.sql);
+    }
+
+    /// `LOWER(value)` is the only indexed expression on string columns, so
+    /// a bare `value = $n` reads every row of the parameter.
+    #[test]
+    fn exact_compares_lowered_values_so_the_index_applies() {
+        let values = vec!["Smith".to_string()];
+        let target = string_target();
+        let clause = string_clause(&StringValues::Exact(Cow::Borrowed(&values)), &target).unwrap();
+        let column = value_expr(&target).unwrap();
+        let i = clause.params.len();
+        assert!(
+            clause.sql.contains(&format!(
+                "LOWER({column}) = LOWER(${i}) AND {column} = ${i}"
+            )),
+            "{}",
+            clause.sql
+        );
     }
 }
