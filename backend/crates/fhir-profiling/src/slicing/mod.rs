@@ -430,12 +430,9 @@ impl ValueSetCodes {
     }
 }
 
-/// `value` as a `T`, which a singular field holds in a `Box`.
+/// `value` as a `T`, boxed or not.
 fn downcast<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
-    let value = value.as_any();
-    value
-        .downcast_ref()
-        .or_else(|| value.downcast_ref::<Box<T>>().map(AsRef::as_ref))
+    value.as_any().downcast_ref()
 }
 
 /// `None` when the value set at `url`, or one it includes, cannot be resolved.

@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 fn extract_profile_url_from_resource(resource: &Resource) -> Option<Vec<&str>> {
     let meta = resource.get_field("meta")?;
-    let meta = meta.as_any().downcast_ref::<Box<Meta>>()?;
+    let meta = meta.as_any().downcast_ref::<Meta>()?;
 
     meta.profile
         .as_ref()?
