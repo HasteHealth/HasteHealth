@@ -135,6 +135,18 @@ You can find a list of available API commands by running:
 haste-health api --help
 ```
 
+## Implementation Guides
+
+Install FHIR packages such as US Core into the active profile's project, with the packages they depend on:
+
+```bash
+haste-health package install hl7.fhir.us.core@6.1.0
+haste-health package list
+haste-health package uninstall hl7.fhir.us.core
+```
+
+`install` also takes a `.tgz` or a package folder. See [Implementation Guides](/docs/guides/implementation_guides).
+
 ### Documentation
 - **[FHIR API Documentation](/docs/category/fhir)** - FHIR API reference
 - **[Authentication](/docs/category/oauth-grant-types)** - Auth setup guide

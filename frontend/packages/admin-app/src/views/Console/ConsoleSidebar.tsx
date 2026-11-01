@@ -12,6 +12,7 @@ import {
   HeartIcon,
   LockClosedIcon,
   MagnifyingGlassIcon,
+  PuzzlePieceIcon,
   QuestionMarkCircleIcon,
   Squares2X2Icon,
   StarIcon,
@@ -44,6 +45,7 @@ const MODULE_ICONS: Record<string, typeof CubeIcon> = {
 const OPERATE_LINKS = [
   { path: "/r/_history", label: "Event history", Icon: ClockIcon },
   { path: "/import", label: "Import bundle", Icon: ArrowUpTrayIcon },
+  { path: "/packages", label: "Packages", Icon: PuzzlePieceIcon },
   {
     path: "/indexing-errors",
     label: "Indexing errors",

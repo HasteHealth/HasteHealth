@@ -141,6 +141,18 @@ Tagged by `type`: `environment` (default), `gcp`, or `aws`.
 | `security.encryption.project_id` (gcp only) | `HASTE_SECURITY.encryption.project_id` | — |
 | `security.encryption.region` (aws only) | `HASTE_SECURITY.encryption.region` | — |
 
+### `[packages]`
+
+Settings for installing FHIR packages (implementation guides) with `ImplementationGuide/$install`. See [Implementation Guides](/docs/guides/implementation_guides).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `packages.registry_url` | `HASTE_PACKAGES.registry_url` | `https://packages.fhir.org` | The FHIR package registry packages are fetched from. |
+| `packages.skip_dependencies` | `HASTE_PACKAGES.skip_dependencies` | `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads` | Packages not installed as a dependency. Naming one directly still installs it. |
+| `packages.max_package_bytes` | `HASTE_PACKAGES.max_package_bytes` | `67108864` (64 MiB) | Largest package download or upload, compressed. |
+| `packages.max_uncompressed_bytes` | `HASTE_PACKAGES.max_uncompressed_bytes` | `268435456` (256 MiB) | Largest package once unpacked. |
+| `packages.max_files` | `HASTE_PACKAGES.max_files` | `20000` | Most files in one package. |
+
 ### `[operations]`
 
 | Key | Env var | Default | Notes |

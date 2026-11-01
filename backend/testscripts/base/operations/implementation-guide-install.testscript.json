@@ -1,0 +1,877 @@
+{
+ "resourceType": "TestScript",
+ "id": "implementation-guide-install",
+ "url": "https://haste.health/fhir/TestScript/implementation-guide-install",
+ "name": "ImplementationGuideInstall",
+ "title": "Install and uninstall implementation guides",
+ "status": "active",
+ "description": "ImplementationGuide/$install and $uninstall with an uploaded package (npmContent). The two embedded packages are haste.test.ig 1.0.0 and 2.0.0 (decode with base64 -d | tar -tz): a Patient profile requiring birthDate (2.0.0: and gender), a SearchParameter test-ig-family on Patient.name.family, ValueSet test-ig-colors (1.0.0 only), ValueSet test-ig-shapes (its id is taken in the project) and an example Patient test-ig-example.",
+ "contained": [
+  {
+   "resourceType": "Parameters",
+   "id": "install-v1",
+   "parameter": [
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAHKb5moC/+1Y3U/bMBDvc/8KK5o0aaL5KGkreJtgA96QiniZeDDJtfFIncx2GAj1f5/t2P0MaxkICvOpUlrf9c538e93tkuc3OAxBGX99H/ygrZeWEIp/TjWTymrzzDudWff9XgU9buDFgpbryAVF5jJ8K3/Ux7ayKN4At4h8jLMBfgCuPDJ2NuTmltgnBRUKSM/9EM9OMoIu6wVXGp+tBHyYqmNvDa6UgYJpgUlCc61UyFKfhgEtfMMcC6yQLkIVKCOCSSIyPUcTpUZOtVmSFmgsxNtkQJPGCmFmc5XZFYsGhUMiQzQ2aTMYQJUYGVzUpEUgk+Eyteb5+hCehrq//vGWwk0BZoQUDk8qByyfOCrifks9pOC6enYvKbt6cd8/6aKwVCwKhEVg2MYEUpUCTvmBXVKWVFZ13/mhg34j3r9eAX/g26/7/D/WvhnwIuKJXBxX+pF37AWNGhIqrQrq0JrKrYd1puWWdDksJF4LE8pMJ+NzxfM5TsUlQKyhxNBbmGVp+ZQVoobQnUmNm89iK+5YPLfUjHCOQfNSqYgi6GuMV+si8laJS3po2DjOt+mPBe9pMDILbYeEsmkMjix2VBc8qwQlpig5jXDtXoM2bex4FQNyhpmDcMTouKE9he+UzZfPPVzuveYT/+aMJEdYwGPeF83qONEy3EiqzXl1EnYkEhln+oqp8pRPTjVj6u2+Sq/THXVyGgETEYmurdsW5zdSmS3Oonl/0ucVzAEMSP9pMgLxl9kP7hp/9fr7a/wf9zfd/u/N+N/uxYaSL9eFU/jfOsuaHCyBc8fza0baT4pJmXBwfIBoUlepbDCB/xezm6y3XyPJIyH2l4PWdBLkk6gFH/BPYP0vcB+ff8HmCXZOWay9gLYjAZGeELy++fRwGb8Ryv470f7+w7/b7b/W14LDTRQr4onbv2WvQYNvrZgg+9z60Y2WDsmmhb/maM6EFL+fMMcNW4bZqJ2efZsa/dS5nRrN4Vyx0ZofXqFu1LW0E7dbip0IONzZ4+Pj/Z/nuESXqv/99f6fzd2+N/B/l+vimf2/wUnWyB+OLfe8f7Pf1WYwfvaAlj8wx1W92f2kDqjATP+LB7YeP8b9lb7f3fg8P9m+F+8qFiGv1kNWiO7OLagK1kxIvkMdC90EbRw8jeUoLxr2Hmmr8q5fTNzamug6RY9P84rXjk4CDthJD962mN178uUoqI3tPhNvY96tevEiRMnTpw4ceLEiRMnTpzM5A/4LvOkACgAAA=="
+    },
+    {
+     "name": "examples",
+     "valueBoolean": true
+    }
+   ]
+  },
+  {
+   "resourceType": "Parameters",
+   "id": "install-v2",
+   "parameter": [
+    {
+     "name": "npmContent",
+     "valueBase64Binary": "H4sIAHKb5moC/+1Y3U/bMBDnuX+FFU2aNNEkLf0QvE1jA96QiniZeDDJtfFIncx2GAj1f599sftFWMtAwJhPldL6rvdl/+58KWlyRScQlfUz/CELvvPMFGsa9Hr41LT+jHv97vw7rnc6g+5wh8Q7L0CVVFRo8zv/J921SMDpFIIDEmRUKggVSBWySbCrOdcgJCu4YXbDOIxxcZwxcV4zpOZ8bxES9DS3E7TIhRFIKC84S2iOSpUq5UEU1cozoLnKIqMiMoba1pBiKkcfjo0YOUYxYiTIyRFKpCATwUpl3flM7Ikl40IQlQE5mZY5TIEramSOKpZC9IFxvb15Ts60phH+P7TaSuAp8ISBieHOxJDlw9A4FopemBQC3XFxzVqz97n/NovRSIkqUZWAQxgzzkwK23aD2qXOqM7rX9eGDfjvdvvxGv6H3b7H/4vhX4AsKpHA2W2Jh77hLCBoWGq4a6cCOZXYDutNxyxqUthYeFydMmA+mZwuies9VJUBckATxa5hvU4toGwYV4xjJC5uXKSXUgn9b80Y01wCViWbkGVTl1Qu58VGbYLW5aMQkzrepjiXtaQg2DV1GhJdSbVx5qLhtJRZoVxhgrqu2VqLa8TtxpJSs6hzmDUsT5mxE7tf9MbIfArMz9nuQzrDSyZUdkgVPKD9vkBtp7Nqp+O4Np0YhDNJTPQpZjk1iurFGT4uNvg3MSVcPOTcKvdJnuHzvmct/DLD/WTjMQhtlmHX23bbfIq3S/F77b5vqP8DFUl2SoWusQrEvPeP6ZTlt08bCzbd//v9zlr/H3T29nz/f7X+v3oWGnp/fSoe2fpXtUYNurbo+t8W0o1N/96YYGvVR0lqQ8Toq4cAV3saPDFd3s02rpfa6cZdCnTHZryeXuCm1Dl0rrvqiIaszjdbwBz+z2lewQjUHPgyoyXIZ3kfsBn/gzX89wbdnsf/a+HfnYUG4Nen4nHAd+qiBiVbIH60kG5EfFJMywLRircuxpO8SmHt1iVvtXfT7fz9osvCCOVxyV1g9CU9gVL94Q4jf1ZU/GO3GId/uKHm/YkbUuZlwK4/qQ5sfP8X99f7f3fo8f9q+F8eVFfhb08DcnQXpw50pSjGLJ+D7pleBCzNV7YkGO0Iu8D2Ve3bV+tTC4GGLXoxNJkJZH8/bscd/UG37cyiGRW/4sUvHvjhwpMnT548efLkyZMnT548efL0ruk3VLtEmwAoAAA="
+    },
+    {
+     "name": "examples",
+     "valueBoolean": true
+    }
+   ]
+  },
+  {
+   "resourceType": "Parameters",
+   "id": "install-nothing",
+   "parameter": []
+  },
+  {
+   "resourceType": "Parameters",
+   "id": "uninstall",
+   "parameter": [
+    {
+     "name": "name",
+     "valueString": "haste.test.ig"
+    }
+   ]
+  },
+  {
+   "resourceType": "Parameters",
+   "id": "uninstall-wrong-version",
+   "parameter": [
+    {
+     "name": "name",
+     "valueString": "haste.test.ig"
+    },
+    {
+     "name": "version",
+     "valueString": "9.9.9"
+    }
+   ]
+  },
+  {
+   "resourceType": "ValueSet",
+   "id": "test-ig-shapes",
+   "meta": {
+    "tag": [
+     {
+      "code": "implementation-guide-install-test"
+     }
+    ]
+   },
+   "url": "https://haste.health/fhir/implementation-guide-install-test/ValueSet/shapes",
+   "status": "active"
+  },
+  {
+   "resourceType": "Patient",
+   "id": "patient-no-birthdate",
+   "meta": {
+    "profile": [
+     "https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient"
+    ],
+    "tag": [
+     {
+      "code": "implementation-guide-install-test"
+     }
+    ]
+   },
+   "name": [
+    {
+     "family": "Igtestnobirthdate"
+    }
+   ]
+  },
+  {
+   "resourceType": "Patient",
+   "id": "patient-valid-v1",
+   "meta": {
+    "profile": [
+     "https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient"
+    ],
+    "tag": [
+     {
+      "code": "implementation-guide-install-test"
+     }
+    ]
+   },
+   "name": [
+    {
+     "family": "Igtestfamily"
+    }
+   ],
+   "birthDate": "1990-01-01"
+  },
+  {
+   "resourceType": "Patient",
+   "id": "patient-no-gender",
+   "meta": {
+    "profile": [
+     "https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient"
+    ],
+    "tag": [
+     {
+      "code": "implementation-guide-install-test"
+     }
+    ]
+   },
+   "name": [
+    {
+     "family": "Igtestnogender"
+    }
+   ],
+   "birthDate": "1990-01-01"
+  },
+  {
+   "resourceType": "Patient",
+   "id": "index-marker",
+   "meta": {
+    "tag": [
+     {
+      "code": "implementation-guide-install-test"
+     }
+    ]
+   }
+  }
+ ],
+ "fixture": [
+  {
+   "id": "fixture-install-v1",
+   "resource": {
+    "reference": "#install-v1"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-install-v2",
+   "resource": {
+    "reference": "#install-v2"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-install-nothing",
+   "resource": {
+    "reference": "#install-nothing"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-uninstall",
+   "resource": {
+    "reference": "#uninstall"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-uninstall-wrong-version",
+   "resource": {
+    "reference": "#uninstall-wrong-version"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-test-ig-shapes",
+   "resource": {
+    "reference": "#test-ig-shapes"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-patient-no-birthdate",
+   "resource": {
+    "reference": "#patient-no-birthdate"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-patient-valid-v1",
+   "resource": {
+    "reference": "#patient-valid-v1"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-patient-no-gender",
+   "resource": {
+    "reference": "#patient-no-gender"
+   },
+   "autocreate": false,
+   "autodelete": false
+  },
+  {
+   "id": "fixture-index-marker",
+   "resource": {
+    "reference": "#index-marker"
+   },
+   "autocreate": false,
+   "autodelete": false
+  }
+ ],
+ "setup": {
+  "action": [
+   {
+    "operation": {
+     "type": {
+      "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+      "code": "invoke"
+     },
+     "description": "Clear an install left by an earlier run (a warning when there is none).",
+     "url": "uninstall",
+     "resource": "ImplementationGuide",
+     "sourceId": "fixture-uninstall",
+     "encodeRequestUrl": false
+    }
+   },
+   {
+    "operation": {
+     "type": {
+      "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+      "code": "update"
+     },
+     "description": "The project's own ValueSet at an id the package also uses.",
+     "resource": "ValueSet",
+     "targetId": "fixture-test-ig-shapes",
+     "sourceId": "fixture-test-ig-shapes",
+     "encodeRequestUrl": false
+    }
+   }
+  ]
+ },
+ "test": [
+  {
+   "id": "install",
+   "name": "Install an uploaded package",
+   "description": "npmContent installs the package's conformance resources and examples. A resource whose id the project already uses for something else is not overwritten and is reported.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Install haste.test.ig 1.0.0 with its examples.",
+      "url": "install",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-install-v1",
+      "responseId": "install-v1",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Install is 200",
+      "responseCode": "200",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The package is installed",
+      "expression": "Parameters.parameter.where(name = 'package').part.where(name = 'status').value = 'installed'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Four resources: the profile, the SearchParameter, ValueSet test-ig-colors and the example",
+      "expression": "Parameters.parameter.where(name = 'package').part.where(name = 'resources').value = 4",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The ValueSet whose id is taken is reported",
+      "expression": "Parameters.parameter.where(name = 'outcome').resource.issue.where(diagnostics.contains('ValueSet/test-ig-shapes')).exists()",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A write of the runner's own, so the next search waits until the operation's writes are indexed.",
+      "resource": "Patient",
+      "sourceId": "fixture-index-marker",
+      "encodeRequestUrl": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "record",
+   "name": "The package is recorded as an ImplementationGuide",
+   "description": "Its id is the package name; definition.resource lists what was installed.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The package's record.",
+      "resource": "ImplementationGuide",
+      "params": "_id=haste.test.ig",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "packageId is the package name",
+      "expression": "Bundle.entry.resource.ofType(ImplementationGuide).packageId = 'haste.test.ig'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "version is the installed version",
+      "expression": "Bundle.entry.resource.ofType(ImplementationGuide).version = '1.0.0'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It lists the four installed resources",
+      "expression": "Bundle.entry.resource.ofType(ImplementationGuide).definition.resource.count() = 4",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The example is marked as one",
+      "expression": "Bundle.entry.resource.ofType(ImplementationGuide).definition.resource.where(reference.reference = 'Patient/test-ig-example').example = true",
+      "value": "true",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "tagged",
+   "name": "Installed resources are tagged with the package",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The installed profile.",
+      "resource": "StructureDefinition",
+      "params": "url=https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The profile is installed",
+      "expression": "Bundle.entry.resource.ofType(StructureDefinition).count() = 1",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Tagged with the package name",
+      "expression": "Bundle.entry.resource.ofType(StructureDefinition).meta.tag.where(system = 'https://haste.health/fhir/CodeSystem/fhir-package').code = 'haste.test.ig'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "and its version",
+      "expression": "Bundle.entry.resource.ofType(StructureDefinition).meta.tag.where(system = 'https://haste.health/fhir/CodeSystem/fhir-package').version = '1.0.0'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The project's own ValueSet, whose id the package also uses.",
+      "resource": "ValueSet",
+      "params": "_id=test-ig-shapes",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It was not overwritten",
+      "expression": "Bundle.entry.resource.ofType(ValueSet).url = 'https://haste.health/fhir/implementation-guide-install-test/ValueSet/shapes'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The package's example.",
+      "resource": "Patient",
+      "params": "_id=test-ig-example",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The example is installed",
+      "expression": "Bundle.entry.resource.ofType(Patient).count() = 1",
+      "value": "true",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "profile-enforced",
+   "name": "An installed profile is enforced",
+   "description": "Version 1.0.0 of the profile requires birthDate.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A Patient claiming the profile without a birthDate.",
+      "resource": "Patient",
+      "sourceId": "fixture-patient-no-birthdate",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Refused with 422",
+      "responseCode": "422",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A Patient claiming the profile with a birthDate.",
+      "resource": "Patient",
+      "sourceId": "fixture-patient-valid-v1",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Created",
+      "responseCode": "201",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "search-parameter",
+   "name": "An installed SearchParameter can be searched by",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "Search by the package's test-ig-family parameter.",
+      "resource": "Patient",
+      "params": "test-ig-family=Igtestfamily",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Finds the Patient",
+      "expression": "Bundle.entry.resource.ofType(Patient).name.family contains 'Igtestfamily'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "and only it",
+      "expression": "Bundle.entry.resource.ofType(Patient).count() = 1",
+      "value": "true",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "update",
+   "name": "Installing another version replaces the installed one",
+   "description": "2.0.0 drops ValueSet test-ig-colors and its profile also requires gender.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Install haste.test.ig 2.0.0.",
+      "url": "install",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-install-v2",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Install is 200",
+      "responseCode": "200",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "The package is updated",
+      "expression": "Parameters.parameter.where(name = 'package').part.where(name = 'status').value = 'updated'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "from 1.0.0",
+      "expression": "Parameters.parameter.where(name = 'package').part.where(name = 'previousVersion').value = '1.0.0'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Three resources: the profile, the SearchParameter and the example",
+      "expression": "Parameters.parameter.where(name = 'package').part.where(name = 'resources').value = 3",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A write of the runner's own, so the next search waits until the operation's writes are indexed.",
+      "resource": "Patient",
+      "sourceId": "fixture-index-marker",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The profile.",
+      "resource": "StructureDefinition",
+      "params": "url=https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It is version 2.0.0",
+      "expression": "Bundle.entry.resource.ofType(StructureDefinition).version = '2.0.0'",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The ValueSet 2.0.0 no longer has.",
+      "resource": "ValueSet",
+      "params": "url=https://haste.health/fhir/test-ig/ValueSet/test-ig-colors",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It was deleted",
+      "expression": "Bundle.entry.resource.ofType(ValueSet).exists().not()",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A Patient claiming the profile without a gender.",
+      "resource": "Patient",
+      "sourceId": "fixture-patient-no-gender",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Refused with 422 by the 2.0.0 profile",
+      "responseCode": "422",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "errors",
+   "name": "Requests that install or uninstall nothing",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Neither a package name nor an upload.",
+      "url": "install",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-install-nothing",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Install without a package is 400",
+      "responseCode": "400",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Uninstall a version that is not the installed one.",
+      "url": "uninstall",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-uninstall-wrong-version",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Uninstalling another version is 409",
+      "responseCode": "409",
+      "warningOnly": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "uninstall",
+   "name": "Uninstall",
+   "description": "Deletes what the package installed and its record, and nothing else.",
+   "action": [
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "invoke"
+      },
+      "description": "Uninstall haste.test.ig.",
+      "url": "uninstall",
+      "resource": "ImplementationGuide",
+      "sourceId": "fixture-uninstall",
+      "responseId": "uninstalled",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Uninstall is 200",
+      "responseCode": "200",
+      "warningOnly": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Says what it deleted",
+      "expression": "OperationOutcome.issue.diagnostics.contains('Uninstalled haste.test.ig@2.0.0: deleted 3 resources')",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A write of the runner's own, so the next search waits until the operation's writes are indexed.",
+      "resource": "Patient",
+      "sourceId": "fixture-index-marker",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The profile.",
+      "resource": "StructureDefinition",
+      "params": "url=https://haste.health/fhir/test-ig/StructureDefinition/test-ig-patient",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It is gone",
+      "expression": "Bundle.entry.resource.ofType(StructureDefinition).exists().not()",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The package's record.",
+      "resource": "ImplementationGuide",
+      "params": "_id=haste.test.ig",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It is gone",
+      "expression": "Bundle.entry.resource.ofType(ImplementationGuide).exists().not()",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "search"
+      },
+      "description": "The project's own ValueSet.",
+      "resource": "ValueSet",
+      "params": "_id=test-ig-shapes",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "It is still there",
+      "expression": "Bundle.entry.resource.ofType(ValueSet).count() = 1",
+      "value": "true",
+      "warningOnly": false
+     }
+    },
+    {
+     "operation": {
+      "type": {
+       "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+       "code": "create"
+      },
+      "description": "A Patient claiming the uninstalled profile without a birthDate.",
+      "resource": "Patient",
+      "sourceId": "fixture-patient-no-birthdate",
+      "encodeRequestUrl": false
+     }
+    },
+    {
+     "assert": {
+      "label": "Accepted: the profile is no longer there to validate against",
+      "responseCode": "201",
+      "warningOnly": false
+     }
+    }
+   ]
+  }
+ ],
+ "teardown": {
+  "action": [
+   {
+    "operation": {
+     "type": {
+      "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+      "code": "invoke"
+     },
+     "description": "Uninstall the package if a test stopped early.",
+     "url": "uninstall",
+     "resource": "ImplementationGuide",
+     "sourceId": "fixture-uninstall",
+     "encodeRequestUrl": false
+    }
+   },
+   {
+    "operation": {
+     "type": {
+      "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+      "code": "deleteCondMultiple"
+     },
+     "description": "Delete the Patients created in the tests.",
+     "resource": "Patient",
+     "params": "_tag=implementation-guide-install-test",
+     "encodeRequestUrl": false
+    }
+   },
+   {
+    "operation": {
+     "type": {
+      "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+      "code": "deleteCondMultiple"
+     },
+     "description": "Delete the project's own ValueSet.",
+     "resource": "ValueSet",
+     "params": "_tag=implementation-guide-install-test",
+     "encodeRequestUrl": false
+    }
+   }
+  ]
+ }
+}

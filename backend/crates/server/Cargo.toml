@@ -24,6 +24,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
     "axum",
 ] }
 haste-fhir-ops = { path = "../fhir-ops", version = "0.*" }
+haste-fhir-package = { path = "../fhir-package", version = "0.*" }
 haste-fhir-profiling = { path = "../fhir-profiling", version = "0.*" }
 haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }

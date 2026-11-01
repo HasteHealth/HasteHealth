@@ -1,0 +1,165 @@
+---
+sidebar_position: 1.5
+title: Implementation Guides
+description: Install FHIR packages such as US Core into a Haste Health project from the package registry or a .tgz upload, with their dependencies, and upgrade or uninstall them later.
+tags:
+    - implementation guides
+    - packages
+    - profiling
+    - us core
+---
+
+# Implementation Guides
+
+An implementation guide (IG) such as [US Core](https://hl7.org/fhir/us/core/) is published as a **FHIR package**: an npm-style `.tgz` holding its profiles, extensions, ValueSets, CodeSystems and SearchParameters. Haste Health installs a package into a project in one step, either by name from the [FHIR package registry](https://packages.fhir.org) or from a `.tgz` you upload.
+
+Once a package is installed:
+
+- its **profiles** are enforced on resources that name them in `meta.profile` (see [Profiling & Validation](/docs/guides/profiling)),
+- its **SearchParameters** can be searched, like any project SearchParameter,
+- its **ValueSets, CodeSystems, ConceptMaps and NamingSystems** are there for validation and terminology operations.
+
+## Installing a package
+
+### From the admin app
+
+Open **Packages** in the project console's sidebar (`/packages`). Type one or more packages as `name@version`, or choose a `.tgz`, and press **Install**. The page lists what was installed, what was skipped and why, and the packages already in the project, each with an **Uninstall** button.
+
+### From the CLI
+
+```bash
+# From the registry, with the packages it depends on
+haste-health package install hl7.fhir.us.core@6.1.0
+
+# The newest 6.1 patch, or the latest version
+haste-health package install hl7.fhir.us.core@6.1.x
+haste-health package install hl7.fhir.us.core
+
+# A tarball, or a folder holding package.json (it is packed for you)
+haste-health package install ./hl7.fhir.us.core-6.1.0.tgz
+haste-health package install ./my-ig/package
+
+# What is installed, and removing one
+haste-health package list
+haste-health package uninstall hl7.fhir.us.core
+```
+
+`install` takes `--no-dependencies` to install only the packages given, `--examples` to install their example resources as well, and `--json` to print the server's response. The CLI installs into the project of its active profile (see [Setting Up the CLI](/docs/tutorials/cli)).
+
+### With the API
+
+Both are operations on `ImplementationGuide`: `$install` and `$uninstall`.
+
+```http
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ImplementationGuide/$install
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "package", "valueString": "hl7.fhir.us.core@6.1.0" }
+  ]
+}
+```
+
+| Parameter | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `package` | string, repeating | | A package from the registry: `name@version` (or `name#version`), `name@6.1.x` for the newest patch, or `name` alone for the latest version. |
+| `npmContent` | base64Binary, repeating | | A package `.tgz`, base64 encoded. Its dependencies are looked for among the other uploads first, then in the registry. |
+| `dependencies` | boolean | `true` | Also install the packages these depend on. |
+| `examples` | boolean | `false` | Also install the example resources of the packages named or uploaded. |
+
+The response is a `Parameters` with one `package` entry for every package considered, the ones asked for and their dependencies:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "package",
+      "part": [
+        { "name": "name", "valueString": "hl7.fhir.us.core" },
+        { "name": "version", "valueString": "6.1.0" },
+        { "name": "status", "valueCode": "installed" },
+        { "name": "resources", "valueInteger": 206 }
+      ]
+    },
+    {
+      "name": "package",
+      "part": [
+        { "name": "name", "valueString": "hl7.terminology.r4" },
+        { "name": "version", "valueString": "5.0.0" },
+        { "name": "status", "valueCode": "skipped" },
+        { "name": "reason", "valueString": "Not installed as a dependency, as it is a large terminology package. Install it by name to include it." }
+      ]
+    }
+  ]
+}
+```
+
+`status` is `installed`, `updated` (it replaced an installed version, given in `previousVersion`) or `skipped` (see `reason`). An `outcome` OperationOutcome carries warnings about single resources that were not installed.
+
+`$uninstall` takes the package `name`, and optionally the `version` you expect to be installed (nothing is removed if another version is):
+
+```http
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ImplementationGuide/$uninstall
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [{ "name": "name", "valueString": "hl7.fhir.us.core" }]
+}
+```
+
+## What gets installed
+
+From each package, Haste Health installs its **StructureDefinitions, ValueSets, CodeSystems, SearchParameters, ConceptMaps and NamingSystems**. Other resources in the package are left out, apart from its examples when you ask for them.
+
+- **Ids are kept.** Each resource is written with the id it has in the package, so `StructureDefinition/us-core-patient` is at that address in your project.
+- **Each resource is tagged** with the package it came from: a `meta.tag` with system `https://haste.health/fhir/CodeSystem/fhir-package`, the package name as its code and the package version as its version. Search for a package's resources with `_tag=https://haste.health/fhir/CodeSystem/fhir-package|hl7.fhir.us.core`.
+- **Each package is recorded** as an `ImplementationGuide` whose id is the package name, with `packageId`, `version`, and the resources it installed under `definition.resource`. The package's own ImplementationGuide is used for the record when it has one.
+- **One transaction.** A package's resources, the resources an upgrade removes and the records are written in one transaction: an install either completes or changes nothing.
+- **Examples** are written after that, in their own batch, so an example that fails validation is reported as a warning rather than undoing the install. Examples that would configure the server (OperationDefinitions, SearchParameters, Subscriptions, access policies, users, clients and the like) are never installed.
+- **Your own resources are safe.** If a resource with the same id already exists, it is replaced only when the same package installed it, or when it is untagged and has the same canonical `url` (an earlier hand-loaded copy of the same profile). Otherwise the package's resource is skipped with a warning.
+
+## Dependencies
+
+With `dependencies` on (the default), the packages a package depends on are installed too, and the packages those depend on, and so on. When two packages ask for different versions of the same dependency, the one closest to the packages you named wins.
+
+Some dependencies are skipped:
+
+- **The FHIR core packages** (`hl7.fhir.r4.core` and its `.examples`, `.expansions` and `.elements`) are built into the server.
+- **Large terminology packages** (`hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`) hold thousands of resources most projects never use. Name one directly to install it. The list is configurable (below).
+- **A dependency that is already installed**, in any version, is left as it is. Name it directly to upgrade it.
+- **A dependency that cannot be fetched** is skipped with the reason; the packages that depend on it still install.
+
+## Upgrading and uninstalling
+
+A project holds one version of each package. Installing a package that is already installed replaces it: the new version's resources are written, and the resources the old version installed that the new one no longer has are deleted. The response reports it as `updated`, with the version it replaced.
+
+Uninstalling deletes the resources the package installed and its `ImplementationGuide` record. Packages it depends on stay installed; uninstall them separately if nothing else needs them.
+
+## FHIR versions
+
+Haste Health serves FHIR R4, so it installs packages for R4: those whose `package.json` lists a 4.0.x version in `fhirVersions`, or lists none. A package for another version is refused, or skipped when it is a dependency. Some R4 packages, such as `hl7.fhir.uv.extensions.r4` 1.0.0, contain StructureDefinitions that name a later FHIR version; these are installed as R4 and the response says so in a warning.
+
+## Limits and configuration
+
+Packages are fetched from the registry by the server. The `[packages]` section of the [configuration](/docs/reference/configuration#packages) sets where from, what is skipped and how large a package may be:
+
+| Key | Default | What it does |
+| --- | --- | --- |
+| `packages.registry_url` | `https://packages.fhir.org` | The package registry. |
+| `packages.skip_dependencies` | The five terminology packages above | Packages not installed as dependencies. |
+| `packages.max_package_bytes` | 64 MiB | Largest package download or upload, compressed. |
+| `packages.max_uncompressed_bytes` | 256 MiB | Largest package once unpacked. |
+| `packages.max_files` | 20000 | Most files in one package. |
+
+An uploaded `.tgz` travels inside the request, base64 encoded (a third larger), so it is also bound by `max_request_body_size` (4 MB by default). Most IGs are well under that (US Core 6.1.0 is 1.6 MB); install larger ones by name, or raise the limit.
+
+Installing writes through the FHIR API as the caller, so it needs permission to write the resource types it installs, and it counts toward the project's limits like any other write.
+
+**Related Documentation**:
+- **[Profiling & Validation →](/docs/guides/profiling)**
+- **[Admin App →](/docs/guides/admin_app)**
+- **[Configuration →](/docs/reference/configuration)**

@@ -7,6 +7,7 @@ pub(crate) mod doc;
 pub(crate) mod fhirpath;
 pub(crate) mod hl7v2;
 pub(crate) mod login;
+pub(crate) mod package;
 pub(crate) mod server;
 pub(crate) mod subscription;
 pub(crate) mod testscript;
@@ -35,5 +36,6 @@ pub(crate) async fn run(
         CliCommand::Testscript { command } => testscript::run(state, command).await,
         CliCommand::Admin { command } => admin::run(command).await,
         CliCommand::Hl7v2 { command } => hl7v2::run(state, command).await,
+        CliCommand::Package { command } => package::run(state, command).await,
     }
 }

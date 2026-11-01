@@ -31,6 +31,7 @@ pub struct ServerConfig {
     pub operations: OperationsConfig,
     pub signup: SignupConfig,
     pub jobs: JobsConfig,
+    pub packages: PackagesConfig,
 }
 
 /// Asynchronous jobs: an operation invoked with `Prefer: respond-async` today,
@@ -88,6 +89,48 @@ impl Default for JobsConfig {
             poll_interval_ms: 1000,
             max_concurrent: 4,
             maintenance_interval_seconds: 60,
+        }
+    }
+}
+
+/// Installing FHIR packages (implementation guides) into a project with
+/// `ImplementationGuide/$install`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct PackagesConfig {
+    /// The package registry a package named by `name@version` is fetched
+    /// from. It serves the npm-style API packages.fhir.org does.
+    pub registry_url: String,
+    /// Packages not installed when another package depends on them: large
+    /// terminology packages, mostly, that would add thousands of resources to
+    /// every project that installs an IG. Naming one in `$install` still
+    /// installs it. The FHIR core packages are always skipped, as the server
+    /// has them built in.
+    pub skip_dependencies: Vec<String>,
+    /// The largest package tarball fetched or uploaded, in bytes.
+    pub max_package_bytes: u64,
+    /// The most one package may expand to, in bytes.
+    pub max_uncompressed_bytes: u64,
+    /// The most files one package may hold.
+    pub max_files: usize,
+}
+
+impl Default for PackagesConfig {
+    fn default() -> Self {
+        Self {
+            registry_url: "https://packages.fhir.org".to_string(),
+            skip_dependencies: [
+                "hl7.terminology",
+                "hl7.terminology.r4",
+                "hl7.terminology.r5",
+                "us.nlm.vsac",
+                "us.cdc.phinvads",
+            ]
+            .map(str::to_string)
+            .to_vec(),
+            max_package_bytes: 64 * 1024 * 1024,
+            max_uncompressed_bytes: 256 * 1024 * 1024,
+            max_files: 20_000,
         }
     }
 }
@@ -221,6 +264,7 @@ impl Default for ServerConfig {
             operations: OperationsConfig::default(),
             signup: SignupConfig::default(),
             jobs: JobsConfig::default(),
+            packages: PackagesConfig::default(),
         }
     }
 }

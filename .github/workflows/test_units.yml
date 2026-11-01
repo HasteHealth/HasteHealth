@@ -50,6 +50,7 @@ jobs:
           -p haste-fhir-operation-error-derive \
           -p haste-fhir-ops \
           -p haste-fhir-ops-derive \
+          -p haste-fhir-package \
           -p haste-fhir-profiling \
           -p haste-fhir-search \
           -p haste-fhir-serialization-json \

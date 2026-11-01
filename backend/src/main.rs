@@ -95,6 +95,12 @@ enum CliCommand {
         #[command(subcommand)]
         command: commands::hl7v2::HL7v2Commands,
     },
+    /// Install FHIR packages (implementation guides) into the active
+    /// profile's project.
+    Package {
+        #[command(subcommand)]
+        command: commands::package::PackageCommands,
+    },
     /// Generate Markdown documentation for this CLI's commands.
     Doc {
         /// Output markdown file path

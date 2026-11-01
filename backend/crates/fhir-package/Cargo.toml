@@ -1,0 +1,21 @@
+[package]
+name = "haste-fhir-package"
+description = "Reads FHIR NPM packages (implementation guides) and fetches them from a package registry."
+publish = false
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+homepage = { workspace = true }
+
+[dependencies]
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
+    "derive",
+] }
+
+flate2 = { version = "1.1.10", default-features = false, features = ["rust_backend"] }
+reqwest = { workspace = true, features = ["default-tls", "http2"] }
+semver = { version = "1.0.28", default-features = false, features = ["std"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+tar = { version = "0.4.46", default-features = false }

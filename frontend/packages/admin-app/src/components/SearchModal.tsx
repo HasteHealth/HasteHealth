@@ -59,6 +59,12 @@ const STATIC_PAGES: Readonly<
     category: "Import",
     path: "/import",
   },
+  {
+    id: "packages",
+    label: "Packages",
+    category: "Configuration",
+    path: "/packages",
+  },
 ];
 
 // Resource types that already have a dedicated sidebar shortcut - shown

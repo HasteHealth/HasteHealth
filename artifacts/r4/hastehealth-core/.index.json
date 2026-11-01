@@ -50,6 +50,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/implementation_guide.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/indexing_errors.json",
       "resourceType": "OperationDefinition"
     },
