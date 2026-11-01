@@ -4,7 +4,7 @@
     "name": "g10-12.11.07-validation",
     "title": "12.11.07 DiagnosticReport conforms to US Core DiagnosticReport Profile for Laboratory Results Reporting",
     "status": "active",
-    "description": "g10 12.11.07 (DAT-PAT-2). Inferno validates the DiagnosticReport resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's DiagnosticReport/g10-cbc that claims it is accepted, which the server allows only after validating it against the profile (US Core 9.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
+    "description": "g10 12.11.07 (DAT-PAT-2). Inferno validates the DiagnosticReport resources the server returns against the US Core 7.0.0 profile with the HL7 validator. The closest server-side check: the server has the profile, and a copy of the record's DiagnosticReport/g10-cbc that claims it is accepted, which the server allows only after validating it against the profile (US Core 7.0.0 is the version loaded; a profile the server does not have would not be checked). The copy is deleted afterwards.",
     "resourceType": "TestScript",
     "contained": [
         {

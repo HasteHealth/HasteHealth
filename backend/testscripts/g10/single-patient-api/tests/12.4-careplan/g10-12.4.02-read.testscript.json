@@ -12,7 +12,7 @@
             "id": "g10-careplan-ulcer-example",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|7.0.0"
                 ],
                 "tag": [
                     {

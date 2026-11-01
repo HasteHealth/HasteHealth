@@ -12,7 +12,7 @@
             "id": "g10-bone-density-report",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|7.0.0"
                 ],
                 "tag": [
                     {

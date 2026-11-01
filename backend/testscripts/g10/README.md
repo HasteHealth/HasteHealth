@@ -33,17 +33,19 @@ backend client. So the directory follows the access control layout. It runs with
 CI runs this in `.github/workflows/test_e2e_g10.yml` (called by `test_e2e.yml`), on the Postgres
 search backend. The steps are:
 
-1. Load the US Core profiles (`scripts/load_us_core.mjs`).
-2. Run the setup phase.
-3. Wait for indexing.
-4. Sign in.
-5. Run the tests.
+1. Load the US Core 7.0.0 profiles (`scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0`).
+2. Wait until the CapabilityStatement lists them. The server caches it for up to 30 seconds, and
+   12.1.05 checks its `supportedProfile`.
+3. Run the setup phase.
+4. Wait for indexing.
+5. Sign in.
+6. Run the tests.
 
 To run it locally against a server that has a tenant and the `testing` admin profile, run from the
-repository root:
+repository root (and give the CapabilityStatement 30 seconds after loading US Core):
 
 ```sh
-node backend/scripts/load_us_core.mjs
+node backend/scripts/load_us_core.mjs hl7.fhir.us.core-7.0.0
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs setup
 bash .github/scripts/wait_for_indexing.sh 600
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs sign-in
@@ -80,8 +82,12 @@ with its id prefixed `g10-` and tagged `g10`:
 - The practitioners, organizations, locations, specimens and medications those patients'
   resources reference.
 
-The examples are US Core 9.0.0, which is what the server loads; g10 tests US Core 6.1.0 or 7.0.0.
-So the record adds what US Core 7 requires or marks must support and the 9.0.0 examples dropped:
+The examples are US Core 9.0.0; g10 tests US Core 6.1.0 or 7.0.0, and the suite loads 7.0.0. So the
+record claims the US Core 7.0.0 profiles instead of the 9.0.0 ones. The implanted devices (`udi-2`,
+`udi-3`) claim `us-core-implantable-device`, which 9.0.0 folds into `us-core-device`, and claims to
+profiles 7.0.0 does not have are dropped: the devices that are not implants, the advance directive
+DocumentReferences and Observations, and FamilyMemberHistory. The record also adds what US Core 7
+requires or marks must support and the 9.0.0 examples dropped:
 
 - `Patient.gender`, the `us-core-sex` extension, the CarePlan `assess-plan` category and narrative,
   and MedicationRequest `category`.
@@ -107,7 +113,7 @@ health concern Conditions are stored without `meta.profile`, because the server 
 (see [Known failures](#known-failures)).
 
 The server validates every write against its `meta.profile`, so writing the record also checks
-that the data conforms to US Core 9.0.0.
+that the data conforms to US Core 7.0.0.
 
 ## Coverage
 
@@ -168,8 +174,8 @@ One directory per group, one TestScript per Inferno test:
 - **Validation (12.x validation, `profile-validation/`).** Inferno validates returned resources with
   the HL7 validator, which a TestScript cannot run. The closest server-side check: the server has
   the profile, and a copy of a record resource claiming it is accepted, which the server allows only
-  after validating it (against US Core 9.0.0; `us-core-implantable-device` is `us-core-device`
-  there). The copies point at their own patient and are deleted afterwards.
+  after validating it against US Core 7.0.0. The copies point at their own patient and are deleted
+  afterwards.
 - **12.1.02 to 12.1.05.** metadata is served; FHIR R4; JSON; the 46 US Core profiles g10 requires
   are listed in `supportedProfile`.
 - **Guidance groups.** 12.49.01 and 12.49.02 (clinical notes), 12.50.01 (screening categories),
@@ -221,8 +227,6 @@ Each group below is one server gap.
 - **Bulk Data (8.2.02, 8.2.04 and 8.2.05, 8.4, 8.5).** There is no `$export` operation, and GET
   operation invocations answer 501. The kick-off TestScripts end with an execution error, because
   no Content-Location comes back. 8.2.03 passes (an invalid token is refused before routing).
-- **`supportedProfile` (12.1.05).** The CapabilityStatement lists only the base profile of each
-  type.
 - **Problem list Condition validation (12.7.05).** The server refuses a conformant US Core problem
   list Condition that claims its profile, with "Condition.category:us-core ... found '0'". The
   slice is a value discriminator on a required binding, which the validator does not match. It
