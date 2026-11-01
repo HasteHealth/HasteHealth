@@ -619,7 +619,9 @@ export function SuiteReportTable({ suite }: Readonly<{ suite: SuiteId }>) {
 const SUITE_BLURBS: Record<string, string> = {
   core: "Create, read, update, patch, delete and search for every FHIR R4 resource type, and the search features each parameter type supports.",
   "us-core":
-    "Every US Core example resource written with its US Core profile claimed, so the server validates it on the way in.",
+    "Every US Core 9.0.0 example resource written with its profile claimed, so the server validates it on the way in, and a conformance TestScript per profile.",
+  "us-core-7":
+    "The same checks for US Core 7.0.0, the version the ONC (g)(10) test kit certifies against: its examples written with their profiles claimed, and a conformance TestScript per profile.",
   g10: "The checks of the ONC (g)(10) Standardized API test kit that can run unattended: SMART launch scenarios, the US Core 7 single patient API, Bulk Data and fine-grained scopes.",
   "access-control":
     "What patients, users and backend clients can reach under SMART patient, user and system scopes, and EHR launches.",

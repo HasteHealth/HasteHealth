@@ -76,7 +76,7 @@ assert_eq!(report.result, ReportResultCodes::pass());
 ## Command line
 
 ```bash
-haste-health testscript run -i backend/testscripts/core -o reports.json --index-wait-ms 10000
+haste-health testscript run -i backend/testscripts/core/base -o reports.json --index-wait-ms 10000
 ```
 
 Runs every TestScript under the input paths in parallel against the active profile's server and writes a transaction `Bundle` of `TestReport`s. `--wait-between-operations-ms` adds a fixed delay after each operation and `--allow-failure <id>` records a known failure without failing the run.

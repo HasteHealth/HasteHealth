@@ -8,9 +8,10 @@ here is its license.
 
 The suite has 144 tests in 22 files. Each test a TestScript can express is one TestScript here
 (106). The 38 it cannot are listed under [Not covered](#not-covered). Nothing in those TestScripts
-comes from anywhere but its suite test. One more, `validate/06-invalid-column-path`
-(`sof-validate-column-path`), is Haste Health's own: a column path that does not parse is refused
-with a client error. That makes 107.
+comes from anywhere but its suite test. Two more are Haste Health's own:
+`validate/06-invalid-column-path` (`sof-validate-column-path`), a column path that does not parse
+is refused with a client error, and `repeat/20-repeat-this` (`sof-repeat-20`), a `repeat` of
+`$this` ends and returns the node once. That makes 108.
 
 ## From a suite test to a TestScript
 
@@ -73,26 +74,24 @@ while read -r id; do allowed+=(--allow-failure "$id"); done < <(
 | `fn_reference_keys/` | 3           | 0           |
 | `foreach/`           | 13          | 9           |
 | `logic/`             | 3           | 0           |
-| `repeat/`            | 19          | 19          |
+| `repeat/`            | 19          | 20          |
 | `row_index/`         | 9           | 9           |
 | `union/`             | 10          | 10          |
 | `validate/`          | 5           | 3           |
 | `view_resource/`     | 3           | 2           |
 | `where/`             | 8           | 0           |
-| **Total**            | **144**     | **107**     |
+| **Total**            | **144**     | **108**     |
 
 ## Known failures
 
-On 2026-10-25, 78 of the 107 pass. The other 29 are in `known-failures.txt`, by cause. A
+On 2026-10-31, 89 of the 108 pass. The other 19 are in `known-failures.txt`, by cause. A
 TestScript that fails for several causes is listed under the first that shows.
 
-| TestScripts | Cause                                                                                                                                                                                                                                                                                                                                          |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9           | `%rowIndex` is not defined, so a view that uses it is refused with 400 "Undefined constant: %rowIndex" (`sof-row-index-01` to `-09`).                                                                                                                                                                                                          |
-| 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                                                                                                                                                                                                                              |
-| 7           | A `repeat` returns the rows the suite expects, but level by level (all first-level items, then the second level) where the suite lists them depth first. The suite compares rows in any order and the specification sets none for `repeat`; a TestScript compares the rows' bytes (`sof-repeat-01`, `-04`, `-06`, `-11`, `-13`, `-16`, `-19`). |
-| 3           | A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`sof-repeat-02`, `-07`, `-18`).                                                                                                                                                                                                                            |
-| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`).                                                                                                                                                                                                       |
+| TestScripts | Cause                                                                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 9           | `%rowIndex` is not defined, so a view that uses it is refused with 400 "Undefined constant: %rowIndex" (`sof-row-index-01` to `-09`).    |
+| 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                        |
+| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`). |
 
 ## Not covered
 

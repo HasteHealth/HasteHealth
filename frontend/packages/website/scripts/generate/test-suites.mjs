@@ -9,7 +9,8 @@
 // Options, one per suite and search backend, each a TestReport Bundle or a
 // directory of them (the access control and g10 runs write one per scenario):
 //
-//   --us-core-postgres <path>         --us-core-elasticsearch <path>
+//   --us-core-postgres <path>         --us-core-elasticsearch <path>   (9.0.0)
+//   --us-core-7-postgres <path>       --us-core-7-elasticsearch <path> (7.0.0)
 //   --g10-postgres <path>
 //   --access-control-postgres <path>  --access-control-elasticsearch <path>
 //   --sql-on-fhir-postgres <path>
@@ -81,24 +82,57 @@ const ACCESS_CONTROL_GROUPS = {
   "smart-launch": "SMART EHR launch",
 };
 
-/** How each suite is found, grouped and named. */
-const SUITES = [
-  {
-    id: "us-core",
-    title: "US Core",
-    page: "/docs/reference/conformance/us-core",
+// A generated US Core example script is named after its example file:
+//   ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json (9.0.0)
+//   ---artifacts-r4-hl7-fhir-us-core-7-0-0-example-Observation-bmi-json (7.0.0)
+const US_CORE_EXAMPLE_ID = /(?:us_core|example)-([A-Z][A-Za-z]+)-(.+)-json$/;
+
+/**
+ * One US Core version's suite, backend/testscripts/us-core/<version>: its
+ * examples/ grouped by the resource type they write, and its profiles/ in one
+ * group, whose lowercase id sorts after the resource type groups.
+ */
+function usCoreSuite({ id, version, page }) {
+  return {
+    id,
+    title: `US Core ${version}`,
+    page,
+    dir: path.join("us-core", version),
     backends: ["postgres", "elasticsearch"],
-    // A generated script is named after its example file:
-    // ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json
     group(relativePath, testScript) {
-      const match = /us_core-([A-Z][A-Za-z]+)-/.exec(testScript.id);
-      return { id: match?.[1] ?? "Patient", title: match?.[1] ?? "Patient" };
+      if (relativePath.split(path.sep)[0] === "profiles") {
+        return {
+          id: `us-core-${version}-profiles`,
+          title: `US Core ${version} profiles`,
+        };
+      }
+      // A hand-written example script is grouped by the resource it writes.
+      const type =
+        US_CORE_EXAMPLE_ID.exec(testScript.id)?.[1] ??
+        testScript.contained?.[0]?.resourceType ??
+        "Other";
+      return { id: type, title: type };
     },
     scriptTitle(testScript) {
-      const match = /us_core-([A-Z][A-Za-z]+)-(.+)-json$/.exec(testScript.id);
+      const match = US_CORE_EXAMPLE_ID.exec(testScript.id);
       return match ? `${match[1]} ${match[2]}` : testScript.title;
     },
-  },
+  };
+}
+
+/** How each suite is found, grouped and named. */
+const SUITES = [
+  usCoreSuite({
+    id: "us-core",
+    version: "9.0.0",
+    page: "/docs/reference/conformance/us-core",
+  }),
+  // The version the ONC (g)(10) test kit certifies against.
+  usCoreSuite({
+    id: "us-core-7",
+    version: "7.0.0",
+    page: "/docs/reference/conformance/us-core-7",
+  }),
   {
     id: "g10",
     title: "ONC (g)(10) Standardized API",
@@ -317,7 +351,7 @@ function buildSuite(suite, locations) {
   const reports = Object.fromEntries(
     backends.map((backend) => [backend, readReports(locations[backend])]),
   );
-  const dir = path.join(BACKEND, "testscripts", suite.id);
+  const dir = path.join(BACKEND, "testscripts", suite.dir ?? suite.id);
   const knownFailures = suite.knownFailures
     ? readKnownFailures(path.join(dir, suite.knownFailures))
     : [];

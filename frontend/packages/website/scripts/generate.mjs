@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Regenerates everything on the site that is derived from somewhere else.
 //
-//   test-support  backend/testscripts/core + backend/testreports
+//   test-support  backend/testscripts/core/base + backend/testreports
 //                   -> static/test-reports/support.json
 //   test-suites   backend/testscripts/{us-core,g10,access-control,sql-on-fhir} + their TestReports
 //                   -> static/test-reports/suites/<suite>.json, static/test-reports/suites.json

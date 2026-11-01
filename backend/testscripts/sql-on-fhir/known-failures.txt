@@ -26,23 +26,6 @@ sof-fn-boundary-06       # date highBoundary
 sof-fn-boundary-07       # time lowBoundary
 sof-fn-boundary-08       # time highBoundary
 
-# A `repeat` gives the rows the suite expects but level by level (all first-level items, then
-# the second level), while the suite lists them depth first. The suite compares rows in any order
-# and the spec sets no order for `repeat`; a TestScript compares the rows' bytes (#1338).
-sof-repeat-01            # basic
-sof-repeat-04            # empty child expression
-sof-repeat-06            # combined with forEachOrNull
-sof-repeat-11            # sibling repeats at top level
-sof-repeat-13            # top-level repeat with sibling forEach containing repeat
-sof-repeat-16            # unionAll inside repeat
-sof-repeat-19            # unionAll with repeat and non-repeat branches
-
-# A `repeat` over `item` and `answer.item` misses the item that sits under an answer (`1.1.1`);
-# the other rows are there (#1338).
-sof-repeat-02            # item and answer.item
-sof-repeat-07            # combined with unionAll
-sof-repeat-18            # multi-path repeat inside forEach
-
 # `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
 # expects an error).
 sof-union-09             # column mismatch

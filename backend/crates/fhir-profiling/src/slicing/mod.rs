@@ -15,7 +15,7 @@ use haste_fhir_model::r4::{
             OperationOutcome, OperationOutcomeIssue, Resource, ResourceType, StructureDefinition,
             ValueSetComposeInclude,
         },
-        terminology::{BindingStrength, DiscriminatorType, IssueSeverity, IssueType},
+        terminology::{BindingStrength, BoundCode, DiscriminatorType, IssueSeverity, IssueType},
         types::{
             CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator,
         },
@@ -89,7 +89,8 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
 
     discriminator_element_index: usize,
 
-    /// For a `value` discriminator on a slice defined by its binding alone, the codes it allows.
+    /// For a `value` or `pattern` discriminator on a slice defined by its binding alone, the codes
+    /// it allows.
     binding: Option<ValueSetCodes>,
 }
 
@@ -268,8 +269,8 @@ async fn is_conformant_to_slice_descriptor(
         discriminator_type if discriminator_type == &DiscriminatorType::exists() => {
             Ok(!values.is_empty())
         }
-        discriminator_type if discriminator_type == &DiscriminatorType::pattern() => {
-            is_conformant_to_pattern_discriminator(&values, slice_value_element_definition)
+        discriminator_type if is_value_discriminator(discriminator_type) => {
+            is_conformant_to_value_discriminator(&values, slice_value_element_definition, binding)
         }
         discriminator_type if discriminator_type == &DiscriminatorType::profile() => {
             Err(OperationOutcomeError::error(
@@ -279,10 +280,6 @@ async fn is_conformant_to_slice_descriptor(
         }
         discriminator_type if discriminator_type == &DiscriminatorType::type_() => {
             is_conformant_to_type_discriminator(&values, slice_value_element_definition)
-        }
-        // Observation us-core has pattern even though it's value based slicing
-        discriminator_type if discriminator_type == &DiscriminatorType::value() => {
-            is_conformant_to_value_discriminator(&values, slice_value_element_definition, binding)
         }
         discriminator_type if discriminator_type == &DiscriminatorType::null() => {
             Err(OperationOutcomeError::error(
@@ -297,25 +294,15 @@ async fn is_conformant_to_slice_descriptor(
     }
 }
 
-fn is_conformant_to_pattern_discriminator(
-    values: &[&dyn MetaValue],
-    element: &ElementDefinition,
-) -> Result<bool, OperationOutcomeError> {
-    let pattern = element.pattern.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Slice value element definition must have a pattern for pattern discriminator"
-                .to_string(),
-        )
-    })?;
-
-    for value in values {
-        if validate_pattern(*value, pattern)? {
-            return Ok(true);
-        }
-    }
-
-    Ok(false)
+/// A `value` or `pattern` discriminator. FHIR R4 gives both the same rule: each slice defines the
+/// discriminating element with `fixed[x]`, `pattern[x]` or a required binding to a value set that
+/// lists its codes (<https://hl7.org/fhir/R4/profiling.html#discriminator>). R5 deprecates
+/// `pattern` as meaning the same as `value`
+/// (<https://hl7.org/fhir/R5/profiling.html#discriminator>). US Core 7.0.0's category slices use
+/// `pattern` with only a required binding.
+fn is_value_discriminator(discriminator_type: &BoundCode<DiscriminatorType>) -> bool {
+    discriminator_type == &DiscriminatorType::value()
+        || discriminator_type == &DiscriminatorType::pattern()
 }
 
 fn is_conformant_to_type_discriminator(
@@ -514,10 +501,10 @@ async fn compose_rules(
     Ok(Some(compose_rules))
 }
 
-/// For a `value` discriminator on a slice defined by its binding alone (no `fixed[x]` or
-/// `pattern[x]`), the codes that binding allows. Only a required binding discriminates; any other
-/// allows none. A value set that cannot be resolved allows none, or is reported when the slice is
-/// mandatory.
+/// For a `value` or `pattern` discriminator on a slice defined by its binding alone (no
+/// `fixed[x]` or `pattern[x]`), the codes that binding allows. Only a required binding
+/// discriminates; any other allows none. A value set that cannot be resolved allows none, or is
+/// reported when the slice is mandatory.
 async fn binding_codes(
     ctx: &FHIRProfileCTX<'_, impl CanonicalResolver>,
     slice_index: usize,
@@ -526,7 +513,7 @@ async fn binding_codes(
     loc: &Path,
 ) -> Result<Option<ValueSetCodes>, OperationOutcomeError> {
     let Some(binding) = element.binding.as_ref().filter(|_| {
-        discriminator.type_ == DiscriminatorType::value()
+        is_value_discriminator(&discriminator.type_)
             && element.fixed.is_none()
             && element.pattern.is_none()
     }) else {

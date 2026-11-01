@@ -1,0 +1,472 @@
+{
+    "id": "us-core-9.0.0-practitioner",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-practitioner",
+    "title": "US Core 9.0.0 Practitioner Profile",
+    "name": "US Core 9.0.0 us-core-practitioner",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-practitioner.html",
+                "description": "US Core Practitioner Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Practitioner Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "identifier": [
+                {
+                    "system": "http://example.org/fhir/example",
+                    "value": "example"
+                }
+            ],
+            "name": [
+                {
+                    "family": "example"
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "example"
+                }
+            ],
+            "address": [
+                {
+                    "text": "Example",
+                    "line": [
+                        "example"
+                    ],
+                    "city": "example",
+                    "state": "example",
+                    "postalCode": "example",
+                    "country": "example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-practitioner-test"
+                    }
+                ]
+            },
+            "id": "uscore-create-1",
+            "resourceType": "Practitioner"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "Practitioner satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.identifier.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.identifier.system.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier-system",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.identifier.value.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier-value",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.name.exists()",
+                        "warningOnly": false,
+                        "label": "has-name",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.name.family.exists()",
+                        "warningOnly": false,
+                        "label": "has-name-family",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.telecom.exists()",
+                        "warningOnly": false,
+                        "label": "has-telecom",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.telecom.system.exists()",
+                        "warningOnly": false,
+                        "label": "has-telecom-system",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.telecom.value.exists()",
+                        "warningOnly": false,
+                        "label": "has-telecom-value",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.exists()",
+                        "warningOnly": false,
+                        "label": "has-address",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.line.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-line",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.city.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-city",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.state.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-state",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.postalCode.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-postalcode",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.address.country.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-country",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Practitioner.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Practitioner",
+                    "params": "_tag=us-core-9.0.0-practitioner-test",
+                    "description": "Delete Practitioner resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

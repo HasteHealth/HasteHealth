@@ -33,14 +33,14 @@ pnpm generate
 It runs these steps in order, each reading what the ones before it wrote, and
 stops at the first failure:
 
-| Step           | Reads                                                                    | Writes                                                                                               |
-| -------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `test-support` | `backend/testscripts/core`, `backend/testreports/*.json`                 | `static/test-reports/support.json` (the conformance report)                                          |
-| `test-suites`  | the US Core, g10, access control and SQL on FHIR TestScripts and reports | `static/test-reports/suites/*.json` (one per suite), `static/test-reports/suites.json` (totals)      |
-| `server`       | the local server (`HASTE_HEALTH_*`, see `.env.example`)                  | `static/fhir/R4/metadata.json`, `static/fhir/R4/OperationDefinition/*.json`, `static/mcp/tools.json` |
-| `fhir`         | `artifacts/r4`, the conformance report, the server snapshot              | `docs/reference/fhir/**` pages, `src/fhir-model/*.json`, `static/fhir/R4/<Type>.json`                |
-| `social-card`  | the conformance report                                                   | `static/img/social-card.{svg,png}`                                                                   |
-| `pricing`      | the backend's subscription tiers (`cargo run`)                           | `static/pricing/tiers.json`                                                                          |
+| Step           | Reads                                                                                    | Writes                                                                                               |
+| -------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `test-support` | `backend/testscripts/core/base`, `backend/testreports/*.json`                            | `static/test-reports/support.json` (the conformance report)                                          |
+| `test-suites`  | the US Core 9.0.0 and 7.0.0, g10, access control and SQL on FHIR TestScripts and reports | `static/test-reports/suites/*.json` (one per suite), `static/test-reports/suites.json` (totals)      |
+| `server`       | the local server (`HASTE_HEALTH_*`, see `.env.example`)                                  | `static/fhir/R4/metadata.json`, `static/fhir/R4/OperationDefinition/*.json`, `static/mcp/tools.json` |
+| `fhir`         | `artifacts/r4`, the conformance report, the server snapshot                              | `docs/reference/fhir/**` pages, `src/fhir-model/*.json`, `static/fhir/R4/<Type>.json`                |
+| `social-card`  | the conformance report                                                                   | `static/img/social-card.{svg,png}`                                                                   |
+| `pricing`      | the backend's subscription tiers (`cargo run`)                                           | `static/pricing/tiers.json`                                                                          |
 
 Run a subset by naming steps, `pnpm generate server fhir`, and check that the
 committed outputs are current with `pnpm check-generated` (the steps that can
