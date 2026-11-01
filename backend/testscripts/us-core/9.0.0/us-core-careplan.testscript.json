@@ -1,61 +1,59 @@
 {
-    "id": "us-core-us-core-diagnosticreport-note",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-diagnosticreport-note",
-    "title": "US Core us-core-diagnosticreport-note",
-    "name": "US Core us-core-diagnosticreport-note",
+    "id": "us-core-9.0.0-careplan",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-careplan",
+    "title": "US Core 9.0.0 CarePlan Profile",
+    "name": "US Core 9.0.0 us-core-careplan",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-careplan.html",
+                "description": "US Core CarePlan Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core CarePlan Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "registered",
-            "code": {
-                "text": "example"
-            },
-            "category": [
-                {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "LP29684-5"
-                        }
-                    ]
-                }
-            ],
+            "status": "draft",
+            "intent": "proposal",
             "subject": {
                 "reference": "Patient/example"
             },
-            "encounter": {
-                "reference": "Encounter/example"
+            "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">example</div>"
             },
-            "issued": "2020-01-01T00:00:00Z",
-            "performer": [
+            "category": [
                 {
-                    "reference": "Practitioner/example"
-                }
-            ],
-            "resultsInterpreter": [
-                {
-                    "reference": "Practitioner/example"
-                }
-            ],
-            "result": [
-                {
-                    "reference": "Observation/example"
+                    "text": "example"
                 }
             ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-diagnosticreport-note-test"
+                        "code": "us-core-9.0.0-careplan-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "DiagnosticReport"
+            "resourceType": "CarePlan"
         }
     ],
     "fixture": [
@@ -71,7 +69,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "DiagnosticReport satisfies profile",
+            "name": "CarePlan satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -91,14 +89,14 @@
                                 ]
                             }
                         ],
-                        "resource": "DiagnosticReport",
+                        "resource": "CarePlan",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "DiagnosticReport",
+                        "resource": "CarePlan",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -139,9 +137,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.category.exists()",
+                        "expression": "CarePlan.text.status.exists()",
                         "warningOnly": false,
-                        "label": "has-category",
+                        "label": "has-text-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -159,7 +157,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.status.exists()",
+                        "expression": "CarePlan.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -179,9 +177,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.code.exists()",
+                        "expression": "CarePlan.intent.exists()",
                         "warningOnly": false,
-                        "label": "has-code",
+                        "label": "has-intent",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -199,7 +197,27 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.subject.exists()",
+                        "expression": "CarePlan.category.exists()",
+                        "warningOnly": false,
+                        "label": "has-category",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CarePlan.subject.exists()",
                         "warningOnly": false,
                         "label": "has-subject",
                         "operator": "equals",
@@ -219,107 +237,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.encounter.exists()",
-                        "warningOnly": false,
-                        "label": "has-encounter",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.issued.exists()",
-                        "warningOnly": false,
-                        "label": "has-issued",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.performer.exists()",
-                        "warningOnly": false,
-                        "label": "has-performer",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.resultsInterpreter.exists()",
-                        "warningOnly": false,
-                        "label": "has-resultsinterpreter",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.result.exists()",
-                        "warningOnly": false,
-                        "label": "has-result",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note')",
+                        "expression": "CarePlan.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -348,9 +266,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "DiagnosticReport",
-                    "params": "_tag=us-core-diagnosticreport-note-test",
-                    "description": "Delete DiagnosticReport resources created in test.",
+                    "resource": "CarePlan",
+                    "params": "_tag=us-core-9.0.0-careplan-test",
+                    "description": "Delete CarePlan resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

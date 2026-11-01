@@ -1,57 +1,82 @@
 {
-    "id": "us-core-us-core-practitionerrole",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-practitionerrole",
-    "title": "US Core us-core-practitionerrole",
-    "name": "US Core us-core-practitionerrole",
+    "id": "us-core-9.0.0-diagnosticreport-lab",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-diagnosticreport-lab",
+    "title": "US Core 9.0.0 DiagnosticReport Profile for Laboratory Results Reporting",
+    "name": "US Core 9.0.0 us-core-diagnosticreport-lab",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-diagnosticreport-lab.html",
+                "description": "US Core DiagnosticReport Profile for Laboratory Results Reporting (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core DiagnosticReport Profile for Laboratory Results Reporting",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "practitioner": {
-                "reference": "Practitioner/example"
+            "status": "registered",
+            "code": {
+                "text": "example"
             },
-            "organization": {
-                "reference": "Organization/example"
-            },
-            "code": [
+            "category": [
                 {
-                    "text": "example"
-                }
-            ],
-            "specialty": [
-                {
-                    "text": "example"
-                }
-            ],
-            "location": [
-                {
-                    "reference": "Location/example"
-                }
-            ],
-            "telecom": [
-                {
-                    "system": "phone",
-                    "value": "example"
-                }
-            ],
-            "endpoint": [
-                {
-                    "reference": "Endpoint/example"
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                            "code": "LAB"
+                        }
+                    ]
                 }
             ],
             "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-practitionerrole-test"
+                        "code": "us-core-9.0.0-diagnosticreport-lab-test"
                     }
                 ]
             },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "issued": "2020-01-01T00:00:00Z",
+            "performer": [
+                {
+                    "reference": "Practitioner/example"
+                }
+            ],
+            "resultsInterpreter": [
+                {
+                    "reference": "Practitioner/example"
+                }
+            ],
+            "result": [
+                {
+                    "reference": "Observation/example"
+                }
+            ],
             "id": "uscore-create-1",
-            "resourceType": "PractitionerRole"
+            "resourceType": "DiagnosticReport"
         }
     ],
     "fixture": [
@@ -67,7 +92,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "PractitionerRole satisfies profile",
+            "name": "DiagnosticReport satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -87,14 +112,14 @@
                                 ]
                             }
                         ],
-                        "resource": "PractitionerRole",
+                        "resource": "DiagnosticReport",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "PractitionerRole",
+                        "resource": "DiagnosticReport",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -135,9 +160,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.practitioner.exists()",
+                        "expression": "DiagnosticReport.category.exists()",
                         "warningOnly": false,
-                        "label": "has-practitioner",
+                        "label": "has-category",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -155,9 +180,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.organization.exists()",
+                        "expression": "DiagnosticReport.meta.lastUpdated.exists()",
                         "warningOnly": false,
-                        "label": "has-organization",
+                        "label": "has-meta-lastupdated",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -175,7 +200,27 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.code.exists()",
+                        "expression": "DiagnosticReport.status.exists()",
+                        "warningOnly": false,
+                        "label": "has-status",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DiagnosticReport.code.exists()",
                         "warningOnly": false,
                         "label": "has-code",
                         "operator": "equals",
@@ -195,9 +240,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.specialty.exists()",
+                        "expression": "DiagnosticReport.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-specialty",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -215,9 +260,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.location.exists()",
+                        "expression": "DiagnosticReport.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-location",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -235,9 +280,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.telecom.exists()",
+                        "expression": "DiagnosticReport.issued.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom",
+                        "label": "has-issued",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -255,9 +300,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.telecom.system.exists()",
+                        "expression": "DiagnosticReport.performer.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-system",
+                        "label": "has-performer",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -275,9 +320,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.telecom.value.exists()",
+                        "expression": "DiagnosticReport.resultsInterpreter.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-value",
+                        "label": "has-resultsinterpreter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -295,9 +340,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.endpoint.exists()",
+                        "expression": "DiagnosticReport.result.exists()",
                         "warningOnly": false,
-                        "label": "has-endpoint",
+                        "label": "has-result",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -315,7 +360,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "PractitionerRole.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole')",
+                        "expression": "DiagnosticReport.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -344,9 +389,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "PractitionerRole",
-                    "params": "_tag=us-core-practitionerrole-test",
-                    "description": "Delete PractitionerRole resources created in test.",
+                    "resource": "DiagnosticReport",
+                    "params": "_tag=us-core-9.0.0-diagnosticreport-lab-test",
+                    "description": "Delete DiagnosticReport resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

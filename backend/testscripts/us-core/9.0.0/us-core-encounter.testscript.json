@@ -1,10 +1,30 @@
 {
-    "id": "us-core-us-core-encounter",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-encounter",
-    "title": "US Core us-core-encounter",
-    "name": "US Core us-core-encounter",
+    "id": "us-core-9.0.0-encounter",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-encounter",
+    "title": "US Core 9.0.0 Encounter Profile",
+    "name": "US Core 9.0.0 us-core-encounter",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-encounter.html",
+                "description": "US Core Encounter Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Encounter Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
@@ -20,7 +40,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-encounter-test"
+                        "code": "us-core-9.0.0-encounter-test"
                     }
                 ]
             },
@@ -97,7 +117,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-encounter-test"
+                        "code": "us-core-9.0.0-encounter-test"
                     },
                     {
                         "code": "scope-discharge-disposition"
@@ -182,7 +202,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-encounter-test"
+                        "code": "us-core-9.0.0-encounter-test"
                     },
                     {
                         "code": "scope-discharge-disposition"
@@ -267,7 +287,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-encounter-test"
+                        "code": "us-core-9.0.0-encounter-test"
                     },
                     {
                         "code": "scope-discharge-disposition"
@@ -877,7 +897,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition=dischargedisposition-a&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition=dischargedisposition-a&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -943,7 +963,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition=http://example.org/dischargedisposition|dischargedisposition-a&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition=http://example.org/dischargedisposition|dischargedisposition-a&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1009,7 +1029,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition=|dischargedisposition-a&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition=|dischargedisposition-a&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1075,7 +1095,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition=http://example.org/dischargedisposition|&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition=http://example.org/dischargedisposition|&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1141,7 +1161,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition=|&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition=|&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1207,7 +1227,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition:not=dischargedisposition-a&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition:not=dischargedisposition-a&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1296,7 +1316,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition:missing=true&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition:missing=true&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1362,7 +1382,7 @@
                             }
                         ],
                         "resource": "Encounter",
-                        "params": "discharge-disposition:missing=false&_tag=us-core-encounter-test&_tag=scope-discharge-disposition"
+                        "params": "discharge-disposition:missing=false&_tag=us-core-9.0.0-encounter-test&_tag=scope-discharge-disposition"
                     }
                 },
                 {
@@ -1409,7 +1429,7 @@
                         "code": "deleteCondMultiple"
                     },
                     "resource": "Encounter",
-                    "params": "_tag=us-core-encounter-test",
+                    "params": "_tag=us-core-9.0.0-encounter-test",
                     "description": "Delete Encounter resources created in test.",
                     "encodeRequestUrl": false
                 }

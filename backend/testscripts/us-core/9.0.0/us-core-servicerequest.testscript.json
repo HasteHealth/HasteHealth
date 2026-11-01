@@ -1,54 +1,70 @@
 {
-    "id": "us-core-us-core-practitioner",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-practitioner",
-    "title": "US Core us-core-practitioner",
-    "name": "US Core us-core-practitioner",
+    "id": "us-core-9.0.0-servicerequest",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-servicerequest",
+    "title": "US Core 9.0.0 ServiceRequest Profile",
+    "name": "US Core 9.0.0 us-core-servicerequest",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-servicerequest.html",
+                "description": "US Core ServiceRequest Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core ServiceRequest Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "identifier": [
+            "status": "draft",
+            "intent": "proposal",
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
                 {
-                    "system": "http://example.org/fhir/example",
-                    "value": "example"
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+                            "code": "sdoh"
+                        }
+                    ]
                 }
             ],
-            "name": [
-                {
-                    "family": "example"
-                }
-            ],
-            "telecom": [
-                {
-                    "system": "phone",
-                    "value": "example"
-                }
-            ],
-            "address": [
-                {
-                    "text": "Example",
-                    "line": [
-                        "example"
-                    ],
-                    "city": "example",
-                    "state": "example",
-                    "postalCode": "example",
-                    "country": "example"
-                }
-            ],
+            "code": {
+                "text": "example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "authoredOn": "2020-01-01T00:00:00Z",
+            "requester": {
+                "reference": "Practitioner/example"
+            },
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-practitioner-test"
+                        "code": "us-core-9.0.0-servicerequest-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Practitioner"
+            "resourceType": "ServiceRequest"
         }
     ],
     "fixture": [
@@ -64,7 +80,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Practitioner satisfies profile",
+            "name": "ServiceRequest satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -84,14 +100,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Practitioner",
+                        "resource": "ServiceRequest",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Practitioner",
+                        "resource": "ServiceRequest",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -132,9 +148,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.identifier.exists()",
+                        "expression": "ServiceRequest.category.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier",
+                        "label": "has-category",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -152,9 +168,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.identifier.system.exists()",
+                        "expression": "ServiceRequest.status.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-system",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -172,9 +188,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.identifier.value.exists()",
+                        "expression": "ServiceRequest.intent.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-value",
+                        "label": "has-intent",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -192,9 +208,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.name.exists()",
+                        "expression": "ServiceRequest.code.exists()",
                         "warningOnly": false,
-                        "label": "has-name",
+                        "label": "has-code",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -212,9 +228,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.name.family.exists()",
+                        "expression": "ServiceRequest.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-name-family",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -232,9 +248,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.telecom.exists()",
+                        "expression": "ServiceRequest.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -252,9 +268,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.telecom.system.exists()",
+                        "expression": "ServiceRequest.authoredOn.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-system",
+                        "label": "has-authoredon",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -272,9 +288,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.telecom.value.exists()",
+                        "expression": "ServiceRequest.requester.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-value",
+                        "label": "has-requester",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -292,127 +308,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Practitioner.address.exists()",
-                        "warningOnly": false,
-                        "label": "has-address",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.address.line.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-line",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.address.city.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-city",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.address.state.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-state",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.address.postalCode.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-postalcode",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.address.country.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-country",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Practitioner.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')",
+                        "expression": "ServiceRequest.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -441,9 +337,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Practitioner",
-                    "params": "_tag=us-core-practitioner-test",
-                    "description": "Delete Practitioner resources created in test.",
+                    "resource": "ServiceRequest",
+                    "params": "_tag=us-core-9.0.0-servicerequest-test",
+                    "description": "Delete ServiceRequest resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

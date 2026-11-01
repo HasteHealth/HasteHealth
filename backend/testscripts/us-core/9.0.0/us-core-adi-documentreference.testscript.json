@@ -1,39 +1,75 @@
 {
-    "id": "us-core-us-core-familymemberhistory",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-familymemberhistory",
-    "title": "US Core us-core-familymemberhistory",
-    "name": "US Core us-core-familymemberhistory",
+    "id": "us-core-9.0.0-adi-documentreference",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-adi-documentreference",
+    "title": "US Core 9.0.0 ADI DocumentReference Profile",
+    "name": "US Core 9.0.0 us-core-adi-documentreference",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-adi-documentreference.html",
+                "description": "US Core ADI DocumentReference Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core ADI DocumentReference Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "partial",
-            "patient": {
-                "reference": "Patient/example"
-            },
-            "relationship": {
+            "status": "current",
+            "content": [
+                {
+                    "attachment": {
+                        "contentType": "text/plain",
+                        "data": "WA=="
+                    },
+                    "format": {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                }
+            ],
+            "identifier": [
+                {
+                    "value": "example"
+                }
+            ],
+            "type": {
                 "text": "example"
             },
-            "condition": [
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "date": "2020-01-01T00:00:00Z",
+            "author": [
                 {
-                    "code": {
-                        "text": "example"
-                    }
+                    "reference": "Practitioner/example"
                 }
             ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-familymemberhistory-test"
+                        "code": "us-core-9.0.0-adi-documentreference-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "FamilyMemberHistory"
+            "resourceType": "DocumentReference"
         }
     ],
     "fixture": [
@@ -49,7 +85,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "FamilyMemberHistory satisfies profile",
+            "name": "DocumentReference satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -69,14 +105,14 @@
                                 ]
                             }
                         ],
-                        "resource": "FamilyMemberHistory",
+                        "resource": "DocumentReference",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "FamilyMemberHistory",
+                        "resource": "DocumentReference",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -117,7 +153,27 @@
                 },
                 {
                     "assert": {
-                        "expression": "FamilyMemberHistory.status.exists()",
+                        "expression": "DocumentReference.identifier.exists()",
+                        "warningOnly": false,
+                        "label": "has-identifier",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DocumentReference.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -137,9 +193,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "FamilyMemberHistory.patient.exists()",
+                        "expression": "DocumentReference.type.exists()",
                         "warningOnly": false,
-                        "label": "has-patient",
+                        "label": "has-type",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -157,9 +213,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "FamilyMemberHistory.relationship.exists()",
+                        "expression": "DocumentReference.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-relationship",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -177,9 +233,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "FamilyMemberHistory.condition.code.exists()",
+                        "expression": "DocumentReference.date.exists()",
                         "warningOnly": false,
-                        "label": "has-condition-code",
+                        "label": "has-date",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -197,7 +253,47 @@
                 },
                 {
                     "assert": {
-                        "expression": "FamilyMemberHistory.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory')",
+                        "expression": "DocumentReference.author.exists()",
+                        "warningOnly": false,
+                        "label": "has-author",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DocumentReference.content.format.exists()",
+                        "warningOnly": false,
+                        "label": "has-content-format",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DocumentReference.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -226,9 +322,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "FamilyMemberHistory",
-                    "params": "_tag=us-core-familymemberhistory-test",
-                    "description": "Delete FamilyMemberHistory resources created in test.",
+                    "resource": "DocumentReference",
+                    "params": "_tag=us-core-9.0.0-adi-documentreference-test",
+                    "description": "Delete DocumentReference resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

@@ -1,25 +1,49 @@
 {
-    "id": "us-core-us-core-relatedperson",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-relatedperson",
-    "title": "US Core us-core-relatedperson",
-    "name": "US Core us-core-relatedperson",
+    "id": "us-core-9.0.0-location",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-location",
+    "title": "US Core 9.0.0 Location Profile",
+    "name": "US Core 9.0.0 us-core-location",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-location.html",
+                "description": "US Core Location Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Location Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "patient": {
-                "reference": "Patient/example"
-            },
-            "active": true,
-            "relationship": [
+            "identifier": [
                 {
-                    "text": "example"
+                    "value": "example"
                 }
             ],
-            "name": [
+            "status": "active",
+            "name": "example",
+            "type": [
                 {
-                    "family": "Example"
+                    "text": "example",
+                    "coding": [
+                        {
+                            "system": "http://example.org/codes",
+                            "code": "example"
+                        }
+                    ]
                 }
             ],
             "telecom": [
@@ -28,23 +52,30 @@
                     "value": "example@example.org"
                 }
             ],
-            "address": [
-                {
-                    "text": "Example"
-                }
-            ],
+            "address": {
+                "text": "Example",
+                "line": [
+                    "example"
+                ],
+                "city": "example",
+                "state": "example",
+                "postalCode": "example"
+            },
+            "managingOrganization": {
+                "reference": "Organization/example"
+            },
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-relatedperson-test"
+                        "code": "us-core-9.0.0-location-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "RelatedPerson"
+            "resourceType": "Location"
         }
     ],
     "fixture": [
@@ -60,7 +91,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "RelatedPerson satisfies profile",
+            "name": "Location satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -80,14 +111,14 @@
                                 ]
                             }
                         ],
-                        "resource": "RelatedPerson",
+                        "resource": "Location",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "RelatedPerson",
+                        "resource": "Location",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -128,9 +159,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.active.exists()",
+                        "expression": "Location.identifier.exists()",
                         "warningOnly": false,
-                        "label": "has-active",
+                        "label": "has-identifier",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -148,9 +179,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.patient.exists()",
+                        "expression": "Location.status.exists()",
                         "warningOnly": false,
-                        "label": "has-patient",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -168,27 +199,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.relationship.exists()",
-                        "warningOnly": false,
-                        "label": "has-relationship",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "RelatedPerson.name.exists()",
+                        "expression": "Location.name.exists()",
                         "warningOnly": false,
                         "label": "has-name",
                         "operator": "equals",
@@ -208,7 +219,47 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.telecom.exists()",
+                        "expression": "Location.type.exists()",
+                        "warningOnly": false,
+                        "label": "has-type",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.type.coding.exists()",
+                        "warningOnly": false,
+                        "label": "has-type-coding",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.telecom.exists()",
                         "warningOnly": false,
                         "label": "has-telecom",
                         "operator": "equals",
@@ -228,7 +279,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.address.exists()",
+                        "expression": "Location.address.exists()",
                         "warningOnly": false,
                         "label": "has-address",
                         "operator": "equals",
@@ -248,7 +299,107 @@
                 },
                 {
                     "assert": {
-                        "expression": "RelatedPerson.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson')",
+                        "expression": "Location.address.line.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-line",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.address.city.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-city",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.address.state.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-state",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.address.postalCode.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-postalcode",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.managingOrganization.exists()",
+                        "warningOnly": false,
+                        "label": "has-managingorganization",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Location.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-location')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -277,9 +428,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "RelatedPerson",
-                    "params": "_tag=us-core-relatedperson-test",
-                    "description": "Delete RelatedPerson resources created in test.",
+                    "resource": "Location",
+                    "params": "_tag=us-core-9.0.0-location-test",
+                    "description": "Delete Location resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

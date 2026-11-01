@@ -1,51 +1,85 @@
 {
-    "id": "us-core-us-core-immunization",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-immunization",
-    "title": "US Core us-core-immunization",
-    "name": "US Core us-core-immunization",
+    "id": "us-core-9.0.0-patient",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-patient",
+    "title": "US Core 9.0.0 Patient Profile",
+    "name": "US Core 9.0.0 us-core-patient",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-patient.html",
+                "description": "US Core Patient Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Patient Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "completed",
-            "vaccineCode": {
-                "text": "example"
-            },
-            "patient": {
-                "reference": "Patient/example"
-            },
-            "occurrenceDateTime": "2020-01-01T00:00:00Z",
-            "statusReason": {
-                "text": "example"
-            },
-            "encounter": {
-                "reference": "Encounter/example"
-            },
-            "primarySource": true,
-            "location": {
-                "reference": "Location/example"
-            },
-            "lotNumber": "example",
-            "performer": [
+            "identifier": [
                 {
-                    "actor": {
-                        "reference": "Practitioner/example"
+                    "value": "example",
+                    "system": "http://example.org/fhir/example"
+                }
+            ],
+            "name": [
+                {
+                    "family": "example",
+                    "given": [
+                        "example"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "example",
+                    "use": "home"
+                }
+            ],
+            "birthDate": "2020-01-01",
+            "address": [
+                {
+                    "text": "Example",
+                    "line": [
+                        "example"
+                    ],
+                    "city": "example",
+                    "state": "example",
+                    "postalCode": "example"
+                }
+            ],
+            "communication": [
+                {
+                    "language": {
+                        "text": "example"
                     }
                 }
             ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-immunization-test"
+                        "code": "us-core-9.0.0-patient-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Immunization"
+            "resourceType": "Patient"
         }
     ],
     "fixture": [
@@ -61,7 +95,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Immunization satisfies profile",
+            "name": "Patient satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -81,14 +115,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Immunization",
+                        "resource": "Patient",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Immunization",
+                        "resource": "Patient",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -129,9 +163,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.status.exists()",
+                        "expression": "Patient.identifier.exists()",
                         "warningOnly": false,
-                        "label": "has-status",
+                        "label": "has-identifier",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -149,9 +183,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.statusReason.exists()",
+                        "expression": "Patient.identifier.system.exists()",
                         "warningOnly": false,
-                        "label": "has-statusreason",
+                        "label": "has-identifier-system",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -169,9 +203,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.vaccineCode.exists()",
+                        "expression": "Patient.identifier.value.exists()",
                         "warningOnly": false,
-                        "label": "has-vaccinecode",
+                        "label": "has-identifier-value",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -189,9 +223,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.patient.exists()",
+                        "expression": "Patient.name.exists()",
                         "warningOnly": false,
-                        "label": "has-patient",
+                        "label": "has-name",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -209,9 +243,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.encounter.exists()",
+                        "expression": "Patient.name.family.exists()",
                         "warningOnly": false,
-                        "label": "has-encounter",
+                        "label": "has-name-family",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -229,9 +263,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.primarySource.exists()",
+                        "expression": "Patient.name.given.exists()",
                         "warningOnly": false,
-                        "label": "has-primarysource",
+                        "label": "has-name-given",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -249,9 +283,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.location.exists()",
+                        "expression": "Patient.telecom.system.exists()",
                         "warningOnly": false,
-                        "label": "has-location",
+                        "label": "has-telecom-system",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -269,9 +303,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.lotNumber.exists()",
+                        "expression": "Patient.telecom.value.exists()",
                         "warningOnly": false,
-                        "label": "has-lotnumber",
+                        "label": "has-telecom-value",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -289,9 +323,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.performer.actor.exists()",
+                        "expression": "Patient.telecom.use.exists()",
                         "warningOnly": false,
-                        "label": "has-performer-actor",
+                        "label": "has-telecom-use",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -309,7 +343,147 @@
                 },
                 {
                     "assert": {
-                        "expression": "Immunization.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization')",
+                        "expression": "Patient.birthDate.exists()",
+                        "warningOnly": false,
+                        "label": "has-birthdate",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.address.exists()",
+                        "warningOnly": false,
+                        "label": "has-address",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.address.line.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-line",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.address.city.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-city",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.address.state.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-state",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.address.postalCode.exists()",
+                        "warningOnly": false,
+                        "label": "has-address-postalcode",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.communication.language.exists()",
+                        "warningOnly": false,
+                        "label": "has-communication-language",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -338,9 +512,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Immunization",
-                    "params": "_tag=us-core-immunization-test",
-                    "description": "Delete Immunization resources created in test.",
+                    "resource": "Patient",
+                    "params": "_tag=us-core-9.0.0-patient-test",
+                    "description": "Delete Patient resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

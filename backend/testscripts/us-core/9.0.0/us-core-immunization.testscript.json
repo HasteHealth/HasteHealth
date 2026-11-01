@@ -1,61 +1,71 @@
 {
-    "id": "us-core-us-core-coverage",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-coverage",
-    "title": "US Core us-core-coverage",
-    "name": "US Core us-core-coverage",
+    "id": "us-core-9.0.0-immunization",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-immunization",
+    "title": "US Core 9.0.0 Immunization Profile",
+    "name": "US Core 9.0.0 us-core-immunization",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-immunization.html",
+                "description": "US Core Immunization Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Immunization Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "active",
-            "beneficiary": {
+            "status": "completed",
+            "vaccineCode": {
+                "text": "example"
+            },
+            "patient": {
                 "reference": "Patient/example"
             },
-            "payor": [
+            "occurrenceDateTime": "2020-01-01T00:00:00Z",
+            "statusReason": {
+                "text": "example"
+            },
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "primarySource": true,
+            "location": {
+                "reference": "Location/example"
+            },
+            "lotNumber": "example",
+            "performer": [
                 {
-                    "reference": "Organization/example"
-                }
-            ],
-            "identifier": [
-                {
-                    "value": "example",
-                    "type": {
-                        "text": "example"
+                    "actor": {
+                        "reference": "Practitioner/example"
                     }
-                }
-            ],
-            "type": {
-                "text": "example"
-            },
-            "subscriberId": "example",
-            "relationship": {
-                "text": "example"
-            },
-            "period": {
-                "start": "2020-01-01"
-            },
-            "class": [
-                {
-                    "type": {
-                        "text": "example"
-                    },
-                    "value": "example",
-                    "name": "example"
                 }
             ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-coverage-test"
+                        "code": "us-core-9.0.0-immunization-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Coverage"
+            "resourceType": "Immunization"
         }
     ],
     "fixture": [
@@ -71,7 +81,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Coverage satisfies profile",
+            "name": "Immunization satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -91,14 +101,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Coverage",
+                        "resource": "Immunization",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Coverage",
+                        "resource": "Immunization",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -139,47 +149,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.identifier.exists()",
-                        "warningOnly": false,
-                        "label": "has-identifier",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Coverage.identifier.type.exists()",
-                        "warningOnly": false,
-                        "label": "has-identifier-type",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Coverage.status.exists()",
+                        "expression": "Immunization.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -199,9 +169,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.type.exists()",
+                        "expression": "Immunization.statusReason.exists()",
                         "warningOnly": false,
-                        "label": "has-type",
+                        "label": "has-statusreason",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -219,9 +189,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.subscriberId.exists()",
+                        "expression": "Immunization.vaccineCode.exists()",
                         "warningOnly": false,
-                        "label": "has-subscriberid",
+                        "label": "has-vaccinecode",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -239,9 +209,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.beneficiary.exists()",
+                        "expression": "Immunization.patient.exists()",
                         "warningOnly": false,
-                        "label": "has-beneficiary",
+                        "label": "has-patient",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -259,9 +229,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.relationship.exists()",
+                        "expression": "Immunization.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-relationship",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -279,9 +249,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.period.exists()",
+                        "expression": "Immunization.primarySource.exists()",
                         "warningOnly": false,
-                        "label": "has-period",
+                        "label": "has-primarysource",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -299,9 +269,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.payor.exists()",
+                        "expression": "Immunization.location.exists()",
                         "warningOnly": false,
-                        "label": "has-payor",
+                        "label": "has-location",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -319,9 +289,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.class.value.exists()",
+                        "expression": "Immunization.lotNumber.exists()",
                         "warningOnly": false,
-                        "label": "has-class-value",
+                        "label": "has-lotnumber",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -339,9 +309,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.class.value.exists()",
+                        "expression": "Immunization.performer.actor.exists()",
                         "warningOnly": false,
-                        "label": "has-class-value",
+                        "label": "has-performer-actor",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -359,27 +329,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Coverage.class.name.exists()",
-                        "warningOnly": false,
-                        "label": "has-class-name",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Coverage.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage')",
+                        "expression": "Immunization.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -408,9 +358,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Coverage",
-                    "params": "_tag=us-core-coverage-test",
-                    "description": "Delete Coverage resources created in test.",
+                    "resource": "Immunization",
+                    "params": "_tag=us-core-9.0.0-immunization-test",
+                    "description": "Delete Immunization resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

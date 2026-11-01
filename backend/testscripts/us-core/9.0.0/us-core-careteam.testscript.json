@@ -1,10 +1,30 @@
 {
-    "id": "us-core-us-core-careteam",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-careteam",
-    "title": "US Core us-core-careteam",
-    "name": "US Core us-core-careteam",
+    "id": "us-core-9.0.0-careteam",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-careteam",
+    "title": "US Core 9.0.0 CareTeam Profile",
+    "name": "US Core 9.0.0 us-core-careteam",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-careteam.html",
+                "description": "US Core CareTeam Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core CareTeam Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
@@ -30,7 +50,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-careteam-test"
+                        "code": "us-core-9.0.0-careteam-test"
                     }
                 ]
             },
@@ -65,7 +85,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-careteam-test"
+                        "code": "us-core-9.0.0-careteam-test"
                     },
                     {
                         "code": "scope-role"
@@ -103,7 +123,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-careteam-test"
+                        "code": "us-core-9.0.0-careteam-test"
                     },
                     {
                         "code": "scope-role"
@@ -392,7 +412,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role=role-a&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role=role-a&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -458,7 +478,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role=http://example.org/role|role-a&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role=http://example.org/role|role-a&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -524,7 +544,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role=|role-a&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role=|role-a&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -590,7 +610,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role=http://example.org/role|&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role=http://example.org/role|&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -656,7 +676,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role=|&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role=|&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -722,7 +742,7 @@
                             }
                         ],
                         "resource": "CareTeam",
-                        "params": "role:not=role-a&_tag=us-core-careteam-test&_tag=scope-role"
+                        "params": "role:not=role-a&_tag=us-core-9.0.0-careteam-test&_tag=scope-role"
                     }
                 },
                 {
@@ -769,7 +789,7 @@
                         "code": "deleteCondMultiple"
                     },
                     "resource": "CareTeam",
-                    "params": "_tag=us-core-careteam-test",
+                    "params": "_tag=us-core-9.0.0-careteam-test",
                     "description": "Delete CareTeam resources created in test.",
                     "encodeRequestUrl": false
                 }

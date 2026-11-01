@@ -1,62 +1,87 @@
 {
-    "id": "us-core-us-core-diagnosticreport-lab",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-diagnosticreport-lab",
-    "title": "US Core us-core-diagnosticreport-lab",
-    "name": "US Core us-core-diagnosticreport-lab",
+    "id": "us-core-9.0.0-medicationdispense",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-medicationdispense",
+    "title": "US Core 9.0.0 MedicationDispense Profile",
+    "name": "US Core 9.0.0 us-core-medicationdispense",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-medicationdispense.html",
+                "description": "US Core MedicationDispense Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core MedicationDispense Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "registered",
-            "code": {
+            "status": "preparation",
+            "medicationCodeableConcept": {
                 "text": "example"
-            },
-            "category": [
-                {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
-                            "code": "LAB"
-                        }
-                    ]
-                }
-            ],
-            "meta": {
-                "lastUpdated": "2020-01-01T00:00:00Z",
-                "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab"
-                ],
-                "tag": [
-                    {
-                        "code": "us-core-diagnosticreport-lab-test"
-                    }
-                ]
             },
             "subject": {
                 "reference": "Patient/example"
             },
-            "encounter": {
+            "context": {
                 "reference": "Encounter/example"
             },
-            "issued": "2020-01-01T00:00:00Z",
             "performer": [
                 {
-                    "reference": "Practitioner/example"
+                    "actor": {
+                        "reference": "Practitioner/example"
+                    }
                 }
             ],
-            "resultsInterpreter": [
+            "authorizingPrescription": [
                 {
-                    "reference": "Practitioner/example"
+                    "reference": "MedicationRequest/example"
                 }
             ],
-            "result": [
+            "type": {
+                "text": "example"
+            },
+            "quantity": {
+                "value": 1
+            },
+            "whenHandedOver": "2020-01-01T00:00:00Z",
+            "dosageInstruction": [
                 {
-                    "reference": "Observation/example"
+                    "text": "example",
+                    "timing": {
+                        "event": [
+                            "2020-01-01T00:00:00Z"
+                        ]
+                    },
+                    "route": {
+                        "text": "example"
+                    }
                 }
             ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-medicationdispense-test"
+                    }
+                ]
+            },
             "id": "uscore-create-1",
-            "resourceType": "DiagnosticReport"
+            "resourceType": "MedicationDispense"
         }
     ],
     "fixture": [
@@ -72,7 +97,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "DiagnosticReport satisfies profile",
+            "name": "MedicationDispense satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -92,14 +117,14 @@
                                 ]
                             }
                         ],
-                        "resource": "DiagnosticReport",
+                        "resource": "MedicationDispense",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "DiagnosticReport",
+                        "resource": "MedicationDispense",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -140,47 +165,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.category.exists()",
-                        "warningOnly": false,
-                        "label": "has-category",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.meta.lastUpdated.exists()",
-                        "warningOnly": false,
-                        "label": "has-meta-lastupdated",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.status.exists()",
+                        "expression": "MedicationDispense.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -200,27 +185,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.code.exists()",
-                        "warningOnly": false,
-                        "label": "has-code",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "DiagnosticReport.subject.exists()",
+                        "expression": "MedicationDispense.subject.exists()",
                         "warningOnly": false,
                         "label": "has-subject",
                         "operator": "equals",
@@ -240,9 +205,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.encounter.exists()",
+                        "expression": "MedicationDispense.context.exists()",
                         "warningOnly": false,
-                        "label": "has-encounter",
+                        "label": "has-context",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -260,9 +225,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.issued.exists()",
+                        "expression": "MedicationDispense.performer.actor.exists()",
                         "warningOnly": false,
-                        "label": "has-issued",
+                        "label": "has-performer-actor",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -280,9 +245,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.performer.exists()",
+                        "expression": "MedicationDispense.authorizingPrescription.exists()",
                         "warningOnly": false,
-                        "label": "has-performer",
+                        "label": "has-authorizingprescription",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -300,9 +265,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.resultsInterpreter.exists()",
+                        "expression": "MedicationDispense.type.exists()",
                         "warningOnly": false,
-                        "label": "has-resultsinterpreter",
+                        "label": "has-type",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -320,9 +285,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.result.exists()",
+                        "expression": "MedicationDispense.quantity.exists()",
                         "warningOnly": false,
-                        "label": "has-result",
+                        "label": "has-quantity",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -340,7 +305,87 @@
                 },
                 {
                     "assert": {
-                        "expression": "DiagnosticReport.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab')",
+                        "expression": "MedicationDispense.whenHandedOver.exists()",
+                        "warningOnly": false,
+                        "label": "has-whenhandedover",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationDispense.dosageInstruction.text.exists()",
+                        "warningOnly": false,
+                        "label": "has-dosageinstruction-text",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationDispense.dosageInstruction.timing.exists()",
+                        "warningOnly": false,
+                        "label": "has-dosageinstruction-timing",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationDispense.dosageInstruction.route.exists()",
+                        "warningOnly": false,
+                        "label": "has-dosageinstruction-route",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationDispense.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -369,9 +414,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "DiagnosticReport",
-                    "params": "_tag=us-core-diagnosticreport-lab-test",
-                    "description": "Delete DiagnosticReport resources created in test.",
+                    "resource": "MedicationDispense",
+                    "params": "_tag=us-core-9.0.0-medicationdispense-test",
+                    "description": "Delete MedicationDispense resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

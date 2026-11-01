@@ -1,44 +1,89 @@
 {
-    "id": "us-core-us-core-provenance",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-provenance",
-    "title": "US Core us-core-provenance",
-    "name": "US Core us-core-provenance",
+    "id": "us-core-9.0.0-medicationrequest",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-medicationrequest",
+    "title": "US Core 9.0.0 MedicationRequest Profile",
+    "name": "US Core 9.0.0 us-core-medicationrequest",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-medicationrequest.html",
+                "description": "US Core MedicationRequest Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core MedicationRequest Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "target": [
+            "status": "active",
+            "intent": "proposal",
+            "medicationCodeableConcept": {
+                "text": "example"
+            },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
                 {
-                    "reference": "example"
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                            "code": "inpatient"
+                        }
+                    ]
                 }
             ],
-            "recorded": "2020-01-01T00:00:00Z",
-            "agent": [
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "authoredOn": "2020-01-01T00:00:00Z",
+            "requester": {
+                "reference": "Practitioner/example"
+            },
+            "dosageInstruction": [
                 {
-                    "who": {
-                        "reference": "Practitioner/example"
+                    "text": "example",
+                    "timing": {
+                        "event": [
+                            "2020-01-01T00:00:00Z"
+                        ]
                     },
-                    "type": {
+                    "route": {
                         "text": "example"
-                    },
-                    "onBehalfOf": {
-                        "reference": "Practitioner/example"
                     }
                 }
             ],
+            "dispenseRequest": {
+                "numberOfRepeatsAllowed": 1,
+                "quantity": {
+                    "value": 1
+                }
+            },
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-provenance-test"
+                        "code": "us-core-9.0.0-medicationrequest-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Provenance"
+            "resourceType": "MedicationRequest"
         }
     ],
     "fixture": [
@@ -54,7 +99,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Provenance satisfies profile",
+            "name": "MedicationRequest satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -74,14 +119,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Provenance",
+                        "resource": "MedicationRequest",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Provenance",
+                        "resource": "MedicationRequest",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -122,9 +167,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.target.exists()",
+                        "expression": "MedicationRequest.category.exists()",
                         "warningOnly": false,
-                        "label": "has-target",
+                        "label": "has-category",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -142,9 +187,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.target.reference.exists()",
+                        "expression": "MedicationRequest.status.exists()",
                         "warningOnly": false,
-                        "label": "has-target-reference",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -162,9 +207,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.recorded.exists()",
+                        "expression": "MedicationRequest.intent.exists()",
                         "warningOnly": false,
-                        "label": "has-recorded",
+                        "label": "has-intent",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -182,9 +227,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.agent.type.exists()",
+                        "expression": "MedicationRequest.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-agent-type",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -202,9 +247,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.agent.who.exists()",
+                        "expression": "MedicationRequest.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-agent-who",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -222,9 +267,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.agent.onBehalfOf.exists()",
+                        "expression": "MedicationRequest.authoredOn.exists()",
                         "warningOnly": false,
-                        "label": "has-agent-onbehalfof",
+                        "label": "has-authoredon",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -242,9 +287,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.agent.type.exists()",
+                        "expression": "MedicationRequest.requester.exists()",
                         "warningOnly": false,
-                        "label": "has-agent-type",
+                        "label": "has-requester",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -262,9 +307,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.agent.type.exists()",
+                        "expression": "MedicationRequest.dosageInstruction.text.exists()",
                         "warningOnly": false,
-                        "label": "has-agent-type",
+                        "label": "has-dosageinstruction-text",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -282,7 +327,87 @@
                 },
                 {
                     "assert": {
-                        "expression": "Provenance.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance')",
+                        "expression": "MedicationRequest.dosageInstruction.timing.exists()",
+                        "warningOnly": false,
+                        "label": "has-dosageinstruction-timing",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationRequest.dosageInstruction.route.exists()",
+                        "warningOnly": false,
+                        "label": "has-dosageinstruction-route",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationRequest.dispenseRequest.numberOfRepeatsAllowed.exists()",
+                        "warningOnly": false,
+                        "label": "has-dispenserequest-numberofrepeatsallowed",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationRequest.dispenseRequest.quantity.exists()",
+                        "warningOnly": false,
+                        "label": "has-dispenserequest-quantity",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicationRequest.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -311,9 +436,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Provenance",
-                    "params": "_tag=us-core-provenance-test",
-                    "description": "Delete Provenance resources created in test.",
+                    "resource": "MedicationRequest",
+                    "params": "_tag=us-core-9.0.0-medicationrequest-test",
+                    "description": "Delete MedicationRequest resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

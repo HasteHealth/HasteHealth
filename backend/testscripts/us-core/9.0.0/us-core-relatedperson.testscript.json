@@ -1,69 +1,70 @@
 {
-    "id": "us-core-us-core-medicationrequest",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-medicationrequest",
-    "title": "US Core us-core-medicationrequest",
-    "name": "US Core us-core-medicationrequest",
+    "id": "us-core-9.0.0-relatedperson",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-relatedperson",
+    "title": "US Core 9.0.0 RelatedPerson Profile",
+    "name": "US Core 9.0.0 us-core-relatedperson",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-relatedperson.html",
+                "description": "US Core RelatedPerson Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core RelatedPerson Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "active",
-            "intent": "proposal",
-            "medicationCodeableConcept": {
-                "text": "example"
-            },
-            "subject": {
+            "patient": {
                 "reference": "Patient/example"
             },
-            "category": [
+            "active": true,
+            "relationship": [
                 {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                            "code": "inpatient"
-                        }
-                    ]
+                    "text": "example"
                 }
             ],
-            "encounter": {
-                "reference": "Encounter/example"
-            },
-            "authoredOn": "2020-01-01T00:00:00Z",
-            "requester": {
-                "reference": "Practitioner/example"
-            },
-            "dosageInstruction": [
+            "name": [
                 {
-                    "text": "example",
-                    "timing": {
-                        "event": [
-                            "2020-01-01T00:00:00Z"
-                        ]
-                    },
-                    "route": {
-                        "text": "example"
-                    }
+                    "family": "Example"
                 }
             ],
-            "dispenseRequest": {
-                "numberOfRepeatsAllowed": 1,
-                "quantity": {
-                    "value": 1
+            "telecom": [
+                {
+                    "system": "email",
+                    "value": "example@example.org"
                 }
-            },
+            ],
+            "address": [
+                {
+                    "text": "Example"
+                }
+            ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-medicationrequest-test"
+                        "code": "us-core-9.0.0-relatedperson-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "MedicationRequest"
+            "resourceType": "RelatedPerson"
         }
     ],
     "fixture": [
@@ -79,7 +80,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "MedicationRequest satisfies profile",
+            "name": "RelatedPerson satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -99,14 +100,14 @@
                                 ]
                             }
                         ],
-                        "resource": "MedicationRequest",
+                        "resource": "RelatedPerson",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "MedicationRequest",
+                        "resource": "RelatedPerson",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -147,9 +148,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.category.exists()",
+                        "expression": "RelatedPerson.active.exists()",
                         "warningOnly": false,
-                        "label": "has-category",
+                        "label": "has-active",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -167,9 +168,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.status.exists()",
+                        "expression": "RelatedPerson.patient.exists()",
                         "warningOnly": false,
-                        "label": "has-status",
+                        "label": "has-patient",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -187,9 +188,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.intent.exists()",
+                        "expression": "RelatedPerson.relationship.exists()",
                         "warningOnly": false,
-                        "label": "has-intent",
+                        "label": "has-relationship",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -207,9 +208,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.subject.exists()",
+                        "expression": "RelatedPerson.name.exists()",
                         "warningOnly": false,
-                        "label": "has-subject",
+                        "label": "has-name",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -227,9 +228,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.encounter.exists()",
+                        "expression": "RelatedPerson.telecom.exists()",
                         "warningOnly": false,
-                        "label": "has-encounter",
+                        "label": "has-telecom",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -247,9 +248,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.authoredOn.exists()",
+                        "expression": "RelatedPerson.address.exists()",
                         "warningOnly": false,
-                        "label": "has-authoredon",
+                        "label": "has-address",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -267,127 +268,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "MedicationRequest.requester.exists()",
-                        "warningOnly": false,
-                        "label": "has-requester",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.dosageInstruction.text.exists()",
-                        "warningOnly": false,
-                        "label": "has-dosageinstruction-text",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.dosageInstruction.timing.exists()",
-                        "warningOnly": false,
-                        "label": "has-dosageinstruction-timing",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.dosageInstruction.route.exists()",
-                        "warningOnly": false,
-                        "label": "has-dosageinstruction-route",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.dispenseRequest.numberOfRepeatsAllowed.exists()",
-                        "warningOnly": false,
-                        "label": "has-dispenserequest-numberofrepeatsallowed",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.dispenseRequest.quantity.exists()",
-                        "warningOnly": false,
-                        "label": "has-dispenserequest-quantity",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "MedicationRequest.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest')",
+                        "expression": "RelatedPerson.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -416,9 +297,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "MedicationRequest",
-                    "params": "_tag=us-core-medicationrequest-test",
-                    "description": "Delete MedicationRequest resources created in test.",
+                    "resource": "RelatedPerson",
+                    "params": "_tag=us-core-9.0.0-relatedperson-test",
+                    "description": "Delete RelatedPerson resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

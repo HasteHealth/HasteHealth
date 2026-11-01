@@ -1,10 +1,30 @@
 {
-    "id": "us-core-us-core-goal",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-goal",
-    "title": "US Core us-core-goal",
-    "name": "US Core us-core-goal",
+    "id": "us-core-9.0.0-goal",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-goal",
+    "title": "US Core 9.0.0 Goal Profile",
+    "name": "US Core 9.0.0 us-core-goal",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-goal.html",
+                "description": "US Core Goal Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Goal Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
@@ -24,7 +44,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-goal-test"
+                        "code": "us-core-9.0.0-goal-test"
                     }
                 ]
             },
@@ -53,7 +73,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-goal-test"
+                        "code": "us-core-9.0.0-goal-test"
                     },
                     {
                         "code": "scope-description"
@@ -85,7 +105,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-goal-test"
+                        "code": "us-core-9.0.0-goal-test"
                     },
                     {
                         "code": "scope-description"
@@ -374,7 +394,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description=description-a&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description=description-a&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -440,7 +460,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description=http://example.org/description|description-a&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description=http://example.org/description|description-a&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -506,7 +526,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description=|description-a&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description=|description-a&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -572,7 +592,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description=http://example.org/description|&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description=http://example.org/description|&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -638,7 +658,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description=|&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description=|&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -704,7 +724,7 @@
                             }
                         ],
                         "resource": "Goal",
-                        "params": "description:not=description-a&_tag=us-core-goal-test&_tag=scope-description"
+                        "params": "description:not=description-a&_tag=us-core-9.0.0-goal-test&_tag=scope-description"
                     }
                 },
                 {
@@ -751,7 +771,7 @@
                         "code": "deleteCondMultiple"
                     },
                     "resource": "Goal",
-                    "params": "_tag=us-core-goal-test",
+                    "params": "_tag=us-core-9.0.0-goal-test",
                     "description": "Delete Goal resources created in test.",
                     "encodeRequestUrl": false
                 }

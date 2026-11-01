@@ -1,15 +1,10 @@
 name: <Test> Core TestScripts
 
 # Runs backend/testscripts/core/base (CRUD + search coverage for every R4
-# resource type) and backend/testscripts/core/us-core (US Core profile
-# conformance) against both search backends. Search indexing is asynchronous,
-# so the runner waits before each search until its latest write is indexed
-# (`--index-wait-ms`), which takes about as long as indexing does rather than
-# a fixed delay after every operation.
-#
-# The website's coverage page (generate-test-support.mjs) only reads the
-# core/base reports for now; core/us-core TestReports are uploaded as build
-# artifacts but not yet surfaced there.
+# resource type) against both search backends. Search indexing is
+# asynchronous, so the runner waits before each search until its latest write
+# is indexed (`--index-wait-ms`), which takes about as long as indexing does
+# rather than a fixed delay after every operation.
 #
 # Called by test_e2e.yml, which builds the binary this downloads and deploys
 # the website with these TestReports.
@@ -122,12 +117,6 @@ jobs:
           ./target/debug/haste-health worker > worker.log 2>&1 &
         working-directory: ./backend
 
-      # The base FHIR definitions (SimpleQuantity, the core extensions) that
-      # US Core profile validation resolves, as in test_e2e_base.yml.
-      - name: Migrate artifacts
-        run: ./target/debug/haste-health admin migrate artifacts
-        working-directory: ./backend
-
       - name: Set up tenant and client
         run: |
           ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
@@ -135,12 +124,10 @@ jobs:
           ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
-      # The artifacts load in the background and profile validation finds them
-      # through search. The client's access policy is found through search too
-      # when a token is issued, and the CLI caches its token. A token issued
-      # before the worker indexes the policy carries none, and every request
-      # with it is denied, so wait before the first authenticated call (the
-      # check below).
+      # The client's access policy is found through search when a token is
+      # issued, and the CLI caches its token. A token issued before the worker
+      # indexes the policy carries none, and every request with it is denied,
+      # so wait before the first authenticated call (the check below).
       - name: Wait for indexing
         run: bash .github/scripts/wait_for_indexing.sh 600
 
@@ -179,22 +166,6 @@ jobs:
         env:
           RUST_LOG: info
 
-      - name: Load US Core Profiles
-        run: node scripts/load_us_core.mjs
-        working-directory: ./backend
-
-      - name: Wait for US Core profiles to be indexed
-        run: bash .github/scripts/wait_for_indexing.sh 600
-
-      - name: Run US Core profile TestScripts
-        run: >-
-          ./target/debug/haste-health testscript run -i testscripts/core/us-core
-          -w 0 --index-wait-ms 30000
-          -o ${{ matrix.search-backend }}-us-core.json
-        working-directory: ./backend
-        env:
-          RUST_LOG: info
-
       # One TestReport bundle per backend, as the website's test coverage page
       # expects (frontend/packages/website: `pnpm generate test-support`).
       - name: Upload TestReports
@@ -203,14 +174,6 @@ jobs:
         with:
           name: core-testreports-${{ matrix.search-backend }}
           path: backend/${{ matrix.search-backend }}.json
-          if-no-files-found: ignore
-
-      - name: Upload US Core TestReports
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: core-testreports-${{ matrix.search-backend }}-us-core
-          path: backend/${{ matrix.search-backend }}-us-core.json
           if-no-files-found: ignore
 
       - name: Upload server logs

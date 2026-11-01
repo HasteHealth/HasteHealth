@@ -1,6 +1,6 @@
 ---
 title: US Core
-description: Haste Health's results writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile.
+description: Haste Health's results writing every US Core example resource with its US Core profile claimed, so the server validates it against the profile, plus a versioned conformance TestScript per US Core profile.
 sidebar_position: 2
 hide_table_of_contents: true
 ---
@@ -22,8 +22,16 @@ publishes with its profile claimed, so a passing TestScript means the server
 validated a conformant resource and stored it. The US Core Patient TestScript
 also checks that a Patient breaking the profile is refused.
 
-The searches, reads and must-support checks US Core asks of a server run in the
-[ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US Core 7).
+Each US Core profile also has a conformance TestScript for one US Core version,
+kept in a directory named for that version (for example
+`backend/testscripts/us-core/9.0.0`). It writes a resource that fills the
+profile's must-support elements and fixed slice values, reads it back, and runs
+the search parameters US Core adds to base FHIR. Its `TestScript.metadata`
+links the profile and names the versioned US Core server CapabilityStatement.
+
+The full set of searches, reads and must-support checks US Core asks of a server
+run in the [ONC (g)(10) suite](./onc-g10.mdx), as its single patient API (US
+Core 7).
 
 <SuiteLastVerified suite="us-core" />
 
@@ -35,6 +43,7 @@ The searches, reads and must-support checks US Core asks of a server run in the
 
 ## Every TestScript
 
-Grouped by the resource type each example writes.
+Examples are grouped by the resource type they write, and the profile
+conformance TestScripts by US Core version.
 
 <SuiteReportTable suite="us-core" />

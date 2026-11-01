@@ -1,37 +1,55 @@
 {
-    "id": "us-core-us-core-device",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-device",
-    "title": "US Core us-core-device",
-    "name": "US Core us-core-device",
+    "id": "us-core-9.0.0-procedure",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-procedure",
+    "title": "US Core 9.0.0 Procedure Profile",
+    "name": "US Core 9.0.0 us-core-procedure",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-device.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-procedure.html",
+                "description": "US Core Procedure Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Procedure Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "udiCarrier": [
-                {
-                    "deviceIdentifier": "example",
-                    "carrierHRF": "example"
-                }
-            ],
-            "type": {
+            "status": "preparation",
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "code": {
                 "text": "example"
             },
-            "patient": {
-                "reference": "Patient/example"
+            "encounter": {
+                "reference": "Encounter/example"
             },
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-device-test"
+                        "code": "us-core-9.0.0-procedure-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Device"
+            "resourceType": "Procedure"
         }
     ],
     "fixture": [
@@ -47,7 +65,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Device satisfies profile",
+            "name": "Procedure satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -67,14 +85,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Device",
+                        "resource": "Procedure",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Device",
+                        "resource": "Procedure",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -115,9 +133,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Device.udiCarrier.deviceIdentifier.exists()",
+                        "expression": "Procedure.status.exists()",
                         "warningOnly": false,
-                        "label": "has-udicarrier-deviceidentifier",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -135,9 +153,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Device.udiCarrier.carrierHRF.exists()",
+                        "expression": "Procedure.code.exists()",
                         "warningOnly": false,
-                        "label": "has-udicarrier-carrierhrf",
+                        "label": "has-code",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -155,9 +173,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Device.type.exists()",
+                        "expression": "Procedure.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-type",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -175,9 +193,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Device.patient.exists()",
+                        "expression": "Procedure.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-patient",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -195,7 +213,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Device.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-device')",
+                        "expression": "Procedure.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -224,9 +242,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Device",
-                    "params": "_tag=us-core-device-test",
-                    "description": "Delete Device resources created in test.",
+                    "resource": "Procedure",
+                    "params": "_tag=us-core-9.0.0-procedure-test",
+                    "description": "Delete Procedure resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

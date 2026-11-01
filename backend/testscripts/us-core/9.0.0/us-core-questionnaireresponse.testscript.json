@@ -1,61 +1,59 @@
 {
-    "id": "us-core-us-core-location",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-location",
-    "title": "US Core us-core-location",
-    "name": "US Core us-core-location",
+    "id": "us-core-9.0.0-questionnaireresponse",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-questionnaireresponse",
+    "title": "US Core 9.0.0 QuestionnaireResponse Profile",
+    "name": "US Core 9.0.0 us-core-questionnaireresponse",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-location.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-questionnaireresponse.html",
+                "description": "US Core QuestionnaireResponse Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core QuestionnaireResponse Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "identifier": [
-                {
-                    "value": "example"
-                }
-            ],
-            "status": "active",
-            "name": "example",
-            "type": [
-                {
-                    "text": "example",
-                    "coding": [
-                        {
-                            "system": "http://example.org/codes",
-                            "code": "example"
-                        }
-                    ]
-                }
-            ],
-            "telecom": [
-                {
-                    "system": "email",
-                    "value": "example@example.org"
-                }
-            ],
-            "address": {
-                "text": "Example",
-                "line": [
-                    "example"
-                ],
-                "city": "example",
-                "state": "example",
-                "postalCode": "example"
+            "status": "in-progress",
+            "questionnaire": "http://example.org/fhir/StructureDefinition/example",
+            "subject": {
+                "reference": "Patient/example"
             },
-            "managingOrganization": {
-                "reference": "Organization/example"
+            "authored": "2020-01-01T00:00:00Z",
+            "author": {
+                "reference": "Device/example"
             },
+            "item": [
+                {
+                    "linkId": "example"
+                }
+            ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-location-test"
+                        "code": "us-core-9.0.0-questionnaireresponse-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Location"
+            "resourceType": "QuestionnaireResponse"
         }
     ],
     "fixture": [
@@ -71,7 +69,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Location satisfies profile",
+            "name": "QuestionnaireResponse satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -91,14 +89,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Location",
+                        "resource": "QuestionnaireResponse",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Location",
+                        "resource": "QuestionnaireResponse",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -139,9 +137,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.identifier.exists()",
+                        "expression": "QuestionnaireResponse.questionnaire.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier",
+                        "label": "has-questionnaire",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -159,7 +157,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.status.exists()",
+                        "expression": "QuestionnaireResponse.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -179,9 +177,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.name.exists()",
+                        "expression": "QuestionnaireResponse.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-name",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -199,9 +197,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.type.exists()",
+                        "expression": "QuestionnaireResponse.authored.exists()",
                         "warningOnly": false,
-                        "label": "has-type",
+                        "label": "has-authored",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -219,9 +217,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.type.coding.exists()",
+                        "expression": "QuestionnaireResponse.author.exists()",
                         "warningOnly": false,
-                        "label": "has-type-coding",
+                        "label": "has-author",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -239,9 +237,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.telecom.exists()",
+                        "expression": "QuestionnaireResponse.item.linkId.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom",
+                        "label": "has-item-linkid",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -259,127 +257,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Location.address.exists()",
-                        "warningOnly": false,
-                        "label": "has-address",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.address.line.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-line",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.address.city.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-city",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.address.state.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-state",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.address.postalCode.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-postalcode",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.managingOrganization.exists()",
-                        "warningOnly": false,
-                        "label": "has-managingorganization",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Location.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-location')",
+                        "expression": "QuestionnaireResponse.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -408,9 +286,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Location",
-                    "params": "_tag=us-core-location-test",
-                    "description": "Delete Location resources created in test.",
+                    "resource": "QuestionnaireResponse",
+                    "params": "_tag=us-core-9.0.0-questionnaireresponse-test",
+                    "description": "Delete QuestionnaireResponse resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

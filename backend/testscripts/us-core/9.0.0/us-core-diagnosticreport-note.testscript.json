@@ -1,55 +1,81 @@
 {
-    "id": "us-core-us-core-adi-documentreference",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-adi-documentreference",
-    "title": "US Core us-core-adi-documentreference",
-    "name": "US Core us-core-adi-documentreference",
+    "id": "us-core-9.0.0-diagnosticreport-note",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-diagnosticreport-note",
+    "title": "US Core 9.0.0 DiagnosticReport Profile for Report and Note Exchange",
+    "name": "US Core 9.0.0 us-core-diagnosticreport-note",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-diagnosticreport-note.html",
+                "description": "US Core DiagnosticReport Profile for Report and Note Exchange (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core DiagnosticReport Profile for Report and Note Exchange",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "status": "current",
-            "content": [
-                {
-                    "attachment": {
-                        "contentType": "text/plain",
-                        "data": "WA=="
-                    },
-                    "format": {
-                        "system": "http://example.org/codes",
-                        "code": "example"
-                    }
-                }
-            ],
-            "identifier": [
-                {
-                    "value": "example"
-                }
-            ],
-            "type": {
+            "status": "registered",
+            "code": {
                 "text": "example"
             },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "LP29684-5"
+                        }
+                    ]
+                }
+            ],
             "subject": {
                 "reference": "Patient/example"
             },
-            "date": "2020-01-01T00:00:00Z",
-            "author": [
+            "encounter": {
+                "reference": "Encounter/example"
+            },
+            "issued": "2020-01-01T00:00:00Z",
+            "performer": [
                 {
                     "reference": "Practitioner/example"
                 }
             ],
+            "resultsInterpreter": [
+                {
+                    "reference": "Practitioner/example"
+                }
+            ],
+            "result": [
+                {
+                    "reference": "Observation/example"
+                }
+            ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-adi-documentreference-test"
+                        "code": "us-core-9.0.0-diagnosticreport-note-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "DocumentReference"
+            "resourceType": "DiagnosticReport"
         }
     ],
     "fixture": [
@@ -65,7 +91,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "DocumentReference satisfies profile",
+            "name": "DiagnosticReport satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -85,14 +111,14 @@
                                 ]
                             }
                         ],
-                        "resource": "DocumentReference",
+                        "resource": "DiagnosticReport",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "DocumentReference",
+                        "resource": "DiagnosticReport",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -133,9 +159,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.identifier.exists()",
+                        "expression": "DiagnosticReport.category.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier",
+                        "label": "has-category",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -153,7 +179,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.status.exists()",
+                        "expression": "DiagnosticReport.status.exists()",
                         "warningOnly": false,
                         "label": "has-status",
                         "operator": "equals",
@@ -173,9 +199,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.type.exists()",
+                        "expression": "DiagnosticReport.code.exists()",
                         "warningOnly": false,
-                        "label": "has-type",
+                        "label": "has-code",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -193,7 +219,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.subject.exists()",
+                        "expression": "DiagnosticReport.subject.exists()",
                         "warningOnly": false,
                         "label": "has-subject",
                         "operator": "equals",
@@ -213,9 +239,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.date.exists()",
+                        "expression": "DiagnosticReport.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-date",
+                        "label": "has-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -233,9 +259,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.author.exists()",
+                        "expression": "DiagnosticReport.issued.exists()",
                         "warningOnly": false,
-                        "label": "has-author",
+                        "label": "has-issued",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -253,9 +279,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.content.format.exists()",
+                        "expression": "DiagnosticReport.performer.exists()",
                         "warningOnly": false,
-                        "label": "has-content-format",
+                        "label": "has-performer",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -273,7 +299,47 @@
                 },
                 {
                     "assert": {
-                        "expression": "DocumentReference.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference')",
+                        "expression": "DiagnosticReport.resultsInterpreter.exists()",
+                        "warningOnly": false,
+                        "label": "has-resultsinterpreter",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DiagnosticReport.result.exists()",
+                        "warningOnly": false,
+                        "label": "has-result",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DiagnosticReport.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -302,9 +368,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "DocumentReference",
-                    "params": "_tag=us-core-adi-documentreference-test",
-                    "description": "Delete DocumentReference resources created in test.",
+                    "resource": "DiagnosticReport",
+                    "params": "_tag=us-core-9.0.0-diagnosticreport-note-test",
+                    "description": "Delete DiagnosticReport resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

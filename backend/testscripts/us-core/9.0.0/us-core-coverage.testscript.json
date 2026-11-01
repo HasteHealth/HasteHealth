@@ -1,51 +1,81 @@
 {
-    "id": "us-core-us-core-organization",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-organization",
-    "title": "US Core us-core-organization",
-    "name": "US Core us-core-organization",
+    "id": "us-core-9.0.0-coverage",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-coverage",
+    "title": "US Core 9.0.0 Coverage Profile",
+    "name": "US Core 9.0.0 us-core-coverage",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-coverage.html",
+                "description": "US Core Coverage Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Coverage Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
+            "status": "active",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
             "identifier": [
                 {
-                    "system": "http://example.org/fhir/example",
-                    "value": "example"
+                    "value": "example",
+                    "type": {
+                        "text": "example"
+                    }
                 }
             ],
-            "active": true,
-            "name": "example",
-            "telecom": [
+            "type": {
+                "text": "example"
+            },
+            "subscriberId": "example",
+            "relationship": {
+                "text": "example"
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "class": [
                 {
-                    "system": "phone",
-                    "value": "example"
-                }
-            ],
-            "address": [
-                {
-                    "text": "Example",
-                    "line": [
-                        "example"
-                    ],
-                    "city": "example",
-                    "state": "example",
-                    "postalCode": "example",
-                    "country": "example"
+                    "type": {
+                        "text": "example"
+                    },
+                    "value": "example",
+                    "name": "example"
                 }
             ],
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-organization-test"
+                        "code": "us-core-9.0.0-coverage-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Organization"
+            "resourceType": "Coverage"
         }
     ],
     "fixture": [
@@ -61,7 +91,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Organization satisfies profile",
+            "name": "Coverage satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -81,14 +111,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Organization",
+                        "resource": "Coverage",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Organization",
+                        "resource": "Coverage",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -129,7 +159,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.identifier.exists()",
+                        "expression": "Coverage.identifier.exists()",
                         "warningOnly": false,
                         "label": "has-identifier",
                         "operator": "equals",
@@ -149,9 +179,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.identifier.system.exists()",
+                        "expression": "Coverage.identifier.type.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-system",
+                        "label": "has-identifier-type",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -169,9 +199,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.identifier.value.exists()",
+                        "expression": "Coverage.status.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-value",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -189,9 +219,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.active.exists()",
+                        "expression": "Coverage.type.exists()",
                         "warningOnly": false,
-                        "label": "has-active",
+                        "label": "has-type",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -209,9 +239,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.name.exists()",
+                        "expression": "Coverage.subscriberId.exists()",
                         "warningOnly": false,
-                        "label": "has-name",
+                        "label": "has-subscriberid",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -229,9 +259,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.telecom.exists()",
+                        "expression": "Coverage.beneficiary.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom",
+                        "label": "has-beneficiary",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -249,9 +279,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.telecom.system.exists()",
+                        "expression": "Coverage.relationship.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-system",
+                        "label": "has-relationship",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -269,9 +299,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.telecom.value.exists()",
+                        "expression": "Coverage.period.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-value",
+                        "label": "has-period",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -289,9 +319,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.address.exists()",
+                        "expression": "Coverage.payor.exists()",
                         "warningOnly": false,
-                        "label": "has-address",
+                        "label": "has-payor",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -309,9 +339,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.address.line.exists()",
+                        "expression": "Coverage.class.value.exists()",
                         "warningOnly": false,
-                        "label": "has-address-line",
+                        "label": "has-class-value",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -329,9 +359,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.address.city.exists()",
+                        "expression": "Coverage.class.value.exists()",
                         "warningOnly": false,
-                        "label": "has-address-city",
+                        "label": "has-class-value",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -349,9 +379,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.address.state.exists()",
+                        "expression": "Coverage.class.name.exists()",
                         "warningOnly": false,
-                        "label": "has-address-state",
+                        "label": "has-class-name",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -369,47 +399,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Organization.address.postalCode.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-postalcode",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Organization.address.country.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-country",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Organization.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization')",
+                        "expression": "Coverage.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -438,9 +428,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Organization",
-                    "params": "_tag=us-core-organization-test",
-                    "description": "Delete Organization resources created in test.",
+                    "resource": "Coverage",
+                    "params": "_tag=us-core-9.0.0-coverage-test",
+                    "description": "Delete Coverage resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

@@ -1,65 +1,95 @@
 {
-    "id": "us-core-us-core-patient",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-patient",
-    "title": "US Core us-core-patient",
-    "name": "US Core us-core-patient",
+    "id": "us-core-9.0.0-documentreference",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-documentreference",
+    "title": "US Core 9.0.0 DocumentReference Profile",
+    "name": "US Core 9.0.0 us-core-documentreference",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-documentreference.html",
+                "description": "US Core DocumentReference Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core DocumentReference Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
-            "identifier": [
+            "status": "current",
+            "content": [
                 {
-                    "value": "example",
-                    "system": "http://example.org/fhir/example"
-                }
-            ],
-            "name": [
-                {
-                    "family": "example",
-                    "given": [
-                        "example"
-                    ]
-                }
-            ],
-            "telecom": [
-                {
-                    "system": "phone",
-                    "value": "example",
-                    "use": "home"
-                }
-            ],
-            "birthDate": "2020-01-01",
-            "address": [
-                {
-                    "text": "Example",
-                    "line": [
-                        "example"
-                    ],
-                    "city": "example",
-                    "state": "example",
-                    "postalCode": "example"
-                }
-            ],
-            "communication": [
-                {
-                    "language": {
-                        "text": "example"
+                    "attachment": {
+                        "contentType": "text/plain",
+                        "data": "WA=="
+                    },
+                    "format": {
+                        "system": "http://example.org/codes",
+                        "code": "example"
                     }
                 }
             ],
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                            "code": "clinical-note"
+                        }
+                    ]
+                }
+            ],
+            "identifier": [
+                {
+                    "value": "example"
+                }
+            ],
+            "type": {
+                "text": "example"
+            },
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "date": "2020-01-01T00:00:00Z",
+            "author": [
+                {
+                    "reference": "Practitioner/example"
+                }
+            ],
+            "context": {
+                "encounter": [
+                    {
+                        "reference": "Encounter/example"
+                    }
+                ],
+                "period": {
+                    "start": "2020-01-01"
+                }
+            },
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference"
                 ],
                 "tag": [
                     {
-                        "code": "us-core-patient-test"
+                        "code": "us-core-9.0.0-documentreference-test"
                     }
                 ]
             },
             "id": "uscore-create-1",
-            "resourceType": "Patient"
+            "resourceType": "DocumentReference"
         }
     ],
     "fixture": [
@@ -75,7 +105,7 @@
     "test": [
         {
             "id": "01-conformance",
-            "name": "Patient satisfies profile",
+            "name": "DocumentReference satisfies profile",
             "action": [
                 {
                     "operation": {
@@ -95,14 +125,14 @@
                                 ]
                             }
                         ],
-                        "resource": "Patient",
+                        "resource": "DocumentReference",
                         "sourceId": "fixture-uscore-create-1",
                         "responseId": "create-response"
                     }
                 },
                 {
                     "assert": {
-                        "resource": "Patient",
+                        "resource": "DocumentReference",
                         "direction": "response",
                         "warningOnly": false,
                         "label": "create-ok",
@@ -143,7 +173,27 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.identifier.exists()",
+                        "expression": "DocumentReference.category.exists()",
+                        "warningOnly": false,
+                        "label": "has-category",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DocumentReference.identifier.exists()",
                         "warningOnly": false,
                         "label": "has-identifier",
                         "operator": "equals",
@@ -163,9 +213,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.identifier.system.exists()",
+                        "expression": "DocumentReference.status.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-system",
+                        "label": "has-status",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -183,9 +233,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.identifier.value.exists()",
+                        "expression": "DocumentReference.type.exists()",
                         "warningOnly": false,
-                        "label": "has-identifier-value",
+                        "label": "has-type",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -203,9 +253,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.name.exists()",
+                        "expression": "DocumentReference.subject.exists()",
                         "warningOnly": false,
-                        "label": "has-name",
+                        "label": "has-subject",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -223,9 +273,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.name.family.exists()",
+                        "expression": "DocumentReference.date.exists()",
                         "warningOnly": false,
-                        "label": "has-name-family",
+                        "label": "has-date",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -243,9 +293,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.name.given.exists()",
+                        "expression": "DocumentReference.author.exists()",
                         "warningOnly": false,
-                        "label": "has-name-given",
+                        "label": "has-author",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -263,9 +313,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.telecom.system.exists()",
+                        "expression": "DocumentReference.content.format.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-system",
+                        "label": "has-content-format",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -283,9 +333,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.telecom.value.exists()",
+                        "expression": "DocumentReference.context.encounter.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-value",
+                        "label": "has-context-encounter",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -303,9 +353,9 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.telecom.use.exists()",
+                        "expression": "DocumentReference.context.period.exists()",
                         "warningOnly": false,
-                        "label": "has-telecom-use",
+                        "label": "has-context-period",
                         "operator": "equals",
                         "value": "true",
                         "extension": [
@@ -323,147 +373,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.birthDate.exists()",
-                        "warningOnly": false,
-                        "label": "has-birthdate",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.address.exists()",
-                        "warningOnly": false,
-                        "label": "has-address",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.address.line.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-line",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.address.city.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-city",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.address.state.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-state",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.address.postalCode.exists()",
-                        "warningOnly": false,
-                        "label": "has-address-postalcode",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.communication.language.exists()",
-                        "warningOnly": false,
-                        "label": "has-communication-language",
-                        "operator": "equals",
-                        "value": "true",
-                        "extension": [
-                            {
-                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
-                                "extension": [
-                                    {
-                                        "url": "group",
-                                        "valueCode": "read"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Patient.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient')",
+                        "expression": "DocumentReference.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference')",
                         "warningOnly": false,
                         "label": "has-profile",
                         "operator": "equals",
@@ -492,9 +402,9 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "resource": "Patient",
-                    "params": "_tag=us-core-patient-test",
-                    "description": "Delete Patient resources created in test.",
+                    "resource": "DocumentReference",
+                    "params": "_tag=us-core-9.0.0-documentreference-test",
+                    "description": "Delete DocumentReference resources created in test.",
                     "encodeRequestUrl": false
                 }
             }

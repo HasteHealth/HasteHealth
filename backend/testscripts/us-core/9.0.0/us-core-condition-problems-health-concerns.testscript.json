@@ -1,10 +1,30 @@
 {
-    "id": "us-core-us-core-condition-problems-health-concerns",
-    "url": "https://haste.health/fhir/TestScript/us-core-us-core-condition-problems-health-concerns",
-    "title": "US Core us-core-condition-problems-health-concerns",
-    "name": "US Core us-core-condition-problems-health-concerns",
+    "id": "us-core-9.0.0-condition-problems-health-concerns",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-condition-problems-health-concerns",
+    "title": "US Core 9.0.0 Condition Problems and Health Concerns Profile",
+    "name": "US Core 9.0.0 us-core-condition-problems-health-concerns",
     "status": "active",
-    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns.",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-condition-problems-health-concerns.html",
+                "description": "US Core Condition Problems and Health Concerns Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core Condition Problems and Health Concerns Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
     "resourceType": "TestScript",
     "contained": [
         {
@@ -28,7 +48,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-condition-problems-health-concerns-test"
+                        "code": "us-core-9.0.0-condition-problems-health-concerns-test"
                     }
                 ]
             },
@@ -76,7 +96,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-condition-problems-health-concerns-test"
+                        "code": "us-core-9.0.0-condition-problems-health-concerns-test"
                     },
                     {
                         "code": "scope-asserted-date"
@@ -133,7 +153,7 @@
                 ],
                 "tag": [
                     {
-                        "code": "us-core-condition-problems-health-concerns-test"
+                        "code": "us-core-9.0.0-condition-problems-health-concerns-test"
                     },
                     {
                         "code": "scope-asserted-date"
@@ -479,7 +499,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -545,7 +565,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=ne2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=ne2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -611,7 +631,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=gt2022-04-30&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=gt2022-04-30&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -677,7 +697,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=gt2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=gt2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -743,7 +763,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=lt2022-05-02&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=lt2022-05-02&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -809,7 +829,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=lt2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=lt2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -875,7 +895,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=ge2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=ge2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -941,7 +961,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=ge2022-05-02&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=ge2022-05-02&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1007,7 +1027,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=le2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=le2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1073,7 +1093,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=le2022-04-30&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=le2022-04-30&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1139,7 +1159,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=sa2022-04-30&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=sa2022-04-30&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1205,7 +1225,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=sa2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=sa2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1271,7 +1291,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=eb2022-05-02&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=eb2022-05-02&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1337,7 +1357,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=eb2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=eb2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1403,7 +1423,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date=ap2022-05-01&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date=ap2022-05-01&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1492,7 +1512,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date:missing=true&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date:missing=true&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1558,7 +1578,7 @@
                             }
                         ],
                         "resource": "Condition",
-                        "params": "asserted-date:missing=false&_tag=us-core-condition-problems-health-concerns-test&_tag=scope-asserted-date"
+                        "params": "asserted-date:missing=false&_tag=us-core-9.0.0-condition-problems-health-concerns-test&_tag=scope-asserted-date"
                     }
                 },
                 {
@@ -1605,7 +1625,7 @@
                         "code": "deleteCondMultiple"
                     },
                     "resource": "Condition",
-                    "params": "_tag=us-core-condition-problems-health-concerns-test",
+                    "params": "_tag=us-core-9.0.0-condition-problems-health-concerns-test",
                     "description": "Delete Condition resources created in test.",
                     "encodeRequestUrl": false
                 }
