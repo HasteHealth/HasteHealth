@@ -99,7 +99,9 @@ impl Default for JobsConfig {
 #[serde(default)]
 pub struct PackagesConfig {
     /// The package registry a package named by `name@version` is fetched
-    /// from. It serves the npm-style API packages.fhir.org does.
+    /// from. It serves the npm-style API packages.fhir.org does and must be
+    /// an https URL; a redirect is followed only within it. Empty turns off
+    /// fetching, so packages can only be uploaded.
     pub registry_url: String,
     /// Packages not installed when another package depends on them: large
     /// terminology packages, mostly, that would add thousands of resources to

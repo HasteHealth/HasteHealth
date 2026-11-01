@@ -59,4 +59,16 @@ pub enum PackageError {
         diagnostic = "The package registry could not be reached: {arg0}"
     )]
     Registry(String),
+
+    #[error(
+        code = "not-supported",
+        diagnostic = "This server does not fetch packages from a registry. Upload the package instead."
+    )]
+    RegistryDisabled,
+
+    #[error(
+        code = "exception",
+        diagnostic = "The server's package registry setting (packages.registry_url) is not an https URL."
+    )]
+    InvalidRegistry,
 }

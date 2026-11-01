@@ -149,11 +149,13 @@ Packages are fetched from the registry by the server. The `[packages]` section o
 
 | Key | Default | What it does |
 | --- | --- | --- |
-| `packages.registry_url` | `https://packages.fhir.org` | The package registry. |
+| `packages.registry_url` | `https://packages.fhir.org` | The package registry. Set it to an empty string to turn off fetching, so packages can only be uploaded. |
 | `packages.skip_dependencies` | The five terminology packages above | Packages not installed as dependencies. |
 | `packages.max_package_bytes` | 64 MiB | Largest package download or upload, compressed. |
 | `packages.max_uncompressed_bytes` | 256 MiB | Largest package once unpacked. |
 | `packages.max_files` | 20000 | Most files in one package. |
+
+The server fetches from that registry and nowhere else. Callers name packages and never give a URL, including for the dependencies an uploaded package lists. The registry must be an `https` URL, and a redirect is followed only while it stays on the registry's scheme, host and port. A private mirror can take credentials in the URL (`https://user:password@mirror.example.org`); they are never shown in error messages.
 
 An uploaded `.tgz` travels inside the request, base64 encoded (a third larger), so it is also bound by `max_request_body_size` (4 MB by default). Most IGs are well under that (US Core 6.1.0 is 1.6 MB); install larger ones by name, or raise the limit.
 
