@@ -2262,14 +2262,45 @@ async fn run_test<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>
                 action.0
             )));
         };
+        let state = cur_state.clone();
         let result = run_action(
             client,
             ctx.clone(),
             cur_state,
-            action_pointer,
+            action_pointer.clone(),
             options.clone(),
         )
-        .await?;
+        .await;
+        let result = match result {
+            Ok(result) => result,
+            // An action that cannot run (a read of a fixture the failed create
+            // before it never produced, say) fails its test instead of ending
+            // the run with no report: the error becomes the action's result
+            // and the test's remaining actions are skipped.
+            Err(TestScriptError::ExecutionError(message)) => {
+                tracing::error!(
+                    path = action_pointer.path(),
+                    "TestScript action could not run: {message}"
+                );
+                state.lock().await.result = ReportResultCodes::fail();
+                test_report_test.action.push(TestReportTestAction {
+                    operation: Some(TestReportSetupActionOperation {
+                        result: ReportActionResultCodes::error(),
+                        message: Some(Box::new(FHIRMarkdown {
+                            value: Some(message),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                });
+                return Ok(TestResult {
+                    state,
+                    value: test_report_test,
+                });
+            }
+            Err(e) => return Err(e),
+        };
         cur_state = result.state;
         test_report_test.action.push(TestReportTestAction {
             operation: result.value.operation,
