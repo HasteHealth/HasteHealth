@@ -1096,6 +1096,1291 @@
                 }
             ],
             "id": "explanationofbenefit-type-other-7"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-8"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/not-this-profile",
+                    "value": "not-this-profile"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-9"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-10"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "preauthorization",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-11"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-12"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-13"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-14"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "sequence": 1,
+                    "productOrService": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-USCLS",
+                                "code": "example"
+                            }
+                        ]
+                    },
+                    "noteNumber": [
+                        1
+                    ]
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-15"
+        },
+        {
+            "resourceType": "ExplanationOfBenefit",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-explanationofbenefit-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+                                "code": "uc"
+                            }
+                        ]
+                    },
+                    "value": "example"
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                        "code": "institutional"
+                    }
+                ]
+            },
+            "use": "claim",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "billablePeriod": {
+                "start": "2020-01-01T00:00:00Z"
+            },
+            "created": "2020-01-01T00:00:00Z",
+            "insurer": {
+                "reference": "Organization/example"
+            },
+            "provider": {
+                "reference": "Organization/example"
+            },
+            "related": [
+                {
+                    "relationship": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship",
+                                "code": "prior"
+                            }
+                        ]
+                    },
+                    "reference": {
+                        "value": "example"
+                    }
+                }
+            ],
+            "payee": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType",
+                            "code": "beneficiary"
+                        }
+                    ]
+                },
+                "party": {
+                    "reference": "Organization/example"
+                }
+            },
+            "outcome": "queued",
+            "careTeam": [
+                {
+                    "sequence": 1,
+                    "provider": {
+                        "reference": "Organization/example"
+                    },
+                    "role": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "supportingInfo": [
+                {
+                    "sequence": 1,
+                    "category": {
+                        "coding": [
+                            {
+                                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType",
+                                "code": "example"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "insurance": [
+                {
+                    "focal": true,
+                    "coverage": {
+                        "reference": "Coverage/example"
+                    }
+                }
+            ],
+            "payment": {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                            "code": "paid"
+                        }
+                    ]
+                }
+            },
+            "processNote": [
+                {
+                    "number": 1
+                }
+            ],
+            "id": "profile-reject-16"
         }
     ],
     "fixture": [
@@ -1159,6 +2444,78 @@
             "id": "fixture-explanationofbenefit-type-other-7",
             "resource": {
                 "reference": "#explanationofbenefit-type-other-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-8",
+            "resource": {
+                "reference": "#profile-reject-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-9",
+            "resource": {
+                "reference": "#profile-reject-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-10",
+            "resource": {
+                "reference": "#profile-reject-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-11",
+            "resource": {
+                "reference": "#profile-reject-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-12",
+            "resource": {
+                "reference": "#profile-reject-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-13",
+            "resource": {
+                "reference": "#profile-reject-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-14",
+            "resource": {
+                "reference": "#profile-reject-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-15",
+            "resource": {
+                "reference": "#profile-reject-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-16",
+            "resource": {
+                "reference": "#profile-reject-16"
             },
             "autocreate": false,
             "autodelete": false
@@ -5331,6 +6688,789 @@
                                     {
                                         "url": "variant",
                                         "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-required-missing-identifier",
+            "name": "Refuses ExplanationOfBenefit without identifier",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.identifier (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-8",
+                        "responseId": "profile-reject-8-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.identifier')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-slice-miss-identifier-uniqueclaimid",
+            "name": "Refuses ExplanationOfBenefit whose identifier does not fill slice uniqueclaimid",
+            "description": "C4BB Explanation Of Benefit requires slice ExplanationOfBenefit.identifier:uniqueclaimid. A identifier value no slice matches leaves the slice empty and the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-9",
+                        "responseId": "profile-reject-9-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.identifier:uniqueclaimid')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-too-many-identifier-uniqueclaimid",
+            "name": "Refuses ExplanationOfBenefit with more than 1 identifier:uniqueclaimid",
+            "description": "C4BB Explanation Of Benefit allows at most 1 of slice ExplanationOfBenefit.identifier:uniqueclaimid. 2 are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-10",
+                        "responseId": "profile-reject-10-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Cardinality too high')).where(location.contains('/identifier')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-fixed-mismatch-use",
+            "name": "Refuses ExplanationOfBenefit whose use is not the fixed value",
+            "description": "C4BB Explanation Of Benefit fixes ExplanationOfBenefit.use (fixed or pattern value). Another value is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-11",
+                        "responseId": "profile-reject-11-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('does not match')).where(location.contains('/use')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-required-missing-billableperiod",
+            "name": "Refuses ExplanationOfBenefit without billablePeriod",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.billablePeriod (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-12",
+                        "responseId": "profile-reject-12-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.billablePeriod')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-required-missing-related-relationship",
+            "name": "Refuses ExplanationOfBenefit without related.relationship",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.related.relationship (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-13",
+                        "responseId": "profile-reject-13-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.related.relationship')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-required-missing-related-reference",
+            "name": "Refuses ExplanationOfBenefit without related.reference",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.related.reference (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-14",
+                        "responseId": "profile-reject-14-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.related.reference')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-required-missing-payee-type",
+            "name": "Refuses ExplanationOfBenefit without payee.type",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.payee.type (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-15",
+                        "responseId": "profile-reject-15-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.payee.type')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-required-missing-item",
+            "name": "Refuses ExplanationOfBenefit without item",
+            "description": "C4BB Explanation Of Benefit requires ExplanationOfBenefit.item (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ExplanationOfBenefit",
+                        "sourceId": "fixture-profile-reject-16",
+                        "responseId": "profile-reject-16-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('ExplanationOfBenefit.item')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }

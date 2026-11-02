@@ -182,6 +182,137 @@
             "recordedDate": "2020-01-01T00:00:00Z",
             "id": "condition-asserted-date-missing-3",
             "resourceType": "Condition"
+        },
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-condition-problems-health-concerns-test"
+                    }
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "unconfirmed"
+                    }
+                ]
+            },
+            "code": {
+                "text": "example"
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "id": "profile-reject-4",
+            "resourceType": "Condition"
+        },
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://example.org/not-this-profile",
+                            "code": "not-this-profile"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-condition-problems-health-concerns-test"
+                    }
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "unconfirmed"
+                    }
+                ]
+            },
+            "code": {
+                "text": "example"
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "id": "profile-reject-5",
+            "resourceType": "Condition"
+        },
+        {
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "problem-list-item"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-condition-problems-health-concerns-test"
+                    }
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "unconfirmed"
+                    }
+                ]
+            },
+            "recordedDate": "2020-01-01T00:00:00Z",
+            "id": "profile-reject-6",
+            "resourceType": "Condition"
         }
     ],
     "fixture": [
@@ -205,6 +336,30 @@
             "id": "fixture-condition-asserted-date-missing-3",
             "resource": {
                 "reference": "#condition-asserted-date-missing-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-4",
+            "resource": {
+                "reference": "#profile-reject-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-5",
+            "resource": {
+                "reference": "#profile-reject-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-6",
+            "resource": {
+                "reference": "#profile-reject-6"
             },
             "autocreate": false,
             "autodelete": false
@@ -1607,6 +1762,267 @@
                                     {
                                         "url": "variant",
                                         "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-required-missing-category",
+            "name": "Refuses Condition without category",
+            "description": "US Core Condition Problems and Health Concerns Profile requires Condition.category (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-profile-reject-4",
+                        "responseId": "profile-reject-4-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Condition.category')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-slice-miss-category-us-core",
+            "name": "Refuses Condition whose category does not fill slice us-core",
+            "description": "US Core Condition Problems and Health Concerns Profile requires slice Condition.category:us-core. A category value no slice matches leaves the slice empty and the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-profile-reject-5",
+                        "responseId": "profile-reject-5-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Condition.category:us-core')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-required-missing-code",
+            "name": "Refuses Condition without code",
+            "description": "US Core Condition Problems and Health Concerns Profile requires Condition.code (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Condition",
+                        "sourceId": "fixture-profile-reject-6",
+                        "responseId": "profile-reject-6-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Condition.code')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }
