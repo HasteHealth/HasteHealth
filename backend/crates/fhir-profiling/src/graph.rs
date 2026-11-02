@@ -12,6 +12,7 @@
 
 use std::{
     collections::HashMap,
+    iter,
     sync::{Arc, LazyLock, PoisonError, RwLock, Weak},
 };
 
@@ -368,15 +369,31 @@ fn find_target(
             link => return Err(TargetError::Link(link.clone())),
         }
     }
-    current
-        .lookup
-        .iter()
+    all_children(current)
         .filter(|child| {
-            let child = &graph_profile.compiled.nodes[**child];
+            let child = &graph_profile.compiled.nodes[*child];
             child.segment == *segment || child.field == *segment
         })
-        .find_map(|child| find_target(profiles, profile, *child, rest, depth + 1).ok())
+        .find_map(|child| find_target(profiles, profile, child, rest, depth + 1).ok())
         .ok_or(TargetError::NotFound)
+}
+
+/// Every child of `node` in snapshot order, the named slices included.
+///
+/// Validation walks `children` alone, since a slice applies only to the values
+/// its slicing group assigns to it, but a discriminator path may name an
+/// element inside a slice. Node ids are snapshot indices and a slicing group
+/// holds the slices that directly follow its root, so emitting each group's
+/// slices after their root restores the original order.
+fn all_children(node: &Node) -> impl Iterator<Item = NodeId> + '_ {
+    node.children.iter().flat_map(move |child| {
+        let slices = node
+            .slicings
+            .iter()
+            .find(|slicing| slicing.root == *child)
+            .map_or(&[][..], |slicing| slicing.slices.as_slice());
+        iter::once(*child).chain(slices.iter().map(|slice| slice.node))
+    })
 }
 
 /// Bounds how deeply value sets may include each other, so a cycle ends.

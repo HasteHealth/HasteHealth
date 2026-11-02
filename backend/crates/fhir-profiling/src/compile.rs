@@ -59,10 +59,9 @@ pub(crate) struct Node {
     /// carry a slicing are, so that their cardinality, type, fixed or pattern
     /// value and children apply to every value, whichever slice it falls in.
     pub children: Vec<NodeId>,
+    /// Slicing groups, each rooted at one of `children`; the named slices live
+    /// only here.
     pub slicings: Vec<Slicing>,
-    /// Every child in snapshot order, slicing roots and slices included, for
-    /// finding the element a discriminator path names.
-    pub lookup: Vec<NodeId>,
 }
 
 #[derive(Debug)]
@@ -203,7 +202,6 @@ pub(crate) fn compile(sd: &StructureDefinition) -> Result<CompiledProfile, Compi
                 }),
                 children: plain,
                 slicings,
-                lookup: kids.clone(),
             }
         })
         .collect();
