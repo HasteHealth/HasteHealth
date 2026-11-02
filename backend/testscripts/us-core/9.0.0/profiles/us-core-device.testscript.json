@@ -52,6 +52,84 @@
             },
             "id": "uscore-create-1",
             "resourceType": "Device"
+        },
+        {
+            "udiCarrier": [
+                {
+                    "deviceIdentifier": "example",
+                    "carrierHRF": "example"
+                },
+                {
+                    "deviceIdentifier": "example",
+                    "carrierHRF": "example"
+                }
+            ],
+            "type": {
+                "text": "example"
+            },
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-device-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-2",
+            "resourceType": "Device"
+        },
+        {
+            "udiCarrier": [
+                {
+                    "carrierHRF": "example"
+                }
+            ],
+            "type": {
+                "text": "example"
+            },
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-device-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-3",
+            "resourceType": "Device"
+        },
+        {
+            "udiCarrier": [
+                {
+                    "deviceIdentifier": "example",
+                    "carrierHRF": "example"
+                }
+            ],
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-device"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-device-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-4",
+            "resourceType": "Device"
         }
     ],
     "fixture": [
@@ -59,6 +137,30 @@
             "id": "fixture-uscore-create-1",
             "resource": {
                 "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-2",
+            "resource": {
+                "reference": "#profile-reject-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-3",
+            "resource": {
+                "reference": "#profile-reject-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-4",
+            "resource": {
+                "reference": "#profile-reject-4"
             },
             "autocreate": false,
             "autodelete": false
@@ -227,6 +329,267 @@
                                     {
                                         "url": "group",
                                         "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-too-many-udicarrier",
+            "name": "Refuses Device with more than 1 udiCarrier",
+            "description": "US Core Device Profile allows at most 1 Device.udiCarrier; base FHIR allows any number. 2 of them are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Device",
+                        "sourceId": "fixture-profile-reject-2",
+                        "responseId": "profile-reject-2-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Device.udiCarrier')).where(diagnostics.contains('Too many values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-required-missing-udicarrier-deviceidentifier",
+            "name": "Refuses Device without udiCarrier.deviceIdentifier",
+            "description": "US Core Device Profile requires Device.udiCarrier.deviceIdentifier (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Device",
+                        "sourceId": "fixture-profile-reject-3",
+                        "responseId": "profile-reject-3-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Device.udiCarrier.deviceIdentifier')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-required-missing-type",
+            "name": "Refuses Device without type",
+            "description": "US Core Device Profile requires Device.type (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Device",
+                        "sourceId": "fixture-profile-reject-4",
+                        "responseId": "profile-reject-4-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Device.type')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }

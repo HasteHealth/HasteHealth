@@ -71,6 +71,48 @@
             },
             "id": "uscore-create-1",
             "resourceType": "AllergyIntolerance"
+        },
+        {
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                        "code": "unconfirmed"
+                    }
+                ]
+            },
+            "reaction": [
+                {
+                    "manifestation": [
+                        {
+                            "text": "example"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-7.0.0-allergyintolerance-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-2",
+            "resourceType": "AllergyIntolerance"
         }
     ],
     "fixture": [
@@ -78,6 +120,14 @@
             "id": "fixture-uscore-create-1",
             "resource": {
                 "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-2",
+            "resource": {
+                "reference": "#profile-reject-2"
             },
             "autocreate": false,
             "autodelete": false
@@ -266,6 +316,93 @@
                                     {
                                         "url": "group",
                                         "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-required-missing-code",
+            "name": "Refuses AllergyIntolerance without code",
+            "description": "US Core AllergyIntolerance Profile requires AllergyIntolerance.code (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AllergyIntolerance",
+                        "sourceId": "fixture-profile-reject-2",
+                        "responseId": "profile-reject-2-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('AllergyIntolerance.code')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }

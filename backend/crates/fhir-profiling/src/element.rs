@@ -1,4 +1,4 @@
-use std::{iter, sync::Arc};
+use std::sync::Arc;
 
 use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
@@ -171,14 +171,13 @@ pub async fn validate_singular_element(
     // and the slices that belong to that descriptor (the slices).
     let slice_descriptors = get_slice_descriptors(elements, &children);
 
+    // The slices themselves are validated by their descriptor below. The
+    // element that carries the slicing is not among them: it is validated like
+    // any other child, so that its cardinality, type, fixed or pattern value
+    // and children apply to every value, whichever slice the value falls in.
     let slice_indices_set = slice_descriptors
         .iter()
-        .flat_map(|descriptor| {
-            descriptor
-                .slices
-                .iter()
-                .chain(iter::once(&descriptor.discriminator))
-        })
+        .flat_map(|descriptor| descriptor.slices.iter())
         .copied()
         .collect::<std::collections::HashSet<usize>>();
 
@@ -225,7 +224,7 @@ pub async fn validate_singular_element(
         ));
     }
 
-    // Loop through all children that are not a part of the slice.
+    // Every child that is not a slice, the slicing roots included.
     for child in children
         .iter()
         .filter(|child_index| !slice_indices_set.contains(child_index))
