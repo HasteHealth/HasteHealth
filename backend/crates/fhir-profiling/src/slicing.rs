@@ -231,6 +231,29 @@ fn downcast<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
     value.as_any().downcast_ref()
 }
 
+/// How deeply value sets may include each other.
+const MAX_VALUE_SET_DEPTH: usize = 8;
+
+/// How many value sets one expansion may read in all; a broad chain of
+/// includes multiplies at every level.
+const MAX_VALUE_SETS_READ: usize = 512;
+
+/// One expansion of a value set's includes: the value sets it may still read
+/// and the chain of includes it is following.
+pub(crate) struct ValueSetWalk {
+    remaining: usize,
+    chain: Vec<String>,
+}
+
+impl Default for ValueSetWalk {
+    fn default() -> Self {
+        Self {
+            remaining: MAX_VALUE_SETS_READ,
+            chain: Vec::new(),
+        }
+    }
+}
+
 /// `None` when the value set at `url`, or one it includes, cannot be resolved.
 /// Every resource read goes into `sources`.
 ///
@@ -240,12 +263,21 @@ fn downcast<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
 pub(crate) async fn value_set_codes(
     resolver: &impl CanonicalResolver,
     url: &str,
-    depth: u8,
+    walk: &mut ValueSetWalk,
     sources: &mut Vec<Weak<Resource>>,
 ) -> Result<Option<ValueSetCodes>, OperationOutcomeError> {
-    let Some(depth) = depth.checked_sub(1) else {
+    // A value set that includes itself, directly or through others, adds
+    // nothing the outer expansion does not already hold.
+    if walk.chain.iter().any(|seen| seen == url) {
+        return Ok(Some(ValueSetCodes::default()));
+    }
+    if walk.chain.len() >= MAX_VALUE_SET_DEPTH {
+        return Ok(None);
+    }
+    let Some(remaining) = walk.remaining.checked_sub(1) else {
         return Ok(None);
     };
+    walk.remaining = remaining;
     let resource = resolver.resolve(ResourceType::ValueSet, url).await?;
     let Some(resource) = resource else {
         return Ok(None);
@@ -258,8 +290,11 @@ pub(crate) async fn value_set_codes(
         return Ok(Some(ValueSetCodes::default()));
     };
     let exclude = compose.exclude.as_deref().unwrap_or_default();
-    let include = compose_rules(resolver, &compose.include, depth, sources).await?;
-    let exclude = compose_rules(resolver, exclude, depth, sources).await?;
+    walk.chain.push(url.to_string());
+    let include = compose_rules(resolver, &compose.include, walk, sources).await;
+    let exclude = compose_rules(resolver, exclude, walk, sources).await;
+    walk.chain.pop();
+    let (include, exclude) = (include?, exclude?);
     Ok(include
         .zip(exclude)
         .map(|(include, exclude)| ValueSetCodes { include, exclude }))
@@ -268,7 +303,7 @@ pub(crate) async fn value_set_codes(
 async fn compose_rules(
     resolver: &impl CanonicalResolver,
     rules: &[ValueSetComposeInclude],
-    depth: u8,
+    walk: &mut ValueSetWalk,
     sources: &mut Vec<Weak<Resource>>,
 ) -> Result<Option<Vec<ComposeRule>>, OperationOutcomeError> {
     let mut compose_rules = Vec::with_capacity(rules.len());
@@ -280,7 +315,7 @@ async fn compose_rules(
             .flatten()
             .filter_map(|url| url.value.as_deref())
         {
-            let Some(value_set) = Box::pin(value_set_codes(resolver, url, depth, sources)).await?
+            let Some(value_set) = Box::pin(value_set_codes(resolver, url, walk, sources)).await?
             else {
                 return Ok(None);
             };

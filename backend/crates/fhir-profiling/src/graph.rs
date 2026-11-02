@@ -11,7 +11,7 @@
 //! can never match a different resource.
 
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     iter,
     sync::{Arc, LazyLock, PoisonError, RwLock, Weak},
 };
@@ -27,7 +27,7 @@ use crate::{
     compile::{
         CompileError, CompiledProfile, DiscriminatorKind, DiscriminatorPath, Node, NodeId, compile,
     },
-    slicing::{ValueSetCodes, value_set_codes},
+    slicing::{ValueSetCodes, ValueSetWalk, value_set_codes},
 };
 
 /// The closure of profiles one validation can reach, with the discriminator
@@ -203,6 +203,10 @@ pub(crate) async fn graph_for(
     Ok(graph)
 }
 
+/// How many distinct canonicals one graph may resolve: each is a resolver call
+/// and, when it resolves, a profile to link and match.
+const MAX_GRAPH_CANONICALS: usize = 512;
+
 async fn assemble(
     resolver: &impl CanonicalResolver,
     root: &Arc<Resource>,
@@ -214,6 +218,13 @@ async fn assemble(
         matchers: Vec::new(),
     }];
     let mut by_canonical: HashMap<String, Link> = HashMap::new();
+    // The root answers to its own canonical like every other profile does, so
+    // a profile that names itself is not added a second time.
+    if let Resource::StructureDefinition(sd) = root.as_ref()
+        && let Some(url) = sd.url.value.clone()
+    {
+        by_canonical.insert(url, Link::Profile(0));
+    }
 
     // Every profile reachable through `type.profile`, breadth first. A
     // canonical the resolver does not know, or that is not a usable
@@ -227,6 +238,12 @@ async fn assemble(
             let link = if let Some(link) = by_canonical.get(&canonical) {
                 link.clone()
             } else {
+                if by_canonical.len() >= MAX_GRAPH_CANONICALS {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::too_costly(),
+                        format!("Profile refers to more than {MAX_GRAPH_CANONICALS} profiles"),
+                    ));
+                }
                 let link = link(resolver, &canonical, &mut profiles, &mut sources).await?;
                 by_canonical.insert(canonical, link.clone());
                 link
@@ -288,10 +305,11 @@ async fn matchers(
             for slice in &slicing.slices {
                 debug_assert_eq!(matchers.len(), slice.matchers);
                 for discriminator in discriminators {
+                    let mut visited = HashSet::new();
                     let target = match &discriminator.path {
                         DiscriminatorPath::This => Ok((index, slice.node)),
                         DiscriminatorPath::Members(segments) => {
-                            find_target(profiles, index, slice.node, segments, 0)
+                            find_target(profiles, index, slice.node, segments, 0, &mut visited)
                         }
                         DiscriminatorPath::Expression(expression) => find_target(
                             profiles,
@@ -299,6 +317,7 @@ async fn matchers(
                             slice.node,
                             &expression_segments(expression),
                             0,
+                            &mut visited,
                         ),
                     };
                     let binding = match target {
@@ -335,6 +354,9 @@ fn expression_segments(expression: &str) -> Vec<String> {
 /// Deepest chain of elements and profiles a discriminator path may cross.
 const MAX_TARGET_DEPTH: usize = 32;
 
+/// A point of the search: a node of a profile with so many segments left.
+type SearchPoint = (usize, NodeId, usize);
+
 /// The element `segments` lead to from `node`: at each step a profile the
 /// element's type names is searched before the element's own children, as the
 /// element path search always has, and a profile that cannot be used stops the
@@ -345,11 +367,14 @@ fn find_target(
     node: NodeId,
     segments: &[String],
     depth: usize,
+    visited: &mut HashSet<SearchPoint>,
 ) -> Result<(usize, NodeId), TargetError> {
     let Some((segment, rest)) = segments.split_first() else {
         return Ok((profile, node));
     };
-    if depth > MAX_TARGET_DEPTH {
+    // Profiles may link in cycles, and a point the search has been through
+    // did not lead to the target, or the search would have ended there.
+    if depth > MAX_TARGET_DEPTH || !visited.insert((profile, node, segments.len())) {
         return Err(TargetError::NotFound);
     }
     let graph_profile = &profiles[profile];
@@ -362,7 +387,7 @@ fn find_target(
     {
         match &graph_profile.links[*slot] {
             Link::Profile(nested) => {
-                if let Ok(found) = find_target(profiles, *nested, 0, segments, depth + 1) {
+                if let Ok(found) = find_target(profiles, *nested, 0, segments, depth + 1, visited) {
                     return Ok(found);
                 }
             }
@@ -374,7 +399,7 @@ fn find_target(
             let child = &graph_profile.compiled.nodes[*child];
             child.segment == *segment || child.field == *segment
         })
-        .find_map(|child| find_target(profiles, profile, child, rest, depth + 1).ok())
+        .find_map(|child| find_target(profiles, profile, child, rest, depth + 1, visited).ok())
         .ok_or(TargetError::NotFound)
 }
 
@@ -395,9 +420,6 @@ fn all_children(node: &Node) -> impl Iterator<Item = NodeId> + '_ {
         iter::once(*child).chain(slices.iter().map(|slice| slice.node))
     })
 }
-
-/// Bounds how deeply value sets may include each other, so a cycle ends.
-const MAX_VALUE_SET_DEPTH: u8 = 8;
 
 /// For a `value` discriminator on a slice defined by its binding alone (no
 /// `fixed[x]` or `pattern[x]`), the codes that binding allows. Only a required
@@ -426,7 +448,7 @@ async fn binding_codes(
                 entry
             } else {
                 let mut read = Vec::new();
-                let codes = value_set_codes(resolver, url, MAX_VALUE_SET_DEPTH, &mut read)
+                let codes = value_set_codes(resolver, url, &mut ValueSetWalk::default(), &mut read)
                     .await?
                     .map(Arc::new);
                 let entry = Arc::new(ValueSetEntry {

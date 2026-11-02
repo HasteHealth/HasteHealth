@@ -32,6 +32,10 @@ enum Segment<'g> {
 struct State<'g> {
     location: Vec<Segment<'g>>,
     issues: Vec<OperationOutcomeIssue>,
+    /// The profiles a value is being validated against through `type.profile`,
+    /// as `(profile, value address)` pairs, so a profile that names itself, or
+    /// a cycle of profiles, is applied to a value once.
+    applied: Vec<(usize, usize)>,
 }
 
 /// Validates `value` against the graph's root profile.
@@ -48,6 +52,7 @@ pub(crate) fn validate(
     let mut state = State {
         location: Vec::with_capacity(16),
         issues: Vec::new(),
+        applied: vec![(0, std::ptr::from_ref(value).addr())],
     };
     validate_node(graph, &mut state, 0, 0, Some(value))?;
     Ok(state.issues)
@@ -263,10 +268,20 @@ fn validate_types<'g>(
         return Ok(());
     };
     for slot in &matching.profiles {
-        match &graph.profiles[profile].links[*slot] {
-            Link::Profile(nested) => validate_node(graph, state, *nested, 0, Some(item))?,
+        let nested = match &graph.profiles[profile].links[*slot] {
+            Link::Profile(nested) => *nested,
             link => return Err(link.error()),
+        };
+        // The nested profile applies to this same value; one already being
+        // applied to it has nothing more to say.
+        let applied = (nested, std::ptr::from_ref(item).addr());
+        if state.applied.contains(&applied) {
+            continue;
         }
+        state.applied.push(applied);
+        let result = validate_node(graph, state, nested, 0, Some(item));
+        state.applied.pop();
+        result?;
     }
     Ok(())
 }
