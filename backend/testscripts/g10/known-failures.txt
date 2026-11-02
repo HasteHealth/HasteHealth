@@ -2,11 +2,6 @@
 # test_e2e_g10.yml does not run them; README.md explains each. Remove a line once
 # its TestScript passes. A scenario directory ending in / skips the whole scenario.
 
-# Patient-scoped tokens (scenario 1 and 9.22) are refused Device: the server treats Device as outside
-# the Patient compartment and not shared reference data, so every Device request answers 403.
-smart-v1-scopes/tests/g10-9.22.5.07-device-v1-access.testscript.json
-standalone-patient-app/tests/g10-1.7.07-device-access.testscript.json
-
 # Bulk Data: no $export operation, and GET operation invocations answer 501. The kick-off scripts
 # stop with an execution error when no Content-Location comes back.
 multi-patient-api/tests/g10-bulk-capability-statement.testscript.json
