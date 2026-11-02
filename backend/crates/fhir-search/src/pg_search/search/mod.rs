@@ -151,8 +151,11 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
     }
 
     // `ANDed` with the client's parameters like any other clause, so nothing in
-    // the URL can widen it.
-    if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
+    // the URL can widen them.
+    for any_of in options
+        .map(|options| options.filters.as_slice())
+        .unwrap_or_default()
+    {
         where_clauses.push(any_of_clause(&scope, any_of).await?);
     }
 
@@ -366,22 +369,31 @@ fn type_clause(types: &[ResourceType]) -> SqlClause {
     }
 }
 
-/// `(a) OR (b) OR ...` over `any_of`'s parameters, each built as it would be
-/// on its own. Empty is `FALSE`: a filter with no branch must fail closed.
+/// `(a AND b) OR (c) OR ...` over `any_of`'s branches, each parameter built
+/// as it would be on its own. Empty is `FALSE`: a filter with no branch must
+/// fail closed. A branch with no parameter is `TRUE`: nothing to match.
 async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
     scope: &SearchScope<'_, ParameterResolver>,
     any_of: &AnyOf,
 ) -> Result<SqlClause, OperationOutcomeError> {
     let mut branches = Vec::with_capacity(any_of.0.len());
     let mut params = Vec::new();
-    for param in &any_of.0 {
-        let clause = resource_clause(scope, param).await?;
-        branches.push(rebase_placeholders(
-            &clause.sql,
-            clause.params.len(),
-            params.len(),
-        ));
-        params.extend(clause.params);
+    for branch in &any_of.0 {
+        let mut conjuncts = Vec::with_capacity(branch.0.len());
+        for param in &branch.0 {
+            let clause = resource_clause(scope, param).await?;
+            conjuncts.push(rebase_placeholders(
+                &clause.sql,
+                clause.params.len(),
+                params.len(),
+            ));
+            params.extend(clause.params);
+        }
+        branches.push(match conjuncts.as_slice() {
+            [] => "TRUE".to_string(),
+            [only] => only.clone(),
+            _ => format!("({})", conjuncts.join(" AND ")),
+        });
     }
 
     let sql = if branches.is_empty() {

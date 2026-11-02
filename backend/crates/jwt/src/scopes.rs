@@ -292,11 +292,68 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
         }
     }
 }
+
+/// One `name=value` of a granular scope's query, as written: the search
+/// parameter and the value a resource must match on it.
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ScopeConstraint {
+    pub name: String,
+    pub value: String,
+}
+
+impl ScopeConstraint {
+    fn parse(pair: &str, scope: &str) -> Result<Self, OperationOutcomeError> {
+        match pair.split_once('=') {
+            Some((name, value)) if !name.is_empty() && !value.is_empty() => Ok(ScopeConstraint {
+                name: name.to_string(),
+                value: value.to_string(),
+            }),
+            _ => Err(OperationOutcomeError::error(
+                IssueType::not_supported(),
+                format!(
+                    "Invalid smart resource scope: '{scope}'. Expected 'param=value' after '?'."
+                ),
+            )),
+        }
+    }
+}
+
+/// A SMART resource scope: who it is for, which type, which permissions and,
+/// for a granular scope (`patient/Observation.rs?category=...`), the search
+/// parameters a resource must match to be reached. A scope with no
+/// constraints reaches every resource of its type.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct SMARTResourceScope {
     pub user: SmartResourceScopeUser,
     pub level: SmartResourceScopeLevel,
     pub permissions: SmartResourceScopePermissions,
+    /// The `?param=value&param=value` of a granular scope, in order; empty for
+    /// a plain scope. A resource is reached only if it matches every one.
+    pub constraints: Vec<ScopeConstraint>,
+}
+
+impl SMARTResourceScope {
+    /// Whether this scope is granular: narrowed to the resources that match
+    /// its search parameters.
+    #[must_use]
+    pub fn is_granular(&self) -> bool {
+        !self.constraints.is_empty()
+    }
+
+    /// Whether this scope reaches every resource `wanted` reaches, whatever
+    /// the permissions: the same context, a level that covers `wanted`'s,
+    /// and no constraint `wanted` lacks. A plain scope reaches every
+    /// resource of its type, so it covers each granular scope on it; a
+    /// granular scope covers one with the same constraints or more.
+    #[must_use]
+    pub fn reaches(&self, wanted: &Self) -> bool {
+        self.user == wanted.user
+            && self.level.covers(&wanted.level)
+            && self
+                .constraints
+                .iter()
+                .all(|constraint| wanted.constraints.contains(constraint))
+    }
 }
 
 impl From<SMARTResourceScope> for String {
@@ -346,7 +403,14 @@ impl From<SMARTResourceScope> for String {
             permissions_str.push('s');
         }
 
-        format!("{user_str}/{level_str}.{permissions_str}")
+        let mut text = format!("{user_str}/{level_str}.{permissions_str}");
+        for (index, constraint) in value.constraints.iter().enumerate() {
+            text.push(if index == 0 { '?' } else { '&' });
+            text.push_str(&constraint.name);
+            text.push('=');
+            text.push_str(&constraint.value);
+        }
+        text
     }
 }
 
@@ -392,7 +456,14 @@ impl TryFrom<&str> for SmartScope {
                 || value.starts_with("system/")
                 || value.starts_with("patient/") =>
             {
-                let parts: Vec<&str> = value.split('/').collect();
+                // A granular scope's query comes after the first `?`. The
+                // values can hold `/` and `.` (a code system URL), so the
+                // scope proper is only what precedes it.
+                let (scope, query) = match value.split_once('?') {
+                    Some((scope, query)) => (scope, Some(query)),
+                    None => (value, None),
+                };
+                let parts: Vec<&str> = scope.split('/').collect();
                 if parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
                         IssueType::not_supported(),
@@ -411,11 +482,31 @@ impl TryFrom<&str> for SmartScope {
 
                 let level = SmartResourceScopeLevel::try_from(permissions_parts[0])?;
                 let permissions = SmartResourceScopePermissions::try_from(permissions_parts[1])?;
+                let constraints = query
+                    .map(|query| {
+                        query
+                            .split('&')
+                            .map(|pair| ScopeConstraint::parse(pair, value))
+                            .collect::<Result<Vec<_>, _>>()
+                    })
+                    .transpose()?
+                    .unwrap_or_default();
+                // A search parameter belongs to a resource type; there is
+                // nothing for one to mean across all of them.
+                if !constraints.is_empty() && level == SmartResourceScopeLevel::AllResources {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::not_supported(),
+                        format!(
+                            "Invalid smart resource scope: '{value}'. Search parameters need a resource type, not '*'."
+                        ),
+                    ));
+                }
 
                 Ok(SmartScope::Resource(SMARTResourceScope {
                     user,
                     level,
                     permissions,
+                    constraints,
                 }))
             }
             _ => Err(OperationOutcomeError::error(
@@ -472,7 +563,10 @@ impl Scopes {
     /// is "Observation.r Observation.s", and scopes combine into a union of
     /// access. A permission never implies another (write does not imply
     /// read), so `patient/Medication.cud` does not cover `patient/Medication.r`.
-    /// Any other scope is covered only by itself.
+    /// A granular scope is covered by the plain scope on its type and by a
+    /// granular one with the same constraints (or fewer): see
+    /// [`SMARTResourceScope::reaches`]. Any other scope is covered only by
+    /// itself.
     #[must_use]
     pub fn covers_scope(&self, scope: &Scope) -> bool {
         let Scope::SMART(SmartScope::Resource(wanted)) = scope else {
@@ -480,9 +574,7 @@ impl Scopes {
         };
         let reaching = || {
             self.0.iter().filter_map(|held| match held {
-                Scope::SMART(SmartScope::Resource(held))
-                    if held.user == wanted.user && held.level.covers(&wanted.level) =>
-                {
+                Scope::SMART(SmartScope::Resource(held)) if held.reaches(wanted) => {
                     Some(&held.permissions)
                 }
                 _ => None,
@@ -570,7 +662,8 @@ mod tests {
                         SmartResourceScopePermission::Update,
                         SmartResourceScopePermission::Delete,
                         SmartResourceScopePermission::Search,
-                    ])
+                    ]),
+                    constraints: vec![],
                 })),
             ]),
         );
@@ -588,9 +681,71 @@ mod tests {
                         SmartResourceScopePermission::Create,
                         SmartResourceScopePermission::Update,
                         SmartResourceScopePermission::Delete,
-                    ])
+                    ]),
+                    constraints: vec![],
                 })),
             ]),
+        );
+    }
+
+    const LABORATORY: &str = "patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory";
+    const VITAL_SIGNS: &str = "patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs";
+
+    #[test]
+    fn granular_scope_parses_and_formats() {
+        let parsed = Scopes::try_from(LABORATORY).unwrap();
+        assert_eq!(
+            parsed,
+            Scopes(vec![Scope::SMART(SmartScope::Resource(
+                SMARTResourceScope {
+                    user: SmartResourceScopeUser::Patient,
+                    level: SmartResourceScopeLevel::ResourceType(ResourceType::Observation),
+                    permissions: SmartResourceScopePermissions::new(vec![
+                        SmartResourceScopePermission::Read,
+                        SmartResourceScopePermission::Search,
+                    ]),
+                    constraints: vec![ScopeConstraint {
+                        name: "category".to_string(),
+                        value:
+                            "http://terminology.hl7.org/CodeSystem/observation-category|laboratory"
+                                .to_string(),
+                    }],
+                }
+            ))])
+        );
+        assert_eq!(String::from(parsed), LABORATORY);
+
+        let two = "user/Observation.rs?category=laboratory&date=gt2020";
+        assert_eq!(String::from(Scopes::try_from(two).unwrap()), two);
+    }
+
+    #[test]
+    fn granular_scope_needs_param_value_pairs_and_a_type() {
+        assert!(Scopes::try_from("patient/Observation.rs?category").is_err());
+        assert!(Scopes::try_from("patient/Observation.rs?=laboratory").is_err());
+        assert!(Scopes::try_from("patient/Observation.rs?category=").is_err());
+        assert!(Scopes::try_from("patient/Observation.rs?").is_err());
+        assert!(Scopes::try_from("patient/*.rs?category=laboratory").is_err());
+    }
+
+    #[test]
+    fn plain_scope_covers_granular_not_the_reverse() {
+        let plain = Scopes::try_from("patient/Observation.rs").unwrap();
+        let laboratory = Scopes::try_from(LABORATORY).unwrap();
+        let wanted = &laboratory.0[0];
+        assert!(plain.covers_scope(wanted));
+        assert!(laboratory.covers_scope(wanted));
+        assert!(!laboratory.covers_scope(&plain.0[0]));
+        assert!(!Scopes::try_from(VITAL_SIGNS).unwrap().covers_scope(wanted));
+        // More constraints is narrower, so the one-constraint scope covers it.
+        let narrower = Scopes::try_from(format!("{LABORATORY}&date=gt2020").as_str()).unwrap();
+        assert!(laboratory.covers_scope(&narrower.0[0]));
+        assert!(!narrower.covers_scope(wanted));
+        // Permissions still have to be carried.
+        assert!(
+            !Scopes::try_from("patient/Observation.r")
+                .unwrap()
+                .covers_scope(wanted)
         );
     }
 

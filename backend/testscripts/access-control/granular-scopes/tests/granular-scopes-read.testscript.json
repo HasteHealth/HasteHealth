@@ -1,0 +1,397 @@
+{
+    "id": "access-control-granular-scopes-read",
+    "url": "https://haste.health/fhir/TestScript/access-control-granular-scopes-read",
+    "name": "Access Control Granular Scopes Read",
+    "title": "Granular scopes: reads",
+    "status": "active",
+    "description": "Run as the granular-scopes login. A resource matching one of the type's granular scopes is readable; one matching none reads as not found; a plain scope beside a granular one reaches every resource of the type.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acg-observation-lab",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "2093-3",
+                        "display": "Cholesterol [Mass/volume] in Serum or Plasma"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 180,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg/dL"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-observation-vital",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4",
+                        "display": "Heart rate"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 72,
+                "unit": "beats/minute",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-observation-survey",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "survey"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "44249-1",
+                        "display": "PHQ-9 quick depression assessment panel"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 4,
+                "unit": "{score}",
+                "system": "http://unitsofmeasure.org",
+                "code": "{score}"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-encounter-amb",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-encounter-imp",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP"
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-condition-encounter",
+            "resourceType": "Condition",
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "195662009",
+                        "display": "Acute viral pharyngitis"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acg-observation-lab",
+            "resource": {
+                "reference": "#acg-observation-lab"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-observation-vital",
+            "resource": {
+                "reference": "#acg-observation-vital"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-observation-survey",
+            "resource": {
+                "reference": "#acg-observation-survey"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-encounter-amb",
+            "resource": {
+                "reference": "#acg-encounter-amb"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-encounter-imp",
+            "resource": {
+                "reference": "#acg-encounter-imp"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-condition-encounter",
+            "resource": {
+                "reference": "#acg-condition-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read-inside",
+            "name": "A resource in a granted category is readable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acg-observation-lab",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The laboratory Observation is read",
+                        "expression": "Observation.id = 'acg-observation-lab'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acg-observation-vital",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The vital-signs Observation is read",
+                        "expression": "Observation.id = 'acg-observation-vital'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acg-encounter-amb",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The ambulatory Encounter is read",
+                        "expression": "Encounter.id = 'acg-encounter-amb'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read-outside",
+            "name": "A resource outside every granular scope reads as not found",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acg-observation-survey",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The survey Observation is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acg-encounter-imp",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The inpatient Encounter is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-read-plain-wins",
+            "name": "A plain scope beside a granular one makes every resource of the type readable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Condition",
+                        "targetId": "fixture-acg-condition-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The encounter-diagnosis Condition is read",
+                        "expression": "Condition.id = 'acg-condition-encounter'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

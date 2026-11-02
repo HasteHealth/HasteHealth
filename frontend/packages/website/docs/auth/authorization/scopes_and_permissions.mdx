@@ -148,6 +148,34 @@ patient/Condition.r
 ```
 Grants read-only access (no search) to Condition resources in patient context.
 
+### Granular Scopes
+
+A resource scope can be narrowed to the resources that match FHIR search parameters, with a query
+string after the permissions ([SMART App Launch 2.x, finer-grained resource
+constraints](https://hl7.org/fhir/smart-app-launch/STU2.2/scopes-and-launch-context.html#finer-grained-resource-constraints-using-search-parameters)):
+
+```
+patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory
+```
+Grants read and search access to the patient's laboratory Observations only. A search returns only
+the matching resources, whatever it asks for, and a read of a non-matching resource answers as if
+the resource did not exist.
+
+- Any search parameter of the resource type can be used, with the usual value syntax: `system|code`
+  tokens, comma-separated alternatives, modifiers. Several `&`-separated parameters in one scope
+  must all match.
+- Several granular scopes on one type combine with OR: `patient/Condition.rs?category=...|problem-list-item
+  patient/Condition.rs?category=...|encounter-diagnosis` reaches both categories.
+- A plain scope on the same type reaches every resource of the type, so beside it a granular scope
+  adds nothing: the broader scope wins, as for any other scopes.
+- A granular scope grants reads and searches only. Writes and history are refused under it, whatever
+  permissions it names, because a search parameter can bound what a search returns, not what is
+  written.
+- The query needs a resource type: `patient/*.rs?category=...` is rejected.
+
+A client application lists the granular scopes it may request in its `scope`, like any other scope,
+and the consent screen shows them as written. The token response's `scope` returns them unchanged.
+
 ### Launch Scopes
 
 Launch scopes are used in SMART App Launch workflows to establish context for EHR-integrated applications.

@@ -203,6 +203,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
                                 SmartResourceScopePermission::Delete,
                                 SmartResourceScopePermission::Search,
                             ]),
+                            constraints: vec![],
                         },
                     ))]),
                     fhir_user: None,
