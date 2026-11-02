@@ -58,6 +58,11 @@
                     "reference": "Practitioner/example"
                 }
             ],
+            "category": [
+                {
+                    "text": "example"
+                }
+            ],
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference"
@@ -99,6 +104,11 @@
                     "reference": "Practitioner/example"
                 }
             ],
+            "category": [
+                {
+                    "text": "example"
+                }
+            ],
             "meta": {
                 "profile": [
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference"
@@ -134,6 +144,9 @@
             "type": {
                 "text": "example"
             },
+            "subject": {
+                "reference": "Patient/example"
+            },
             "date": "2020-01-01T00:00:00Z",
             "author": [
                 {
@@ -151,6 +164,52 @@
                 ]
             },
             "id": "profile-reject-3",
+            "resourceType": "DocumentReference"
+        },
+        {
+            "status": "current",
+            "content": [
+                {
+                    "attachment": {
+                        "contentType": "text/plain",
+                        "data": "WA=="
+                    },
+                    "format": {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                }
+            ],
+            "identifier": [
+                {
+                    "value": "example"
+                }
+            ],
+            "type": {
+                "text": "example"
+            },
+            "date": "2020-01-01T00:00:00Z",
+            "author": [
+                {
+                    "reference": "Practitioner/example"
+                }
+            ],
+            "category": [
+                {
+                    "text": "example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-adi-documentreference-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-4",
             "resourceType": "DocumentReference"
         }
     ],
@@ -175,6 +234,14 @@
             "id": "fixture-profile-reject-3",
             "resource": {
                 "reference": "#profile-reject-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-4",
+            "resource": {
+                "reference": "#profile-reject-4"
             },
             "autocreate": false,
             "autodelete": false
@@ -391,6 +458,26 @@
                 },
                 {
                     "assert": {
+                        "expression": "DocumentReference.category.exists()",
+                        "warningOnly": false,
+                        "label": "has-category",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
                         "expression": "DocumentReference.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference')",
                         "warningOnly": false,
                         "label": "has-profile",
@@ -499,9 +586,9 @@
             ]
         },
         {
-            "id": "03-required-missing-subject",
-            "name": "Refuses DocumentReference without subject",
-            "description": "US Core ADI DocumentReference Profile requires DocumentReference.subject (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "id": "03-required-missing-category",
+            "name": "Refuses DocumentReference without category",
+            "description": "US Core ADI DocumentReference Profile requires DocumentReference.category (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
             "action": [
                 {
                     "operation": {
@@ -524,6 +611,93 @@
                         "resource": "DocumentReference",
                         "sourceId": "fixture-profile-reject-3",
                         "responseId": "profile-reject-3-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('DocumentReference.category')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-required-missing-subject",
+            "name": "Refuses DocumentReference without subject",
+            "description": "US Core ADI DocumentReference Profile requires DocumentReference.subject (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DocumentReference",
+                        "sourceId": "fixture-profile-reject-4",
+                        "responseId": "profile-reject-4-response"
                     }
                 },
                 {
