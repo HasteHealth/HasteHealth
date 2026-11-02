@@ -1,0 +1,25 @@
+{
+  "description": "The Patient compartment lists Device with no parameter, so a Device is never in a patient's compartment: `Patient/[id]/Device` finds nothing and a patient-level SMART scope refuses every Device request. A Device names its patient in `Device.patient` (the `patient` search parameter), which US Core implantable devices and ONC (g)(10) rely on. Link Device to the compartment through that parameter.",
+  "patches": [
+    {
+      "target": {
+        "resourceType": "CompartmentDefinition",
+        "id": "patient"
+      },
+      "operations": [
+        {
+          "op": "test",
+          "path": "/resource/34/code",
+          "value": "Device"
+        },
+        {
+          "op": "add",
+          "path": "/resource/34/param",
+          "value": [
+            "patient"
+          ]
+        }
+      ]
+    }
+  ]
+}

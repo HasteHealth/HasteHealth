@@ -4,7 +4,7 @@
     "name": "Access Control Patient Scopes Setup",
     "title": "Patient scopes: data and login",
     "status": "active",
-    "description": "Run as admin. Writes two patients, data in and out of ac-patient-a's compartment, and the login the tests use: a member User linked to ac-patient-a, a full-access policy, and a client allowed only patient/*.rs.",
+    "description": "Run as admin. Writes two patients, data in and out of ac-patient-a's compartment (including a Device per patient), and the login the tests use: a member User linked to ac-patient-a, a full-access policy, and a client allowed only patient/*.rs.",
     "resourceType": "TestScript",
     "contained": [
         {
@@ -141,6 +141,48 @@
                 "text": "Heart rate"
             },
             "subject": {
+                "reference": "Patient/ac-patient-b"
+            }
+        },
+        {
+            "id": "ac-device-a",
+            "resourceType": "Device",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "active",
+            "deviceName": [
+                {
+                    "name": "Access pump A",
+                    "type": "model-name"
+                }
+            ],
+            "patient": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-device-b",
+            "resourceType": "Device",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "active",
+            "deviceName": [
+                {
+                    "name": "Access pump B",
+                    "type": "model-name"
+                }
+            ],
+            "patient": {
                 "reference": "Patient/ac-patient-b"
             }
         },
@@ -293,6 +335,22 @@
             "id": "fixture-ac-observation-b",
             "resource": {
                 "reference": "#ac-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-device-a",
+            "resource": {
+                "reference": "#ac-device-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-device-b",
+            "resource": {
+                "reference": "#ac-device-b"
             },
             "autocreate": false,
             "autodelete": false
@@ -484,6 +542,45 @@
                     "assert": {
                         "description": "Observation/ac-observation-b is written",
                         "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Device",
+                        "targetId": "fixture-ac-device-a",
+                        "sourceId": "fixture-ac-device-a",
+                        "encodeRequestUrl": false,
+                        "description": "In the compartment through Device.patient, which has no param in R4's Patient CompartmentDefinition."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device/ac-device-a is written",
+                        "resource": "Device",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Device",
+                        "targetId": "fixture-ac-device-b",
+                        "sourceId": "fixture-ac-device-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Device/ac-device-b is written",
+                        "resource": "Device",
                         "warningOnly": false
                     }
                 },
