@@ -158,3 +158,73 @@ async fn two_race_extensions_exceed_the_profiled_slice_maximum() {
         }])
     );
 }
+
+/// The compiled profile is cached by the identity of the `StructureDefinition`
+/// the resolver hands out, so a replaced profile (a new `Arc`, as a new version
+/// in a store would be) is compiled afresh and its constraints apply at once.
+#[tokio::test]
+async fn a_replaced_profile_is_recompiled() {
+    use std::sync::Mutex;
+
+    const URL: &str = "http://example.org/StructureDefinition/identified-patient";
+
+    struct Replaceable(Mutex<Arc<Resource>>);
+
+    impl CanonicalResolver for Replaceable {
+        fn resolve(
+            &self,
+            _resource_type: ResourceType,
+            _canonical_url: &str,
+        ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send
+        {
+            std::future::ready(Ok(Some(self.0.lock().unwrap().clone())))
+        }
+    }
+
+    fn profile(identifier_min: u64) -> Arc<Resource> {
+        Arc::new(
+            serde_json::from_value(json!({
+                "resourceType": "StructureDefinition",
+                "id": "identified-patient",
+                "url": URL,
+                "name": "IdentifiedPatient",
+                "status": "active",
+                "kind": "resource",
+                "abstract": false,
+                "type": "Patient",
+                "derivation": "constraint",
+                "snapshot": {"element": [
+                    {"id": "Patient", "path": "Patient", "min": 0, "max": "*"},
+                    {"id": "Patient.identifier", "path": "Patient.identifier", "min": identifier_min, "max": "*", "type": [{"code": "Identifier"}]}
+                ]}
+            }))
+            .unwrap(),
+        )
+    }
+
+    async fn issues(resolver: &Arc<Replaceable>, patient: &Resource) -> usize {
+        validate_profile_by_url(FHIRProfileArguments::new(resolver.clone()), URL, patient)
+            .await
+            .unwrap()
+            .issue
+            .len()
+    }
+
+    let resolver = Arc::new(Replaceable(Mutex::new(profile(0))));
+    let patient: Resource =
+        serde_json::from_value(json!({"resourceType": "Patient", "name": [{"family": "Smith"}]}))
+            .unwrap();
+    assert_eq!(issues(&resolver, &patient).await, 0);
+    assert_eq!(
+        issues(&resolver, &patient).await,
+        0,
+        "served from the cache"
+    );
+
+    *resolver.0.lock().unwrap() = profile(1);
+    assert_eq!(
+        issues(&resolver, &patient).await,
+        1,
+        "the replaced profile requires an identifier"
+    );
+}

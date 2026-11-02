@@ -58,6 +58,16 @@ If the resolver does not know the URL, the outcome is empty and a warning is log
 
 Terminology bindings, FHIRPath invariants and the `maxLength`, `minValue` and `maxValue` constraints are not evaluated yet. The tests in `tests/slicing.rs` run the US Core profiles from `artifacts/r4/hl7.fhir.us.core`.
 
+## How it runs
+
+A `StructureDefinition` snapshot is a flat list of elements whose nesting is encoded in dotted paths. Rather than re-deriving that structure for every value, the crate compiles each profile once into a tree: every element becomes a node with its field name, cardinality, types, cloned `fixed[x]` and `pattern[x]` values, its plain children and its slicing groups, each slice already paired with the element that decides it (the discriminator target) and, for a slice defined by a required binding, the codes that binding allows.
+
+The profiles a profile refers to through `type.profile` are compiled the same way and linked into a graph, so validating a resource is a synchronous walk over the value and the graph with no path parsing and no resolver calls. Discriminator paths that are plain member chains (`$this`, `url`, `coding.code`) are walked directly; any other expression goes to the FHIRPath engine.
+
+Compiled profiles, value set codes and whole graphs are cached by the identity of the `Arc<Resource>` the resolver returned, with a `Weak` to it: an entry is reused for as long as the resolver keeps handing out that same resource and is rebuilt as soon as the resolver serves a new one (a profile updated, a package installed). A resolver that returns a fresh `Arc` on every call therefore gets no caching, only the compiled walk.
+
+Benchmarks live in `benches/`: `validate_bench` times one US Core vital-signs Observation with a growing number of category slices, `corpus_bench` validates every example resource the US Core 7.0.0 and CARIN Blue Button packages ship against the profiles it claims (more packages via `HASTE_PROFILING_CORPUS_DIRS`, and `HASTE_PROFILING_FINGERPRINT=<file>` writes the outcomes to diff two builds).
+
 ## Links
 
 - [API reference](https://rust.haste.health/haste_fhir_profiling/)
