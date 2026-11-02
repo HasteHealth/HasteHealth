@@ -54,8 +54,10 @@ pub(crate) struct Node {
     pub fixed: Option<ElementDefinitionFixedTypeChoice>,
     pub pattern: Option<ElementDefinitionPatternTypeChoice>,
     pub binding: Option<Binding>,
-    /// Children validated as plain fields, in snapshot order. Slicing roots and
-    /// slices are not among them; they are in `slicings`.
+    /// Children validated as plain fields, in snapshot order. Slices are not
+    /// among them (they are validated through `slicings`); the elements that
+    /// carry a slicing are, so that their cardinality, type, fixed or pattern
+    /// value and children apply to every value, whichever slice it falls in.
     pub children: Vec<NodeId>,
     pub slicings: Vec<Slicing>,
     /// Every child in snapshot order, slicing roots and slices included, for
@@ -256,7 +258,8 @@ fn child_lists(elements: &[ElementDefinition]) -> Vec<Vec<NodeId>> {
 
 /// Separates a parent's children into plain fields and slicing groups: an
 /// element with `slicing` starts a group that takes every directly following
-/// sibling with a `sliceName`.
+/// sibling with a `sliceName`. The element with the slicing is also a plain
+/// field, so its own constraints are checked against every value.
 fn split_children(
     elements: &[ElementDefinition],
     kids: &[NodeId],
@@ -268,8 +271,8 @@ fn split_children(
     while i < kids.len() {
         let child = kids[i];
         i += 1;
+        plain.push(child);
         let Some(slicing) = elements[child].slicing.as_ref() else {
-            plain.push(child);
             continue;
         };
         let discriminators = slicing

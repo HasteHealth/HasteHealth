@@ -54,7 +54,7 @@ If the resolver does not know the URL, the outcome is empty and a warning is log
 - Cardinality (`min` and `max`) of every element in the snapshot.
 - `fixed[x]` and `pattern[x]` values.
 - The element's allowed types, and any profiles those types name, which are resolved and validated recursively (extensions such as `us-core-race` are validated this way).
-- Slicing with `value`, `pattern`, `type` and `exists` discriminators, including the slice's own cardinality. `profile` and `null` discriminators return a `not-supported` error.
+- Slicing with `value`, `pattern`, `type` and `exists` discriminators, including the slice's own cardinality. The sliced element's own constraints (cardinality, type, fixed or pattern value, children) apply to every value whichever slice it falls in. `profile` and `null` discriminators return a `not-supported` error.
 
 Terminology bindings, FHIRPath invariants and the `maxLength`, `minValue` and `maxValue` constraints are not evaluated yet. The tests in `tests/slicing.rs` run the US Core profiles from `artifacts/r4/hl7.fhir.us.core`.
 

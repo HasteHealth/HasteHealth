@@ -108,6 +108,526 @@
                 }
             ],
             "id": "profile-create-1"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "subscriberId": "example",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "child"
+                    }
+                ]
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-2"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "child"
+                    }
+                ]
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-3"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "subscriberId": "example",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-4"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "subscriberId": "example",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "child"
+                    }
+                ]
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                },
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-5"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "subscriberId": "example",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "child"
+                    }
+                ]
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-6"
+        },
+        {
+            "resourceType": "Coverage",
+            "meta": {
+                "lastUpdated": "2020-01-01T00:00:00Z",
+                "profile": [
+                    "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Coverage"
+                ],
+                "tag": [
+                    {
+                        "code": "carin-bb-2.2.0-coverage-test"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/codes",
+                        "code": "example"
+                    }
+                ]
+            },
+            "subscriberId": "example",
+            "beneficiary": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": "child"
+                    }
+                ]
+            },
+            "period": {
+                "start": "2020-01-01"
+            },
+            "payor": [
+                {
+                    "reference": "Organization/example"
+                }
+            ],
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "group"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                },
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": "plan"
+                            }
+                        ]
+                    },
+                    "value": "example",
+                    "name": "example"
+                }
+            ],
+            "id": "profile-reject-7"
         }
     ],
     "fixture": [
@@ -115,6 +635,54 @@
             "id": "fixture-profile-create-1",
             "resource": {
                 "reference": "#profile-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-2",
+            "resource": {
+                "reference": "#profile-reject-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-3",
+            "resource": {
+                "reference": "#profile-reject-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-4",
+            "resource": {
+                "reference": "#profile-reject-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-5",
+            "resource": {
+                "reference": "#profile-reject-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-6",
+            "resource": {
+                "reference": "#profile-reject-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-7",
+            "resource": {
+                "reference": "#profile-reject-7"
             },
             "autocreate": false,
             "autodelete": false
@@ -363,6 +931,528 @@
                                     {
                                         "url": "group",
                                         "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-too-many-identifier-memberid",
+            "name": "Refuses Coverage with more than 1 identifier:memberid",
+            "description": "C4BB Coverage allows at most 1 of slice Coverage.identifier:memberid. 2 are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-2",
+                        "responseId": "profile-reject-2-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Cardinality too high')).where(location.contains('/identifier')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-required-missing-subscriberid",
+            "name": "Refuses Coverage without subscriberId",
+            "description": "C4BB Coverage requires Coverage.subscriberId (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-3",
+                        "responseId": "profile-reject-3-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Coverage.subscriberId')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-required-missing-relationship",
+            "name": "Refuses Coverage without relationship",
+            "description": "C4BB Coverage requires Coverage.relationship (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-4",
+                        "responseId": "profile-reject-4-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Coverage.relationship')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-too-many-payor",
+            "name": "Refuses Coverage with more than 1 payor",
+            "description": "C4BB Coverage allows at most 1 Coverage.payor; base FHIR allows any number. 2 of them are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-5",
+                        "responseId": "profile-reject-5-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Coverage.payor')).where(diagnostics.contains('Too many values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-too-many-class-group",
+            "name": "Refuses Coverage with more than 1 class:group",
+            "description": "C4BB Coverage allows at most 1 of slice Coverage.class:group. 2 are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-6",
+                        "responseId": "profile-reject-6-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Cardinality too high')).where(location.contains('/class')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-too-many-class-plan",
+            "name": "Refuses Coverage with more than 1 class:plan",
+            "description": "C4BB Coverage allows at most 1 of slice Coverage.class:plan. 2 are refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Coverage",
+                        "sourceId": "fixture-profile-reject-7",
+                        "responseId": "profile-reject-7-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('Cardinality too high')).where(location.contains('/class')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }
