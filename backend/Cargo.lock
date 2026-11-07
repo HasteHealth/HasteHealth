@@ -2591,6 +2591,7 @@ dependencies = [
 name = "haste-fhirpath"
 version = "0.129.2"
 dependencies = [
+ "base64 0.22.1",
  "bumpalo",
  "chrono",
  "criterion",
