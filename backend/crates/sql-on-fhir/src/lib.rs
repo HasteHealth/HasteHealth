@@ -1,17 +1,16 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::{
-    TryStreamExt as _,
-    future::{BoxFuture, try_join_all},
-    stream::FuturesOrdered,
-};
-use haste_fhir_client::FHIRClient;
+use futures::future::{BoxFuture, try_join_all};
+use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
-use haste_fhir_model::r4::generated::{
-    resources::{
-        Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
+use haste_fhir_model::r4::{
+    datetime::Instant,
+    generated::{
+        resources::{
+            Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
+        },
+        terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
+        types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, FHIRInstant, FHIRString, Reference},
     },
-    terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
-    types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, FHIRString, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, Context, FPEngine};
@@ -54,62 +53,112 @@ fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeErro
         })
 }
 
-/// Resolves the `patient` and `group` input parameters into a flat,
-/// de-duplicated list of patient reference strings (e.g. `"Patient/123"`).
-/// `group` members that aren't Patient references are skipped, since
-/// non-Patient compartments `(Practitioner, Device, RelatedPerson)` aren't
-/// supported yet.
-async fn resolve_patient_references<
+fn invalid(message: String) -> OperationOutcomeError {
+    OperationOutcomeError::error(IssueType::invalid(), message)
+}
+
+/// The id a `<resource_type>/<id>` reference names, if it names one of that type.
+fn reference_id<'a>(reference: &'a str, resource_type: &str) -> Option<&'a str> {
+    reference
+        .strip_prefix(resource_type)
+        .and_then(|rest| rest.strip_prefix('/'))
+        .and_then(|rest| rest.split('/').next())
+        .filter(|id| !id.is_empty())
+}
+
+/// The patients a run is limited to: `None` without `patient` or `group`, else the ids of the
+/// Patients every given parameter allows. Both are limits, so with both a run covers only the
+/// `patient` and only if it is in a group. An empty list means no resource qualifies.
+async fn patient_scope<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
     client: &Client,
     input: &ViewDefinitionRun::Input,
-) -> Result<Vec<String>, OperationOutcomeError> {
-    let mut references = Vec::new();
+) -> Result<Option<Vec<String>>, OperationOutcomeError> {
+    let patient = match input.patient.as_ref() {
+        Some(reference) => Some(existing_patient(context.clone(), client, reference).await?),
+        None => None,
+    };
+    let members = match input.group.as_deref() {
+        Some(groups) if !groups.is_empty() => Some(group_members(context, client, groups).await?),
+        _ => None,
+    };
 
-    if let Some(patient) = input.patient.as_ref() {
-        references.push(reference_value(patient)?);
+    Ok(match (patient, members) {
+        (None, None) => None,
+        (Some(patient), None) => Some(vec![patient]),
+        (None, Some(members)) => Some(members),
+        (Some(patient), Some(members)) => Some(
+            members
+                .into_iter()
+                .filter(|member| *member == patient)
+                .collect(),
+        ),
+    })
+}
+
+/// The id of the Patient `reference` names, refused when the server doesn't have it.
+async fn existing_patient<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    reference: &Reference,
+) -> Result<String, OperationOutcomeError> {
+    let value = reference_value(reference)?;
+    let id = reference_id(&value, ResourceType::Patient.as_ref()).ok_or_else(|| {
+        invalid(format!(
+            "'patient' must reference a Patient, not '{value}'."
+        ))
+    })?;
+
+    match client
+        .read(context, ResourceType::Patient, id.to_string())
+        .await?
+    {
+        Some(_) => Ok(id.to_string()),
+        None => Err(invalid(format!("Patient with id '{id}' not found."))),
     }
+}
 
-    for group_reference in input.group.as_ref().into_iter().flatten() {
-        let group_reference_value = reference_value(group_reference)?;
-        let group_id = group_reference_value
-            .rsplit('/')
-            .next()
-            .unwrap_or(&group_reference_value)
-            .to_string();
+/// The ids of the Patients in any of `groups`, sorted and without repeats. A Group the server
+/// doesn't have is refused. Members that aren't Patients are left out: only the Patient
+/// compartment is supported.
+async fn group_members<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    groups: &[Reference],
+) -> Result<Vec<String>, OperationOutcomeError> {
+    let mut members = Vec::new();
 
-        let group = client
-            .read(context.clone(), ResourceType::Group, group_id.clone())
+    for reference in groups {
+        let value = reference_value(reference)?;
+        let id = reference_id(&value, ResourceType::Group.as_ref())
+            .ok_or_else(|| invalid(format!("'group' must reference a Group, not '{value}'.")))?;
+
+        let Some(Resource::Group(group)) = client
+            .read(context.clone(), ResourceType::Group, id.to_string())
             .await?
-            .ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::not_found(),
-                    format!("Group not found with id '{group_id}'"),
-                )
-            })?;
-
-        let Resource::Group(group) = group else {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                format!("Reference '{group_reference_value}' does not point to a Group resource"),
-            ));
+        else {
+            return Err(invalid(format!("Group with id '{id}' not found.")));
         };
 
-        for member in group.member.into_iter().flatten() {
-            let entity_reference = reference_value(&member.entity)?;
-            if entity_reference.starts_with("Patient/") {
-                references.push(entity_reference);
-            }
-        }
+        members.extend(group.member.into_iter().flatten().filter_map(|member| {
+            let entity = member.entity.reference?.value?;
+            reference_id(&entity, ResourceType::Patient.as_ref()).map(str::to_string)
+        }));
     }
 
-    references.sort_unstable();
-    references.dedup();
+    members.sort_unstable();
+    members.dedup();
 
-    Ok(references)
+    Ok(members)
 }
 
 async fn resolve_view_definition<
@@ -121,6 +170,12 @@ async fn resolve_view_definition<
     client: &Client,
     input: &'a ViewDefinitionRun::Input,
 ) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
+    if input.viewResource.is_some() && input.viewReference.is_some() {
+        return Err(invalid(
+            "Only one of viewResource and viewReference may be provided.".to_string(),
+        ));
+    }
+
     if let Some(view_definition) = &input.viewResource {
         Ok(Cow::Borrowed(view_definition))
     } else if let Some(view_definition_reference) = input.viewReference.as_ref() {
@@ -184,20 +239,316 @@ async fn resolve_view_definition<
     }
 }
 
-/// Page size used both for the unscoped history scan and for following its
-/// pagination to completion.
-const HISTORY_PAGE_SIZE: u32 = 1000;
+/// Bounds on one run. The operation answers synchronously with one table, so a run that would
+/// pass either is refused rather than answered with part of the table.
+#[derive(Debug, Clone, Copy)]
+pub struct RunLimits {
+    /// Most rows a run returns. A larger `_limit` is refused.
+    pub max_rows: usize,
+    /// Most resources a run reads from storage, earlier versions included.
+    pub max_resources: usize,
+}
 
-/// Hard cap on the number of resources fetched for a single run when there's
-/// no `patient`/`group` scoping to naturally bound the working set (e.g. a
-/// view over an entire resource type's history). Without this, the full
-/// history of a resource type would be pulled into memory before any filtering
-/// happens. `_limit` does not lower it: it counts output rows, and history
-/// entries are filtered by `where`, collapsed to current versions and stripped
-/// of deletes before they become rows. A client that wants more
-/// than one page's worth of matching rows should page through results by
-/// re-running with `_since` set to the last-seen `lastUpdated` value.
-const MAX_RESOURCES_PER_RUN: usize = 50_000;
+impl Default for RunLimits {
+    fn default() -> Self {
+        Self {
+            max_rows: 10_000,
+            max_resources: 50_000,
+        }
+    }
+}
+
+/// Resources fetched per round trip.
+const PAGE_SIZE: usize = 1000;
+
+/// Patients one compartment search covers. Larger lists are searched in batches.
+const PATIENTS_PER_SEARCH: usize = 100;
+
+/// Deepest one search pages. Elasticsearch refuses `_offset` + `_count` past 10,000 by default
+/// (`index.max_result_window`), and deep offsets get slow on Postgres.
+const MAX_SEARCH_DEPTH: usize = 10_000;
+
+/// Refuses a run that would pass a limit: 422, as the request is well formed but past this
+/// server's limits (the same answer as an `ImplementationGuide/$install` that is too large).
+fn too_costly(what: &str) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!("{what} Narrow the run with _limit, patient, group or _since."),
+    );
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
+/// Refuses parameters this server doesn't take, before anything is read.
+fn check_parameters(
+    input: &ViewDefinitionRun::Input,
+    limits: &RunLimits,
+) -> Result<(), OperationOutcomeError> {
+    if input.source.is_some() {
+        return Err(invalid(
+            "The server does not support the source parameter.".to_string(),
+        ));
+    }
+
+    match requested_limit(input) {
+        Some(limit) if limit > limits.max_rows => Err(invalid(format!(
+            "_limit {limit} is above {}, the most rows one run returns.",
+            limits.max_rows
+        ))),
+        _ => Ok(()),
+    }
+}
+
+/// What every page of a run is processed with.
+struct Run<'v> {
+    fp_engine: &'v FPEngine,
+    variables: Arc<HashMap<String, &'v dyn MetaValue>>,
+    view_definition: &'v ViewDefinition,
+    where_clauses: Vec<&'v str>,
+    resource_type: ResourceType,
+    /// The caller's `_limit`.
+    limit: Option<usize>,
+    limits: RunLimits,
+}
+
+/// Adds the rows of `resources`: those of the view's type that pass its `where`. Returns whether
+/// the run has all the rows it asked for. Without `_limit`, more than `max_rows` refuses the run.
+async fn add_rows<'v>(
+    run: &Run<'v>,
+    resources: Vec<Resource>,
+    rows: &mut Vec<Row<'v>>,
+) -> Result<bool, OperationOutcomeError> {
+    for resource in &resources_of_type(resources, &run.resource_type) {
+        if !passes_where_clauses(
+            run.fp_engine,
+            run.variables.clone(),
+            &run.where_clauses,
+            resource,
+        )
+        .await?
+        {
+            continue;
+        }
+
+        rows.extend(
+            process_resource(
+                run.fp_engine,
+                run.variables.clone(),
+                run.view_definition,
+                resource,
+            )
+            .await?,
+        );
+
+        match run.limit {
+            Some(limit) if rows.len() >= limit => {
+                rows.truncate(limit);
+                return Ok(true);
+            }
+            None if rows.len() > run.limits.max_rows => {
+                return Err(too_costly(&format!(
+                    "The view gives more than {} rows, the most one run returns.",
+                    run.limits.max_rows
+                )));
+            }
+            _ => {}
+        }
+    }
+
+    Ok(false)
+}
+
+/// Counts `count` more resources read, refusing the run past `max_resources`.
+fn count_read(
+    read: &mut usize,
+    count: usize,
+    limits: &RunLimits,
+) -> Result<(), OperationOutcomeError> {
+    *read += count;
+    if *read > limits.max_resources {
+        return Err(too_costly(&format!(
+            "The run reads more than {} resources, the most one run reads.",
+            limits.max_resources
+        )));
+    }
+    Ok(())
+}
+
+/// The view's rows: over the resources sent with the request, else over the server's data,
+/// limited by `patient`, `group` and `_since`.
+async fn view_rows<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    input: &ViewDefinitionRun::Input,
+) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
+    let mut rows = Vec::new();
+
+    if let Some(resources) = input.resource.clone() {
+        add_rows(run, resources, &mut rows).await?;
+        return Ok(rows);
+    }
+
+    let since = input.since.as_ref().and_then(|since| since.value.as_ref());
+
+    match patient_scope(context.clone(), client, input).await? {
+        None => rows_from_history(context, client, run, since, &mut rows).await?,
+        Some(patients) => {
+            rows_from_compartments(context, client, run, &patients, since, &mut rows).await?;
+        }
+    }
+
+    Ok(rows)
+}
+
+/// Rows from the current resources of the view's type, newest first. The type's history is read
+/// a page at a time; the first entry of an id is its current version, so later ones are skipped.
+async fn rows_from_history<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    since: Option<&Instant>,
+    rows: &mut Vec<Row<'v>>,
+) -> Result<(), OperationOutcomeError> {
+    let mut seen = HashSet::new();
+    let mut read = 0;
+    let mut offset = 0;
+
+    loop {
+        let mut parameters = vec![
+            ("_count".to_string(), vec![PAGE_SIZE.to_string()]),
+            ("_offset".to_string(), vec![offset.to_string()]),
+        ];
+        if let Some(since) = since {
+            parameters.push(("_since".to_string(), vec![since.to_string()]));
+        }
+
+        let entries = client
+            .history_type(
+                context.clone(),
+                run.resource_type.clone(),
+                parameters.into(),
+            )
+            .await?
+            .entry
+            .unwrap_or_default();
+        let last_page = entries.len() < PAGE_SIZE;
+
+        count_read(&mut read, entries.len(), &run.limits)?;
+        let current = current_versions(entries, &mut seen, since);
+        if add_rows(run, current, rows).await? || last_page {
+            return Ok(());
+        }
+
+        offset += PAGE_SIZE;
+    }
+}
+
+/// Rows from the compartments of `patients`, in id order. Each compartment parameter is searched
+/// a batch of patients and a page at a time. A resource in several compartments counts once.
+async fn rows_from_compartments<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    patients: &[String],
+    since: Option<&Instant>,
+    rows: &mut Vec<Row<'v>>,
+) -> Result<(), OperationOutcomeError> {
+    let mut seen = HashSet::new();
+    let mut read = 0;
+
+    for parameter in compartment::patient_search_parameters(&run.resource_type)? {
+        for patients in patients.chunks(PATIENTS_PER_SEARCH) {
+            let mut offset = 0;
+
+            loop {
+                if offset >= MAX_SEARCH_DEPTH {
+                    return Err(too_costly(&format!(
+                        "More than {MAX_SEARCH_DEPTH} {} resources match one search of these \
+                         patients.",
+                        run.resource_type.as_ref()
+                    )));
+                }
+
+                let resources: Vec<Resource> = client
+                    .search_type(
+                        context.clone(),
+                        run.resource_type.clone(),
+                        compartment_search(&parameter, patients, since, offset),
+                    )
+                    .await?
+                    .entry
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|entry| entry.resource.map(|resource| *resource))
+                    .collect();
+                let last_page = resources.len() < PAGE_SIZE;
+
+                count_read(&mut read, resources.len(), &run.limits)?;
+                let unseen = resources
+                    .into_iter()
+                    .filter(|resource| seen.insert(resource.id().clone()))
+                    .collect();
+                if add_rows(run, unseen, rows).await? {
+                    return Ok(());
+                }
+                if last_page {
+                    break;
+                }
+
+                offset += PAGE_SIZE;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// One page of the resources whose compartment `parameter` names one of `patients`, sorted by id
+/// so pages don't overlap, and changed after `since` when given.
+fn compartment_search(
+    parameter: &str,
+    patients: &[String],
+    since: Option<&Instant>,
+    offset: usize,
+) -> ParsedParameters {
+    let values = patients
+        .iter()
+        .map(|id| {
+            if parameter == "_id" {
+                id.clone()
+            } else {
+                format!("{}/{id}", ResourceType::Patient.as_ref())
+            }
+        })
+        .collect();
+
+    let mut parameters = vec![
+        (parameter.to_string(), values),
+        ("_sort".to_string(), vec!["_id".to_string()]),
+        ("_count".to_string(), vec![PAGE_SIZE.to_string()]),
+        ("_offset".to_string(), vec![offset.to_string()]),
+    ];
+    if let Some(since) = since {
+        parameters.push((
+            "_lastUpdated".to_string(),
+            vec![format!("gt{}", since.to_string())],
+        ));
+    }
+
+    parameters.into()
+}
 
 /// The client-requested `_limit`, if any: the most output rows to return.
 fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
@@ -224,79 +575,15 @@ fn view_resource_type(
     })
 }
 
-async fn get_resources_to_process<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
-    resource_type: &ResourceType,
-    input: &ViewDefinitionRun::Input,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    if let Some(input_resources) = input.resource.clone() {
-        return Ok(input_resources);
-    }
-
-    let since_instant = input.since.as_ref().and_then(|since| since.value.clone());
-
-    let patient_references = resolve_patient_references(context.clone(), client, input).await?;
-
-    if !patient_references.is_empty() {
-        let last_updated_filter = since_instant.as_ref().map(|since| format!("gt{since:?}"));
-
-        return compartment::resources_for_patients(
-            context,
-            client,
-            resource_type.clone(),
-            &patient_references,
-            last_updated_filter.as_deref(),
-        )
-        .await;
-    }
-
-    let mut entries: Vec<BundleEntry> = Vec::new();
-    let mut offset = 0u32;
-
-    loop {
-        let mut parameters = vec![
-            ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),
-            ("_offset".to_string(), vec![offset.to_string()]),
-        ];
-        // Without `_since` the whole history is scanned, so the view covers
-        // every resource of the type rather than only later changes.
-        if let Some(since) = since_instant.as_ref() {
-            parameters.push(("_since".to_string(), vec![since.to_string()]));
-        }
-
-        let page = client
-            .history_type(context.clone(), resource_type.clone(), parameters.into())
-            .await?
-            .entry
-            .unwrap_or_default();
-
-        let entry_count = page.len();
-        entries.extend(page);
-
-        if entry_count < HISTORY_PAGE_SIZE as usize || entries.len() >= MAX_RESOURCES_PER_RUN {
-            break;
-        }
-
-        offset += HISTORY_PAGE_SIZE;
-    }
-
-    // Guards against the last loop execution which could be an additional
-    // 999 resources that may have been fetched in the last loop iteration.
-    entries.truncate(MAX_RESOURCES_PER_RUN);
-
-    Ok(current_versions(entries))
-}
-
-/// The current version of each resource in a history, newest first as the
-/// history is. A view has one row set per resource, so earlier versions are
-/// dropped, and a resource whose latest entry is a delete is left out.
-fn current_versions(entries: Vec<BundleEntry>) -> Vec<Resource> {
-    let mut seen = HashSet::new();
-
+/// The current version of each resource in a page of history, newest first as the history is.
+/// `seen` carries the ids of earlier pages: a view has one row set per resource, so earlier
+/// versions are dropped. A resource whose latest entry is a delete is left out, as is one not
+/// changed after `since` (history's `_since` also returns versions made at that instant).
+fn current_versions(
+    entries: Vec<BundleEntry>,
+    seen: &mut HashSet<Option<String>>,
+    since: Option<&Instant>,
+) -> Vec<Resource> {
     entries
         .into_iter()
         .filter_map(|entry| {
@@ -309,9 +596,24 @@ fn current_versions(entries: Vec<BundleEntry>) -> Vec<Resource> {
                 .request
                 .is_some_and(|request| request.method == HttpVerb::delete());
 
-            (!deleted).then_some(*resource)
+            (!deleted && changed_after(&resource, since)).then_some(*resource)
         })
         .collect()
+}
+
+/// Whether `resource` changed after `since`. Always without `since`, and for a resource with no
+/// `meta.lastUpdated`, as the specification allows.
+fn changed_after(resource: &Resource, since: Option<&Instant>) -> bool {
+    let Some(Instant::Iso8601(since)) = since else {
+        return true;
+    };
+
+    resource
+        .get_field("meta")
+        .and_then(|meta| meta.get_field("lastUpdated"))
+        .and_then(|updated| updated.as_any().downcast_ref::<FHIRInstant>())
+        .and_then(|updated| updated.value.as_ref())
+        .is_none_or(|Instant::Iso8601(updated)| updated > since)
 }
 
 fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String, &dyn MetaValue> {
@@ -363,13 +665,14 @@ enum OutputResults {
     Collection(Vec<Option<PrimitiveValue>>),
 }
 
-/// A resource's rows: the cross product of each select's rows.
-async fn process_resource<'a>(
-    fp_engine: &'a FPEngine,
-    variables: Arc<HashMap<String, &'a dyn MetaValue>>,
-    view_definition: &'a ViewDefinition,
-    input: &'a Resource,
-) -> Result<Vec<Row<'a>>, OperationOutcomeError> {
+/// A resource's rows: the cross product of each select's rows. Rows borrow only from the view
+/// (`'v`), not from the resource (`'r`), so a page of resources can go once its rows are made.
+async fn process_resource<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    variables: Arc<HashMap<String, &'r dyn MetaValue>>,
+    view_definition: &'v ViewDefinition,
+    input: &'r Resource,
+) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let fp_config = Arc::new(
         Config::builder()
             .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
@@ -462,12 +765,12 @@ async fn walk_repeat<'a>(
 }
 
 /// Each select's rows on `node`, in order.
-async fn select_rows<'a>(
-    fp_engine: &'a FPEngine,
-    fp_config: &Arc<Config<'a>>,
-    selects: &'a [ViewDefinitionSelect],
-    node: &'a dyn MetaValue,
-) -> Result<Vec<Vec<Row<'a>>>, OperationOutcomeError> {
+async fn select_rows<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    fp_config: &Arc<Config<'r>>,
+    selects: &'v [ViewDefinitionSelect],
+    node: &'r dyn MetaValue,
+) -> Result<Vec<Vec<Row<'v>>>, OperationOutcomeError> {
     try_join_all(
         selects
             .iter()
@@ -478,12 +781,12 @@ async fn select_rows<'a>(
 
 /// A select's rows: per focus node, its columns joined with its nested and `unionAll` rows. The
 /// focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
-fn process_select<'a>(
-    fp_engine: &'a FPEngine,
-    fp_config: Arc<Config<'a>>,
-    select: &'a ViewDefinitionSelect,
-    input: &'a dyn MetaValue,
-) -> BoxFuture<'a, Result<Vec<Row<'a>>, OperationOutcomeError>> {
+fn process_select<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    fp_config: Arc<Config<'r>>,
+    select: &'v ViewDefinitionSelect,
+    input: &'r dyn MetaValue,
+) -> BoxFuture<'r, Result<Vec<Row<'v>>, OperationOutcomeError>> {
     Box::pin(async move {
         let for_each = select.forEach.as_ref().and_then(|p| p.value.as_deref());
         let for_each_or_null = select
@@ -576,12 +879,12 @@ fn collect_null_columns<'a>(
 }
 
 /// A select's own columns on `node`, as one row.
-async fn column_row<'a>(
+async fn column_row<'r, 'v>(
     fp_engine: &FPEngine,
-    fp_config: &Arc<Config<'a>>,
-    select: &'a ViewDefinitionSelect,
-    node: &'a dyn MetaValue,
-) -> Result<Row<'a>, OperationOutcomeError> {
+    fp_config: &Arc<Config<'r>>,
+    select: &'v ViewDefinitionSelect,
+    node: &'r dyn MetaValue,
+) -> Result<Row<'v>, OperationOutcomeError> {
     let mut row = Row::new();
 
     for column in select.column.iter().flatten() {
@@ -722,53 +1025,25 @@ async fn process_view_definition<
     client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
+    limits: RunLimits,
 ) -> Result<Binary, OperationOutcomeError> {
-    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    let limit = requested_limit(input);
-
-    let resource_type = view_resource_type(view_definition)?;
-    let input_ = resources_of_type(
-        get_resources_to_process(context.clone(), client.as_ref(), &resource_type, input).await?,
-        &resource_type,
-    );
-
-    // Must outlive `tasks`, which borrows it.
     let fp_engine = FPEngine::new();
-    let mut tasks = FuturesOrdered::new();
+    let run = Run {
+        fp_engine: &fp_engine,
+        variables: Arc::new(build_hashmap_fp_variables(view_definition)),
+        view_definition,
+        where_clauses: view_definition
+            .where_
+            .iter()
+            .flatten()
+            .filter_map(|w| w.path.value.as_deref())
+            .collect(),
+        resource_type: view_resource_type(view_definition)?,
+        limit: requested_limit(input),
+        limits,
+    };
 
-    let where_clauses = view_definition
-        .where_
-        .as_ref()
-        .map_or_else(|| Cow::Owned(Vec::new()), Cow::Borrowed);
-
-    let where_fp_clauses = where_clauses
-        .iter()
-        .filter_map(|w| w.path.value.as_deref())
-        .collect::<Vec<_>>();
-
-    for resource in &input_ {
-        if passes_where_clauses(
-            &fp_engine,
-            variables.clone(),
-            where_fp_clauses.as_slice(),
-            resource,
-        )
-        .await?
-        {
-            tasks.push_back(process_resource(
-                &fp_engine,
-                variables.clone(),
-                view_definition,
-                resource,
-            ));
-        }
-    }
-
-    let mut results: Vec<Row> = tasks.try_concat().await?;
-
-    if let Some(limit) = limit {
-        results.truncate(limit);
-    }
+    let results = view_rows(context, client.as_ref(), &run, input).await?;
 
     let include_header = input
         .header
@@ -816,10 +1091,12 @@ async fn process_view_definition<
 /// absent or does not contain a recognized [`OutputFormatCodes`] value, CSV is
 /// used as the default format.
 ///
+/// A run that would pass `limits` is refused with `too-costly`.
+///
 /// # Errors
 ///
-/// Returns [`OperationOutcomeError`] if the view definition cannot be resolved
-/// or if processing the view definition fails.
+/// Returns [`OperationOutcomeError`] if a parameter is refused, the view definition cannot be
+/// resolved, the run would pass `limits`, or processing the view definition fails.
 pub async fn view_definition_run<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -827,7 +1104,10 @@ pub async fn view_definition_run<
     context: CTX,
     client: Arc<Client>,
     input: &ViewDefinitionRun::Input,
+    limits: RunLimits,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
+    check_parameters(input, &limits)?;
+
     let output_format = input
         .format
         .as_ref()
@@ -844,6 +1124,7 @@ pub async fn view_definition_run<
         client,
         view_definition.as_ref(),
         input,
+        limits,
     )
     .await?;
 

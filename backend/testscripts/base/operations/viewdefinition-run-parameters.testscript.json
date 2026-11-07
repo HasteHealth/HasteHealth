@@ -1,0 +1,1214 @@
+{
+    "id": "viewdefinition-run-parameters-test",
+    "url": "https://haste.health/fhir/viewdefinition-run-parameters-test",
+    "name": "ViewDefinition run parameters Test",
+    "title": "ViewDefinition run parameters Test",
+    "status": "active",
+    "description": "Tests $viewdefinition-run's parameter checks and row limit: source, both view parameters, a missing patient or group and a _limit above the limit are refused, a run past the limit is refused rather than cut short, and _limit under it stops the run.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "params-source",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "source",
+                    "valueString": "s3://bucket/export"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-both-views",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "viewReference",
+                    "valueReference": {
+                        "reference": "ViewDefinition/sof-params-view"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-missing-patient",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-params-missing"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-missing-group",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-params-missing"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-limit-above-max",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_limit",
+                    "valueInteger": 10001
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-too-many-rows",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "a",
+                                        "path": "family"
+                                    }
+                                ]
+                            },
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "b",
+                                        "path": "family"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "resource",
+                    "resource": {
+                        "resourceType": "Patient",
+                        "id": "sof-params-many-names",
+                        "name": [
+                            {
+                                "family": "n001"
+                            },
+                            {
+                                "family": "n002"
+                            },
+                            {
+                                "family": "n003"
+                            },
+                            {
+                                "family": "n004"
+                            },
+                            {
+                                "family": "n005"
+                            },
+                            {
+                                "family": "n006"
+                            },
+                            {
+                                "family": "n007"
+                            },
+                            {
+                                "family": "n008"
+                            },
+                            {
+                                "family": "n009"
+                            },
+                            {
+                                "family": "n010"
+                            },
+                            {
+                                "family": "n011"
+                            },
+                            {
+                                "family": "n012"
+                            },
+                            {
+                                "family": "n013"
+                            },
+                            {
+                                "family": "n014"
+                            },
+                            {
+                                "family": "n015"
+                            },
+                            {
+                                "family": "n016"
+                            },
+                            {
+                                "family": "n017"
+                            },
+                            {
+                                "family": "n018"
+                            },
+                            {
+                                "family": "n019"
+                            },
+                            {
+                                "family": "n020"
+                            },
+                            {
+                                "family": "n021"
+                            },
+                            {
+                                "family": "n022"
+                            },
+                            {
+                                "family": "n023"
+                            },
+                            {
+                                "family": "n024"
+                            },
+                            {
+                                "family": "n025"
+                            },
+                            {
+                                "family": "n026"
+                            },
+                            {
+                                "family": "n027"
+                            },
+                            {
+                                "family": "n028"
+                            },
+                            {
+                                "family": "n029"
+                            },
+                            {
+                                "family": "n030"
+                            },
+                            {
+                                "family": "n031"
+                            },
+                            {
+                                "family": "n032"
+                            },
+                            {
+                                "family": "n033"
+                            },
+                            {
+                                "family": "n034"
+                            },
+                            {
+                                "family": "n035"
+                            },
+                            {
+                                "family": "n036"
+                            },
+                            {
+                                "family": "n037"
+                            },
+                            {
+                                "family": "n038"
+                            },
+                            {
+                                "family": "n039"
+                            },
+                            {
+                                "family": "n040"
+                            },
+                            {
+                                "family": "n041"
+                            },
+                            {
+                                "family": "n042"
+                            },
+                            {
+                                "family": "n043"
+                            },
+                            {
+                                "family": "n044"
+                            },
+                            {
+                                "family": "n045"
+                            },
+                            {
+                                "family": "n046"
+                            },
+                            {
+                                "family": "n047"
+                            },
+                            {
+                                "family": "n048"
+                            },
+                            {
+                                "family": "n049"
+                            },
+                            {
+                                "family": "n050"
+                            },
+                            {
+                                "family": "n051"
+                            },
+                            {
+                                "family": "n052"
+                            },
+                            {
+                                "family": "n053"
+                            },
+                            {
+                                "family": "n054"
+                            },
+                            {
+                                "family": "n055"
+                            },
+                            {
+                                "family": "n056"
+                            },
+                            {
+                                "family": "n057"
+                            },
+                            {
+                                "family": "n058"
+                            },
+                            {
+                                "family": "n059"
+                            },
+                            {
+                                "family": "n060"
+                            },
+                            {
+                                "family": "n061"
+                            },
+                            {
+                                "family": "n062"
+                            },
+                            {
+                                "family": "n063"
+                            },
+                            {
+                                "family": "n064"
+                            },
+                            {
+                                "family": "n065"
+                            },
+                            {
+                                "family": "n066"
+                            },
+                            {
+                                "family": "n067"
+                            },
+                            {
+                                "family": "n068"
+                            },
+                            {
+                                "family": "n069"
+                            },
+                            {
+                                "family": "n070"
+                            },
+                            {
+                                "family": "n071"
+                            },
+                            {
+                                "family": "n072"
+                            },
+                            {
+                                "family": "n073"
+                            },
+                            {
+                                "family": "n074"
+                            },
+                            {
+                                "family": "n075"
+                            },
+                            {
+                                "family": "n076"
+                            },
+                            {
+                                "family": "n077"
+                            },
+                            {
+                                "family": "n078"
+                            },
+                            {
+                                "family": "n079"
+                            },
+                            {
+                                "family": "n080"
+                            },
+                            {
+                                "family": "n081"
+                            },
+                            {
+                                "family": "n082"
+                            },
+                            {
+                                "family": "n083"
+                            },
+                            {
+                                "family": "n084"
+                            },
+                            {
+                                "family": "n085"
+                            },
+                            {
+                                "family": "n086"
+                            },
+                            {
+                                "family": "n087"
+                            },
+                            {
+                                "family": "n088"
+                            },
+                            {
+                                "family": "n089"
+                            },
+                            {
+                                "family": "n090"
+                            },
+                            {
+                                "family": "n091"
+                            },
+                            {
+                                "family": "n092"
+                            },
+                            {
+                                "family": "n093"
+                            },
+                            {
+                                "family": "n094"
+                            },
+                            {
+                                "family": "n095"
+                            },
+                            {
+                                "family": "n096"
+                            },
+                            {
+                                "family": "n097"
+                            },
+                            {
+                                "family": "n098"
+                            },
+                            {
+                                "family": "n099"
+                            },
+                            {
+                                "family": "n100"
+                            },
+                            {
+                                "family": "n101"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-limit-under-max",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "a",
+                                        "path": "family"
+                                    }
+                                ]
+                            },
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "b",
+                                        "path": "family"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "resource",
+                    "resource": {
+                        "resourceType": "Patient",
+                        "id": "sof-params-many-names",
+                        "name": [
+                            {
+                                "family": "n001"
+                            },
+                            {
+                                "family": "n002"
+                            },
+                            {
+                                "family": "n003"
+                            },
+                            {
+                                "family": "n004"
+                            },
+                            {
+                                "family": "n005"
+                            },
+                            {
+                                "family": "n006"
+                            },
+                            {
+                                "family": "n007"
+                            },
+                            {
+                                "family": "n008"
+                            },
+                            {
+                                "family": "n009"
+                            },
+                            {
+                                "family": "n010"
+                            },
+                            {
+                                "family": "n011"
+                            },
+                            {
+                                "family": "n012"
+                            },
+                            {
+                                "family": "n013"
+                            },
+                            {
+                                "family": "n014"
+                            },
+                            {
+                                "family": "n015"
+                            },
+                            {
+                                "family": "n016"
+                            },
+                            {
+                                "family": "n017"
+                            },
+                            {
+                                "family": "n018"
+                            },
+                            {
+                                "family": "n019"
+                            },
+                            {
+                                "family": "n020"
+                            },
+                            {
+                                "family": "n021"
+                            },
+                            {
+                                "family": "n022"
+                            },
+                            {
+                                "family": "n023"
+                            },
+                            {
+                                "family": "n024"
+                            },
+                            {
+                                "family": "n025"
+                            },
+                            {
+                                "family": "n026"
+                            },
+                            {
+                                "family": "n027"
+                            },
+                            {
+                                "family": "n028"
+                            },
+                            {
+                                "family": "n029"
+                            },
+                            {
+                                "family": "n030"
+                            },
+                            {
+                                "family": "n031"
+                            },
+                            {
+                                "family": "n032"
+                            },
+                            {
+                                "family": "n033"
+                            },
+                            {
+                                "family": "n034"
+                            },
+                            {
+                                "family": "n035"
+                            },
+                            {
+                                "family": "n036"
+                            },
+                            {
+                                "family": "n037"
+                            },
+                            {
+                                "family": "n038"
+                            },
+                            {
+                                "family": "n039"
+                            },
+                            {
+                                "family": "n040"
+                            },
+                            {
+                                "family": "n041"
+                            },
+                            {
+                                "family": "n042"
+                            },
+                            {
+                                "family": "n043"
+                            },
+                            {
+                                "family": "n044"
+                            },
+                            {
+                                "family": "n045"
+                            },
+                            {
+                                "family": "n046"
+                            },
+                            {
+                                "family": "n047"
+                            },
+                            {
+                                "family": "n048"
+                            },
+                            {
+                                "family": "n049"
+                            },
+                            {
+                                "family": "n050"
+                            },
+                            {
+                                "family": "n051"
+                            },
+                            {
+                                "family": "n052"
+                            },
+                            {
+                                "family": "n053"
+                            },
+                            {
+                                "family": "n054"
+                            },
+                            {
+                                "family": "n055"
+                            },
+                            {
+                                "family": "n056"
+                            },
+                            {
+                                "family": "n057"
+                            },
+                            {
+                                "family": "n058"
+                            },
+                            {
+                                "family": "n059"
+                            },
+                            {
+                                "family": "n060"
+                            },
+                            {
+                                "family": "n061"
+                            },
+                            {
+                                "family": "n062"
+                            },
+                            {
+                                "family": "n063"
+                            },
+                            {
+                                "family": "n064"
+                            },
+                            {
+                                "family": "n065"
+                            },
+                            {
+                                "family": "n066"
+                            },
+                            {
+                                "family": "n067"
+                            },
+                            {
+                                "family": "n068"
+                            },
+                            {
+                                "family": "n069"
+                            },
+                            {
+                                "family": "n070"
+                            },
+                            {
+                                "family": "n071"
+                            },
+                            {
+                                "family": "n072"
+                            },
+                            {
+                                "family": "n073"
+                            },
+                            {
+                                "family": "n074"
+                            },
+                            {
+                                "family": "n075"
+                            },
+                            {
+                                "family": "n076"
+                            },
+                            {
+                                "family": "n077"
+                            },
+                            {
+                                "family": "n078"
+                            },
+                            {
+                                "family": "n079"
+                            },
+                            {
+                                "family": "n080"
+                            },
+                            {
+                                "family": "n081"
+                            },
+                            {
+                                "family": "n082"
+                            },
+                            {
+                                "family": "n083"
+                            },
+                            {
+                                "family": "n084"
+                            },
+                            {
+                                "family": "n085"
+                            },
+                            {
+                                "family": "n086"
+                            },
+                            {
+                                "family": "n087"
+                            },
+                            {
+                                "family": "n088"
+                            },
+                            {
+                                "family": "n089"
+                            },
+                            {
+                                "family": "n090"
+                            },
+                            {
+                                "family": "n091"
+                            },
+                            {
+                                "family": "n092"
+                            },
+                            {
+                                "family": "n093"
+                            },
+                            {
+                                "family": "n094"
+                            },
+                            {
+                                "family": "n095"
+                            },
+                            {
+                                "family": "n096"
+                            },
+                            {
+                                "family": "n097"
+                            },
+                            {
+                                "family": "n098"
+                            },
+                            {
+                                "family": "n099"
+                            },
+                            {
+                                "family": "n100"
+                            },
+                            {
+                                "family": "n101"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_limit",
+                    "valueInteger": 3
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-params-source",
+            "resource": {
+                "reference": "#params-source"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-both-views",
+            "resource": {
+                "reference": "#params-both-views"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-missing-patient",
+            "resource": {
+                "reference": "#params-missing-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-missing-group",
+            "resource": {
+                "reference": "#params-missing-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-limit-above-max",
+            "resource": {
+                "reference": "#params-limit-above-max"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-too-many-rows",
+            "resource": {
+                "reference": "#params-too-many-rows"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-limit-under-max",
+            "resource": {
+                "reference": "#params-limit-under-max"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "source",
+            "name": "source is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run with source.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-source",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "An unsupported source is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('source')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "both-views",
+            "name": "viewResource and viewReference together are refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run with both view parameters.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-both-views",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Both view parameters is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('Only one of viewResource and viewReference')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "missing-patient",
+            "name": "a patient the server lacks is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for a Patient that doesn't exist.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-missing-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A missing patient is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('not found')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "missing-group",
+            "name": "a group the server lacks is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for a Group that doesn't exist.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-missing-group",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A missing group is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('not found')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "limit-above-max",
+            "name": "_limit above the row limit is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run with _limit=10001.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-limit-above-max",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A _limit above the row limit is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('_limit')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "too-many-rows",
+            "name": "a run past the row limit is refused, not cut short",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run a view that gives 101 x 101 = 10,201 rows.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-too-many-rows",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A run past the row limit is 422",
+                        "responseCode": "422",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'too-costly' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'too-costly' and diagnostics.contains('rows')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "limit-under-max",
+            "name": "_limit stops a run before the row limit",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the same view with _limit=3.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-limit-under-max",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first three rows of the cross join.",
+                        "expression": "Binary.data = 'W3siYSI6Im4wMDEiLCJiIjoibjAwMSJ9LHsiYSI6Im4wMDEiLCJiIjoibjAwMiJ9LHsiYSI6Im4wMDEiLCJiIjoibjAwMyJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

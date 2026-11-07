@@ -136,11 +136,20 @@ The response is a `Binary` resource whose `data` field is the **base64-encoded**
 | --- | --- |
 | `viewResource` | An inline `ViewDefinition` to run, instead of a stored one. |
 | `viewReference` | A `Reference` to a stored `ViewDefinition` (e.g. `ViewDefinition/123`). |
-| `resource` | Run against these resources directly instead of querying the project. |
-| `_since` | Only include resources modified after this instant. **Always set this explicitly** — see [Limitations](#limitations). |
+| `resource` | Run against these resources directly instead of the project's data. `patient`, `group` and `_since` don't filter them. |
+| `patient` | Only resources in this Patient's compartment. A Patient the project doesn't have is refused with `400`. |
+| `group` | Only resources in the compartments of the Group's Patient members. Repeat it for several Groups. With `patient` too, the run covers only that Patient, and only if it is a member. |
+| `_since` | Only resources changed after this instant. |
+| `_limit` | The most rows to return, up to the row limit below. |
+| `header` | Whether CSV output starts with a header row (default `true`). |
 | `_format` | Output format: `csv` (default), `json`, or `ndjson`. |
+| `source` | Not supported. A run that sends it is refused with `400`. |
 
-Exactly one of `viewResource` / `viewReference` is required. If `resource` isn't provided, the view runs against a live `_history` query of the project (`ViewDefinition.resource` type, `_since` filtered, capped at 1000 resources per run).
+Exactly one of `viewResource` / `viewReference` is required, except at instance level: `POST /ViewDefinition/[id]/$viewdefinition-run` runs that stored view and takes neither. Without `resource`, the view runs over the project's current resources of the `ViewDefinition.resource` type.
+
+### Limits
+
+A run answers with the whole table in one response, so it is bounded. A run that would return more than 10,000 rows (without `_limit`), or read more than 50,000 resources (earlier versions included), is refused with `422` and a `too-costly` `OperationOutcome` rather than answered with part of the table. Narrow it with `_limit`, `patient`, `group` or `_since`. The limits are the server settings `sql_on_fhir.max_rows` and `sql_on_fhir.max_resources` (see [Configuration](/docs/reference/configuration)).
 
 ### Output Shapes
 
@@ -159,16 +168,16 @@ with three tabs:
 - **SQL Runner Results** — a paginated table (configurable page size) rendering whatever the run produced.
 - **Raw Output** — the decoded response as plain text, useful for copying out CSV/NDJSON directly.
 
-Run executes the ViewDefinition **inline** (via `viewResource`, not `viewReference`) against your live project data, so you can iterate on a draft before saving it. The admin UI always passes `_since: "1980-01-01T00:00:00Z"` under the hood to sidestep the default-window gotcha described below.
+Run executes the ViewDefinition **inline** (via `viewResource`, not `viewReference`) against your live project data, so you can iterate on a draft before saving it. The admin UI passes `_since: "1980-01-01T00:00:00Z"`, so the run covers all of the project's data.
 
 ## Limitations
 
 The engine covers the core of the SQL on FHIR spec, but several parts aren't implemented yet:
 
 - **Nested `select` and `unionAll` are not evaluated.** `ViewDefinition.select[].select` (sub-selects for one-to-many denormalization within a select block) and `ViewDefinition.select[].unionAll` (combining multiple selection structures into one row set) are valid per the resource's schema but are **silently ignored** by the run engine — no error is raised, and no columns are produced from them. Only top-level `select` entries with `column`/`forEach`/`forEachOrNull`/`repeat` are processed.
-- **`_since` defaults to "now."** If you don't pass `_since` (and don't pass `resource` directly), the server defaults it to the current instant, which means a `_history` query that returns effectively **nothing** — not "all data." Always pass an explicit `_since` (e.g. `1980-01-01T00:00:00Z`) if you want the view to run over your full dataset.
-- **`_limit` is accepted but not enforced.** The parameter exists on the operation and is parsed, but the run engine never applies it to truncate results.
-- **`patient`, `group`, `source`, and `header` are accepted but unused.** These operation parameters are defined but currently have no effect — `patient`/`group`/`source` don't scope or redirect the query, and `header` doesn't toggle the CSV header row (a header row is always written when there's at least one result row).
+- **`source` is not supported.** Reading from an external source (such as a bucket of bulk export files) isn't implemented, so a run that sends `source` is refused.
+- **Only the Patient compartment.** `group` members other than Patients are left out, and a view over a resource type outside the Patient compartment can't be limited by `patient` or `group`.
+- **No export for large tables.** A run past the [limits](#limits) is refused; the asynchronous `$viewdefinition-export` operation isn't implemented yet.
 - **Only `csv`, `json`, and `ndjson` output formats are implemented.** The `_format` value set also allows `fhir` and `parquet`; requesting either returns a `not-supported` `OperationOutcome`.
 - **CSV columns are derived from the first row.** If different rows would otherwise produce different column sets (e.g. via conditional branches), only the first row's keys are used as headers for the whole file. An empty result set produces no header row at all.
 - **Terminology bindings aren't evaluated.** Column values are converted as raw primitives; no `ValueSet` membership or code validation happens as part of a view run.
