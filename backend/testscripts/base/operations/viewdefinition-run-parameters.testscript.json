@@ -911,6 +911,361 @@
                     "valueCode": "json"
                 }
             ]
+        },
+        {
+            "id": "params-default-format",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-params-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "a",
+                                        "path": "family"
+                                    }
+                                ]
+                            },
+                            {
+                                "forEach": "name",
+                                "column": [
+                                    {
+                                        "name": "b",
+                                        "path": "family"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "resource",
+                    "resource": {
+                        "resourceType": "Patient",
+                        "id": "sof-params-many-names",
+                        "name": [
+                            {
+                                "family": "n001"
+                            },
+                            {
+                                "family": "n002"
+                            },
+                            {
+                                "family": "n003"
+                            },
+                            {
+                                "family": "n004"
+                            },
+                            {
+                                "family": "n005"
+                            },
+                            {
+                                "family": "n006"
+                            },
+                            {
+                                "family": "n007"
+                            },
+                            {
+                                "family": "n008"
+                            },
+                            {
+                                "family": "n009"
+                            },
+                            {
+                                "family": "n010"
+                            },
+                            {
+                                "family": "n011"
+                            },
+                            {
+                                "family": "n012"
+                            },
+                            {
+                                "family": "n013"
+                            },
+                            {
+                                "family": "n014"
+                            },
+                            {
+                                "family": "n015"
+                            },
+                            {
+                                "family": "n016"
+                            },
+                            {
+                                "family": "n017"
+                            },
+                            {
+                                "family": "n018"
+                            },
+                            {
+                                "family": "n019"
+                            },
+                            {
+                                "family": "n020"
+                            },
+                            {
+                                "family": "n021"
+                            },
+                            {
+                                "family": "n022"
+                            },
+                            {
+                                "family": "n023"
+                            },
+                            {
+                                "family": "n024"
+                            },
+                            {
+                                "family": "n025"
+                            },
+                            {
+                                "family": "n026"
+                            },
+                            {
+                                "family": "n027"
+                            },
+                            {
+                                "family": "n028"
+                            },
+                            {
+                                "family": "n029"
+                            },
+                            {
+                                "family": "n030"
+                            },
+                            {
+                                "family": "n031"
+                            },
+                            {
+                                "family": "n032"
+                            },
+                            {
+                                "family": "n033"
+                            },
+                            {
+                                "family": "n034"
+                            },
+                            {
+                                "family": "n035"
+                            },
+                            {
+                                "family": "n036"
+                            },
+                            {
+                                "family": "n037"
+                            },
+                            {
+                                "family": "n038"
+                            },
+                            {
+                                "family": "n039"
+                            },
+                            {
+                                "family": "n040"
+                            },
+                            {
+                                "family": "n041"
+                            },
+                            {
+                                "family": "n042"
+                            },
+                            {
+                                "family": "n043"
+                            },
+                            {
+                                "family": "n044"
+                            },
+                            {
+                                "family": "n045"
+                            },
+                            {
+                                "family": "n046"
+                            },
+                            {
+                                "family": "n047"
+                            },
+                            {
+                                "family": "n048"
+                            },
+                            {
+                                "family": "n049"
+                            },
+                            {
+                                "family": "n050"
+                            },
+                            {
+                                "family": "n051"
+                            },
+                            {
+                                "family": "n052"
+                            },
+                            {
+                                "family": "n053"
+                            },
+                            {
+                                "family": "n054"
+                            },
+                            {
+                                "family": "n055"
+                            },
+                            {
+                                "family": "n056"
+                            },
+                            {
+                                "family": "n057"
+                            },
+                            {
+                                "family": "n058"
+                            },
+                            {
+                                "family": "n059"
+                            },
+                            {
+                                "family": "n060"
+                            },
+                            {
+                                "family": "n061"
+                            },
+                            {
+                                "family": "n062"
+                            },
+                            {
+                                "family": "n063"
+                            },
+                            {
+                                "family": "n064"
+                            },
+                            {
+                                "family": "n065"
+                            },
+                            {
+                                "family": "n066"
+                            },
+                            {
+                                "family": "n067"
+                            },
+                            {
+                                "family": "n068"
+                            },
+                            {
+                                "family": "n069"
+                            },
+                            {
+                                "family": "n070"
+                            },
+                            {
+                                "family": "n071"
+                            },
+                            {
+                                "family": "n072"
+                            },
+                            {
+                                "family": "n073"
+                            },
+                            {
+                                "family": "n074"
+                            },
+                            {
+                                "family": "n075"
+                            },
+                            {
+                                "family": "n076"
+                            },
+                            {
+                                "family": "n077"
+                            },
+                            {
+                                "family": "n078"
+                            },
+                            {
+                                "family": "n079"
+                            },
+                            {
+                                "family": "n080"
+                            },
+                            {
+                                "family": "n081"
+                            },
+                            {
+                                "family": "n082"
+                            },
+                            {
+                                "family": "n083"
+                            },
+                            {
+                                "family": "n084"
+                            },
+                            {
+                                "family": "n085"
+                            },
+                            {
+                                "family": "n086"
+                            },
+                            {
+                                "family": "n087"
+                            },
+                            {
+                                "family": "n088"
+                            },
+                            {
+                                "family": "n089"
+                            },
+                            {
+                                "family": "n090"
+                            },
+                            {
+                                "family": "n091"
+                            },
+                            {
+                                "family": "n092"
+                            },
+                            {
+                                "family": "n093"
+                            },
+                            {
+                                "family": "n094"
+                            },
+                            {
+                                "family": "n095"
+                            },
+                            {
+                                "family": "n096"
+                            },
+                            {
+                                "family": "n097"
+                            },
+                            {
+                                "family": "n098"
+                            },
+                            {
+                                "family": "n099"
+                            },
+                            {
+                                "family": "n100"
+                            },
+                            {
+                                "family": "n101"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_limit",
+                    "valueInteger": 2
+                }
+            ]
         }
     ],
     "fixture": [
@@ -966,6 +1321,14 @@
             "id": "fixture-params-limit-under-max",
             "resource": {
                 "reference": "#params-limit-under-max"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-default-format",
+            "resource": {
+                "reference": "#params-default-format"
             },
             "autocreate": false,
             "autodelete": false
@@ -1204,6 +1567,41 @@
                     "assert": {
                         "description": "The first three rows of the cross join.",
                         "expression": "Binary.data = 'W3siYSI6Im4wMDEiLCJiIjoibjAwMSJ9LHsiYSI6Im4wMDEiLCJiIjoibjAwMiJ9LHsiYSI6Im4wMDEiLCJiIjoibjAwMyJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "default-format",
+            "name": "without _format the result is ndjson",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run with _limit=2 and no _format.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-default-format",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The result is an ndjson Binary.",
+                        "expression": "Binary.contentType = 'application/x-ndjson'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One row per line.",
+                        "expression": "Binary.data = 'eyJhIjoibjAwMSIsImIiOiJuMDAxIn0KeyJhIjoibjAwMSIsImIiOiJuMDAyIn0K'",
                         "value": "true",
                         "warningOnly": false
                     }

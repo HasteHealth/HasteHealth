@@ -142,7 +142,7 @@ The response is a `Binary` resource whose `data` field is the **base64-encoded**
 | `_since` | Only resources changed after this instant. |
 | `_limit` | The most rows to return, up to the row limit below. |
 | `header` | Whether CSV output starts with a header row (default `true`). |
-| `_format` | Output format: `csv` (default), `json`, or `ndjson`. |
+| `_format` | Output format: `ndjson` (default), `csv` or `json`. |
 | `source` | Not supported. A run that sends it is refused with `400`. |
 
 Exactly one of `viewResource` / `viewReference` is required, except at instance level: `POST /ViewDefinition/[id]/$viewdefinition-run` runs that stored view and takes neither. Without `resource`, the view runs over the project's current resources of the `ViewDefinition.resource` type.

@@ -1088,8 +1088,8 @@ async fn process_view_definition<
 /// output format.
 ///
 /// The output format is read from the `_format` input parameter. If `_format` is
-/// absent or does not contain a recognized [`OutputFormatCodes`] value, CSV is
-/// used as the default format.
+/// absent or does not contain a recognized [`OutputFormatCodes`] value, ndjson is
+/// used, the specification's default.
 ///
 /// A run that would pass `limits` is refused with `too-costly`.
 ///
@@ -1113,7 +1113,7 @@ pub async fn view_definition_run<
         .as_ref()
         .and_then(|v| v.value.as_ref())
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
-        .unwrap_or(OutputFormatCodes::csv());
+        .unwrap_or(OutputFormatCodes::ndjson());
 
     let view_definition =
         Arc::new(resolve_view_definition(context.clone(), client.as_ref(), input).await?);
