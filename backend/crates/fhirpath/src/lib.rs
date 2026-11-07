@@ -524,6 +524,7 @@ async fn evaluate_function<'a>(
         "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
         "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
+        "escape" | "unescape" => evaluate_escape(function, context, config).await,
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
         "indexOf" | "substring" | "length" | "toChars" | "split" | "trim" | "replace"
@@ -1639,6 +1640,148 @@ async fn evaluate_string_function<'a>(
         }
         _ => unreachable!(),
     })
+}
+
+/// <https://hl7.org/fhirpath/N1/#escapetarget--string--string>: empty when the
+/// input or target is empty.
+async fn evaluate_escape<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = function.name.0.as_str();
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+    let Some(input) = singleton(name, &context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let input = downcast_string(input)?;
+    let target = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let Some(target) = singleton(name, &target)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let result = escape_target(name == "escape", &downcast_string(target)?, &input)?;
+    Ok(string_result(&context, result))
+}
+
+/// Escapes or unescapes `input` for the `html` or `json` target.
+fn escape_target(escape: bool, target: &str, input: &str) -> Result<String, FHIRPathError> {
+    match (target, escape) {
+        ("html", true) => Ok(escape_html(input)),
+        ("html", false) => Ok(unescape_html(input)),
+        ("json", true) => Ok(escape_json(input)),
+        ("json", false) => Ok(unescape_json(input)),
+        _ => {
+            let message = format!("Unsupported escape target '{target}'");
+            Err(FunctionError::InvalidFunctionCall(message).into())
+        }
+    }
+}
+
+fn escape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '&' => out.push_str("&amp;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Replaces the entities `escape_html` produces; unknown entities stay as written.
+fn unescape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(start) = rest.find('&') {
+        out.push_str(&rest[..start]);
+        rest = &rest[start..];
+        let decoded = rest.find(';').and_then(|end| {
+            let c = match &rest[1..end] {
+                "lt" => '<',
+                "gt" => '>',
+                "amp" => '&',
+                "quot" => '"',
+                "apos" | "#39" => '\'',
+                _ => return None,
+            };
+            Some((c, end + 1))
+        });
+        if let Some((c, len)) = decoded {
+            out.push(c);
+            rest = &rest[len..];
+        } else {
+            out.push('&');
+            rest = &rest[1..];
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn escape_json(input: &str) -> String {
+    use std::fmt::Write;
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{8}' => out.push_str("\\b"),
+            '\u{c}' => out.push_str("\\f"),
+            c if c < ' ' => {
+                let _ = write!(out, "\\u{:04x}", u32::from(c));
+            }
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Reverses JSON escapes; an invalid escape stays as written.
+fn unescape_json(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut chars = input.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            out.push(c);
+            continue;
+        }
+        let mut lookahead = chars.clone();
+        let decoded = match lookahead.next() {
+            Some('"') => Some('"'),
+            Some('\\') => Some('\\'),
+            Some('/') => Some('/'),
+            Some('n') => Some('\n'),
+            Some('r') => Some('\r'),
+            Some('t') => Some('\t'),
+            Some('b') => Some('\u{8}'),
+            Some('f') => Some('\u{c}'),
+            Some('u') => {
+                let hex: String = lookahead.clone().take(4).collect();
+                u32::from_str_radix(&hex, 16)
+                    .ok()
+                    .filter(|_| hex.len() == 4)
+                    .and_then(char::from_u32)
+                    .inspect(|_| {
+                        lookahead.nth(3);
+                    })
+            }
+            _ => None,
+        };
+        if let Some(d) = decoded {
+            out.push(d);
+            chars = lookahead;
+        } else {
+            out.push(c);
+        }
+    }
+    out
 }
 
 /// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
