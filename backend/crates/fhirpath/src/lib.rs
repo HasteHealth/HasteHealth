@@ -495,6 +495,7 @@ async fn evaluate_function<'a>(
         "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
+        "encode" | "decode" => evaluate_codec(function, context, config).await,
         "empty" => evaluate_empty(function, &context),
         "join" => evaluate_join(function, context, config).await,
         "exists" => evaluate_exists(function, context, config).await,
@@ -636,6 +637,82 @@ fn evaluate_case<'a>(
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRString {
             value: Some(transformed),
+            ..Default::default()
+        })]),
+    )
+}
+
+/// `encode(format)` / `decode(format)` for `hex`, `base64` and `urlbase64`.
+async fn evaluate_codec<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    use std::fmt::Write;
+
+    use base64::{
+        Engine,
+        engine::general_purpose::{STANDARD, URL_SAFE},
+    };
+
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let op = function.name.0.as_str();
+
+    if context.values.len() > 1 {
+        return Err(FunctionError::InvalidCardinality(op.to_string(), context.values.len()).into());
+    }
+
+    let format_context =
+        evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+
+    if context.values.is_empty() || format_context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    if format_context.values.len() > 1 {
+        return Err(
+            FunctionError::InvalidCardinality(op.to_string(), format_context.values.len()).into(),
+        );
+    }
+
+    let input = downcast_string(context.values[0])?;
+    let format = downcast_string(format_context.values[0])?;
+    let invalid = || FunctionError::InvalidFunctionCall(format!("{op}('{format}') failed"));
+
+    let output = if op == "encode" {
+        match format.as_str() {
+            "hex" => input
+                .bytes()
+                .fold(String::with_capacity(input.len() * 2), |mut acc, b| {
+                    let _ = write!(acc, "{b:02x}");
+                    acc
+                }),
+            "base64" => STANDARD.encode(input),
+            "urlbase64" => URL_SAFE.encode(input),
+            _ => return Err(invalid().into()),
+        }
+    } else {
+        let bytes = match format.as_str() {
+            "hex" => {
+                if !input.len().is_multiple_of(2) || !input.is_ascii() {
+                    return Err(invalid().into());
+                }
+                (0..input.len())
+                    .step_by(2)
+                    .map(|i| u8::from_str_radix(&input[i..i + 2], 16))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| invalid())?
+            }
+            "base64" => STANDARD.decode(&input).map_err(|_| invalid())?,
+            "urlbase64" => URL_SAFE.decode(&input).map_err(|_| invalid())?,
+            _ => return Err(invalid().into()),
+        };
+        String::from_utf8(bytes).map_err(|_| invalid())?
+    };
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRString {
+            value: Some(output),
             ..Default::default()
         })]),
     )
