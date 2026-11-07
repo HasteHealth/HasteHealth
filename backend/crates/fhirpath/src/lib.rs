@@ -662,6 +662,11 @@ async fn evaluate_join<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
 
+    // Spec: an empty input yields empty.
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+
     let separator = if let Some(separator_expression) = function.arguments.first() {
         let separator_context =
             evaluate_expression(separator_expression, context.clone(), config).await?;

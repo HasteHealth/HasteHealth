@@ -76,9 +76,6 @@ testUnescapeJson2
 testUnescapeJson3
 testUnescapeJson4
 
-# testJoin
-testJoinEmpty
-
 # testSort
 testSort10
 
