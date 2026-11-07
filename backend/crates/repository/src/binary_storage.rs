@@ -1,12 +1,12 @@
 //! `Binary.data` kept in document storage instead of the database.
 //!
-//! When document storage is configured, a Binary written with at least
+//! When document storage is on, a Binary written with at least
 //! `min_bytes` of content has the content put in storage under
 //! `{tenant}/{project}/Binary/{id}/{versionId}`, and the database row keeps
 //! `data` with only an extension ([`STORED_CONTENT_EXTENSION_URL`]) saying the
 //! value is there. Reads put the value back, so a caller gets the same Binary
-//! either way. Smaller content, and all content when storage is not
-//! configured, stays in the row.
+//! either way. Smaller content, and all content when storage is off, stays in
+//! the row.
 //!
 //! Every version has its own document, the same way every version has its own
 //! row. A document is only written before its row, so a document whose row
@@ -239,7 +239,9 @@ pub(crate) async fn rehydrate<'a>(
     let Some(storage) = storage else {
         return Err(OperationOutcomeError::fatal(
             IssueType::exception(),
-            "Binary content is kept in document storage, which is not configured.".to_string(),
+            "Binary content is kept in document storage, which is turned off \
+             ([document_storage] backend = \"none\")."
+                .to_string(),
         ));
     };
 

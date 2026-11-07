@@ -118,6 +118,29 @@ impl<
 
 pub use haste_fhir_search::config::SearchEngineBackend;
 
+/// The repository over the shared pool, with document storage when it is
+/// configured.
+///
+/// # Errors
+///
+/// Returns an error when document storage cannot be set up.
+pub async fn repo_with_document_storage(
+    config: &ServerConfig,
+) -> Result<PGConnection, OperationOutcomeError> {
+    let repo = PGConnection::pool(get_pool(config).await.clone());
+    Ok(
+        match haste_repository::config::connect_binary_storage(
+            &config.document_storage,
+            &config.repo,
+        )
+        .await?
+        {
+            Some(storage) => repo.with_binary_storage(storage),
+            None => repo,
+        },
+    )
+}
+
 /// The services of the HTTP server. Owns the search index's shape: this is the
 /// one place that may migrate it.
 pub async fn create_services(
@@ -149,13 +172,7 @@ async fn build_services(
     Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
-    let mut repo = PGConnection::pool(get_pool(config.as_ref()).await.clone());
-    if let Some(document_storage) = &config.document_storage {
-        repo = repo.with_binary_storage(
-            haste_repository::config::connect_binary_storage(document_storage).await?,
-        );
-    }
-    let pool = Arc::new(repo);
+    let pool = Arc::new(repo_with_document_storage(config.as_ref()).await?);
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 

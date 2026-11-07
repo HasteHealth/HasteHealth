@@ -7,7 +7,7 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [features]
-default = ["filesystem", "gcs"]
+default = ["filesystem", "gcs", "postgres"]
 # Directory on a local or mounted filesystem.
 filesystem = [
     "dep:percent-encoding",
@@ -15,6 +15,8 @@ filesystem = [
     "tokio/fs",
     "tokio/io-util",
 ]
+# Tables in a PostgreSQL database.
+postgres = ["dep:sqlx"]
 # Google Cloud Storage backend.
 gcs = [
     "dep:jsonwebtoken",
@@ -51,3 +53,10 @@ reqwest = { workspace = true, optional = true, features = [
 ] }
 serde = { workspace = true, features = ["derive", "std"] }
 serde_json = { workspace = true, optional = true }
+sqlx = { workspace = true, optional = true, features = [
+    "runtime-tokio",
+    "tls-rustls-ring-native-roots",
+    "postgres",
+    "json",
+    "time",
+] }

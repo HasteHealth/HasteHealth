@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use clap::Subcommand;
 use figment::{
@@ -7,6 +7,7 @@ use figment::{
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_repository::{config::DocumentStorageConfig, pg::PGConnection};
 use haste_server::{config::ServerConfig, jobs::operation::OperationJobHandler, services};
 use haste_worker::{
     async_jobs::{AsyncJobWorker, JobHandler},
@@ -50,12 +51,34 @@ async fn start_async_jobs() -> Result<JoinHandle<()>, OperationOutcomeError> {
     // server itself owns).
     let config: Arc<ServerConfig> = Arc::new(figment().extract().map_err(config_error)?);
     let state = services::create_worker_services(config.clone()).await?;
+    spawn_document_sweep(state.repo.clone(), &config.document_storage);
     let handlers: Vec<Arc<dyn JobHandler>> =
         vec![Arc::new(OperationJobHandler::new(state.clone()))];
 
     AsyncJobWorker::new(state.repo.clone(), handlers, config.jobs.worker_config())
         .run()
         .await
+}
+
+/// Removes orphaned Binary documents every `sweep_interval_seconds`, first
+/// one interval after the worker starts. Each async-job worker runs its own;
+/// a sweep only deletes documents no resource version refers to, so two at
+/// once do no harm. A failed sweep is logged and tried again next interval.
+fn spawn_document_sweep(repo: Arc<PGConnection>, config: &DocumentStorageConfig) {
+    if repo.binary_storage().is_none() || config.sweep_interval_seconds == 0 {
+        return;
+    }
+    let interval = Duration::from_secs(config.sweep_interval_seconds);
+    let grace = Duration::from_secs(config.sweep_grace_seconds);
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(interval).await;
+            match repo.sweep_binary_documents(grace, false).await {
+                Ok(report) => tracing::info!(?report, "document storage sweep finished"),
+                Err(error) => tracing::error!(%error, "document storage sweep failed"),
+            }
+        }
+    });
 }
 
 /// A worker's loop only ends on a panic, which fails the command.

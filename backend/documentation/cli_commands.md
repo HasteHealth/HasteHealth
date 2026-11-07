@@ -911,7 +911,7 @@ Run database/search/artifact migrations
 
 * `artifacts` — Load the built-in FHIR artifacts (StructureDefinitions, ValueSets, etc)
 * `reset-artifacts` — Reload the built-in FHIR artifacts from scratch, discarding local edits to them
-* `repo` — Run pending repository (Postgres) migrations
+* `repo` — Run pending repository (Postgres) migrations, including the document storage tables
 * `search` — Run pending search index (Postgres or Elasticsearch) migrations
 * `all` — Run all of the above: repo, then search, then artifacts
 
@@ -935,7 +935,7 @@ Reload the built-in FHIR artifacts from scratch, discarding local edits to them
 
 ## `haste-health admin migrate repo`
 
-Run pending repository (Postgres) migrations
+Run pending repository (Postgres) migrations, including the document storage tables
 
 **Usage:** `haste-health admin migrate repo`
 

@@ -82,24 +82,44 @@ With `backend = "elasticsearch"`:
 | `search.password`                        | `HASTE_SEARCH.password`                        | `elastic`               |
 | `search.prune_removed_search_parameters` | `HASTE_SEARCH.prune_removed_search_parameters` | `false`                 |
 
-#### `[document_storage]` (optional)
+#### `[document_storage]`
 
-Absent by default: all resource content is kept in the repository database.
-When set, `Binary.data` of at least `binary_min_bytes` bytes (after base64
-decoding) is written to document storage instead, under
+On by default. `Binary.data` of at least `binary_min_bytes` bytes (after base64
+decoding) is written to document storage instead of the resource row, under
 `<tenant>/<project>/Binary/<id>/<versionId>`, and put back on every read (read,
 vread, history, search and `_include`), so clients see no difference. Smaller
-content stays in the database. Every version keeps its own document, and a
-delete leaves earlier versions' documents in place.
+content stays in the row. Every version keeps its own document, and a delete
+leaves earlier versions' documents in place.
 
-Tagged by `backend`: `filesystem` keeps documents in a directory (for
-development, tests and single-node deployments), `gcs` in a Google Cloud
-Storage bucket.
+Tagged by `backend`:
 
-| Key                                 | Env var                                                 | Default          |
-| ----------------------------------- | ------------------------------------------------------- | ---------------- |
-| `document_storage.backend`          | `HASTE_DOCUMENT_STORAGE.backend` (`filesystem` / `gcs`) | —                |
-| `document_storage.binary_min_bytes` | `HASTE_DOCUMENT_STORAGE.binary_min_bytes`               | `65536` (64 KiB) |
+- `postgres` (the default): two tables in the repository database
+  (`document_storage`, and `document_storage_chunks` with the content in rows
+  of at most 1 MiB), so a deployment needs nothing beyond the database it
+  already has. `haste-health admin migrate repo` (or `migrate all`) creates
+  them; until it has run, writing a Binary over the threshold fails with an
+  error naming that command. `database_url` puts them in another database.
+- `filesystem`: a directory, for development, tests and single-node
+  deployments.
+- `gcs`: a Google Cloud Storage bucket.
+- `none`: all content stays in the resource rows.
+
+Setting any key of the section, such as `binary_min_bytes`, means setting
+`backend` as well.
+
+| Key                                       | Env var                                                                       | Default                                            |
+| ----------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------- |
+| `document_storage.backend`                | `HASTE_DOCUMENT_STORAGE.backend` (`postgres` / `filesystem` / `gcs` / `none`) | `postgres`                                         |
+| `document_storage.binary_min_bytes`       | `HASTE_DOCUMENT_STORAGE.binary_min_bytes`                                     | `65536` (64 KiB)                                   |
+| `document_storage.sweep_interval_seconds` | `HASTE_DOCUMENT_STORAGE.sweep_interval_seconds`                               | `86400` (a day); `0` turns the automatic sweep off |
+| `document_storage.sweep_grace_seconds`    | `HASTE_DOCUMENT_STORAGE.sweep_grace_seconds`                                  | `86400`; must exceed the longest transaction       |
+
+With `backend = "postgres"`:
+
+| Key                                | Env var                                  | Default             |
+| ---------------------------------- | ---------------------------------------- | ------------------- |
+| `document_storage.database_url`    | `HASTE_DOCUMENT_STORAGE.database_url`    | the `repo` database |
+| `document_storage.max_connections` | `HASTE_DOCUMENT_STORAGE.max_connections` | `10`, its own pool  |
 
 With `backend = "filesystem"`:
 
@@ -126,18 +146,23 @@ Credential types, with their extra field:
 - `access_token`, with `token`: a fixed OAuth2 access token, for tests.
 
 The server and the `worker` (which runs asynchronous jobs through the same
-FHIR client) need the same settings. A process without them answers 500 for a
-Binary whose content is in document storage, rather than returning it without
-its content.
+FHIR client) need the same settings. A process with storage off answers 500
+for a Binary whose content is in document storage, rather than returning it
+without its content.
+
+Give every deployment storage of its own (a database, directory, bucket or
+prefix): the sweep below removes any document the deployment's own database
+has no version for.
 
 A Binary still arrives as base64 inside a FHIR JSON body, so
 `max_request_body_size` limits its size as before.
 
 A write uploads its document before the database row commits, so a rolled
 back transaction or a failed write can leave a document that no version refers
-to. `haste-health admin document-storage sweep` removes those once they are
-older than `--older-than-hours` (default 24, which must exceed the longest
-transaction); `--dry-run` only counts them.
+to. Each async-job worker removes those every `sweep_interval_seconds`, once
+they are older than `sweep_grace_seconds`. `haste-health admin
+document-storage sweep` does the same on demand, for documents older than
+`--older-than-hours` (default 24); `--dry-run` only counts them.
 
 #### `[email]` — optional
 
@@ -221,11 +246,11 @@ backend = "postgres"
 database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
 max_connections = 20
 
-# Optional: keep Binary content of 64 KiB or more out of the database.
+# Binary content of 64 KiB or more goes to tables in the repo database by
+# default. To keep it in a directory instead:
 # [document_storage]
 # backend = "filesystem"
 # root = "/var/lib/haste-health/documents"
-# binary_min_bytes = 65536
 
 [monitoring]
 audit_enabled = false
@@ -273,7 +298,8 @@ HASTE_SEARCH.backend=postgres
 HASTE_SEARCH.database_url=postgresql://postgres:postgres@postgres:5432/haste_health_search
 HASTE_SEARCH.max_connections=20
 
-# Optional: Binary content in a Google Cloud Storage bucket.
+# Optional: Binary content in a Google Cloud Storage bucket instead of the
+# repository database.
 # HASTE_DOCUMENT_STORAGE.backend=gcs
 # HASTE_DOCUMENT_STORAGE.bucket=my-bucket
 # HASTE_DOCUMENT_STORAGE.credentials.type=metadata_server

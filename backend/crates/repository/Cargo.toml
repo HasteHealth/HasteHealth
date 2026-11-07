@@ -10,7 +10,11 @@ homepage = { workspace = true }
 rate-limit = []
 
 [dependencies]
-haste-document-storage = { path = "../document-storage", version = "0.*" }
+haste-document-storage = { path = "../document-storage", version = "0.*", default-features = false, features = [
+    "filesystem",
+    "gcs",
+    "postgres",
+] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
     "sqlx",

@@ -20,7 +20,6 @@ use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::{
     admin::{Migrate, TenantModelAdmin},
-    pg::PGConnection,
     types::user::{AuthMethod, CreateUser, UserSearchClauses},
 };
 use haste_server::{
@@ -155,7 +154,7 @@ pub(crate) enum MigrationCommands {
     Artifacts {},
     /// Reload the built-in FHIR artifacts from scratch, discarding local edits to them.
     ResetArtifacts {},
-    /// Run pending repository (Postgres) migrations.
+    /// Run pending repository (Postgres) migrations, including the document storage tables.
     Repo {},
     /// Run pending search index (Postgres or Elasticsearch) migrations.
     Search {},
@@ -213,8 +212,10 @@ pub(crate) enum UserCommands {
 }
 
 async fn migrate_repo(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
-    let services = services::create_services(config).await?;
+    let services = services::create_services(config.clone()).await?;
     services.repo.migrate().await?;
+    haste_repository::config::migrate_document_storage(&config.document_storage, &config.repo)
+        .await?;
     Ok(())
 }
 
@@ -577,16 +578,13 @@ async fn sweep_document_storage(
     older_than_hours: u64,
     dry_run: bool,
 ) -> Result<(), OperationOutcomeError> {
-    let Some(document_storage) = &config.document_storage else {
+    let repo = services::repo_with_document_storage(config).await?;
+    if repo.binary_storage().is_none() {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
-            "Document storage is not configured ([document_storage] or HASTE_DOCUMENT_STORAGE.*)."
-                .to_string(),
+            "Document storage is off ([document_storage] backend = \"none\").".to_string(),
         ));
-    };
-    let repo = PGConnection::pool(services::get_pool(config).await.clone()).with_binary_storage(
-        haste_repository::config::connect_binary_storage(document_storage).await?,
-    );
+    }
 
     let report = repo
         .sweep_binary_documents(

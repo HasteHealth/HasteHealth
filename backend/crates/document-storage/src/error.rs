@@ -51,6 +51,13 @@ pub enum StorageError {
     #[error(code = "exception", diagnostic = "Document storage I/O failed: {arg0}")]
     Io(String),
 
+    /// The database behind the Postgres backend rejected a statement.
+    #[error(
+        code = "exception",
+        diagnostic = "Document storage database error: {arg0}"
+    )]
+    Database(String),
+
     /// The backend answered with an unexpected status or body.
     #[error(
         code = "exception",
@@ -82,6 +89,7 @@ impl Display for StorageError {
             Self::NotFound(key) => write!(f, "document '{key}' not found"),
             Self::Transport(reason) => write!(f, "request failed: {reason}"),
             Self::Io(reason) => write!(f, "I/O failed: {reason}"),
+            Self::Database(reason) => write!(f, "database error: {reason}"),
             Self::Backend(status, reason) => write!(f, "backend responded {status}: {reason}"),
         }
     }

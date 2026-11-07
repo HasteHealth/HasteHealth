@@ -4,3 +4,5 @@
 pub mod filesystem;
 #[cfg(feature = "gcs")]
 pub mod gcs;
+#[cfg(feature = "postgres")]
+pub mod postgres;

@@ -2,7 +2,7 @@
 
 Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get, delete and list by key prefix); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
 
-The Haste Health server uses it through [`haste-repository`](https://crates.io/crates/haste-repository) to keep large `Binary.data` out of the database: the content goes to document storage under `<tenant>/<project>/Binary/<id>/<versionId>` and is put back on every read.
+The Haste Health server uses it through [`haste-repository`](https://crates.io/crates/haste-repository) to keep large `Binary.data` out of the resource rows: the content goes to document storage under `<tenant>/<project>/Binary/<id>/<versionId>` and is put back on every read. By default that storage is the `postgres` backend in the repository database.
 
 ## Install
 
@@ -16,6 +16,7 @@ cargo add haste-document-storage
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `filesystem` | (default) `providers::filesystem`: a directory on a local or mounted filesystem, for development, tests and single-node use |
 | `gcs`        | (default) `providers::gcs`: a Google Cloud Storage bucket over the JSON API                                                 |
+| `postgres`   | (default) `providers::postgres`: two tables in a PostgreSQL database, the body in rows of at most 1 MiB                     |
 
 ## Usage
 
@@ -45,6 +46,8 @@ bucket = "my-bucket"
 prefix = "documents"
 credentials = { type = "service_account_key_file", path = "/secrets/key.json" }
 ```
+
+The `postgres` backend needs its tables before first use: `PostgresDocumentStorage::migrate` creates them, recording its migrations in `_document_storage_migrations` so it can share a database with another application's sqlx migrations.
 
 Bodies are read as a stream (`DocumentBody`); `collect` gathers one into memory. Keys are validated (`DocumentKey`): non-empty, at most 1024 bytes, no control characters, no leading slash and no empty, `.` or `..` segments. Errors are `StorageError`s, which convert into a FHIR `OperationOutcome` through [`haste-fhir-operation-error`](https://crates.io/crates/haste-fhir-operation-error); `is_transient` tells a retryable failure apart, and the GCS backend retries those itself.
 

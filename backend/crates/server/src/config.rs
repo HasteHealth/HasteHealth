@@ -22,9 +22,9 @@ pub struct ServerConfig {
 
     pub fhir: FHIRConfig,
     pub repo: RepoConfig,
-    /// Where large `Binary.data` is kept instead of the database. Unset keeps
-    /// all content in the database.
-    pub document_storage: Option<DocumentStorageConfig>,
+    /// Where large `Binary.data` is kept instead of the resource rows. Tables
+    /// in the repository database unless configured otherwise.
+    pub document_storage: DocumentStorageConfig,
     pub search: SearchConfig,
     pub email: Option<EmailConfig>,
     pub rate_limits: RateLimitsConfig,
@@ -285,7 +285,7 @@ impl Default for ServerConfig {
             admin_app_redirect_uri: "http://*.localhost:3001".into(),
             fhir: FHIRConfig::default(),
             repo: RepoConfig::default(),
-            document_storage: None,
+            document_storage: DocumentStorageConfig::default(),
             search: SearchConfig::default(),
             email: None,
             max_request_body_size: 4 * 1024 * 1024,

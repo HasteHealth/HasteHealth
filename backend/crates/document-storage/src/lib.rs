@@ -62,6 +62,11 @@ pub use types::{
 /// prefix = "documents"
 /// credentials = { type = "service_account_key_file", path = "/secrets/key.json" }
 /// ```
+///
+/// ```toml
+/// backend = "postgres"
+/// database_url = "postgres://haste:password@localhost:5432/documents"
+/// ```
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "backend", rename_all = "snake_case")]
 pub enum DocumentStorageKind {
@@ -69,9 +74,13 @@ pub enum DocumentStorageKind {
     Filesystem(providers::filesystem::FilesystemConfig),
     #[cfg(feature = "gcs")]
     Gcs(providers::gcs::GcsConfig),
+    #[cfg(feature = "postgres")]
+    Postgres(providers::postgres::PostgresConfig),
 }
 
-/// Builds the configured backend and verifies that it can authenticate.
+/// Builds the configured backend and verifies that it can authenticate. The
+/// Postgres backend's tables must already exist (see
+/// [`providers::postgres::PostgresDocumentStorage::migrate`]).
 ///
 /// # Errors
 ///
@@ -86,6 +95,10 @@ pub async fn connect(kind: DocumentStorageKind) -> Result<Arc<dyn DocumentStorag
         #[cfg(feature = "gcs")]
         DocumentStorageKind::Gcs(config) => Ok(Arc::new(
             providers::gcs::GcsDocumentStorage::connect(config).await?,
+        )),
+        #[cfg(feature = "postgres")]
+        DocumentStorageKind::Postgres(config) => Ok(Arc::new(
+            providers::postgres::PostgresDocumentStorage::connect(config).await?,
         )),
     }
 }
