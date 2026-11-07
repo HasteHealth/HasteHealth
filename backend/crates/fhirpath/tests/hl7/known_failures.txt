@@ -76,16 +76,6 @@ testUnescapeJson2
 testUnescapeJson3
 testUnescapeJson4
 
-# testSplit
-testSplit1
-testSplit2
-testSplit3
-testSplit4
-testSplit5
-testSplit6
-testSplit7
-testSplit8
-
 # testJoin
 testJoinEmpty
 
