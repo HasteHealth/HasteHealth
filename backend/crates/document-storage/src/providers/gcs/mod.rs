@@ -10,6 +10,7 @@ use bytes::{Bytes, BytesMut};
 use futures_util::TryStreamExt as _;
 use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 use reqwest::{Client, Method, RequestBuilder, Response, header::CONTENT_TYPE};
+use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 pub use auth::GcsCredentials;
@@ -44,15 +45,19 @@ const ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
     .remove(b'~');
 
 /// Settings for [`GcsDocumentStorage`].
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GcsConfig {
     pub bucket: String,
     /// Folder-like prefix placed before every key, so one bucket can serve
     /// several deployments.
+    #[serde(default)]
     pub prefix: Option<String>,
+    /// Application Default Credentials unless set.
+    #[serde(default)]
     pub credentials: GcsCredentials,
     /// API root, `https://storage.googleapis.com` unless set. Point it at an
     /// emulator for local development.
+    #[serde(default)]
     pub endpoint: Option<String>,
 }
 

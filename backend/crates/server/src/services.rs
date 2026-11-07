@@ -149,7 +149,13 @@ async fn build_services(
     Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
-    let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
+    let mut repo = PGConnection::pool(get_pool(config.as_ref()).await.clone());
+    if let Some(document_storage) = &config.document_storage {
+        repo = repo.with_binary_storage(
+            haste_repository::config::connect_binary_storage(document_storage).await?,
+        );
+    }
+    let pool = Arc::new(repo);
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 

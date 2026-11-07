@@ -1,20 +1,25 @@
 [package]
 name = "haste-document-storage"
 description = "Backend-agnostic document (blob) storage for Haste Health."
-publish = false
 version = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 homepage = { workspace = true }
 
 [features]
-default = ["gcs"]
+default = ["filesystem", "gcs"]
+# Directory on a local or mounted filesystem.
+filesystem = [
+    "dep:percent-encoding",
+    "dep:serde_json",
+    "tokio/fs",
+    "tokio/io-util",
+]
 # Google Cloud Storage backend.
 gcs = [
     "dep:jsonwebtoken",
     "dep:percent-encoding",
     "dep:reqwest",
-    "dep:serde",
     "dep:serde_json",
     "tokio/fs",
 ]
@@ -44,5 +49,5 @@ reqwest = { workspace = true, optional = true, features = [
     "form",
     "stream",
 ] }
-serde = { workspace = true, optional = true, features = ["derive"] }
+serde = { workspace = true, features = ["derive", "std"] }
 serde_json = { workspace = true, optional = true }

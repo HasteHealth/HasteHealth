@@ -20,7 +20,7 @@ Any field not set by either source falls back to the default documented below.
 
 - Top-level fields: `HASTE_<FIELD>`, e.g. `HASTE_API_URI`, `HASTE_CERTIFICATION_DIR`, `HASTE_ADMIN_APP_REDIRECT_URI`, `HASTE_MAX_REQUEST_BODY_SIZE`.
 - Nested sections: `HASTE_<SECTION>.<field>` — the prefix plus the section name, then a **literal dot**, then the field name as it appears in TOML (lowercase), e.g. `HASTE_REPO.database_url`, `HASTE_SEARCH.username`, `HASTE_SECURITY.publicize_fhir_metadata`.
-- Sections that pick a backend/provider via a tag (`repo`, `search`, `email`, `security.encryption`) need that tag set too, e.g. `HASTE_REPO.backend=postgres`.
+- Sections that pick a backend/provider via a tag (`repo`, `search`, `document_storage`, `email`, `security.encryption`) need that tag set too, e.g. `HASTE_REPO.backend=postgres`.
 
 ### Reference
 
@@ -81,6 +81,63 @@ With `backend = "elasticsearch"`:
 | `search.username`                        | `HASTE_SEARCH.username`                        | `elastic`               |
 | `search.password`                        | `HASTE_SEARCH.password`                        | `elastic`               |
 | `search.prune_removed_search_parameters` | `HASTE_SEARCH.prune_removed_search_parameters` | `false`                 |
+
+#### `[document_storage]` (optional)
+
+Absent by default: all resource content is kept in the repository database.
+When set, `Binary.data` of at least `binary_min_bytes` bytes (after base64
+decoding) is written to document storage instead, under
+`<tenant>/<project>/Binary/<id>/<versionId>`, and put back on every read (read,
+vread, history, search and `_include`), so clients see no difference. Smaller
+content stays in the database. Every version keeps its own document, and a
+delete leaves earlier versions' documents in place.
+
+Tagged by `backend`: `filesystem` keeps documents in a directory (for
+development, tests and single-node deployments), `gcs` in a Google Cloud
+Storage bucket.
+
+| Key                                 | Env var                                                 | Default          |
+| ----------------------------------- | ------------------------------------------------------- | ---------------- |
+| `document_storage.backend`          | `HASTE_DOCUMENT_STORAGE.backend` (`filesystem` / `gcs`) | —                |
+| `document_storage.binary_min_bytes` | `HASTE_DOCUMENT_STORAGE.binary_min_bytes`               | `65536` (64 KiB) |
+
+With `backend = "filesystem"`:
+
+| Key                     | Env var                       | Default                        |
+| ----------------------- | ----------------------------- | ------------------------------ |
+| `document_storage.root` | `HASTE_DOCUMENT_STORAGE.root` | required; created when missing |
+
+With `backend = "gcs"`:
+
+| Key                                 | Env var                                   | Default                                                                        |
+| ----------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| `document_storage.bucket`           | `HASTE_DOCUMENT_STORAGE.bucket`           | —                                                                              |
+| `document_storage.prefix`           | `HASTE_DOCUMENT_STORAGE.prefix`           | none; a folder-like prefix before every key, so deployments can share a bucket |
+| `document_storage.endpoint`         | `HASTE_DOCUMENT_STORAGE.endpoint`         | `https://storage.googleapis.com`; point it at an emulator for development      |
+| `document_storage.credentials.type` | `HASTE_DOCUMENT_STORAGE.credentials.type` | `application_default`                                                          |
+
+Credential types, with their extra field:
+
+- `application_default`: the file named by `GOOGLE_APPLICATION_CREDENTIALS`, then the file `gcloud auth application-default login` writes, then the metadata server.
+- `service_account_key_file`, with `path`: a service account key file.
+- `service_account_key_json`, with `json`: the contents of a service account key file.
+- `metadata_server`: the metadata server of GCE, GKE, Cloud Run and similar runtimes.
+- `anonymous`: no credentials, for emulators such as fake-gcs-server.
+- `access_token`, with `token`: a fixed OAuth2 access token, for tests.
+
+The server and the `worker` (which runs asynchronous jobs through the same
+FHIR client) need the same settings. A process without them answers 500 for a
+Binary whose content is in document storage, rather than returning it without
+its content.
+
+A Binary still arrives as base64 inside a FHIR JSON body, so
+`max_request_body_size` limits its size as before.
+
+A write uploads its document before the database row commits, so a rolled
+back transaction or a failed write can leave a document that no version refers
+to. `haste-health admin document-storage sweep` removes those once they are
+older than `--older-than-hours` (default 24, which must exceed the longest
+transaction); `--dry-run` only counts them.
 
 #### `[email]` — optional
 
@@ -164,6 +221,12 @@ backend = "postgres"
 database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
 max_connections = 20
 
+# Optional: keep Binary content of 64 KiB or more out of the database.
+# [document_storage]
+# backend = "filesystem"
+# root = "/var/lib/haste-health/documents"
+# binary_min_bytes = 65536
+
 [monitoring]
 audit_enabled = false
 
@@ -209,4 +272,9 @@ HASTE_REPO.max_connections=20
 HASTE_SEARCH.backend=postgres
 HASTE_SEARCH.database_url=postgresql://postgres:postgres@postgres:5432/haste_health_search
 HASTE_SEARCH.max_connections=20
+
+# Optional: Binary content in a Google Cloud Storage bucket.
+# HASTE_DOCUMENT_STORAGE.backend=gcs
+# HASTE_DOCUMENT_STORAGE.bucket=my-bucket
+# HASTE_DOCUMENT_STORAGE.credentials.type=metadata_server
 ```

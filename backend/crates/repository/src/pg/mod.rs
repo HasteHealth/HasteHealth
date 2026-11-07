@@ -6,11 +6,13 @@ use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::Repository;
+use crate::{Repository, binary_storage::BinaryStorage};
 
+pub use binary_documents::SweepReport;
 pub use pending::PendingRows;
 
 mod async_job;
+mod binary_documents;
 mod failed_indexing;
 mod migrate;
 mod models;
@@ -46,12 +48,21 @@ pub enum StoreError {
 /// Connection types supported by the repository traits.
 #[derive(Debug, Clone)]
 pub enum PGConnection {
-    Pool(sqlx::Pool<Postgres>, Cache<VersionId, Resource>),
+    Pool(sqlx::Pool<Postgres>, Shared),
     Transaction(
         Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
-        Cache<VersionId, Resource>,
+        Shared,
         PendingRows,
     ),
+}
+
+/// What a pool and every transaction opened from it share.
+#[derive(Debug, Clone)]
+pub struct Shared {
+    /// Resources by version. Binary content kept in document storage is not
+    /// cached: entries hold the database row's form.
+    cache: Cache<VersionId, Resource>,
+    binary_storage: Option<BinaryStorage>,
 }
 
 static TOTAL_CACHE_SIZE: u64 = 1000 * 10;
@@ -59,14 +70,42 @@ static TOTAL_CACHE_SIZE: u64 = 1000 * 10;
 impl PGConnection {
     #[must_use]
     pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
-        PGConnection::Pool(pool, Cache::new(TOTAL_CACHE_SIZE))
+        PGConnection::Pool(
+            pool,
+            Shared {
+                cache: Cache::new(TOTAL_CACHE_SIZE),
+                binary_storage: None,
+            },
+        )
+    }
+
+    /// Keeps large `Binary.data` in `storage` rather than in the database.
+    #[must_use]
+    pub fn with_binary_storage(mut self, storage: BinaryStorage) -> Self {
+        self.shared_mut().binary_storage = Some(storage);
+        self
+    }
+
+    fn shared(&self) -> &Shared {
+        match self {
+            PGConnection::Pool(_, shared) | PGConnection::Transaction(_, shared, _) => shared,
+        }
+    }
+
+    fn shared_mut(&mut self) -> &mut Shared {
+        match self {
+            PGConnection::Pool(_, shared) | PGConnection::Transaction(_, shared, _) => shared,
+        }
     }
 
     #[must_use]
     pub fn cache(&self) -> &Cache<VersionId, Resource> {
-        match self {
-            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache, _) => cache,
-        }
+        &self.shared().cache
+    }
+
+    #[must_use]
+    pub fn binary_storage(&self) -> Option<&BinaryStorage> {
+        self.shared().binary_storage.as_ref()
     }
 }
 

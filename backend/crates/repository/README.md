@@ -44,18 +44,21 @@ tx.commit().await?;
 
 `RepoConfig` is the `[repo]` section of the server configuration (`HASTE_REPO.database_url` and friends). `transaction(register)` opens a database transaction; `true` registers it with the sequence guard so the indexer never skips a write that is still committing. `claims` is a `haste_jwt::claims::UserTokenClaims` and `fhir_version` a `haste_jwt::SupportedFHIRVersions`.
 
+With document storage attached (`config::connect_binary_storage` builds it from the `[document_storage]` section), a Binary whose content is at least `binary_min_bytes` long is stored with only a marker on `data` in its row, its content uploaded to [`haste-document-storage`](https://crates.io/crates/haste-document-storage) first, and every read puts the content back. Callers see the same resources either way.
+
 ## API
 
-| Trait or module                                        | Covers                                                                                                                                                               |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fhir::FHIRRepository`                                 | `create`, `update`, `delete`, `read_latest`, `read_latest_many`, `read_by_version_ids`, `history`, and `transaction`, `commit`, `rollback`                           |
-| `admin::TenantModelAdmin`, `admin::ProjectModelAdmin`  | Create, read, update, delete and search for tenants, users, projects, authorization codes and MFA credentials (tenant scope), memberships and scopes (project scope) |
-| `admin::Login`, `admin::Migrate`, `admin::SystemAdmin` | Email and password or OIDC login, schema migrations, cross-tenant user search                                                                                        |
-| `sequence::ResourceSequential`                         | `max_safe_sequence` and `get_sequence`: the ordered, gap-free feed of writes the search indexer consumes                                                             |
-| `async_job::AsyncJobProvider`                          | Queue, claim, lease and complete jobs for the FHIR Asynchronous Request Pattern                                                                                      |
-| `failed_indexing::FailedIndexingProvider`              | Record and list resources that failed search indexing                                                                                                                |
-| `config::RepoConfig`, `config::create_repo`            | The storage configuration and the pool it opens                                                                                                                      |
-| `pg::PGConnection`, `pg::StoreError`                   | The PostgreSQL implementation (`Pool` or `Transaction`) and its error type                                                                                           |
+| Trait or module                                                  | Covers                                                                                                                                                                              |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fhir::FHIRRepository`                                           | `create`, `update`, `delete`, `read_latest`, `read_latest_many`, `read_by_version_ids`, `history`, and `transaction`, `commit`, `rollback`                                          |
+| `admin::TenantModelAdmin`, `admin::ProjectModelAdmin`            | Create, read, update, delete and search for tenants, users, projects, authorization codes and MFA credentials (tenant scope), memberships and scopes (project scope)                |
+| `admin::Login`, `admin::Migrate`, `admin::SystemAdmin`           | Email and password or OIDC login, schema migrations, cross-tenant user search                                                                                                       |
+| `sequence::ResourceSequential`                                   | `max_safe_sequence` and `get_sequence`: the ordered, gap-free feed of writes the search indexer consumes                                                                            |
+| `async_job::AsyncJobProvider`                                    | Queue, claim, lease and complete jobs for the FHIR Asynchronous Request Pattern                                                                                                     |
+| `failed_indexing::FailedIndexingProvider`                        | Record and list resources that failed search indexing                                                                                                                               |
+| `config::RepoConfig`, `config::create_repo`                      | The storage configuration and the pool it opens                                                                                                                                     |
+| `pg::PGConnection`, `pg::StoreError`                             | The PostgreSQL implementation (`Pool` or `Transaction`) and its error type                                                                                                          |
+| `config::DocumentStorageConfig`, `binary_storage::BinaryStorage` | Optional document storage for large `Binary.data`, attached with `PGConnection::with_binary_storage`; `PGConnection::sweep_binary_documents` removes documents no version refers to |
 
 The integration tests need a reachable PostgreSQL instance: `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/haste_health cargo test -p haste-repository`.
 

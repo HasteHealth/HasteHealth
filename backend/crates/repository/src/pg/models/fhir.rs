@@ -1,4 +1,5 @@
 use crate::{
+    binary_storage,
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
         PGConnection, StoreError,
@@ -147,46 +148,44 @@ impl FHIRRepository for PGConnection {
         let (cached_result, remaining_version_ids) =
             read_version_ids_from_cache(self.cache(), version_ids).await;
 
-        if remaining_version_ids.is_empty() {
-            return Ok(cached_result);
-        }
-
-        match self {
-            PGConnection::Pool(pool, cache) => {
-                let res = read_by_version_ids(pool, tenant_id, project_id, &remaining_version_ids)
-                    .await?;
-
-                if cache_policy == CachePolicy::Cache {
-                    for v in &res {
-                        cache.insert(v.version_id.clone(), v.resource.clone()).await;
-                    }
+        let mut resources = if remaining_version_ids.is_empty() {
+            cached_result
+        } else {
+            let res = match self {
+                PGConnection::Pool(pool, _) => {
+                    read_by_version_ids(pool, tenant_id, project_id, &remaining_version_ids).await?
                 }
-
-                Ok(cached_result
-                    .into_iter()
-                    .chain(res.into_iter().map(|r| r.resource))
-                    .collect::<Vec<_>>())
-            }
-            PGConnection::Transaction(tx, cache, pending) => {
-                pending.flush(tx).await?;
-                let mut conn = tx.lock().await;
-                // Handle PgConnection connection
-                let res =
+                PGConnection::Transaction(tx, _, pending) => {
+                    pending.flush(tx).await?;
+                    let mut conn = tx.lock().await;
+                    // Handle PgConnection connection
                     read_by_version_ids(&mut **conn, tenant_id, project_id, &remaining_version_ids)
-                        .await?;
-
-                if cache_policy == CachePolicy::Cache {
-                    for v in &res {
-                        cache.insert(v.version_id.clone(), v.resource.clone()).await;
-                    }
+                        .await?
                 }
+            };
 
-                Ok(cached_result
-                    .into_iter()
-                    .chain(res.into_iter().map(|r| r.resource))
-                    .collect::<Vec<_>>())
+            if cache_policy == CachePolicy::Cache {
+                for v in &res {
+                    self.cache()
+                        .insert(v.version_id.clone(), v.resource.clone())
+                        .await;
+                }
             }
-        }
+
+            cached_result
+                .into_iter()
+                .chain(res.into_iter().map(|r| r.resource))
+                .collect::<Vec<_>>()
+        };
+
+        binary_storage::rehydrate(
+            self.binary_storage(),
+            tenant_id,
+            project_id,
+            resources.iter_mut(),
+        )
+        .await?;
+        Ok(resources)
     }
 
     async fn read_latest(
@@ -196,11 +195,9 @@ impl FHIRRepository for PGConnection {
         resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        match self {
+        let mut resource = match self {
             PGConnection::Pool(pool, _) => {
-                let res =
-                    read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?;
-                Ok(res)
+                read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?
             }
             PGConnection::Transaction(tx, _, pending) => {
                 pending.flush(tx).await?;
@@ -213,9 +210,18 @@ impl FHIRRepository for PGConnection {
                     resource_type,
                     resource_id,
                 )
-                .await
+                .await?
             }
-        }
+        };
+
+        binary_storage::rehydrate(
+            self.binary_storage(),
+            tenant_id,
+            project_id,
+            resource.iter_mut(),
+        )
+        .await?;
+        Ok(resource)
     }
 
     async fn read_latest_many(
@@ -228,16 +234,25 @@ impl FHIRRepository for PGConnection {
             return Ok(Vec::new());
         }
 
-        match self {
+        let mut resources = match self {
             PGConnection::Pool(pool, _) => {
-                read_latest_many(pool, tenant_id, project_id, keys).await
+                read_latest_many(pool, tenant_id, project_id, keys).await?
             }
             PGConnection::Transaction(tx, _, pending) => {
                 pending.flush(tx).await?;
                 let mut conn = tx.lock().await;
-                read_latest_many(&mut **conn, tenant_id, project_id, keys).await
+                read_latest_many(&mut **conn, tenant_id, project_id, keys).await?
             }
-        }
+        };
+
+        binary_storage::rehydrate(
+            self.binary_storage(),
+            tenant_id,
+            project_id,
+            resources.iter_mut(),
+        )
+        .await?;
+        Ok(resources)
     }
 
     async fn history(
@@ -246,15 +261,24 @@ impl FHIRRepository for PGConnection {
         project_id: &ProjectId,
         request: &HistoryRequest,
     ) -> Result<Vec<ResourceHistoryValue>, OperationOutcomeError> {
-        match self {
-            PGConnection::Pool(pool, _) => history(pool, tenant_id, project_id, request).await,
+        let mut entries = match self {
+            PGConnection::Pool(pool, _) => history(pool, tenant_id, project_id, request).await?,
             PGConnection::Transaction(tx, _, pending) => {
                 pending.flush(tx).await?;
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                history(&mut **conn, tenant_id, project_id, request).await
+                history(&mut **conn, tenant_id, project_id, request).await?
             }
-        }
+        };
+
+        binary_storage::rehydrate(
+            self.binary_storage(),
+            tenant_id,
+            project_id,
+            entries.iter_mut().map(|entry| &mut entry.resource),
+        )
+        .await?;
+        Ok(entries)
     }
 
     fn in_transaction(&self) -> bool {
@@ -267,7 +291,11 @@ impl FHIRRepository for PGConnection {
             PGConnection::Transaction(_, _, pending) => pending.clone(),
             PGConnection::Pool(_, _) => PendingRows::new(),
         };
-        Ok(PGConnection::Transaction(tx, self.cache().clone(), pending))
+        Ok(PGConnection::Transaction(
+            tx,
+            self.shared().clone(),
+            pending,
+        ))
     }
 
     async fn commit(self) -> Result<(), OperationOutcomeError> {
@@ -303,6 +331,10 @@ impl FHIRRepository for PGConnection {
 /// a borrow of `resource` with no clone; a `Transaction` write is queued via
 /// `PendingRows::push`, which needs its own owned copy since it must outlive
 /// this call until flush/commit.
+///
+/// Binary content that goes to document storage is uploaded before the row
+/// is written and left out of it (see [`binary_storage`]); the returned
+/// resource has it back.
 #[allow(clippy::too_many_arguments)]
 async fn write_resource(
     conn: &PGConnection,
@@ -310,15 +342,24 @@ async fn write_resource(
     project: &ProjectId,
     author: &UserTokenClaims,
     fhir_version: &SupportedFHIRVersions,
-    resource: Resource,
+    mut resource: Resource,
     deleted: bool,
     request_method: &'static str,
     fhir_method: FHIRMethod,
 ) -> Result<Resource, OperationOutcomeError> {
+    let offloaded = binary_storage::offload(
+        conn.binary_storage(),
+        tenant,
+        project,
+        &mut resource,
+        deleted,
+    )
+    .await?;
+
     match conn {
         PGConnection::Pool(_pool, _) => {
             let tx = create_transaction(conn, true).await?;
-            {
+            let inserted = {
                 let mut c = tx.lock().await;
                 pending::execute(
                     &mut **c,
@@ -331,7 +372,14 @@ async fn write_resource(
                     request_method,
                     fhir_method,
                 )
-                .await?;
+                .await
+            };
+            // The row is certainly absent only when the insert itself failed.
+            // A failed commit may still have landed, so its document is left
+            // for the orphan sweep to judge.
+            if let Err(error) = inserted {
+                binary_storage::discard(conn.binary_storage(), offloaded.as_ref()).await;
+                return Err(error);
             }
             commit_transaction(tx).await?;
         }
@@ -351,6 +399,7 @@ async fn write_resource(
         }
     }
 
+    binary_storage::restore(&mut resource, offloaded);
     Ok(resource)
 }
 

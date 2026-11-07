@@ -20,6 +20,12 @@ jobs:
       HASTE_API_URI: http://localhost:3000
       HASTE_REPO.backend: postgres
       HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      # Binary content of 1 KiB or more is kept in a directory instead of the
+      # database, so the base TestScripts run against document storage. The
+      # other e2e workflows leave it unset and cover content in the database.
+      HASTE_DOCUMENT_STORAGE.backend: filesystem
+      HASTE_DOCUMENT_STORAGE.root: /tmp/haste-documents
+      HASTE_DOCUMENT_STORAGE.binary_min_bytes: 1024
       RUST_LOG: none
 
     services:
@@ -156,6 +162,16 @@ jobs:
         working-directory: ./backend
         env:
           RUST_LOG: info
+
+      # binary-content.testscript.json writes Binaries above the threshold, so
+      # their content must be in the directory, and every document must belong
+      # to a resource version (the sweep finds none to remove).
+      - name: Check document storage
+        run: |
+          test -n "$(find /tmp/haste-documents -name '*.data' -print -quit)"
+          ./target/debug/haste-health admin document-storage sweep --dry-run | tee sweep.json
+          jq -e '.in_use > 0 and .recent == 0 and .orphaned == 0' sweep.json
+        working-directory: ./backend
 
       # Features only the Postgres search backend implements (chained search).
       # Each TestScript here is marked with the testscript-search-backend

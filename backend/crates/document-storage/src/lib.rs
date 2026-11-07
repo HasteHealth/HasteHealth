@@ -38,6 +38,8 @@ pub mod retry;
 
 use std::sync::Arc;
 
+use serde::{Deserialize, Serialize};
+
 pub use error::StorageError;
 pub use traits::{DocumentStorage, StorageFuture};
 pub use types::{
@@ -45,8 +47,26 @@ pub use types::{
 };
 
 /// The backend to connect to, with its configuration.
-#[derive(Debug)]
+///
+/// In configuration the backend is named by a `backend` field next to its
+/// own settings:
+///
+/// ```toml
+/// backend = "filesystem"
+/// root = "/var/lib/haste-health/documents"
+/// ```
+///
+/// ```toml
+/// backend = "gcs"
+/// bucket = "my-bucket"
+/// prefix = "documents"
+/// credentials = { type = "service_account_key_file", path = "/secrets/key.json" }
+/// ```
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(tag = "backend", rename_all = "snake_case")]
 pub enum DocumentStorageKind {
+    #[cfg(feature = "filesystem")]
+    Filesystem(providers::filesystem::FilesystemConfig),
     #[cfg(feature = "gcs")]
     Gcs(providers::gcs::GcsConfig),
 }
@@ -59,6 +79,10 @@ pub enum DocumentStorageKind {
 /// when the backend cannot be set up or its credentials are rejected.
 pub async fn connect(kind: DocumentStorageKind) -> Result<Arc<dyn DocumentStorage>, StorageError> {
     match kind {
+        #[cfg(feature = "filesystem")]
+        DocumentStorageKind::Filesystem(config) => Ok(Arc::new(
+            providers::filesystem::FilesystemDocumentStorage::connect(config).await?,
+        )),
         #[cfg(feature = "gcs")]
         DocumentStorageKind::Gcs(config) => Ok(Arc::new(
             providers::gcs::GcsDocumentStorage::connect(config).await?,

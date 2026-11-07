@@ -1,6 +1,6 @@
 use derivative::Derivative;
 use haste_fhir_search::config::SearchConfig;
-use haste_repository::config::RepoConfig;
+use haste_repository::config::{DocumentStorageConfig, RepoConfig};
 use haste_worker::async_jobs::AsyncJobWorkerConfig;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, time::Duration};
@@ -22,6 +22,9 @@ pub struct ServerConfig {
 
     pub fhir: FHIRConfig,
     pub repo: RepoConfig,
+    /// Where large `Binary.data` is kept instead of the database. Unset keeps
+    /// all content in the database.
+    pub document_storage: Option<DocumentStorageConfig>,
     pub search: SearchConfig,
     pub email: Option<EmailConfig>,
     pub rate_limits: RateLimitsConfig,
@@ -282,6 +285,7 @@ impl Default for ServerConfig {
             admin_app_redirect_uri: "http://*.localhost:3001".into(),
             fhir: FHIRConfig::default(),
             repo: RepoConfig::default(),
+            document_storage: None,
             search: SearchConfig::default(),
             email: None,
             max_request_body_size: 4 * 1024 * 1024,

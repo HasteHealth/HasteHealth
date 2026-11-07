@@ -20,6 +20,7 @@ use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::{
     admin::{Migrate, TenantModelAdmin},
+    pg::PGConnection,
     types::user::{AuthMethod, CreateUser, UserSearchClauses},
 };
 use haste_server::{
@@ -121,6 +122,29 @@ pub(crate) enum AdminCommands {
     Migrate {
         #[command(subcommand)]
         command: MigrationCommands,
+    },
+
+    /// Maintain the document storage that holds large Binary content.
+    DocumentStorage {
+        #[command(subcommand)]
+        command: DocumentStorageCommands,
+    },
+}
+
+/// Maintain the document storage that holds large Binary content.
+#[derive(Subcommand, Debug)]
+pub(crate) enum DocumentStorageCommands {
+    /// Remove stored Binary content that no resource version refers to: left
+    /// behind by a rolled back transaction or a write that failed after the
+    /// upload. Prints a JSON report.
+    Sweep {
+        /// Keep documents younger than this many hours, which may belong to a
+        /// write still in progress.
+        #[arg(long, default_value_t = 24)]
+        older_than_hours: u64,
+        /// Count what would be removed without removing anything.
+        #[arg(long)]
+        dry_run: bool,
     },
 }
 
@@ -539,5 +563,41 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 Ok(())
             }
         },
+        AdminCommands::DocumentStorage { command } => match command {
+            DocumentStorageCommands::Sweep {
+                older_than_hours,
+                dry_run,
+            } => sweep_document_storage(&config, *older_than_hours, *dry_run).await,
+        },
     }
+}
+
+async fn sweep_document_storage(
+    config: &ServerConfig,
+    older_than_hours: u64,
+    dry_run: bool,
+) -> Result<(), OperationOutcomeError> {
+    let Some(document_storage) = &config.document_storage else {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Document storage is not configured ([document_storage] or HASTE_DOCUMENT_STORAGE.*)."
+                .to_string(),
+        ));
+    };
+    let repo = PGConnection::pool(services::get_pool(config).await.clone()).with_binary_storage(
+        haste_repository::config::connect_binary_storage(document_storage).await?,
+    );
+
+    let report = repo
+        .sweep_binary_documents(
+            std::time::Duration::from_secs(older_than_hours.saturating_mul(60 * 60)),
+            dry_run,
+        )
+        .await?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report)
+            .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?
+    );
+    Ok(())
 }

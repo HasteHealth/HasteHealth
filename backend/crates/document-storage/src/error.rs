@@ -46,6 +46,11 @@ pub enum StorageError {
     )]
     Transport(String),
 
+    /// A filesystem operation failed for a reason other than a missing file
+    /// or a denied permission.
+    #[error(code = "exception", diagnostic = "Document storage I/O failed: {arg0}")]
+    Io(String),
+
     /// The backend answered with an unexpected status or body.
     #[error(
         code = "exception",
@@ -76,6 +81,7 @@ impl Display for StorageError {
             Self::Forbidden(reason) => write!(f, "access denied: {reason}"),
             Self::NotFound(key) => write!(f, "document '{key}' not found"),
             Self::Transport(reason) => write!(f, "request failed: {reason}"),
+            Self::Io(reason) => write!(f, "I/O failed: {reason}"),
             Self::Backend(status, reason) => write!(f, "backend responded {status}: {reason}"),
         }
     }

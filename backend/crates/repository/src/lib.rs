@@ -22,6 +22,7 @@ use crate::{
 
 pub mod admin;
 pub mod async_job;
+pub mod binary_storage;
 pub mod config;
 pub mod failed_indexing;
 pub mod fhir;
