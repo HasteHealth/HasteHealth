@@ -413,34 +413,8 @@ pub async fn authorize<
         )
     })?;
 
-    // An approval of the same access written in the other SMART syntax (one
-    // stored before scopes kept the syntax they were requested in) is
-    // rewritten to the requested form rather than asked for again, so the
-    // token carries the strings the client asked for.
-    let existing_scopes = match existing_scopes {
-        Some(existing) if existing.scope != scopes && existing.scope.same_grant(&scopes) => Some(
-            ProjectModelAdmin::create(
-                &*app_state.repo,
-                &tenant,
-                &project,
-                CreateScope {
-                    client: ClientId::new(client_id.clone()),
-                    user_: UserId::new(completed_auth_state.user.id.clone()),
-                    scope: scopes.clone(),
-                },
-            )
-            .await
-            .map_err(|_e| {
-                OIDCError::new(
-                    OIDCErrorCode::ServerError,
-                    Some("Failed to update users accepted scopes.".to_string()),
-                    Some(redirect_uri.clone()),
-                )
-            })?,
-        ),
-        existing => existing,
-    };
-
+    // Scopes are compared as written: an approval stored in the other SMART
+    // syntax is asked for again, and the new approval keeps the requested form.
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         let client_scope = client_app
             .scope

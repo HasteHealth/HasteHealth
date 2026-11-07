@@ -209,17 +209,6 @@ impl SmartResourceScopePermissions {
         }
     }
 
-    /// Whether `other` holds exactly these permissions, however either is
-    /// written: `read` and `rs` hold the same.
-    #[must_use]
-    pub fn same_permissions(&self, other: &Self) -> bool {
-        self.iter()
-            .all(|permission| other.has_permission(permission))
-            && other
-                .iter()
-                .all(|permission| self.has_permission(permission))
-    }
-
     /// The permissions also in `kept`, written in the same syntax.
     #[must_use]
     pub fn restricted_to(&self, kept: &[SmartResourceScopePermission]) -> Self {
@@ -511,26 +500,6 @@ impl TryFrom<&str> for Scope {
     }
 }
 
-impl Scope {
-    /// Whether `other` grants exactly what this scope grants, however its
-    /// permissions are written: `patient/Patient.read` grants what
-    /// `patient/Patient.rs` does.
-    #[must_use]
-    pub fn same_grant(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                Scope::SMART(SmartScope::Resource(this)),
-                Scope::SMART(SmartScope::Resource(that)),
-            ) => {
-                this.user == that.user
-                    && this.level == that.level
-                    && this.permissions.same_permissions(&that.permissions)
-            }
-            _ => self == other,
-        }
-    }
-}
-
 impl From<Scope> for String {
     fn from(value: Scope) -> Self {
         match value {
@@ -544,19 +513,6 @@ impl From<Scope> for String {
 pub struct Scopes(pub Vec<Scope>);
 
 impl Scopes {
-    /// Whether `other` lists the same scopes in the same order, each granting
-    /// exactly what its counterpart grants: the same approval, perhaps written
-    /// in the other SMART syntax.
-    #[must_use]
-    pub fn same_grant(&self, other: &Self) -> bool {
-        self.0.len() == other.0.len()
-            && self
-                .0
-                .iter()
-                .zip(&other.0)
-                .all(|(this, that)| this.same_grant(that))
-    }
-
     #[must_use]
     pub fn contains_scope(&self, scope: &Scope) -> bool {
         self.0.contains(scope)
