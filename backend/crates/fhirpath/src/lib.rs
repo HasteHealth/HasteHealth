@@ -525,8 +525,8 @@ async fn evaluate_function<'a>(
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
-        "indexOf" | "substring" | "length" | "toChars" | "trim" | "replace" | "matches"
-        | "replaceMatches" => evaluate_string_function(function, context, config).await,
+        "indexOf" | "substring" | "length" | "toChars" | "split" | "trim" | "replace"
+        | "matches" | "replaceMatches" => evaluate_string_function(function, context, config).await,
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
         | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
@@ -1458,7 +1458,7 @@ async fn evaluate_string_function<'a>(
     let name = function.name.0.as_str();
     let cardinality = match name {
         "length" | "toChars" | "trim" => Cardinality::Zero,
-        "indexOf" | "matches" => Cardinality::One,
+        "indexOf" | "matches" | "split" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
     };
@@ -1495,7 +1495,7 @@ async fn evaluate_string_function<'a>(
         }
     };
 
-    let result = match name {
+    Ok(match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
         "trim" => string_result(&context, trim(&input)),
         "toChars" => {
@@ -1507,6 +1507,9 @@ async fn evaluate_string_function<'a>(
             });
             context.new_context_from(chars.collect())
         }
+        "split" => string_argument(0)?.map_or(empty, |separator| {
+            split_result(&context, &input, &separator)
+        }),
         "indexOf" => {
             let Some(substring) = string_argument(0)? else {
                 return Ok(empty);
@@ -1553,9 +1556,26 @@ async fn evaluate_string_function<'a>(
             string_result(&context, replace_matches(input, &pattern, &substitution)?)
         }
         _ => unreachable!(),
-    };
+    })
+}
 
-    Ok(result)
+/// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
+fn split_result<'a>(context: &Context<'a>, input: &str, separator: &str) -> Context<'a> {
+    let allocate = |piece: &str| {
+        context.allocate_literal(FHIRString {
+            value: Some(piece.to_string()),
+            ..Default::default()
+        })
+    };
+    let pieces = if separator.is_empty() {
+        input
+            .chars()
+            .map(|c| allocate(c.encode_utf8(&mut [0; 4])))
+            .collect()
+    } else {
+        input.split(separator).map(allocate).collect()
+    };
+    context.new_context_from(pieces)
 }
 
 /// The kinds of item the conversion functions accept.
