@@ -1,0 +1,60 @@
+{
+    "id": "access-control-user-v1-scopes-approval",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-v1-scopes-approval",
+    "name": "Access Control User V1 Scopes Approval",
+    "title": "User v1 scopes: the approval keeps the v1 strings",
+    "status": "active",
+    "description": "Run as the user-v1-scopes login (user/Patient.read user/Observation.write). The approval stored for the app, which the token response's scope is issued from, is the requested scope string as written: user/Patient.read and user/Observation.write, not their v2 forms user/Patient.rs and user/Observation.cud.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "no-params",
+            "resourceType": "Parameters"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-approval",
+            "name": "$scopes lists the approval in v1 syntax",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "scopes",
+                        "sourceId": "fixture-no-params",
+                        "description": "The signed-in user's approved scopes, per app.",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$scopes is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The approval for acv1-app is the requested v1 string",
+                        "expression": "Parameters.parameter.where(name = 'scopes').where(part.where(name = 'client_id').value = 'acv1-app').part.where(name = 'scopes').value = 'openid offline_access user/Patient.read user/Observation.write'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

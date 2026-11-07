@@ -357,9 +357,9 @@ pub async fn oauth_protected_resource<
         ));
     };
 
-    // Default to openid profile user/*.* scopes for FHIR access.
+    // Default to openid profile user/*.cruds scopes for FHIR access.
     let default_scopes =
-        Scopes::try_from("openid profile user/*.* offline_access fhirUser").unwrap_or_default();
+        Scopes::try_from("openid profile user/*.cruds offline_access fhirUser").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
