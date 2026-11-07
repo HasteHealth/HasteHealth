@@ -413,8 +413,6 @@ pub async fn authorize<
         )
     })?;
 
-    // Scopes are compared as written: an approval stored in the other SMART
-    // syntax is asked for again, and the new approval keeps the requested form.
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         let client_scope = client_app
             .scope
