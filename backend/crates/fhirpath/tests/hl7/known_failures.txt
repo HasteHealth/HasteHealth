@@ -57,8 +57,6 @@ testMatchesFullWithinUrl4
 testMatchesFullWithinUrl1a
 testMatchesFullWithinUrl2
 
-# testReplaceMatches
-
 # testEncodeDecode
 testEncodeBase64A
 testEncodeHex
@@ -92,15 +90,6 @@ testSplit8
 testJoinEmpty
 
 # testSort
-testSort1
-testSort2
-testSort3
-testSort4
-testSort5
-testSort6
-testSort7
-testSort8
-testSort9
 testSort10
 
 # testNEquality
@@ -138,10 +127,6 @@ testMinus3
 
 # testMod
 testMod4
-
-# testVariables
-
-# testExtension
 
 # testType
 testType1
