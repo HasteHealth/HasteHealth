@@ -59,14 +59,6 @@ testMatchesFullWithinUrl2
 
 # testEncodeDecode
 
-# testEscapeUnescape
-testEscapeHtml
-testEscapeJson
-testUnescapeHtml
-testUnescapeJson
-testUnescapeJson2
-testUnescapeJson3
-testUnescapeJson4
 
 # testSort
 testSort10
