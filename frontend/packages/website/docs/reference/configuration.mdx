@@ -216,6 +216,15 @@ Settings for installing FHIR packages (implementation guides) with `Implementati
 | `packages.free_tier_install_interval_seconds` | `HASTE_PACKAGES.free_tier_install_interval_seconds` | `120` | How often one Free tier tenant may start an install, in seconds. Another within this time is refused with `429`. `0` turns the wait off. |
 | `packages.free_tier_shared_install_interval_seconds` | `HASTE_PACKAGES.free_tier_shared_install_interval_seconds` | `60` | How often any Free tier tenant may start an install, all of them together, in seconds. Another within this time is refused with `429`. Set it well above how long one install takes. `0` turns the wait off. |
 
+### `[sql_on_fhir]`
+
+Limits on one `$viewdefinition-run`. A run answers with the whole table in one response, so one past either limit is refused rather than answered with part of the table. See [SQL on FHIR](/docs/guides/sql_on_fhir).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `sql_on_fhir.max_rows` | `HASTE_SQL_ON_FHIR.max_rows` | `10000` | Most rows one run returns. A run that would return more is refused with `422` (`too-costly`), and a larger `_limit` with `400`. |
+| `sql_on_fhir.max_resources` | `HASTE_SQL_ON_FHIR.max_resources` | `50000` | Most resources one run reads from storage, earlier versions included. A run that would read more is refused with `422` (`too-costly`). |
+
 ### `[operations]`
 
 | Key | Env var | Default | Notes |

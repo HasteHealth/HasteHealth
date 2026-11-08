@@ -25,8 +25,3 @@ sof-fn-boundary-05       # date lowBoundary
 sof-fn-boundary-06       # date highBoundary
 sof-fn-boundary-07       # time lowBoundary
 sof-fn-boundary-08       # time highBoundary
-
-# `unionAll` branches whose columns differ, or come in another order, are not refused (the suite
-# expects an error).
-sof-union-09             # column mismatch
-sof-union-10             # column order mismatch
