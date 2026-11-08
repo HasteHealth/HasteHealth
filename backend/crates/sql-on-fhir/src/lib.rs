@@ -325,10 +325,10 @@ struct Run<'v> {
 /// the run has all the rows it asked for. Without `_limit`, more than `max_rows` refuses the run.
 async fn add_rows<'v>(
     run: &Run<'v>,
-    resources: Vec<Resource>,
+    resources: &[Resource],
     rows: &mut Vec<Row<'v>>,
 ) -> Result<bool, OperationOutcomeError> {
-    for resource in &resources_of_type(resources, &run.resource_type) {
+    for resource in resources_of_type(resources, &run.resource_type) {
         if !passes_where_clauses(
             run.fp_engine,
             run.variables.clone(),
@@ -399,7 +399,7 @@ async fn view_rows<
 ) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let mut rows = Vec::new();
 
-    if let Some(resources) = input.resource.clone() {
+    if let Some(resources) = &input.resource {
         add_rows(run, resources, &mut rows).await?;
         return Ok(rows);
     }
@@ -455,7 +455,7 @@ async fn rows_from_history<
 
         count_read(&mut read, entries.len(), &run.limits)?;
         let current = current_versions(entries, &mut seen, since);
-        if add_rows(run, current, rows).await? || last_page {
+        if add_rows(run, &current, rows).await? || last_page {
             return Ok(());
         }
 
@@ -508,11 +508,11 @@ async fn rows_from_compartments<
                 let last_page = resources.len() < PAGE_SIZE;
 
                 count_read(&mut read, resources.len(), &run.limits)?;
-                let unseen = resources
+                let unseen: Vec<Resource> = resources
                     .into_iter()
                     .filter(|resource| seen.insert(resource.id().clone()))
                     .collect();
-                if add_rows(run, unseen, rows).await? {
+                if add_rows(run, &unseen, rows).await? {
                     return Ok(());
                 }
                 if last_page {
@@ -951,7 +951,10 @@ async fn column_row<'r, 'v>(
 /// The resources a view runs over: those of its resource type. A Bundle of another type stands
 /// for its entries, so its entries of that type are kept. Resources sent with the request can be
 /// of any type, and a view gives rows only for its own.
-fn resources_of_type(resources: Vec<Resource>, resource_type: &ResourceType) -> Vec<Resource> {
+fn resources_of_type<'r>(
+    resources: &'r [Resource],
+    resource_type: &ResourceType,
+) -> Vec<&'r Resource> {
     let mut matching = Vec::new();
     for resource in resources {
         if &resource.resource_type() == resource_type {
@@ -960,9 +963,9 @@ fn resources_of_type(resources: Vec<Resource>, resource_type: &ResourceType) -> 
             matching.extend(
                 bundle
                     .entry
-                    .into_iter()
+                    .iter()
                     .flatten()
-                    .filter_map(|entry| entry.resource.map(|resource| *resource))
+                    .filter_map(|entry| entry.resource.as_deref())
                     .filter(|resource| &resource.resource_type() == resource_type),
             );
         }
