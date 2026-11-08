@@ -169,6 +169,7 @@ const FUNCTIONS: &[&str] = &[
     "lower",
     "replace",
     "matches",
+    "matchesFull",
     "replaceMatches",
     "length",
     "toChars",

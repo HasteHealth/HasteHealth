@@ -528,7 +528,9 @@ async fn evaluate_function<'a>(
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
         "indexOf" | "substring" | "length" | "toChars" | "split" | "trim" | "replace"
-        | "matches" | "replaceMatches" => evaluate_string_function(function, context, config).await,
+        | "matches" | "matchesFull" | "replaceMatches" => {
+            evaluate_string_function(function, context, config).await
+        }
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
         | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
@@ -1521,6 +1523,16 @@ fn compile_regex(pattern: &str) -> Result<Arc<Regex>, FHIRPathError> {
     Ok(regex)
 }
 
+/// `full` anchors both ends; the group keeps alternations inside the anchors.
+fn pattern_matches(input: &str, pattern: &str, full: bool) -> Result<bool, FHIRPathError> {
+    let regex = if full {
+        compile_regex(&format!(r"\A(?:{pattern})\z"))?
+    } else {
+        compile_regex(pattern)?
+    };
+    Ok(regex.is_match(input))
+}
+
 fn char_count(value: &str) -> Result<i64, FHIRPathError> {
     i64::try_from(value.chars().count())
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
@@ -1541,7 +1553,7 @@ async fn evaluate_string_function<'a>(
     let name = function.name.0.as_str();
     let cardinality = match name {
         "length" | "toChars" | "trim" => Cardinality::Zero,
-        "indexOf" | "matches" | "split" => Cardinality::One,
+        "indexOf" | "matches" | "matchesFull" | "split" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
     };
@@ -1625,12 +1637,10 @@ async fn evaluate_string_function<'a>(
             };
             string_result(&context, input.replace(&pattern, &substitution))
         }
-        "matches" => {
-            let Some(pattern) = string_argument(0)? else {
-                return Ok(empty);
-            };
-            boolean_result(&context, compile_regex(&pattern)?.is_match(&input))
-        }
+        "matches" | "matchesFull" => string_argument(0)?
+            .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
+            .transpose()?
+            .map_or(empty, |matched| boolean_result(&context, matched)),
         "replaceMatches" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
