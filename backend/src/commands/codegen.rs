@@ -1,7 +1,16 @@
 use clap::{Subcommand, ValueEnum};
+use figment::{
+    Figment,
+    providers::{Env, Format, Toml},
+};
 use haste_codegen::{search_param_cardinality, testscript_gen, type_gen};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{
+    config::SearchConfig,
+    pg_search::{create_pg_search_pool, migration::pending_migration},
+};
+use haste_server::config::ServerConfig;
 use quote::quote;
 use std::{io::Write, path::Path, process::Stdio};
 
@@ -51,6 +60,16 @@ pub(crate) enum CodeGen {
         #[arg(short, long)]
         output: Option<String>,
     },
+    /// Migrate the configured PG search database, then write a migration
+    /// creating what the search schema still lacks, if anything.
+    SearchMigration {
+        /// The PG search migrations directory.
+        #[arg(short, long)]
+        directory: String,
+        /// The new migration's description, after its version in the file name.
+        #[arg(short, long, default_value = "search_schema")]
+        name: String,
+    },
     /// Generate FHIR TestScript resources.
     TestScripts {
         /// Input file(s) or directories describing the TestScripts to generate. Repeatable.
@@ -83,6 +102,36 @@ fn format_code(rust_code: String) -> String {
     let formatted_code = String::from_utf8_lossy(&command_output.stdout);
 
     formatted_code.to_string()
+}
+
+/// Migrates the configured PG search database, then writes
+/// `<timestamp>_<name>.sql` into `directory` creating what the search schema
+/// still lacks, if anything.
+async fn search_migration(directory: &Path, name: &str) -> Result<(), OperationOutcomeError> {
+    let error = |message: String| OperationOutcomeError::error(IssueType::exception(), message);
+
+    let config: ServerConfig = Figment::new()
+        .merge(Toml::file("haste.toml"))
+        .merge(Env::prefixed("HASTE_"))
+        .extract()
+        .map_err(|e| error(e.to_string()))?;
+    let SearchConfig::Postgres(search) = &config.search else {
+        return Err(error(
+            "The configured search backend is not PostgreSQL (HASTE_SEARCH.backend).".to_string(),
+        ));
+    };
+    let pool = create_pg_search_pool(&search.database_url, 1).await?;
+
+    match pending_migration(&pool).await? {
+        None => println!("PG search migrations are up to date."),
+        Some(sql) => {
+            let version = chrono::Utc::now().format("%Y%m%d%H%M%S");
+            let path = directory.join(format!("{version}_{name}.sql"));
+            std::fs::write(&path, sql).map_err(|e| error(format!("{}: {e}", path.display())))?;
+            println!("PG search migration written to: {}", path.display());
+        }
+    }
+    Ok(())
 }
 
 /// Runs the `generate` command group.
@@ -188,6 +237,9 @@ pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> 
             }
 
             Ok(())
+        }
+        CodeGen::SearchMigration { directory, name } => {
+            search_migration(Path::new(directory), name).await
         }
         CodeGen::TestScripts { input, output } => {
             let output_path = Path::new(output);

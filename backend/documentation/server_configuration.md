@@ -72,6 +72,11 @@ so the two never share tables. Create it before running `admin migrate search`:
 psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
 ```
 
+`admin migrate search` (also part of `admin migrate all`) runs the sqlx migrations
+in `backend/crates/fhir-search/pg-migrations` that have not run yet, recorded in
+the `_sqlx_search_migrations` table, and then fails if the database still lacks a
+table, column or index the search parameters need.
+
 With `backend = "elasticsearch"`:
 
 | Key                                      | Env var                                        | Default                 |
