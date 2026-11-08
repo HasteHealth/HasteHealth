@@ -1,0 +1,6 @@
+{
+    "description": "A client signing in on its own, allowed system/*.rs system/Observation.cud, requesting the narrower system/Patient.rs system/Observation.cs system/Encounter.r: a type under the wildcard, a permission subset, and permissions drawn from two allowed scopes.",
+    "grantType": "client_credentials",
+    "clientId": "acss-client",
+    "scope": "system/Patient.rs system/Observation.cs system/Encounter.r"
+}

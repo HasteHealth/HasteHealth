@@ -1,3 +1,5 @@
+use crate::auth_n::error::AuthError;
+use crate::error::ServerError;
 use crate::{
     config::{EmailConfig, ServerConfig},
     route_path::api_v1_oidc_path,
@@ -88,9 +90,7 @@ pub async fn send_email_code(
     code: &str,
     valid_for: Duration,
 ) -> Result<(), OperationOutcomeError> {
-    let api_url = Uri::try_from(api_uri).map_err(|_| {
-        OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
-    })?;
+    let api_url = Uri::try_from(api_uri).map_err(ServerError::from)?;
 
     let minutes = valid_for.as_secs() / 60;
 
@@ -134,10 +134,7 @@ pub async fn send_invitation_email(
     code: &str,
     valid_for: Duration,
 ) -> Result<(), OperationOutcomeError> {
-    let invalid_api_url =
-        || OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string());
-
-    let mut link = Url::parse(&config.api_uri).map_err(|_| invalid_api_url())?;
+    let mut link = Url::parse(&config.api_uri).map_err(ServerError::from)?;
     link.set_path(INVITATION_ROUTE);
     link.query_pairs_mut()
         .append_pair("tenant", tenant.as_ref())
@@ -146,7 +143,7 @@ pub async fn send_invitation_email(
     let days = valid_for.as_secs() / (24 * 60 * 60);
 
     let body = crate::ui::email::base::base(
-        &Uri::try_from(link.as_str()).map_err(|_| invalid_api_url())?,
+        &Uri::try_from(link.as_str()).map_err(ServerError::from)?,
         &html! {
             div style="padding-top: 24px;" {
                 span style="font-weight: 600;" { (tenant_name) }
@@ -213,9 +210,7 @@ pub async fn send_password_reset_email<
 
     let api_url_string = &state.config.api_uri;
 
-    let mut api_url = Url::parse(api_url_string).map_err(|_| {
-        OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
-    })?;
+    let mut api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
 
     api_url.set_path(
         api_v1_oidc_path(tenant, project)
@@ -230,9 +225,7 @@ pub async fn send_password_reset_email<
     api_url.set_query(Some(format!("code={}", password_reset_code.code).as_str()));
 
     let reset_button = crate::ui::email::base::base(
-        &Uri::try_from(api_url.as_str()).map_err(|_| {
-            OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
-        })?,
+        &Uri::try_from(api_url.as_str()).map_err(ServerError::from)?,
         &html! {
             @if let Some(message) = message.body {
                 div style="padding-top: 24px;" {
@@ -246,12 +239,7 @@ pub async fn send_password_reset_email<
         },
     );
 
-    let email_str = user.email.as_ref().ok_or_else(|| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            "User does not have an email associated.".to_string(),
-        )
-    })?;
+    let email_str = user.email.as_ref().ok_or(AuthError::UserWithoutEmail)?;
 
     send_email(
         &state.config.email,

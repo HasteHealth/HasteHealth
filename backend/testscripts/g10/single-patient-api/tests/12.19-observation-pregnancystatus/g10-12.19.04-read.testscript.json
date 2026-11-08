@@ -12,7 +12,7 @@
             "id": "g10-pregnancy-status",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus|7.0.0"
                 ],
                 "tag": [
                     {

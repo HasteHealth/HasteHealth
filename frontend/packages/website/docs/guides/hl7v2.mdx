@@ -86,18 +86,15 @@ haste-health hl7v2 receiver \
 The receiver writes converted resources to your FHIR API as an authenticated client, using the same profile-based config as the binary's other CLI commands (stored at `~/.haste_health/config.toml`).
 
 1. Register an OAuth client with system-level scope — see **[Client Registration](/docs/auth/authentication/client_registration)** and **[Scopes & Permissions](/docs/auth/authorization/scopes)**. The receiver requests `openid system/*.*`, so the client needs access to that scope.
-2. Create and activate a profile:
+2. Create a profile. Creating it also makes it the active one; switch back to it later with `haste-health profile use hl7v2-receiver`.
 
 ```bash
-haste-health config create-profile \
-  --name hl7v2-receiver \
+haste-health profile create hl7v2-receiver \
   --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir \
   --discovery-uri https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project] \
   --auth-mode client-credentials \
-  --id <client_id> \
-  --secret <client_secret>
-
-haste-health config set-active-profile --name hl7v2-receiver
+  --client-id <client_id> \
+  --client-secret <client_secret>
 ```
 
 3. Run `haste-health hl7v2 receiver ...` as above — it reads the active profile and fetches a `client_credentials` token before processing any messages.

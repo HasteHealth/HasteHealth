@@ -40,6 +40,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions};
 use middleware::{
     auditing::Auditing,
     auth_z::{access_control::AccessControl, scope_check::SmartScopeAccess},
+    canonical_cache::CanonicalCacheInvalidation,
     capabilities::Capabilities,
     check_project::{CheckProject, SetProjectReadOnly},
     custom_models::{
@@ -207,6 +208,8 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
                     ))]),
                     fhir_user: None,
                     patient: None,
+                    encounter: None,
+                    client_id: None,
                     user_id: AuthorId::System,
                     resource_type: AuthorKind::System,
                     access_policy_version_ids: vec![],
@@ -501,7 +504,13 @@ impl<
 
         let router = Router {
             clinical: Pipeline::new(vec![], Storage),
-            artifact: Pipeline::new(vec![Box::new(SetArtifactTenant)], Storage),
+            artifact: Pipeline::new(
+                vec![
+                    Box::new(CanonicalCacheInvalidation),
+                    Box::new(SetArtifactTenant),
+                ],
+                Storage,
+            ),
             // OperationDefinitions, served beside the built-in operations' own.
             operation_definition: Pipeline::new(
                 vec![

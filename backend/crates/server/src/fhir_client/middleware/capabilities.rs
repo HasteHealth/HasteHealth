@@ -3,7 +3,7 @@ use crate::{
         ClientState, ServerCTX,
         middleware::{Backend, Handler, Output},
     },
-    load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps},
+    load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps, search_all},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -16,8 +16,8 @@ use haste_fhir_model::r4::{
             CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestInteraction,
             CapabilityStatementRestResource, CapabilityStatementRestResourceInteraction,
             CapabilityStatementRestResourceOperation, CapabilityStatementRestResourceSearchParam,
-            CapabilityStatementRestSecurity, OperationDefinition, SearchParameter,
-            StructureDefinition,
+            CapabilityStatementRestSecurity, OperationDefinition, Resource, ResourceType,
+            SearchParameter, StructureDefinition,
         },
         terminology::{
             BoundCode, CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus,
@@ -29,20 +29,24 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
-use std::collections::HashMap;
+use moka::future::Cache;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, LazyLock};
-use tokio::sync::Mutex;
+use std::time::Duration;
 use tracing::instrument;
 
+/// How long a generated statement is served before profiles and search
+/// parameters loaded since are picked up.
+const CAPABILITIES_TTL: Duration = Duration::from_secs(30);
+
 // Keyed by (tenant, project): the statement lists that project's custom
-// operations, so a single process-wide value would serve one project's
-// operations to every other tenant (and, through the public metadata route,
-// to unauthenticated callers).
-#[allow(clippy::type_complexity)]
-static CAPABILITIES: LazyLock<
-    Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), CapabilityStatement>>,
-> = LazyLock::new(|| Mutex::new(HashMap::new()));
+// operations, profiles and search parameters, so a single process-wide value
+// would serve one project's to every other tenant (and, through the public
+// metadata route, to unauthenticated callers).
+static CAPABILITIES: LazyLock<Cache<(TenantId, ProjectId), CapabilityStatement>> =
+    LazyLock::new(|| Cache::builder().time_to_live(CAPABILITIES_TTL).build());
 
 /// Build a `CapabilityStatementRestResourceOperation` entry from an `OperationDefinition`.
 ///
@@ -100,7 +104,8 @@ fn operations_for_type<'a>(
 
 fn create_capability_rest_statement(
     sd: StructureDefinition,
-    all_sps: &Vec<SearchParameter>,
+    profiles: &HashMap<String, Vec<FHIRCanonical>>,
+    all_sps: &[SearchParameter],
     all_operations: &[OperationDefinition],
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
     let sd_type = sd.type_.value.unwrap_or_default();
@@ -112,8 +117,7 @@ fn create_capability_rest_statement(
             let types = sp
                 .base
                 .iter()
-                .map(|b| b.as_str())
-                .filter_map(|b: Option<&str>| b)
+                .filter_map(|b| b.as_str())
                 .collect::<Vec<_>>();
 
             types.contains(&shared_base_types[0].as_str())
@@ -136,6 +140,7 @@ fn create_capability_rest_statement(
             value: sd.url.value,
             ..Default::default()
         })),
+        supportedProfile: profiles.get(&sd_type).cloned(),
         searchParam: Some(
             resource_parameters
                 .into_iter()
@@ -195,15 +200,57 @@ async fn generate_capabilities<
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
-    let (sds, sps, operations) = tokio::join!(
+    let (sds, mut sps, operations, project_sds, project_sps) = tokio::try_join!(
         get_all_sds(&["resource"], repo, search_engine),
         get_all_sps(repo, search_engine),
-        get_all_operation_definitions(ctx)
-    );
+        get_all_operation_definitions(ctx.clone()),
+        // Loaded into the project itself: its active constraint profiles and
+        // search parameters.
+        search_all(
+            repo,
+            search_engine,
+            &ctx.tenant,
+            &ctx.project,
+            ResourceType::StructureDefinition,
+            &[("derivation", &["constraint"]), ("status", &["active"])],
+        ),
+        search_all(
+            repo,
+            search_engine,
+            &ctx.tenant,
+            &ctx.project,
+            ResourceType::SearchParameter,
+            &[("status", &["active"])],
+        ),
+    )?;
 
-    let sds = sds?;
-    let sps = sps?;
-    let operations = operations?;
+    // Constraint profile urls grouped by the resource type they constrain.
+    let mut profiles: HashMap<String, Vec<FHIRCanonical>> = HashMap::new();
+    for resource in project_sds {
+        if let Resource::StructureDefinition(sd) = resource
+            && let (Some(url), Some(type_)) = (sd.url.value, sd.type_.value)
+        {
+            profiles.entry(type_).or_default().push(FHIRCanonical {
+                value: Some(url),
+                ..Default::default()
+            });
+        }
+    }
+
+    // A project's copy of a system parameter is listed once.
+    let known: HashSet<String> = sps.iter().filter_map(|sp| sp.url.value.clone()).collect();
+    sps.extend(
+        project_sps
+            .into_iter()
+            .filter_map(|resource| match resource {
+                Resource::SearchParameter(sp)
+                    if !sp.url.value.as_ref().is_some_and(|url| known.contains(url)) =>
+                {
+                    Some(sp)
+                }
+                _ => None,
+            }),
+    );
 
     // System-level operations are not tied to a resource type, so they are
     // documented once on the rest element itself.
@@ -236,7 +283,7 @@ async fn generate_capabilities<
             }),
             resource: Some(
                 sds.into_iter()
-                    .map(|sd| create_capability_rest_statement(sd, &sps, &operations))
+                    .map(|sd| create_capability_rest_statement(sd, &profiles, &sps, &operations))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             // Interactions on the base URL itself; each resource type lists
@@ -262,8 +309,8 @@ async fn generate_capabilities<
     })
 }
 
-/// Ends the capabilities lane: the CapabilityStatement, generated once and
-/// then served from memory.
+/// Ends the capabilities lane: the CapabilityStatement, generated and then
+/// served from memory until `CAPABILITIES_TTL` passes.
 #[derive(Debug)]
 pub struct Capabilities;
 
@@ -284,18 +331,18 @@ impl<B: Backend> Handler<B> for Capabilities {
                 ));
             }
 
-            let cache_key = (ctx.tenant.clone(), ctx.project.clone());
-            let mut guard = CAPABILITIES.lock().await;
-            let capabilities = match guard.get(&cache_key) {
-                Some(capabilities) => capabilities.clone(),
-                None => {
-                    let capabilities =
-                        generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref())
-                            .await?;
-                    guard.insert(cache_key, capabilities.clone());
-                    capabilities
-                }
-            };
+            // Concurrent requests for one project share a single generation.
+            let capabilities = CAPABILITIES
+                .try_get_with(
+                    (ctx.tenant.clone(), ctx.project.clone()),
+                    generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref()),
+                )
+                .await
+                .map_err(|error| {
+                    Arc::try_unwrap(error).unwrap_or_else(|shared| {
+                        OperationOutcomeError::new(None, shared.outcome().clone())
+                    })
+                })?;
 
             Ok(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
                 capabilities,

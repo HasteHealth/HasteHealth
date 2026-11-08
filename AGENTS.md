@@ -95,6 +95,14 @@ in an issue, a comment, a pull request or a file in the repository.
 - backend types - from backend/ `bash scripts/types_build.sh`
 - backend operations - from backend/ `bash scripts/operation_build.sh`
 - backend testscripts - from backend/ `bash scripts/testscript_build.sh`
+- PG search migration - from backend/ `bash scripts/search_migration_build.sh`, then rebuild.
+  The PG search schema is checked in as sqlx migrations under crates/fhir-search/pg-migrations.
+  The script migrates the configured PostgreSQL search database, reads its catalog and writes
+  a new migration creating whatever the search parameters need that the database still lacks
+  (tables, columns, indexes); it does nothing when it lacks nothing. `admin migrate search`
+  fails after migrating if the database still lacks any of it. A change to an existing column
+  or index is written by hand (drop it, then create it). Never edit a migration that has
+  already run.
 - frontend types - from frontend/ `pnpm --filter @haste-health/fhir-types run generate`
 - frontend operations - from frontend/ `pnpm --filter @haste-health/generated-ops run generate`
 - artifact package .index.json (all of them) - from frontend/ `pnpm generate-indexes`.
@@ -132,6 +140,13 @@ in an issue, a comment, a pull request or a file in the repository.
   Rust rules (backend/crates/artifact-patcher). From backend/:
   build `cargo run artifacts build <manifest>`, list every change `cargo run artifacts diff <manifest>`.
   After changing a patch or rule, rebuild, then run the Code generation steps.
+- artifacts/r4/hl7.fhir.us.core-7.0.0 is the US Core 7.0.0 package exactly as HL7
+  publishes it, installed for the US Core 7.0.0 and (g)(10) TestScripts. It is never edited
+  and stays out of the pnpm workspace (its package.json depends on FHIR packages
+  that are not on npm).
+- artifacts/r4/hl7.fhir.us.carin-bb is the CARIN Blue Button 2.2.0 package exactly as HL7
+  publishes it, installed (after US Core 7.0.0) for the CARIN Blue Button TestScripts in
+  backend/testscripts/carin-bb. Never edited, out of the pnpm workspace for the same reason.
 - artifacts/r4/hastehealth-core/definitions/haste-health/operation-frontend-only -
   OperationDefinitions used only by the TypeScript packages; excluded from the
   backend's generated ops and embedded resources on purpose.

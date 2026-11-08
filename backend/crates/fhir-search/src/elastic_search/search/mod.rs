@@ -340,8 +340,8 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
             )
             .await?;
         }
-        "_summary" | "_elements" | "_include" | "_type" | "_format" | "_pretty" => {
-            // _elements and _summary are handled in middleware, not in the ES query.
+        "_summary" | "_elements" | "_include" | "_revinclude" | "_type" | "_format" | "_pretty" => {
+            // Handled in middleware, not in the ES query.
         }
         _ => {
             return Err(QueryBuildError::UnsupportedParameter(result_param.name.clone()).into());

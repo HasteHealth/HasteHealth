@@ -6,6 +6,7 @@
 // `create` makes a resource that is deleted after the run.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { gzipSync } from "node:zlib";
 import { mcpUrl, PROJECT } from "../src/server.mjs";
 import { eventually } from "../src/tools.mjs";
 
@@ -19,6 +20,52 @@ function output(parameters, name) {
   assert.ok(found, `output '${name}'`);
   return found;
 }
+
+/** A parameter's parts as { name: value }. */
+const parts = ({ part }) =>
+  Object.fromEntries(
+    part.map(({ name, ...value }) => [name, Object.values(value)[0]]),
+  );
+
+/** A gzipped tarball (ustar) of `files`, { path: JSON }, base64 encoded. */
+function tarball(files) {
+  const octal = (value, width) =>
+    `${value.toString(8).padStart(width - 1, "0")}\0`;
+  const blocks = [];
+  for (const [path, json] of Object.entries(files)) {
+    const data = Buffer.from(JSON.stringify(json));
+    const header = Buffer.alloc(512);
+    header.write(path, 0);
+    header.write(octal(0o644, 8), 100);
+    header.write(octal(0, 8), 108);
+    header.write(octal(0, 8), 116);
+    header.write(octal(data.length, 12), 124);
+    header.write(octal(0, 12), 136);
+    header.fill(" ", 148, 156);
+    header.write("0", 156);
+    header.write("ustar\u000000", 257);
+    const checksum = header.reduce((sum, byte) => sum + byte, 0);
+    header.write(`${checksum.toString(8).padStart(6, "0")}\0 `, 148);
+    const padding = Buffer.alloc((512 - (data.length % 512)) % 512);
+    blocks.push(header, data, padding);
+  }
+  blocks.push(Buffer.alloc(1024));
+  return gzipSync(Buffer.concat(blocks)).toString("base64");
+}
+
+// A package of one CodeSystem, uploaded so the run needs no registry.
+const TEST_PACKAGE = { name: "haste.mcp.conformance", version: "1.0.0" };
+const TEST_PACKAGE_CONTENT = tarball({
+  "package/package.json": { ...TEST_PACKAGE, fhirVersions: ["4.0.1"] },
+  "package/CodeSystem-mcp-conformance.json": {
+    resourceType: "CodeSystem",
+    id: "mcp-conformance",
+    url: "urn:haste-health:mcp-conformance:CodeSystem",
+    status: "active",
+    content: "complete",
+    concept: [{ code: "conformance" }],
+  },
+});
 
 export const OPERATION_CASES = {
   // out project 1..1 Project: the current project.
@@ -225,5 +272,37 @@ export const OPERATION_CASES = {
     await fails("fhir_op_viewdefinition_run", {
       viewResource: { resourceType: "ViewDefinition" },
     });
+  },
+
+  // ImplementationGuide $install: in package 0..* and npmContent 0..* (one of
+  // them needed); out package 0..*, one for each package considered.
+  async fhir_op_install({ ok, fails }) {
+    await fails("fhir_op_install", {});
+    const result = await ok("fhir_op_install", {
+      npmContent: [TEST_PACKAGE_CONTENT],
+    });
+    assert.deepEqual(parts(output(result, "package")), {
+      ...TEST_PACKAGE,
+      status: "installed",
+      resources: 1,
+    });
+    await ok("fhir_op_uninstall", { name: TEST_PACKAGE.name });
+  },
+
+  // ImplementationGuide $uninstall: in name 1..1, version 0..1; out return
+  // 1..1 OperationOutcome. "When given and another version is installed,
+  // nothing is uninstalled."
+  async fhir_op_uninstall({ ok, fails }) {
+    const { name, version } = TEST_PACKAGE;
+    await fails("fhir_op_uninstall", { name });
+    await ok("fhir_op_install", { npmContent: [TEST_PACKAGE_CONTENT] });
+    await fails("fhir_op_uninstall", { name, version: "0.0.1" });
+    const outcome = await ok("fhir_op_uninstall", { name, version });
+    assert.equal(outcome.resourceType, "OperationOutcome");
+    assert.equal(
+      outcome.issue[0].diagnostics,
+      `Uninstalled ${name}@${version}: deleted 1 resources.`,
+    );
+    await fails("fhir_op_uninstall", { name });
   },
 };

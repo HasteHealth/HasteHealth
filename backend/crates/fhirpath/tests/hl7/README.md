@@ -32,6 +32,12 @@ listed test passes. After fixing or breaking tests, regenerate the list:
 HL7_UPDATE_KNOWN_FAILURES=1 cargo test -p haste-fhirpath --test hl7_suite
 ```
 
+`SKIPPED` in the runner names the tests the engine deliberately does not follow.
+They are not run, and the summary counts them. Today these are `testType12` and
+`testType14`, which expect input data not to match `System` type names
+(`Patient.active is Boolean` is false). The engine lets a FHIR primitive match the
+`System` type it maps to, whether it is input data or a literal.
+
 ## How results are compared
 
 - Each result item is compared with the expected output's type and value. System

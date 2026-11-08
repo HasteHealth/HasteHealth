@@ -17,7 +17,7 @@
     },
     {
       "id": "us-core",
-      "title": "US Core",
+      "title": "US Core 9.0.0",
       "page": "/docs/reference/conformance/us-core",
       "generatedAt": "2026-10-24T21:37:51.687Z",
       "backends": [
@@ -28,6 +28,20 @@
       "knownGaps": 0,
       "assertions": 225,
       "assertionsPassing": 225
+    },
+    {
+      "id": "us-core-7",
+      "title": "US Core 7.0.0",
+      "page": "/docs/reference/conformance/us-core-7",
+      "generatedAt": "2026-11-01T02:11:52.616Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 241,
+      "testScriptsPassing": 241,
+      "knownGaps": 0,
+      "assertions": 555,
+      "assertionsPassing": 555
     },
     {
       "id": "g10",
@@ -57,6 +71,34 @@
       "knownGaps": 0,
       "assertions": 136,
       "assertionsPassing": 136
+    },
+    {
+      "id": "sql-on-fhir",
+      "title": "SQL on FHIR v2",
+      "page": "/docs/reference/conformance/sql-on-fhir",
+      "generatedAt": "2026-10-26T03:03:29.414Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 107,
+      "testScriptsPassing": 78,
+      "knownGaps": 29,
+      "assertions": 314,
+      "assertionsPassing": 251
+    },
+    {
+      "id": "carin-bb",
+      "title": "CARIN Blue Button 2.2.0",
+      "page": "/docs/reference/conformance/carin-bb",
+      "generatedAt": "2026-11-01T20:47:11.273Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 53,
+      "testScriptsPassing": 53,
+      "knownGaps": 0,
+      "assertions": 410,
+      "assertionsPassing": 410
     }
   ]
 }

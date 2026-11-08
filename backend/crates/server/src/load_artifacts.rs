@@ -16,7 +16,7 @@ use haste_fhir_model::r4::generated::{
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::{SearchEngine, SearchOptions};
+use haste_fhir_search::{MAX_COUNT, SearchEngine, SearchOptions};
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use sha1::{Digest, Sha1};
@@ -283,101 +283,97 @@ pub async fn load_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOu
     _load_artifacts(ctx.clone()).await
 }
 
+/// Every resource of `resource_type` in the project that matches
+/// `parameters`.
+pub async fn search_all<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: ResourceType,
+    parameters: &[(&str, &[&str])],
+) -> Result<Vec<Resource>, OperationOutcomeError> {
+    let parameters: Vec<(String, Vec<String>)> = parameters
+        .iter()
+        .map(|(name, values)| {
+            (
+                (*name).to_string(),
+                values.iter().map(|value| (*value).to_string()).collect(),
+            )
+        })
+        .collect();
+    let results = search_engine
+        .search(
+            &SupportedFHIRVersions::R4,
+            tenant,
+            project,
+            &SearchRequest::Type(FHIRSearchTypeRequest {
+                resource_type,
+                parameters: parameters.into(),
+            }),
+            Some(SearchOptions {
+                count_limit: Some(MAX_COUNT),
+                any_of: None,
+            }),
+        )
+        .await?;
+    let version_ids: Vec<_> = results.entries.iter().map(|e| &e.version_id).collect();
+
+    repo.read_by_version_ids(tenant, project, &version_ids, CachePolicy::NoCache)
+        .await
+}
+
+/// The system project's concrete base StructureDefinitions of `kinds`.
 pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
     kinds: &[&str],
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<Vec<StructureDefinition>, OperationOutcomeError> {
-    let sd_search = FHIRSearchTypeRequest {
-        resource_type: ResourceType::StructureDefinition,
-        parameters: vec![
-            (
-                "kind".to_string(),
-                kinds.iter().map(|s| s.to_string()).collect(),
-            ),
-            ("abstract".to_string(), vec!["false".to_string()]),
-            ("derivation".to_string(), vec!["specialization".to_string()]),
-        ]
-        .into(),
-    };
-    let sd_results = search_engine
-        .search(
-            &SupportedFHIRVersions::R4,
-            &TenantId::System,
-            &ProjectId::System,
-            &SearchRequest::Type(sd_search),
-            Some(SearchOptions {
-                count_limit: Some(10_000),
-                any_of: None,
-            }),
-        )
-        .await?;
+    let sds = search_all(
+        repo,
+        search_engine,
+        &TenantId::System,
+        &ProjectId::System,
+        ResourceType::StructureDefinition,
+        &[
+            ("kind", kinds),
+            ("abstract", &["false"]),
+            ("derivation", &["specialization"]),
+        ],
+    )
+    .await?;
 
-    let version_ids = sd_results
-        .entries
-        .iter()
-        .map(|v| &v.version_id)
-        .collect::<Vec<_>>();
-
-    let sds = repo
-        .read_by_version_ids(
-            &TenantId::System,
-            &ProjectId::System,
-            version_ids.as_slice(),
-            CachePolicy::NoCache,
-        )
-        .await?
+    Ok(sds
         .into_iter()
         .filter_map(|r| match r {
             Resource::StructureDefinition(sd) => Some(sd),
             _ => None,
-        });
-
-    Ok(sds.collect())
+        })
+        .collect())
 }
 
+/// The system project's SearchParameters.
 pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<Vec<SearchParameter>, OperationOutcomeError> {
-    let sp_search = FHIRSearchTypeRequest {
-        resource_type: ResourceType::SearchParameter,
-        parameters: (vec![] as Vec<(String, Vec<String>)>).into(),
-    };
-    let sp_results = search_engine
-        .search(
-            &SupportedFHIRVersions::R4,
-            &TenantId::System,
-            &ProjectId::System,
-            &SearchRequest::Type(sp_search),
-            Some(SearchOptions {
-                count_limit: Some(10_000),
-                any_of: None,
-            }),
-        )
-        .await?;
+    let sps = search_all(
+        repo,
+        search_engine,
+        &TenantId::System,
+        &ProjectId::System,
+        ResourceType::SearchParameter,
+        &[],
+    )
+    .await?;
 
-    let version_ids = sp_results
-        .entries
-        .iter()
-        .map(|v| &v.version_id)
-        .collect::<Vec<_>>();
-
-    let sps = repo
-        .read_by_version_ids(
-            &TenantId::System,
-            &ProjectId::System,
-            version_ids.as_slice(),
-            CachePolicy::NoCache,
-        )
-        .await?
+    Ok(sps
         .into_iter()
         .filter_map(|r| match r {
             Resource::SearchParameter(sp) => Some(sp),
             _ => None,
-        });
-
-    Ok(sps.collect())
+        })
+        .collect())
 }
 
 /// Every `OperationDefinition` installed for the user.

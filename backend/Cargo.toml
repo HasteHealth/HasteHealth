@@ -28,6 +28,7 @@ members = [
     "crates/fhir-operation-error-derive",
     "crates/fhir-ops",
     "crates/fhir-ops-derive",
+    "crates/fhir-package",
     "crates/fhir-profiling",
     "crates/fhir-search",
     "crates/fhir-serialization-json",
@@ -55,7 +56,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.127.0"
+version = "0.129.3"
 authors = ["Haste Health"]
 license = "Apache-2.0"
 homepage = "https://haste.health"
@@ -149,7 +150,7 @@ mimalloc = { workspace = true }
 quote = { workspace = true }
 rand = { version = "0.8", default-features = false, features = ["std"] }
 reqwest = { workspace = true }
-sentry = { workspace = true }
+sentry = { workspace = true, features = ["tracing"] }
 sha2 = { version = "0.10.9", default-features = false }
 similar = { version = "2.7.0", default-features = false, features = ["text"] }
 serde = { workspace = true }
@@ -184,8 +185,10 @@ haste-codegen = { path = "./crates/codegen" }
 haste-config = { path = "./crates/config" }
 haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
 haste-fhir-converter = { path = "./crates/fhir-converter" }
+haste-fhir-generated-ops = { path = "./crates/fhir-generated-ops" }
 haste-fhir-model = { path = "./crates/fhir-model" }
 haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
+haste-fhir-package = { path = "./crates/fhir-package" }
 haste-fhir-search = { path = "./crates/fhir-search" }
 haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 haste-fhirpath = { path = "./crates/fhirpath" }

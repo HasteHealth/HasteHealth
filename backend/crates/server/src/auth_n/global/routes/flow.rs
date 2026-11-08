@@ -4,6 +4,7 @@
 //! sign-up is turned off (`signup.enabled`). An invitation (a user a tenant
 //! created for the address) must be accepted before it can be entered.
 
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
         constant_time,
@@ -85,10 +86,7 @@ pub fn check_csrf(expected: &str, submitted: &str) -> Result<(), OperationOutcom
     if constant_time::str_eq(expected, submitted) {
         Ok(())
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ))
+        Err(AuthError::InvalidCsrfToken.into())
     }
 }
 

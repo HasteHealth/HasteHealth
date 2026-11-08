@@ -38,6 +38,25 @@ function hostnameIds(): string[] {
   return window.location.host.split(".")[0]?.split(HOSTNAME_ID_SEPARATOR) ?? [];
 }
 
+/** A file's contents, base64 encoded. */
+export function readAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+      const data = reader.result;
+      if (typeof data === "string") {
+        resolve(data.split(",")[1]);
+      } else {
+        reject(new Error("FileReader result was not a string"));
+      }
+    };
+    reader.onerror = () =>
+      reject(reader.error ?? new Error(`Could not read '${file.name}'`));
+  });
+}
+
 export function deriveTenantId(): TenantId {
   return hostnameIds()[0] as TenantId;
 }

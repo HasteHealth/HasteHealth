@@ -9,9 +9,12 @@
 // Options, one per suite and search backend, each a TestReport Bundle or a
 // directory of them (the access control and g10 runs write one per scenario):
 //
-//   --us-core-postgres <path>         --us-core-elasticsearch <path>
+//   --us-core-postgres <path>         --us-core-elasticsearch <path>   (9.0.0)
+//   --us-core-7-postgres <path>       --us-core-7-elasticsearch <path> (7.0.0)
 //   --g10-postgres <path>
 //   --access-control-postgres <path>  --access-control-elasticsearch <path>
+//   --sql-on-fhir-postgres <path>
+//   --carin-bb-postgres <path>        --carin-bb-elasticsearch <path>
 //
 // Defaults: backend/testreports/<suite>/<backend>(.json). A suite with no
 // reports at all keeps its committed file, so a run whose job failed still
@@ -54,6 +57,25 @@ const G10_GROUPS = {
   setup: "Shared setup: the US Core patient record",
 };
 
+// One group per file of the SQL on FHIR shared test suite.
+const SQL_ON_FHIR_GROUPS = {
+  basic: "Basic views",
+  collection: "Collection columns",
+  constant: "Constants",
+  constant_types: "Constant types",
+  fhirpath: "FHIRPath expressions",
+  fhirpath_numbers: "FHIRPath numbers",
+  fn_boundary: "lowBoundary() and highBoundary()",
+  fn_empty: "empty()",
+  fn_oftype: "ofType()",
+  foreach: "forEach and forEachOrNull",
+  repeat: "repeat",
+  row_index: "%rowIndex",
+  union: "unionAll",
+  validate: "Invalid views",
+  view_resource: "View resource type",
+};
+
 const ACCESS_CONTROL_GROUPS = {
   "patient-scopes": "Patient scopes",
   "user-scopes": "User scopes",
@@ -61,24 +83,62 @@ const ACCESS_CONTROL_GROUPS = {
   "smart-launch": "SMART EHR launch",
 };
 
-/** How each suite is found, grouped and named. */
-const SUITES = [
-  {
-    id: "us-core",
-    title: "US Core",
-    page: "/docs/reference/conformance/us-core",
+// A generated example script is named after its example file:
+//   ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json (US Core 9.0.0)
+//   ---artifacts-r4-hl7-fhir-us-core-7-0-0-example-Observation-bmi-json (a package's example/)
+const EXAMPLE_ID = /(?:us_core|example)-([A-Z][A-Za-z]+)-(.+)-json$/;
+
+/**
+ * One implementation guide version's suite, backend/testscripts/<dir>/<version>:
+ * its examples/ grouped by the resource type they write, and its profiles/ in
+ * one group, whose lowercase id sorts after the resource type groups.
+ */
+function guideSuite({ id, title, dir, version, page, ...rest }) {
+  return {
+    id,
+    title: `${title} ${version}`,
+    page,
+    dir: path.join(dir, version),
     backends: ["postgres", "elasticsearch"],
-    // A generated script is named after its example file:
-    // ---artifacts-r4-test-data-testscripts-us_core-Observation-bmi-json
+    ...rest,
     group(relativePath, testScript) {
-      const match = /us_core-([A-Z][A-Za-z]+)-/.exec(testScript.id);
-      return { id: match?.[1] ?? "Patient", title: match?.[1] ?? "Patient" };
+      if (relativePath.split(path.sep)[0] === "profiles") {
+        return {
+          id: `${dir}-${version}-profiles`,
+          title: `${title} ${version} profiles`,
+        };
+      }
+      // A hand-written example script is grouped by the resource it writes.
+      const type =
+        EXAMPLE_ID.exec(testScript.id)?.[1] ??
+        testScript.contained?.[0]?.resourceType ??
+        "Other";
+      return { id: type, title: type };
     },
     scriptTitle(testScript) {
-      const match = /us_core-([A-Z][A-Za-z]+)-(.+)-json$/.exec(testScript.id);
+      const match = EXAMPLE_ID.exec(testScript.id);
       return match ? `${match[1]} ${match[2]}` : testScript.title;
     },
-  },
+  };
+}
+
+/** How each suite is found, grouped and named. */
+const SUITES = [
+  guideSuite({
+    id: "us-core",
+    title: "US Core",
+    dir: "us-core",
+    version: "9.0.0",
+    page: "/docs/reference/conformance/us-core",
+  }),
+  // The version the ONC (g)(10) test kit certifies against.
+  guideSuite({
+    id: "us-core-7",
+    title: "US Core",
+    dir: "us-core",
+    version: "7.0.0",
+    page: "/docs/reference/conformance/us-core-7",
+  }),
   {
     id: "g10",
     title: "ONC (g)(10) Standardized API",
@@ -117,6 +177,43 @@ const SUITES = [
     },
     order: Object.keys(ACCESS_CONTROL_GROUPS),
   },
+  {
+    id: "sql-on-fhir",
+    title: "SQL on FHIR v2",
+    page: "/docs/reference/conformance/sql-on-fhir",
+    backends: ["postgres"],
+    knownFailures: "known-failures.txt",
+    // CI runs the listed TestScripts with --allow-failure instead of skipping
+    // them, so their reports say what passed.
+    knownFailuresRun: true,
+    // basic/01-basic-attribute.testscript.json -> "basic.json · Basic views"
+    group(relativePath) {
+      const [file] = relativePath.split(path.sep);
+      return {
+        id: file,
+        title: `${file}.json · ${SQL_ON_FHIR_GROUPS[file] ?? file}`,
+      };
+    },
+    // "SQL on FHIR basic: basic attribute" -> "01 · basic attribute"
+    scriptTitle(testScript, relativePath) {
+      const number = /^(\d+)-/.exec(path.basename(relativePath))?.[1];
+      const title = testScript.title.replace(/^SQL on FHIR \w+: /, "");
+      return number ? `${number} · ${title}` : title;
+    },
+    // The rows assert compares base64; its description already shows the rows.
+    expression: (assert) =>
+      assert.expression?.startsWith("Binary.data = '")
+        ? undefined
+        : assert.expression,
+    order: Object.keys(SQL_ON_FHIR_GROUPS),
+  },
+  guideSuite({
+    id: "carin-bb",
+    title: "CARIN Blue Button",
+    dir: "carin-bb",
+    version: "2.2.0",
+    page: "/docs/reference/conformance/carin-bb",
+  }),
 ];
 
 /** A TestReport action result as the website's Result. Mirrors test-support.mjs. */
@@ -150,8 +247,9 @@ function readReports(location) {
 }
 
 /**
- * known-failures.txt: TestScript paths, or scenario directories ending in `/`,
- * each under the comment block that explains it.
+ * known-failures.txt: TestScript paths or ids, or scenario directories ending
+ * in `/`, each under the comment block that explains it. A `#` after an entry
+ * starts a comment.
  */
 function readKnownFailures(file) {
   if (!fs.existsSync(file)) return [];
@@ -166,18 +264,19 @@ function readKnownFailures(file) {
       inComment = true;
     } else {
       inComment = false;
-      if (line) entries.push({ path: line, reason: reason.join(" ") });
+      const entry = line.replace(/\s+#.*$/, "");
+      if (entry) entries.push({ path: entry, reason: reason.join(" ") });
     }
   }
   return entries;
 }
 
-function knownFailureOf(entries, relativePath) {
+function knownFailureOf(entries, relativePath, testScript) {
   const posix = relativePath.split(path.sep).join("/");
   return entries.find((entry) =>
     entry.path.endsWith("/")
       ? posix.startsWith(entry.path)
-      : posix === entry.path,
+      : posix === entry.path || testScript.id === entry.path,
   )?.reason;
 }
 
@@ -208,7 +307,8 @@ function testName(test, index) {
 }
 
 /** One TestScript's tests and assertions with each backend's results. */
-function scriptResults(testScript, reports, backends) {
+function scriptResults(testScript, reports, backends, suite) {
+  const expressionOf = suite.expression ?? ((assert) => assert.expression);
   const sections = [
     ...(testScript.setup?.action?.some((action) => action.assert)
       ? [
@@ -235,8 +335,8 @@ function scriptResults(testScript, reports, backends) {
           ? [
               {
                 label: assertionLabel(action.assert, actionIndex),
-                ...(action.assert.expression
-                  ? { expression: action.assert.expression }
+                ...(expressionOf(action.assert)
+                  ? { expression: expressionOf(action.assert) }
                   : {}),
                 results: Object.fromEntries(
                   backends.map((backend) => [
@@ -264,7 +364,7 @@ function buildSuite(suite, locations) {
   const reports = Object.fromEntries(
     backends.map((backend) => [backend, readReports(locations[backend])]),
   );
-  const dir = path.join(BACKEND, "testscripts", suite.id);
+  const dir = path.join(BACKEND, "testscripts", suite.dir ?? suite.id);
   const knownFailures = suite.knownFailures
     ? readKnownFailures(path.join(dir, suite.knownFailures))
     : [];
@@ -275,22 +375,39 @@ function buildSuite(suite, locations) {
     if (testScript.resourceType !== "TestScript") continue;
     const relativePath = path.relative(dir, file);
     const { id, title, subgroup } = suite.group(relativePath, testScript);
-    const knownFailure = knownFailureOf(knownFailures, relativePath);
     const scriptReports = Object.fromEntries(
       backends.map((backend) => [backend, reports[backend].get(testScript.id)]),
     );
-    const tests = scriptResults(testScript, scriptReports, backends);
+    const tests = scriptResults(testScript, scriptReports, backends, suite);
+    // A skipped known failure has no report, so it shows as a known gap. One
+    // that ran shows its report's result: a listed TestScript that passed is
+    // no longer a gap.
     const result = Object.fromEntries(
       backends.map((backend) => [
         backend,
-        knownFailure ? "warn" : toResult(scriptReports[backend]?.result),
+        toResult(scriptReports[backend]?.result, scriptReports[backend]),
       ]),
     );
+    const listedFailure = knownFailureOf(
+      knownFailures,
+      relativePath,
+      testScript,
+    );
+    const knownFailure =
+      suite.knownFailuresRun &&
+      backends.every((backend) => result[backend] === "pass")
+        ? undefined
+        : listedFailure;
+    if (knownFailure && !suite.knownFailuresRun) {
+      for (const backend of backends) result[backend] = "warn";
+    }
     const group = groups.get(id) ?? { id, title, scripts: [] };
     group.scripts.push({
       id: testScript.id,
       title:
-        suite.scriptTitle?.(testScript) ?? testScript.title ?? testScript.name,
+        suite.scriptTitle?.(testScript, relativePath) ??
+        testScript.title ??
+        testScript.name,
       ...(testScript.description
         ? { description: testScript.description }
         : {}),
@@ -324,6 +441,7 @@ function buildSuite(suite, locations) {
     generatedAt: new Date().toISOString(),
     backends,
     knownFailures: knownFailures.length,
+    ...(suite.knownFailuresRun ? { knownFailuresRun: true } : {}),
     groups: sorted,
   };
 }

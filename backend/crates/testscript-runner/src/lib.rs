@@ -89,8 +89,9 @@ struct TestState {
     latest_request: Option<FHIRRequest>,
     latest_response: Option<RecordedResponse>,
     result: BoundCode<ReportResultCodes>,
-    /// Writes not yet confirmed visible to search. All are waited for, since a
-    /// search (a chained one especially) may filter on any of them.
+    /// Writes not yet confirmed visible to search, the latest per resource.
+    /// All are waited for, since a search (a chained one especially) may
+    /// filter on any of them.
     unindexed_writes: Vec<IndexedWrite>,
 }
 
@@ -1003,9 +1004,8 @@ fn fixture_version_id(
             ))
         })?
         .as_any()
-        .downcast_ref::<Box<FHIRId>>()
-        .cloned()
-        .and_then(|v| v.value)
+        .downcast_ref::<FHIRId>()
+        .and_then(|v| v.value.clone())
         .ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
                 "Fixture '{fixture_name}' does not have a valid 'versionId' field."
@@ -1111,13 +1111,17 @@ fn indexed_write(response: &FHIRResponse) -> Option<IndexedWrite> {
     })
 }
 
-/// Whether a request's result depends on the search index.
+/// Whether a request's result depends on the search index. Operations
+/// count: `$everything`, `$expand` and `$viewdefinition-run` search for what
+/// they return, and for one that does not the wait is one `_id` search per
+/// pending write.
 fn reads_search_index(request: &FHIRRequest) -> bool {
     matches!(
         request,
         FHIRRequest::Search(_)
             | FHIRRequest::Delete(DeleteRequest::Type(_) | DeleteRequest::System(_))
             | FHIRRequest::Update(UpdateRequest::Conditional(_))
+            | FHIRRequest::Invocation(_)
     )
 }
 
@@ -1347,6 +1351,11 @@ async fn run_operation<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange
     let failure = match &recorded.response {
         Response::Interaction(response) => {
             if let Some(write) = indexed_write(response) {
+                // Search returns only a resource's current version, so an
+                // earlier write of the same resource could never be seen.
+                state_guard.unindexed_writes.retain(|earlier| {
+                    (&earlier.resource_type, &earlier.id) != (&write.resource_type, &write.id)
+                });
                 state_guard.unindexed_writes.push(write);
             }
             None
@@ -2252,14 +2261,45 @@ async fn run_test<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>
                 action.0
             )));
         };
+        let state = cur_state.clone();
         let result = run_action(
             client,
             ctx.clone(),
             cur_state,
-            action_pointer,
+            action_pointer.clone(),
             options.clone(),
         )
-        .await?;
+        .await;
+        let result = match result {
+            Ok(result) => result,
+            // An action that cannot run (a read of a fixture the failed create
+            // before it never produced, say) fails its test instead of ending
+            // the run with no report: the error becomes the action's result
+            // and the test's remaining actions are skipped.
+            Err(TestScriptError::ExecutionError(message)) => {
+                tracing::error!(
+                    path = action_pointer.path(),
+                    "TestScript action could not run: {message}"
+                );
+                state.lock().await.result = ReportResultCodes::fail();
+                test_report_test.action.push(TestReportTestAction {
+                    operation: Some(TestReportSetupActionOperation {
+                        result: ReportActionResultCodes::error(),
+                        message: Some(Box::new(FHIRMarkdown {
+                            value: Some(message),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                });
+                return Ok(TestResult {
+                    state,
+                    value: test_report_test,
+                });
+            }
+            Err(e) => return Err(e),
+        };
         cur_state = result.state;
         test_report_test.action.push(TestReportTestAction {
             operation: result.value.operation,
@@ -2318,10 +2358,11 @@ async fn run_tests<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX
 
 pub struct TestRunnerOptions {
     pub wait_between_operations: Option<Duration>,
-    /// Before a request that reads the search index (a search, conditional
-    /// delete or conditional update), wait up to this long for the latest
-    /// write to be indexed. Waits only as long as indexing takes, where
-    /// `wait_between_operations` waits a fixed time after every operation.
+    /// Before a request that reads the search index (a search, an operation,
+    /// a conditional delete or a conditional update), wait up to this long
+    /// for the latest writes to be indexed. Waits only as long as indexing
+    /// takes, where `wait_between_operations` waits a fixed time after every
+    /// operation.
     pub index_wait_timeout: Option<Duration>,
 }
 

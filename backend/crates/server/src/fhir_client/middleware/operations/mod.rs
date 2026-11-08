@@ -58,6 +58,8 @@ impl<B: Backend> Operations<B> {
             Box::new(custom_operations::tenant_branding_op()),
             Box::new(custom_operations::patient_everything()),
             Box::new(custom_operations::smart_launch_op()),
+            Box::new(custom_operations::implementation_guide_install_op()),
+            Box::new(custom_operations::implementation_guide_uninstall_op()),
         ];
 
         Operations {

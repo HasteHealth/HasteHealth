@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam&date=2021-11-10T16:48:57.246958-08:00",
+                        "params": "patient=g10-example&category=exam&date=2021-11-10T16:48:57.246958-08:00&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|exam&date=2021-11-10T16:48:57.246958-08:00",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/observation-category|exam&date=2021-11-10T16:48:57.246958-08:00&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -114,7 +114,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam&date=gt2021-11-10T00:48:57Z",
+                        "params": "patient=g10-example&category=exam&date=gt2021-11-10T00:48:57Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -154,7 +154,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam&date=ge2021-11-10T00:48:57Z",
+                        "params": "patient=g10-example&category=exam&date=ge2021-11-10T00:48:57Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -194,7 +194,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam&date=lt2021-11-12T00:48:57Z",
+                        "params": "patient=g10-example&category=exam&date=lt2021-11-12T00:48:57Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },
@@ -234,7 +234,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=exam&date=le2021-11-12T00:48:57Z",
+                        "params": "patient=g10-example&category=exam&date=le2021-11-12T00:48:57Z&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

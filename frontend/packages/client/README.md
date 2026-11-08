@@ -1,228 +1,96 @@
-# HasteHealth Client
+# @haste-health/client
 
-HTTPClient and classes + middleware to define your own clients to conform to the FHIR specification.
+A typed FHIR client for TypeScript and JavaScript. Every FHIR interaction (read, search, create, update, patch, delete, history, operations, batch and transaction) is a method on one `AsynchronousClient`, typed against the R4 and R4B definitions in [`@haste-health/fhir-types`](https://www.npmjs.com/package/@haste-health/fhir-types). The bundled HTTP client talks to any FHIR server over `fetch`; the client itself is transport-agnostic middleware, so the same interface can wrap other transports.
 
-## Client Types
+The Haste Health admin app, CLI, React components and TestScript runner all use it.
 
-Clients are built using middleware. To define a client you create a middleware handler and pass it in as an argument to either the SynchronousClient, AsynchronousClient constructor.
+## Install
 
-## Middleware
-
-### Arguments
-
-Middleware is built using an array of functions each function is passed the following arguments:
-
-| Name       | Description                                            | type        |
-| ---------- | ------------------------------------------------------ | ----------- |
-| request    | A FHIRRequest object information varies based on type. | FHIRRequest |
-| args       | Object contains state and ctx                          | state,ctx   |
-| args.state | Internal state of the middleware.                      | unknown     |
-| args.ctx   | Context of the call (will vary based on client).       | unknown     |
-
-### Response
-
-Middleware should return the following object:
-
-```typescript
-{
-  ctx: CTX;
-  state: State;
-  response: FHIRResponse;
-}
+```bash
+npm install @haste-health/client
 ```
 
-Depending on whether client is asynchronous or syncrhonous will either be the object directly or a promise resolving to this object.
+## Usage
 
-### Client
+```ts
+import createHTTPClient from "@haste-health/client/http";
+import type { Patient } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
-Constructor that allows you to create asynchronous FHIR clients.
+const client = createHTTPClient({
+  url: "https://<host>/w/<tenant>/<project>/api/v1/fhir",
+  getAccessToken: async () => accessToken,
+});
 
-```typescript
-import {
-  createMiddlewareAsync,
-  MiddlewareAsync,
-} from "@haste-health/client/lib/middleware/index.js";
-import { AsynchronousClient } from "@haste-health/client/lib/index.js";
+const created = await client.create({}, R4, {
+  resourceType: "Patient",
+  name: [{ family: "Smith", given: ["John"] }],
+} as Patient);
 
-return new AsynchronousClient<StateType, CTX>(
-  initialState,
-  createMiddlewareAsync<State, CTX>(middlewarefunctions)
+const { resources, total } = await client.search_type(
+  {},
+  R4,
+  "Patient",
+  "name=Smith&_count=10",
+);
+
+const patient = await client.read({}, R4, "Patient", created.id!);
+```
+
+The first argument of every method is the per-call context. For the HTTP client it is `{ headers?: Record<string, string> }`, so extra headers can be sent on one request.
+
+### HTTP client options
+
+| Option           | Purpose                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `url`            | The FHIR base URL, or a function from FHIR version to URL                                                                    |
+| `getAccessToken` | Called before each request; the result is sent as a `Bearer` token                                                           |
+| `authenticate`   | Called when the server answers 401, for example to start a login flow                                                        |
+| `searchMethod`   | `"GET"` (default) puts search parameters in the query string; `"POST"` form-posts them to `_search` to keep them out of URLs |
+
+Responses with status 400 or above throw a `ResponseError` (test with `isResponseError`) carrying the request and the server's `OperationOutcome`.
+
+### Methods
+
+| Method                                               | FHIR interaction                                                                                                |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `capabilities`                                       | `GET metadata`                                                                                                  |
+| `read`, `vread`                                      | Read and version read                                                                                           |
+| `search_type`, `search_system`                       | Search; parameters as a query string or `ParsedParameter[]`; returns `{ total, resources }`                     |
+| `create`, `update`, `conditionalUpdate`, `patch`     | Writes; `patch` takes a JSON Patch body                                                                         |
+| `delete_instance`, `delete_type`, `delete_system`    | Deletes, including conditional ones                                                                             |
+| `history_instance`, `history_type`, `history_system` | History; returns the Bundle entries                                                                             |
+| `invoke_instance`, `invoke_type`, `invoke_system`    | Operations; pass a code such as `"expand"`, or an operation from `@haste-health/generated-ops` for typed in/out |
+| `batch`, `transaction`                               | Bundle submission                                                                                               |
+| `request`                                            | Send a raw `FHIRRequest` and get the `FHIRResponse`                                                             |
+
+### Middleware
+
+A client is an `AsynchronousClient` built on a middleware chain. Each middleware receives `(state, context, next)`, where `context` holds the `ctx`, the `FHIRRequest` and, after `next`, the `FHIRResponse`, and returns `[state, context]`. This is how the HTTP transport is implemented, and how you add caching, logging or a different transport:
+
+```ts
+import { AsynchronousClient } from "@haste-health/client";
+import { createMiddlewareAsync } from "@haste-health/client/middleware";
+
+const client = new AsynchronousClient(
+  createMiddlewareAsync({}, [
+    async (state, context, next) => {
+      console.log(context.request.type);
+      return next(state, context);
+    },
+    async (state, context) => [state, { ...context, response: myResponse }],
+  ]),
 );
 ```
 
-## HTTPClient
+`@haste-health/client/url` exports `parseUrl` and `parseQuery` for FHIR search strings, plus the escaping helpers (`escapeParameter`, `splitParameter`) that honour FHIR's `\` escapes for `,`, `|` and `$`. `@haste-health/client/types` and `@haste-health/client/interface` hold the request, response and client interface types.
 
-We provide an HTTP client by default that allows you to call FHIR servers via API calls.
-Supports all the method calls within the AsynchronousClient interface:
+## Links
 
-```typescript
-export interface FHIRClientAsync<CTX> {
-  request(ctx: CTX, request: FHIRRequest): Promise<FHIRResponse>;
-  capabilities<FHIRVersion extends FHIR_VERSION>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion
-  ): Promise<Resource<FHIRVersion, "CapabilityStatement">>;
-  search_system<FHIRVersion extends FHIR_VERSION>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    parameters: ParsedParameter<string | number>[] | string
-  ): Promise<{
-    total?: number;
-    resources: Resource<FHIRVersion, AllResourceTypes>[];
-  }>;
-  search_type<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    type: T,
-    parameters: ParsedParameter<string | number>[] | string
-  ): Promise<{
-    total?: number;
-    resources: Resource<FHIRVersion, T>[];
-  }>;
-  create<
-    FHIRVersion extends FHIR_VERSION,
-    Value extends Resource<FHIRVersion, AllResourceTypes>
-  >(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resource: Value
-  ): Promise<Value>;
-  update<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>,
-    resource: Resource<FHIRVersion, T>
-  ): Promise<Resource<FHIRVersion, T>>;
-  patch<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>,
-    patches: any
-  ): Promise<Resource<FHIRVersion, T>>;
-  read<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>
-  ): Promise<Resource<FHIRVersion, T> | undefined>;
-  vread<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>,
-    versionId: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>
-  ): Promise<Resource<FHIRVersion, T> | undefined>;
-  delete<FHIRVersion extends FHIR_VERSION, T extends ResourceType<FHIRVersion>>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>
-  ): Promise<void>;
+- [API reference](https://typescript.haste.health/modules/_haste-health_client.html)
+- [Source](https://github.com/HasteHealth/HasteHealth/tree/main/frontend/packages/client)
+- [TypeScript SDK overview](https://haste.health/docs/api/sdks/typescript) and the [FHIR REST API](https://haste.health/docs/api/rest_api/fhir/intro) on haste.health
+- Related: [@haste-health/generated-ops](https://www.npmjs.com/package/@haste-health/generated-ops) for typed operations
+- Rust equivalent: [haste-fhir-client](https://crates.io/crates/haste-fhir-client)
 
-  historySystem<FHIRVersion extends FHIR_VERSION>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    parameters?: ParsedParameter<string | number>[] | string
-  ): Promise<NonNullable<Resource<FHIRVersion, "Bundle">["entry"]>>;
-  historyType<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    parameters?: ParsedParameter<string | number>[] | string
-  ): Promise<NonNullable<Resource<FHIRVersion, "Bundle">["entry"]>>;
-  historyInstance<FHIRVersion extends FHIR_VERSION, T extends AllResourceTypes>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>,
-    parameters?: ParsedParameter<string | number>[] | string
-  ): Promise<NonNullable<Resource<FHIRVersion, "Bundle">["entry"]>>;
-  invoke_system<
-    FHIRVersion extends FHIR_VERSION,
-    Op extends IOperation<any, any>
-  >(
-    op: Op,
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    input: OPMetadata<Op>["Input"]
-  ): Promise<OPMetadata<Op>["Output"]>;
-  invoke_type<
-    FHIRVersion extends FHIR_VERSION,
-    Op extends IOperation<any, any>,
-    T extends AllResourceTypes
-  >(
-    op: Op,
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    input: OPMetadata<Op>["Input"]
-  ): Promise<OPMetadata<Op>["Output"]>;
-  invoke_instance<
-    FHIRVersion extends FHIR_VERSION,
-    Op extends IOperation<any, any>,
-    T extends AllResourceTypes
-  >(
-    op: Op,
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    resourceType: T,
-    id: NonNullable<Resource<FHIRVersion, AllResourceTypes>["id"]>,
-    input: OPMetadata<Op>["Input"]
-  ): Promise<OPMetadata<Op>["Output"]>;
-  transaction<FHIRVersion extends FHIR_VERSION>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    bundle: Resource<FHIRVersion, "Bundle">
-  ): Promise<Resource<FHIRVersion, "Bundle">>;
-  batch<FHIRVersion extends FHIR_VERSION>(
-    ctx: CTX,
-    fhirVersion: FHIRVersion,
-    bundle: Resource<FHIRVersion, "Bundle">
-  ): Promise<Resource<FHIRVersion, "Bundle">>;
-}
-```
-
-### Usage
-
-```typescript
-import { expect, test } from "@jest/globals";
-
-import HTTPClient from "@haste-health/client/http";
-import { OperationDefinition } from "@haste-health/fhir-types/r4/types";
-import { R4 } from "@haste-health/fhir-types/version";
-
-const client = HTTPClient({
-  url: "FHIR_API_ROOT_URL",
-  getAccessToken: async function () {
-    return "API TOKEN";
-  },
-});
-
-const operationDefinition: OperationDefinition = {
-  resourceType: "OperationDefinition",
-  name: "test",
-  status: "draft",
-  kind: "operation",
-  code: "my-operation",
-  system: false,
-  instance: false,
-  type: false,
-  parameter: [],
-};
-const response = await client.create({}, R4, operationDefinition);
-expect(response).toMatchObject({
-  resourceType: "OperationDefinition",
-  name: "test",
-  status: "draft",
-  kind: "operation",
-  code: "my-operation",
-  system: false,
-  instance: false,
-  type: false,
-  parameter: [],
-});
-
-await client.delete({}, R4, "OperationDefinition", response.id as string);
-```
+Part of [Haste Health](https://haste.health), licensed under [Apache-2.0](https://github.com/HasteHealth/HasteHealth/blob/main/LICENSE).

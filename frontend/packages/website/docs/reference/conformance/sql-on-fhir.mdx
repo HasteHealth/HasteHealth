@@ -1,0 +1,61 @@
+---
+title: SQL on FHIR v2
+sidebar_label: SQL on FHIR
+description: Haste Health's results for the SQL on FHIR v2 shared test suite, run as TestScripts against $viewdefinition-run, with every known gap.
+sidebar_position: 5
+hide_table_of_contents: true
+---
+
+import {
+  SuiteKnownGaps,
+  SuiteLastVerified,
+  SuiteReportTable,
+  SuiteSummary,
+} from "@site/src/components/TestSuites";
+
+# SQL on FHIR v2
+
+The [SQL on FHIR v2](https://sql-on-fhir.org/ig/) implementation guide has a
+shared test suite, the `tests/` directory of
+[FHIR/sql-on-fhir.js](https://github.com/FHIR/sql-on-fhir.js), that
+implementations run to be listed on its
+[implementations page](https://sql-on-fhir.org/extra/impls.html). Each test
+gives a ViewDefinition, the resources to run it over, and either the rows it
+must return or an error it must raise.
+
+This suite runs every test from it that a FHIR `TestScript` can express. Each
+TestScript sends the test's view and resources to
+[`$viewdefinition-run`](/docs/guides/sql_on_fhir) and checks what comes back:
+the expected rows, or a client error for a view the test says is invalid. The
+groups below are the suite's files, and each TestScript's number is the test's
+position in its file, so a result here maps back to a test there.
+
+Rows are compared byte for byte. The suite's own runner accepts rows in any
+order, so a TestScript that fails only because of row order would pass there;
+the known gaps below say which ones those are.
+
+Of the suite's 144 tests, 38 can't be written as a TestScript, because the view
+travels inside a `Parameters` resource and so must be a valid ViewDefinition:
+33 have no `status`, and 5 are invalid on purpose (the server refuses each of
+those 5, as the suite expects). One more TestScript is Haste Health's own: a
+column path that doesn't parse is refused with a client error. The
+[suite's README](https://github.com/HasteHealth/HasteHealth/blob/main/backend/testscripts/sql-on-fhir/README.md)
+lists each of them.
+
+<SuiteLastVerified suite="sql-on-fhir" />
+
+<SuiteSummary suite="sql-on-fhir" />
+
+## Known gaps
+
+TestScripts that fail against Haste Health today, grouped by cause. CI still
+runs them and expects them to fail, so each one shows as passing here once the
+gap is closed. Until then each counts as not passing above.
+
+<SuiteKnownGaps suite="sql-on-fhir" />
+
+## Every TestScript
+
+Expand a TestScript to see each check it makes and its result.
+
+<SuiteReportTable suite="sql-on-fhir" />

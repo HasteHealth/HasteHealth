@@ -1,9 +1,8 @@
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use ordermap::OrderMap;
 use std::fmt::Write as FmtWrite;
 
-use crate::{OutputResults, conversions::primitives::PrimitiveValue};
+use crate::{OutputResults, Row, conversions::primitives::PrimitiveValue};
 
 fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
     match value {
@@ -26,10 +25,7 @@ fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
     }
 }
 
-pub fn csv(
-    results: &[OrderMap<String, OutputResults>],
-    include_header: bool,
-) -> Result<Vec<u8>, OperationOutcomeError> {
+pub fn csv(results: &[Row], include_header: bool) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
     let mut writer = csv::WriterBuilder::new()
         .has_headers(false)
@@ -37,7 +33,7 @@ pub fn csv(
     let mut column_names = Vec::new();
 
     if let Some(header_col) = results.first() {
-        column_names = header_col.keys().cloned().collect();
+        column_names = header_col.keys().copied().collect();
 
         if include_header {
             writer.write_record(column_names.iter()).map_err(|_e| {
@@ -58,7 +54,7 @@ pub fn csv(
         for key in &column_names {
             cell_buffer.clear();
 
-            if let Some(value) = result.get(key) {
+            if let Some(value) = result.get(*key) {
                 let mut first = true;
                 match value {
                     OutputResults::Scalar(singular_value) => {

@@ -1,9 +1,9 @@
+use crate::auth_n::error::AuthError;
 use axum::{
     extract::{OriginalUri, State},
     response::{IntoResponse as _, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -58,12 +58,7 @@ pub async fn admin_get<
 ) -> Result<Response, OperationOutcomeError> {
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "User is not logged in.".to_string(),
-            )
-        })?;
+        .map_err(|_| AuthError::NotLoggedIn)?;
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
         state.repo.as_ref(),

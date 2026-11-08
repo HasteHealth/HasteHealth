@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_repository::{
@@ -84,12 +85,7 @@ pub async fn set_initial_authorization_state<Repo: Repository>(
     session
         .insert(AUTHORIZATION_STATE_KEY, initial_state)
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::fatal(
-                IssueType::exception(),
-                "Failed to set user in session.".to_string(),
-            )
-        })
+        .map_err(|e| AuthError::SessionWriteFailed(e).into())
 }
 
 pub async fn set_completed_authorization_state(
@@ -102,12 +98,7 @@ pub async fn set_completed_authorization_state(
             SessionAuthorizationState::Complete(AuthorizationStateCompleted { user }),
         )
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::fatal(
-                IssueType::exception(),
-                "Failed to set user in session.".to_string(),
-            )
-        })
+        .map_err(|e| AuthError::SessionWriteFailed(e).into())
 }
 
 /// Gives the session a new id, keeping its data.

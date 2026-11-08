@@ -18,7 +18,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=treatment-intervention-preference",
+                        "params": "patient=g10-example&category=treatment-intervention-preference&_count=1000",
                         "responseId": "main",
                         "encodeRequestUrl": false
                     }
@@ -66,7 +66,7 @@
                             "code": "search"
                         },
                         "resource": "Observation",
-                        "params": "patient=g10-example&category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|treatment-intervention-preference",
+                        "params": "patient=g10-example&category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|treatment-intervention-preference&_count=1000",
                         "encodeRequestUrl": false
                     }
                 },

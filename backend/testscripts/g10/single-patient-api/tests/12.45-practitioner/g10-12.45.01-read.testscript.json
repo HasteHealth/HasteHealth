@@ -116,7 +116,7 @@
             "id": "g10-practitioner-1",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                 ],
                 "tag": [
                     {
@@ -177,7 +177,7 @@
             "id": "g10-practitioner-2",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                 ],
                 "tag": [
                     {
@@ -237,7 +237,7 @@
             "id": "g10-practitioner-3",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                 ],
                 "tag": [
                     {
@@ -298,7 +298,7 @@
             "id": "g10-practitioner-pharmacist",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|7.0.0"
                 ],
                 "tag": [
                     {

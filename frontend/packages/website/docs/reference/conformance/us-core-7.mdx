@@ -1,0 +1,48 @@
+---
+title: US Core 7.0.0
+description: Haste Health's results for US Core 7.0.0, the version the ONC (g)(10) test kit certifies against, writing every US Core 7.0.0 example resource with its profile claimed and running a conformance TestScript per profile.
+sidebar_position: 2.5
+hide_table_of_contents: true
+---
+
+import {
+  SuiteKnownGaps,
+  SuiteLastVerified,
+  SuiteReportTable,
+  SuiteSummary,
+} from "@site/src/components/TestSuites";
+
+# US Core 7.0.0
+
+US Core 7.0.0 is the US Core version the [ONC (g)(10) suite](./onc-g10.mdx)
+certifies against. This suite loads the US Core 7.0.0 package, exactly as HL7
+publishes it, into a project and runs the TestScripts in
+`backend/testscripts/us-core/7.0.0` against it.
+
+Its `examples` TestScripts write each example resource the US Core 7.0.0
+implementation guide publishes with its profile claimed, so a passing
+TestScript means the server validated a conformant resource against its US Core
+7.0.0 profile and stored it.
+
+Its `profiles` TestScripts are one per US Core 7.0.0 profile. Each writes a
+resource that fills the profile's must-support elements and fixed slice values,
+reads it back, and runs the search parameters US Core adds to base FHIR. Its
+`TestScript.metadata` links the profile and names the US Core 7.0.0 server
+CapabilityStatement.
+
+[US Core 9.0.0](./us-core.mdx) has its own suite.
+
+<SuiteLastVerified suite="us-core-7" />
+
+<SuiteSummary suite="us-core-7" />
+
+## Known gaps
+
+<SuiteKnownGaps suite="us-core-7" />
+
+## Every TestScript
+
+Examples are grouped by the resource type they write, and the profile
+conformance TestScripts follow in one group.
+
+<SuiteReportTable suite="us-core-7" />

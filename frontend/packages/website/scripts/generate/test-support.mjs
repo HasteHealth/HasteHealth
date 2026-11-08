@@ -5,7 +5,7 @@
 //   static/test-reports/support.json
 //
 // Options (all optional):
-//   --testscripts <dir>         default backend/testscripts/core
+//   --testscripts <dir>         default backend/testscripts/core/base
 //   --postgres <bundle>         a TestReport Bundle, default backend/testreports/postgres.json
 //   --elasticsearch <bundle>    default backend/testreports/elasticsearch.json
 //   --output <file>             default static/test-reports/support.json
@@ -183,7 +183,7 @@ function resourceSupport(testScript, reports, parameterTypes) {
 
 export async function run({ args }) {
   const testscripts =
-    args.testscripts ?? path.join(BACKEND, "testscripts/core");
+    args.testscripts ?? path.join(BACKEND, "testscripts/core/base");
   const output = args.output ?? SUPPORT;
   const bundles = {
     postgres: args.postgres ?? path.join(BACKEND, "testreports/postgres.json"),

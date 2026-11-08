@@ -2,7 +2,7 @@
 //! added to or subtracted from a Date, `DateTime` or Time, at the value's
 //! precision.
 
-use crate::partial_datetime::PartialDateTime;
+use crate::{error::OperationError, partial_datetime::PartialDateTime};
 use chrono::{Months, NaiveDate, NaiveTime, TimeDelta, Timelike};
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Time},
@@ -21,25 +21,26 @@ enum Duration {
     Millis(i64),
 }
 
-/// The duration of `amount` `unit`s. Above seconds the decimal part is
-/// ignored, as such arithmetic is in whole units.
+/// The duration of `amount` `unit`s, or `None` when it overflows. Above
+/// seconds the decimal part is ignored, as such arithmetic is in whole units.
+/// A unit with no fixed length (`'mo'`, `'a'`) or no time unit at all is an
+/// error.
 #[allow(clippy::cast_possible_truncation)]
-fn duration(amount: f64, unit: &str) -> Option<Duration> {
-    if !amount.is_finite() {
-        return None;
-    }
+fn duration(amount: f64, unit: &str) -> Result<Option<Duration>, OperationError> {
     let whole = amount.trunc() as i64;
-    Some(match unit {
-        "year" | "years" => Duration::Months(whole.checked_mul(12)?),
-        "month" | "months" => Duration::Months(whole),
-        "week" | "weeks" | "wk" => Duration::Days(whole.checked_mul(7)?),
-        "day" | "days" | "d" => Duration::Days(whole),
-        "hour" | "hours" | "h" => Duration::Millis(whole.checked_mul(MILLIS_PER_HOUR)?),
-        "minute" | "minutes" | "min" => Duration::Millis(whole.checked_mul(MILLIS_PER_MINUTE)?),
-        "second" | "seconds" | "s" => Duration::Millis((amount * 1000.0).round() as i64),
-        "millisecond" | "milliseconds" | "ms" => Duration::Millis(amount.round() as i64),
-        _ => return None,
-    })
+    let fixed = |factor: i64| whole.checked_mul(factor);
+    let duration = match unit {
+        "year" | "years" => fixed(12).map(Duration::Months),
+        "month" | "months" => Some(Duration::Months(whole)),
+        "week" | "weeks" | "wk" => fixed(7).map(Duration::Days),
+        "day" | "days" | "d" => Some(Duration::Days(whole)),
+        "hour" | "hours" | "h" => fixed(MILLIS_PER_HOUR).map(Duration::Millis),
+        "minute" | "minutes" | "min" => fixed(MILLIS_PER_MINUTE).map(Duration::Millis),
+        "second" | "seconds" | "s" => Some(Duration::Millis((amount * 1000.0).round() as i64)),
+        "millisecond" | "milliseconds" | "ms" => Some(Duration::Millis(amount.round() as i64)),
+        _ => return Err(OperationError::InvalidTimeUnit(unit.to_string())),
+    };
+    Ok(duration.filter(|_| amount.is_finite()))
 }
 
 /// The shifted value, of the same type and precision as the input.
@@ -75,11 +76,19 @@ impl<'v> Temporal<'v> {
         }
     }
 
-    /// Adds `amount` `unit`s, or subtracts them. Empty when the unit is not a
-    /// time unit the value's precision can take, or the result is out of range.
-    pub fn shift(&self, amount: f64, unit: &str, subtract: bool) -> Option<Shifted> {
-        let duration = duration(if subtract { -amount } else { amount }, unit)?;
-        match self {
+    /// Adds `amount` `unit`s, or subtracts them. An error when the unit is not
+    /// a time unit of fixed length; `None` (empty) when the value's precision
+    /// cannot take it or the result is out of range.
+    pub fn shift(
+        &self,
+        amount: f64,
+        unit: &str,
+        subtract: bool,
+    ) -> Result<Option<Shifted>, OperationError> {
+        let Some(duration) = duration(if subtract { -amount } else { amount }, unit)? else {
+            return Ok(None);
+        };
+        Ok(match self {
             Temporal::Date(date) => shift_date(date, duration).map(Shifted::Date),
             Temporal::DateTime(datetime) => {
                 shift_datetime(datetime, duration).map(Shifted::DateTime)
@@ -88,7 +97,7 @@ impl<'v> Temporal<'v> {
                 shift_partial_datetime(datetime, duration).map(Shifted::PartialDateTime)
             }
             Temporal::Time(time) => shift_time(time, duration).map(Shifted::Time),
-        }
+        })
     }
 }
 

@@ -1,0 +1,434 @@
+{
+    "id": "bundle-first-entry",
+    "url": "https://haste.health/fhir/TestScript/bundle-first-entry",
+    "title": "Bundle composition and message",
+    "name": "Bundle composition and message search tests",
+    "status": "active",
+    "description": "Bundle `composition` and `message` index the Bundle's first entry, and only when it is a Composition or a MessageHeader respectively.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "bundle-document",
+            "resourceType": "Bundle",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "bundle-first-entry-test"
+                    }
+                ]
+            },
+            "type": "document",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Composition",
+                        "id": "bundle-first-entry-composition",
+                        "status": "final",
+                        "type": {
+                            "text": "Document"
+                        },
+                        "date": "2024-01-01T00:00:00Z",
+                        "author": [
+                            {
+                                "reference": "Practitioner/bundle-first-entry-author"
+                            }
+                        ],
+                        "title": "bundle-first-entry-composition"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "bundle-message",
+            "resourceType": "Bundle",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "bundle-first-entry-test"
+                    }
+                ]
+            },
+            "type": "message",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "MessageHeader",
+                        "id": "bundle-first-entry-message-header",
+                        "eventCoding": {
+                            "system": "http://example.org/events",
+                            "code": "notice"
+                        },
+                        "source": {
+                            "endpoint": "http://example.org/source"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "id": "bundle-collection",
+            "resourceType": "Bundle",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "bundle-first-entry-test"
+                    }
+                ]
+            },
+            "type": "collection",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Patient",
+                        "id": "bundle-first-entry-patient",
+                        "name": [
+                            {
+                                "family": "First"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "resource": {
+                        "resourceType": "Composition",
+                        "id": "bundle-first-entry-second-composition",
+                        "status": "final",
+                        "type": {
+                            "text": "Document"
+                        },
+                        "date": "2024-01-01T00:00:00Z",
+                        "author": [
+                            {
+                                "reference": "Practitioner/bundle-first-entry-author"
+                            }
+                        ],
+                        "title": "bundle-first-entry-second-composition"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-bundle-document",
+            "resource": {
+                "reference": "#bundle-document"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bundle-message",
+            "resource": {
+                "reference": "#bundle-message"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bundle-collection",
+            "resource": {
+                "reference": "#bundle-collection"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-first-entry-type",
+            "name": "composition and message match only a first entry of their own type",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Bundle",
+                        "sourceId": "fixture-bundle-document",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Bundle",
+                        "sourceId": "fixture-bundle-message",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Bundle",
+                        "sourceId": "fixture-bundle-collection",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "composition:missing=false&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the document Bundle starts with a Composition.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The document Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'document').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "composition:missing=true&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Bundle starting with a MessageHeader or a Patient has no composition.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The message Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'message').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The collection Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'collection').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "message:missing=false&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the message Bundle starts with a MessageHeader.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The message Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'message').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "message:missing=true&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Bundle starting with a Composition or a Patient has no message.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The document Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'document').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The collection Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'collection').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "composition=Composition/bundle-first-entry-composition&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "composition matches the first entry's type and id.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The document Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'document').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "composition=bundle-first-entry-composition&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "composition matches the first entry's id alone.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The document Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'document').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "composition=Composition/bundle-first-entry-second-composition&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Composition that is not the first entry is not indexed.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Bundle",
+                        "params": "message=MessageHeader/bundle-first-entry-message-header&_tag=bundle-first-entry-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "message matches the first entry's type and id.",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The message Bundle matches.",
+                        "expression": "Bundle.entry.resource.where(type = 'message').exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Bundle",
+                    "params": "_tag=bundle-first-entry-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

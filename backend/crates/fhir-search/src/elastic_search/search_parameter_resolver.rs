@@ -1,189 +1,50 @@
+use std::sync::Arc;
+
 use elasticsearch::Elasticsearch;
-use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
-use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType},
-    terminology::IssueType,
-};
+use haste_fhir_client::request::SearchRequest;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::{Repository, fhir::CachePolicy};
-use moka::future::{Cache, CacheBuilder};
-use std::sync::{Arc, LazyLock};
 
 use crate::{
-    ResolvedParameter, SearchOptions, SearchParameterResolve,
+    SearchOptions, SearchReturn,
     elastic_search::search,
-    memory::{R4_SEARCH_PARAMETERS_INDEX, SearchParametersIndex, create_index_map},
+    memory::R4_SEARCH_PARAMETERS_INDEX,
+    project_parameters::{IndexSearch, ProjectParameterResolver},
 };
 
+/// Resolves the base parameters plus each project's own, found in
+/// Elasticsearch.
+pub type ElasticSearchParameterResolver<Repo> = ProjectParameterResolver<ElasticIndexSearch, Repo>;
+
+/// The Elasticsearch index, searched with the base parameters.
 #[derive(Clone)]
-pub struct ElasticSearchParameterResolver<Repo: Repository + Send + Sync> {
+pub struct ElasticIndexSearch {
     es: Arc<Elasticsearch>,
-    repo: Arc<Repo>,
 }
 
-static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), Arc<SearchParametersIndex>>> =
-    LazyLock::new(|| {
-        CacheBuilder::new(50_000)
-            // Duration for 2 hour for search parameters.
-            .time_to_idle(std::time::Duration::from_hours(2))
-            .build()
-    });
-
-impl<Repo: Repository + Send + Sync> ElasticSearchParameterResolver<Repo> {
-    pub fn new(es: Arc<Elasticsearch>, repo: Arc<Repo>) -> Self {
-        ElasticSearchParameterResolver { es, repo }
+impl ElasticIndexSearch {
+    #[must_use]
+    pub fn new(es: Arc<Elasticsearch>) -> Self {
+        ElasticIndexSearch { es }
     }
 }
 
-async fn create_project_sp_index<Repo: Repository + Send + Sync>(
-    es: Arc<Elasticsearch>,
-    repo: &Repo,
-    tenant: &TenantId,
-    project: &ProjectId,
-) -> Result<SearchParametersIndex, OperationOutcomeError> {
-    let result = search::execute_search(
-        es,
-        R4_SEARCH_PARAMETERS_INDEX.clone(),
-        tenant,
-        project,
-        &SearchRequest::Type(FHIRSearchTypeRequest {
-            resource_type: ResourceType::SearchParameter,
-            parameters: vec![("status".to_string(), vec!["active".to_string()])].into(),
-        }),
-        Some(SearchOptions {
-            count_limit: Some(10_000),
-            any_of: None,
-        })
-        .as_ref(),
-    )
-    .await?;
-
-    let version_ids = result
-        .entries
-        .iter()
-        .map(|r| &r.version_id)
-        .collect::<Vec<_>>();
-
-    let project_sps = repo
-        .read_by_version_ids(tenant, project, &version_ids, CachePolicy::Cache)
-        .await?
-        .into_iter()
-        .filter_map(|r| match r {
-            Resource::SearchParameter(sp) => Some(sp),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-
-    Ok(create_index_map(
-        &crate::ParameterLevel::Project,
-        project_sps,
-    ))
-}
-
-async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
-    es: Arc<Elasticsearch>,
-    repo: &Repo,
-    tenant: TenantId,
-    project: ProjectId,
-) -> Result<Option<Arc<SearchParametersIndex>>, OperationOutcomeError> {
-    if let (TenantId::System, ProjectId::System) = (&tenant, &project) {
-        return Ok(None);
-    }
-
-    let index_key = (tenant, project);
-    // try_get_with avoids a race condition where multiple tasks might try to create the same index simultaneously.
-    // If the index already exists in the cache, it will be returned immediately.
-    // Otherwise, the provided async block will be executed to create the index and insert it into the cache.
-    let index = SEARCHPARAMETER_CACHE
-        .try_get_with(index_key.clone(), async {
-            create_project_sp_index(es, repo, &index_key.0, &index_key.1)
-                .await
-                .map(Arc::new)
-        })
+impl IndexSearch for ElasticIndexSearch {
+    async fn search(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        request: &SearchRequest,
+        options: &SearchOptions,
+    ) -> Result<SearchReturn, OperationOutcomeError> {
+        search::execute_search(
+            self.es.clone(),
+            R4_SEARCH_PARAMETERS_INDEX.clone(),
+            tenant,
+            project,
+            request,
+            Some(options),
+        )
         .await
-        .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))?;
-
-    Ok(Some(index))
-}
-
-impl<Repo: Repository + Send + Sync> SearchParameterResolve
-    for ElasticSearchParameterResolver<Repo>
-{
-    async fn by_resource_type(
-        &self,
-        tenant: &haste_jwt::TenantId,
-        project: &haste_jwt::ProjectId,
-        resource_type: &haste_fhir_model::r4::generated::resources::ResourceType,
-    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
-        let mut sps_by_resource_type = R4_SEARCH_PARAMETERS_INDEX
-            .by_resource_type(tenant, project, resource_type)
-            .await?;
-
-        if let Some(project_index) = get_or_create_sp_index_for_project(
-            self.es.clone(),
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            let project_sps = project_index
-                .by_resource_type(tenant, project, resource_type)
-                .await?;
-
-            sps_by_resource_type.extend(project_sps);
-        }
-
-        Ok(sps_by_resource_type)
-    }
-
-    async fn by_name(
-        &self,
-        tenant: &haste_jwt::TenantId,
-        project: &haste_jwt::ProjectId,
-        resource_type: Option<&haste_fhir_model::r4::generated::resources::ResourceType>,
-        code: &str,
-    ) -> Result<Option<ResolvedParameter>, OperationOutcomeError> {
-        if let Some(parameter) = R4_SEARCH_PARAMETERS_INDEX
-            .by_name(tenant, project, resource_type, code)
-            .await?
-        {
-            Ok(Some(parameter))
-        } else if let Some(project_index) = get_or_create_sp_index_for_project(
-            self.es.clone(),
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            project_index
-                .by_name(tenant, project, resource_type, code)
-                .await
-        } else {
-            Ok(None)
-        }
-    }
-
-    async fn all(
-        &self,
-        tenant: &haste_jwt::TenantId,
-        project: &haste_jwt::ProjectId,
-    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
-        let mut all_sps = R4_SEARCH_PARAMETERS_INDEX.all(tenant, project).await?;
-
-        if let Some(project_index) = get_or_create_sp_index_for_project(
-            self.es.clone(),
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            all_sps.extend(project_index.all(tenant, project).await?);
-        }
-
-        Ok(all_sps)
     }
 }

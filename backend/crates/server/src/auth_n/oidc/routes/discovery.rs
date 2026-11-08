@@ -1,7 +1,7 @@
 use crate::{
     auth_n::oidc::{
         error::{OIDCError, OIDCErrorCode},
-        routes::{authorize, jwks, token},
+        routes::{authorize, introspect, jwks, token},
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, issuer_url, project_path},
@@ -357,9 +357,9 @@ pub async fn oauth_protected_resource<
         ));
     };
 
-    // Default to openid profile user/*.* scopes for FHIR access.
+    // Default to openid profile user/*.cruds scopes for FHIR access.
     let default_scopes =
-        Scopes::try_from("openid profile user/*.* offline_access fhirUser").unwrap_or_default();
+        Scopes::try_from("openid profile user/*.cruds offline_access fhirUser").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
@@ -510,6 +510,13 @@ pub fn create_smart_configuration(
     let jwks_path = api_v1_oidc_path(tenant, project)
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
+    let introspect_path = api_v1_oidc_auth_path(tenant, project).join(
+        introspect::IntrospectPath
+            .to_string()
+            .strip_prefix("/")
+            .unwrap(),
+    );
+
     let smart_document = SmartConfigurationDocument {
         issuer: Some(
             issuer_url(api_url_string, tenant, project)
@@ -582,7 +589,12 @@ pub fn create_smart_configuration(
         user_access_brand_bundle: None,
         user_access_brand_identifier: None,
         management_endpoint: None,
-        introspection_endpoint: None,
+        introspection_endpoint: Some(
+            api_url
+                .join(introspect_path.to_str().unwrap_or_default())
+                .unwrap()
+                .to_string(),
+        ),
         revocation_endpoint: None,
     };
 

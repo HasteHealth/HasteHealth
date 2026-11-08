@@ -1,0 +1,19 @@
+{
+  "description": "Bundle `composition` and `message` share the expression `Bundle.entry[0].resource`, which selects the first entry whatever its type, so a document Bundle would also have a `message` value and a message Bundle a `composition` value. Narrow each to its target type, as FHIR R5 does.",
+  "patches": [
+    {
+      "target": { "resourceType": "SearchParameter", "id": "Bundle-composition" },
+      "operations": [
+        { "op": "test", "path": "/expression", "value": "Bundle.entry[0].resource" },
+        { "op": "replace", "path": "/expression", "value": "Bundle.entry[0].resource as Composition" }
+      ]
+    },
+    {
+      "target": { "resourceType": "SearchParameter", "id": "Bundle-message" },
+      "operations": [
+        { "op": "test", "path": "/expression", "value": "Bundle.entry[0].resource" },
+        { "op": "replace", "path": "/expression", "value": "Bundle.entry[0].resource as MessageHeader" }
+      ]
+    }
+  ]
+}

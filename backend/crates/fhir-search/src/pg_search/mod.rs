@@ -60,7 +60,7 @@ pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'sta
 }
 
 /// Built once per process; it walks every HL7 `SearchParameter`.
-static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
+pub(crate) static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
         SupportedFHIRVersions::R4,
         &R4_SEARCH_PARAMETERS_INDEX.all_parameters(),
@@ -214,12 +214,19 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
         _fhir_version: SupportedFHIRVersions,
         resources: Vec<IndexResource>,
     ) -> Result<IndexOutcome, OperationOutcomeError> {
-        indexing::index_resources(
-            &self.pool,
-            &self.parameter_resolver,
-            &self.schema_registry,
-            self.fp_engine.clone(),
+        // Each part commits before it returns, so it is searchable at once.
+        crate::project_parameters::index_search_parameters_first(
+            self.parameter_resolver.as_ref(),
             resources,
+            |resources, _searchable| {
+                indexing::index_resources(
+                    &self.pool,
+                    &self.parameter_resolver,
+                    &self.schema_registry,
+                    self.fp_engine.clone(),
+                    resources,
+                )
+            },
         )
         .await
     }

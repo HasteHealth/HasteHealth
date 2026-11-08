@@ -1,3 +1,4 @@
+use crate::error::ServerError;
 use crate::{
     SERVER_VERSION,
     load_artifacts::{get_all_sds, get_all_sps},
@@ -81,12 +82,7 @@ fn build_resource_schemas(
 
         let schema = haste_sd_to_json_schema::isolated_schema(schema_base_url, sd)?;
 
-        let json_str = serde_json::to_string(&schema).map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::exception(),
-                format!("Failed to serialize schema for {}", type_name),
-            )
-        })?;
+        let json_str = serde_json::to_string(&schema).map_err(ServerError::from)?;
 
         schemas.insert(type_name, json_str);
     }
@@ -172,12 +168,7 @@ pub async fn openapi_document_handler<
     if let Some(doc) = &*guard {
         Ok((
             headers,
-            serde_json::to_string(doc).map_err(|_e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    "Failed to serialize OpenAPI document".to_string(),
-                )
-            })?,
+            serde_json::to_string(doc).map_err(ServerError::from)?,
         )
             .into_response())
     } else {

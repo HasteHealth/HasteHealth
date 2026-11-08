@@ -35,6 +35,7 @@ import { useTenantBranding } from "./hooks/useTenantBranding";
 import BundleImport from "./views/Project/BundleImport";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
 import IndexingErrors from "./views/Project/IndexingErrors";
+import Packages from "./views/Project/Packages";
 import ResourceEditor from "./views/ResourceEditor/index";
 import Console from "./views/Console";
 import { ConsoleSidebar } from "./views/Console/ConsoleSidebar";
@@ -323,6 +324,11 @@ const router =
                           id: "indexing-errors",
                           path: "indexing-errors",
                           element: <IndexingErrors />,
+                        },
+                        {
+                          id: "packages",
+                          path: "packages",
+                          element: <Packages />,
                         },
                       ],
                     },

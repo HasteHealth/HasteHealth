@@ -71,6 +71,21 @@ pub struct UserTokenClaims {
     )]
     #[derivative(Debug = "ignore")]
     pub patient: Option<String>,
+    /// The Encounter of the SMART EHR launch the token was issued for, when
+    /// the token response returned one.
+    #[serde(
+        rename = "https://haste.health/encounter",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[derivative(Debug = "ignore")]
+    pub encounter: Option<String>,
+    /// The client the token was issued to (RFC 9068 §2.2). Tokens issued
+    /// before the claim existed, and the server's own system context, have
+    /// none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[derivative(Debug = "ignore")]
+    pub client_id: Option<String>,
 
     // Haste Health claims.
     #[serde(rename = "https://haste.health/tenant")]

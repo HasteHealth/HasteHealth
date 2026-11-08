@@ -25,12 +25,7 @@ pub enum PrimitiveValue {
 
 #[allow(dead_code)]
 fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
-    value.as_any().downcast_ref::<T>().or_else(|| {
-        value
-            .as_any()
-            .downcast_ref::<Box<T>>()
-            .map(std::convert::AsRef::as_ref)
-    })
+    value.as_any().downcast_ref::<T>()
 }
 
 fn convert_with<T, R, F>(
@@ -210,12 +205,6 @@ fn convert_fhirpath_system_type(
         "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
             .downcast_ref::<String>()
-            .or_else(|| {
-                value
-                    .as_any()
-                    .downcast_ref::<Box<String>>()
-                    .map(std::convert::AsRef::as_ref)
-            })
             .cloned()
             .map(PrimitiveValue::String)),
         "http://hl7.org/fhirpath/System.Boolean" => Ok(value

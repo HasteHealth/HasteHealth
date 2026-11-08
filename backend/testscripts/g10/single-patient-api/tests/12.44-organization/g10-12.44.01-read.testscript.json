@@ -12,7 +12,7 @@
             "id": "g10-acme-lab",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {
@@ -71,7 +71,7 @@
             "id": "g10-acme-payer",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {
@@ -126,7 +126,7 @@
             "id": "g10-example-organization-2",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {
@@ -185,7 +185,7 @@
             "id": "g10-holy-healthcare",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {
@@ -240,7 +240,7 @@
             "id": "g10-saint-luke-w-endpoint",
             "meta": {
                 "profile": [
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|7.0.0"
                 ],
                 "tag": [
                     {

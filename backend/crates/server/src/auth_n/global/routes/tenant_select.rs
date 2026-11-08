@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use crate::auth_n::oidc::routes::route_string::tenant_route_string;
 use crate::extract::csrf_token::CSRFToken;
 use crate::services::ServerState;
@@ -74,10 +75,7 @@ pub async fn tenant_select_post(
     Form(form): Form<TenantSelectForm>,
 ) -> Result<Response, OperationOutcomeError> {
     if !constant_time::str_eq(&form.csrf_token, &csrf_token) {
-        return Err(OperationOutcomeError::error(
-            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     // Confirm structure of tenantID is valid.

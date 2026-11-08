@@ -4,7 +4,7 @@
     "name": "g10 limited-access-app setup",
     "title": "g10 limited-access-app: login",
     "status": "active",
-    "description": "Run as admin. The login for g10 scenario 2: a second member User linked to Patient/g10-example, a full-access policy, and a public client allowed only patient/Patient.rs, patient/Condition.rs and patient/Observation.rs.",
+    "description": "Run as admin. The login for g10 scenario 2: a second member User linked to Patient/g10-example, a full-access policy, and a public client allowed the scopes g10 requests for a standalone patient launch (SMART v2), as in scenario 1.",
     "resourceType": "TestScript",
     "contained": [
         {
@@ -92,7 +92,7 @@
             "redirectUri": [
                 "http://127.0.0.1:8976/callback"
             ],
-            "scope": "launch/patient openid fhirUser offline_access patient/Patient.rs patient/Condition.rs patient/Observation.rs"
+            "scope": "launch/patient openid fhirUser offline_access patient/Medication.rs patient/AllergyIntolerance.rs patient/CarePlan.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Device.rs patient/DiagnosticReport.rs patient/DocumentReference.rs patient/Encounter.rs patient/Goal.rs patient/Immunization.rs patient/Location.rs patient/MedicationDispense.rs patient/MedicationRequest.rs patient/Observation.rs patient/Organization.rs patient/Patient.rs patient/Practitioner.rs patient/PractitionerRole.rs patient/Procedure.rs patient/Provenance.rs patient/QuestionnaireResponse.rs patient/RelatedPerson.rs patient/ServiceRequest.rs patient/Specimen.rs"
         }
     ],
     "fixture": [

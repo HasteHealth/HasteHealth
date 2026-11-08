@@ -84,7 +84,7 @@ proptest! {
             let pointer = TypedPointer::<Patient, Patient>::new(patient.clone())
                 .descend::<Vec<HumanName>>(&Key::Field("name".to_string()))
                 .and_then(|pointer| pointer.descend::<HumanName>(&Key::Index(index)))
-                .and_then(|pointer| pointer.descend::<Box<FHIRString>>(&Key::Field("family".to_string())))
+                .and_then(|pointer| pointer.descend::<FHIRString>(&Key::Field("family".to_string())))
                 .and_then(|pointer| pointer.descend::<String>(&Key::Field("value".to_string())));
             let Some(pointer) = pointer else {
                 return Err(TestCaseError::fail(format!("no pointer to {path}")));

@@ -8,25 +8,7 @@ import { Bundle } from "@haste-health/fhir-types/r4/types";
 import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
-import { getErrorMessage } from "../../utilities";
-
-const getData = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = () => {
-      const data = reader.result;
-      if (typeof data === "string") {
-        resolve(data.split(",")[1]);
-      } else {
-        reject(new Error("FileReader result was not a string"));
-      }
-    };
-    reader.onerror = () =>
-      reject(reader.error ?? new Error(`Could not read '${file.name}'`));
-  });
-};
+import { getErrorMessage, readAsBase64 } from "../../utilities";
 
 export default function BatchImportView() {
   const navigate = useNavigate();
@@ -78,7 +60,7 @@ export default function BatchImportView() {
             if (!file) return;
             setFileName(file.name);
 
-            getData(file).then(
+            readAsBase64(file).then(
               (data) => {
                 try {
                   const json = JSON.parse(atob(data));

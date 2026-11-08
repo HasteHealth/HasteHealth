@@ -1,16 +1,19 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::{StreamExt as _, stream::FuturesOrdered};
-use haste_fhir_client::FHIRClient;
+use futures::future::{BoxFuture, try_join, try_join_all};
+use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
-use haste_fhir_model::r4::generated::{
-    resources::{
-        Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
+use haste_fhir_model::r4::{
+    datetime::Instant,
+    generated::{
+        resources::{
+            Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
+        },
+        terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
+        types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, FHIRInstant, FHIRString, Reference},
     },
-    terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
-    types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhirpath::{Config, FPEngine};
+use haste_fhirpath::{Config, Context, FPEngine};
 use haste_reflect::MetaValue;
 use itertools::Itertools as _;
 use ordermap::OrderMap;
@@ -28,6 +31,16 @@ mod conversions;
 mod output;
 mod union;
 
+/// An undefined constant or an unparsable expression is the caller's mistake; any other
+/// `FHIRPath` failure stays a server error.
+fn fhirpath_issue_type(e: &haste_fhirpath::FHIRPathError) -> BoundCode<IssueType> {
+    match e {
+        haste_fhirpath::FHIRPathError::UndefinedConstant(_)
+        | haste_fhirpath::FHIRPathError::ParseError(_) => IssueType::invalid(),
+        _ => IssueType::exception(),
+    }
+}
+
 fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeError> {
     reference
         .reference
@@ -41,62 +54,123 @@ fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeErro
         })
 }
 
-/// Resolves the `patient` and `group` input parameters into a flat,
-/// de-duplicated list of patient reference strings (e.g. `"Patient/123"`).
-/// `group` members that aren't Patient references are skipped, since
-/// non-Patient compartments `(Practitioner, Device, RelatedPerson)` aren't
-/// supported yet.
-async fn resolve_patient_references<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
-    input: &ViewDefinitionRun::Input,
-) -> Result<Vec<String>, OperationOutcomeError> {
-    let mut references = Vec::new();
+fn invalid(message: String) -> OperationOutcomeError {
+    OperationOutcomeError::error(IssueType::invalid(), message)
+}
 
-    if let Some(patient) = input.patient.as_ref() {
-        references.push(reference_value(patient)?);
+/// The id a `<resource_type>/<id>` reference names, if it names one of that type.
+fn reference_id<'a>(reference: &'a str, resource_type: &str) -> Option<&'a str> {
+    reference
+        .strip_prefix(resource_type)
+        .and_then(|rest| rest.strip_prefix('/'))
+        .and_then(|rest| rest.split('/').next())
+        .filter(|id| !id.is_empty())
+}
+
+/// Reads the current version of each `(type, id)` in one round trip, leaving out the keys that
+/// don't resolve. The server backs it with the repository's batch read, so a run's `patient` and
+/// `group` lookups cost one query however many Groups are given.
+pub type ReadMany<CTX> = Arc<
+    dyn Fn(
+            CTX,
+            Vec<(ResourceType, String)>,
+        ) -> BoxFuture<'static, Result<Vec<Resource>, OperationOutcomeError>>
+        + Send
+        + Sync,
+>;
+
+/// Keys one batch read takes.
+const SCOPE_KEYS_PER_READ: usize = 1000;
+
+/// The id the scope `parameter` names, refused when it isn't a reference to `resource_type`.
+fn scope_id(
+    parameter: &str,
+    reference: &Reference,
+    resource_type: &ResourceType,
+) -> Result<String, OperationOutcomeError> {
+    let value = reference_value(reference)?;
+    reference_id(&value, resource_type.as_ref())
+        .map(str::to_string)
+        .ok_or_else(|| {
+            invalid(format!(
+                "'{parameter}' must reference a {}, not '{value}'.",
+                resource_type.as_ref()
+            ))
+        })
+}
+
+/// The patients a run is limited to: `None` without `patient` or `group` (or with resources sent
+/// inline), else the ids of the Patients every given parameter allows. Both are limits, so with
+/// both a run covers only the `patient` and only if it is in a group. An empty list means no
+/// resource qualifies.
+///
+/// The Patient and the Groups are read in one batch; one the server doesn't have is refused.
+/// Members that aren't Patients are left out: only the Patient compartment is supported.
+async fn patient_scope<CTX: Clone>(
+    context: CTX,
+    read_many: &ReadMany<CTX>,
+    input: &ViewDefinitionRun::Input,
+) -> Result<Option<Vec<String>>, OperationOutcomeError> {
+    if input.resource.is_some() {
+        return Ok(None);
     }
 
-    for group_reference in input.group.as_ref().into_iter().flatten() {
-        let group_reference_value = reference_value(group_reference)?;
-        let group_id = group_reference_value
-            .rsplit('/')
-            .next()
-            .unwrap_or(&group_reference_value)
-            .to_string();
+    let patient = input
+        .patient
+        .as_ref()
+        .map(|reference| scope_id("patient", reference, &ResourceType::Patient))
+        .transpose()?;
+    let groups = input
+        .group
+        .iter()
+        .flatten()
+        .map(|reference| scope_id("group", reference, &ResourceType::Group))
+        .collect::<Result<Vec<_>, _>>()?;
+    if patient.is_none() && groups.is_empty() {
+        return Ok(None);
+    }
 
-        let group = client
-            .read(context.clone(), ResourceType::Group, group_id.clone())
-            .await?
-            .ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::not_found(),
-                    format!("Group not found with id '{group_id}'"),
-                )
-            })?;
-
-        let Resource::Group(group) = group else {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                format!("Reference '{group_reference_value}' does not point to a Group resource"),
-            ));
-        };
-
-        for member in group.member.into_iter().flatten() {
-            let entity_reference = reference_value(&member.entity)?;
-            if entity_reference.starts_with("Patient/") {
-                references.push(entity_reference);
+    let keys = patient
+        .iter()
+        .map(|id| (ResourceType::Patient, id.clone()))
+        .chain(groups.iter().map(|id| (ResourceType::Group, id.clone())))
+        .collect::<Vec<_>>();
+    let mut found = HashMap::new();
+    for chunk in keys.chunks(SCOPE_KEYS_PER_READ) {
+        for resource in read_many(context.clone(), chunk.to_vec()).await? {
+            if let Some(id) = resource.id().clone() {
+                found.insert((resource.resource_type(), id), resource);
             }
         }
     }
 
-    references.sort_unstable();
-    references.dedup();
+    if let Some(id) = &patient
+        && !found.contains_key(&(ResourceType::Patient, id.clone()))
+    {
+        return Err(invalid(format!("Patient with id '{id}' not found.")));
+    }
 
-    Ok(references)
+    let mut members = Vec::new();
+    for id in &groups {
+        let Some(Resource::Group(group)) = found.get(&(ResourceType::Group, id.clone())) else {
+            return Err(invalid(format!("Group with id '{id}' not found.")));
+        };
+        members.extend(group.member.iter().flatten().filter_map(|member| {
+            let entity = member.entity.reference.as_ref()?.value.as_ref()?;
+            reference_id(entity, ResourceType::Patient.as_ref()).map(str::to_string)
+        }));
+    }
+    members.sort_unstable();
+    members.dedup();
+
+    Ok(Some(match patient {
+        Some(patient) if groups.is_empty() => vec![patient],
+        Some(patient) => members
+            .into_iter()
+            .filter(|member| *member == patient)
+            .collect(),
+        None => members,
+    }))
 }
 
 async fn resolve_view_definition<
@@ -108,6 +182,12 @@ async fn resolve_view_definition<
     client: &Client,
     input: &'a ViewDefinitionRun::Input,
 ) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
+    if input.viewResource.is_some() && input.viewReference.is_some() {
+        return Err(invalid(
+            "Only one of viewResource and viewReference may be provided.".to_string(),
+        ));
+    }
+
     if let Some(view_definition) = &input.viewResource {
         Ok(Cow::Borrowed(view_definition))
     } else if let Some(view_definition_reference) = input.viewReference.as_ref() {
@@ -171,20 +251,317 @@ async fn resolve_view_definition<
     }
 }
 
-/// Page size used both for the unscoped history scan and for following its
-/// pagination to completion.
-const HISTORY_PAGE_SIZE: u32 = 1000;
+/// Bounds on one run. The operation answers synchronously with one table, so a run that would
+/// pass either is refused rather than answered with part of the table.
+#[derive(Debug, Clone, Copy)]
+pub struct RunLimits {
+    /// Most rows a run returns. A larger `_limit` is refused.
+    pub max_rows: usize,
+    /// Most resources a run reads from storage, earlier versions included.
+    pub max_resources: usize,
+}
 
-/// Hard cap on the number of resources fetched for a single run when there's
-/// no `patient`/`group` scoping to naturally bound the working set (e.g. a
-/// view over an entire resource type's history). Without this, the full
-/// history of a resource type would be pulled into memory before any filtering
-/// happens. `_limit` does not lower it: it counts output rows, and history
-/// entries are filtered by `where`, collapsed to current versions and stripped
-/// of deletes before they become rows. A client that wants more
-/// than one page's worth of matching rows should page through results by
-/// re-running with `_since` set to the last-seen `lastUpdated` value.
-const MAX_RESOURCES_PER_RUN: usize = 50_000;
+impl Default for RunLimits {
+    fn default() -> Self {
+        Self {
+            max_rows: 10_000,
+            max_resources: 50_000,
+        }
+    }
+}
+
+/// Resources fetched per round trip.
+const PAGE_SIZE: usize = 1000;
+
+/// Patients one compartment search covers. Larger lists are searched in batches.
+const PATIENTS_PER_SEARCH: usize = 100;
+
+/// Deepest one search pages. Elasticsearch refuses `_offset` + `_count` past 10,000 by default
+/// (`index.max_result_window`), and deep offsets get slow on Postgres.
+const MAX_SEARCH_DEPTH: usize = 10_000;
+
+/// Refuses a run that would pass a limit: 422, as the request is well formed but past this
+/// server's limits (the same answer as an `ImplementationGuide/$install` that is too large).
+fn too_costly(what: &str) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!("{what} Narrow the run with _limit, patient, group or _since."),
+    );
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
+/// Refuses parameters this server doesn't take, before anything is read.
+fn check_parameters(
+    input: &ViewDefinitionRun::Input,
+    limits: &RunLimits,
+) -> Result<(), OperationOutcomeError> {
+    if input.source.is_some() {
+        return Err(invalid(
+            "The server does not support the source parameter.".to_string(),
+        ));
+    }
+
+    match requested_limit(input) {
+        Some(limit) if limit > limits.max_rows => Err(invalid(format!(
+            "_limit {limit} is above {}, the most rows one run returns.",
+            limits.max_rows
+        ))),
+        _ => Ok(()),
+    }
+}
+
+/// What every page of a run is processed with.
+struct Run<'v> {
+    fp_engine: &'v FPEngine,
+    variables: Arc<HashMap<String, &'v dyn MetaValue>>,
+    view_definition: &'v ViewDefinition,
+    where_clauses: Vec<&'v str>,
+    resource_type: ResourceType,
+    /// The caller's `_limit`.
+    limit: Option<usize>,
+    limits: RunLimits,
+}
+
+/// Adds the rows of `resources`: those of the view's type that pass its `where`. Returns whether
+/// the run has all the rows it asked for. Without `_limit`, more than `max_rows` refuses the run.
+async fn add_rows<'v>(
+    run: &Run<'v>,
+    resources: &[Resource],
+    rows: &mut Vec<Row<'v>>,
+) -> Result<bool, OperationOutcomeError> {
+    for resource in resources_of_type(resources, &run.resource_type) {
+        if !passes_where_clauses(
+            run.fp_engine,
+            run.variables.clone(),
+            &run.where_clauses,
+            resource,
+        )
+        .await?
+        {
+            continue;
+        }
+
+        rows.extend(
+            process_resource(
+                run.fp_engine,
+                run.variables.clone(),
+                run.view_definition,
+                resource,
+            )
+            .await?,
+        );
+
+        match run.limit {
+            Some(limit) if rows.len() >= limit => {
+                rows.truncate(limit);
+                return Ok(true);
+            }
+            None if rows.len() > run.limits.max_rows => {
+                return Err(too_costly(&format!(
+                    "The view gives more than {} rows, the most one run returns.",
+                    run.limits.max_rows
+                )));
+            }
+            _ => {}
+        }
+    }
+
+    Ok(false)
+}
+
+/// Counts `count` more resources read, refusing the run past `max_resources`.
+fn count_read(
+    read: &mut usize,
+    count: usize,
+    limits: &RunLimits,
+) -> Result<(), OperationOutcomeError> {
+    *read += count;
+    if *read > limits.max_resources {
+        return Err(too_costly(&format!(
+            "The run reads more than {} resources, the most one run reads.",
+            limits.max_resources
+        )));
+    }
+    Ok(())
+}
+
+/// The view's rows: over the resources sent with the request, else over the server's data,
+/// limited to the patients of `scope` (see [`patient_scope`]) and to `_since`.
+async fn view_rows<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    input: &ViewDefinitionRun::Input,
+    scope: Option<Vec<String>>,
+) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
+    let mut rows = Vec::new();
+
+    if let Some(resources) = &input.resource {
+        add_rows(run, resources, &mut rows).await?;
+        return Ok(rows);
+    }
+
+    let since = input.since.as_ref().and_then(|since| since.value.as_ref());
+
+    match scope {
+        None => rows_from_history(context, client, run, since, &mut rows).await?,
+        Some(patients) => {
+            rows_from_compartments(context, client, run, &patients, since, &mut rows).await?;
+        }
+    }
+
+    Ok(rows)
+}
+
+/// Rows from the current resources of the view's type, newest first. The type's history is read
+/// a page at a time; the first entry of an id is its current version, so later ones are skipped.
+async fn rows_from_history<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    since: Option<&Instant>,
+    rows: &mut Vec<Row<'v>>,
+) -> Result<(), OperationOutcomeError> {
+    let mut seen = HashSet::new();
+    let mut read = 0;
+    let mut offset = 0;
+
+    loop {
+        let mut parameters = vec![
+            ("_count".to_string(), vec![PAGE_SIZE.to_string()]),
+            ("_offset".to_string(), vec![offset.to_string()]),
+        ];
+        if let Some(since) = since {
+            parameters.push(("_since".to_string(), vec![since.to_string()]));
+        }
+
+        let entries = client
+            .history_type(
+                context.clone(),
+                run.resource_type.clone(),
+                parameters.into(),
+            )
+            .await?
+            .entry
+            .unwrap_or_default();
+        let last_page = entries.len() < PAGE_SIZE;
+
+        count_read(&mut read, entries.len(), &run.limits)?;
+        let current = current_versions(entries, &mut seen, since);
+        if add_rows(run, &current, rows).await? || last_page {
+            return Ok(());
+        }
+
+        offset += PAGE_SIZE;
+    }
+}
+
+/// Rows from the compartments of `patients`, in id order. Each compartment parameter is searched
+/// a batch of patients and a page at a time. A resource in several compartments counts once.
+async fn rows_from_compartments<
+    'v,
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    run: &Run<'v>,
+    patients: &[String],
+    since: Option<&Instant>,
+    rows: &mut Vec<Row<'v>>,
+) -> Result<(), OperationOutcomeError> {
+    let mut seen = HashSet::new();
+    let mut read = 0;
+
+    for parameter in compartment::patient_search_parameters(&run.resource_type)? {
+        for patients in patients.chunks(PATIENTS_PER_SEARCH) {
+            let mut offset = 0;
+
+            loop {
+                if offset >= MAX_SEARCH_DEPTH {
+                    return Err(too_costly(&format!(
+                        "More than {MAX_SEARCH_DEPTH} {} resources match one search of these \
+                         patients.",
+                        run.resource_type.as_ref()
+                    )));
+                }
+
+                let resources: Vec<Resource> = client
+                    .search_type(
+                        context.clone(),
+                        run.resource_type.clone(),
+                        compartment_search(&parameter, patients, since, offset),
+                    )
+                    .await?
+                    .entry
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|entry| entry.resource.map(|resource| *resource))
+                    .collect();
+                let last_page = resources.len() < PAGE_SIZE;
+
+                count_read(&mut read, resources.len(), &run.limits)?;
+                let unseen: Vec<Resource> = resources
+                    .into_iter()
+                    .filter(|resource| seen.insert(resource.id().clone()))
+                    .collect();
+                if add_rows(run, &unseen, rows).await? {
+                    return Ok(());
+                }
+                if last_page {
+                    break;
+                }
+
+                offset += PAGE_SIZE;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// One page of the resources whose compartment `parameter` names one of `patients`, sorted by id
+/// so pages don't overlap, and changed after `since` when given.
+fn compartment_search(
+    parameter: &str,
+    patients: &[String],
+    since: Option<&Instant>,
+    offset: usize,
+) -> ParsedParameters {
+    let values = patients
+        .iter()
+        .map(|id| {
+            if parameter == "_id" {
+                id.clone()
+            } else {
+                format!("{}/{id}", ResourceType::Patient.as_ref())
+            }
+        })
+        .collect();
+
+    let mut parameters = vec![
+        (parameter.to_string(), values),
+        ("_sort".to_string(), vec!["_id".to_string()]),
+        ("_count".to_string(), vec![PAGE_SIZE.to_string()]),
+        ("_offset".to_string(), vec![offset.to_string()]),
+    ];
+    if let Some(since) = since {
+        parameters.push((
+            "_lastUpdated".to_string(),
+            vec![format!("gt{}", since.to_string())],
+        ));
+    }
+
+    parameters.into()
+}
 
 /// The client-requested `_limit`, if any: the most output rows to return.
 fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
@@ -211,79 +588,15 @@ fn view_resource_type(
     })
 }
 
-async fn get_resources_to_process<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
-    resource_type: &ResourceType,
-    input: &ViewDefinitionRun::Input,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    if let Some(input_resources) = input.resource.clone() {
-        return Ok(input_resources);
-    }
-
-    let since_instant = input.since.as_ref().and_then(|since| since.value.clone());
-
-    let patient_references = resolve_patient_references(context.clone(), client, input).await?;
-
-    if !patient_references.is_empty() {
-        let last_updated_filter = since_instant.as_ref().map(|since| format!("gt{since:?}"));
-
-        return compartment::resources_for_patients(
-            context,
-            client,
-            resource_type.clone(),
-            &patient_references,
-            last_updated_filter.as_deref(),
-        )
-        .await;
-    }
-
-    let mut entries: Vec<BundleEntry> = Vec::new();
-    let mut offset = 0u32;
-
-    loop {
-        let mut parameters = vec![
-            ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),
-            ("_offset".to_string(), vec![offset.to_string()]),
-        ];
-        // Without `_since` the whole history is scanned, so the view covers
-        // every resource of the type rather than only later changes.
-        if let Some(since) = since_instant.as_ref() {
-            parameters.push(("_since".to_string(), vec![since.to_string()]));
-        }
-
-        let page = client
-            .history_type(context.clone(), resource_type.clone(), parameters.into())
-            .await?
-            .entry
-            .unwrap_or_default();
-
-        let entry_count = page.len();
-        entries.extend(page);
-
-        if entry_count < HISTORY_PAGE_SIZE as usize || entries.len() >= MAX_RESOURCES_PER_RUN {
-            break;
-        }
-
-        offset += HISTORY_PAGE_SIZE;
-    }
-
-    // Guards against the last loop execution which could be an additional
-    // 999 resources that may have been fetched in the last loop iteration.
-    entries.truncate(MAX_RESOURCES_PER_RUN);
-
-    Ok(current_versions(entries))
-}
-
-/// The current version of each resource in a history, newest first as the
-/// history is. A view has one row set per resource, so earlier versions are
-/// dropped, and a resource whose latest entry is a delete is left out.
-fn current_versions(entries: Vec<BundleEntry>) -> Vec<Resource> {
-    let mut seen = HashSet::new();
-
+/// The current version of each resource in a page of history, newest first as the history is.
+/// `seen` carries the ids of earlier pages: a view has one row set per resource, so earlier
+/// versions are dropped. A resource whose latest entry is a delete is left out, as is one not
+/// changed after `since` (history's `_since` also returns versions made at that instant).
+fn current_versions(
+    entries: Vec<BundleEntry>,
+    seen: &mut HashSet<Option<String>>,
+    since: Option<&Instant>,
+) -> Vec<Resource> {
     entries
         .into_iter()
         .filter_map(|entry| {
@@ -296,9 +609,24 @@ fn current_versions(entries: Vec<BundleEntry>) -> Vec<Resource> {
                 .request
                 .is_some_and(|request| request.method == HttpVerb::delete());
 
-            (!deleted).then_some(*resource)
+            (!deleted && changed_after(&resource, since)).then_some(*resource)
         })
         .collect()
+}
+
+/// Whether `resource` changed after `since`. Always without `since`, and for a resource with no
+/// `meta.lastUpdated`, as the specification allows.
+fn changed_after(resource: &Resource, since: Option<&Instant>) -> bool {
+    let Some(Instant::Iso8601(since)) = since else {
+        return true;
+    };
+
+    resource
+        .get_field("meta")
+        .and_then(|meta| meta.get_field("lastUpdated"))
+        .and_then(|updated| updated.as_any().downcast_ref::<FHIRInstant>())
+        .and_then(|updated| updated.value.as_ref())
+        .is_none_or(|Instant::Iso8601(updated)| updated > since)
 }
 
 fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String, &dyn MetaValue> {
@@ -306,8 +634,12 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
 
     if let Some(constants) = &viewdefinition.constant {
         for constant in constants {
-            if let Some(name) = &constant.name.value.as_ref() {
-                hashmap.insert((*name).clone(), &constant.value as &dyn MetaValue);
+            // Pass the inner primitive: the choice enum's `as_any` is its Box, which number and boolean downcasts reject.
+            if let (Some(name), Some(value)) = (
+                constant.name.value.as_ref(),
+                constant.value.flatten().first().copied(),
+            ) {
+                hashmap.insert(name.clone(), value);
             }
         }
     }
@@ -315,27 +647,27 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
     hashmap
 }
 
-fn cartesian_product(
-    select_statement_results: Vec<Vec<OrderMap<String, OutputResults>>>,
-) -> Vec<OrderMap<String, OutputResults>> {
-    let mut output_results = Vec::new();
+/// Column values by name. Names borrow from the view.
+type Row<'a> = OrderMap<&'a str, OutputResults>;
 
-    for combination in select_statement_results
-        .into_iter()
-        .multi_cartesian_product()
-    {
-        let mut combined_result = OrderMap::new();
+/// Cross product of two row sets, `left`'s columns first.
+fn join<'a>(left: &[Row<'a>], right: Vec<Row<'a>>) -> Vec<Row<'a>> {
+    let copy = |(&name, value): (&&'a str, &OutputResults)| (name, value.clone());
 
-        for result in combination {
-            for (key, value) in result {
-                combined_result.insert(key, value);
-            }
-        }
-
-        output_results.push(combined_result);
+    match left {
+        // The fold's empty start row.
+        [row] if row.is_empty() => right,
+        // Usual case: move the right rows instead of copying them.
+        [row] => right
+            .into_iter()
+            .map(|r| row.iter().map(copy).chain(r).collect())
+            .collect(),
+        _ => left
+            .iter()
+            .cartesian_product(&right)
+            .map(|(l, r)| l.iter().chain(r).map(copy).collect())
+            .collect(),
     }
-
-    output_results
 }
 
 // Need to distinguish between a scalar value and a collection of values for each column in the output. This enum helps to represent that distinction.
@@ -346,162 +678,197 @@ enum OutputResults {
     Collection(Vec<Option<PrimitiveValue>>),
 }
 
-async fn process_resource<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    _context: CTX,
-    _client: Arc<Client>,
-    variables: Arc<HashMap<String, &dyn MetaValue>>,
-    view_definition: &ViewDefinition,
-    input: Resource,
-) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
-    let fp_engine = FPEngine::new();
+/// A resource's rows: the cross product of each select's rows. Rows borrow only from the view
+/// (`'v`), not from the resource (`'r`), so a page of resources can go once its rows are made.
+async fn process_resource<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    variables: Arc<HashMap<String, &'r dyn MetaValue>>,
+    view_definition: &'v ViewDefinition,
+    input: &'r Resource,
+) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
+    let fp_config = Arc::new(
+        Config::builder()
+            .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
+                variables,
+            ))
+            .with_resource_id(input.id().clone().unwrap_or_default()),
+    );
 
-    let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
+    let per_select = select_rows(fp_engine, &fp_config, &view_definition.select, input).await?;
 
-    for select_statement in &view_definition.select {
-        let fp_config = Arc::new(
-            Config::builder()
-                .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
-                    variables.clone(),
-                ))
-                .with_resource_id(input.id().clone().unwrap_or_default()),
-        );
-
-        let (iterable_context, set_null) =
-            build_iterable_context(&fp_engine, fp_config.clone(), select_statement, &input).await?;
-
-        let select_results = process_select_statement(
-            &fp_engine,
-            fp_config,
-            select_statement,
-            &input,
-            iterable_context,
-            set_null,
-        )
-        .await?;
-
-        select_statement_results.push(select_results);
-    }
-
-    let output_results = cartesian_product(select_statement_results);
-
-    Ok(output_results)
+    Ok(per_select
+        .into_iter()
+        .fold(vec![Row::new()], |rows, more| join(&rows, more)))
 }
 
-async fn build_iterable_context<'a>(
+/// Evaluates `path` on `node`; `what` names the expression in errors.
+async fn evaluate<'a>(
     fp_engine: &FPEngine,
-    fp_config: Arc<Config<'a>>,
-    select_statement: &'a ViewDefinitionSelect,
-    input: &'a Resource,
-) -> Result<(Option<Vec<haste_fhirpath::Context<'a>>>, bool), OperationOutcomeError> {
-    let mut iterable_context = None;
-    let mut set_null = false;
+    fp_config: &Arc<Config<'a>>,
+    path: &str,
+    node: &'a dyn MetaValue,
+    what: &str,
+) -> Result<Context<'a>, OperationOutcomeError> {
+    fp_engine
+        .evaluate_with_config(path, vec![node], fp_config.clone())
+        .await
+        .map_err(|e| {
+            OperationOutcomeError::error(
+                fhirpath_issue_type(&e),
+                format!("Error evaluating {what}: {e}"),
+            )
+        })
+}
 
-    if let Some(for_each_fp) = select_statement
-        .forEach
-        .as_ref()
-        .and_then(|f| f.value.as_ref())
-    {
-        iterable_context = Some(vec![
-            fp_engine
-                .evaluate_with_config(for_each_fp, vec![input], fp_config.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        IssueType::exception(),
-                        format!("Error evaluating forEach expression: {e}"),
-                    )
-                })?,
-        ]);
-    } else if let Some(for_each_or_null_fp) = select_statement
-        .forEachOrNull
-        .as_ref()
-        .and_then(|f| f.value.as_ref())
-    {
-        iterable_context = Some(vec![
-            fp_engine
-                .evaluate_with_config(for_each_or_null_fp, vec![input], fp_config.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        IssueType::exception(),
-                        format!("Error evaluating forEachOrNull expression: {e}"),
-                    )
-                })?,
-        ]);
+/// Nodes and the evaluations that found them. Computed nodes live in an evaluation's arena, so
+/// keep the evaluations while the nodes are in use.
+type Nodes<'a> = (Vec<&'a dyn MetaValue>, Vec<Context<'a>>);
 
-        set_null = true;
-    } else if let Some(repeat) = select_statement
-        .repeat
-        .as_ref()
-        .map(|r| r.iter().filter_map(|r| r.value.as_ref()))
-    {
-        let mut repeat_fps = vec![];
+fn nodes_of(found: Context<'_>) -> Nodes<'_> {
+    (found.values().to_vec(), vec![found])
+}
 
-        for repeat_fp in repeat {
-            let repeat = format!("$this.repeat({repeat_fp})");
+/// Same limit as `FHIRPath` `repeat()`.
+const REPEAT_ITEM_LIMIT: usize = 10_000;
 
-            repeat_fps.push(
-                fp_engine
-                    .evaluate_with_config(&repeat, vec![input], fp_config.clone())
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::error(
-                            IssueType::exception(),
-                            format!("Error evaluating repeat expression: {e}"),
-                        )
-                    })?,
+/// Items a `repeat` reaches from `input`, depth first in document order. Each item is taken once,
+/// so every walk ends.
+async fn walk_repeat<'a>(
+    fp_engine: &FPEngine,
+    fp_config: &Arc<Config<'a>>,
+    paths: &[FHIRString],
+    input: &'a dyn MetaValue,
+) -> Result<Nodes<'a>, OperationOutcomeError> {
+    let (mut nodes, mut arenas) = (Vec::new(), Vec::new());
+    let mut seen = HashSet::new();
+    // The input is walked but is not an item.
+    let mut stack = vec![(input, false)];
+
+    while let Some((node, is_item)) = stack.pop() {
+        if is_item {
+            // Keyed by type too: a struct and its first field share an address.
+            if !seen.insert((
+                std::ptr::from_ref(node).cast::<()>().addr(),
+                node.fhir_type(),
+            )) {
+                continue;
+            }
+            if nodes.len() >= REPEAT_ITEM_LIMIT {
+                return Err(OperationOutcomeError::error(
+                    IssueType::exception(),
+                    format!("repeat produced more than {REPEAT_ITEM_LIMIT} items"),
+                ));
+            }
+            nodes.push(node);
+        }
+
+        // Reversed so the first child pops first.
+        let start = stack.len();
+        for path in paths.iter().filter_map(|path| path.value.as_deref()) {
+            let found = evaluate(fp_engine, fp_config, path, node, "repeat expression").await?;
+            if !found.is_empty() {
+                stack.extend(found.values().iter().map(|&child| (child, true)));
+                arenas.push(found);
+            }
+        }
+        stack[start..].reverse();
+    }
+
+    Ok((nodes, arenas))
+}
+
+/// Each select's rows on `node`, in order.
+async fn select_rows<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    fp_config: &Arc<Config<'r>>,
+    selects: &'v [ViewDefinitionSelect],
+    node: &'r dyn MetaValue,
+) -> Result<Vec<Vec<Row<'v>>>, OperationOutcomeError> {
+    try_join_all(
+        selects
+            .iter()
+            .map(|select| process_select(fp_engine, fp_config.clone(), select, node)),
+    )
+    .await
+}
+
+/// A select's rows: per focus node, its columns joined with its nested and `unionAll` rows. The
+/// focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
+fn process_select<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    fp_config: Arc<Config<'r>>,
+    select: &'v ViewDefinitionSelect,
+    input: &'r dyn MetaValue,
+) -> BoxFuture<'r, Result<Vec<Row<'v>>, OperationOutcomeError>> {
+    Box::pin(async move {
+        let for_each = select.forEach.as_ref().and_then(|p| p.value.as_deref());
+        let for_each_or_null = select
+            .forEachOrNull
+            .as_ref()
+            .and_then(|p| p.value.as_deref());
+
+        // `_arenas` keeps `nodes` valid until the rows are built.
+        let (nodes, _arenas) = match (for_each, for_each_or_null, select.repeat.as_deref()) {
+            (Some(path), _, _) => {
+                nodes_of(evaluate(fp_engine, &fp_config, path, input, "forEach expression").await?)
+            }
+            (None, Some(path), _) => nodes_of(
+                evaluate(
+                    fp_engine,
+                    &fp_config,
+                    path,
+                    input,
+                    "forEachOrNull expression",
+                )
+                .await?,
+            ),
+            (None, None, Some(paths)) => walk_repeat(fp_engine, &fp_config, paths, input).await?,
+            (None, None, None) => (vec![input], Vec::new()),
+        };
+
+        if nodes.is_empty() && for_each.is_none() && for_each_or_null.is_some() {
+            let mut null_row = Row::new();
+            collect_null_columns(select, &mut null_row)?;
+            return Ok(vec![null_row]);
+        }
+
+        let mut rows = Vec::with_capacity(nodes.len());
+        for node in nodes {
+            let columns = column_row(fp_engine, &fp_config, select, node).await?;
+            let nested = select_rows(
+                fp_engine,
+                &fp_config,
+                select.select.as_deref().unwrap_or_default(),
+                node,
+            )
+            .await?;
+            let union = match select.unionAll.as_deref() {
+                Some(branches) => Some(
+                    select_rows(fp_engine, &fp_config, branches, node)
+                        .await?
+                        .concat(),
+                ),
+                None => None,
+            };
+
+            rows.extend(
+                nested
+                    .into_iter()
+                    .chain(union)
+                    .fold(vec![columns], |rows, more| join(&rows, more)),
             );
         }
 
-        iterable_context = Some(repeat_fps);
-    }
-
-    Ok((iterable_context, set_null))
+        Ok(rows)
+    })
 }
 
-async fn process_select_statement<'a>(
-    fp_engine: &FPEngine,
-    fp_config: Arc<Config<'a>>,
+/// Adds a null for every column of the select, its nested selects and its `unionAll` branches.
+fn collect_null_columns<'a>(
     select_statement: &'a ViewDefinitionSelect,
-    input: &'a Resource,
-    iterable_context: Option<Vec<haste_fhirpath::Context<'a>>>,
-    set_null: bool,
-) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
-    let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
-        iterable
-            .iter()
-            .flat_map(haste_fhirpath::Context::iter)
-            .collect()
-    } else {
-        vec![input]
-    };
-
-    let mut select_results = Vec::with_capacity(select_context.len());
-
-    if set_null && select_context.is_empty() {
-        let output_result = build_null_result(select_statement)?;
-        select_results.push(output_result);
-    }
-
-    for context in select_context {
-        let output_result =
-            process_select_context(fp_engine, fp_config.clone(), select_statement, context).await?;
-
-        select_results.push(output_result);
-    }
-
-    Ok(select_results)
-}
-
-fn build_null_result(
-    select_statement: &ViewDefinitionSelect,
-) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
-    let mut output_result = OrderMap::new();
-
-    for column in select_statement.column.as_ref().into_iter().flatten() {
+    row: &mut Row<'a>,
+) -> Result<(), OperationOutcomeError> {
+    for column in select_statement.column.iter().flatten() {
         let Some(name) = column.name.value.as_deref() else {
             return Err(OperationOutcomeError::error(
                 IssueType::invalid(),
@@ -509,21 +876,31 @@ fn build_null_result(
             ));
         };
 
-        output_result.insert(name.to_string(), OutputResults::Scalar(None));
+        row.insert(name, OutputResults::Scalar(None));
     }
 
-    Ok(output_result)
+    for nested in select_statement
+        .select
+        .iter()
+        .flatten()
+        .chain(select_statement.unionAll.iter().flatten())
+    {
+        collect_null_columns(nested, row)?;
+    }
+
+    Ok(())
 }
 
-async fn process_select_context<'a>(
+/// A select's own columns on `node`, as one row.
+async fn column_row<'r, 'v>(
     fp_engine: &FPEngine,
-    fp_config: Arc<Config<'a>>,
-    select_statement: &'a ViewDefinitionSelect,
-    context: &'a dyn MetaValue,
-) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
-    let mut output_result = OrderMap::new();
+    fp_config: &Arc<Config<'r>>,
+    select: &'v ViewDefinitionSelect,
+    node: &'r dyn MetaValue,
+) -> Result<Row<'v>, OperationOutcomeError> {
+    let mut row = Row::new();
 
-    for column in select_statement.column.as_ref().into_iter().flatten() {
+    for column in select.column.iter().flatten() {
         let Some(path) = column.path.value.as_deref() else {
             return Err(OperationOutcomeError::error(
                 IssueType::invalid(),
@@ -538,68 +915,47 @@ async fn process_select_context<'a>(
             ));
         };
 
-        let result = fp_engine
-            .evaluate_with_config(path, vec![context], fp_config.clone())
-            .await
-            .map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Error evaluating expression: {e}"),
-                )
-            })?;
+        let found = evaluate(fp_engine, fp_config, path, node, "expression").await?;
+        let values = found.values();
 
         let column_type = column
             .type_
             .as_ref()
             .and_then(|t| t.value.as_deref())
-            .unwrap_or_else(|| {
-                result
-                    .iter()
-                    .next()
-                    .map_or("string", haste_reflect::MetaValue::fhir_type)
-            });
-
-        let mut column_result = result
-            .iter()
-            .map(|value| conversions::primitives::convert_meta_value(column_type, value))
-            .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
-
-        let is_collection = column
-            .collection
-            .as_ref()
-            .and_then(|c| c.value)
-            .unwrap_or(false);
-
-        let insert_value = if is_collection {
-            OutputResults::Collection(column_result)
-        } else {
-            if column_result.len() > 1 {
-                return Err(OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    "Column result is a collection but the column is not marked as a collection"
-                        .to_string(),
-                ));
-            }
-
-            let mut singular_value = None;
-
-            if let Some(first_value) = column_result.get_mut(0) {
-                std::mem::swap(&mut singular_value, first_value);
-            }
-
-            OutputResults::Scalar(singular_value)
+            .unwrap_or_else(|| values.first().map_or("string", |value| value.fhir_type()));
+        let convert = |value: &&dyn MetaValue| {
+            conversions::primitives::convert_meta_value(column_type, *value)
         };
 
-        output_result.insert(name.to_string(), insert_value);
+        let value = if column.collection.as_ref().and_then(|c| c.value) == Some(true) {
+            OutputResults::Collection(values.iter().map(convert).collect::<Result<_, _>>()?)
+        } else {
+            match values {
+                [] => OutputResults::Scalar(None),
+                [value] => OutputResults::Scalar(convert(value)?),
+                _ => {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        "Column result is a collection but the column is not marked as a collection"
+                            .to_string(),
+                    ));
+                }
+            }
+        };
+
+        row.insert(name, value);
     }
 
-    Ok(output_result)
+    Ok(row)
 }
 
 /// The resources a view runs over: those of its resource type. A Bundle of another type stands
 /// for its entries, so its entries of that type are kept. Resources sent with the request can be
 /// of any type, and a view gives rows only for its own.
-fn resources_of_type(resources: Vec<Resource>, resource_type: &ResourceType) -> Vec<Resource> {
+fn resources_of_type<'r>(
+    resources: &'r [Resource],
+    resource_type: &ResourceType,
+) -> Vec<&'r Resource> {
     let mut matching = Vec::new();
     for resource in resources {
         if &resource.resource_type() == resource_type {
@@ -608,9 +964,9 @@ fn resources_of_type(resources: Vec<Resource>, resource_type: &ResourceType) -> 
             matching.extend(
                 bundle
                     .entry
-                    .into_iter()
+                    .iter()
                     .flatten()
-                    .filter_map(|entry| entry.resource.map(|resource| *resource))
+                    .filter_map(|entry| entry.resource.as_deref())
                     .filter(|resource| &resource.resource_type() == resource_type),
             );
         }
@@ -637,7 +993,7 @@ async fn passes_where_clauses(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::exception(),
+                    fhirpath_issue_type(&e),
                     format!("Error evaluating where clause expression: {e}"),
                 )
             })?;
@@ -685,63 +1041,28 @@ async fn process_view_definition<
     client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
+    scope: Option<Vec<String>>,
+    limits: RunLimits,
 ) -> Result<Binary, OperationOutcomeError> {
-    union::check_union_columns(&view_definition.select)?;
+    union::check_unions(&view_definition.select)?;
 
-    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    let limit = requested_limit(input);
+    let fp_engine = FPEngine::new();
+    let run = Run {
+        fp_engine: &fp_engine,
+        variables: Arc::new(build_hashmap_fp_variables(view_definition)),
+        view_definition,
+        where_clauses: view_definition
+            .where_
+            .iter()
+            .flatten()
+            .filter_map(|w| w.path.value.as_deref())
+            .collect(),
+        resource_type: view_resource_type(view_definition)?,
+        limit: requested_limit(input),
+        limits,
+    };
 
-    let resource_type = view_resource_type(view_definition)?;
-    let input_ = resources_of_type(
-        get_resources_to_process(context.clone(), client.as_ref(), &resource_type, input).await?,
-        &resource_type,
-    );
-
-    let mut tasks = FuturesOrdered::new();
-
-    let where_clauses = view_definition
-        .where_
-        .as_ref()
-        .map_or_else(|| Cow::Owned(Vec::new()), Cow::Borrowed);
-
-    let where_fp_clauses = where_clauses
-        .iter()
-        .filter_map(|w| w.path.value.as_deref())
-        .collect::<Vec<_>>();
-
-    for resource in input_ {
-        if passes_where_clauses(
-            &FPEngine::new(),
-            variables.clone(),
-            where_fp_clauses.as_slice(),
-            &resource,
-        )
-        .await?
-        {
-            tasks.push_back(async {
-                process_resource(
-                    context.clone(),
-                    client.clone(),
-                    variables.clone(),
-                    view_definition,
-                    resource,
-                )
-                .await
-            });
-        }
-    }
-
-    let mut results = Vec::with_capacity(tasks.len());
-
-    while let Some(result) = tasks.next().await {
-        results.push(result?);
-    }
-
-    let mut results = results.into_iter().flatten().collect::<Vec<_>>();
-
-    if let Some(limit) = limit {
-        results.truncate(limit);
-    }
+    let results = view_rows(context, client.as_ref(), &run, input, scope).await?;
 
     let include_header = input
         .header
@@ -786,37 +1107,52 @@ async fn process_view_definition<
 /// output format.
 ///
 /// The output format is read from the `_format` input parameter. If `_format` is
-/// absent or does not contain a recognized [`OutputFormatCodes`] value, CSV is
-/// used as the default format.
+/// absent or does not contain a recognized [`OutputFormatCodes`] value, ndjson is
+/// used, the specification's default.
+///
+/// A run that would pass `limits` is refused with `too-costly`.
+///
+/// The view is read through `client`; the `patient` and `group` resources that scope the run
+/// through `read_many`, in one batch.
 ///
 /// # Errors
 ///
-/// Returns [`OperationOutcomeError`] if the view definition cannot be resolved
-/// or if processing the view definition fails.
+/// Returns [`OperationOutcomeError`] if a parameter is refused, the view definition cannot be
+/// resolved, the run would pass `limits`, or processing the view definition fails.
 pub async fn view_definition_run<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
     client: Arc<Client>,
+    read_many: &ReadMany<CTX>,
     input: &ViewDefinitionRun::Input,
+    limits: RunLimits,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
+    check_parameters(input, &limits)?;
+
     let output_format = input
         .format
         .as_ref()
         .and_then(|v| v.value.as_ref())
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
-        .unwrap_or(OutputFormatCodes::csv());
+        .unwrap_or(OutputFormatCodes::ndjson());
 
-    let view_definition =
-        Arc::new(resolve_view_definition(context.clone(), client.as_ref(), input).await?);
+    // The view and the scope don't depend on each other, so they are looked up at once.
+    let (view_definition, scope) = try_join(
+        resolve_view_definition(context.clone(), client.as_ref(), input),
+        patient_scope(context.clone(), read_many, input),
+    )
+    .await?;
 
     let output = process_view_definition(
         context,
         &output_format,
         client,
-        view_definition.as_ref(),
+        &view_definition,
         input,
+        scope,
+        limits,
     )
     .await?;
 

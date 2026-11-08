@@ -37,6 +37,7 @@ mod date_arithmetic;
 mod date_comparison;
 mod fhir_functions;
 mod partial_datetime;
+mod quantity_comparison;
 pub use fhir_functions::{Code, FHIRServices, ServiceFuture};
 pub use partial_datetime::PartialDateTime;
 
@@ -48,6 +49,7 @@ use allocators::AllocatorTrait;
 use date_arithmetic::{Shifted, Temporal};
 use date_comparison::{TemporalOrder, temporal_order};
 use partial_datetime::{AnyDateTime, parse_any_datetime};
+use quantity_comparison::{time_equivalent, time_order};
 
 fn evaluate_literal<'b>(
     literal: &Literal,
@@ -242,7 +244,11 @@ async fn evaluate_first_term<'a>(
     match term {
         Term::Invocation(invocation) => match invocation {
             Invocation::Identifier(identifier) => {
-                let type_filter = filter_by_type(&identifier.0, &context);
+                let spec = TypeSpecifier {
+                    model: TypeModel::Fhir,
+                    name: &identifier.0,
+                };
+                let type_filter = filter_by_type(&spec, &context);
                 if type_filter.values.is_empty() {
                     evaluate_invocation(invocation, context, config).await
                 } else {
@@ -353,52 +359,109 @@ fn validate_arguments(
     Ok(())
 }
 
-fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError> {
+/// Which model a type specifier names: <https://hl7.org/fhirpath/N1/#models>.
+#[derive(Clone, Copy)]
+enum TypeModel {
+    /// Unqualified: `FHIR` is searched first, then `System`.
+    Any,
+    Fhir,
+    System,
+    /// A qualifier that is neither, so no type matches.
+    Unknown,
+}
+
+struct TypeSpecifier<'n> {
+    model: TypeModel,
+    name: &'n str,
+}
+
+impl<'n> TypeSpecifier<'n> {
+    /// From the parts of a possibly qualified name, as in `FHIR.boolean`, read in place by
+    /// `name_of`. `None` when a part is not a name.
+    fn new<T>(parts: &'n [T], name_of: impl Fn(&'n T) -> Option<&'n str>) -> Option<Self> {
+        let (name, qualifier) = parts.split_last()?;
+        let model = match qualifier {
+            [] => TypeModel::Any,
+            [qualifier] => match name_of(qualifier)? {
+                "FHIR" => TypeModel::Fhir,
+                "System" => TypeModel::System,
+                _ => TypeModel::Unknown,
+            },
+            _ => TypeModel::Unknown,
+        };
+        Some(Self {
+            model,
+            name: name_of(name)?,
+        })
+    }
+}
+
+fn derive_typename(expression_ast: &Expression) -> Result<TypeSpecifier<'_>, FHIRPathError> {
     match expression_ast {
-        Expression::Singular(ast) => match &ast[0] {
-            Term::Invocation(Invocation::Identifier(type_id)) => Ok(type_id.0.clone()),
-            _ => Err(FHIRPathError::FailedTypeNameDerivation),
-        },
-        Expression::Operation(_) => Err(FHIRPathError::FailedTypeNameDerivation),
+        Expression::Singular(terms) => TypeSpecifier::new(terms, |term| match term {
+            Term::Invocation(Invocation::Identifier(id)) => Some(id.0.as_str()),
+            _ => None,
+        }),
+        Expression::Operation(_) => None,
+    }
+    .ok_or(FHIRPathError::FailedTypeNameDerivation)
+}
+
+/// The `System` type a value's type maps to, as in `boolean` to `Boolean`.
+fn system_type_name(type_name: &str) -> Option<&str> {
+    if let Some(name) = type_name.strip_prefix("http://hl7.org/fhirpath/System.") {
+        return Some(name);
+    }
+    match type_name {
+        "boolean" => Some("Boolean"),
+        "integer" | "positiveInt" | "unsignedInt" => Some("Integer"),
+        "decimal" => Some("Decimal"),
+        "string" | "code" | "id" | "markdown" => Some("String"),
+        "date" => Some("Date"),
+        "dateTime" | "instant" => Some("DateTime"),
+        "time" => Some("Time"),
+        "Quantity" => Some("Quantity"),
+        _ => None,
     }
 }
 
-fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
-    match type_to_check {
+/// Whether a value of type `type_name` is of the type `spec` names. A FHIR primitive is also of
+/// the `System` type it maps to, so `Patient.active is Boolean` is true. The spec reserves
+/// `System` types for literals and results, but the engine stores those as FHIR types too and
+/// does not tell them apart from the input data.
+fn check_type_name(type_name: &str, spec: &TypeSpecifier) -> bool {
+    let fhir = || match spec.name {
         "Resource" | "DomainResource" => ResourceType::try_from(type_name).is_ok(),
-        _ => type_name == type_to_check,
+        name => type_name == name,
+    };
+    let system = || system_type_name(type_name) == Some(spec.name);
+    match spec.model {
+        TypeModel::Any => fhir() || system(),
+        TypeModel::Fhir => fhir(),
+        TypeModel::System => system(),
+        TypeModel::Unknown => false,
     }
 }
 
-fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
-    let fhir_type_name = value.fhir_type();
-
-    match fhir_type_name {
-        // Special handling for reference which is to check the reference type.
-        "Reference" => {
-            if type_to_check == "Reference" {
-                return true;
-            } else if let Some(reference) = value.as_any().downcast_ref::<Reference>()
-                && let Some(resource_type) = reference
-                    .reference
-                    .as_ref()
-                    .and_then(|r| r.value.as_ref())
-                    .and_then(|r| r.split('/').next())
-            {
-                return check_type_name(resource_type, type_to_check);
-            }
-            false
-        }
-        fhir_type_name => check_type_name(fhir_type_name, type_to_check),
-    }
+fn check_type(value: &dyn MetaValue, spec: &TypeSpecifier) -> bool {
+    let fhir_type = value.fhir_type();
+    check_type_name(fhir_type, spec)
+        // A reference is also of the type of the resource it points to.
+        || fhir_type == "Reference"
+            && value
+                .as_any()
+                .downcast_ref::<Reference>()
+                .and_then(|reference| reference.reference.as_ref()?.value.as_deref())
+                .and_then(|reference| reference.split('/').next())
+                .is_some_and(|resource_type| check_type_name(resource_type, spec))
 }
 
-fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
+fn filter_by_type<'a>(spec: &TypeSpecifier, context: &Context<'a>) -> Context<'a> {
     context.new_context_from(
         context
             .values
             .iter()
-            .filter(|v| check_type(**v, type_name))
+            .filter(|v| check_type(**v, spec))
             .copied()
             .collect(),
     )
@@ -432,6 +495,7 @@ async fn evaluate_function<'a>(
         "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
+        "encode" | "decode" => evaluate_codec(function, context, config).await,
         "empty" => evaluate_empty(function, &context),
         "join" => evaluate_join(function, context, config).await,
         "exists" => evaluate_exists(function, context, config).await,
@@ -449,6 +513,7 @@ async fn evaluate_function<'a>(
         }
         "subsetOf" | "supersetOf" => evaluate_subset(function, context, config).await,
         "distinct" | "isDistinct" => evaluate_distinct(function, &context),
+        "sort" => evaluate_sort(function, context, config).await,
         "select" => evaluate_select(function, context, config).await,
         "union" | "combine" | "intersect" | "exclude" => {
             evaluate_combining(function, context, config).await
@@ -459,10 +524,13 @@ async fn evaluate_function<'a>(
         "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
         "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
+        "escape" | "unescape" => evaluate_escape(function, context, config).await,
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
-        "indexOf" | "substring" | "length" | "toChars" | "replace" | "matches"
-        | "replaceMatches" => evaluate_string_function(function, context, config).await,
+        "indexOf" | "substring" | "length" | "toChars" | "split" | "trim" | "replace"
+        | "matches" | "matchesFull" | "replaceMatches" => {
+            evaluate_string_function(function, context, config).await
+        }
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
         | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
@@ -577,6 +645,82 @@ fn evaluate_case<'a>(
     )
 }
 
+/// `encode(format)` / `decode(format)` for `hex`, `base64` and `urlbase64`.
+async fn evaluate_codec<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    use std::fmt::Write;
+
+    use base64::{
+        Engine,
+        engine::general_purpose::{STANDARD, URL_SAFE},
+    };
+
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let op = function.name.0.as_str();
+
+    if context.values.len() > 1 {
+        return Err(FunctionError::InvalidCardinality(op.to_string(), context.values.len()).into());
+    }
+
+    let format_context =
+        evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+
+    if context.values.is_empty() || format_context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    if format_context.values.len() > 1 {
+        return Err(
+            FunctionError::InvalidCardinality(op.to_string(), format_context.values.len()).into(),
+        );
+    }
+
+    let input = downcast_string(context.values[0])?;
+    let format = downcast_string(format_context.values[0])?;
+    let invalid = || FunctionError::InvalidFunctionCall(format!("{op}('{format}') failed"));
+
+    let output = if op == "encode" {
+        match format.as_str() {
+            "hex" => input
+                .bytes()
+                .fold(String::with_capacity(input.len() * 2), |mut acc, b| {
+                    let _ = write!(acc, "{b:02x}");
+                    acc
+                }),
+            "base64" => STANDARD.encode(input),
+            "urlbase64" => URL_SAFE.encode(input),
+            _ => return Err(invalid().into()),
+        }
+    } else {
+        let bytes = match format.as_str() {
+            "hex" => {
+                if !input.len().is_multiple_of(2) || !input.is_ascii() {
+                    return Err(invalid().into());
+                }
+                (0..input.len())
+                    .step_by(2)
+                    .map(|i| u8::from_str_radix(&input[i..i + 2], 16))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| invalid())?
+            }
+            "base64" => STANDARD.decode(&input).map_err(|_| invalid())?,
+            "urlbase64" => URL_SAFE.decode(&input).map_err(|_| invalid())?,
+            _ => return Err(invalid().into()),
+        };
+        String::from_utf8(bytes).map_err(|_| invalid())?
+    };
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRString {
+            value: Some(output),
+            ..Default::default()
+        })]),
+    )
+}
+
 fn evaluate_empty<'a>(
     function: &FunctionInvocation,
     context: &Context<'a>,
@@ -597,6 +741,11 @@ async fn evaluate_join<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+    // Spec: an empty input yields empty.
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
 
     let separator = if let Some(separator_expression) = function.arguments.first() {
         let separator_context =
@@ -880,6 +1029,20 @@ impl Number {
     fn decimal_from(value: f64) -> Option<Number> {
         value.is_finite().then_some(Number::Decimal(value))
     }
+
+    /// Two Integers use `integer_op` (`None` on overflow), anything else
+    /// uses `decimal_op`. Empty when the result is not finite.
+    fn combine(
+        self,
+        other: Number,
+        integer_op: fn(i64, i64) -> Option<i64>,
+        decimal_op: fn(f64, f64) -> f64,
+    ) -> Option<Number> {
+        match (self, other) {
+            (Number::Integer(l), Number::Integer(r)) => integer_op(l, r).map(Number::Integer),
+            (l, r) => Number::decimal_from(decimal_op(l.as_f64(), r.as_f64())),
+        }
+    }
 }
 
 fn number_result<'a>(context: &Context<'a>, number: Option<Number>) -> Context<'a> {
@@ -988,6 +1151,82 @@ async fn evaluate_all<'a>(
     }
 
     Ok(boolean_result(&context, true))
+}
+
+/// <https://hl7.org/fhirpath/N1/#sort>: stable sort by each key expression in turn. A key
+/// written with a leading unary minus sorts descending; an empty key sorts first.
+async fn evaluate_sort<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Many)?;
+
+    // Each key's expression with its direction, `None` being the item itself.
+    let keys: Vec<(Option<&Expression>, bool)> = if function.arguments.is_empty() {
+        vec![(None, false)]
+    } else {
+        function
+            .arguments
+            .iter()
+            .map(|key| match key {
+                Expression::Operation(operation) => match operation.as_ref() {
+                    Operation::Polarity(Polarity::Negative, inner) => (Some(inner), true),
+                    _ => (Some(key), false),
+                },
+                Expression::Singular(_) => (Some(key), false),
+            })
+            .collect()
+    };
+
+    // Evaluate every key once per item: `item_keys[item][key]`.
+    let mut item_keys = Vec::with_capacity(context.values.len());
+    for (index, value) in context.values.iter().enumerate() {
+        let mut values = Vec::with_capacity(keys.len());
+        for (key, _) in &keys {
+            values.push(match key {
+                None => Some(*value),
+                Some(expression) => {
+                    let item = context.new_item_context(*value, index);
+                    let result = evaluate_expression(expression, item, config.clone()).await?;
+                    singleton("sort", &result)?
+                }
+            });
+        }
+        item_keys.push(values);
+    }
+
+    let mut error = None;
+    let mut order: Vec<usize> = (0..context.values.len()).collect();
+    order.sort_by(|a, b| {
+        for (position, (_, descending)) in keys.iter().enumerate() {
+            let ordering = match (item_keys[*a][position], item_keys[*b][position]) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(l), Some(r)) => order_values(l, r)
+                    .unwrap_or_else(|e| {
+                        error.get_or_insert(e);
+                        None
+                    })
+                    .unwrap_or(Ordering::Equal),
+            };
+            let ordering = if *descending {
+                ordering.reverse()
+            } else {
+                ordering
+            };
+            if ordering != Ordering::Equal {
+                return ordering;
+            }
+        }
+        Ordering::Equal
+    });
+    if let Some(error) = error {
+        return Err(error);
+    }
+
+    Ok(context.new_context_from(order.into_iter().map(|i| context.values[i]).collect()))
 }
 
 /// <https://hl7.org/fhirpath/N1/#selectprojection-expression-collection>
@@ -1245,6 +1484,20 @@ async fn evaluate_math<'a>(
     Ok(number_result(&context, result))
 }
 
+/// An empty pattern would match between every character, so it leaves the input as is.
+fn replace_matches(
+    input: String,
+    pattern: &str,
+    substitution: &str,
+) -> Result<String, FHIRPathError> {
+    if pattern.is_empty() {
+        return Ok(input);
+    }
+    Ok(compile_regex(pattern)?
+        .replace_all(&input, substitution)
+        .into_owned())
+}
+
 fn string_result<'a>(context: &Context<'a>, value: String) -> Context<'a> {
     context.new_context_from(vec![context.allocate_literal(FHIRString {
         value: Some(value),
@@ -1270,9 +1523,23 @@ fn compile_regex(pattern: &str) -> Result<Arc<Regex>, FHIRPathError> {
     Ok(regex)
 }
 
+/// `full` anchors both ends; the group keeps alternations inside the anchors.
+fn pattern_matches(input: &str, pattern: &str, full: bool) -> Result<bool, FHIRPathError> {
+    let regex = if full {
+        compile_regex(&format!(r"\A(?:{pattern})\z"))?
+    } else {
+        compile_regex(pattern)?
+    };
+    Ok(regex.is_match(input))
+}
+
 fn char_count(value: &str) -> Result<i64, FHIRPathError> {
     i64::try_from(value.chars().count())
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
+}
+
+fn trim(value: &str) -> String {
+    value.trim_matches([' ', '\t', '\r', '\n']).to_owned()
 }
 
 /// <https://hl7.org/fhirpath/N1/#indexofsubstring-string-integer> through
@@ -1285,8 +1552,8 @@ async fn evaluate_string_function<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let name = function.name.0.as_str();
     let cardinality = match name {
-        "length" | "toChars" => Cardinality::Zero,
-        "indexOf" | "matches" => Cardinality::One,
+        "length" | "toChars" | "trim" => Cardinality::Zero,
+        "indexOf" | "matches" | "matchesFull" | "split" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
     };
@@ -1323,8 +1590,9 @@ async fn evaluate_string_function<'a>(
         }
     };
 
-    let result = match name {
+    Ok(match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
+        "trim" => string_result(&context, trim(&input)),
         "toChars" => {
             let chars = input.chars().map(|c| {
                 context.allocate_literal(FHIRString {
@@ -1334,6 +1602,9 @@ async fn evaluate_string_function<'a>(
             });
             context.new_context_from(chars.collect())
         }
+        "split" => string_argument(0)?.map_or(empty, |separator| {
+            split_result(&context, &input, &separator)
+        }),
         "indexOf" => {
             let Some(substring) = string_argument(0)? else {
                 return Ok(empty);
@@ -1366,24 +1637,180 @@ async fn evaluate_string_function<'a>(
             };
             string_result(&context, input.replace(&pattern, &substitution))
         }
-        "matches" => {
-            let Some(pattern) = string_argument(0)? else {
-                return Ok(empty);
-            };
-            boolean_result(&context, compile_regex(&pattern)?.is_match(&input))
-        }
+        "matches" | "matchesFull" => string_argument(0)?
+            .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
+            .transpose()?
+            .map_or(empty, |matched| boolean_result(&context, matched)),
         "replaceMatches" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
                 return Ok(empty);
             };
-            let replaced = compile_regex(&pattern)?.replace_all(&input, substitution.as_str());
-            string_result(&context, replaced.into_owned())
+            string_result(&context, replace_matches(input, &pattern, &substitution)?)
         }
         _ => unreachable!(),
-    };
+    })
+}
 
-    Ok(result)
+/// <https://hl7.org/fhirpath/N1/#escapetarget--string--string>: empty when the
+/// input or target is empty.
+async fn evaluate_escape<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = function.name.0.as_str();
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+    let Some(input) = singleton(name, &context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let input = downcast_string(input)?;
+    let target = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let Some(target) = singleton(name, &target)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let result = escape_target(name == "escape", &downcast_string(target)?, &input)?;
+    Ok(string_result(&context, result))
+}
+
+/// Escapes or unescapes `input` for the `html` or `json` target.
+fn escape_target(escape: bool, target: &str, input: &str) -> Result<String, FHIRPathError> {
+    match (target, escape) {
+        ("html", true) => Ok(escape_html(input)),
+        ("html", false) => Ok(unescape_html(input)),
+        ("json", true) => Ok(escape_json(input)),
+        ("json", false) => Ok(unescape_json(input)),
+        _ => {
+            let message = format!("Unsupported escape target '{target}'");
+            Err(FunctionError::InvalidFunctionCall(message).into())
+        }
+    }
+}
+
+fn escape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '&' => out.push_str("&amp;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Replaces the entities `escape_html` produces; unknown entities stay as written.
+fn unescape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(start) = rest.find('&') {
+        out.push_str(&rest[..start]);
+        rest = &rest[start..];
+        let decoded = rest.find(';').and_then(|end| {
+            let c = match &rest[1..end] {
+                "lt" => '<',
+                "gt" => '>',
+                "amp" => '&',
+                "quot" => '"',
+                "apos" | "#39" => '\'',
+                _ => return None,
+            };
+            Some((c, end + 1))
+        });
+        if let Some((c, len)) = decoded {
+            out.push(c);
+            rest = &rest[len..];
+        } else {
+            out.push('&');
+            rest = &rest[1..];
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn escape_json(input: &str) -> String {
+    use std::fmt::Write;
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{8}' => out.push_str("\\b"),
+            '\u{c}' => out.push_str("\\f"),
+            c if c < ' ' => {
+                let _ = write!(out, "\\u{:04x}", u32::from(c));
+            }
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Reverses JSON escapes; an invalid escape stays as written.
+fn unescape_json(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut chars = input.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            out.push(c);
+            continue;
+        }
+        let mut lookahead = chars.clone();
+        let decoded = match lookahead.next() {
+            Some('"') => Some('"'),
+            Some('\\') => Some('\\'),
+            Some('/') => Some('/'),
+            Some('n') => Some('\n'),
+            Some('r') => Some('\r'),
+            Some('t') => Some('\t'),
+            Some('b') => Some('\u{8}'),
+            Some('f') => Some('\u{c}'),
+            Some('u') => {
+                let hex: String = lookahead.clone().take(4).collect();
+                u32::from_str_radix(&hex, 16)
+                    .ok()
+                    .filter(|_| hex.len() == 4)
+                    .and_then(char::from_u32)
+                    .inspect(|_| {
+                        lookahead.nth(3);
+                    })
+            }
+            _ => None,
+        };
+        if let Some(d) = decoded {
+            out.push(d);
+            chars = lookahead;
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
+fn split_result<'a>(context: &Context<'a>, input: &str, separator: &str) -> Context<'a> {
+    let allocate = |piece: &str| {
+        context.allocate_literal(FHIRString {
+            value: Some(piece.to_string()),
+            ..Default::default()
+        })
+    };
+    let pieces = if separator.is_empty() {
+        input
+            .chars()
+            .map(|c| allocate(c.encode_utf8(&mut [0; 4])))
+            .collect()
+    } else {
+        input.split(separator).map(allocate).collect()
+    };
+    context.new_context_from(pieces)
 }
 
 /// The kinds of item the conversion functions accept.
@@ -1519,11 +1946,13 @@ fn to_string(value: Convertible) -> Option<String> {
         Convertible::String(value) | Convertible::DateTime(value) => Some(value),
         Convertible::Quantity(quantity) => {
             let value = quantity.value.as_ref()?.value?;
-            Some(format!(
-                "{} '{}'",
-                decimal_string(value),
-                quantity_unit(quantity)
-            ))
+            let unit = quantity_unit(quantity);
+            // Calendar keywords are bare, UCUM units are quoted.
+            Some(if CALENDAR_UNITS.contains(&unit) {
+                format!("{value} {unit}")
+            } else {
+                format!("{value} '{unit}'")
+            })
         }
     }
 }
@@ -1597,8 +2026,14 @@ fn to_quantity(value: Convertible, unit: Option<&str>) -> Option<Quantity> {
         Convertible::String(value) => {
             let captures = QUANTITY_STRING.captures(&value)?;
             let number = captures[1].parse().ok()?;
-            let unit = captures.get(2).or_else(|| captures.get(3));
-            new_quantity(number, unit.map_or("1", |unit| unit.as_str()))
+            let unit = match (captures.get(2), captures.get(3)) {
+                (Some(quoted), _) => quoted.as_str(),
+                // A bare word must be a calendar keyword.
+                (None, Some(bare)) if CALENDAR_UNITS.contains(&bare.as_str()) => bare.as_str(),
+                (None, Some(_)) => return None,
+                (None, None) => "1",
+            };
+            new_quantity(number, unit)
         }
         Convertible::DateTime(_) => return None,
     };
@@ -1746,11 +2181,11 @@ async fn evaluate_trace<'a>(
 
 /// `is` as an operator or function, per <https://hl7.org/fhirpath/N1/#is-type-specifier>:
 /// empty for an empty input and an error for more than one item.
-fn is_type<'a>(input: &Context<'a>, type_name: &str) -> Result<Context<'a>, FHIRPathError> {
+fn is_type<'a>(input: &Context<'a>, spec: &TypeSpecifier) -> Result<Context<'a>, FHIRPathError> {
     let value = singleton("is", input)?;
     Ok(optional_boolean_result(
         input,
-        value.map(|value| check_type(value, type_name)),
+        value.map(|value| check_type(value, spec)),
     ))
 }
 
@@ -1949,6 +2384,44 @@ fn value_equal(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool, FHIR
     Ok(equality(left, right)?.unwrap_or(false))
 }
 
+/// A Quantity's unit as written: the code, else the unit text, `None` when
+/// it has neither.
+fn quantity_unit_text(quantity: &Quantity) -> Option<&str> {
+    let code = quantity
+        .code
+        .as_ref()
+        .and_then(|code| code.value.as_deref());
+    let unit = quantity
+        .unit
+        .as_ref()
+        .and_then(|unit| unit.value.as_deref());
+    code.filter(|code| !code.is_empty())
+        .or_else(|| unit.filter(|unit| !unit.is_empty()))
+}
+
+/// Both items as Quantities, `None` when either is another type.
+fn as_quantities<'v>(
+    left: &'v dyn MetaValue,
+    right: &'v dyn MetaValue,
+) -> Option<(&'v Quantity, &'v Quantity)> {
+    Some((
+        left.as_any().downcast_ref::<Quantity>()?,
+        right.as_any().downcast_ref::<Quantity>()?,
+    ))
+}
+
+/// How two Quantities order by value; `None` when they have different units
+/// or no value. Units compare case-sensitively and are not converted.
+fn quantity_order(left: &Quantity, right: &Quantity) -> Option<Ordering> {
+    if quantity_unit_text(left) != quantity_unit_text(right) {
+        return None;
+    }
+    let value = |quantity: &Quantity| quantity.value.as_ref().and_then(|value| value.value);
+    value(left)
+        .zip(value(right))
+        .and_then(|(left, right)| left.partial_cmp(&right))
+}
+
 /// `=` on two items, `None` for dates and times that cannot be compared.
 fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>, FHIRPathError> {
     // An element equals itself. Other complex values are unequal until
@@ -1979,6 +2452,13 @@ fn equality(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<Option<bool>,
             TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
             TemporalOrder::Unknown => None,
         })
+    } else if let Some(order) = time_order(left, right) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering.is_eq()),
+            TemporalOrder::Unknown => None,
+        })
+    } else if let Some((left, right)) = as_quantities(left, right) {
+        Ok(quantity_order(left, right).map(Ordering::is_eq))
     } else {
         // https://hl7.org/fhirpath/N1/#conversion for implicit conversion rules todo.
         //
@@ -2050,17 +2530,25 @@ async fn evaluate_operation<'a>(
 
 /// A Date, `DateTime` or Time plus or minus a time-valued Quantity. `None`
 /// when the operands are not such a pair; empty when the Quantity cannot
-/// shift the value.
+/// shift the value; an error for a unit that is not a fixed-length time unit.
 fn temporal_arithmetic<'a>(
     left: &Context<'a>,
     right: &Context<'a>,
     subtract: bool,
-) -> Option<Context<'a>> {
-    let temporal = Temporal::of(left.values[0])?;
-    let quantity = right.values[0].as_any().downcast_ref::<Quantity>()?;
-    let amount = quantity.value.as_ref()?.value?;
-    let shifted = temporal.shift(amount, quantity_unit(quantity), subtract);
-    Some(left.new_context_from(match shifted {
+) -> Result<Option<Context<'a>>, FHIRPathError> {
+    let (Some(temporal), Some(quantity)) = (
+        Temporal::of(left.values[0]),
+        right.values[0].as_any().downcast_ref::<Quantity>(),
+    ) else {
+        return Ok(None);
+    };
+    let Some(amount) = quantity.value.as_ref().and_then(|value| value.value) else {
+        return Ok(None);
+    };
+    let shifted = temporal
+        .shift(amount, quantity_unit(quantity), subtract)
+        .map_err(FHIRPathError::OperationError)?;
+    Ok(Some(left.new_context_from(match shifted {
         Some(Shifted::Date(value)) => vec![left.allocate_literal(FHIRDate {
             value: Some(value),
             ..Default::default()
@@ -2075,7 +2563,7 @@ fn temporal_arithmetic<'a>(
             ..Default::default()
         })],
         None => vec![],
-    }))
+    })))
 }
 
 async fn evaluate_add<'a>(
@@ -2086,20 +2574,18 @@ async fn evaluate_add<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if let Some(shifted) = temporal_arithmetic(&left, &right, false) {
+            if let Some(shifted) = temporal_arithmetic(&left, &right, false)? {
                 Ok(shifted)
             } else if NUMBER_TYPES.contains(left.values[0].fhir_type())
                 && NUMBER_TYPES.contains(right.values[0].fhir_type())
             {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
+                let sum = Number::of(left.values[0])?.combine(
+                    Number::of(right.values[0])?,
+                    i64::checked_add,
+                    |l, r| l + r,
+                );
 
-                Ok(
-                    left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                        value: Some(left_value + right_value),
-                        ..Default::default()
-                    })]),
-                )
+                Ok(number_result(&left, sum))
             } else if STRING_TYPES.contains(left.values[0].fhir_type())
                 && STRING_TYPES.contains(right.values[0].fhir_type())
             {
@@ -2123,33 +2609,52 @@ async fn evaluate_add<'a>(
     .await
 }
 
-async fn evaluate_numeric_binary<'a, F>(
+async fn evaluate_numeric_binary<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
-    op: F,
-) -> Result<Context<'a>, FHIRPathError>
-where
-    F: FnOnce(f64, f64) -> f64 + Copy + Send + 'static,
-{
+    integer_op: fn(i64, i64) -> Option<i64>,
+    decimal_op: fn(f64, f64) -> f64,
+) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+            let result = Number::of(left.values[0])?.combine(
+                Number::of(right.values[0])?,
+                integer_op,
+                decimal_op,
+            );
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                    value: Some(op(left_value, right_value)),
-                    ..Default::default()
-                })]),
-            )
+            Ok(number_result(&left, result))
         })
     })
     .await
 }
 
-/// Ordered comparison of two numbers or two strings (code point order).
+/// Order of two numbers, strings (code point order), temporals or same-unit Quantities.
+/// `None` when unordered (NaN, imprecise dates); errors on any other operand types.
+fn order_values(l: &dyn MetaValue, r: &dyn MetaValue) -> Result<Option<Ordering>, FHIRPathError> {
+    if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering),
+            TemporalOrder::Unknown => None,
+        })
+    } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
+        Ok(l.partial_cmp(&r))
+    } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
+        Ok(Some(l.cmp(&r)))
+    } else if let Some((l, r)) = as_quantities(l, r) {
+        Ok(quantity_order(l, r))
+    } else {
+        Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            l.fhir_type(),
+            r.fhir_type(),
+        )))
+    }
+}
+
+/// Ordered comparison of two numbers, strings (code point order) or
+/// same-unit Quantities.
 /// Empty when unordered (NaN); errors on any other operand types.
 async fn evaluate_ordered_comparison<'a>(
     left: &Expression,
@@ -2160,22 +2665,7 @@ async fn evaluate_ordered_comparison<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let Some(order) = temporal_order(l, r) {
-                match order {
-                    TemporalOrder::Ordered(ordering) => Some(ordering),
-                    TemporalOrder::Unknown => None,
-                }
-            } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
-                l.partial_cmp(&r)
-            } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
-                Some(l.cmp(&r))
-            } else {
-                return Err(FHIRPathError::OperationError(OperationError::InvalidType(
-                    l.fhir_type(),
-                    r.fhir_type(),
-                )));
-            };
+            let ordering = order_values(left.values[0], right.values[0])?;
 
             Ok(left.new_context_from(
                 ordering
@@ -2201,18 +2691,16 @@ async fn evaluate_subtraction<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, |left, right| {
         Box::pin(async move {
-            if let Some(shifted) = temporal_arithmetic(&left, &right, true) {
+            if let Some(shifted) = temporal_arithmetic(&left, &right, true)? {
                 return Ok(shifted);
             }
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+            let difference = Number::of(left.values[0])?.combine(
+                Number::of(right.values[0])?,
+                i64::checked_sub,
+                |l, r| l - r,
+            );
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
-                    value: Some(left_value - right_value),
-                    ..Default::default()
-                })]),
-            )
+            Ok(number_result(&left, difference))
         })
     })
     .await
@@ -2224,7 +2712,7 @@ async fn evaluate_multiplication<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l * r).await
+    evaluate_numeric_binary(left, right, context, config, i64::checked_mul, |l, r| l * r).await
 }
 
 async fn evaluate_division<'a>(
@@ -2233,7 +2721,16 @@ async fn evaluate_division<'a>(
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    evaluate_numeric_binary(left, right, context, config, |l, r| l / r).await
+    // `/` is always a Decimal; dividing by 0 is empty.
+    operation_2(left, right, context, config, |left, right| {
+        Box::pin(async move {
+            let quotient =
+                Number::of(left.values[0])?.as_f64() / Number::of(right.values[0])?.as_f64();
+
+            Ok(number_result(&left, Number::decimal_from(quotient)))
+        })
+    })
+    .await
 }
 
 async fn evaluate_less_than<'a>(
@@ -2330,6 +2827,24 @@ async fn evaluate_xor<'a>(
     evaluate_boolean_binary("xor", left, right, context, config, |l, r| Some(l? ^ r?)).await
 }
 
+/// <https://hl7.org/fhirpath/N1/#equals>. Collections are equal when they have the same length
+/// and each pair, in order, is equal. `None` when a pair cannot be compared.
+fn collection_equal<'b>(
+    left: &Context<'b>,
+    right: &Context<'b>,
+) -> Result<Option<bool>, FHIRPathError> {
+    if left.values.len() != right.values.len() {
+        return Ok(Some(false));
+    }
+    for (l, r) in left.values.iter().zip(&right.values) {
+        match equality(*l, *r)? {
+            Some(true) => {}
+            other => return Ok(other),
+        }
+    }
+    Ok(Some(true))
+}
+
 async fn evaluate_equality<'a>(
     left: &Expression,
     right: &Expression,
@@ -2337,23 +2852,22 @@ async fn evaluate_equality<'a>(
     config: Option<Arc<Config<'a>>>,
     negate: bool,
 ) -> Result<Context<'a>, FHIRPathError> {
-    operation_2(left, right, context, config, move |left, right| {
-        Box::pin(async move {
-            let Some(mut result) = equal_check(&left, &right)? else {
-                // Dates and times of different precisions cannot be compared: the result is empty.
-                return Ok(left.new_context_from(vec![]));
-            };
+    operation_n(left, right, context, config, |left, right| {
+        // An empty side gives an empty result.
+        if left.values.is_empty() || right.values.is_empty() {
+            return Ok(left.new_context_from(vec![]));
+        }
 
-            if negate {
-                result = !result;
-            }
+        let result = if left.values.len() == 1 && right.values.len() == 1 {
+            equal_check(&left, &right)?
+        } else {
+            collection_equal(&left, &right)?
+        };
 
-            Ok(
-                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
-                    value: Some(result),
-                    ..Default::default()
-                })]),
-            )
+        // Dates and times of different precisions cannot be compared: the result is empty.
+        Ok(match result {
+            Some(result) => boolean_result(&left, result != negate),
+            None => left.new_context_from(vec![]),
         })
     })
     .await
@@ -2388,6 +2902,8 @@ fn value_equivalent(left: &dyn MetaValue, right: &dyn MetaValue) -> Result<bool,
                 .collect::<Vec<_>>()
         };
         Ok(normalize(&downcast_string(left)?) == normalize(&downcast_string(right)?))
+    } else if let Some(equivalent) = time_equivalent(left, right) {
+        Ok(equivalent)
     } else {
         value_equal(left, right)
     }
@@ -2486,6 +3002,19 @@ async fn evaluate_polarity<'a>(
         return Ok(operand);
     };
 
+    if let Some(quantity) = value.as_any().downcast_ref::<Quantity>() {
+        return Ok(match polarity {
+            Polarity::Positive => operand,
+            Polarity::Negative => {
+                let mut quantity = quantity.clone();
+                if let Some(value) = quantity.value.as_mut() {
+                    value.value = value.value.map(|value| -value);
+                }
+                operand.new_context_from(vec![operand.allocate_literal(quantity)])
+            }
+        });
+    }
+
     let result = match (polarity, Number::of(value)?) {
         (Polarity::Positive, number) => Some(number),
         (Polarity::Negative, Number::Integer(value)) => value.checked_neg().map(Number::Integer),
@@ -2577,17 +3106,16 @@ async fn evaluate_type_operation<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(expression, context, config).await?;
 
-    // The last part names the type, as in FHIR.Patient.
-    let Some(Identifier(type_name)) = type_name.0.last() else {
+    let Some(type_name) = TypeSpecifier::new(&type_name.0, |id| Some(id.0.as_str())) else {
         return Ok(left.new_context_from(vec![]));
     };
 
     if return_context {
         // <https://hl7.org/fhirpath/N1/#as-type-specifier>
-        let value = singleton("as", &left)?.filter(|value| check_type(*value, type_name));
+        let value = singleton("as", &left)?.filter(|value| check_type(*value, &type_name));
         Ok(left.new_context_from(value.into_iter().collect()))
     } else {
-        is_type(&left, type_name)
+        is_type(&left, &type_name)
     }
 }
 
@@ -2691,18 +3219,48 @@ impl<'a> Config<'a> {
     }
 }
 
+/// Variables FHIR defines for every evaluation, resolved before the caller's resolver.
+fn fhir_environment_variable(name: &str) -> Option<String> {
+    match name {
+        "sct" => Some("http://snomed.info/sct".to_string()),
+        "loinc" => Some("http://loinc.org".to_string()),
+        "ucum" => Some("http://unitsofmeasure.org".to_string()),
+        _ => name
+            .strip_prefix("vs-")
+            .map(|n| format!("http://hl7.org/fhir/ValueSet/{n}"))
+            .or_else(|| {
+                name.strip_prefix("ext-")
+                    .map(|n| format!("http://hl7.org/fhir/StructureDefinition/{n}"))
+            }),
+    }
+}
+
 async fn resolve_external_constant<'a>(
     name: &str,
     resolver: Option<&ExternalConstantResolver<'a>>,
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
+    if let Some(value) = fhir_environment_variable(name) {
+        return Ok(
+            context.new_context_from(vec![context.allocate_literal(FHIRString {
+                value: Some(value),
+                ..Default::default()
+            })]),
+        );
+    }
+
     let external_constant = match resolver {
         Some(ExternalConstantResolver::Function(func)) => {
             let result = func(name.to_string()).await;
 
             result.map(|result| context.allocate(result))
         }
-        Some(ExternalConstantResolver::Variable(map)) => map.get(name).copied(),
+        // A name missing from a fixed set of variables is an error, not empty.
+        Some(ExternalConstantResolver::Variable(map)) => Some(
+            map.get(name)
+                .copied()
+                .ok_or_else(|| FHIRPathError::UndefinedConstant(name.to_string()))?,
+        ),
         None => None,
     };
 
@@ -2785,6 +3343,12 @@ impl<'a> Context<'a> {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .allocate_literal(value)
+    }
+
+    /// The values, which live as long as `'a` rather than this borrow.
+    #[must_use]
+    pub fn values(&self) -> &[&'a dyn MetaValue] {
+        &self.values
     }
 
     #[must_use]
@@ -3066,12 +3630,12 @@ mod tests {
 
         assert_eq!(p.id, patient.id);
 
-        let result_failed = engine
-            .evaluate_with_config("%nobody", vec![], config)
-            .await
-            .unwrap();
+        let result_failed = engine.evaluate_with_config("%nobody", vec![], config).await;
 
-        assert_eq!(result_failed.values.len(), 0);
+        assert!(matches!(
+            result_failed,
+            Err(FHIRPathError::UndefinedConstant(name)) if name == "nobody"
+        ));
     }
 
     #[tokio::test]
@@ -3387,6 +3951,38 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_positive_and_unsigned_int() {
+        let engine = FPEngine::new();
+        let study = serde_json::from_str::<Resource>(
+            r#"{"resourceType":"ImagingStudy","status":"available","subject":{"reference":"Patient/1"},"numberOfSeries":9,"numberOfInstances":4}"#,
+        )
+        .unwrap();
+
+        for (expression, expected) in [
+            ("ImagingStudy.numberOfSeries = 9", true),
+            ("ImagingStudy.numberOfSeries > 3", true),
+            ("ImagingStudy.numberOfInstances < 3", false),
+        ] {
+            let result = engine.evaluate(expression, vec![&study]).await.unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+
+        let sum = engine
+            .evaluate("ImagingStudy.numberOfSeries + 1", vec![&study])
+            .await
+            .unwrap();
+        let sum = sum.values[0]
+            .as_any()
+            .downcast_ref::<FHIRInteger>()
+            .unwrap();
+        assert_eq!(sum.value, Some(10));
+    }
+
+    #[tokio::test]
     async fn test_simple() {
         let root = A {
             a: vec![B {
@@ -3425,9 +4021,9 @@ mod tests {
         let result = engine.evaluate("45 + 2  * 3", vec![]).await.unwrap();
 
         for r in &result {
-            let s = r.as_any().downcast_ref::<FHIRDecimal>().unwrap().clone();
+            let s = r.as_any().downcast_ref::<FHIRInteger>().unwrap().clone();
 
-            assert_eq!(s.value, Some(51.0));
+            assert_eq!(s.value, Some(51));
         }
     }
 
@@ -4207,6 +4803,24 @@ mod tests {
         let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
 
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn sort_orders_by_keys() {
+        let engine = FPEngine::new();
+        for (expression, expected) in [
+            ("(3 | 2 | 1).sort() = (1 | 2 | 3)", true),
+            ("('a' | 'b' | 'c').sort(-$this) = ('c' | 'b' | 'a')", true),
+            ("{}.sort().empty()", true),
+        ] {
+            let result = engine.evaluate(expression, vec![]).await.unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+        assert!(engine.evaluate("(1 | 'a').sort()", vec![]).await.is_err());
     }
 
     #[tokio::test]

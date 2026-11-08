@@ -119,7 +119,7 @@ parser! {
           / "$index" { Invocation::IndexAccessor }
           / "$total" { Invocation::Total }
 
-          / identifier:IDENTIFIER()"(" args:(operations() ** ",") ")" {
+          / identifier:IDENTIFIER() "(" args:((_w() o:operations() _w() { o }) ** ",") _w() ")" {
                 Invocation::Function(FunctionInvocation {
                     name: Identifier(identifier),
                     arguments: args,
@@ -167,7 +167,7 @@ parser! {
         }
 
         rule literal_string() -> Literal
-          = "'" s:$(("\\" [_] / [^('\n' | '\r' | '\0' | '\'' | '\\')])*) "'" {?
+          = "'" s:$(("\\" [_] / [^('\0' | '\'' | '\\')])*) "'" {?
             unescape(s).map(Literal::String)
         }
 
@@ -235,7 +235,12 @@ parser! {
             time.to_string()
         }
 
+        // Simple or backtick-delimited <https://hl7.org/fhirpath/N1/#identifiers>.
         rule IDENTIFIER () -> String
+          = SIMPLE_IDENTIFIER()
+          / "`" s:$(("\\" [_] / [^('\0' | '`' | '\\')])*) "`" {? unescape(s) }
+
+        rule SIMPLE_IDENTIFIER () -> String
           = id:$((['a'..='z' | 'A'..='Z'] / "_")((['a'..='z' | 'A'..='Z' | '0'..='9']) / "_")*) {
             id.to_string()
         }
@@ -398,8 +403,10 @@ fn unescape(raw: &str) -> Result<String, &'static str> {
             Some('f') => '\u{c}',
             Some('u') => {
                 let hex = chars.by_ref().take(4).collect::<String>();
-                u32::from_str_radix(&hex, 16)
-                    .ok()
+                // `from_str_radix` alone would accept a leading `+`.
+                (hex.len() == 4 && hex.bytes().all(|b| b.is_ascii_hexdigit()))
+                    .then(|| u32::from_str_radix(&hex, 16).ok())
+                    .flatten()
                     .and_then(char::from_u32)
                     .ok_or("Invalid \\u escape.")?
             }
@@ -489,5 +496,28 @@ mod tests {
 
         let result = parser::operations("-$this.field[45 + 23]").unwrap();
         insta::assert_debug_snapshot!(result);
+    }
+
+    #[test]
+    fn grammar_gaps() {
+        assert_eq!(
+            parser::operations("Patient.`\\u006eame`").unwrap(),
+            parser::operations("Patient.name").unwrap()
+        );
+        assert!(parser::operations("`Patient`.name").is_ok());
+        assert!(parser::operations("Patient.is(FHIR.`Patient`)").is_ok());
+        assert!(parser::operations("%`vs-administrative-gender`").is_ok());
+        assert!(parser::literal("'\\u+041'").is_err());
+        assert_eq!(
+            parser::literal("'\\u0041'").unwrap(),
+            Literal::String("A".to_string())
+        );
+        assert_eq!(
+            parser::literal("'A\nB'").unwrap(),
+            Literal::String("A\nB".to_string())
+        );
+        assert!(parser::operations("(1|2).combine( -1)").is_ok());
+        assert!(parser::operations("(1|2).combine(1, -1)").is_ok());
+        assert!(parser::operations("(1|2).count( )").is_ok());
     }
 }

@@ -22,7 +22,8 @@ backend client. So the directory follows the access control layout. It runs with
 - `setup/` runs first, as the admin client. It writes the shared US Core record that every
   scenario reads (see [The record](#the-record)).
 - Each other directory is a scenario:
-  - `scenario.json` says who signs in and with which scopes.
+  - `scenario.json` says who signs in and with which scopes. With `grantedScope`, the sign-in
+    approves only those on the consent screen and unchecks the rest.
   - `setup/` writes that principal as the admin: a User linked to a Patient or Practitioner, a
     full-access policy so only the scopes limit it, and the client.
   - `tests/` runs as the signed-in principal.
@@ -32,17 +33,19 @@ backend client. So the directory follows the access control layout. It runs with
 CI runs this in `.github/workflows/test_e2e_g10.yml` (called by `test_e2e.yml`), on the Postgres
 search backend. The steps are:
 
-1. Load the US Core profiles (`scripts/load_us_core.mjs`).
-2. Run the setup phase.
-3. Wait for indexing.
-4. Sign in.
-5. Run the tests.
+1. Install US Core 7.0.0 from `artifacts/r4/hl7.fhir.us.core-7.0.0`, without its dependencies.
+2. Wait until the CapabilityStatement lists them. The server caches it for up to 30 seconds, and
+   12.1.05 checks its `supportedProfile`.
+3. Run the setup phase.
+4. Wait for indexing.
+5. Sign in.
+6. Run the tests.
 
 To run it locally against a server that has a tenant and the `testing` admin profile, run from the
-repository root:
+repository root (and give the CapabilityStatement 30 seconds after loading US Core):
 
 ```sh
-node backend/scripts/load_us_core.mjs
+(cd backend && ./target/debug/haste-health package install ../artifacts/r4/hl7.fhir.us.core-7.0.0 --no-dependencies)
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs setup
 bash .github/scripts/wait_for_indexing.sh 600
 SCENARIOS=testscripts/g10 node .github/scripts/access_control.mjs sign-in
@@ -57,7 +60,7 @@ TestReports are written to `backend/g10-reports/`.
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ----------- |
 | `setup/`                                           | (shared)                                                                                   | admin client                                                                               | the record  |
 | `standalone-patient-app/`                          | 1 Standalone Patient App, full access (discovery 1.8, launch 1.9, OpenID 1.11, access 1.7) | patient linked to `Patient/g10-example`, `patient/[type].rs` for the 26 types g10 requests | 26          |
-| `limited-access-app/`                              | 2 Standalone Patient App, limited access (2.4, 2.3)                                        | the same patient, `patient/Patient.rs patient/Condition.rs patient/Observation.rs`         | 18          |
+| `limited-access-app/`                              | 2 Standalone Patient App, limited access (2.4, 2.3)                                        | the same patient, granting only Patient, Condition and Observation at consent              | 18          |
 | `ehr-practitioner-app/`                            | 3 EHR Practitioner App (3.8, 3.10), and 9.19.01                                            | practitioner linked to `Practitioner/g10-practitioner-1`, `user/[type].rs`                 | 6           |
 | `single-patient-api/`                              | 12 Single Patient API (US Core 7.0.0), one directory per group                             | practitioner linked to `Practitioner/g10-practitioner-2`, `user/[type].rs` (plus `Media`)  | 294         |
 | `profile-validation/`                              | 12 profile validation tests (12.x validation)                                              | backend client, `system/*.cruds`                                                           | 47          |
@@ -79,8 +82,12 @@ with its id prefixed `g10-` and tagged `g10`:
 - The practitioners, organizations, locations, specimens and medications those patients'
   resources reference.
 
-The examples are US Core 9.0.0, which is what the server loads; g10 tests US Core 6.1.0 or 7.0.0.
-So the record adds what US Core 7 requires or marks must support and the 9.0.0 examples dropped:
+The examples are US Core 9.0.0; g10 tests US Core 6.1.0 or 7.0.0, and the suite loads 7.0.0. So the
+record claims the US Core 7.0.0 profiles instead of the 9.0.0 ones. The implanted devices (`udi-2`,
+`udi-3`) claim `us-core-implantable-device`, which 9.0.0 folds into `us-core-device`, and claims to
+profiles 7.0.0 does not have are dropped: the devices that are not implants, the advance directive
+DocumentReferences and Observations, and FamilyMemberHistory. The record also adds what US Core 7
+requires or marks must support and the 9.0.0 examples dropped:
 
 - `Patient.gender`, the `us-core-sex` extension, the CarePlan `assess-plan` category and narrative,
   and MedicationRequest `category`.
@@ -106,7 +113,7 @@ health concern Conditions are stored without `meta.profile`, because the server 
 (see [Known failures](#known-failures)).
 
 The server validates every write against its `meta.profile`, so writing the record also checks
-that the data conforms to US Core 9.0.0.
+that the data conforms to US Core 7.0.0.
 
 ## Coverage
 
@@ -123,6 +130,9 @@ that the data conforms to US Core 9.0.0.
   the behaviour instead: the remaining types can be searched.
 
 ### 2 Standalone Patient App, limited access (`limited-access-app/`)
+
+The app requests the same scopes as scenario 1. At consent the sign-in unchecks every resource type
+but Patient, Condition and Observation (`grantedScope` in `scenario.json`), as the g10 tester does.
 
 - 2.4.09: the patient in context can be read.
 - 2.3.01 to 2.3.13 and 2.3.20 to 2.3.23: Patient, Condition and Observation searches answer 200;
@@ -164,8 +174,8 @@ One directory per group, one TestScript per Inferno test:
 - **Validation (12.x validation, `profile-validation/`).** Inferno validates returned resources with
   the HL7 validator, which a TestScript cannot run. The closest server-side check: the server has
   the profile, and a copy of a record resource claiming it is accepted, which the server allows only
-  after validating it (against US Core 9.0.0; `us-core-implantable-device` is `us-core-device`
-  there). The copies point at their own patient and are deleted afterwards.
+  after validating it against US Core 7.0.0. The copies point at their own patient and are deleted
+  afterwards.
 - **12.1.02 to 12.1.05.** metadata is served; FHIR R4; JSON; the 46 US Core profiles g10 requires
   are listed in `supportedProfile`.
 - **Guidance groups.** 12.49.01 and 12.49.02 (clinical notes), 12.50.01 (screening categories),
@@ -207,24 +217,16 @@ Each group below is one server gap.
 - **Granular scopes (`fine-grained-scopes-1/`, `-2/`, 14 TestScripts).** The authorize endpoint
   answers 501 "Invalid smart resource scope" for `patient/[type].rs?category=...`, so these
   scenarios cannot sign in.
-- **Device under a patient scope (1.7.07, 9.22.5.07).** The server answers 403. It treats Device as
-  outside the Patient compartment and not shared reference data: R4's Patient CompartmentDefinition
-  has no parameter for Device. US Core implantable devices name the patient in `Device.patient`,
-  and g10 expects `patient/Device.rs` to reach them.
 - **OpenID configuration at the issuer (1.11.02).** Inferno fetches
   `[id_token iss]/.well-known/openid-configuration`, and that path answers 404. The server publishes
   the document only at `/.well-known/openid-configuration/w/[tenant]/[project]`.
 - **Bulk Data (8.2.02, 8.2.04 and 8.2.05, 8.4, 8.5).** There is no `$export` operation, and GET
   operation invocations answer 501. The kick-off TestScripts end with an execution error, because
   no Content-Location comes back. 8.2.03 passes (an invalid token is refused before routing).
-- **`supportedProfile` (12.1.05).** The CapabilityStatement lists only the base profile of each
-  type.
 - **Problem list Condition validation (12.7.05).** The server refuses a conformant US Core problem
   list Condition that claims its profile, with "Condition.category:us-core ... found '0'". The
   slice is a value discriminator on a required binding, which the validator does not match. It
   answers 500 rather than a 4xx.
-- **`_revinclude` (40 TestScripts, every 12.x Provenance revinclude test).** The server answers
-  501 "Unsupported parameter: '\_revinclude'".
 
 ## Not covered
 
@@ -244,8 +246,9 @@ are not covered for the same reasons.
   - The invalid `aud` launch (9.4).
   - The EHR launch navigation (3.8.01 and 3.8.02 beyond `$launch`, 9.19 beyond 9.19.01). An EHR
     launch sign-in would need the harness to pass a `launch` value.
-  - Granular scope selection on the consent screen (9.28, 9.15, 9.26, 9.27). The limited scenario
-    requests three scopes instead of deselecting the rest (scenario 2).
+  - Granular scope selection on the consent screen (9.28, 9.15, 9.26, 9.27). The tester swaps
+    the requested resource-level scopes for granular ones the app did not request. The consent
+    screen lets the user uncheck requested scopes, not add narrower ones.
 - **Requests to the token endpoint.** A plain HTTP operation in a TestScript cannot send a body.
   - Token exchange: 1.9.05, 2.4.05, 3.8.07.
   - Token response headers and token CORS: 1.9.07, 1.9.08, 2.4.07, 2.4.08, 3.8.09, 3.8.10.

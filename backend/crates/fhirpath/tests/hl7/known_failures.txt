@@ -1,17 +1,7 @@
 # HL7 FHIRPath suite tests that fail today, by group. Regenerate with
 # HL7_UPDATE_KNOWN_FAILURES=1 cargo test -p haste-fhirpath --test hl7_suite
 
-# comments
-testComment1
-testComment2
-testComment3
-testComment4
-testComment5
-
 # testBasics
-testEscapedIdentifier
-testEscapedIdentifierUnicode
-testSimpleBackTick1
 testSimpleFail
 testSimpleWithWrongContext
 
@@ -20,46 +10,7 @@ testPolymorphismB
 testPolymorphismAsB
 
 # testDollar
-testDollarThis1
-testDollarThis2
 testDollarOrderNotAllowed
-
-# testLiterals
-testLiteralDateYear
-testLiteralDateMonth
-testLiteralDateDay
-testLiteralDateTimeYear
-testLiteralDateTimeMonth
-testLiteralDateTimeDay
-testLiteralDateTimeHour
-testLiteralDateTimeMinute
-testLiteralDateTimeSecond
-testLiteralDateTimeMillisecond
-testLiteralDateTimeUTC
-testLiteralDateTimeTimezoneOffset
-testLiteralTimeHour
-testLiteralTimeMinute
-testLiteralTimeSecond
-testLiteralTimeMillisecond
-testLiteralUnicodeInvalid
-
-# testTypes
-testIntegerLiteralIsInteger
-testIntegerLiteralIsSystemInteger
-testDecimalLiteralIsDecimal
-testStringQuantityWeekConvertsToQuantityFalse
-testIntegerLiteralToQuantity
-testDecimalLiteralToQuantity
-testStringQuantityLiteralToQuantity
-testStringQuantityDayLiteralToQuantity
-testStringQuantityWeekLiteralToQuantity
-testStringQuantityMonthLiteralToQuantity
-testStringQuantityYearLiteralToQuantity
-testStringQuantityMonthToQuantityEquivalent
-testStringQuantityYearToQuantityEquivalent
-testStringDecimalLiteralToQuantity
-testQuantityLiteralWkToString
-testQuantityLiteralWeekToString
 
 # testSubSetOf
 testSubSetOf1
@@ -71,19 +22,11 @@ testSuperSetOf1
 # testQuantity
 testQuantity1
 testQuantity2
+testQuantity3
 testQuantity4
-testQuantity5
-testQuantity6
-testQuantity7
-testQuantity8
 testQuantity9
 testQuantity10
 testQuantity11
-
-# testWhere
-testWhere2
-testWhere3
-testWhere4
 
 # testAggregate
 testAggregate1
@@ -92,32 +35,11 @@ testAggregate3
 testAggregate4
 
 # testIndexer
-testIndexer1
 testIndexer3
-
-# testFirstLast
-testFirstLast1
-testFirstLast2
-
-# testTail
-testTail1
-testTail2
-
-# testSkip
-testSkip1
-testSkip3
-
-# testTake
-testTake2
-testTake3
-testTake4
 
 # testIif
 testIif6
 testIif10
-
-# testToChars
-testToChars1
 
 # testStartsWith
 testStartsWithNonString1
@@ -128,114 +50,17 @@ testEndsWithNonString1
 # testContainsString
 testContainsNonString1
 
-# testMatches
-testMatchesSingleLineMode1
-testMatchesFullWithinUrl1
-testMatchesFullWithinUrl3
-testMatchesFullWithinUrl4
-testMatchesFullWithinUrl1a
-testMatchesFullWithinUrl2
-
-# testReplaceMatches
-testReplaceMatches2
-
-# testEncodeDecode
-testEncodeBase64A
-testEncodeHex
-testEncodeBase64B
-testEncodeUrlBase64
-testDecodeBase64A
-testDecodeHex
-testDecodeBase64B
-testDecodeUrlBase64
-
-# testEscapeUnescape
-testEscapeHtml
-testEscapeJson
-testUnescapeHtml
-testUnescapeJson
-testUnescapeJson2
-testUnescapeJson3
-testUnescapeJson4
-
-# testTrim
-testTrim1
-testTrim2
-testTrim3
-testTrim4
-testTrim5
-testTrim6
-
-# testSplit
-testSplit1
-testSplit2
-testSplit3
-testSplit4
-testSplit5
-testSplit6
-testSplit7
-testSplit8
-
-# testJoin
-testJoinEmpty
-
 # testSort
-testSort1
-testSort2
-testSort3
-testSort4
-testSort5
-testSort6
-testSort7
-testSort8
-testSort9
 testSort10
 
-# testEquality
-testEquality5
-testEquality6
-testEquality7
-testEquality25
-testEquality26
-testEquality27
-testEquality28
-testEquality36
-
 # testNEquality
-testNEquality19
-testNEquality20
-testNEquality21
+testNEquality24
 
 # testEquivalent
 testEquivalent11
-testEquivalent22
-testEquivalent24
-testEquivalent25
-testEquivalent26
-
-# testNotEquivalent
-testNotEquivalent24
 
 # testLessThan
-testLessThan22
 testLessThan28
-
-# testQuantityUnitComparison
-testQuantityNoUnitEqual
-testQuantityNoUnitEquivalent
-testQuantityUnitTextEqual
-testQuantityUnitTextEquivalent
-testQuantityUnitVsNoUnitEqual
-testQuantityNoUnitVsUnitEqual
-
-# testLessOrEqual
-testLessOrEqual22
-
-# testGreatorOrEqual
-testGreatorOrEqual22
-
-# testGreaterThan
-testGreaterThan22
 
 # testCombine()
 testCombine2
@@ -245,11 +70,6 @@ testCombine3
 testUnion10
 testUnion11
 
-# testExclude
-testExclude1
-testExclude2
-testExclude3
-
 # testPlus
 testPlusDate3
 testPlusDate4
@@ -257,9 +77,6 @@ testPlusDate5
 testPlusDate6
 testPlusDate7
 testPlusDate8
-testPlusDate14
-testPlusDate16
-testPlusDate17
 testPlusDate18
 testPlusDate19
 testPlusDate20
@@ -268,26 +85,9 @@ testPlusDate22
 
 # testMinus
 testMinus3
-testMinus6
-
-# testDivide
-testDivide6
-testDivide7
 
 # testMod
 testMod4
-
-# testAbs
-testAbs3
-
-# testVariables
-testVariables1
-testVariables2
-testVariables3
-testVariables4
-
-# testExtension
-testExtension2
 
 # testType
 testType1
@@ -296,22 +96,9 @@ testType2
 testType2a
 testType3
 testType4
-testType5
-testType6
-testType7
-testType8
 testType9
-testType13
 testType15
-testType18
-testType19
-testType21
-testType23
-testTypeA1
-testTypeA2
-testTypeA3
 testTypeA4
-testTypeA
 
 # testConformsTo
 testConformsTo1

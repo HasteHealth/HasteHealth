@@ -50,7 +50,7 @@ Slicing supports these discriminator types: **value** (fixed value, pattern, or 
 
 ## Resolving Profiles
 
-Profiles are resolved by searching for a `StructureDefinition` with a matching `url` in the **same tenant and project** as the resource being validated (results are cached for 2 hours). This means:
+Profiles are resolved by searching for a `StructureDefinition` with a matching `url` in the **same tenant and project** as the resource being validated, then among the profiles built into the server (results are cached for up to five minutes, and installing or uninstalling a package clears the project's cache). This means:
 
 - A profile must exist as a `StructureDefinition` resource in your project *before* you can reference it in `meta.profile`.
 - Only profiles with `derivation: "constraint"` are supported — specialization-derived `StructureDefinition`s aren't valid targets for this check.
@@ -60,18 +60,15 @@ Profiles are resolved by searching for a `StructureDefinition` with a matching `
 
 Haste Health's profiling engine has been built and tested against the [US Core](https://hl7.org/fhir/us/core/) implementation guide, including its cardinality, fixed-value, and slicing rules (e.g. race/ethnicity extensions, US Core `Observation` category slicing).
 
-US Core `StructureDefinition`s aren't preloaded into new projects — you load the ones you need, the same way you'd load any other resource:
-
-1. Download the profiles you need from the [US Core StructureDefinitions](https://hl7.org/fhir/us/core/downloads.html).e
-2. Load StructureDefinitions into your project:
+US Core `StructureDefinition`s aren't preloaded into new projects. Install the US Core package, which brings its profiles, extensions, ValueSets and SearchParameters, and the packages it depends on:
 
 ```bash
-haste-health api create StructureDefinition --file StructureDefinition-us-core-patient.json
+haste-health package install hl7.fhir.us.core@6.1.0
 ```
 
-3. Reference the profile's canonical `url` in `meta.profile` on resources you create.
+The admin app's **Packages** page and the `ImplementationGuide/$install` operation do the same. See **[Implementation Guides](/docs/guides/implementation_guides)** for the details, including upgrading and uninstalling.
 
-See **[Load Sample Data](/docs/getting_started/load_sample_data)** for more on bulk-loading resources via the CLI.
+Then reference the profile's canonical `url` in `meta.profile` on resources you create.
 
 ## What We Don't Support
 The profiling engine covers the structural checks most IGs rely on, but a few things aren't implemented yet:

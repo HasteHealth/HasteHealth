@@ -12,6 +12,7 @@ pub mod elastic_search;
 pub mod indexing_conversion;
 pub mod memory;
 pub mod pg_search;
+pub mod project_parameters;
 mod query;
 pub mod search_parameter_cardinality;
 mod search_ranges;
@@ -113,6 +114,15 @@ pub trait SearchParameterResolve: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
     ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> + Send;
+    /// Drops any cached copy of the project's own parameters, so the next
+    /// lookup reads its indexed `SearchParameter`s again.
+    fn invalidate_project(
+        &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+    ) -> impl Future<Output = ()> + Send {
+        std::future::ready(())
+    }
 }
 
 pub struct IndexFailure {

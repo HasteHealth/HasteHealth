@@ -357,8 +357,12 @@ where
         self.as_ref().fhir_type()
     }
 
+    /// The inner value, like every other method here: a `Box` is how a
+    /// singular field holds its value, not a value of its own, so a downcast
+    /// to `T` finds it whether or not the field boxes it. `Option` does the
+    /// same for `Some`.
     fn as_any(&self) -> &dyn Any {
-        self
+        self.as_ref().as_any()
     }
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
