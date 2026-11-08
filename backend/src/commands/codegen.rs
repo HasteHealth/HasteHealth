@@ -127,7 +127,9 @@ async fn search_migration(directory: &Path, name: &str) -> Result<(), OperationO
         Some(sql) => {
             let version = chrono::Utc::now().format("%Y%m%d%H%M%S");
             let path = directory.join(format!("{version}_{name}.sql"));
-            std::fs::write(&path, sql).map_err(|e| error(format!("{}: {e}", path.display())))?;
+            tokio::fs::write(&path, sql)
+                .await
+                .map_err(|e| error(format!("{}: {e}", path.display())))?;
             println!("PG search migration written to: {}", path.display());
         }
     }
