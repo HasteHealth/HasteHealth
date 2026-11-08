@@ -6,7 +6,6 @@ use std::{
 };
 
 use haste_document_storage::{DocumentMetadata, ListRequest};
-use haste_fhir_model::r4::generated::resources::ResourceType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::pg::PGConnection;
@@ -37,7 +36,9 @@ pub struct SweepReport {
 }
 
 /// Removes Binary documents in `storage` that no resource version in `repo`
-/// refers to, once they are older than `grace`. Such a document comes from a
+/// refers to, once they are older than `grace`. A page of listed documents is
+/// checked against the rows with one query that the repository's partial
+/// index on Binary rows serves, so the sweep costs a probe per document. Such a document comes from a
 /// write whose row never committed: a rolled back transaction, a write that
 /// failed after the upload, or a crash between the two. `grace` must
 /// comfortably exceed the longest transaction, since a document is uploaded
@@ -83,11 +84,9 @@ pub async fn sweep(
                 .map(|document| document.key.as_str())
                 .collect::<Vec<_>>();
             let in_use: HashSet<String> = repo
-                .primitive_extension_values(
+                .binary_data_extension_values(
                     &TenantId::new(tenant.to_string()),
                     &ProjectId::new(project.to_string()),
-                    &ResourceType::Binary,
-                    "data",
                     MARKER_URL,
                     &keys,
                 )
