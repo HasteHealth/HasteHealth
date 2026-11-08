@@ -29,6 +29,7 @@ use crate::conversions::primitives::PrimitiveValue;
 mod compartment;
 mod conversions;
 mod output;
+mod union;
 
 /// An undefined constant or an unparsable expression is the caller's mistake; any other
 /// `FHIRPath` failure stays a server error.
@@ -1043,6 +1044,8 @@ async fn process_view_definition<
     scope: Option<Vec<String>>,
     limits: RunLimits,
 ) -> Result<Binary, OperationOutcomeError> {
+    union::check_unions(&view_definition.select)?;
+
     let fp_engine = FPEngine::new();
     let run = Run {
         fp_engine: &fp_engine,
