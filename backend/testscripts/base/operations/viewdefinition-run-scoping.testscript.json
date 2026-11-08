@@ -4,7 +4,7 @@
     "name": "ViewDefinition run scoping Test",
     "title": "ViewDefinition run scoping Test",
     "status": "active",
-    "description": "Tests which server data $viewdefinition-run reads: patient and group compartments past one search page, both together, an empty group, _since with and without them, and instance-level runs.",
+    "description": "Tests which server data $viewdefinition-run reads: patient and group compartments past one search page, both together, several groups, an empty group, _since with and without them, and instance-level runs.",
     "resourceType": "TestScript",
     "contained": [
         {
@@ -36,6 +36,19 @@
                 {
                     "entity": {
                         "reference": "Patient/sof-scope-p2"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "sof-scope-other",
+            "resourceType": "Group",
+            "type": "person",
+            "actual": true,
+            "member": [
+                {
+                    "entity": {
+                        "reference": "Patient/sof-scope-p3"
                     }
                 }
             ]
@@ -996,6 +1009,96 @@
             ]
         },
         {
+            "id": "params-two-groups",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-other"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-group-and-missing",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-missing"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
             "id": "params-since-past-obs",
             "resourceType": "Parameters",
             "parameter": [
@@ -1289,6 +1392,14 @@
             "id": "fixture-sof-scope-group",
             "resource": {
                 "reference": "#sof-scope-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-other",
+            "resource": {
+                "reference": "#sof-scope-other"
             },
             "autocreate": false,
             "autodelete": false
@@ -1854,6 +1965,22 @@
             "autodelete": false
         },
         {
+            "id": "fixture-params-two-groups",
+            "resource": {
+                "reference": "#params-two-groups"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-group-and-missing",
+            "resource": {
+                "reference": "#params-group-and-missing"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
             "id": "fixture-params-since-past-obs",
             "resource": {
                 "reference": "#params-since-past-obs"
@@ -1961,6 +2088,19 @@
                     "resource": "Group",
                     "targetId": "fixture-sof-scope-group",
                     "sourceId": "fixture-sof-scope-group",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Group of Patient 3.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-other",
+                    "sourceId": "fixture-sof-scope-other",
                     "encodeRequestUrl": false
                 }
             },
@@ -2970,6 +3110,68 @@
             ]
         },
         {
+            "id": "several-groups",
+            "name": "several groups cover the members of any of them",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for the Group of Patients 1 and 2 and the Group of Patient 3.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-two-groups",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patients 1, 2 and 3.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEifSx7ImlkIjoic29mLXNjb3BlLXAyIn0seyJpZCI6InNvZi1zY29wZS1wMyJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for that Group and one the server doesn't have.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-group-and-missing",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A missing group is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('sof-scope-missing')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
             "id": "since-with-patient",
             "name": "_since applies to a patient's compartment",
             "action": [
@@ -3924,6 +4126,18 @@
                     "description": "Remove sof-scope-group.",
                     "resource": "Group",
                     "targetId": "fixture-sof-scope-group",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-other.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-other",
                     "encodeRequestUrl": false
                 }
             },

@@ -1,5 +1,5 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::future::{BoxFuture, try_join_all};
+use futures::future::{BoxFuture, try_join, try_join_all};
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
@@ -66,99 +66,110 @@ fn reference_id<'a>(reference: &'a str, resource_type: &str) -> Option<&'a str> 
         .filter(|id| !id.is_empty())
 }
 
-/// The patients a run is limited to: `None` without `patient` or `group`, else the ids of the
-/// Patients every given parameter allows. Both are limits, so with both a run covers only the
-/// `patient` and only if it is in a group. An empty list means no resource qualifies.
-async fn patient_scope<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
-    input: &ViewDefinitionRun::Input,
-) -> Result<Option<Vec<String>>, OperationOutcomeError> {
-    let patient = match input.patient.as_ref() {
-        Some(reference) => Some(existing_patient(context.clone(), client, reference).await?),
-        None => None,
-    };
-    let members = match input.group.as_deref() {
-        Some(groups) if !groups.is_empty() => Some(group_members(context, client, groups).await?),
-        _ => None,
-    };
+/// Reads the current version of each `(type, id)` in one round trip, leaving out the keys that
+/// don't resolve. The server backs it with the repository's batch read, so a run's `patient` and
+/// `group` lookups cost one query however many Groups are given.
+pub type ReadMany<CTX> = Arc<
+    dyn Fn(
+            CTX,
+            Vec<(ResourceType, String)>,
+        ) -> BoxFuture<'static, Result<Vec<Resource>, OperationOutcomeError>>
+        + Send
+        + Sync,
+>;
 
-    Ok(match (patient, members) {
-        (None, None) => None,
-        (Some(patient), None) => Some(vec![patient]),
-        (None, Some(members)) => Some(members),
-        (Some(patient), Some(members)) => Some(
-            members
-                .into_iter()
-                .filter(|member| *member == patient)
-                .collect(),
-        ),
-    })
-}
+/// Keys one batch read takes.
+const SCOPE_KEYS_PER_READ: usize = 1000;
 
-/// The id of the Patient `reference` names, refused when the server doesn't have it.
-async fn existing_patient<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
-    context: CTX,
-    client: &Client,
+/// The id the scope `parameter` names, refused when it isn't a reference to `resource_type`.
+fn scope_id(
+    parameter: &str,
     reference: &Reference,
+    resource_type: &ResourceType,
 ) -> Result<String, OperationOutcomeError> {
     let value = reference_value(reference)?;
-    let id = reference_id(&value, ResourceType::Patient.as_ref()).ok_or_else(|| {
-        invalid(format!(
-            "'patient' must reference a Patient, not '{value}'."
-        ))
-    })?;
-
-    match client
-        .read(context, ResourceType::Patient, id.to_string())
-        .await?
-    {
-        Some(_) => Ok(id.to_string()),
-        None => Err(invalid(format!("Patient with id '{id}' not found."))),
-    }
+    reference_id(&value, resource_type.as_ref())
+        .map(str::to_string)
+        .ok_or_else(|| {
+            invalid(format!(
+                "'{parameter}' must reference a {}, not '{value}'.",
+                resource_type.as_ref()
+            ))
+        })
 }
 
-/// The ids of the Patients in any of `groups`, sorted and without repeats. A Group the server
-/// doesn't have is refused. Members that aren't Patients are left out: only the Patient
-/// compartment is supported.
-async fn group_members<
-    CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
->(
+/// The patients a run is limited to: `None` without `patient` or `group` (or with resources sent
+/// inline), else the ids of the Patients every given parameter allows. Both are limits, so with
+/// both a run covers only the `patient` and only if it is in a group. An empty list means no
+/// resource qualifies.
+///
+/// The Patient and the Groups are read in one batch; one the server doesn't have is refused.
+/// Members that aren't Patients are left out: only the Patient compartment is supported.
+async fn patient_scope<CTX: Clone>(
     context: CTX,
-    client: &Client,
-    groups: &[Reference],
-) -> Result<Vec<String>, OperationOutcomeError> {
-    let mut members = Vec::new();
-
-    for reference in groups {
-        let value = reference_value(reference)?;
-        let id = reference_id(&value, ResourceType::Group.as_ref())
-            .ok_or_else(|| invalid(format!("'group' must reference a Group, not '{value}'.")))?;
-
-        let Some(Resource::Group(group)) = client
-            .read(context.clone(), ResourceType::Group, id.to_string())
-            .await?
-        else {
-            return Err(invalid(format!("Group with id '{id}' not found.")));
-        };
-
-        members.extend(group.member.into_iter().flatten().filter_map(|member| {
-            let entity = member.entity.reference?.value?;
-            reference_id(&entity, ResourceType::Patient.as_ref()).map(str::to_string)
-        }));
+    read_many: &ReadMany<CTX>,
+    input: &ViewDefinitionRun::Input,
+) -> Result<Option<Vec<String>>, OperationOutcomeError> {
+    if input.resource.is_some() {
+        return Ok(None);
     }
 
+    let patient = input
+        .patient
+        .as_ref()
+        .map(|reference| scope_id("patient", reference, &ResourceType::Patient))
+        .transpose()?;
+    let groups = input
+        .group
+        .iter()
+        .flatten()
+        .map(|reference| scope_id("group", reference, &ResourceType::Group))
+        .collect::<Result<Vec<_>, _>>()?;
+    if patient.is_none() && groups.is_empty() {
+        return Ok(None);
+    }
+
+    let keys = patient
+        .iter()
+        .map(|id| (ResourceType::Patient, id.clone()))
+        .chain(groups.iter().map(|id| (ResourceType::Group, id.clone())))
+        .collect::<Vec<_>>();
+    let mut found = HashMap::new();
+    for chunk in keys.chunks(SCOPE_KEYS_PER_READ) {
+        for resource in read_many(context.clone(), chunk.to_vec()).await? {
+            if let Some(id) = resource.id().clone() {
+                found.insert((resource.resource_type(), id), resource);
+            }
+        }
+    }
+
+    if let Some(id) = &patient
+        && !found.contains_key(&(ResourceType::Patient, id.clone()))
+    {
+        return Err(invalid(format!("Patient with id '{id}' not found.")));
+    }
+
+    let mut members = Vec::new();
+    for id in &groups {
+        let Some(Resource::Group(group)) = found.get(&(ResourceType::Group, id.clone())) else {
+            return Err(invalid(format!("Group with id '{id}' not found.")));
+        };
+        members.extend(group.member.iter().flatten().filter_map(|member| {
+            let entity = member.entity.reference.as_ref()?.value.as_ref()?;
+            reference_id(entity, ResourceType::Patient.as_ref()).map(str::to_string)
+        }));
+    }
     members.sort_unstable();
     members.dedup();
 
-    Ok(members)
+    Ok(Some(match patient {
+        Some(patient) if groups.is_empty() => vec![patient],
+        Some(patient) => members
+            .into_iter()
+            .filter(|member| *member == patient)
+            .collect(),
+        None => members,
+    }))
 }
 
 async fn resolve_view_definition<
@@ -374,7 +385,7 @@ fn count_read(
 }
 
 /// The view's rows: over the resources sent with the request, else over the server's data,
-/// limited by `patient`, `group` and `_since`.
+/// limited to the patients of `scope` (see [`patient_scope`]) and to `_since`.
 async fn view_rows<
     'v,
     CTX: Send + Sync + Clone + 'static,
@@ -384,6 +395,7 @@ async fn view_rows<
     client: &Client,
     run: &Run<'v>,
     input: &ViewDefinitionRun::Input,
+    scope: Option<Vec<String>>,
 ) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let mut rows = Vec::new();
 
@@ -394,7 +406,7 @@ async fn view_rows<
 
     let since = input.since.as_ref().and_then(|since| since.value.as_ref());
 
-    match patient_scope(context.clone(), client, input).await? {
+    match scope {
         None => rows_from_history(context, client, run, since, &mut rows).await?,
         Some(patients) => {
             rows_from_compartments(context, client, run, &patients, since, &mut rows).await?;
@@ -1025,6 +1037,7 @@ async fn process_view_definition<
     client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
+    scope: Option<Vec<String>>,
     limits: RunLimits,
 ) -> Result<Binary, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
@@ -1043,7 +1056,7 @@ async fn process_view_definition<
         limits,
     };
 
-    let results = view_rows(context, client.as_ref(), &run, input).await?;
+    let results = view_rows(context, client.as_ref(), &run, input, scope).await?;
 
     let include_header = input
         .header
@@ -1093,6 +1106,9 @@ async fn process_view_definition<
 ///
 /// A run that would pass `limits` is refused with `too-costly`.
 ///
+/// The view is read through `client`; the `patient` and `group` resources that scope the run
+/// through `read_many`, in one batch.
+///
 /// # Errors
 ///
 /// Returns [`OperationOutcomeError`] if a parameter is refused, the view definition cannot be
@@ -1103,6 +1119,7 @@ pub async fn view_definition_run<
 >(
     context: CTX,
     client: Arc<Client>,
+    read_many: &ReadMany<CTX>,
     input: &ViewDefinitionRun::Input,
     limits: RunLimits,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
@@ -1115,15 +1132,20 @@ pub async fn view_definition_run<
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
         .unwrap_or(OutputFormatCodes::ndjson());
 
-    let view_definition =
-        Arc::new(resolve_view_definition(context.clone(), client.as_ref(), input).await?);
+    // The view and the scope don't depend on each other, so they are looked up at once.
+    let (view_definition, scope) = try_join(
+        resolve_view_definition(context.clone(), client.as_ref(), input),
+        patient_scope(context.clone(), read_many, input),
+    )
+    .await?;
 
     let output = process_view_definition(
         context,
         &output_format,
         client,
-        view_definition.as_ref(),
+        &view_definition,
         input,
+        scope,
         limits,
     )
     .await?;
