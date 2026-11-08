@@ -50,24 +50,6 @@ testEndsWithNonString1
 # testContainsString
 testContainsNonString1
 
-# testMatches
-testMatchesFullWithinUrl1
-testMatchesFullWithinUrl3
-testMatchesFullWithinUrl4
-testMatchesFullWithinUrl1a
-testMatchesFullWithinUrl2
-
-# testEncodeDecode
-
-# testEscapeUnescape
-testEscapeHtml
-testEscapeJson
-testUnescapeHtml
-testUnescapeJson
-testUnescapeJson2
-testUnescapeJson3
-testUnescapeJson4
-
 # testSort
 testSort10
 
