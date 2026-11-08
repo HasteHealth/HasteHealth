@@ -2,7 +2,7 @@
 
 Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get, delete and list by key prefix); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
 
-The Haste Health server uses it through [`haste-repository`](https://crates.io/crates/haste-repository) to keep large `Binary.data` out of the resource rows: the content goes to document storage under `<tenant>/<project>/Binary/<id>/<versionId>` and is put back on every read. By default that storage is the `postgres` backend in the repository database.
+The Haste Health server uses it to keep large `Binary.data` out of the resource rows: a layer of its FHIR pipeline moves the content to document storage under `<tenant>/<project>/Binary/<document id>` on the way in and puts it back on the way out, so the repository only ever stores row-sized Binaries. By default that storage is the `postgres` backend in the repository database.
 
 ## Install
 

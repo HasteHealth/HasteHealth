@@ -91,10 +91,10 @@ With `backend = "elasticsearch"`:
 
 On by default. `Binary.data` of at least `binary_min_bytes` bytes (after base64
 decoding) is written to document storage instead of the resource row, under
-`<tenant>/<project>/Binary/<id>/<versionId>`, and put back on every read (read,
-vread, history, search and `_include`), so clients see no difference. Smaller
-content stays in the row. Every version keeps its own document, and a delete
-leaves earlier versions' documents in place.
+`<tenant>/<project>/Binary/<document id>`, and put back on every read (read,
+vread, history and search), so clients see no difference. Smaller content stays
+in the row. Every version keeps its own document, and a delete leaves earlier
+versions' documents in place.
 
 Tagged by `backend`:
 

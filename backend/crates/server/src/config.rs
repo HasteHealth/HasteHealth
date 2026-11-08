@@ -1,6 +1,7 @@
+use crate::document_storage::DocumentStorageConfig;
 use derivative::Derivative;
 use haste_fhir_search::config::SearchConfig;
-use haste_repository::config::{DocumentStorageConfig, RepoConfig};
+use haste_repository::config::RepoConfig;
 use haste_worker::async_jobs::AsyncJobWorkerConfig;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, time::Duration};

@@ -10,11 +10,6 @@ homepage = { workspace = true }
 rate-limit = []
 
 [dependencies]
-haste-document-storage = { path = "../document-storage", version = "0.*", default-features = false, features = [
-    "filesystem",
-    "gcs",
-    "postgres",
-] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
     "sqlx",
@@ -28,9 +23,7 @@ haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-subscription = { path = "../subscription", version = "0.*" }
 
 argon2 = { workspace = true }
-base64 = { workspace = true, features = ["alloc"] }
 chrono = { workspace = true }
-futures-util = { version = "0.3.34", default-features = false, features = ["alloc"] }
 moka = { workspace = true, features = ["future"] }
 nanoid = { version = "0.4.0", default-features = false }
 regex = { workspace = true }
@@ -44,7 +37,6 @@ sqlx = { workspace = true, features = [
 ] }
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-tracing = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }

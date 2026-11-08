@@ -2764,10 +2764,7 @@ name = "haste-repository"
 version = "0.129.4"
 dependencies = [
  "argon2",
- "base64 0.22.1",
  "chrono",
- "futures-util",
- "haste-document-storage",
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -2783,7 +2780,6 @@ dependencies = [
  "sqlx",
  "sqlx-postgres",
  "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -2811,8 +2807,10 @@ dependencies = [
  "derivative",
  "dotenvy",
  "email_address",
+ "futures-util",
  "haste-access-control",
  "haste-artifacts",
+ "haste-document-storage",
  "haste-encryption",
  "haste-fhir-client",
  "haste-fhir-generated-ops",

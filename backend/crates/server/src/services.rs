@@ -1,4 +1,5 @@
 use crate::config::{SecretProviderConfig, ServerConfig};
+use crate::document_storage::{self, BinaryStorage};
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -74,6 +75,8 @@ pub struct ServerState<
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub secret_provider: Arc<dyn haste_encryption::SecretsProvider + Send + Sync>,
     pub config: Arc<crate::config::ServerConfig>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    pub binary_storage: Option<BinaryStorage>,
 }
 
 impl<
@@ -91,14 +94,18 @@ impl<
                 repo: tx_repo.clone(),
                 rate_limit: self.rate_limit.clone(),
                 secret_provider: self.secret_provider.clone(),
-                fhir_client: Arc::new(FHIRServerClient::new(ServerClientConfig::new(
-                    tx_repo,
-                    self.search.clone(),
-                    self.terminology.clone(),
-                    self.config.clone(),
-                    self.fhir_client.deno_pool(),
-                ))),
+                fhir_client: Arc::new(FHIRServerClient::new(
+                    ServerClientConfig::new(
+                        tx_repo,
+                        self.search.clone(),
+                        self.terminology.clone(),
+                        self.config.clone(),
+                        self.fhir_client.deno_pool(),
+                    )
+                    .with_binary_storage(self.binary_storage.clone()),
+                )),
                 config: self.config.clone(),
+                binary_storage: self.binary_storage.clone(),
             }
         })
     }
@@ -117,29 +124,6 @@ impl<
 }
 
 pub use haste_fhir_search::config::SearchEngineBackend;
-
-/// The repository over the shared pool, with document storage when it is
-/// configured.
-///
-/// # Errors
-///
-/// Returns an error when document storage cannot be set up.
-pub async fn repo_with_document_storage(
-    config: &ServerConfig,
-) -> Result<PGConnection, OperationOutcomeError> {
-    let repo = PGConnection::pool(get_pool(config).await.clone());
-    Ok(
-        match haste_repository::config::connect_binary_storage(
-            &config.document_storage,
-            &config.repo,
-        )
-        .await?
-        {
-            Some(storage) => repo.with_binary_storage(storage),
-            None => repo,
-        },
-    )
-}
 
 /// The services of the HTTP server. Owns the search index's shape: this is the
 /// one place that may migrate it.
@@ -172,7 +156,8 @@ async fn build_services(
     Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
-    let pool = Arc::new(repo_with_document_storage(config.as_ref()).await?);
+    let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
+    let binary_storage = document_storage::connect(config.as_ref()).await?;
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
@@ -206,11 +191,13 @@ async fn build_services(
             Some(pool.clone())
         } else {
             None
-        }),
+        })
+        .with_binary_storage(binary_storage.clone()),
     ));
 
     let shared_state = Arc::new(ServerState {
         config: config.clone(),
+        binary_storage,
         rate_limit: pool.clone(),
         repo: pool,
         terminology,

@@ -127,6 +127,22 @@ fn kept_fields(subsetting: &Subsetting) -> Option<Vec<&str>> {
     }
 }
 
+/// Whether the response to `request` keeps the top-level `element` of each
+/// match once `_elements` and `_summary` are applied. True for a request
+/// without them.
+#[must_use]
+pub fn keeps_element(request: &FHIRRequest, element: &str) -> bool {
+    let Some(subsetting) =
+        get_summary_element_parameter(request).and_then(|parameters| subsetting(&parameters))
+    else {
+        return true;
+    };
+    if matches!(subsetting, Subsetting::Summary(SummaryMode::Count)) {
+        return false;
+    }
+    kept_fields(&subsetting).is_none_or(|fields| fields.contains(&element))
+}
+
 const SUBSETTED_SYSTEM: &str = "http://terminology.hl7.org/CodeSystem/v3-ObservationValue";
 const SUBSETTED_CODE: &str = "SUBSETTED";
 

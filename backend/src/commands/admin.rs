@@ -20,6 +20,7 @@ use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::{
     admin::{Migrate, TenantModelAdmin},
+    pg::PGConnection,
     types::user::{AuthMethod, CreateUser, UserSearchClauses},
 };
 use haste_server::{
@@ -28,6 +29,7 @@ use haste_server::{
         oidc::utilities::{revoke_refresh_tokens, set_user_password},
     },
     config::ServerConfig,
+    document_storage,
     fhir_client::ServerCTX,
     load_artifacts::{self, reset_artifacts},
     services,
@@ -214,8 +216,7 @@ pub(crate) enum UserCommands {
 async fn migrate_repo(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config.clone()).await?;
     services.repo.migrate().await?;
-    haste_repository::config::migrate_document_storage(&config.document_storage, &config.repo)
-        .await?;
+    document_storage::migrate(&config).await?;
     Ok(())
 }
 
@@ -578,20 +579,21 @@ async fn sweep_document_storage(
     older_than_hours: u64,
     dry_run: bool,
 ) -> Result<(), OperationOutcomeError> {
-    let repo = services::repo_with_document_storage(config).await?;
-    if repo.binary_storage().is_none() {
+    let Some(storage) = document_storage::connect(config).await? else {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
             "Document storage is off ([document_storage] backend = \"none\").".to_string(),
         ));
-    }
+    };
+    let repo = PGConnection::pool(services::get_pool(config).await.clone());
 
-    let report = repo
-        .sweep_binary_documents(
-            std::time::Duration::from_secs(older_than_hours.saturating_mul(60 * 60)),
-            dry_run,
-        )
-        .await?;
+    let report = document_storage::sweep(
+        &repo,
+        &storage,
+        std::time::Duration::from_secs(older_than_hours.saturating_mul(60 * 60)),
+        dry_run,
+    )
+    .await?;
     println!(
         "{}",
         serde_json::to_string_pretty(&report)
