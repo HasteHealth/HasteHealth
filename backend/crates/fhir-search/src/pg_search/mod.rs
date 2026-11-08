@@ -60,7 +60,7 @@ pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'sta
 }
 
 /// Built once per process; it walks every HL7 `SearchParameter`.
-static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
+pub(crate) static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
         SupportedFHIRVersions::R4,
         &R4_SEARCH_PARAMETERS_INDEX.all_parameters(),

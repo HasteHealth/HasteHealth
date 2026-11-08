@@ -478,6 +478,12 @@ async fn string_functions() {
     assert_evaluates("'abc'.matches('[0-9]')", &["false"]).await;
     assert_evaluates("{}.matches('a')", &[]).await;
     assert_errors("'abc'.matches('(')").await;
+    assert_evaluates("'N8000123123'.matchesFull('N[0-9]{8}')", &["false"]).await;
+    assert_evaluates("'N8000123123'.matchesFull('N[0-9]{10}')", &["true"]).await;
+    assert_evaluates("'abc'.matchesFull('^abc$')", &["true"]).await;
+    assert_evaluates("'abc'.matchesFull('a|abc')", &["true"]).await;
+    assert_evaluates("{}.matchesFull('a')", &[]).await;
+    assert_errors("'abc'.matchesFull('(')").await;
     // An R4 invariant's pattern, whose \\. is a FHIRPath escape for the regex \.
     let identifier =
         r"'Patient.name'.matches('[A-Za-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*(\\[x])?)*')";
