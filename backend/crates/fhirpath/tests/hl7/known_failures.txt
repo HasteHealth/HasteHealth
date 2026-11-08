@@ -185,10 +185,6 @@ Comparable3
 
 # Precision
 PrecisionDecimal
-PrecisionYear
-PrecisionDateTimeMilliseconds
-PrecisionTimeMinutes
-PrecisionTimeMilliseconds
 
 # polymorphics
 testPolymorphicsB
