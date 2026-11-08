@@ -1637,13 +1637,10 @@ async fn evaluate_string_function<'a>(
             };
             string_result(&context, input.replace(&pattern, &substitution))
         }
-        "matches" | "matchesFull" => {
-            let Some(pattern) = string_argument(0)? else {
-                return Ok(empty);
-            };
-            let full = name == "matchesFull";
-            boolean_result(&context, pattern_matches(&input, &pattern, full)?)
-        }
+        "matches" | "matchesFull" => string_argument(0)?
+            .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
+            .transpose()?
+            .map_or(empty, |matched| boolean_result(&context, matched)),
         "replaceMatches" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
