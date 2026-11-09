@@ -172,6 +172,7 @@ the resource did not exist.
   permissions it names, because a search parameter can bound what a search returns, not what is
   written.
 - The query needs a resource type: `patient/*.rs?category=...` is rejected.
+- The permissions are the v2 letters: `patient/Observation.read?category=...` is rejected.
 
 A client application lists the granular scopes it may request in its `scope`, like any other scope,
 and the consent screen shows them as written. The token response's `scope` returns them unchanged.

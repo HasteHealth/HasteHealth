@@ -557,6 +557,17 @@ impl TryFrom<&str> for SmartScope {
                         ),
                     ));
                 }
+                // Granular scopes are SMART App Launch 2.x, whose permissions
+                // are letters; a v1 word with a query is in neither grammar.
+                if !constraints.is_empty() && permissions.syntax == PermissionSyntax::V1 {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::not_supported(),
+                        format!(
+                            "Invalid smart resource scope: '{value}'. Search parameters need v2 permissions (letters of 'cruds'), not '{}'.",
+                            permissions_parts[1]
+                        ),
+                    ));
+                }
 
                 Ok(SmartScope::Resource(SMARTResourceScope {
                     user,
@@ -782,6 +793,9 @@ mod tests {
         assert!(Scopes::try_from("patient/Observation.rs?category=").is_err());
         assert!(Scopes::try_from("patient/Observation.rs?").is_err());
         assert!(Scopes::try_from("patient/*.rs?category=laboratory").is_err());
+        // v1 permissions (`read`, `write`, `*`) have no query syntax.
+        assert!(Scopes::try_from("patient/Observation.read?category=laboratory").is_err());
+        assert!(Scopes::try_from("patient/Observation.*?category=laboratory").is_err());
     }
 
     #[test]

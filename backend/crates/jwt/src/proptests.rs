@@ -58,11 +58,18 @@ fn resource_scope() -> impl Strategy<Value = String> {
         prop_oneof![3 => Just(String::new()), 1 => query()],
     )
         .prop_map(|(user, level, permissions, query)| {
-            // A query needs a resource type, not `*`.
-            let level = if query.is_empty() {
-                level
+            // A query needs a resource type, not `*`, and v2 permissions
+            // (letters), not a v1 word.
+            let (level, permissions) = if query.is_empty() {
+                (level, permissions)
             } else {
-                "Observation"
+                let letters = match permissions.as_str() {
+                    "*" => "cruds",
+                    "read" => "rs",
+                    "write" => "cud",
+                    letters => letters,
+                };
+                ("Observation", letters.to_string())
             };
             format!("{user}/{level}.{permissions}{query}")
         })
