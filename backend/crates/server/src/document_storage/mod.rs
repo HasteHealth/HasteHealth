@@ -54,7 +54,7 @@ pub const MARKER_URL: &str = "https://haste.health/document-storage";
 /// that is `Binary.data` of at least `binary_min_bytes` bytes.
 ///
 /// The backend is named by a `backend` field, next to its own settings. The
-/// default is `postgres`: tables in the repository database, so a deployment
+/// default is `postgres`: a table in the repository database, so a deployment
 /// needs nothing beyond the database it already has. `none` keeps all content
 /// in the resource rows.
 ///
@@ -88,7 +88,7 @@ pub struct DocumentStorageConfig {
 pub enum DocumentBackend {
     /// All content stays in the database.
     None,
-    /// Tables in a PostgreSQL database: the repository database unless
+    /// A table in a PostgreSQL database: the repository database unless
     /// `database_url` names another.
     Postgres(PostgresConfig),
     /// A directory on a local or mounted filesystem.
@@ -190,7 +190,7 @@ pub async fn connect(
     )))
 }
 
-/// Creates or updates the Postgres backend's tables. Other backends need no
+/// Creates or updates the Postgres backend's table. Other backends need no
 /// migration.
 ///
 /// # Errors

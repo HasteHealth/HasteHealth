@@ -87,7 +87,7 @@ A document belongs to the tenant and project of its resource and is named `Binar
 
 Tagged by `backend`:
 
-- `postgres` (the default): two tables in the repository database (`document_storage`, and `document_storage_chunks` with the content in rows of at most 1 MiB), so a deployment needs nothing beyond the database it already has. `haste-health admin migrate repo` (or `migrate all`) creates them; until it has run, writing a Binary over the threshold fails with an error naming that command. `database_url` puts them in another database; in the repository database, deleting a project deletes its documents with it.
+- `postgres` (the default): one table in the repository database (`document_storage`, with the content in a `bytea` column), so a deployment needs nothing beyond the database it already has. `haste-health admin migrate repo` (or `migrate all`) creates it; until it has run, writing a Binary over the threshold fails with an error naming that command. `database_url` puts it in another database; in the repository database, deleting a project deletes its documents with it.
 - `filesystem`: a directory, for development, tests and single-node deployments.
 - `gcs`: a Google Cloud Storage bucket.
 - `none`: all content stays in the resource rows.

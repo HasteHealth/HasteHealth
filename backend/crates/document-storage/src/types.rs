@@ -1,6 +1,7 @@
 use std::{
     collections::BTreeMap,
     fmt::{self, Debug, Display},
+    future::ready,
     pin::Pin,
     str::FromStr,
     task::{Context, Poll},
@@ -8,7 +9,7 @@ use std::{
 
 use bytes::{Bytes, BytesMut};
 use futures_core::Stream;
-use futures_util::StreamExt as _;
+use futures_util::{StreamExt as _, stream};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use time::OffsetDateTime;
@@ -213,6 +214,12 @@ impl DocumentBody {
         S: Stream<Item = Result<Bytes, StorageError>> + Send + 'static,
     {
         Self(Box::pin(stream))
+    }
+
+    /// A body that is already in memory.
+    #[must_use]
+    pub fn from_bytes(bytes: impl Into<Bytes>) -> Self {
+        Self::from_stream(stream::once(ready(Ok(bytes.into()))))
     }
 
     /// Reads the whole body into memory. Check [`DocumentMetadata::size`]

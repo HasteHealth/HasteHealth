@@ -93,7 +93,7 @@ pub enum DocumentStorageKind {
 }
 
 /// Builds the configured backend and verifies that it can authenticate. The
-/// Postgres backend's tables must already exist (see
+/// Postgres backend's table must already exist (see
 /// [`providers::postgres::PostgresDocumentStorage::migrate`]).
 ///
 /// # Errors

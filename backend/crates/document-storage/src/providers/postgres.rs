@@ -1,14 +1,13 @@
-//! Tables in a PostgreSQL database.
+//! One table in a PostgreSQL database.
 //!
 //! A document is a row of `document_storage` keyed by tenant, project and
-//! name (size, content type, metadata), and its body is spread over rows of
-//! `document_storage_chunks`, at most 1 MiB each, so a reader can stream it
-//! and no single value comes near Postgres's 1 GB limit. Every put takes a new
-//! generation from a sequence and stores its chunks under it; a get reads the
-//! generation first and then only that generation's chunks, the same way the
-//! GCS backend pins an object generation.
+//! name, with its body in a `bytea` column that Postgres keeps out of line. A
+//! put is one upsert and a get one select, so a reader never sees part of one
+//! body and part of its replacement. The body travels whole in both
+//! directions, as the Binary content layer handles it anyway; one Postgres
+//! value holds less than 1 GiB.
 //!
-//! The tables come from this crate's migrations, run with
+//! The table comes from this crate's migrations, run with
 //! [`PostgresDocumentStorage::migrate`]. Their bookkeeping table is
 //! `_document_storage_migrations`, so they can share a database with another
 //! application's sqlx migrations. In the Haste Health repository database the
@@ -20,8 +19,6 @@ use std::{
     fmt::{self, Debug},
 };
 
-use bytes::Bytes;
-use futures_util::stream;
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, postgres::PgPoolOptions, types::Json};
 use time::OffsetDateTime;
@@ -35,8 +32,8 @@ use crate::{
     },
 };
 
-/// Largest chunk of a body stored in one row.
-const CHUNK_SIZE: usize = 1024 * 1024;
+/// A body must be smaller than this: the most one Postgres value can hold.
+const MAX_BODY_BYTES: u64 = 1 << 30;
 /// Documents per listing page when the request names no size, and the most
 /// one page holds.
 const MAX_PAGE_SIZE: i64 = 1000;
@@ -83,35 +80,33 @@ impl Debug for PostgresConfig {
     }
 }
 
-/// [`DocumentStorage`] over two tables of a PostgreSQL database.
+/// [`DocumentStorage`] over one table of a PostgreSQL database.
 pub struct PostgresDocumentStorage {
     pool: PgPool,
 }
 
 /// The `document_storage` columns that make up a document's metadata, after
-/// the scope the query was filtered by.
+/// the scope the query was filtered by: name, body size (`octet_length`, an
+/// `integer`), content type, metadata, `updated_at`.
 type MetadataRow = (
     String,
-    i64,
-    i64,
-    Option<String>,
-    Json<BTreeMap<String, String>>,
-    OffsetDateTime,
-);
-
-/// What a read needs of `document_storage`, with the first chunk of the body.
-type ReadRow = (
-    i64,
-    i64,
     i32,
     Option<String>,
     Json<BTreeMap<String, String>>,
     OffsetDateTime,
-    Option<Vec<u8>>,
+);
+
+/// What a read needs of `document_storage`: content type, metadata,
+/// `updated_at`, body.
+type ReadRow = (
+    Option<String>,
+    Json<BTreeMap<String, String>>,
+    OffsetDateTime,
+    Vec<u8>,
 );
 
 impl PostgresDocumentStorage {
-    /// Opens a connection pool. The tables need not exist yet, so this also
+    /// Opens a connection pool. The table need not exist yet, so this also
     /// serves to run [`Self::migrate`].
     ///
     /// # Errors
@@ -136,7 +131,7 @@ impl PostgresDocumentStorage {
         Ok(Self { pool })
     }
 
-    /// Creates or updates the tables.
+    /// Creates or updates the table.
     ///
     /// # Errors
     ///
@@ -158,86 +153,43 @@ impl DocumentStorage for PostgresDocumentStorage {
         document: Document,
     ) -> StorageFuture<'a, DocumentMetadata> {
         Box::pin(async move {
-            let too_large = || StorageError::InvalidDocument("body is too large".to_string());
-            let size = i64::try_from(document.body.len()).map_err(|_| too_large())?;
-            let chunks =
-                i32::try_from(document.body.len().div_ceil(CHUNK_SIZE)).map_err(|_| too_large())?;
-            let (tenant, project) = (scope.tenant().as_ref(), scope.project().as_ref());
+            let size = u64::try_from(document.body.len()).unwrap_or(u64::MAX);
+            if size >= MAX_BODY_BYTES {
+                return Err(StorageError::InvalidDocument(format!(
+                    "body of {size} bytes is too large; one Postgres value holds less than \
+                     {MAX_BODY_BYTES} bytes"
+                )));
+            }
 
-            let mut tx = self.pool.begin().await.map_err(database_error)?;
-            // Takes the row lock first, so concurrent puts of one document
-            // run one after the other. `xmax = 0` tells a new row from a
-            // replaced one.
-            let (generation, inserted, updated_at): (i64, bool, OffsetDateTime) = sqlx::query_as(
+            let updated_at: OffsetDateTime = sqlx::query_scalar(
                 r"
                     INSERT INTO document_storage
-                        (tenant, project, name, generation, size, chunks, content_type,
-                         metadata, updated_at)
-                    VALUES ($1, $2, $3, nextval('document_storage_generations'), $4, $5, $6,
-                            $7, now())
+                        (tenant, project, name, content_type, metadata, updated_at, body)
+                    VALUES ($1, $2, $3, $4, $5, now(), $6)
                     ON CONFLICT (tenant, project, name) DO UPDATE SET
-                        generation = EXCLUDED.generation,
-                        size = EXCLUDED.size,
-                        chunks = EXCLUDED.chunks,
                         content_type = EXCLUDED.content_type,
                         metadata = EXCLUDED.metadata,
-                        updated_at = EXCLUDED.updated_at
-                    RETURNING generation, (xmax = 0), updated_at
+                        updated_at = EXCLUDED.updated_at,
+                        body = EXCLUDED.body
+                    RETURNING updated_at
                 ",
             )
-            .bind(tenant)
-            .bind(project)
+            .bind(scope.tenant().as_ref())
+            .bind(scope.project().as_ref())
             .bind(name.as_str())
-            .bind(size)
-            .bind(chunks)
             .bind(document.content_type.as_deref())
             .bind(Json(&document.metadata))
-            .fetch_one(&mut *tx)
+            .bind(document.body.as_ref())
+            .fetch_one(&self.pool)
             .await
             .map_err(database_error)?;
-
-            for (index, chunk) in (0..chunks).zip(document.body.chunks(CHUNK_SIZE)) {
-                sqlx::query(
-                    r"
-                        INSERT INTO document_storage_chunks
-                            (tenant, project, name, generation, chunk, data)
-                        VALUES ($1, $2, $3, $4, $5, $6)
-                    ",
-                )
-                .bind(tenant)
-                .bind(project)
-                .bind(name.as_str())
-                .bind(generation)
-                .bind(index)
-                .bind(chunk)
-                .execute(&mut *tx)
-                .await
-                .map_err(database_error)?;
-            }
-
-            if !inserted {
-                sqlx::query(
-                    r"
-                        DELETE FROM document_storage_chunks
-                        WHERE tenant = $1 AND project = $2 AND name = $3 AND generation <> $4
-                    ",
-                )
-                .bind(tenant)
-                .bind(project)
-                .bind(name.as_str())
-                .bind(generation)
-                .execute(&mut *tx)
-                .await
-                .map_err(database_error)?;
-            }
-            tx.commit().await.map_err(database_error)?;
 
             Ok(DocumentMetadata {
                 scope: scope.clone(),
                 name: name.clone(),
-                size: size.unsigned_abs(),
+                size,
                 content_type: document.content_type,
-                etag: Some(format!("{generation:x}")),
+                etag: Some(etag(size, updated_at)),
                 last_modified: Some(updated_at),
                 metadata: document.metadata,
             })
@@ -252,7 +204,7 @@ impl DocumentStorage for PostgresDocumentStorage {
         Box::pin(async move {
             let row: Option<MetadataRow> = sqlx::query_as(
                 r"
-                    SELECT name, generation, size, content_type, metadata, updated_at
+                    SELECT name, octet_length(body), content_type, metadata, updated_at
                     FROM document_storage
                     WHERE tenant = $1 AND project = $2 AND name = $3
                 ",
@@ -274,18 +226,11 @@ impl DocumentStorage for PostgresDocumentStorage {
         name: &'a DocumentName,
     ) -> StorageFuture<'a, StoredDocument> {
         Box::pin(async move {
-            let subject = format!("{scope}/{name}");
-            // The metadata and the first chunk in one round trip, which is
-            // the whole body for most documents.
             let row: Option<ReadRow> = sqlx::query_as(
                 r"
-                    SELECT d.generation, d.size, d.chunks, d.content_type, d.metadata,
-                           d.updated_at, c.data
-                    FROM document_storage d
-                    LEFT JOIN document_storage_chunks c
-                        ON c.tenant = d.tenant AND c.project = d.project AND c.name = d.name
-                       AND c.generation = d.generation AND c.chunk = 0
-                    WHERE d.tenant = $1 AND d.project = $2 AND d.name = $3
+                    SELECT content_type, metadata, updated_at, body
+                    FROM document_storage
+                    WHERE tenant = $1 AND project = $2 AND name = $3
                 ",
             )
             .bind(scope.tenant().as_ref())
@@ -294,67 +239,21 @@ impl DocumentStorage for PostgresDocumentStorage {
             .fetch_optional(&self.pool)
             .await
             .map_err(database_error)?;
+            let (content_type, metadata, updated_at, body) =
+                row.ok_or_else(|| StorageError::NotFound(format!("{scope}/{name}")))?;
 
-            let Some((generation, size, chunks, content_type, metadata, updated_at, first)) = row
-            else {
-                return Err(StorageError::NotFound(subject));
-            };
-            if chunks > 0 && first.is_none() {
-                // Replaced between the two reads of the join.
-                return Err(StorageError::NotFound(subject));
-            }
-
-            let state = ChunkReader {
-                pool: self.pool.clone(),
-                scope: scope.clone(),
-                name: name.clone(),
-                generation,
-                next: 1,
-                chunks,
-                first: first.map(Bytes::from),
-            };
-            let body = stream::try_unfold(state, |mut state| async move {
-                if let Some(first) = state.first.take() {
-                    return Ok(Some((first, state)));
-                }
-                if state.next >= state.chunks {
-                    return Ok(None);
-                }
-                let data: Option<Vec<u8>> = sqlx::query_scalar(
-                    r"
-                        SELECT data FROM document_storage_chunks
-                        WHERE tenant = $1 AND project = $2 AND name = $3
-                          AND generation = $4 AND chunk = $5
-                    ",
-                )
-                .bind(state.scope.tenant().as_ref())
-                .bind(state.scope.project().as_ref())
-                .bind(state.name.as_str())
-                .bind(state.generation)
-                .bind(state.next)
-                .fetch_optional(&state.pool)
-                .await
-                .map_err(database_error)?;
-                // A missing chunk means the document was replaced or deleted
-                // while it was being read.
-                let data = data.ok_or_else(|| {
-                    StorageError::NotFound(format!("{}/{}", state.scope, state.name))
-                })?;
-                state.next += 1;
-                Ok(Some((Bytes::from(data), state)))
-            });
-
+            let size = u64::try_from(body.len()).unwrap_or(u64::MAX);
             Ok(StoredDocument {
                 metadata: DocumentMetadata {
                     scope: scope.clone(),
                     name: name.clone(),
-                    size: u64::try_from(size).unwrap_or_default(),
+                    size,
                     content_type,
-                    etag: Some(format!("{generation:x}")),
+                    etag: Some(etag(size, updated_at)),
                     last_modified: Some(updated_at),
                     metadata: metadata.0,
                 },
-                body: DocumentBody::from_stream(body),
+                body: DocumentBody::from_bytes(body),
             })
         })
     }
@@ -365,7 +264,6 @@ impl DocumentStorage for PostgresDocumentStorage {
         name: &'a DocumentName,
     ) -> StorageFuture<'a, ()> {
         Box::pin(async move {
-            // The chunks go with the row through their foreign key.
             sqlx::query(
                 "DELETE FROM document_storage WHERE tenant = $1 AND project = $2 AND name = $3",
             )
@@ -392,7 +290,7 @@ impl DocumentStorage for PostgresDocumentStorage {
             // One range of the primary key, from the token on.
             let mut rows: Vec<MetadataRow> = sqlx::query_as(
                 r"
-                    SELECT name, generation, size, content_type, metadata, updated_at
+                    SELECT name, octet_length(body), content_type, metadata, updated_at
                     FROM document_storage
                     WHERE tenant = $1 AND project = $2
                       AND ($3::text IS NULL OR name > $3)
@@ -447,37 +345,32 @@ impl DocumentStorage for PostgresDocumentStorage {
     }
 }
 
-/// Where a streaming read of a body stands.
-struct ChunkReader {
-    pool: PgPool,
-    scope: DocumentScope,
-    name: DocumentName,
-    generation: i64,
-    next: i32,
-    chunks: i32,
-    first: Option<Bytes>,
-}
-
 fn metadata_of(
     scope: &DocumentScope,
-    (name, generation, size, content_type, metadata, updated_at): MetadataRow,
+    (name, size, content_type, metadata, updated_at): MetadataRow,
 ) -> DocumentMetadata {
+    let size = u64::try_from(size).unwrap_or_default();
     DocumentMetadata {
         scope: scope.clone(),
         name: DocumentName::from_backend(name),
-        size: u64::try_from(size).unwrap_or_default(),
+        size,
         content_type,
-        etag: Some(format!("{generation:x}")),
+        etag: Some(etag(size, updated_at)),
         last_modified: Some(updated_at),
         metadata: metadata.0,
     }
+}
+
+/// Changes with every put: the body's size and the moment it was stored.
+fn etag(size: u64, updated_at: OffsetDateTime) -> String {
+    format!("{size:x}-{:x}", updated_at.unix_timestamp_nanos())
 }
 
 fn database_error(error: sqlx::Error) -> StorageError {
     match error {
         sqlx::Error::Database(database) if database.code().as_deref() == Some(UNDEFINED_TABLE) => {
             StorageError::Configuration(
-                "the document storage tables are missing; run the migrations \
+                "the document storage table is missing; run the migrations \
                  (`haste-health admin migrate repo`)"
                     .to_string(),
             )

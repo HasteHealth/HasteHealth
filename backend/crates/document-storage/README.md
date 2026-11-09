@@ -18,7 +18,7 @@ cargo add haste-document-storage
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `filesystem` | (default) `providers::filesystem`: a directory on a local or mounted filesystem, for development, tests and single-node use |
 | `gcs`        | (default) `providers::gcs`: a Google Cloud Storage bucket over the JSON API                                                 |
-| `postgres`   | (default) `providers::postgres`: two tables in a PostgreSQL database, the body in rows of at most 1 MiB                     |
+| `postgres`   | (default) `providers::postgres`: one table in a PostgreSQL database, the body in a `bytea` column                           |
 
 ## Usage
 
