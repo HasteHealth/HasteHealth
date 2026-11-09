@@ -158,28 +158,90 @@ pub enum SmartResourceScopePermission {
     Search,
 }
 
+/// How a scope's permissions are written. SMART App Launch v1 uses a word
+/// (`read`, `write`, or `*` for both), v2 the letters `cruds`. A scope is
+/// written back the way the client wrote it, so a v1 client is granted the
+/// v1 strings it asked for.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum PermissionSyntax {
+    V1,
+    V2,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct SmartResourceScopePermissions(Vec<SmartResourceScopePermission>);
+pub struct SmartResourceScopePermissions {
+    permissions: Vec<SmartResourceScopePermission>,
+    syntax: PermissionSyntax,
+}
 
 impl SmartResourceScopePermissions {
+    /// Permissions written in v2 syntax.
     #[must_use]
     pub fn new(permissions: Vec<SmartResourceScopePermission>) -> Self {
-        Self(permissions)
+        Self {
+            permissions,
+            syntax: PermissionSyntax::V2,
+        }
+    }
+
+    /// Permissions written in v1 syntax (`read`, `write` or `*`).
+    #[must_use]
+    pub fn v1(permissions: Vec<SmartResourceScopePermission>) -> Self {
+        Self {
+            permissions,
+            syntax: PermissionSyntax::V1,
+        }
     }
 
     #[must_use]
     pub fn has_permission(&self, permission: &SmartResourceScopePermission) -> bool {
-        self.0.contains(permission)
+        self.permissions.contains(permission)
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.permissions.is_empty()
     }
 
     pub fn add_permission(&mut self, permission: SmartResourceScopePermission) {
         if !self.has_permission(&permission) {
-            self.0.push(permission);
+            self.permissions.push(permission);
+        }
+    }
+
+    /// The permissions also in `kept`, written in the same syntax.
+    #[must_use]
+    pub fn restricted_to(&self, kept: &[SmartResourceScopePermission]) -> Self {
+        Self {
+            permissions: self
+                .permissions
+                .iter()
+                .filter(|permission| kept.contains(permission))
+                .cloned()
+                .collect(),
+            syntax: self.syntax,
         }
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, SmartResourceScopePermission> {
-        self.0.iter()
+        self.permissions.iter()
+    }
+
+    /// The v1 word for these permissions, if one names exactly them.
+    fn v1_word(&self) -> Option<&'static str> {
+        let has = |permission| self.has_permission(&permission);
+        match (
+            has(SmartResourceScopePermission::Create),
+            has(SmartResourceScopePermission::Read),
+            has(SmartResourceScopePermission::Update),
+            has(SmartResourceScopePermission::Delete),
+            has(SmartResourceScopePermission::Search),
+        ) {
+            (true, true, true, true, true) => Some("*"),
+            (false, true, false, false, true) => Some("read"),
+            (true, false, true, true, false) => Some("write"),
+            _ => None,
+        }
     }
 }
 
@@ -188,7 +250,31 @@ impl<'a> IntoIterator for &'a SmartResourceScopePermissions {
     type IntoIter = std::slice::Iter<'a, SmartResourceScopePermission>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
+        self.permissions.iter()
+    }
+}
+
+/// v1 permissions as their word, v2 as letters in `cruds` order. v1
+/// permissions that no word names (a v1 scope narrowed that way) fall back to
+/// letters.
+impl From<&SmartResourceScopePermissions> for String {
+    fn from(value: &SmartResourceScopePermissions) -> Self {
+        if value.syntax == PermissionSyntax::V1
+            && let Some(word) = value.v1_word()
+        {
+            return word.to_string();
+        }
+        [
+            (SmartResourceScopePermission::Create, 'c'),
+            (SmartResourceScopePermission::Read, 'r'),
+            (SmartResourceScopePermission::Update, 'u'),
+            (SmartResourceScopePermission::Delete, 'd'),
+            (SmartResourceScopePermission::Search, 's'),
+        ]
+        .into_iter()
+        .filter(|(permission, _)| value.has_permission(permission))
+        .map(|(_, letter)| letter)
+        .collect()
     }
 }
 
@@ -199,19 +285,19 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            "*" => Ok(SmartResourceScopePermissions::new(vec![
+            "*" => Ok(SmartResourceScopePermissions::v1(vec![
                 SmartResourceScopePermission::Create,
                 SmartResourceScopePermission::Read,
                 SmartResourceScopePermission::Update,
                 SmartResourceScopePermission::Delete,
                 SmartResourceScopePermission::Search,
             ])),
-            "write" => Ok(SmartResourceScopePermissions::new(vec![
+            "write" => Ok(SmartResourceScopePermissions::v1(vec![
                 SmartResourceScopePermission::Create,
                 SmartResourceScopePermission::Update,
                 SmartResourceScopePermission::Delete,
             ])),
-            "read" => Ok(SmartResourceScopePermissions::new(vec![
+            "read" => Ok(SmartResourceScopePermissions::v1(vec![
                 SmartResourceScopePermission::Read,
                 SmartResourceScopePermission::Search,
             ])),
@@ -371,37 +457,7 @@ impl From<SMARTResourceScope> for String {
             }
         };
 
-        let mut permissions_str = String::new();
-        if value
-            .permissions
-            .has_permission(&SmartResourceScopePermission::Create)
-        {
-            permissions_str.push('c');
-        }
-        if value
-            .permissions
-            .has_permission(&SmartResourceScopePermission::Read)
-        {
-            permissions_str.push('r');
-        }
-        if value
-            .permissions
-            .has_permission(&SmartResourceScopePermission::Update)
-        {
-            permissions_str.push('u');
-        }
-        if value
-            .permissions
-            .has_permission(&SmartResourceScopePermission::Delete)
-        {
-            permissions_str.push('d');
-        }
-        if value
-            .permissions
-            .has_permission(&SmartResourceScopePermission::Search)
-        {
-            permissions_str.push('s');
-        }
+        let permissions_str = String::from(&value.permissions);
 
         let mut text = format!("{user_str}/{level_str}.{permissions_str}");
         for (index, constraint) in value.constraints.iter().enumerate() {
@@ -656,7 +712,7 @@ mod tests {
                 Scope::SMART(SmartScope::Resource(SMARTResourceScope {
                     user: SmartResourceScopeUser::User,
                     level: SmartResourceScopeLevel::AllResources,
-                    permissions: SmartResourceScopePermissions::new(vec![
+                    permissions: SmartResourceScopePermissions::v1(vec![
                         SmartResourceScopePermission::Create,
                         SmartResourceScopePermission::Read,
                         SmartResourceScopePermission::Update,
@@ -768,10 +824,12 @@ mod tests {
     fn test_roundtrip() {
         assert_eq!(
             String::from(
-                Scopes::try_from("openid profile email offline_access launch/patient user/*.*")
-                    .unwrap()
+                Scopes::try_from(
+                    "openid profile email offline_access launch/patient user/*.* patient/Patient.read user/Observation.write"
+                )
+                .unwrap()
             ),
-            "openid profile email offline_access launch/patient user/*.cruds".to_string(),
+            "openid profile email offline_access launch/patient user/*.* patient/Patient.read user/Observation.write".to_string(),
         );
 
         assert_eq!(

@@ -14,12 +14,24 @@ jobs:
       fail-fast: false
       matrix:
         search-backend: [elasticsearch, postgres]
+        include:
+          - search-backend: elasticsearch
+            document-storage: filesystem
+          - search-backend: postgres
+            document-storage: postgres
     env:
       HASTE_CERTIFICATION_DIR: certifications
       HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
       HASTE_API_URI: http://localhost:3000
       HASTE_REPO.backend: postgres
       HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      # Binary content of 1 KiB or more is kept in document storage (a
+      # directory in one job, the Postgres table in the other), so the base
+      # TestScripts run against both. The postgres backend ignores root. The
+      # other e2e workflows run with the default: the Postgres table from 64 KiB.
+      HASTE_DOCUMENT_STORAGE.backend: ${{ matrix.document-storage }}
+      HASTE_DOCUMENT_STORAGE.root: /tmp/haste-documents
+      HASTE_DOCUMENT_STORAGE.binary_min_bytes: 1024
       RUST_LOG: none
 
     services:
@@ -156,6 +168,16 @@ jobs:
         working-directory: ./backend
         env:
           RUST_LOG: info
+
+      # binary-content.testscript.json writes Binaries above the threshold.
+      # The sweep lists every stored document, so in_use > 0 shows their
+      # content went to document storage, and nothing to remove shows every
+      # document belongs to a resource version.
+      - name: Check document storage
+        run: |
+          ./target/debug/haste-health admin document-storage sweep --dry-run | tee sweep.json
+          jq -e '.in_use > 0 and .recent == 0 and .orphaned == 0' sweep.json
+        working-directory: ./backend
 
       # Features only the Postgres search backend implements (chained search).
       # Each TestScript here is marked with the testscript-search-backend

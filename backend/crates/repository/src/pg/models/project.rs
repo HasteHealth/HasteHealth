@@ -2,7 +2,7 @@ use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::project::{CreateProject, Project, ProjectSearchClaims},
-    utilities::{generate_hostname_id, validate_project_id},
+    utilities::validate_project_id,
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -18,9 +18,7 @@ where
     E: PgExecutor<'e>,
 {
     // Short enough to fit beside the longest tenant id (see `validate_project_id`).
-    let id = project
-        .id
-        .unwrap_or_else(|| ProjectId::new(generate_hostname_id(Some(8))));
+    let id = project.id.unwrap_or_else(|| ProjectId::random(8));
 
     validate_project_id(tenant.as_ref(), id.as_ref())?;
 

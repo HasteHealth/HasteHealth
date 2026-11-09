@@ -54,6 +54,85 @@
             },
             "id": "uscore-create-1",
             "resourceType": "QuestionnaireResponse"
+        },
+        {
+            "status": "in-progress",
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "authored": "2020-01-01T00:00:00Z",
+            "author": {
+                "reference": "Device/example"
+            },
+            "item": [
+                {
+                    "linkId": "example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-questionnaireresponse-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-2",
+            "resourceType": "QuestionnaireResponse"
+        },
+        {
+            "status": "in-progress",
+            "questionnaire": "http://example.org/fhir/StructureDefinition/example",
+            "authored": "2020-01-01T00:00:00Z",
+            "author": {
+                "reference": "Device/example"
+            },
+            "item": [
+                {
+                    "linkId": "example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-questionnaireresponse-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-3",
+            "resourceType": "QuestionnaireResponse"
+        },
+        {
+            "status": "in-progress",
+            "questionnaire": "http://example.org/fhir/StructureDefinition/example",
+            "subject": {
+                "reference": "Patient/example"
+            },
+            "author": {
+                "reference": "Device/example"
+            },
+            "item": [
+                {
+                    "linkId": "example"
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-questionnaireresponse-test"
+                    }
+                ]
+            },
+            "id": "profile-reject-4",
+            "resourceType": "QuestionnaireResponse"
         }
     ],
     "fixture": [
@@ -61,6 +140,30 @@
             "id": "fixture-uscore-create-1",
             "resource": {
                 "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-2",
+            "resource": {
+                "reference": "#profile-reject-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-3",
+            "resource": {
+                "reference": "#profile-reject-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-profile-reject-4",
+            "resource": {
+                "reference": "#profile-reject-4"
             },
             "autocreate": false,
             "autodelete": false
@@ -269,6 +372,267 @@
                                     {
                                         "url": "group",
                                         "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-required-missing-questionnaire",
+            "name": "Refuses QuestionnaireResponse without questionnaire",
+            "description": "US Core QuestionnaireResponse Profile requires QuestionnaireResponse.questionnaire (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "QuestionnaireResponse",
+                        "sourceId": "fixture-profile-reject-2",
+                        "responseId": "profile-reject-2-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('QuestionnaireResponse.questionnaire')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-required-missing-subject",
+            "name": "Refuses QuestionnaireResponse without subject",
+            "description": "US Core QuestionnaireResponse Profile requires QuestionnaireResponse.subject (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "QuestionnaireResponse",
+                        "sourceId": "fixture-profile-reject-3",
+                        "responseId": "profile-reject-3-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('QuestionnaireResponse.subject')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-required-missing-authored",
+            "name": "Refuses QuestionnaireResponse without authored",
+            "description": "US Core QuestionnaireResponse Profile requires QuestionnaireResponse.authored (at least 1); base FHIR leaves it optional. Without it the resource is refused.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "QuestionnaireResponse",
+                        "sourceId": "fixture-profile-reject-4",
+                        "responseId": "profile-reject-4-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "refused-422",
+                        "responseCode": "422",
+                        "warningOnly": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "outcome-returned",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue.where(severity = 'error').where(diagnostics.contains('QuestionnaireResponse.authored')).where(diagnostics.contains('Minimum number of required values')).exists()",
+                        "warningOnly": false,
+                        "label": "issue-names-rule",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
                                     }
                                 ]
                             }

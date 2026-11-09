@@ -23,6 +23,8 @@ use std::{pin::Pin, sync::Arc};
 
 pub mod auditing;
 pub mod auth_z;
+pub mod binary_content;
+pub mod canonical_cache;
 pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;

@@ -1,3 +1,4 @@
+use crate::document_storage::DocumentStorageConfig;
 use derivative::Derivative;
 use haste_fhir_search::config::SearchConfig;
 use haste_repository::config::RepoConfig;
@@ -22,6 +23,9 @@ pub struct ServerConfig {
 
     pub fhir: FHIRConfig,
     pub repo: RepoConfig,
+    /// Where large `Binary.data` is kept instead of the resource rows. A table
+    /// in the repository database unless configured otherwise.
+    pub document_storage: DocumentStorageConfig,
     pub search: SearchConfig,
     pub email: Option<EmailConfig>,
     pub rate_limits: RateLimitsConfig,
@@ -32,6 +36,39 @@ pub struct ServerConfig {
     pub signup: SignupConfig,
     pub jobs: JobsConfig,
     pub packages: PackagesConfig,
+    pub sql_on_fhir: SqlOnFhirConfig,
+}
+
+/// SQL on FHIR. `$viewdefinition-run` answers synchronously with one table, so
+/// a run that would pass either limit is refused with `too-costly` rather than
+/// answered with part of the table.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct SqlOnFhirConfig {
+    /// Most rows one run returns. A larger `_limit` is refused.
+    pub max_rows: usize,
+    /// Most resources one run reads from storage, earlier versions included.
+    pub max_resources: usize,
+}
+
+impl SqlOnFhirConfig {
+    #[must_use]
+    pub fn run_limits(&self) -> haste_sql_on_fhir::RunLimits {
+        haste_sql_on_fhir::RunLimits {
+            max_rows: self.max_rows,
+            max_resources: self.max_resources,
+        }
+    }
+}
+
+impl Default for SqlOnFhirConfig {
+    fn default() -> Self {
+        let limits = haste_sql_on_fhir::RunLimits::default();
+        Self {
+            max_rows: limits.max_rows,
+            max_resources: limits.max_resources,
+        }
+    }
 }
 
 /// Asynchronous jobs: an operation invoked with `Prefer: respond-async` today,
@@ -282,6 +319,7 @@ impl Default for ServerConfig {
             admin_app_redirect_uri: "http://*.localhost:3001".into(),
             fhir: FHIRConfig::default(),
             repo: RepoConfig::default(),
+            document_storage: DocumentStorageConfig::default(),
             search: SearchConfig::default(),
             email: None,
             max_request_body_size: 4 * 1024 * 1024,
@@ -292,6 +330,7 @@ impl Default for ServerConfig {
             signup: SignupConfig::default(),
             jobs: JobsConfig::default(),
             packages: PackagesConfig::default(),
+            sql_on_fhir: SqlOnFhirConfig::default(),
         }
     }
 }

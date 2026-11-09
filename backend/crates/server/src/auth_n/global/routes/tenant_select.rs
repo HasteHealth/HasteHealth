@@ -11,7 +11,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::TenantId;
-use haste_repository::{Repository, utilities::validate_id};
+use haste_repository::Repository;
 use maud::html;
 use std::sync::Arc;
 
@@ -78,10 +78,7 @@ pub async fn tenant_select_post(
         return Err(AuthError::InvalidCsrfToken.into());
     }
 
-    // Confirm structure of tenantID is valid.
-    validate_id(&form.tenant)?;
-
-    let tenant_id = TenantId::new(form.tenant);
+    let tenant_id = TenantId::new(form.tenant)?;
     let project_select_route =
         tenant_route_string(&tenant_id).join("./auth/interactions/project-select");
 

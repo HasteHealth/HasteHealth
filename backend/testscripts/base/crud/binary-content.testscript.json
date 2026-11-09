@@ -1,0 +1,787 @@
+{
+    "resourceType": "TestScript",
+    "id": "binary-content",
+    "url": "https://haste.health/fhir/TestScript/binary-content",
+    "name": "BinaryContent",
+    "title": "Binary content round trip",
+    "status": "active",
+    "description": "Binary content comes back unchanged from create, read, vread, history, update, patch, search and transaction, and every version keeps its own content. Large content may be kept in document storage instead of the database; the results must not depend on it.",
+    "contained": [
+        {
+            "id": "binary-large-v1",
+            "resourceType": "Binary",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "binary-content-test"
+                    }
+                ]
+            },
+            "contentType": "application/octet-stream",
+            "data": "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"
+        },
+        {
+            "id": "binary-large-v2",
+            "resourceType": "Binary",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "binary-content-test"
+                    }
+                ]
+            },
+            "contentType": "application/octet-stream",
+            "data": "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"
+        },
+        {
+            "id": "binary-small",
+            "resourceType": "Binary",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "binary-content-test"
+                    }
+                ]
+            },
+            "contentType": "text/plain",
+            "data": "c21hbGwgY29udGVudCBzdGF5cyBpbiB0aGUgZGF0YWJhc2U="
+        },
+        {
+            "id": "patch-content-type",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9jb250ZW50VHlwZSIsICJ2YWx1ZSI6ICJhcHBsaWNhdGlvbi9wZGYifV0="
+        },
+        {
+            "id": "transaction-binary",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Binary",
+                        "id": "binary-content-transaction",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "binary-content-test"
+                                }
+                            ]
+                        },
+                        "contentType": "image/png",
+                        "data": "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"
+                    },
+                    "request": {
+                        "method": "PUT",
+                        "url": "Binary/binary-content-transaction"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "binary-content-transaction",
+            "resourceType": "Binary",
+            "contentType": "image/png"
+        },
+        {
+            "id": "binary-client-marker",
+            "resourceType": "Binary",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "binary-content-test"
+                    }
+                ]
+            },
+            "contentType": "text/plain",
+            "data": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA==",
+            "_data": {
+                "extension": [
+                    {
+                        "url": "https://haste.health/document-storage",
+                        "valueString": "Binary/not-a-document"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-binary-large-v1",
+            "resource": {
+                "reference": "#binary-large-v1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-binary-large-v2",
+            "resource": {
+                "reference": "#binary-large-v2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-binary-small",
+            "resource": {
+                "reference": "#binary-small"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-content-type",
+            "resource": {
+                "reference": "#patch-content-type"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-transaction-binary",
+            "resource": {
+                "reference": "#transaction-binary"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-binary-content-transaction",
+            "resource": {
+                "reference": "#binary-content-transaction"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-binary-client-marker",
+            "resource": {
+                "reference": "#binary-client-marker"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "variable": [
+        {
+            "name": "BinaryId",
+            "sourceId": "create-response",
+            "expression": "Binary.id"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create-read",
+            "name": "Create, read and vread return the content",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "sourceId": "fixture-binary-large-v1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 201",
+                        "warningOnly": false,
+                        "responseCode": "201"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Create returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v1",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v1",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content type",
+                        "warningOnly": false,
+                        "expression": "Binary.contentType",
+                        "operator": "equals",
+                        "value": "application/octet-stream"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Vread returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v1",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-update-history",
+            "name": "Each version keeps its own content",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-binary-large-v2",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Update returns the new content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the new content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Vread of the first version returns the first content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v1",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "history"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Two versions",
+                        "warningOnly": false,
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Newest version has the new content",
+                        "warningOnly": false,
+                        "expression": "Bundle.entry[0].resource.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Oldest version has the first content",
+                        "warningOnly": false,
+                        "expression": "Bundle.entry[1].resource.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v1",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "A patch that changes the content type keeps the content",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-content-type",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Content type changed",
+                        "warningOnly": false,
+                        "expression": "Binary.contentType",
+                        "operator": "equals",
+                        "value": "application/pdf"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Content kept",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read sees the new content type",
+                        "warningOnly": false,
+                        "expression": "Binary.contentType",
+                        "operator": "equals",
+                        "value": "application/pdf"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read sees the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-search",
+            "name": "Search results carry the content",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "params": "?_id=${BinaryId}"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One match",
+                        "warningOnly": false,
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The match has the content",
+                        "warningOnly": false,
+                        "expression": "Bundle.entry.resource.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-small",
+            "name": "Small content round-trips",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "sourceId": "fixture-binary-small",
+                        "responseId": "small-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 201",
+                        "warningOnly": false,
+                        "responseCode": "201"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "small-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-small",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-transaction",
+            "name": "A Binary created in a transaction keeps its content",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-transaction-binary"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "fixture-binary-content-transaction"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-transaction-binary",
+                        "compareToSourceExpression": "Bundle.entry.resource.data"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content type",
+                        "warningOnly": false,
+                        "expression": "Binary.contentType",
+                        "operator": "equals",
+                        "value": "image/png"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-delete",
+            "name": "Earlier versions keep their content after a delete",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Deleted",
+                        "warningOnly": false,
+                        "response": "notFound"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The second version still has its content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "compareToSourceId": "fixture-binary-large-v2",
+                        "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-client-marker",
+            "name": "A document storage marker a client sends is ignored",
+            "description": "Only the server sets the marker extension on Binary.data. One sent by a client is dropped before the Binary is stored, so it can neither point the server at a document nor survive the write.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "sourceId": "fixture-binary-client-marker",
+                        "responseId": "client-marker-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 201",
+                        "warningOnly": false,
+                        "responseCode": "201"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Create returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "value": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA=="
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Create carries no document storage marker",
+                        "warningOnly": false,
+                        "expression": "Binary.data.extension.where(url = 'https://haste.health/document-storage').exists()",
+                        "value": "false"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "client-marker-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "value": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA=="
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read carries no document storage marker",
+                        "warningOnly": false,
+                        "expression": "Binary.data.extension.where(url = 'https://haste.health/document-storage').exists()",
+                        "value": "false"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "Binary",
+                    "params": "_tag=binary-content-test"
+                }
+            }
+        ]
+    }
+}

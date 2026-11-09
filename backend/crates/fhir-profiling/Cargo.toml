@@ -27,3 +27,7 @@ tokio = { workspace = true, features = ["rt", "macros"] }
 [[bench]]
 name = "validate_bench"
 harness = false
+
+[[bench]]
+name = "corpus_bench"
+harness = false

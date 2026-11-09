@@ -1,15 +1,23 @@
 //! Google Cloud Storage backend, speaking the JSON API over HTTPS.
+//!
+//! A document is the object `<prefix>/<tenant>/<project>/<name>`: the
+//! deployment prefix, if any, then the scope, then the name. A bucket is flat,
+//! but that layout lists and shows as a folder per tenant and project.
 
 mod api;
 mod auth;
 mod http;
 
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    fmt::Write as _,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 use bytes::{Bytes, BytesMut};
 use futures_util::TryStreamExt as _;
 use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 use reqwest::{Client, Method, RequestBuilder, Response, header::CONTENT_TYPE};
+use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 pub use auth::GcsCredentials;
@@ -24,8 +32,8 @@ use crate::{
     retry::with_retry,
     traits::{DocumentStorage, StorageFuture},
     types::{
-        Document, DocumentBody, DocumentKey, DocumentMetadata, ListPage, ListRequest,
-        StoredDocument,
+        Document, DocumentBody, DocumentMetadata, DocumentName, DocumentScope, ListPage,
+        ListRequest, StoredDocument,
     },
 };
 
@@ -44,15 +52,19 @@ const ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
     .remove(b'~');
 
 /// Settings for [`GcsDocumentStorage`].
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GcsConfig {
     pub bucket: String,
-    /// Folder-like prefix placed before every key, so one bucket can serve
-    /// several deployments.
+    /// Folder-like prefix placed before every object, so one bucket can
+    /// serve several deployments.
+    #[serde(default)]
     pub prefix: Option<String>,
+    /// Application Default Credentials unless set.
+    #[serde(default)]
     pub credentials: GcsCredentials,
     /// API root, `https://storage.googleapis.com` unless set. Point it at an
     /// emulator for local development.
+    #[serde(default)]
     pub endpoint: Option<String>,
 }
 
@@ -116,12 +128,67 @@ impl GcsDocumentStorage {
         Ok(storage)
     }
 
-    /// The object name for a key, with the deployment prefix applied.
-    fn object_name(&self, key: &str) -> String {
-        if self.prefix.is_empty() {
-            key.to_string()
-        } else {
-            format!("{}/{key}", self.prefix)
+    /// Where the objects of `scope` start, or of every scope when `None`:
+    /// the deployment prefix alone.
+    fn scope_prefix(&self, scope: Option<&DocumentScope>) -> String {
+        let mut prefix = String::new();
+        if !self.prefix.is_empty() {
+            prefix.push_str(&self.prefix);
+            prefix.push('/');
+        }
+        if let Some(scope) = scope {
+            // Writing to a `String` cannot fail.
+            let _ = write!(
+                prefix,
+                "{}/{}/",
+                scope.tenant().as_ref(),
+                scope.project().as_ref()
+            );
+        }
+        prefix
+    }
+
+    /// The object name of a document: the deployment prefix, the scope's
+    /// tenant and project, then the name.
+    fn object_name(&self, scope: &DocumentScope, name: &DocumentName) -> String {
+        let mut object = self.scope_prefix(Some(scope));
+        object.push_str(name.as_str());
+        object
+    }
+
+    /// One page of `objects.list` for `query`, retried on transient failures.
+    async fn list_page(&self, query: &[String]) -> Result<ObjectList, StorageError> {
+        let url = format!("{}?{}", self.objects_url, query.join("&"));
+        let url = &url;
+        with_retry("list", || async move {
+            parse_json(
+                self.send(self.request(Method::GET, url).await?, &self.bucket)
+                    .await?,
+            )
+            .await
+        })
+        .await
+    }
+
+    /// The "folders" directly under `prefix`, across every page: the
+    /// `prefixes` of a delimiter listing, each ending in `/`.
+    async fn prefixes_under(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
+        let mut found = Vec::new();
+        let mut token: Option<String> = None;
+        loop {
+            let mut query = vec![
+                format!("prefix={}", encode(prefix)),
+                "delimiter=%2F".to_string(),
+            ];
+            if let Some(token) = &token {
+                query.push(format!("pageToken={}", encode(token)));
+            }
+            let page = self.list_page(&query).await?;
+            found.extend(page.prefixes);
+            match page.next_page_token {
+                Some(next) => token = Some(next),
+                None => return Ok(found),
+            }
         }
     }
 
@@ -141,14 +208,19 @@ impl GcsDocumentStorage {
         check(request.send().await.map_err(transport)?, subject).await
     }
 
-    async fn fetch_object(&self, key: &DocumentKey) -> Result<Object, StorageError> {
-        let url = self.object_url(&self.object_name(key.as_str()));
+    async fn fetch_object(
+        &self,
+        scope: &DocumentScope,
+        name: &DocumentName,
+    ) -> Result<Object, StorageError> {
+        let url = self.object_url(&self.object_name(scope, name));
+        let subject = format!("{scope}/{name}");
         // Shared references are `Copy`, so every retry attempt can move them
         // into its own future. The other operations follow the same pattern.
-        let (url, key) = (&url, key.as_str());
+        let (url, subject) = (&url, subject.as_str());
         with_retry("head", || async move {
             parse_json(
-                self.send(self.request(Method::GET, url).await?, key)
+                self.send(self.request(Method::GET, url).await?, subject)
                     .await?,
             )
             .await
@@ -156,18 +228,12 @@ impl GcsDocumentStorage {
         .await
     }
 
-    fn metadata_of(&self, object: Object) -> DocumentMetadata {
-        let key = if self.prefix.is_empty() {
-            object.name.as_str()
-        } else {
-            object
-                .name
-                .strip_prefix(&self.prefix)
-                .and_then(|rest| rest.strip_prefix('/'))
-                .unwrap_or(&object.name)
-        };
+    /// What the API reports about an object, as the metadata of the document
+    /// `scope` and `name` address.
+    fn metadata_of(scope: DocumentScope, name: DocumentName, object: Object) -> DocumentMetadata {
         DocumentMetadata {
-            key: DocumentKey::from_backend(key.to_string()),
+            scope,
+            name,
             size: object
                 .size
                 .as_deref()
@@ -187,7 +253,8 @@ impl GcsDocumentStorage {
 impl DocumentStorage for GcsDocumentStorage {
     fn put<'a>(
         &'a self,
-        key: &'a DocumentKey,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
         document: Document,
     ) -> StorageFuture<'a, DocumentMetadata> {
         Box::pin(async move {
@@ -204,9 +271,9 @@ impl DocumentStorage for GcsDocumentStorage {
                 ));
             }
 
-            let name = self.object_name(key.as_str());
+            let object_name = self.object_name(scope, name);
             let metadata = serde_json::to_vec(&UploadMetadata {
-                name: &name,
+                name: &object_name,
                 content_type: document.content_type.as_deref(),
                 metadata: &document.metadata,
             })
@@ -216,7 +283,8 @@ impl DocumentStorage for GcsDocumentStorage {
             let boundary = boundary();
             let body = multipart_related(&boundary, &metadata, content_type, &document.body);
 
-            let (body, boundary, key) = (&body, &boundary, key.as_str());
+            let subject = format!("{scope}/{name}");
+            let (body, boundary, subject) = (&body, &boundary, subject.as_str());
             let object: Object = with_retry("put", || async move {
                 let request = self
                     .request(Method::POST, &self.upload_url)
@@ -226,20 +294,31 @@ impl DocumentStorage for GcsDocumentStorage {
                         format!("multipart/related; boundary={boundary}"),
                     )
                     .body(body.clone());
-                parse_json(self.send(request, key).await?).await
+                parse_json(self.send(request, subject).await?).await
             })
             .await?;
-            Ok(self.metadata_of(object))
+            Ok(Self::metadata_of(scope.clone(), name.clone(), object))
         })
     }
 
-    fn head<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, DocumentMetadata> {
-        Box::pin(async move { Ok(self.metadata_of(self.fetch_object(key).await?)) })
+    fn head<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, DocumentMetadata> {
+        Box::pin(async move {
+            let object = self.fetch_object(scope, name).await?;
+            Ok(Self::metadata_of(scope.clone(), name.clone(), object))
+        })
     }
 
-    fn get<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, StoredDocument> {
+    fn get<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, StoredDocument> {
         Box::pin(async move {
-            let object = self.fetch_object(key).await?;
+            let object = self.fetch_object(scope, name).await?;
             let url = match &object.generation {
                 Some(generation) => format!(
                     "{}?alt=media&generation={generation}",
@@ -248,25 +327,32 @@ impl DocumentStorage for GcsDocumentStorage {
                 None => format!("{}?alt=media", self.object_url(&object.name)),
             };
 
-            let (url, key) = (&url, key.as_str());
+            let subject = format!("{scope}/{name}");
+            let (url, subject) = (&url, subject.as_str());
             let response = with_retry("get", || async move {
-                self.send(self.request(Method::GET, url).await?, key).await
+                self.send(self.request(Method::GET, url).await?, subject)
+                    .await
             })
             .await?;
 
             Ok(StoredDocument {
-                metadata: self.metadata_of(object),
+                metadata: Self::metadata_of(scope.clone(), name.clone(), object),
                 body: DocumentBody::from_stream(response.bytes_stream().map_err(transport)),
             })
         })
     }
 
-    fn delete<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, ()> {
+    fn delete<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, ()> {
         Box::pin(async move {
-            let url = self.object_url(&self.object_name(key.as_str()));
-            let (url, key) = (&url, key.as_str());
+            let url = self.object_url(&self.object_name(scope, name));
+            let subject = format!("{scope}/{name}");
+            let (url, subject) = (&url, subject.as_str());
             let result = with_retry("delete", || async move {
-                self.send(self.request(Method::DELETE, url).await?, key)
+                self.send(self.request(Method::DELETE, url).await?, subject)
                     .await
             })
             .await;
@@ -277,9 +363,13 @@ impl DocumentStorage for GcsDocumentStorage {
         })
     }
 
-    fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage> {
+    fn list<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        request: ListRequest,
+    ) -> StorageFuture<'a, ListPage> {
         Box::pin(async move {
-            let prefix = self.object_name(request.prefix.as_deref().unwrap_or_default());
+            let prefix = self.scope_prefix(Some(scope));
             let mut query = vec![format!("prefix={}", encode(&prefix))];
             if let Some(token) = &request.page_token {
                 query.push(format!("pageToken={}", encode(token)));
@@ -287,28 +377,60 @@ impl DocumentStorage for GcsDocumentStorage {
             if let Some(size) = request.page_size {
                 query.push(format!("maxResults={size}"));
             }
-            let url = format!("{}?{}", self.objects_url, query.join("&"));
+            let page = self.list_page(&query).await?;
 
-            let url = &url;
-            let page: ObjectList = with_retry("list", || async move {
-                parse_json(
-                    self.send(self.request(Method::GET, url).await?, &self.bucket)
-                        .await?,
-                )
-                .await
-            })
-            .await?;
-
+            // A prefix listing comes back in name order, so pages do too.
+            let documents = page
+                .items
+                .into_iter()
+                .filter_map(|object| {
+                    let name = object
+                        .name
+                        .strip_prefix(prefix.as_str())
+                        .filter(|name| !name.is_empty())?;
+                    let name = DocumentName::from_backend(name.to_string());
+                    Some(Self::metadata_of(scope.clone(), name, object))
+                })
+                .collect();
             Ok(ListPage {
-                documents: page
-                    .items
-                    .into_iter()
-                    .map(|object| self.metadata_of(object))
-                    .collect(),
+                documents,
                 next_page_token: page.next_page_token,
             })
         })
     }
+
+    /// Two delimiter listings deep: the folders under the deployment prefix
+    /// are tenants, the folders under each tenant are projects.
+    fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>> {
+        Box::pin(async move {
+            let root = self.scope_prefix(None);
+            let mut scopes = Vec::new();
+            for tenant_prefix in self.prefixes_under(&root).await? {
+                let Some(tenant) = folder_name(&tenant_prefix, &root) else {
+                    continue;
+                };
+                for project_prefix in self.prefixes_under(&tenant_prefix).await? {
+                    let Some(project) = folder_name(&project_prefix, &tenant_prefix) else {
+                        continue;
+                    };
+                    scopes.push(DocumentScope::from_backend(
+                        tenant.to_string(),
+                        project.to_string(),
+                    )?);
+                }
+            }
+            Ok(scopes)
+        })
+    }
+}
+
+/// The folder `prefix` names directly under `parent`, or `None` when the API
+/// returned something else.
+fn folder_name<'p>(prefix: &'p str, parent: &str) -> Option<&'p str> {
+    prefix
+        .strip_prefix(parent)?
+        .strip_suffix('/')
+        .filter(|name| !name.is_empty() && !name.contains('/'))
 }
 
 fn encode(value: &str) -> String {

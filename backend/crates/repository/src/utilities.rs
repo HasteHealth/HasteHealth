@@ -9,7 +9,7 @@ use haste_fhir_model::r4::{
     },
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_jwt::{AuthorId, AuthorKind};
+use haste_jwt::{AuthorId, AuthorKind, hostname_id_problem};
 use haste_reflect::MetaValue;
 
 static ID_CHARACTERS: &[char] = &[
@@ -55,24 +55,14 @@ pub const HOSTNAME_ID_SEPARATOR: &str = "--";
 /// prefix or suffix such as `-staging`.
 const HOSTNAME_LABEL_MAX_LEN: usize = 63 - 8;
 
-/// The shortest tenant or project id.
+/// The shortest tenant or project id a user may choose.
 pub const HOSTNAME_ID_MIN_LEN: usize = 3;
 
-/// A valid tenant or project id: lowercase letters and digits, joined by
-/// single hyphens. It is subdomain safe, and never holds
-/// [`HOSTNAME_ID_SEPARATOR`], so `{tenant}--{project}` splits back apart.
-///
-/// The sign-up form uses it as an HTML `pattern`, so it must stay valid under
-/// the browser's `v` regex flag (no unescaped `-` inside `[]`).
-pub const HOSTNAME_ID_PATTERN: &str = "[a-z0-9]+(-[a-z0-9]+)*";
-
-static HOSTNAME_ID_REGEX: LazyLock<regex::Regex> = LazyLock::new(|| {
-    regex::Regex::new(&format!("^{HOSTNAME_ID_PATTERN}$"))
-        .expect("HOSTNAME_ID_PATTERN should be a valid regex")
-});
-
-/// Validates a tenant or project id: at least [`HOSTNAME_ID_MIN_LEN`]
-/// characters, matching [`HOSTNAME_ID_PATTERN`].
+/// Validates an id chosen for a new tenant or project: at least
+/// [`HOSTNAME_ID_MIN_LEN`] characters, matching
+/// [`haste_jwt::HOSTNAME_ID_PATTERN`]. The pattern is what a `TenantId` or
+/// `ProjectId` holds by construction; the minimum length is policy for new
+/// ids only.
 ///
 /// # Errors
 ///
@@ -87,31 +77,11 @@ pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
         ));
     }
 
-    if !HOSTNAME_ID_REGEX.is_match(id) {
-        return invalid(
-            "An id may only contain lowercase letters, digits and single hyphens between them."
-                .to_string(),
-        );
+    if let Some(problem) = hostname_id_problem(id) {
+        return invalid(format!("An id {problem}."));
     }
 
     Ok(())
-}
-
-/// Lowercase letters and digits. Generated ids leave out the hyphen, so they
-/// always match [`HOSTNAME_ID_PATTERN`].
-static HOSTNAME_ID_CHARACTERS: LazyLock<Vec<char>> = LazyLock::new(|| {
-    ID_CHARACTERS
-        .iter()
-        .copied()
-        .filter(|character| *character != '-')
-        .collect()
-});
-
-/// A random tenant or project id of `len` (default 26) letters and digits.
-#[must_use]
-pub fn generate_hostname_id(len: Option<usize>) -> String {
-    let len = len.unwrap_or(26);
-    nanoid::nanoid!(len, &HOSTNAME_ID_CHARACTERS)
 }
 
 /// Validates a project id, and that `{tenant}--{id}` is at most 55 characters:

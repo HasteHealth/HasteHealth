@@ -55,38 +55,63 @@ pub async fn apply_patch<Repo: Repository>(
     project: &ProjectId,
     fhir_patch_request: &FHIRPatchRequest,
 ) -> Result<Resource, OperationOutcomeError> {
-    let Some(resource) = repo
-        .read_latest(
-            tenant,
-            project,
-            &fhir_patch_request.resource_type,
-            &ResourceId::new(fhir_patch_request.id.to_string()),
-        )
-        .await?
-    else {
-        return Err(OperationOutcomeError::error(
+    let resource = read_patch_target(repo, tenant, project, fhir_patch_request).await?;
+    patch_resource(&resource, fhir_patch_request)
+}
+
+/// The latest version of the resource a patch names.
+///
+/// # Errors
+///
+/// Returns a `not-found` error when there is none.
+pub async fn read_patch_target<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    fhir_patch_request: &FHIRPatchRequest,
+) -> Result<Resource, OperationOutcomeError> {
+    repo.read_latest(
+        tenant,
+        project,
+        &fhir_patch_request.resource_type,
+        &ResourceId::new(fhir_patch_request.id.clone()),
+    )
+    .await?
+    .ok_or_else(|| {
+        OperationOutcomeError::error(
             IssueType::not_found(),
             format!("Resource with id '{}' not found", fhir_patch_request.id),
-        ));
-    };
+        )
+    })
+}
 
-    let mut json: serde_json::Value = serde_json::to_value(&resource).map_err(ServerError::from)?;
+/// Applies the patch to `resource`, which may not change its type or `id`.
+///
+/// # Errors
+///
+/// Returns an error when the patch does not apply, its result is not a valid
+/// resource, or the type or `id` changed.
+pub fn patch_resource(
+    resource: &Resource,
+    fhir_patch_request: &FHIRPatchRequest,
+) -> Result<Resource, OperationOutcomeError> {
+    let mut json: serde_json::Value = serde_json::to_value(resource).map_err(ServerError::from)?;
 
     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to apply JSON patch: '{}'", e),
+            format!("Failed to apply JSON patch: '{e}'"),
         )
     })?;
 
     let patched_resource = serde_json::from_value::<Resource>(json).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to deserialize patched resource '{}'.", e),
+            format!("Failed to deserialize patched resource '{e}'."),
         )
     })?;
 
-    if std::mem::discriminant(&resource) != std::mem::discriminant(&patched_resource) {
+    if std::mem::discriminant(resource) != std::mem::discriminant(&patched_resource) {
         return Err(OperationOutcomeError::error(
             IssueType::conflict(),
             "Resource type mismatch after patching".to_string(),
@@ -309,7 +334,8 @@ async fn delete_each<B: Backend>(
             state.config.clone(),
             state.deno_pool.clone(),
         )
-        .with_audit_repo(state.audit_repo.clone()),
+        .with_audit_repo(state.audit_repo.clone())
+        .with_binary_storage(state.binary_storage.clone()),
     );
     let ctx = Arc::new(ctx.swap_client(Arc::new(client)));
     for entry in entries {
@@ -722,7 +748,8 @@ impl<B: Backend> Handler<B> for Storage {
                                 state.config.clone(),
                                 state.deno_pool.clone(),
                             )
-                            .with_audit_repo(state.audit_repo.clone()),
+                            .with_audit_repo(state.audit_repo.clone())
+                            .with_binary_storage(state.binary_storage.clone()),
                         );
 
                         let transaction_context =
@@ -762,7 +789,8 @@ impl<B: Backend> Handler<B> for Storage {
                             state.config.clone(),
                             state.deno_pool.clone(),
                         )
-                        .with_audit_repo(state.audit_repo.clone()),
+                        .with_audit_repo(state.audit_repo.clone())
+                        .with_binary_storage(state.binary_storage.clone()),
                     );
 
                     let batch_context = Arc::new(ctx.swap_client(Arc::new(batch_client)));

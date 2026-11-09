@@ -851,7 +851,7 @@ fn search_entry(row: &PgRow) -> SearchEntry {
             .try_into()
             .expect("Invalid resource type in search index"),
         version_id: haste_jwt::VersionId::new(row.get("version_id")),
-        project: ProjectId::new(row.get("project")),
+        project: ProjectId::new(row.get("project")).expect("Invalid project id in search index"),
     }
 }
 
@@ -949,8 +949,8 @@ mod tests {
                     params: vec![SqlParam::Text("a".to_string())],
                 }],
                 &registry,
-                &TenantId::new("t".to_string()),
-                &ProjectId::new("p".to_string()),
+                &TenantId::new("t".to_string()).unwrap(),
+                &ProjectId::new("p".to_string()).unwrap(),
                 Some(&ResourceType::Patient),
                 Some(patient),
                 &state,

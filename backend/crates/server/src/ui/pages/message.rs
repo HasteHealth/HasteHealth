@@ -9,7 +9,13 @@ pub fn message_html(
     message: &Markup,
     branding: Option<&TenantName>,
 ) -> Markup {
-    let project_id = project.map(|project| project.id.clone().map(ProjectId::new).unwrap());
+    let project_id = project.map(|project| {
+        project
+            .id
+            .clone()
+            .and_then(|id| ProjectId::new(id).ok())
+            .expect("a stored project has a valid id")
+    });
     let project_name = project
         .and_then(|project| project.name.value.as_ref())
         .map(|s| Cow::Borrowed(s.as_str()))

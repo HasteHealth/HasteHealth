@@ -12,6 +12,8 @@ Run the two separately to scale them on their own. Every deployment needs both
 running somewhere. The settings below are the indexing worker's. The async-job
 worker reads the [server configuration](./server_configuration.md) instead: its
 lease, polling and concurrency come from the `jobs` section (`HASTE_JOBS.*`).
+It also removes orphaned Binary documents from document storage every
+`document_storage.sweep_interval_seconds` (a day by default).
 
 ## Configuration
 
