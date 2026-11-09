@@ -3,7 +3,7 @@ use crate::{
         certificates::get_certification_provider,
         constant_time,
         oidc::{
-            code_verification,
+            client_assertion, code_verification,
             error::{OIDCError, OIDCErrorCode},
             extract::{body::OAuthTokenBody, client_app::find_client_app},
             routes::{scope::verify_requested_scope_is_subset, style},
@@ -660,19 +660,92 @@ fn validate_client_grant_type(
     Ok(())
 }
 
-fn verify_client(
+/// How a token request authenticated its client (RFC 6749 section 2.3).
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum ClientAuthentication {
+    /// `private_key_jwt`: a signed assertion, verified before this point.
+    PrivateKeyJwt,
+    /// `client_secret_basic` or `client_secret_post`; or no credentials at
+    /// all, which is what a public client sends.
+    ClientSecret,
+}
+
+/// `grant_type` as it is spelled in a request body.
+fn grant_type_name(grant_type: &schemas::token_body::OAuth2TokenBodyGrantType) -> &'static str {
+    match grant_type {
+        schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => "client_credentials",
+        schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => "refresh_token",
+        schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => "authorization_code",
+    }
+}
+
+/// Authenticates the client a token request is from: by the client assertion
+/// it carries, or by its `client_id` and, for a confidential client, its
+/// `client_secret`. A client registered with public keys is confidential and
+/// has to send an assertion.
+async fn authenticate_client<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    state: &ServerState<Repo, Search, Terminology>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    token_body: &schemas::token_body::OAuth2TokenBody,
+) -> Result<(ClientApplication, ClientAuthentication), OIDCError> {
+    if client_assertion::is_assertion_request(token_body) {
+        let client_app = client_assertion::authenticate(state, tenant, project, token_body).await?;
+        return Ok((client_app, ClientAuthentication::PrivateKeyJwt));
+    }
+
+    let Some(client_id) = &token_body.client_id else {
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some(format!(
+                "client_id is required for {} grant type.",
+                grant_type_name(&token_body.grant_type)
+            )),
+            None,
+        ));
+    };
+
+    let client_app =
+        find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
+
+    verify_client_credentials(
+        &client_app,
+        Some(client_id),
+        token_body.client_secret.as_deref(),
+    )?;
+
+    if token_body.client_secret.is_none() && client_assertion::has_registered_keys(&client_app) {
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidClient,
+            Some("The client authenticates with a client assertion (private_key_jwt).".to_string()),
+            None,
+        ));
+    }
+
+    Ok((client_app, ClientAuthentication::ClientSecret))
+}
+
+/// Checks that `client_app` may use the request's grant, and that a client
+/// credentials grant comes from a confidential client: one that authenticated
+/// with an assertion, or one that has a secret to authenticate with.
+fn verify_client_grant(
     client_app: &ClientApplication,
-    token_request_body: &schemas::token_body::OAuth2TokenBody,
+    grant_type: &schemas::token_body::OAuth2TokenBodyGrantType,
+    authentication: ClientAuthentication,
 ) -> Result<(), OIDCError> {
-    // Verify the grant types align
-    match token_request_body.grant_type {
+    match grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
             validate_client_grant_type(
                 client_app,
                 &ClientapplicationGrantType::client_credentials(),
             )?;
-            // Enforce requirement of a client_secret.
-            require_client_secret(client_app)?;
+            if authentication == ClientAuthentication::ClientSecret {
+                require_client_secret(client_app)?;
+            }
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
             validate_client_grant_type(client_app, &ClientapplicationGrantType::refresh_token())?;
@@ -685,11 +758,7 @@ fn verify_client(
         }
     }
 
-    verify_client_credentials(
-        client_app,
-        token_request_body.client_id.as_deref(),
-        token_request_body.client_secret.as_deref(),
-    )
+    Ok(())
 }
 
 /// Checks that `client_id` names `client_app` and `client_secret` matches its
@@ -967,18 +1036,11 @@ pub async fn client_credentials_to_token_response<
     token_body: &schemas::token_body::OAuth2TokenBody,
     method: ClientCredentialsMethod,
 ) -> Result<TokenResponse, OIDCError> {
-    let Some(client_id) = &token_body.client_id else {
-        return Err(OIDCError::new(
-            OIDCErrorCode::InvalidRequest,
-            Some("client_id is required for client_credentials grant type.".to_string()),
-            None,
-        ));
-    };
-
-    let client_app =
-        find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
-
-    verify_client(&client_app, token_body)?;
+    let (client_app, authentication) =
+        authenticate_client(state, tenant, project, token_body).await?;
+    verify_client_grant(&client_app, &token_body.grant_type, authentication)?;
+    let client_id = client_app.id.clone().unwrap_or_default();
+    let client_id = &client_id;
 
     // Allow basic auth if client app allows grant.
     if method == ClientCredentialsMethod::BasicAuth {
@@ -1091,23 +1153,26 @@ pub async fn token<
             // A public client need not send client_id when refreshing (RFC 6749
             // section 6, and fhirclient does not by default): the refresh
             // token names the client it was issued to. A confidential client
-            // still has to authenticate, which verify_client checks.
-            let client_id = match &token_body.client_id {
-                Some(client_id) => client_id.clone(),
-                None => {
-                    refresh_token_client_id(&*state.repo, &tenant, &project, refresh_token).await?
+            // still has to authenticate, which authenticate_client checks; a
+            // client assertion names its client itself.
+            let token_body = match &token_body.client_id {
+                None if !client_assertion::is_assertion_request(&token_body) => {
+                    schemas::token_body::OAuth2TokenBody {
+                        client_id: Some(
+                            refresh_token_client_id(&*state.repo, &tenant, &project, refresh_token)
+                                .await?,
+                        ),
+                        ..token_body.clone()
+                    }
                 }
+                _ => token_body.clone(),
             };
-            let token_body = schemas::token_body::OAuth2TokenBody {
-                client_id: Some(client_id.clone()),
-                ..token_body.clone()
-            };
+
+            let (client_app, authentication) =
+                authenticate_client(&state, &tenant, &project, &token_body).await?;
+            verify_client_grant(&client_app, &token_body.grant_type, authentication)?;
+            let client_id = client_app.id.clone().unwrap_or_default();
             let client_id = &client_id;
-
-            let client_app =
-                find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
-
-            verify_client(&client_app, &token_body)?;
 
             let code = code_verification::retrieve_and_verify_code(
                 &*state.repo,
@@ -1234,14 +1299,6 @@ pub async fn token<
             Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
-            let Some(client_id) = &token_body.client_id else {
-                return Err(OIDCError::new(
-                    OIDCErrorCode::InvalidRequest,
-                    Some("client_id is required for authorization_code grant type.".to_string()),
-                    None,
-                ));
-            };
-
             let code = token_body.code.as_ref().ok_or_else(|| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
@@ -1266,10 +1323,11 @@ pub async fn token<
                 )
             })?;
 
-            let client_app =
-                find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
-
-            verify_client(&client_app, &token_body)?;
+            let (client_app, authentication) =
+                authenticate_client(&state, &tenant, &project, &token_body).await?;
+            verify_client_grant(&client_app, &token_body.grant_type, authentication)?;
+            let client_id = client_app.id.clone().unwrap_or_default();
+            let client_id = &client_id;
 
             let code = code_verification::retrieve_and_verify_code(
                 &*state.repo,

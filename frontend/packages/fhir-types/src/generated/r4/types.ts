@@ -4628,6 +4628,22 @@ resourceType: "ClientApplication"
    */
   _secret?: Element
   /** 
+   * The client's public keys, as a JSON Web Key Set (RFC 7517) document, for private_key_jwt client authentication.
+   */
+  jwks?: string;
+  /** 
+   * The client's public keys, as a JSON Web Key Set (RFC 7517) document, for private_key_jwt client authentication.
+   */
+  _jwks?: Element
+  /** 
+   * The https URL of the client's JSON Web Key Set, for private_key_jwt client authentication.
+   */
+  jwksUri?: uri;
+  /** 
+   * The https URL of the client's JSON Web Key Set, for private_key_jwt client authentication.
+   */
+  _jwksUri?: Element
+  /** 
    * Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value.
    */
   redirectUri?: Array<string>;

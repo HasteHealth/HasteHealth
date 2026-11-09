@@ -565,6 +565,12 @@ pub struct ClientApplication {
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,
     #[primitive]
+    #[doc = "The client's public signing keys as a JSON Web Key Set (RFC 7517) document, used to verify the JWT client assertions of a confidential asymmetric client (SMART App Launch client-confidential-asymmetric, SMART Backend Services). Each key carries a kid the assertion names. Register either jwks or jwksUri; jwks takes precedence when both are set."]
+    pub jwks: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The URL the client publishes its JSON Web Key Set at. The server fetches and caches it, and refreshes it when an assertion names a kid it has not seen. It must be an https URL on a public host."]
+    pub jwksUri: Option<Box<FHIRUri>>,
+    #[primitive]
     #[cardinality(max = 5u64)]
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<FHIRString>>,
@@ -600,6 +606,8 @@ impl ClientApplication {
                 "grantType",
                 "responseTypes",
                 "secret",
+                "jwks",
+                "jwksUri",
                 "redirectUri",
                 "launchUri",
                 "uri",
@@ -628,6 +636,12 @@ impl ClientApplication {
         }
         if fields.contains(&"secret") {
             out.secret = self.secret;
+        }
+        if fields.contains(&"jwks") {
+            out.jwks = self.jwks;
+        }
+        if fields.contains(&"jwksUri") {
+            out.jwksUri = self.jwksUri;
         }
         if fields.contains(&"redirectUri") {
             out.redirectUri = self.redirectUri;

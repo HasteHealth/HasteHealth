@@ -47,6 +47,7 @@ use middleware::{
     check_project::{CheckProject, SetProjectReadOnly},
     custom_models::{
         access_policy_v3::AccessPolicyV3Validation,
+        client_application::ClientApplicationValidation,
         deidentification_policy::DeidentificationPolicyValidation, membership::MembershipSync,
         project::ProjectSync, user::UserSync,
     },
@@ -517,7 +518,13 @@ impl<
         let builtin_operations = operations.operation_definitions();
 
         let router = Router {
-            clinical: Pipeline::new(vec![Box::new(BinaryContent)], Storage),
+            clinical: Pipeline::new(
+                vec![
+                    Box::new(ClientApplicationValidation),
+                    Box::new(BinaryContent),
+                ],
+                Storage,
+            ),
             artifact: Pipeline::new(
                 vec![
                     Box::new(CanonicalCacheInvalidation),
