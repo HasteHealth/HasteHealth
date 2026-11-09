@@ -1,6 +1,7 @@
 use crate::config::{SecretProviderConfig, ServerConfig};
-use crate::document_storage::{self, BinaryStorage};
+use crate::document_storage;
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
+use haste_document_storage::DocumentStorage;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::SearchEngine;
@@ -76,7 +77,7 @@ pub struct ServerState<
     pub secret_provider: Arc<dyn haste_encryption::SecretsProvider + Send + Sync>,
     pub config: Arc<crate::config::ServerConfig>,
     /// Document storage for large `Binary.data`; `None` when it is off.
-    pub binary_storage: Option<BinaryStorage>,
+    pub binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<

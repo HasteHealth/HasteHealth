@@ -156,7 +156,7 @@ pub(crate) enum MigrationCommands {
     Artifacts {},
     /// Reload the built-in FHIR artifacts from scratch, discarding local edits to them.
     ResetArtifacts {},
-    /// Run pending repository (Postgres) migrations, including the document storage tables.
+    /// Run pending repository (Postgres) migrations, including the document storage table.
     Repo {},
     /// Run pending search index (Postgres or Elasticsearch) migrations.
     Search {},
@@ -589,7 +589,7 @@ async fn sweep_document_storage(
 
     let report = document_storage::sweep(
         &repo,
-        &storage,
+        storage.as_ref(),
         std::time::Duration::from_secs(older_than_hours.saturating_mul(60 * 60)),
         dry_run,
     )

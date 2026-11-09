@@ -4,7 +4,7 @@ use haste_fhir_model::r4::generated::terminology::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 #[cfg(feature = "reflect")]
 pub mod reflect;
@@ -265,22 +265,6 @@ impl TenantId {
     }
 }
 
-impl TryFrom<String> for TenantId {
-    type Error = OperationOutcomeError;
-
-    fn try_from(id: String) -> Result<Self, Self::Error> {
-        TenantId::new(id)
-    }
-}
-
-impl FromStr for TenantId {
-    type Err = OperationOutcomeError;
-
-    fn from_str(id: &str) -> Result<Self, Self::Err> {
-        TenantId::new(id.to_string())
-    }
-}
-
 impl AsRef<str> for TenantId {
     fn as_ref(&self) -> &str {
         match self {
@@ -354,22 +338,6 @@ impl ProjectId {
         } else {
             ProjectId::Custom(id)
         }
-    }
-}
-
-impl TryFrom<String> for ProjectId {
-    type Error = OperationOutcomeError;
-
-    fn try_from(id: String) -> Result<Self, Self::Error> {
-        ProjectId::new(id)
-    }
-}
-
-impl FromStr for ProjectId {
-    type Err = OperationOutcomeError;
-
-    fn from_str(id: &str) -> Result<Self, Self::Err> {
-        ProjectId::new(id.to_string())
     }
 }
 

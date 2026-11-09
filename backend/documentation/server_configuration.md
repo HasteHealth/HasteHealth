@@ -103,13 +103,13 @@ the leading segments of the object name in a bucket.
 
 Tagged by `backend`:
 
-- `postgres` (the default): two tables in the repository database
-  (`document_storage`, and `document_storage_chunks` with the content in rows
-  of at most 1 MiB), so a deployment needs nothing beyond the database it
-  already has. `haste-health admin migrate repo` (or `migrate all`) creates
-  them; until it has run, writing a Binary over the threshold fails with an
-  error naming that command. `database_url` puts them in another database; in
-  the repository database, deleting a project deletes its documents with it.
+- `postgres` (the default): one table in the repository database
+  (`document_storage`, with the content in a `bytea` column), so a deployment
+  needs nothing beyond the database it already has. `haste-health admin
+  migrate repo` (or `migrate all`) creates it; until it has run, writing a
+  Binary over the threshold fails with an error naming that command.
+  `database_url` puts it in another database; in the repository database,
+  deleting a project deletes its documents with it.
 - `filesystem`: a directory, for development, tests and single-node
   deployments.
 - `gcs`: a Google Cloud Storage bucket.
@@ -257,7 +257,7 @@ backend = "postgres"
 database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
 max_connections = 20
 
-# Binary content of 64 KiB or more goes to tables in the repo database by
+# Binary content of 64 KiB or more goes to a table in the repo database by
 # default. To keep it in a directory instead:
 # [document_storage]
 # backend = "filesystem"

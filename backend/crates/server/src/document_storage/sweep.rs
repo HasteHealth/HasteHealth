@@ -2,13 +2,13 @@
 
 use std::{collections::HashSet, time::Duration};
 
-use haste_document_storage::ListRequest;
+use haste_document_storage::{DocumentStorage, ListRequest};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_repository::pg::PGConnection;
 use serde::Serialize;
 use sqlx::types::time::OffsetDateTime;
 
-use super::{BinaryStorage, MARKER_URL};
+use super::MARKER_URL;
 
 /// Documents listed per storage request.
 const PAGE_SIZE: u32 = 1000;
@@ -47,18 +47,17 @@ pub struct SweepReport {
 /// Fails when storage or the database fails.
 pub async fn sweep(
     repo: &PGConnection,
-    storage: &BinaryStorage,
+    storage: &dyn DocumentStorage,
     grace: Duration,
     dry_run: bool,
 ) -> Result<SweepReport, OperationOutcomeError> {
     let cutoff = OffsetDateTime::now_utc() - grace;
-    let store = storage.storage();
 
     let mut report = SweepReport::default();
-    for scope in store.scopes().await? {
+    for scope in storage.scopes().await? {
         let mut page_token = None;
         loop {
-            let page = store
+            let page = storage
                 .list(
                     &scope,
                     ListRequest {
@@ -89,15 +88,15 @@ pub async fn sweep(
                 } else {
                     report.orphaned += 1;
                     if !dry_run {
-                        store.delete(&scope, &document.name).await?;
+                        storage.delete(&scope, &document.name).await?;
                         report.removed += 1;
                     }
                 }
             }
 
-            match page.next_page_token {
-                Some(token) => page_token = Some(token),
-                None => break,
+            page_token = page.next_page_token;
+            if page_token.is_none() {
+                break;
             }
         }
     }

@@ -26,9 +26,9 @@ jobs:
       HASTE_REPO.backend: postgres
       HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
       # Binary content of 1 KiB or more is kept in document storage (a
-      # directory in one job, the Postgres tables in the other), so the base
+      # directory in one job, the Postgres table in the other), so the base
       # TestScripts run against both. The postgres backend ignores root. The
-      # other e2e workflows run with the default: Postgres tables from 64 KiB.
+      # other e2e workflows run with the default: the Postgres table from 64 KiB.
       HASTE_DOCUMENT_STORAGE.backend: ${{ matrix.document-storage }}
       HASTE_DOCUMENT_STORAGE.root: /tmp/haste-documents
       HASTE_DOCUMENT_STORAGE.binary_min_bytes: 1024

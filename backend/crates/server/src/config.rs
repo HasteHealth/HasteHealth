@@ -23,7 +23,7 @@ pub struct ServerConfig {
 
     pub fhir: FHIRConfig,
     pub repo: RepoConfig,
-    /// Where large `Binary.data` is kept instead of the resource rows. Tables
+    /// Where large `Binary.data` is kept instead of the resource rows. A table
     /// in the repository database unless configured otherwise.
     pub document_storage: DocumentStorageConfig,
     pub search: SearchConfig,

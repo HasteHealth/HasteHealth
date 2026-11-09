@@ -331,8 +331,7 @@ impl DocumentStorage for FilesystemDocumentStorage {
             let page_size = request
                 .page_size
                 .and_then(|size| usize::try_from(size).ok())
-                .filter(|size| *size > 0)
-                .map_or(MAX_PAGE_SIZE, |size| size.min(MAX_PAGE_SIZE));
+                .map_or(MAX_PAGE_SIZE, |size| size.clamp(1, MAX_PAGE_SIZE));
             let more = names.len() > page_size;
             names.truncate(page_size);
 

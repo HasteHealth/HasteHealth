@@ -51,7 +51,7 @@ prefix = "documents"
 credentials = { type = "service_account_key_file", path = "/secrets/key.json" }
 ```
 
-The `postgres` backend needs its tables before first use: `PostgresDocumentStorage::migrate` creates them, recording its migrations in `_document_storage_migrations` so it can share a database with another application's sqlx migrations. In a database that also holds Haste Health's `projects` table, the migration ties every document to its project, so deleting the project deletes its documents.
+The `postgres` backend needs its table before first use: `PostgresDocumentStorage::migrate` creates it, recording its migrations in `_document_storage_migrations` so it can share a database with another application's sqlx migrations. In a database that also holds Haste Health's `projects` table, the migration ties every document to its project, so deleting the project deletes its documents.
 
 Bodies are read as a stream (`DocumentBody`); `collect` gathers one into memory. Names are validated (`DocumentName`): non-empty, at most 1024 bytes, no control characters, no leading slash and no empty, `.` or `..` segments. Errors are `StorageError`s, which convert into a FHIR `OperationOutcome` through [`haste-fhir-operation-error`](https://crates.io/crates/haste-fhir-operation-error); `is_transient` tells a retryable failure apart, and the GCS backend retries those itself.
 

@@ -8,8 +8,8 @@
 //! either way. The row keeps `data` with only the marker extension
 //! ([`MARKER_URL`]), whose value is the document's name.
 //!
-//! Every storage call names the tenant and project of the request
-//! ([`DocumentScope`](haste_document_storage::DocumentScope)), and a name only means something within that scope, so
+//! Every storage call names the tenant and project of the request (a
+//! [`DocumentScope`]), and a name only means something within that scope, so
 //! a marker can never reach another project's document, whatever it says.
 //!
 //! Code that reads the repository directly rather than through the FHIR
@@ -20,16 +20,14 @@
 //! afterwards leaves a document no version refers to; [`sweep`] removes those.
 //!
 //! [`BinaryContent`]: crate::fhir_client::middleware::binary_content::BinaryContent
+//! [`DocumentScope`]: haste_document_storage::DocumentScope
 
 mod sweep;
 
-use std::{
-    fmt::{self, Debug},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 use haste_document_storage::{
-    DocumentName, DocumentStorage, DocumentStorageKind, StorageError,
+    DocumentName, DocumentStorageKind, StorageError,
     providers::{
         filesystem::FilesystemConfig,
         gcs::GcsConfig,
@@ -42,12 +40,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::ServerConfig;
 
+pub use haste_document_storage::DocumentStorage;
 pub use sweep::{SweepReport, sweep};
 
 /// Marks a `Binary.data` whose value is in document storage; the extension's
-/// `valueString` is the document's name within the project's
-/// [`DocumentScope`](haste_document_storage::DocumentScope). Only the server sets it: one sent by a client is removed
-/// before the Binary is stored.
+/// `valueString` is the document's name within the project's scope. Only the
+/// server sets it: one sent by a client is removed before the Binary is
+/// stored.
 pub const MARKER_URL: &str = "https://haste.health/document-storage";
 
 /// Document storage for resource content kept out of the database. Today
@@ -116,41 +115,6 @@ fn default_sweep_seconds() -> u64 {
     24 * 60 * 60
 }
 
-/// The document storage Binary content goes to, and the size from which it
-/// does.
-#[derive(Clone)]
-pub struct BinaryStorage {
-    storage: Arc<dyn DocumentStorage>,
-    min_bytes: usize,
-}
-
-impl BinaryStorage {
-    /// Content of at least `min_bytes` bytes (after base64 decoding) is kept
-    /// in `storage`.
-    #[must_use]
-    pub fn new(storage: Arc<dyn DocumentStorage>, min_bytes: usize) -> Self {
-        Self { storage, min_bytes }
-    }
-
-    #[must_use]
-    pub fn storage(&self) -> &Arc<dyn DocumentStorage> {
-        &self.storage
-    }
-
-    #[must_use]
-    pub fn min_bytes(&self) -> usize {
-        self.min_bytes
-    }
-}
-
-impl Debug for BinaryStorage {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("BinaryStorage")
-            .field("min_bytes", &self.min_bytes)
-            .finish_non_exhaustive()
-    }
-}
-
 /// The backend `config` selects, with a Postgres backend's unset database
 /// filled in from `repo`. `None` when document storage is off.
 fn storage_kind(config: &DocumentStorageConfig, repo: &RepoConfig) -> Option<DocumentStorageKind> {
@@ -179,15 +143,11 @@ fn storage_kind(config: &DocumentStorageConfig, repo: &RepoConfig) -> Option<Doc
 /// credentials.
 pub async fn connect(
     config: &ServerConfig,
-) -> Result<Option<BinaryStorage>, OperationOutcomeError> {
-    let Some(kind) = storage_kind(&config.document_storage, &config.repo) else {
-        return Ok(None);
-    };
-    let storage = haste_document_storage::connect(kind).await?;
-    Ok(Some(BinaryStorage::new(
-        storage,
-        config.document_storage.binary_min_bytes,
-    )))
+) -> Result<Option<Arc<dyn DocumentStorage>>, OperationOutcomeError> {
+    match storage_kind(&config.document_storage, &config.repo) {
+        Some(kind) => Ok(Some(haste_document_storage::connect(kind).await?)),
+        None => Ok(None),
+    }
 }
 
 /// Creates or updates the Postgres backend's table. Other backends need no
@@ -209,8 +169,8 @@ pub async fn migrate(config: &ServerConfig) -> Result<(), OperationOutcomeError>
 }
 
 /// The name of a new Binary document, `Binary/{document id}`, within the
-/// project's [`DocumentScope`](haste_document_storage::DocumentScope). The id is generated here, so a name exists
-/// before the resource has its own id and version.
+/// project's scope. The id is generated here, so a name exists before the
+/// resource has its own id and version.
 ///
 /// # Errors
 ///

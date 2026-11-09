@@ -21,7 +21,9 @@ use std::sync::Arc;
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use futures_util::{StreamExt as _, TryStreamExt as _, stream};
-use haste_document_storage::{Document, DocumentName, DocumentScope, StorageError};
+use haste_document_storage::{
+    Document, DocumentName, DocumentScope, DocumentStorage, StorageError,
+};
 use haste_fhir_client::request::{
     FHIRPatchResponse, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest, HistoryResponse,
     SearchResponse, UpdateRequest,
@@ -35,7 +37,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 
 use crate::{
-    document_storage::{BinaryStorage, MARKER_URL, new_document_name},
+    document_storage::{MARKER_URL, new_document_name},
     fhir_client::{
         ClientState, ServerCTX,
         middleware::{
@@ -70,7 +72,7 @@ impl<B: Backend> Middleware<B> for BinaryContent {
                         read_patch_target(state.repo.as_ref(), &ctx.tenant, &ctx.project, &patch)
                             .await?;
                     rehydrate(
-                        state.binary_storage.as_ref(),
+                        state.binary_storage.as_deref(),
                         &ctx.tenant,
                         &ctx.project,
                         vec![&mut current],
@@ -109,9 +111,18 @@ async fn write<'a, B: Backend>(
     mut request: FHIRRequest,
     next: Next<'a, B>,
 ) -> Result<FHIRResponse, OperationOutcomeError> {
-    let storage = state.binary_storage.as_ref();
+    let storage = state.binary_storage.as_deref();
     let offloaded = match request_resource_mut(&mut request) {
-        Some(resource) => offload(storage, &ctx.tenant, &ctx.project, resource).await?,
+        Some(resource) => {
+            offload(
+                storage,
+                state.config.document_storage.binary_min_bytes,
+                &ctx.tenant,
+                &ctx.project,
+                resource,
+            )
+            .await?
+        }
         None => None,
     };
 
@@ -145,7 +156,7 @@ async fn read<'a, B: Backend>(
     let mut response = next.run(state, ctx.clone(), request).await?;
     if wanted {
         rehydrate(
-            state.binary_storage.as_ref(),
+            state.binary_storage.as_deref(),
             &ctx.tenant,
             &ctx.project,
             response_resources_mut(&mut response),
@@ -215,10 +226,11 @@ struct Offloaded {
 }
 
 /// Prepares `resource` for its row. Any client-sent marker is removed. With
-/// storage configured, content of at least the configured size is uploaded
-/// and replaced by the marker. Returns what was taken off.
+/// storage configured, content of at least `min_bytes` is uploaded and
+/// replaced by the marker. Returns what was taken off.
 async fn offload(
-    storage: Option<&BinaryStorage>,
+    storage: Option<&dyn DocumentStorage>,
+    min_bytes: usize,
     tenant: &TenantId,
     project: &ProjectId,
     resource: &mut Resource,
@@ -243,14 +255,14 @@ async fn offload(
         return Ok(None);
     };
     // Base64 never decodes to more than three bytes per four characters.
-    if value.len() / 4 * 3 < storage.min_bytes() {
+    if value.len() / 4 * 3 < min_bytes {
         return Ok(None);
     }
     // Content that does not decode stays in the row, as before.
     let Some(bytes) = decode(value) else {
         return Ok(None);
     };
-    if bytes.len() < storage.min_bytes() {
+    if bytes.len() < min_bytes {
         return Ok(None);
     }
 
@@ -260,7 +272,7 @@ async fn offload(
     if let Some(content_type) = content_type.value.as_deref() {
         document = document.with_content_type(content_type);
     }
-    storage.storage().put(&scope, &name, document).await?;
+    storage.put(&scope, &name, document).await?;
 
     let value = data.value.take().unwrap_or_default();
     data.extension
@@ -281,12 +293,9 @@ fn restore(resource: &mut Resource, offloaded: Option<Offloaded>) {
 
 /// Removes the document of a write that was refused. Failure is only logged:
 /// the sweep removes the document later.
-async fn discard(storage: Option<&BinaryStorage>, offloaded: Option<&Offloaded>) {
+async fn discard(storage: Option<&dyn DocumentStorage>, offloaded: Option<&Offloaded>) {
     if let (Some(storage), Some(offloaded)) = (storage, offloaded)
-        && let Err(error) = storage
-            .storage()
-            .delete(&offloaded.scope, &offloaded.name)
-            .await
+        && let Err(error) = storage.delete(&offloaded.scope, &offloaded.name).await
     {
         tracing::warn!(scope = %offloaded.scope, name = %offloaded.name, %error, "could not remove the document of a refused Binary write");
     }
@@ -295,7 +304,7 @@ async fn discard(storage: Option<&BinaryStorage>, offloaded: Option<&Offloaded>)
 /// Puts the stored content back on every Binary in `resources` that carries
 /// the marker.
 async fn rehydrate(
-    storage: Option<&BinaryStorage>,
+    storage: Option<&dyn DocumentStorage>,
     tenant: &TenantId,
     project: &ProjectId,
     resources: Vec<&mut Resource>,
@@ -336,7 +345,7 @@ async fn rehydrate(
 /// Fetches the document the marker names from the request's `scope`. A name
 /// the layer did not write can at most miss within that scope.
 async fn fetch(
-    storage: &BinaryStorage,
+    storage: &dyn DocumentStorage,
     scope: &DocumentScope,
     binary: &mut Binary,
 ) -> Result<(), OperationOutcomeError> {
@@ -345,7 +354,7 @@ async fn fetch(
         return Err(missing_content(binary));
     };
 
-    let bytes = match storage.storage().get(scope, &name).await {
+    let bytes = match storage.get(scope, &name).await {
         Ok(document) => document.body.collect().await?,
         Err(StorageError::NotFound(_)) => {
             tracing::error!(%scope, %name, "stored Binary content is missing");

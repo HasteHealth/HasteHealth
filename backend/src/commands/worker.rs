@@ -10,7 +10,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_repository::pg::PGConnection;
 use haste_server::{
     config::ServerConfig,
-    document_storage::{self, BinaryStorage, DocumentStorageConfig},
+    document_storage::{self, DocumentStorage, DocumentStorageConfig},
     jobs::operation::OperationJobHandler,
     services,
 };
@@ -75,21 +75,18 @@ async fn start_async_jobs() -> Result<JoinHandle<()>, OperationOutcomeError> {
 /// once do no harm. A failed sweep is logged and tried again next interval.
 fn spawn_document_sweep(
     repo: Arc<PGConnection>,
-    storage: Option<BinaryStorage>,
+    storage: Option<Arc<dyn DocumentStorage>>,
     config: &DocumentStorageConfig,
 ) {
-    let Some(storage) = storage else {
+    let Some(storage) = storage.filter(|_| config.sweep_interval_seconds > 0) else {
         return;
     };
-    if config.sweep_interval_seconds == 0 {
-        return;
-    }
     let interval = Duration::from_secs(config.sweep_interval_seconds);
     let grace = Duration::from_secs(config.sweep_grace_seconds);
     tokio::spawn(async move {
         loop {
             tokio::time::sleep(interval).await;
-            match document_storage::sweep(&repo, &storage, grace, false).await {
+            match document_storage::sweep(&repo, storage.as_ref(), grace, false).await {
                 Ok(report) => tracing::info!(?report, "document storage sweep finished"),
                 Err(error) => tracing::error!(%error, "document storage sweep failed"),
             }

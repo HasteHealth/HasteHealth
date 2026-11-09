@@ -16,7 +16,7 @@ pub type StorageFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, StorageErr
 /// [`DocumentScope`] (tenant and project) it belongs to and its
 /// [`DocumentName`] within that scope.
 ///
-/// An implementation wraps one bucket (or container, or pair of tables) and is
+/// An implementation wraps one bucket (or directory, or table) and is
 /// shared across tasks behind an `Arc`. How a scope and a name map onto the
 /// backend, including any deployment-wide prefix, is the backend's concern.
 pub trait DocumentStorage: Send + Sync {

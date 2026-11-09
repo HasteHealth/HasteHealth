@@ -1,13 +1,13 @@
 use crate::{
     auth_n::middleware::jwt::User,
     config::ServerConfig,
-    document_storage::BinaryStorage,
     fhir_client::{
         middleware::{Handler, Output, Pipeline},
         utilities::request_to_resource_type,
     },
 };
 use derivative::Derivative;
+use haste_document_storage::DocumentStorage;
 use haste_fhir_client::{
     FHIRClient,
     request::{
@@ -249,7 +249,7 @@ pub struct ClientState<B: Backend> {
     config: Arc<ServerConfig>,
     deno_pool: Arc<DenoPool>,
     /// Document storage for large `Binary.data`; `None` when it is off.
-    binary_storage: Option<BinaryStorage>,
+    binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<B: Backend> ClientState<B> {
@@ -461,7 +461,7 @@ pub struct ServerClientConfig<
     pub config: Arc<ServerConfig>,
     pub deno_pool: Arc<DenoPool>,
     /// Document storage for large `Binary.data`; `None` when it is off.
-    pub binary_storage: Option<BinaryStorage>,
+    pub binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<
@@ -500,7 +500,7 @@ impl<
     }
 
     #[must_use]
-    pub fn with_binary_storage(mut self, binary_storage: Option<BinaryStorage>) -> Self {
+    pub fn with_binary_storage(mut self, binary_storage: Option<Arc<dyn DocumentStorage>>) -> Self {
         self.binary_storage = binary_storage;
         self
     }
