@@ -7,6 +7,7 @@ use crate::{
     },
 };
 use derivative::Derivative;
+use haste_document_storage::DocumentStorage;
 use haste_fhir_client::{
     FHIRClient,
     request::{
@@ -40,6 +41,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions};
 use middleware::{
     auditing::Auditing,
     auth_z::{access_control::AccessControl, scope_check::SmartScopeAccess},
+    binary_content::BinaryContent,
     canonical_cache::CanonicalCacheInvalidation,
     capabilities::Capabilities,
     check_project::{CheckProject, SetProjectReadOnly},
@@ -246,6 +248,8 @@ pub struct ClientState<B: Backend> {
     audit_repo: Option<Arc<B::Repo>>,
     config: Arc<ServerConfig>,
     deno_pool: Arc<DenoPool>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<B: Backend> ClientState<B> {
@@ -258,6 +262,7 @@ impl<B: Backend> ClientState<B> {
             audit_repo: self.audit_repo.clone(),
             config: self.config.clone(),
             deno_pool: self.deno_pool.clone(),
+            binary_storage: self.binary_storage.clone(),
         }
     }
 }
@@ -455,6 +460,8 @@ pub struct ServerClientConfig<
     pub mutate_artifacts: bool,
     pub config: Arc<ServerConfig>,
     pub deno_pool: Arc<DenoPool>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    pub binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<
@@ -478,6 +485,7 @@ impl<
             mutate_artifacts: false,
             config,
             deno_pool,
+            binary_storage: None,
         }
     }
 
@@ -488,6 +496,12 @@ impl<
 
     pub fn with_audit_repo(mut self, audit_repo: Option<Arc<Repo>>) -> Self {
         self.audit_repo = audit_repo;
+        self
+    }
+
+    #[must_use]
+    pub fn with_binary_storage(mut self, binary_storage: Option<Arc<dyn DocumentStorage>>) -> Self {
+        self.binary_storage = binary_storage;
         self
     }
 }
@@ -503,7 +517,7 @@ impl<
         let builtin_operations = operations.operation_definitions();
 
         let router = Router {
-            clinical: Pipeline::new(vec![], Storage),
+            clinical: Pipeline::new(vec![Box::new(BinaryContent)], Storage),
             artifact: Pipeline::new(
                 vec![
                     Box::new(CanonicalCacheInvalidation),
@@ -571,6 +585,7 @@ impl<
                 terminology: config.terminology,
                 config: config.config,
                 deno_pool: config.deno_pool,
+                binary_storage: config.binary_storage,
             },
             pipeline: Pipeline::new(
                 vec![

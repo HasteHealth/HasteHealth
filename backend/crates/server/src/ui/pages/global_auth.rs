@@ -9,7 +9,7 @@ use crate::{
     tenants::{TENANT_ID_MAX_LEN, TENANT_ID_MIN_LEN},
     ui::components::{banner, otp_code_input, page_html, version_watermark},
 };
-use haste_repository::utilities::HOSTNAME_ID_PATTERN;
+use haste_jwt::HOSTNAME_ID_PATTERN;
 use maud::{Markup, html};
 
 const CARD: &str =

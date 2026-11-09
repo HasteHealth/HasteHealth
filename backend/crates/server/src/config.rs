@@ -1,3 +1,4 @@
+use crate::document_storage::DocumentStorageConfig;
 use derivative::Derivative;
 use haste_fhir_search::config::SearchConfig;
 use haste_repository::config::RepoConfig;
@@ -22,6 +23,9 @@ pub struct ServerConfig {
 
     pub fhir: FHIRConfig,
     pub repo: RepoConfig,
+    /// Where large `Binary.data` is kept instead of the resource rows. A table
+    /// in the repository database unless configured otherwise.
+    pub document_storage: DocumentStorageConfig,
     pub search: SearchConfig,
     pub email: Option<EmailConfig>,
     pub rate_limits: RateLimitsConfig,
@@ -315,6 +319,7 @@ impl Default for ServerConfig {
             admin_app_redirect_uri: "http://*.localhost:3001".into(),
             fhir: FHIRConfig::default(),
             repo: RepoConfig::default(),
+            document_storage: DocumentStorageConfig::default(),
             search: SearchConfig::default(),
             email: None,
             max_request_body_size: 4 * 1024 * 1024,

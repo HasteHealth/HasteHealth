@@ -76,6 +76,8 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health admin migrate repo`↴](#haste-health-admin-migrate-repo)
 * [`haste-health admin migrate search`↴](#haste-health-admin-migrate-search)
 * [`haste-health admin migrate all`↴](#haste-health-admin-migrate-all)
+* [`haste-health admin document-storage`↴](#haste-health-admin-document-storage)
+* [`haste-health admin document-storage sweep`↴](#haste-health-admin-document-storage-sweep)
 * [`haste-health hl7v2`↴](#haste-health-hl7v2)
 * [`haste-health hl7v2 receiver`↴](#haste-health-hl7v2-receiver)
 * [`haste-health hl7v2 sender`↴](#haste-health-hl7v2-sender)
@@ -802,6 +804,7 @@ Server-side administrative operations (tenants, users, clients, migrations)
 * `user` — Manage users
 * `client` — Manage OIDC ClientApplication resources
 * `migrate` — Run database/search/artifact migrations
+* `document-storage` — Maintain the document storage that holds large Binary content
 
 
 
@@ -925,7 +928,7 @@ Run database/search/artifact migrations
 
 * `artifacts` — Load the built-in FHIR artifacts (StructureDefinitions, ValueSets, etc)
 * `reset-artifacts` — Reload the built-in FHIR artifacts from scratch, discarding local edits to them
-* `repo` — Run pending repository (Postgres) migrations
+* `repo` — Run pending repository (Postgres) migrations, including the document storage table
 * `search` — Run pending search index (Postgres or Elasticsearch) migrations
 * `all` — Run all of the above: repo, then search, then artifacts
 
@@ -949,7 +952,7 @@ Reload the built-in FHIR artifacts from scratch, discarding local edits to them
 
 ## `haste-health admin migrate repo`
 
-Run pending repository (Postgres) migrations
+Run pending repository (Postgres) migrations, including the document storage table
 
 **Usage:** `haste-health admin migrate repo`
 
@@ -968,6 +971,33 @@ Run pending search index (Postgres or Elasticsearch) migrations
 Run all of the above: repo, then search, then artifacts
 
 **Usage:** `haste-health admin migrate all`
+
+
+
+## `haste-health admin document-storage`
+
+Maintain the document storage that holds large Binary content
+
+**Usage:** `haste-health admin document-storage <COMMAND>`
+
+###### **Subcommands:**
+
+* `sweep` — Remove stored Binary content that no resource version refers to: left behind by a rolled back transaction or a write that failed after the upload. Prints a JSON report
+
+
+
+## `haste-health admin document-storage sweep`
+
+Remove stored Binary content that no resource version refers to: left behind by a rolled back transaction or a write that failed after the upload. Prints a JSON report
+
+**Usage:** `haste-health admin document-storage sweep [OPTIONS]`
+
+###### **Options:**
+
+* `--older-than-hours <OLDER_THAN_HOURS>` — Keep documents younger than this many hours, which may belong to a write still in progress
+
+  Default value: `24`
+* `--dry-run` — Count what would be removed without removing anything
 
 
 

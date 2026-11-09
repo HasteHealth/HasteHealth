@@ -140,8 +140,8 @@ mod tests {
     fn fhir_root_url_has_no_version_segment() {
         let url = api_fhir_root_url(
             "https://api.haste.health",
-            &TenantId::new("acme".to_string()),
-            &ProjectId::new("default".to_string()),
+            &TenantId::new("acme".to_string()).unwrap(),
+            &ProjectId::new("default".to_string()).unwrap(),
         )
         .unwrap();
 

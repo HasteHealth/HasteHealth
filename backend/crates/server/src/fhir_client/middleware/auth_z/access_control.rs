@@ -450,8 +450,8 @@ mod tests {
         client_resources: HashMap<(ResourceType, String), Resource>,
         user_id: &str,
     ) -> IncludeAuthContext<FakeClient> {
-        let tenant = TenantId::new("test-tenant".to_string());
-        let project = ProjectId::new("test-project".to_string());
+        let tenant = TenantId::new("test-tenant".to_string()).unwrap();
+        let project = ProjectId::new("test-project".to_string()).unwrap();
         let fake_client = Arc::new(FakeClient {
             resources: client_resources,
         });

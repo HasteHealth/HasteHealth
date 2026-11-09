@@ -487,10 +487,10 @@ async fn free_tenant_id<
 ) -> String {
     let candidate = suggested_tenant_id(email);
 
-    if tenant_exists(state, &TenantId::new(candidate.clone())).await {
-        suggested_tenant_id_variant(&candidate)
+    if tenant_exists(state, &candidate).await {
+        suggested_tenant_id_variant(candidate.as_ref())
     } else {
-        candidate
+        candidate.as_ref().to_string()
     }
 }
 
