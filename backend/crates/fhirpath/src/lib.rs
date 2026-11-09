@@ -172,13 +172,16 @@ async fn evaluate_invocation<'a>(
 
             let float_index = downcast_number(index.values[0])?;
 
-            // Ensure the index is non-negative and has no fractional part
-            if float_index < 0.0 || float_index.fract() != 0.0 {
+            // Index must be an integer; a negative one is out of bounds.
+            if float_index.fract() != 0.0 {
                 return Err(FHIRPathError::OperationError(OperationError::InvalidIndex));
+            }
+            if float_index < 0.0 {
+                return Ok(context.new_context_from(vec![]));
             }
 
             // Suppress clippy warnings because the float is guaranteed to be a valid,
-            // non-negative integer index by the safety checks immediately above.
+            // non-negative integer index by the checks immediately above.
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let index: usize = (float_index as u64)
                 .try_into()

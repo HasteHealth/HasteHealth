@@ -34,9 +34,6 @@ testAggregate2
 testAggregate3
 testAggregate4
 
-# testIndexer
-testIndexer3
-
 # testSort
 testSort10
 
