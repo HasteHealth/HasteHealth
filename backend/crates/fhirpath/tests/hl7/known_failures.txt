@@ -37,15 +37,6 @@ testAggregate4
 # testIndexer
 testIndexer3
 
-# testStartsWith
-testStartsWithNonString1
-
-# testEndsWith
-testEndsWithNonString1
-
-# testContainsString
-testContainsNonString1
-
 # testSort
 testSort10
 
