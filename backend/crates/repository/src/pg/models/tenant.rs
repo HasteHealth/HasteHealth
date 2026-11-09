@@ -2,7 +2,7 @@ use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::tenant::{CreateTenant, Tenant, TenantSearchClaims},
-    utilities::{generate_hostname_id, validate_hostname_id},
+    utilities::validate_hostname_id,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{TenantId, claims::SubscriptionTier};
@@ -55,9 +55,7 @@ async fn create_tenant<'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let id = tenant
-        .id
-        .unwrap_or_else(|| TenantId::new(generate_hostname_id(None)));
+    let id = tenant.id.unwrap_or_else(|| TenantId::random(26));
 
     // The system tenant only ever comes from a migration.
     if id == TenantId::System {

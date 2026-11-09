@@ -266,7 +266,7 @@ impl DocumentStorage for PostgresDocumentStorage {
             .await
             .map_err(database_error)?;
             row.map(metadata_of)
-                .ok_or_else(|| StorageError::NotFound(format!("{scope}/{name}")))
+                .ok_or_else(|| StorageError::NotFound(format!("{scope}/{name}")))?
         })
     }
 
@@ -414,7 +414,10 @@ impl DocumentStorage for PostgresDocumentStorage {
             let page_size = usize::try_from(page_size).unwrap_or_default();
             let more = rows.len() > page_size;
             rows.truncate(page_size);
-            let documents = rows.into_iter().map(metadata_of).collect::<Vec<_>>();
+            let documents = rows
+                .into_iter()
+                .map(metadata_of)
+                .collect::<Result<Vec<_>, _>>()?;
             Ok(ListPage {
                 next_page_token: if more {
                     documents
@@ -440,10 +443,9 @@ impl DocumentStorage for PostgresDocumentStorage {
             .fetch_all(&self.pool)
             .await
             .map_err(database_error)?;
-            Ok(rows
-                .into_iter()
+            rows.into_iter()
                 .map(|(tenant, project)| DocumentScope::from_backend(tenant, project))
-                .collect())
+                .collect()
         })
     }
 }
@@ -461,16 +463,16 @@ struct ChunkReader {
 
 fn metadata_of(
     (tenant, project, name, generation, size, content_type, metadata, updated_at): MetadataRow,
-) -> DocumentMetadata {
-    DocumentMetadata {
-        scope: DocumentScope::from_backend(tenant, project),
+) -> Result<DocumentMetadata, StorageError> {
+    Ok(DocumentMetadata {
+        scope: DocumentScope::from_backend(tenant, project)?,
         name: DocumentName::from_backend(name),
         size: u64::try_from(size).unwrap_or_default(),
         content_type,
         etag: Some(format!("{generation:x}")),
         last_modified: Some(updated_at),
         metadata: metadata.0,
-    }
+    })
 }
 
 fn database_error(error: sqlx::Error) -> StorageError {

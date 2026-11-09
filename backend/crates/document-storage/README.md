@@ -32,7 +32,7 @@ let storage = haste_document_storage::connect(DocumentStorageKind::Filesystem(Fi
 }))
 .await?;
 
-let scope = DocumentScope::new(&TenantId::new("acme".into()), &ProjectId::new("clinic".into()))?;
+let scope = DocumentScope::new(&TenantId::new("acme".into())?, &ProjectId::new("clinic".into())?);
 let name = DocumentName::new("Binary/123")?;
 storage
     .put(&scope, &name, Document::new(b"%PDF-1.7 ...".as_slice()).with_content_type("application/pdf"))

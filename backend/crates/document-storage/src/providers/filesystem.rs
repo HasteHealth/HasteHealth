@@ -366,7 +366,7 @@ impl DocumentStorage for FilesystemDocumentStorage {
             let mut scopes = Vec::new();
             for (tenant_directory, tenant) in self.subdirectories(&self.root).await? {
                 for (_, project) in self.subdirectories(&tenant_directory).await? {
-                    scopes.push(DocumentScope::from_backend(tenant.clone(), project));
+                    scopes.push(DocumentScope::from_backend(tenant.clone(), project)?);
                 }
             }
             Ok(scopes)

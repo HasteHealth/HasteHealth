@@ -254,7 +254,7 @@ async fn offload(
         return Ok(None);
     }
 
-    let scope = DocumentScope::new(tenant, project)?;
+    let scope = DocumentScope::new(tenant, project);
     let name = new_document_name()?;
     let mut document = Document::new(bytes);
     if let Some(content_type) = content_type.value.as_deref() {
@@ -320,7 +320,7 @@ async fn rehydrate(
         ));
     };
 
-    let scope = DocumentScope::new(tenant, project)?;
+    let scope = DocumentScope::new(tenant, project);
     // Built before the stream so the stream's type holds no closure, which
     // keeps the caller's future `Send`.
     let fetches = stored

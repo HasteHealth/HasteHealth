@@ -10,12 +10,12 @@
 //!
 //! ```no_run
 //! use haste_document_storage::{
-//!     Document, DocumentName, DocumentScope, DocumentStorageKind, StorageError,
+//!     Document, DocumentName, DocumentScope, DocumentStorageKind,
 //!     providers::gcs::{GcsConfig, GcsCredentials},
 //! };
 //! use haste_jwt::{ProjectId, TenantId};
 //!
-//! # async fn example() -> Result<(), StorageError> {
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let storage = haste_document_storage::connect(DocumentStorageKind::Gcs(GcsConfig {
 //!     bucket: "my-bucket".into(),
 //!     prefix: Some("documents".into()),
@@ -25,9 +25,9 @@
 //! .await?;
 //!
 //! let scope = DocumentScope::new(
-//!     &TenantId::new("acme".to_string()),
-//!     &ProjectId::new("clinic".to_string()),
-//! )?;
+//!     &TenantId::new("acme".to_string())?,
+//!     &ProjectId::new("clinic".to_string())?,
+//! );
 //! let name = DocumentName::new("Binary/123")?;
 //! storage
 //!     .put(

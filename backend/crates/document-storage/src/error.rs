@@ -5,9 +5,10 @@ use haste_fhir_operation_error::derive::OperationOutcomeError;
 /// Failure of a [`DocumentStorage`](crate::DocumentStorage) call.
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
-    /// A tenant or project id cannot serve as a path segment; see
-    /// [`DocumentScope::new`](crate::DocumentScope::new).
-    #[error(code = "invalid", diagnostic = "Invalid document scope: {arg0}")]
+    /// A tenant or project id read back from the store is not a valid id, so
+    /// something other than this crate wrote there; see
+    /// [`DocumentScope::from_backend`](crate::DocumentScope::from_backend).
+    #[error(code = "exception", diagnostic = "Invalid document scope: {arg0}")]
     InvalidScope(String),
 
     /// The name breaks the rules documented on

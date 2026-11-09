@@ -9,6 +9,7 @@ use std::{
 use bytes::{Bytes, BytesMut};
 use futures_core::Stream;
 use futures_util::StreamExt as _;
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use time::OffsetDateTime;
 
@@ -32,36 +33,29 @@ pub struct DocumentScope {
 }
 
 impl DocumentScope {
-    /// Checks that both ids can serve as a path segment: non-empty, no slash,
-    /// no control character, not `.` or `..`. Haste Health's tenant and
-    /// project ids are far stricter than that; the check keeps a backend's
-    /// paths safe whatever it is handed.
+    /// Both ids match [`haste_jwt::HOSTNAME_ID_PATTERN`] by construction
+    /// (lowercase letters, digits and single hyphens), so a backend can use
+    /// them as path segments as they are.
+    #[must_use]
+    pub fn new(tenant: &TenantId, project: &ProjectId) -> Self {
+        Self {
+            tenant: tenant.clone(),
+            project: project.clone(),
+        }
+    }
+
+    /// Wraps ids read back from a backend. Only backends call this.
     ///
     /// # Errors
     ///
-    /// Returns [`StorageError::InvalidScope`] naming the broken rule.
-    pub fn new(tenant: &TenantId, project: &ProjectId) -> Result<Self, StorageError> {
-        for (what, id) in [("tenant", tenant.as_ref()), ("project", project.as_ref())] {
-            if let Some(problem) = segment_problem(id) {
-                return Err(StorageError::InvalidScope(format!(
-                    "{what} id '{id}' {problem}"
-                )));
-            }
-        }
+    /// Returns [`StorageError::InvalidScope`] when either is not a valid id,
+    /// which means something other than this crate wrote to the store.
+    pub fn from_backend(tenant: String, project: String) -> Result<Self, StorageError> {
+        let invalid = |error: OperationOutcomeError| StorageError::InvalidScope(error.to_string());
         Ok(Self {
-            tenant: tenant.clone(),
-            project: project.clone(),
+            tenant: TenantId::new(tenant).map_err(invalid)?,
+            project: ProjectId::new(project).map_err(invalid)?,
         })
-    }
-
-    /// Wraps ids read back from a backend without validating them. Only
-    /// backends should call this; whatever is in the store is reported as is.
-    #[must_use]
-    pub fn from_backend(tenant: String, project: String) -> Self {
-        Self {
-            tenant: TenantId::new(tenant),
-            project: ProjectId::new(project),
-        }
     }
 
     #[must_use]
@@ -78,21 +72,6 @@ impl DocumentScope {
 impl Display for DocumentScope {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}/{}", self.tenant.as_ref(), self.project.as_ref())
-    }
-}
-
-/// Why `segment` cannot be a path segment, if it cannot.
-fn segment_problem(segment: &str) -> Option<&'static str> {
-    if segment.is_empty() {
-        Some("must not be empty")
-    } else if segment.contains('/') {
-        Some("must not contain a slash")
-    } else if segment.chars().any(char::is_control) {
-        Some("must not contain control characters")
-    } else if matches!(segment, "." | "..") {
-        Some("must not be '.' or '..'")
-    } else {
-        None
     }
 }
 

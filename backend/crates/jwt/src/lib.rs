@@ -1,7 +1,10 @@
 use derivative::Derivative;
-use haste_fhir_model::r4::generated::terminology::{BoundCode, UserRole as FHIRUserRole};
+use haste_fhir_model::r4::generated::terminology::{
+    BoundCode, IssueType, UserRole as FHIRUserRole,
+};
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 #[cfg(feature = "reflect")]
 pub mod reflect;
@@ -17,6 +20,63 @@ mod proptests;
 
 // Reserved keyword for system tenant, author and project.
 static SYSTEM: &str = "system";
+
+/// What a tenant or project id looks like: lowercase ASCII letters and digits
+/// joined by single hyphens, at most [`HOSTNAME_ID_MAX_LEN`] bytes. A
+/// [`TenantId`] or [`ProjectId`] holds nothing else, so an id is safe as a URL
+/// path segment, a subdomain label, a directory name or a storage key wherever
+/// it goes. It never holds `--`, so the hostname label `{tenant}--{project}`
+/// splits back apart.
+///
+/// The sign-up form uses it as an HTML `pattern`, so it must stay valid under
+/// the browser's `v` regex flag (no unescaped `-` inside `[]`).
+pub const HOSTNAME_ID_PATTERN: &str = "[a-z0-9]+(-[a-z0-9]+)*";
+
+/// A DNS label holds 63 characters.
+pub const HOSTNAME_ID_MAX_LEN: usize = 63;
+
+/// Why `id` does not match [`HOSTNAME_ID_PATTERN`], if it does not. The text
+/// completes a sentence such as "A tenant id …".
+#[must_use]
+pub fn hostname_id_problem(id: &str) -> Option<&'static str> {
+    if id.is_empty() {
+        Some("must not be empty")
+    } else if id.len() > HOSTNAME_ID_MAX_LEN {
+        Some("may be at most 63 characters long")
+    } else if !id
+        .bytes()
+        .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+    {
+        Some("may only contain lowercase letters, digits and hyphens")
+    } else if id.starts_with('-') || id.ends_with('-') || id.contains("--") {
+        Some("may only have single hyphens, between letters or digits")
+    } else {
+        None
+    }
+}
+
+fn invalid_hostname_id(kind: &str, id: &str, problem: &str) -> OperationOutcomeError {
+    OperationOutcomeError::error(
+        IssueType::invalid(),
+        format!("A {kind} id {problem}: '{id}'."),
+    )
+}
+
+/// Lowercase letters and digits: a random string of them is a valid id at any
+/// length from 1 to [`HOSTNAME_ID_MAX_LEN`].
+static HOSTNAME_ID_ALPHABET: [char; 36] = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+];
+
+/// A random id of `len` lowercase letters and digits. `len` is clamped to
+/// 1 to [`HOSTNAME_ID_MAX_LEN`], so the result always matches
+/// [`HOSTNAME_ID_PATTERN`].
+#[must_use]
+pub fn random_hostname_id(len: usize) -> String {
+    let len = len.clamp(1, HOSTNAME_ID_MAX_LEN);
+    nanoid::nanoid!(len, &HOSTNAME_ID_ALPHABET)
+}
 
 /// The FHIR versions a project can be served as.
 ///
@@ -174,8 +234,28 @@ pub enum TenantId {
 }
 
 impl TenantId {
+    /// Checks `id` against [`HOSTNAME_ID_PATTERN`]; `system` is the system
+    /// tenant.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `invalid` [`OperationOutcomeError`] naming the rule `id`
+    /// breaks.
+    pub fn new(id: String) -> Result<Self, OperationOutcomeError> {
+        if let Some(problem) = hostname_id_problem(&id) {
+            return Err(invalid_hostname_id("tenant", &id, problem));
+        }
+        Ok(Self::unchecked(id))
+    }
+
+    /// A random id of `len` lowercase letters and digits (see
+    /// [`random_hostname_id`]).
     #[must_use]
-    pub fn new(id: String) -> Self {
+    pub fn random(len: usize) -> Self {
+        Self::unchecked(random_hostname_id(len))
+    }
+
+    fn unchecked(id: String) -> Self {
         // Should never be able to create a system tenant from user.
         if id == SYSTEM {
             TenantId::System
@@ -185,9 +265,19 @@ impl TenantId {
     }
 }
 
-impl From<String> for TenantId {
-    fn from(id: String) -> Self {
+impl TryFrom<String> for TenantId {
+    type Error = OperationOutcomeError;
+
+    fn try_from(id: String) -> Result<Self, Self::Error> {
         TenantId::new(id)
+    }
+}
+
+impl FromStr for TenantId {
+    type Err = OperationOutcomeError;
+
+    fn from_str(id: &str) -> Result<Self, Self::Err> {
+        TenantId::new(id.to_string())
     }
 }
 
@@ -205,7 +295,7 @@ impl<'de> Deserialize<'de> for TenantId {
     where
         D: serde::Deserializer<'de>,
     {
-        Ok(TenantId::new(String::deserialize(deserializer)?))
+        TenantId::new(String::deserialize(deserializer)?).map_err(serde::de::Error::custom)
     }
 }
 
@@ -234,15 +324,52 @@ pub enum ProjectId {
     #[derivative(Debug = "transparent")]
     Custom(String),
 }
+
 impl ProjectId {
+    /// Checks `id` against [`HOSTNAME_ID_PATTERN`]; `system` is the system
+    /// project.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `invalid` [`OperationOutcomeError`] naming the rule `id`
+    /// breaks.
+    pub fn new(id: String) -> Result<Self, OperationOutcomeError> {
+        if let Some(problem) = hostname_id_problem(&id) {
+            return Err(invalid_hostname_id("project", &id, problem));
+        }
+        Ok(Self::unchecked(id))
+    }
+
+    /// A random id of `len` lowercase letters and digits (see
+    /// [`random_hostname_id`]).
     #[must_use]
-    pub fn new(id: String) -> Self {
+    pub fn random(len: usize) -> Self {
+        Self::unchecked(random_hostname_id(len))
+    }
+
+    fn unchecked(id: String) -> Self {
         // Should never be able to create a system project from user.
         if id == SYSTEM {
             ProjectId::System
         } else {
             ProjectId::Custom(id)
         }
+    }
+}
+
+impl TryFrom<String> for ProjectId {
+    type Error = OperationOutcomeError;
+
+    fn try_from(id: String) -> Result<Self, Self::Error> {
+        ProjectId::new(id)
+    }
+}
+
+impl FromStr for ProjectId {
+    type Err = OperationOutcomeError;
+
+    fn from_str(id: &str) -> Result<Self, Self::Err> {
+        ProjectId::new(id.to_string())
     }
 }
 
@@ -260,7 +387,7 @@ impl<'de> Deserialize<'de> for ProjectId {
     where
         D: serde::Deserializer<'de>,
     {
-        Ok(ProjectId::new(String::deserialize(deserializer)?))
+        ProjectId::new(String::deserialize(deserializer)?).map_err(serde::de::Error::custom)
     }
 }
 

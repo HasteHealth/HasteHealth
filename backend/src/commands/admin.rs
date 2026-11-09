@@ -315,7 +315,7 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     .transaction()
                     .await?;
 
-                let tenant = TenantId::new(tenant.clone());
+                let tenant = TenantId::new(tenant.clone())?;
 
                 create_user(
                     &services,
@@ -348,7 +348,7 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     .transaction()
                     .await?;
 
-                let tenant = TenantId::new(tenant.clone());
+                let tenant = TenantId::new(tenant.clone())?;
 
                 let Some(user) = TenantModelAdmin::<CreateUser, _, _, _, String>::search(
                     services.repo.as_ref(),
@@ -467,8 +467,8 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 let services = services::create_services(config).await?;
 
                 let ctx = Arc::new(ServerCTX::system(
-                    TenantId::new(tenant.clone()),
-                    ProjectId::new(project.clone()),
+                    TenantId::new(tenant.clone())?,
+                    ProjectId::new(project.clone())?,
                     services.fhir_client.clone(),
                     services.rate_limit.clone(),
                 ));

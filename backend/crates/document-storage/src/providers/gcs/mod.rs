@@ -416,7 +416,7 @@ impl DocumentStorage for GcsDocumentStorage {
                     scopes.push(DocumentScope::from_backend(
                         tenant.to_string(),
                         project.to_string(),
-                    ));
+                    )?);
                 }
             }
             Ok(scopes)
