@@ -4,11 +4,16 @@
 //! Callers only use the [`DocumentStorage`] trait; each backend lives under
 //! [`providers`] behind a cargo feature and is built with [`connect`].
 //!
+//! Every call names the tenant and project the document belongs to
+//! ([`DocumentScope`]) and the document's name within them ([`DocumentName`]),
+//! so a caller can only ever reach its own project's documents.
+//!
 //! ```no_run
 //! use haste_document_storage::{
-//!     Document, DocumentKey, DocumentStorageKind, StorageError,
+//!     Document, DocumentName, DocumentScope, DocumentStorageKind, StorageError,
 //!     providers::gcs::{GcsConfig, GcsCredentials},
 //! };
+//! use haste_jwt::{ProjectId, TenantId};
 //!
 //! # async fn example() -> Result<(), StorageError> {
 //! let storage = haste_document_storage::connect(DocumentStorageKind::Gcs(GcsConfig {
@@ -19,11 +24,19 @@
 //! }))
 //! .await?;
 //!
-//! let key = DocumentKey::new("tenant/project/Binary/123")?;
+//! let scope = DocumentScope::new(
+//!     &TenantId::new("acme".to_string()),
+//!     &ProjectId::new("clinic".to_string()),
+//! )?;
+//! let name = DocumentName::new("Binary/123")?;
 //! storage
-//!     .put(&key, Document::new(b"...".as_slice()).with_content_type("application/pdf"))
+//!     .put(
+//!         &scope,
+//!         &name,
+//!         Document::new(b"...".as_slice()).with_content_type("application/pdf"),
+//!     )
 //!     .await?;
-//! let document = storage.get(&key).await?;
+//! let document = storage.get(&scope, &name).await?;
 //! let bytes = document.body.collect().await?;
 //! # Ok(())
 //! # }
@@ -43,7 +56,8 @@ use serde::{Deserialize, Serialize};
 pub use error::StorageError;
 pub use traits::{DocumentStorage, StorageFuture};
 pub use types::{
-    Document, DocumentBody, DocumentKey, DocumentMetadata, ListPage, ListRequest, StoredDocument,
+    Document, DocumentBody, DocumentMetadata, DocumentName, DocumentScope, ListPage, ListRequest,
+    StoredDocument,
 };
 
 /// The backend to connect to, with its configuration.

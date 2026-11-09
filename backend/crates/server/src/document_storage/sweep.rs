@@ -5,14 +5,13 @@ use std::{
     time::Duration,
 };
 
-use haste_document_storage::{DocumentMetadata, ListRequest};
+use haste_document_storage::{DocumentMetadata, DocumentScope, ListRequest};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::{ProjectId, TenantId};
 use haste_repository::pg::PGConnection;
 use serde::Serialize;
 use sqlx::types::time::OffsetDateTime;
 
-use super::{BinaryStorage, MARKER_URL, parse_document_key};
+use super::{BinaryStorage, MARKER_URL};
 
 /// Documents listed per storage request.
 const PAGE_SIZE: u32 = 1000;
@@ -20,7 +19,7 @@ const PAGE_SIZE: u32 = 1000;
 /// What a sweep found and did.
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct SweepReport {
-    /// Binary documents looked at.
+    /// Documents looked at.
     pub examined: u64,
     /// Documents with a resource version: kept.
     pub in_use: u64,
@@ -31,18 +30,18 @@ pub struct SweepReport {
     pub orphaned: u64,
     /// Orphans removed. Zero on a dry run.
     pub removed: u64,
-    /// Keys that do not name a Binary document: left alone.
-    pub skipped: u64,
 }
 
-/// Removes Binary documents in `storage` that no resource version in `repo`
-/// refers to, once they are older than `grace`. A page of listed documents is
-/// checked against the rows with one query that the repository's partial
-/// index on Binary rows serves, so the sweep costs a probe per document. Such a document comes from a
-/// write whose row never committed: a rolled back transaction, a write that
-/// failed after the upload, or a crash between the two. `grace` must
-/// comfortably exceed the longest transaction, since a document is uploaded
-/// before its row commits.
+/// Removes documents in `storage` that no resource version in `repo` refers
+/// to, once they are older than `grace`. The listing covers every scope; each
+/// page is grouped by scope and checked against that tenant and project's rows
+/// with one query that the repository's partial index on Binary rows serves,
+/// so the sweep costs a probe per document. Such a document comes from a write
+/// whose row never committed (a rolled back transaction, a write that failed
+/// after the upload, or a crash between the two) or from a project that was
+/// deleted while its documents lived outside the repository database. `grace`
+/// must comfortably exceed the longest transaction, since a document is
+/// uploaded before its row commits.
 ///
 /// With `dry_run` nothing is removed and the report counts what would be.
 ///
@@ -63,37 +62,29 @@ pub async fn sweep(
         let page = storage
             .storage()
             .list(ListRequest {
-                prefix: None,
+                scope: None,
                 page_token,
                 page_size: Some(PAGE_SIZE),
             })
             .await?;
 
-        let mut by_project: HashMap<(&str, &str), Vec<&DocumentMetadata>> = HashMap::new();
+        let mut by_scope: HashMap<&DocumentScope, Vec<&DocumentMetadata>> = HashMap::new();
         for document in &page.documents {
             report.examined += 1;
-            match parse_document_key(document.key.as_str()) {
-                Some(scope) => by_project.entry(scope).or_default().push(document),
-                None => report.skipped += 1,
-            }
+            by_scope.entry(&document.scope).or_default().push(document);
         }
 
-        for ((tenant, project), documents) in by_project {
-            let keys = documents
+        for (scope, documents) in by_scope {
+            let names = documents
                 .iter()
-                .map(|document| document.key.as_str())
+                .map(|document| document.name.as_str())
                 .collect::<Vec<_>>();
             let in_use: HashSet<String> = repo
-                .binary_data_extension_values(
-                    &TenantId::new(tenant.to_string()),
-                    &ProjectId::new(project.to_string()),
-                    MARKER_URL,
-                    &keys,
-                )
+                .binary_data_extension_values(scope.tenant(), scope.project(), MARKER_URL, &names)
                 .await?;
 
             for document in documents {
-                if in_use.contains(document.key.as_str()) {
+                if in_use.contains(document.name.as_str()) {
                     report.in_use += 1;
                 } else if document
                     .last_modified
@@ -103,7 +94,10 @@ pub async fn sweep(
                 } else {
                     report.orphaned += 1;
                     if !dry_run {
-                        storage.storage().delete(&document.key).await?;
+                        storage
+                            .storage()
+                            .delete(&document.scope, &document.name)
+                            .await?;
                         report.removed += 1;
                     }
                 }

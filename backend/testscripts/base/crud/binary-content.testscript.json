@@ -82,6 +82,27 @@
             "id": "binary-content-transaction",
             "resourceType": "Binary",
             "contentType": "image/png"
+        },
+        {
+            "id": "binary-client-marker",
+            "resourceType": "Binary",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "binary-content-test"
+                    }
+                ]
+            },
+            "contentType": "text/plain",
+            "data": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA==",
+            "_data": {
+                "extension": [
+                    {
+                        "url": "https://haste.health/document-storage",
+                        "valueString": "Binary/not-a-document"
+                    }
+                ]
+            }
         }
     ],
     "fixture": [
@@ -129,6 +150,14 @@
             "id": "fixture-binary-content-transaction",
             "resource": {
                 "reference": "#binary-content-transaction"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-binary-client-marker",
+            "resource": {
+                "reference": "#binary-client-marker"
             },
             "autocreate": false,
             "autodelete": false
@@ -657,6 +686,84 @@
                         "operator": "equals",
                         "compareToSourceId": "fixture-binary-large-v2",
                         "compareToSourceExpression": "Binary.data"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-client-marker",
+            "name": "A document storage marker a client sends is ignored",
+            "description": "Only the server sets the marker extension on Binary.data. One sent by a client is dropped before the Binary is stored, so it can neither point the server at a document nor survive the write.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "sourceId": "fixture-binary-client-marker",
+                        "responseId": "client-marker-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 201",
+                        "warningOnly": false,
+                        "responseCode": "201"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Create returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "value": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA=="
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Create carries no document storage marker",
+                        "warningOnly": false,
+                        "expression": "Binary.data.extension.where(url = 'https://haste.health/document-storage').exists()",
+                        "value": "false"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Binary",
+                        "targetId": "client-marker-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Response is 200",
+                        "warningOnly": false,
+                        "responseCode": "200"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read returns the content",
+                        "warningOnly": false,
+                        "expression": "Binary.data",
+                        "operator": "equals",
+                        "value": "YSBtYXJrZXIgYSBjbGllbnQgc2VuZHMgaXMgaWdub3JlZA=="
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Read carries no document storage marker",
+                        "warningOnly": false,
+                        "expression": "Binary.data.extension.where(url = 'https://haste.health/document-storage').exists()",
+                        "value": "false"
                     }
                 }
             ]

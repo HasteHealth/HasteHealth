@@ -9,6 +9,10 @@
 //! sends is removed: only the server sets one. A patch is applied here, to
 //! the Binary with its content, and sent on as an update.
 //!
+//! Every storage call names the request's tenant and project as the
+//! document's scope, and the marker holds only a name within it, so stored
+//! content is only ever looked up among the project's own documents.
+//!
 //! The document is uploaded before the row is written. When the write is
 //! refused (a 4xx) the document is removed again; when it fails (a 5xx) the
 //! row may still have landed, so the document is left for the sweep to judge.
@@ -17,7 +21,7 @@ use std::sync::Arc;
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use futures_util::{StreamExt as _, TryStreamExt as _, stream};
-use haste_document_storage::{Document, DocumentKey, StorageError};
+use haste_document_storage::{Document, DocumentName, DocumentScope, StorageError};
 use haste_fhir_client::request::{
     FHIRPatchResponse, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest, HistoryResponse,
     SearchResponse, UpdateRequest,
@@ -31,7 +35,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 
 use crate::{
-    document_storage::{BinaryStorage, MARKER_URL, new_document_key},
+    document_storage::{BinaryStorage, MARKER_URL, new_document_name},
     fhir_client::{
         ClientState, ServerCTX,
         middleware::{
@@ -206,7 +210,8 @@ fn bundle_resources_mut(bundle: &mut Bundle) -> Vec<&mut Resource> {
 /// Content taken off a Binary for its row, to be put back on the response.
 struct Offloaded {
     value: String,
-    key: DocumentKey,
+    scope: DocumentScope,
+    name: DocumentName,
 }
 
 /// Prepares `resource` for its row. Any client-sent marker is removed. With
@@ -249,19 +254,20 @@ async fn offload(
         return Ok(None);
     }
 
-    let key = new_document_key(tenant, project)?;
+    let scope = DocumentScope::new(tenant, project)?;
+    let name = new_document_name()?;
     let mut document = Document::new(bytes);
     if let Some(content_type) = content_type.value.as_deref() {
         document = document.with_content_type(content_type);
     }
-    storage.storage().put(&key, document).await?;
+    storage.storage().put(&scope, &name, document).await?;
 
     let value = data.value.take().unwrap_or_default();
     data.extension
         .get_or_insert_with(Vec::new)
-        .push(marker(&key));
+        .push(marker(&name));
 
-    Ok(Some(Offloaded { value, key }))
+    Ok(Some(Offloaded { value, scope, name }))
 }
 
 /// Puts what [`offload`] took back on `resource`.
@@ -277,9 +283,12 @@ fn restore(resource: &mut Resource, offloaded: Option<Offloaded>) {
 /// the sweep removes the document later.
 async fn discard(storage: Option<&BinaryStorage>, offloaded: Option<&Offloaded>) {
     if let (Some(storage), Some(offloaded)) = (storage, offloaded)
-        && let Err(error) = storage.storage().delete(&offloaded.key).await
+        && let Err(error) = storage
+            .storage()
+            .delete(&offloaded.scope, &offloaded.name)
+            .await
     {
-        tracing::warn!(key = %offloaded.key, %error, "could not remove the document of a refused Binary write");
+        tracing::warn!(scope = %offloaded.scope, name = %offloaded.name, %error, "could not remove the document of a refused Binary write");
     }
 }
 
@@ -311,11 +320,12 @@ async fn rehydrate(
         ));
     };
 
+    let scope = DocumentScope::new(tenant, project)?;
     // Built before the stream so the stream's type holds no closure, which
     // keeps the caller's future `Send`.
     let fetches = stored
         .into_iter()
-        .map(|binary| fetch(storage, tenant, project, binary))
+        .map(|binary| fetch(storage, &scope, binary))
         .collect::<Vec<_>>();
     stream::iter(fetches)
         .buffer_unordered(FETCH_CONCURRENCY)
@@ -323,21 +333,22 @@ async fn rehydrate(
         .await
 }
 
+/// Fetches the document the marker names from the request's `scope`. A name
+/// the layer did not write can at most miss within that scope.
 async fn fetch(
     storage: &BinaryStorage,
-    tenant: &TenantId,
-    project: &ProjectId,
+    scope: &DocumentScope,
     binary: &mut Binary,
 ) -> Result<(), OperationOutcomeError> {
-    let Some(key) = stored_key(binary, tenant, project) else {
-        tracing::error!("stored Binary content has no usable document key");
+    let Some(name) = marker_name(binary).and_then(|name| DocumentName::new(name).ok()) else {
+        tracing::error!("stored Binary content has no usable document name");
         return Err(missing_content(binary));
     };
 
-    let bytes = match storage.storage().get(&key).await {
+    let bytes = match storage.storage().get(scope, &name).await {
         Ok(document) => document.body.collect().await?,
         Err(StorageError::NotFound(_)) => {
-            tracing::error!(%key, "stored Binary content is missing");
+            tracing::error!(%scope, %name, "stored Binary content is missing");
             return Err(missing_content(binary));
         }
         Err(error) => return Err(error.into()),
@@ -346,15 +357,6 @@ async fn fetch(
     remove_marker(binary);
     binary.data.get_or_insert_with(Box::default).value = Some(STANDARD.encode(&bytes));
     Ok(())
-}
-
-/// The key the marker names, when it lies within the project's own documents.
-fn stored_key(binary: &Binary, tenant: &TenantId, project: &ProjectId) -> Option<DocumentKey> {
-    let key = marker_key(binary)?;
-    let prefix = format!("{}/{}/", tenant.as_ref(), project.as_ref());
-    key.starts_with(&prefix)
-        .then(|| DocumentKey::new(key).ok())
-        .flatten()
 }
 
 fn missing_content(binary: &Binary) -> OperationOutcomeError {
@@ -371,11 +373,11 @@ fn missing_content(binary: &Binary) -> OperationOutcomeError {
     )
 }
 
-fn marker(key: &DocumentKey) -> Extension {
+fn marker(name: &DocumentName) -> Extension {
     Extension {
         url: MARKER_URL.to_string(),
         value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
-            value: Some(key.to_string()),
+            value: Some(name.to_string()),
             ..Default::default()
         }))),
         ..Default::default()
@@ -400,11 +402,11 @@ fn has_marker(binary: &Binary) -> bool {
     markers(binary).next().is_some()
 }
 
-/// The key the marker names, or `None` without a marker or with one that
+/// The name the marker carries, or `None` without a marker or with one that
 /// carries no string.
-fn marker_key(binary: &Binary) -> Option<&str> {
+fn marker_name(binary: &Binary) -> Option<&str> {
     markers(binary).find_map(|extension| match &extension.value {
-        Some(ExtensionValueTypeChoice::String(key)) => key.value.as_deref(),
+        Some(ExtensionValueTypeChoice::String(name)) => name.value.as_deref(),
         _ => None,
     })
 }

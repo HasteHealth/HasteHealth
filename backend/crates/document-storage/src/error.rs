@@ -5,9 +5,19 @@ use haste_fhir_operation_error::derive::OperationOutcomeError;
 /// Failure of a [`DocumentStorage`](crate::DocumentStorage) call.
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
-    /// The key breaks the rules documented on [`DocumentKey`](crate::DocumentKey).
-    #[error(code = "invalid", diagnostic = "Invalid document key: {arg0}")]
-    InvalidKey(String),
+    /// A tenant or project id cannot serve as a path segment; see
+    /// [`DocumentScope::new`](crate::DocumentScope::new).
+    #[error(code = "invalid", diagnostic = "Invalid document scope: {arg0}")]
+    InvalidScope(String),
+
+    /// The name breaks the rules documented on
+    /// [`DocumentName`](crate::DocumentName).
+    #[error(code = "invalid", diagnostic = "Invalid document name: {arg0}")]
+    InvalidName(String),
+
+    /// A listing was continued with a token the backend did not issue.
+    #[error(code = "invalid", diagnostic = "Invalid page token: {arg0}")]
+    InvalidPageToken(String),
 
     /// The document cannot be stored as given, for example because its
     /// content type is not a valid header value.
@@ -35,7 +45,8 @@ pub enum StorageError {
     )]
     Forbidden(String),
 
-    /// Nothing is stored under the key (or the bucket itself is missing).
+    /// The scope holds no document of that name (or the bucket itself is
+    /// missing).
     #[error(code = "not-found", diagnostic = "Document '{arg0}' was not found")]
     NotFound(String),
 
@@ -81,7 +92,9 @@ impl StorageError {
 impl Display for StorageError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidKey(reason) => write!(f, "invalid document key: {reason}"),
+            Self::InvalidScope(reason) => write!(f, "invalid document scope: {reason}"),
+            Self::InvalidName(reason) => write!(f, "invalid document name: {reason}"),
+            Self::InvalidPageToken(reason) => write!(f, "invalid page token: {reason}"),
             Self::InvalidDocument(reason) => write!(f, "invalid document: {reason}"),
             Self::Configuration(reason) => write!(f, "document storage misconfigured: {reason}"),
             Self::Unauthorized(reason) => write!(f, "credentials rejected: {reason}"),

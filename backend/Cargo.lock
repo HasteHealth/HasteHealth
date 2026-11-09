@@ -2353,6 +2353,7 @@ dependencies = [
  "futures-util",
  "haste-fhir-model",
  "haste-fhir-operation-error",
+ "haste-jwt",
  "jsonwebtoken",
  "percent-encoding",
  "reqwest 0.13.5",

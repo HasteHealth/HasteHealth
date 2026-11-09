@@ -90,11 +90,16 @@ With `backend = "elasticsearch"`:
 #### `[document_storage]`
 
 On by default. `Binary.data` of at least `binary_min_bytes` bytes (after base64
-decoding) is written to document storage instead of the resource row, under
-`<tenant>/<project>/Binary/<document id>`, and put back on every read (read,
-vread, history and search), so clients see no difference. Smaller content stays
-in the row. Every version keeps its own document, and a delete leaves earlier
-versions' documents in place.
+decoding) is written to document storage instead of the resource row and put
+back on every read (read, vread, history and search), so clients see no
+difference. Smaller content stays in the row. Every version keeps its own
+document, and a delete leaves earlier versions' documents in place.
+
+A document belongs to the tenant and project of its resource and is named
+`Binary/<document id>` within them. Every storage call names that tenant and
+project, so a request can only ever reach its own project's documents. They are
+columns in Postgres, a directory per tenant and project on the filesystem, and
+the leading segments of the object name in a bucket.
 
 Tagged by `backend`:
 
@@ -103,7 +108,8 @@ Tagged by `backend`:
   of at most 1 MiB), so a deployment needs nothing beyond the database it
   already has. `haste-health admin migrate repo` (or `migrate all`) creates
   them; until it has run, writing a Binary over the threshold fails with an
-  error naming that command. `database_url` puts them in another database.
+  error naming that command. `database_url` puts them in another database; in
+  the repository database, deleting a project deletes its documents with it.
 - `filesystem`: a directory, for development, tests and single-node
   deployments.
 - `gcs`: a Google Cloud Storage bucket.
@@ -137,7 +143,7 @@ With `backend = "gcs"`:
 | Key                                 | Env var                                   | Default                                                                        |
 | ----------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
 | `document_storage.bucket`           | `HASTE_DOCUMENT_STORAGE.bucket`           | —                                                                              |
-| `document_storage.prefix`           | `HASTE_DOCUMENT_STORAGE.prefix`           | none; a folder-like prefix before every key, so deployments can share a bucket |
+| `document_storage.prefix`           | `HASTE_DOCUMENT_STORAGE.prefix`           | none; a folder-like prefix before every object, so deployments can share a bucket |
 | `document_storage.endpoint`         | `HASTE_DOCUMENT_STORAGE.endpoint`         | `https://storage.googleapis.com`; point it at an emulator for development      |
 | `document_storage.credentials.type` | `HASTE_DOCUMENT_STORAGE.credentials.type` | `application_default`                                                          |
 

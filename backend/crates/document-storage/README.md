@@ -1,8 +1,10 @@
 # haste-document-storage
 
-Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get, delete and list by key prefix); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
+Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get and delete a document, list a scope or the whole store); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
 
-The Haste Health server uses it to keep large `Binary.data` out of the resource rows: a layer of its FHIR pipeline moves the content to document storage under `<tenant>/<project>/Binary/<document id>` on the way in and puts it back on the way out, so the repository only ever stores row-sized Binaries. By default that storage is the `postgres` backend in the repository database.
+Every call names the tenant and project the document belongs to (a `DocumentScope`, built from `haste-jwt`'s `TenantId` and `ProjectId`) and the document's name within them (a `DocumentName`), so a caller can only ever reach its own project's documents. Backends keep the scope apart from the name: columns in Postgres, a directory per tenant and project on the filesystem, the leading segments of the object name in a bucket.
+
+The Haste Health server uses it to keep large `Binary.data` out of the resource rows: a layer of its FHIR pipeline moves the content to document storage as `Binary/<document id>` in the resource's tenant and project on the way in and puts it back on the way out, so the repository only ever stores row-sized Binaries. By default that storage is the `postgres` backend in the repository database.
 
 ## Install
 
@@ -21,20 +23,22 @@ cargo add haste-document-storage
 ## Usage
 
 ```rust
-use haste_document_storage::{Document, DocumentKey, DocumentStorageKind};
+use haste_document_storage::{Document, DocumentName, DocumentScope, DocumentStorageKind};
 use haste_document_storage::providers::filesystem::FilesystemConfig;
+use haste_jwt::{ProjectId, TenantId};
 
 let storage = haste_document_storage::connect(DocumentStorageKind::Filesystem(FilesystemConfig {
     root: "/var/lib/haste-health/documents".into(),
 }))
 .await?;
 
-let key = DocumentKey::new("tenant/project/Binary/123/1")?;
+let scope = DocumentScope::new(&TenantId::new("acme".into()), &ProjectId::new("clinic".into()))?;
+let name = DocumentName::new("Binary/123")?;
 storage
-    .put(&key, Document::new(b"%PDF-1.7 ...".as_slice()).with_content_type("application/pdf"))
+    .put(&scope, &name, Document::new(b"%PDF-1.7 ...".as_slice()).with_content_type("application/pdf"))
     .await?;
 
-let document = storage.get(&key).await?;
+let document = storage.get(&scope, &name).await?;
 let bytes = document.body.collect().await?;
 ```
 
@@ -47,9 +51,9 @@ prefix = "documents"
 credentials = { type = "service_account_key_file", path = "/secrets/key.json" }
 ```
 
-The `postgres` backend needs its tables before first use: `PostgresDocumentStorage::migrate` creates them, recording its migrations in `_document_storage_migrations` so it can share a database with another application's sqlx migrations.
+The `postgres` backend needs its tables before first use: `PostgresDocumentStorage::migrate` creates them, recording its migrations in `_document_storage_migrations` so it can share a database with another application's sqlx migrations. In a database that also holds Haste Health's `projects` table, the migration ties every document to its project, so deleting the project deletes its documents.
 
-Bodies are read as a stream (`DocumentBody`); `collect` gathers one into memory. Keys are validated (`DocumentKey`): non-empty, at most 1024 bytes, no control characters, no leading slash and no empty, `.` or `..` segments. Errors are `StorageError`s, which convert into a FHIR `OperationOutcome` through [`haste-fhir-operation-error`](https://crates.io/crates/haste-fhir-operation-error); `is_transient` tells a retryable failure apart, and the GCS backend retries those itself.
+Bodies are read as a stream (`DocumentBody`); `collect` gathers one into memory. Names are validated (`DocumentName`): non-empty, at most 1024 bytes, no control characters, no leading slash and no empty, `.` or `..` segments. Errors are `StorageError`s, which convert into a FHIR `OperationOutcome` through [`haste-fhir-operation-error`](https://crates.io/crates/haste-fhir-operation-error); `is_transient` tells a retryable failure apart, and the GCS backend retries those itself.
 
 ## Links
 

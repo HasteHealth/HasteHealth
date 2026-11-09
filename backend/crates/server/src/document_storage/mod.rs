@@ -6,7 +6,11 @@
 //! storage on the way in and puts it back on the way out, so the repository
 //! only ever stores a row-sized Binary and a client gets the same Binary
 //! either way. The row keeps `data` with only the marker extension
-//! ([`MARKER_URL`]), whose value is the document's key.
+//! ([`MARKER_URL`]), whose value is the document's name.
+//!
+//! Every storage call names the tenant and project of the request
+//! ([`DocumentScope`](haste_document_storage::DocumentScope)), and a name only means something within that scope, so
+//! a marker can never reach another project's document, whatever it says.
 //!
 //! Code that reads the repository directly rather than through the FHIR
 //! client sees the row form. The search indexer wants exactly that; nothing
@@ -25,7 +29,7 @@ use std::{
 };
 
 use haste_document_storage::{
-    DocumentKey, DocumentStorage, DocumentStorageKind, StorageError,
+    DocumentName, DocumentStorage, DocumentStorageKind, StorageError,
     providers::{
         filesystem::FilesystemConfig,
         gcs::GcsConfig,
@@ -33,7 +37,6 @@ use haste_document_storage::{
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{config::RepoConfig, utilities::generate_id};
 use serde::{Deserialize, Serialize};
 
@@ -42,8 +45,9 @@ use crate::config::ServerConfig;
 pub use sweep::{SweepReport, sweep};
 
 /// Marks a `Binary.data` whose value is in document storage; the extension's
-/// `valueString` is the document's key. Only the server sets it: one sent by
-/// a client is removed before the Binary is stored.
+/// `valueString` is the document's name within the project's
+/// [`DocumentScope`](haste_document_storage::DocumentScope). Only the server sets it: one sent by a client is removed
+/// before the Binary is stored.
 pub const MARKER_URL: &str = "https://haste.health/document-storage";
 
 /// Document storage for resource content kept out of the database. Today
@@ -204,38 +208,14 @@ pub async fn migrate(config: &ServerConfig) -> Result<(), OperationOutcomeError>
     Ok(())
 }
 
-/// A key for a new document of the project:
-/// `{tenant}/{project}/Binary/{document id}`. The id is generated here, so a
-/// key exists before the resource has its own id and version.
+/// The name of a new Binary document, `Binary/{document id}`, within the
+/// project's [`DocumentScope`](haste_document_storage::DocumentScope). The id is generated here, so a name exists
+/// before the resource has its own id and version.
 ///
 /// # Errors
 ///
-/// Fails when the parts do not make a valid [`DocumentKey`].
-pub fn new_document_key(
-    tenant: &TenantId,
-    project: &ProjectId,
-) -> Result<DocumentKey, StorageError> {
-    DocumentKey::new(format!(
-        "{}/{}/Binary/{}",
-        tenant.as_ref(),
-        project.as_ref(),
-        generate_id(None)
-    ))
-}
-
-/// The tenant and project a key made by [`new_document_key`] names, or
-/// `None` for any other key.
-#[must_use]
-pub fn parse_document_key(key: &str) -> Option<(&str, &str)> {
-    let mut parts = key.split('/');
-    let (Some(tenant), Some(project), Some("Binary"), Some(_document), None) = (
-        parts.next(),
-        parts.next(),
-        parts.next(),
-        parts.next(),
-        parts.next(),
-    ) else {
-        return None;
-    };
-    Some((tenant, project))
+/// Fails when the generated name is not a valid [`DocumentName`], which it
+/// always is.
+pub fn new_document_name() -> Result<DocumentName, StorageError> {
+    DocumentName::new(format!("Binary/{}", generate_id(None)))
 }

@@ -1,14 +1,15 @@
 //! A directory on a local or mounted filesystem.
 //!
-//! A key becomes a path under the root. Every segment is percent-encoded
-//! (everything but ASCII letters, digits, `-`, `_` and `~`, so `.` as well),
-//! the leading segments become directories and the last one names two files:
+//! A document lives at `<root>/<tenant>/<project>/<name>`: a directory per
+//! tenant, one per project inside it, and the name's segments below that.
+//! Every segment is percent-encoded (everything but ASCII letters, digits,
+//! `-`, `_` and `~`, so `.` as well); the last one names two files:
 //! `<segment>.data` holds the body and `<segment>.json` the content type and
 //! metadata. Because `.` is always encoded, those names never clash with a
-//! directory made for a longer key, and the temporary files a put writes
+//! directory made for a longer name, and the temporary files a put writes
 //! (whose names start with a dot) never show up in a listing.
 //!
-//! Meant for development, tests and single-node deployments. Keys that differ
+//! Meant for development, tests and single-node deployments. Names that differ
 //! only in letter case collide on a case-insensitive filesystem.
 
 use std::{
@@ -33,8 +34,8 @@ use crate::{
     error::StorageError,
     traits::{DocumentStorage, StorageFuture},
     types::{
-        Document, DocumentBody, DocumentKey, DocumentMetadata, ListPage, ListRequest,
-        StoredDocument,
+        Document, DocumentBody, DocumentMetadata, DocumentName, DocumentScope, ListPage,
+        ListRequest, StoredDocument, page_token, parse_page_token,
     },
 };
 
@@ -68,6 +69,23 @@ struct StoredMetadata {
     metadata: BTreeMap<String, String>,
 }
 
+/// A document found by a directory walk.
+struct Entry {
+    scope: DocumentScope,
+    name: String,
+}
+
+impl Entry {
+    /// The order listings page in.
+    fn order(&self) -> (&str, &str, &str) {
+        (
+            self.scope.tenant().as_ref(),
+            self.scope.project().as_ref(),
+            &self.name,
+        )
+    }
+}
+
 impl FilesystemDocumentStorage {
     /// Creates the root directory if needed.
     ///
@@ -90,33 +108,47 @@ impl FilesystemDocumentStorage {
         Ok(Self { root })
     }
 
-    /// The directory holding `key`'s files, and the stem of their names.
-    fn location(&self, key: &str) -> (PathBuf, String) {
-        let mut segments = key.split('/');
-        let last = segments.next_back().unwrap_or_default();
+    /// The directory a scope's documents live under.
+    fn scope_directory(&self, scope: &DocumentScope) -> PathBuf {
         let mut directory = self.root.clone();
+        directory.push(encode(scope.tenant().as_ref()));
+        directory.push(encode(scope.project().as_ref()));
+        directory
+    }
+
+    /// The directory holding a document's files, and the stem of their names.
+    fn location(&self, scope: &DocumentScope, name: &str) -> (PathBuf, String) {
+        let mut segments = name.split('/');
+        let last = segments.next_back().unwrap_or_default();
+        let mut directory = self.scope_directory(scope);
         for segment in segments {
             directory.push(encode(segment));
         }
         (directory, encode(last))
     }
 
-    fn data_path(&self, key: &DocumentKey) -> PathBuf {
-        let (directory, stem) = self.location(key.as_str());
+    fn data_path(&self, scope: &DocumentScope, name: &DocumentName) -> PathBuf {
+        let (directory, stem) = self.location(scope, name.as_str());
         directory.join(format!("{stem}{DATA_SUFFIX}"))
     }
 
-    async fn metadata_of(&self, key: &DocumentKey) -> Result<DocumentMetadata, StorageError> {
-        let (directory, stem) = self.location(key.as_str());
+    async fn metadata_of(
+        &self,
+        scope: &DocumentScope,
+        name: &DocumentName,
+    ) -> Result<DocumentMetadata, StorageError> {
+        let (directory, stem) = self.location(scope, name.as_str());
         let file = fs::metadata(directory.join(format!("{stem}{DATA_SUFFIX}")))
             .await
-            .map_err(|error| io_error(key, &error))?;
+            .map_err(|error| io_error(scope, name, &error))?;
         let stored = match fs::read(directory.join(format!("{stem}{METADATA_SUFFIX}"))).await {
             Ok(bytes) => serde_json::from_slice(&bytes).map_err(|error| {
-                StorageError::Io(format!("metadata of '{key}' is unreadable: {error}"))
+                StorageError::Io(format!(
+                    "metadata of '{scope}/{name}' is unreadable: {error}"
+                ))
             })?,
             Err(error) if error.kind() == io::ErrorKind::NotFound => StoredMetadata::default(),
-            Err(error) => return Err(io_error(key, &error)),
+            Err(error) => return Err(io_error(scope, name, &error)),
         };
         let modified = file.modified().ok();
         let modified_nanos = modified
@@ -125,7 +157,8 @@ impl FilesystemDocumentStorage {
             .unwrap_or_default();
 
         Ok(DocumentMetadata {
-            key: key.clone(),
+            scope: scope.clone(),
+            name: name.clone(),
             size: file.len(),
             content_type: stored.content_type,
             etag: Some(format!("{:x}-{modified_nanos:x}", file.len())),
@@ -136,11 +169,12 @@ impl FilesystemDocumentStorage {
 
     async fn write_files(
         &self,
-        key: &DocumentKey,
+        scope: &DocumentScope,
+        name: &DocumentName,
         document: &Document,
         stored: &[u8],
     ) -> io::Result<()> {
-        let (directory, stem) = self.location(key.as_str());
+        let (directory, stem) = self.location(scope, name.as_str());
         fs::create_dir_all(&directory).await?;
         write_atomically(
             &directory,
@@ -169,61 +203,85 @@ impl FilesystemDocumentStorage {
         }
     }
 
-    /// Every stored key under the directory the prefix's complete segments
-    /// lead to that starts with `prefix`, unsorted.
-    async fn keys_with_prefix(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
-        let (start, key_prefix) = match prefix.rsplit_once('/') {
-            Some((directories, _)) => {
-                let mut start = self.root.clone();
-                for segment in directories.split('/') {
-                    start.push(encode(segment));
-                }
-                (start, format!("{directories}/"))
+    /// The subdirectories of `directory` this backend made, with the segment
+    /// each stands for.
+    async fn subdirectories(
+        &self,
+        directory: &Path,
+    ) -> Result<Vec<(PathBuf, String)>, StorageError> {
+        let mut found = Vec::new();
+        let Some(mut entries) = read_dir(directory).await? else {
+            return Ok(found);
+        };
+        while let Some(entry) = next_entry(&mut entries, directory).await? {
+            let file_name = entry.file_name();
+            let Some(file_name) = file_name.to_str() else {
+                continue;
+            };
+            if file_type(&entry, directory).await?.is_dir()
+                && let Some(segment) = decode(file_name)
+            {
+                found.push((entry.path(), segment));
             }
-            None => (self.root.clone(), String::new()),
+        }
+        Ok(found)
+    }
+
+    /// Every scope with a directory: the root's subdirectories are tenants,
+    /// theirs are projects.
+    async fn scopes(&self) -> Result<Vec<DocumentScope>, StorageError> {
+        let mut scopes = Vec::new();
+        for (tenant_directory, tenant) in self.subdirectories(&self.root).await? {
+            for (_, project) in self.subdirectories(&tenant_directory).await? {
+                scopes.push(DocumentScope::from_backend(tenant.clone(), project));
+            }
+        }
+        Ok(scopes)
+    }
+
+    /// Every stored document of `scope`, or of every scope, unsorted.
+    async fn entries(&self, scope: Option<&DocumentScope>) -> Result<Vec<Entry>, StorageError> {
+        let scopes = match scope {
+            Some(scope) => vec![scope.clone()],
+            None => self.scopes().await?,
         };
 
-        let mut keys = Vec::new();
-        let mut pending = vec![(start, key_prefix)];
-        while let Some((directory, key_prefix)) = pending.pop() {
-            let mut entries = match fs::read_dir(&directory).await {
-                Ok(entries) => entries,
-                Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
-                Err(error) => {
-                    return Err(StorageError::Io(format!(
-                        "cannot list '{}': {error}",
-                        directory.display()
-                    )));
-                }
-            };
-            while let Some(entry) = entries.next_entry().await.map_err(|error| {
-                StorageError::Io(format!("cannot list '{}': {error}", directory.display()))
-            })? {
-                let name = entry.file_name();
-                let Some(name) = name.to_str() else { continue };
-                let file_type = entry.file_type().await.map_err(|error| {
-                    StorageError::Io(format!("cannot list '{}': {error}", directory.display()))
-                })?;
-                if file_type.is_dir() {
-                    if let Some(segment) = decode(name) {
-                        pending.push((entry.path(), format!("{key_prefix}{segment}/")));
-                    }
-                } else if let Some(segment) = name.strip_suffix(DATA_SUFFIX).and_then(decode) {
-                    let key = format!("{key_prefix}{segment}");
-                    if key.starts_with(prefix) {
-                        keys.push(key);
+        let mut found = Vec::new();
+        for scope in scopes {
+            let mut pending = vec![(self.scope_directory(&scope), String::new())];
+            while let Some((directory, name_prefix)) = pending.pop() {
+                let Some(mut entries) = read_dir(&directory).await? else {
+                    continue;
+                };
+                while let Some(entry) = next_entry(&mut entries, &directory).await? {
+                    let file_name = entry.file_name();
+                    let Some(file_name) = file_name.to_str() else {
+                        continue;
+                    };
+                    if file_type(&entry, &directory).await?.is_dir() {
+                        if let Some(segment) = decode(file_name) {
+                            pending.push((entry.path(), format!("{name_prefix}{segment}/")));
+                        }
+                    } else if let Some(segment) =
+                        file_name.strip_suffix(DATA_SUFFIX).and_then(decode)
+                    {
+                        found.push(Entry {
+                            scope: scope.clone(),
+                            name: format!("{name_prefix}{segment}"),
+                        });
                     }
                 }
             }
         }
-        Ok(keys)
+        Ok(found)
     }
 }
 
 impl DocumentStorage for FilesystemDocumentStorage {
     fn put<'a>(
         &'a self,
-        key: &'a DocumentKey,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
         document: Document,
     ) -> StorageFuture<'a, DocumentMetadata> {
         Box::pin(async move {
@@ -235,35 +293,44 @@ impl DocumentStorage for FilesystemDocumentStorage {
                 StorageError::InvalidDocument(format!("metadata is not serializable: {error}"))
             })?;
 
-            // A delete of a neighbouring key may remove the directory between
-            // creating it and writing into it; one more try recreates it.
-            let mut result = self.write_files(key, &document, &stored).await;
+            // A delete of a neighbouring document may remove the directory
+            // between creating it and writing into it; one more try recreates
+            // it.
+            let mut result = self.write_files(scope, name, &document, &stored).await;
             if matches!(&result, Err(error) if error.kind() == io::ErrorKind::NotFound) {
-                result = self.write_files(key, &document, &stored).await;
+                result = self.write_files(scope, name, &document, &stored).await;
             }
-            result.map_err(|error| io_error(key, &error))?;
+            result.map_err(|error| io_error(scope, name, &error))?;
 
-            self.metadata_of(key).await
+            self.metadata_of(scope, name).await
         })
     }
 
-    fn head<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, DocumentMetadata> {
-        Box::pin(self.metadata_of(key))
+    fn head<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, DocumentMetadata> {
+        Box::pin(self.metadata_of(scope, name))
     }
 
-    fn get<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, StoredDocument> {
+    fn get<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, StoredDocument> {
         Box::pin(async move {
-            let metadata = self.metadata_of(key).await?;
-            let file = fs::File::open(self.data_path(key))
+            let metadata = self.metadata_of(scope, name).await?;
+            let file = fs::File::open(self.data_path(scope, name))
                 .await
-                .map_err(|error| io_error(key, &error))?;
-            let name = key.to_string();
+                .map_err(|error| io_error(scope, name, &error))?;
+            let subject = format!("{scope}/{name}");
             let body = stream::try_unfold(file, move |mut file| {
-                let name = name.clone();
+                let subject = subject.clone();
                 async move {
                     let mut chunk = BytesMut::with_capacity(CHUNK_SIZE);
                     let read = file.read_buf(&mut chunk).await.map_err(|error| {
-                        StorageError::Io(format!("reading '{name}' failed: {error}"))
+                        StorageError::Io(format!("reading '{subject}' failed: {error}"))
                     })?;
                     Ok((read > 0).then(|| (chunk.freeze(), file)))
                 }
@@ -275,14 +342,18 @@ impl DocumentStorage for FilesystemDocumentStorage {
         })
     }
 
-    fn delete<'a>(&'a self, key: &'a DocumentKey) -> StorageFuture<'a, ()> {
+    fn delete<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        name: &'a DocumentName,
+    ) -> StorageFuture<'a, ()> {
         Box::pin(async move {
-            let (directory, stem) = self.location(key.as_str());
+            let (directory, stem) = self.location(scope, name.as_str());
             for suffix in [DATA_SUFFIX, METADATA_SUFFIX] {
                 match fs::remove_file(directory.join(format!("{stem}{suffix}"))).await {
                     Ok(()) => {}
                     Err(error) if error.kind() == io::ErrorKind::NotFound => {}
-                    Err(error) => return Err(io_error(key, &error)),
+                    Err(error) => return Err(io_error(scope, name, &error)),
                 }
             }
             self.prune(directory).await;
@@ -292,11 +363,12 @@ impl DocumentStorage for FilesystemDocumentStorage {
 
     fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage> {
         Box::pin(async move {
-            let prefix = request.prefix.unwrap_or_default();
-            let mut keys = self.keys_with_prefix(&prefix).await?;
-            keys.sort_unstable();
+            let mut entries = self.entries(request.scope.as_ref()).await?;
+            entries.sort_unstable_by(|a, b| a.order().cmp(&b.order()));
             if let Some(token) = &request.page_token {
-                keys.retain(|key| key > token);
+                let (tenant, project, name) = parse_page_token(token)?;
+                let after = (tenant.as_str(), project.as_str(), name.as_str());
+                entries.retain(|entry| entry.order() > after);
             }
 
             let page_size = request
@@ -304,13 +376,16 @@ impl DocumentStorage for FilesystemDocumentStorage {
                 .and_then(|size| usize::try_from(size).ok())
                 .filter(|size| *size > 0)
                 .map_or(MAX_PAGE_SIZE, |size| size.min(MAX_PAGE_SIZE));
-            let more = keys.len() > page_size;
-            keys.truncate(page_size);
+            let more = entries.len() > page_size;
+            entries.truncate(page_size);
 
-            let mut documents = Vec::with_capacity(keys.len());
-            for key in &keys {
+            let mut documents = Vec::with_capacity(entries.len());
+            for entry in &entries {
                 match self
-                    .metadata_of(&DocumentKey::from_backend(key.clone()))
+                    .metadata_of(
+                        &entry.scope,
+                        &DocumentName::from_backend(entry.name.clone()),
+                    )
                     .await
                 {
                     Ok(metadata) => documents.push(metadata),
@@ -322,7 +397,13 @@ impl DocumentStorage for FilesystemDocumentStorage {
 
             Ok(ListPage {
                 documents,
-                next_page_token: if more { keys.last().cloned() } else { None },
+                next_page_token: if more {
+                    entries
+                        .last()
+                        .map(|entry| page_token(&entry.scope, &entry.name))
+                } else {
+                    None
+                },
             })
         })
     }
@@ -332,7 +413,7 @@ fn encode(segment: &str) -> String {
     utf8_percent_encode(segment, ENCODE_SET).to_string()
 }
 
-/// The key segment a file or directory name stands for, or `None` for a name
+/// The segment a file or directory name stands for, or `None` for a name
 /// this backend did not write.
 fn decode(name: &str) -> Option<String> {
     if name.is_empty() || name.contains('.') {
@@ -342,6 +423,39 @@ fn decode(name: &str) -> Option<String> {
         .decode_utf8()
         .ok()
         .map(std::borrow::Cow::into_owned)
+}
+
+/// Opens `directory` for listing; `None` when it does not exist.
+async fn read_dir(directory: &Path) -> Result<Option<fs::ReadDir>, StorageError> {
+    match fs::read_dir(directory).await {
+        Ok(entries) => Ok(Some(entries)),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(list_error(directory, &error)),
+    }
+}
+
+async fn next_entry(
+    entries: &mut fs::ReadDir,
+    directory: &Path,
+) -> Result<Option<fs::DirEntry>, StorageError> {
+    entries
+        .next_entry()
+        .await
+        .map_err(|error| list_error(directory, &error))
+}
+
+async fn file_type(
+    entry: &fs::DirEntry,
+    directory: &Path,
+) -> Result<std::fs::FileType, StorageError> {
+    entry
+        .file_type()
+        .await
+        .map_err(|error| list_error(directory, &error))
+}
+
+fn list_error(directory: &Path, error: &io::Error) -> StorageError {
+    StorageError::Io(format!("cannot list '{}': {error}", directory.display()))
 }
 
 /// Writes `contents` to a temporary file in `directory`, flushes it to disk
@@ -368,10 +482,12 @@ async fn write_atomically(directory: &Path, path: &Path, contents: &[u8]) -> io:
     result
 }
 
-fn io_error(key: &DocumentKey, error: &io::Error) -> StorageError {
+fn io_error(scope: &DocumentScope, name: &DocumentName, error: &io::Error) -> StorageError {
     match error.kind() {
-        io::ErrorKind::NotFound => StorageError::NotFound(key.to_string()),
-        io::ErrorKind::PermissionDenied => StorageError::Forbidden(format!("'{key}': {error}")),
-        _ => StorageError::Io(format!("'{key}': {error}")),
+        io::ErrorKind::NotFound => StorageError::NotFound(format!("{scope}/{name}")),
+        io::ErrorKind::PermissionDenied => {
+            StorageError::Forbidden(format!("'{scope}/{name}': {error}"))
+        }
+        _ => StorageError::Io(format!("'{scope}/{name}': {error}")),
     }
 }
