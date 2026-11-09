@@ -88,10 +88,9 @@ pub struct PostgresDocumentStorage {
     pool: PgPool,
 }
 
-/// The `document_storage` columns that make up a document's metadata.
+/// The `document_storage` columns that make up a document's metadata, after
+/// the scope the query was filtered by.
 type MetadataRow = (
-    String,
-    String,
     String,
     i64,
     i64,
@@ -253,8 +252,7 @@ impl DocumentStorage for PostgresDocumentStorage {
         Box::pin(async move {
             let row: Option<MetadataRow> = sqlx::query_as(
                 r"
-                    SELECT tenant, project, name, generation, size, content_type, metadata,
-                           updated_at
+                    SELECT name, generation, size, content_type, metadata, updated_at
                     FROM document_storage
                     WHERE tenant = $1 AND project = $2 AND name = $3
                 ",
@@ -265,8 +263,8 @@ impl DocumentStorage for PostgresDocumentStorage {
             .fetch_optional(&self.pool)
             .await
             .map_err(database_error)?;
-            row.map(metadata_of)
-                .ok_or_else(|| StorageError::NotFound(format!("{scope}/{name}")))?
+            row.map(|row| metadata_of(scope, row))
+                .ok_or_else(|| StorageError::NotFound(format!("{scope}/{name}")))
         })
     }
 
@@ -394,8 +392,7 @@ impl DocumentStorage for PostgresDocumentStorage {
             // One range of the primary key, from the token on.
             let mut rows: Vec<MetadataRow> = sqlx::query_as(
                 r"
-                    SELECT tenant, project, name, generation, size, content_type, metadata,
-                           updated_at
+                    SELECT name, generation, size, content_type, metadata, updated_at
                     FROM document_storage
                     WHERE tenant = $1 AND project = $2
                       AND ($3::text IS NULL OR name > $3)
@@ -416,8 +413,8 @@ impl DocumentStorage for PostgresDocumentStorage {
             rows.truncate(page_size);
             let documents = rows
                 .into_iter()
-                .map(metadata_of)
-                .collect::<Result<Vec<_>, _>>()?;
+                .map(|row| metadata_of(scope, row))
+                .collect::<Vec<_>>();
             Ok(ListPage {
                 next_page_token: if more {
                     documents
@@ -462,17 +459,18 @@ struct ChunkReader {
 }
 
 fn metadata_of(
-    (tenant, project, name, generation, size, content_type, metadata, updated_at): MetadataRow,
-) -> Result<DocumentMetadata, StorageError> {
-    Ok(DocumentMetadata {
-        scope: DocumentScope::from_backend(tenant, project)?,
+    scope: &DocumentScope,
+    (name, generation, size, content_type, metadata, updated_at): MetadataRow,
+) -> DocumentMetadata {
+    DocumentMetadata {
+        scope: scope.clone(),
         name: DocumentName::from_backend(name),
         size: u64::try_from(size).unwrap_or_default(),
         content_type,
         etag: Some(format!("{generation:x}")),
         last_modified: Some(updated_at),
         metadata: metadata.0,
-    })
+    }
 }
 
 fn database_error(error: sqlx::Error) -> StorageError {

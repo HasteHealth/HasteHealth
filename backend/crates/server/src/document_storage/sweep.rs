@@ -52,13 +52,13 @@ pub async fn sweep(
     dry_run: bool,
 ) -> Result<SweepReport, OperationOutcomeError> {
     let cutoff = OffsetDateTime::now_utc() - grace;
+    let store = storage.storage();
 
     let mut report = SweepReport::default();
-    for scope in storage.storage().scopes().await? {
+    for scope in store.scopes().await? {
         let mut page_token = None;
         loop {
-            let page = storage
-                .storage()
+            let page = store
                 .list(
                     &scope,
                     ListRequest {
@@ -89,7 +89,7 @@ pub async fn sweep(
                 } else {
                     report.orphaned += 1;
                     if !dry_run {
-                        storage.storage().delete(&scope, &document.name).await?;
+                        store.delete(&scope, &document.name).await?;
                         report.removed += 1;
                     }
                 }

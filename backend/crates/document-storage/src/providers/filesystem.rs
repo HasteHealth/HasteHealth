@@ -2,12 +2,13 @@
 //!
 //! A document lives at `<root>/<tenant>/<project>/<name>`: a directory per
 //! tenant, one per project inside it, and the name's segments below that.
-//! Every segment is percent-encoded (everything but ASCII letters, digits,
-//! `-`, `_` and `~`, so `.` as well); the last one names two files:
-//! `<segment>.data` holds the body and `<segment>.json` the content type and
-//! metadata. Because `.` is always encoded, those names never clash with a
-//! directory made for a longer name, and the temporary files a put writes
-//! (whose names start with a dot) never show up in a listing.
+//! Tenant and project ids are letters, digits and hyphens, so they are used
+//! as they are. Every name segment is percent-encoded (everything but ASCII
+//! letters, digits, `-`, `_` and `~`, so `.` as well); the last one names two
+//! files: `<segment>.data` holds the body and `<segment>.json` the content
+//! type and metadata. Because `.` is always encoded, those names never clash
+//! with a directory made for a longer name, and the temporary files a put
+//! writes (whose names start with a dot) never show up in a listing.
 //!
 //! Meant for development, tests and single-node deployments. Names that differ
 //! only in letter case collide on a case-insensitive filesystem.
@@ -94,8 +95,8 @@ impl FilesystemDocumentStorage {
     /// The directory a scope's documents live under.
     fn scope_directory(&self, scope: &DocumentScope) -> PathBuf {
         let mut directory = self.root.clone();
-        directory.push(encode(scope.tenant().as_ref()));
-        directory.push(encode(scope.project().as_ref()));
+        directory.push(scope.tenant().as_ref());
+        directory.push(scope.project().as_ref());
         directory
     }
 
@@ -186,8 +187,7 @@ impl FilesystemDocumentStorage {
         }
     }
 
-    /// The subdirectories of `directory` this backend made, with the segment
-    /// each stands for.
+    /// The subdirectories of `directory`, with their names.
     async fn subdirectories(
         &self,
         directory: &Path,
@@ -197,14 +197,10 @@ impl FilesystemDocumentStorage {
             return Ok(found);
         };
         while let Some(entry) = next_entry(&mut entries, directory).await? {
-            let file_name = entry.file_name();
-            let Some(file_name) = file_name.to_str() else {
-                continue;
-            };
             if file_type(&entry, directory).await?.is_dir()
-                && let Some(segment) = decode(file_name)
+                && let Some(name) = entry.file_name().to_str()
             {
-                found.push((entry.path(), segment));
+                found.push((entry.path(), name.to_string()));
             }
         }
         Ok(found)
@@ -360,7 +356,8 @@ impl DocumentStorage for FilesystemDocumentStorage {
         })
     }
 
-    /// The root's subdirectories are tenants, theirs are projects.
+    /// The root's subdirectories are tenants, theirs are projects. Anything
+    /// else in those two levels is not this backend's and fails the call.
     fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>> {
         Box::pin(async move {
             let mut scopes = Vec::new();
