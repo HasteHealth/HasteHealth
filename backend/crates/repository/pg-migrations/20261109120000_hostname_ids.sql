@@ -67,9 +67,9 @@ BEGIN
     WHERE tenant !~ pattern OR length(tenant) > 63;
 
     -- Sessions name their tenant inside serialized data this block cannot
-    -- read, so every session goes; the table exists once a server has run.
+    -- read, so the whole table is emptied; it exists once a server has run.
     IF to_regclass('tower_sessions.session') IS NOT NULL THEN
-        DELETE FROM tower_sessions.session;
+        TRUNCATE tower_sessions.session;
     END IF;
 END $$;
 
