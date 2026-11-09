@@ -28,6 +28,10 @@ pub(super) struct Object {
 pub(super) struct ObjectList {
     #[serde(default)]
     pub items: Vec<Object>,
+    /// With a delimiter: the "folders" directly under the request's prefix,
+    /// each ending in the delimiter.
+    #[serde(default)]
+    pub prefixes: Vec<String>,
     pub next_page_token: Option<String>,
 }
 

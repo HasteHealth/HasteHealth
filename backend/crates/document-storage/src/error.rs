@@ -15,10 +15,6 @@ pub enum StorageError {
     #[error(code = "invalid", diagnostic = "Invalid document name: {arg0}")]
     InvalidName(String),
 
-    /// A listing was continued with a token the backend did not issue.
-    #[error(code = "invalid", diagnostic = "Invalid page token: {arg0}")]
-    InvalidPageToken(String),
-
     /// The document cannot be stored as given, for example because its
     /// content type is not a valid header value.
     #[error(code = "invalid", diagnostic = "Invalid document: {arg0}")]
@@ -94,7 +90,6 @@ impl Display for StorageError {
         match self {
             Self::InvalidScope(reason) => write!(f, "invalid document scope: {reason}"),
             Self::InvalidName(reason) => write!(f, "invalid document name: {reason}"),
-            Self::InvalidPageToken(reason) => write!(f, "invalid page token: {reason}"),
             Self::InvalidDocument(reason) => write!(f, "invalid document: {reason}"),
             Self::Configuration(reason) => write!(f, "document storage misconfigured: {reason}"),
             Self::Unauthorized(reason) => write!(f, "credentials rejected: {reason}"),

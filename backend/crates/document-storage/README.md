@@ -1,6 +1,6 @@
 # haste-document-storage
 
-Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get and delete a document, list a scope or the whole store); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
+Object storage for document bodies, independent of where Haste Health is hosted. Callers program against the `DocumentStorage` trait (put, head, get, delete and list, each within one tenant and project; `scopes` enumerates the tenants and projects the store holds, for maintenance); each backend sits behind a cargo feature and is built from a serde-friendly `DocumentStorageKind` with `connect`.
 
 Every call names the tenant and project the document belongs to (a `DocumentScope`, built from `haste-jwt`'s `TenantId` and `ProjectId`) and the document's name within them (a `DocumentName`), so a caller can only ever reach its own project's documents. Backends keep the scope apart from the name: columns in Postgres, a directory per tenant and project on the filesystem, the leading segments of the object name in a bucket.
 

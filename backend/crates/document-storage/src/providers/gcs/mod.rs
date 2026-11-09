@@ -156,24 +156,40 @@ impl GcsDocumentStorage {
         object
     }
 
-    /// The scope and name an object name stands for, or `None` for an object
-    /// this backend did not write: outside the deployment prefix, or without
-    /// a tenant, project and name.
-    fn parse_object_name<'n>(&self, object: &'n str) -> Option<(DocumentScope, &'n str)> {
-        let rest = if self.prefix.is_empty() {
-            object
-        } else {
-            object.strip_prefix(&self.prefix)?.strip_prefix('/')?
-        };
-        let mut parts = rest.splitn(3, '/');
-        let (tenant, project, name) = (parts.next()?, parts.next()?, parts.next()?);
-        if tenant.is_empty() || project.is_empty() || name.is_empty() {
-            return None;
+    /// One page of `objects.list` for `query`, retried on transient failures.
+    async fn list_page(&self, query: &[String]) -> Result<ObjectList, StorageError> {
+        let url = format!("{}?{}", self.objects_url, query.join("&"));
+        let url = &url;
+        with_retry("list", || async move {
+            parse_json(
+                self.send(self.request(Method::GET, url).await?, &self.bucket)
+                    .await?,
+            )
+            .await
+        })
+        .await
+    }
+
+    /// The "folders" directly under `prefix`, across every page: the
+    /// `prefixes` of a delimiter listing, each ending in `/`.
+    async fn prefixes_under(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
+        let mut found = Vec::new();
+        let mut token: Option<String> = None;
+        loop {
+            let mut query = vec![
+                format!("prefix={}", encode(prefix)),
+                "delimiter=%2F".to_string(),
+            ];
+            if let Some(token) = &token {
+                query.push(format!("pageToken={}", encode(token)));
+            }
+            let page = self.list_page(&query).await?;
+            found.extend(page.prefixes);
+            match page.next_page_token {
+                Some(next) => token = Some(next),
+                None => return Ok(found),
+            }
         }
-        Some((
-            DocumentScope::from_backend(tenant.to_string(), project.to_string()),
-            name,
-        ))
     }
 
     fn object_url(&self, name: &str) -> String {
@@ -347,9 +363,13 @@ impl DocumentStorage for GcsDocumentStorage {
         })
     }
 
-    fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage> {
+    fn list<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        request: ListRequest,
+    ) -> StorageFuture<'a, ListPage> {
         Box::pin(async move {
-            let prefix = self.scope_prefix(request.scope.as_ref());
+            let prefix = self.scope_prefix(Some(scope));
             let mut query = vec![format!("prefix={}", encode(&prefix))];
             if let Some(token) = &request.page_token {
                 query.push(format!("pageToken={}", encode(token)));
@@ -357,30 +377,19 @@ impl DocumentStorage for GcsDocumentStorage {
             if let Some(size) = request.page_size {
                 query.push(format!("maxResults={size}"));
             }
-            let url = format!("{}?{}", self.objects_url, query.join("&"));
+            let page = self.list_page(&query).await?;
 
-            let url = &url;
-            let page: ObjectList = with_retry("list", || async move {
-                parse_json(
-                    self.send(self.request(Method::GET, url).await?, &self.bucket)
-                        .await?,
-                )
-                .await
-            })
-            .await?;
-
-            // Objects outside the layout were not written by this backend;
-            // they are left out, not reported.
+            // A prefix listing comes back in name order, so pages do too.
             let documents = page
                 .items
                 .into_iter()
                 .filter_map(|object| {
-                    let Some((scope, name)) = self.parse_object_name(&object.name) else {
-                        tracing::debug!(object = %object.name, "object outside the document layout, skipped");
-                        return None;
-                    };
+                    let name = object
+                        .name
+                        .strip_prefix(prefix.as_str())
+                        .filter(|name| !name.is_empty())?;
                     let name = DocumentName::from_backend(name.to_string());
-                    Some(Self::metadata_of(scope, name, object))
+                    Some(Self::metadata_of(scope.clone(), name, object))
                 })
                 .collect();
             Ok(ListPage {
@@ -389,6 +398,39 @@ impl DocumentStorage for GcsDocumentStorage {
             })
         })
     }
+
+    /// Two delimiter listings deep: the folders under the deployment prefix
+    /// are tenants, the folders under each tenant are projects.
+    fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>> {
+        Box::pin(async move {
+            let root = self.scope_prefix(None);
+            let mut scopes = Vec::new();
+            for tenant_prefix in self.prefixes_under(&root).await? {
+                let Some(tenant) = folder_name(&tenant_prefix, &root) else {
+                    continue;
+                };
+                for project_prefix in self.prefixes_under(&tenant_prefix).await? {
+                    let Some(project) = folder_name(&project_prefix, &tenant_prefix) else {
+                        continue;
+                    };
+                    scopes.push(DocumentScope::from_backend(
+                        tenant.to_string(),
+                        project.to_string(),
+                    ));
+                }
+            }
+            Ok(scopes)
+        })
+    }
+}
+
+/// The folder `prefix` names directly under `parent`, or `None` when the API
+/// returned something else.
+fn folder_name<'p>(prefix: &'p str, parent: &str) -> Option<&'p str> {
+    prefix
+        .strip_prefix(parent)?
+        .strip_suffix('/')
+        .filter(|name| !name.is_empty() && !name.contains('/'))
 }
 
 fn encode(value: &str) -> String {

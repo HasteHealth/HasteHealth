@@ -35,7 +35,7 @@ use crate::{
     traits::{DocumentStorage, StorageFuture},
     types::{
         Document, DocumentBody, DocumentMetadata, DocumentName, DocumentScope, ListPage,
-        ListRequest, StoredDocument, page_token, parse_page_token,
+        ListRequest, StoredDocument,
     },
 };
 
@@ -67,23 +67,6 @@ struct StoredMetadata {
     content_type: Option<String>,
     #[serde(default)]
     metadata: BTreeMap<String, String>,
-}
-
-/// A document found by a directory walk.
-struct Entry {
-    scope: DocumentScope,
-    name: String,
-}
-
-impl Entry {
-    /// The order listings page in.
-    fn order(&self) -> (&str, &str, &str) {
-        (
-            self.scope.tenant().as_ref(),
-            self.scope.project().as_ref(),
-            &self.name,
-        )
-    }
 }
 
 impl FilesystemDocumentStorage {
@@ -227,49 +210,25 @@ impl FilesystemDocumentStorage {
         Ok(found)
     }
 
-    /// Every scope with a directory: the root's subdirectories are tenants,
-    /// theirs are projects.
-    async fn scopes(&self) -> Result<Vec<DocumentScope>, StorageError> {
-        let mut scopes = Vec::new();
-        for (tenant_directory, tenant) in self.subdirectories(&self.root).await? {
-            for (_, project) in self.subdirectories(&tenant_directory).await? {
-                scopes.push(DocumentScope::from_backend(tenant.clone(), project));
-            }
-        }
-        Ok(scopes)
-    }
-
-    /// Every stored document of `scope`, or of every scope, unsorted.
-    async fn entries(&self, scope: Option<&DocumentScope>) -> Result<Vec<Entry>, StorageError> {
-        let scopes = match scope {
-            Some(scope) => vec![scope.clone()],
-            None => self.scopes().await?,
-        };
-
+    /// The name of every stored document of `scope`, unsorted.
+    async fn names(&self, scope: &DocumentScope) -> Result<Vec<String>, StorageError> {
         let mut found = Vec::new();
-        for scope in scopes {
-            let mut pending = vec![(self.scope_directory(&scope), String::new())];
-            while let Some((directory, name_prefix)) = pending.pop() {
-                let Some(mut entries) = read_dir(&directory).await? else {
+        let mut pending = vec![(self.scope_directory(scope), String::new())];
+        while let Some((directory, name_prefix)) = pending.pop() {
+            let Some(mut entries) = read_dir(&directory).await? else {
+                continue;
+            };
+            while let Some(entry) = next_entry(&mut entries, &directory).await? {
+                let file_name = entry.file_name();
+                let Some(file_name) = file_name.to_str() else {
                     continue;
                 };
-                while let Some(entry) = next_entry(&mut entries, &directory).await? {
-                    let file_name = entry.file_name();
-                    let Some(file_name) = file_name.to_str() else {
-                        continue;
-                    };
-                    if file_type(&entry, &directory).await?.is_dir() {
-                        if let Some(segment) = decode(file_name) {
-                            pending.push((entry.path(), format!("{name_prefix}{segment}/")));
-                        }
-                    } else if let Some(segment) =
-                        file_name.strip_suffix(DATA_SUFFIX).and_then(decode)
-                    {
-                        found.push(Entry {
-                            scope: scope.clone(),
-                            name: format!("{name_prefix}{segment}"),
-                        });
+                if file_type(&entry, &directory).await?.is_dir() {
+                    if let Some(segment) = decode(file_name) {
+                        pending.push((entry.path(), format!("{name_prefix}{segment}/")));
                     }
+                } else if let Some(segment) = file_name.strip_suffix(DATA_SUFFIX).and_then(decode) {
+                    found.push(format!("{name_prefix}{segment}"));
                 }
             }
         }
@@ -361,14 +320,16 @@ impl DocumentStorage for FilesystemDocumentStorage {
         })
     }
 
-    fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage> {
+    fn list<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        request: ListRequest,
+    ) -> StorageFuture<'a, ListPage> {
         Box::pin(async move {
-            let mut entries = self.entries(request.scope.as_ref()).await?;
-            entries.sort_unstable_by(|a, b| a.order().cmp(&b.order()));
+            let mut names = self.names(scope).await?;
+            names.sort_unstable();
             if let Some(token) = &request.page_token {
-                let (tenant, project, name) = parse_page_token(token)?;
-                let after = (tenant.as_str(), project.as_str(), name.as_str());
-                entries.retain(|entry| entry.order() > after);
+                names.retain(|name| name > token);
             }
 
             let page_size = request
@@ -376,16 +337,13 @@ impl DocumentStorage for FilesystemDocumentStorage {
                 .and_then(|size| usize::try_from(size).ok())
                 .filter(|size| *size > 0)
                 .map_or(MAX_PAGE_SIZE, |size| size.min(MAX_PAGE_SIZE));
-            let more = entries.len() > page_size;
-            entries.truncate(page_size);
+            let more = names.len() > page_size;
+            names.truncate(page_size);
 
-            let mut documents = Vec::with_capacity(entries.len());
-            for entry in &entries {
+            let mut documents = Vec::with_capacity(names.len());
+            for name in &names {
                 match self
-                    .metadata_of(
-                        &entry.scope,
-                        &DocumentName::from_backend(entry.name.clone()),
-                    )
+                    .metadata_of(scope, &DocumentName::from_backend(name.clone()))
                     .await
                 {
                     Ok(metadata) => documents.push(metadata),
@@ -397,14 +355,21 @@ impl DocumentStorage for FilesystemDocumentStorage {
 
             Ok(ListPage {
                 documents,
-                next_page_token: if more {
-                    entries
-                        .last()
-                        .map(|entry| page_token(&entry.scope, &entry.name))
-                } else {
-                    None
-                },
+                next_page_token: if more { names.last().cloned() } else { None },
             })
+        })
+    }
+
+    /// The root's subdirectories are tenants, theirs are projects.
+    fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>> {
+        Box::pin(async move {
+            let mut scopes = Vec::new();
+            for (tenant_directory, tenant) in self.subdirectories(&self.root).await? {
+                for (_, project) in self.subdirectories(&tenant_directory).await? {
+                    scopes.push(DocumentScope::from_backend(tenant.clone(), project));
+                }
+            }
+            Ok(scopes)
         })
     }
 }

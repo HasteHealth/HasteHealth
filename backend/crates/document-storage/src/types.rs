@@ -272,56 +272,19 @@ pub struct StoredDocument {
     pub body: DocumentBody,
 }
 
-/// Selects one page of a listing.
+/// Selects one page of a scope's listing.
 #[derive(Debug, Clone, Default)]
 pub struct ListRequest {
-    /// Only that project's documents. `None` lists every document in the
-    /// store, which maintenance such as an orphan sweep needs.
-    pub scope: Option<DocumentScope>,
     /// Token from the previous [`ListPage`]; `None` starts from the beginning.
     pub page_token: Option<String>,
     /// Upper bound on documents per page; the backend applies its own cap.
     pub page_size: Option<u32>,
 }
 
-/// One page of a listing, ordered by tenant, project and name.
+/// One page of a scope's listing, in name order.
 #[derive(Debug, Clone)]
 pub struct ListPage {
     pub documents: Vec<DocumentMetadata>,
     /// Present when more documents follow.
     pub next_page_token: Option<String>,
-}
-
-/// The page token the filesystem and Postgres backends hand out: the last
-/// document's scope and name. Both compare it as a (tenant, project, name)
-/// triple, never as one string, since a slash sorts between the characters an
-/// id may hold.
-#[cfg(any(feature = "filesystem", feature = "postgres"))]
-pub(crate) fn page_token(scope: &DocumentScope, name: &str) -> String {
-    format!(
-        "{}/{}/{name}",
-        scope.tenant().as_ref(),
-        scope.project().as_ref()
-    )
-}
-
-/// The triple a [`page_token`] encodes.
-///
-/// # Errors
-///
-/// Returns [`StorageError::InvalidPageToken`] for a token of another shape.
-#[cfg(any(feature = "filesystem", feature = "postgres"))]
-pub(crate) fn parse_page_token(token: &str) -> Result<(String, String, String), StorageError> {
-    let mut parts = token.splitn(3, '/');
-    if let (Some(tenant), Some(project), Some(name)) = (parts.next(), parts.next(), parts.next())
-        && !tenant.is_empty()
-        && !project.is_empty()
-        && !name.is_empty()
-    {
-        Ok((tenant.to_string(), project.to_string(), name.to_string()))
-    } else {
-        Err(StorageError::InvalidPageToken(format!(
-            "'{token}' is not a token this backend issued"
-        )))
-    }
 }

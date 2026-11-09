@@ -31,7 +31,7 @@ use crate::{
     traits::{DocumentStorage, StorageFuture},
     types::{
         Document, DocumentBody, DocumentMetadata, DocumentName, DocumentScope, ListPage,
-        ListRequest, StoredDocument, page_token, parse_page_token,
+        ListRequest, StoredDocument,
     },
 };
 
@@ -381,35 +381,31 @@ impl DocumentStorage for PostgresDocumentStorage {
         })
     }
 
-    fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage> {
+    fn list<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        request: ListRequest,
+    ) -> StorageFuture<'a, ListPage> {
         Box::pin(async move {
             let page_size = request.page_size.map_or(MAX_PAGE_SIZE, |size| {
                 i64::from(size).clamp(1, MAX_PAGE_SIZE)
             });
-            let scope = request.scope.as_ref();
-            let after = request
-                .page_token
-                .as_deref()
-                .map(parse_page_token)
-                .transpose()?;
 
-            // The row comparison walks the primary key from the token on.
+            // One range of the primary key, from the token on.
             let mut rows: Vec<MetadataRow> = sqlx::query_as(
                 r"
                     SELECT tenant, project, name, generation, size, content_type, metadata,
                            updated_at
                     FROM document_storage
-                    WHERE ($1::text IS NULL OR (tenant = $1 AND project = $2))
-                      AND ($3::text IS NULL OR (tenant, project, name) > ($3, $4, $5))
-                    ORDER BY tenant, project, name
-                    LIMIT $6
+                    WHERE tenant = $1 AND project = $2
+                      AND ($3::text IS NULL OR name > $3)
+                    ORDER BY name
+                    LIMIT $4
                 ",
             )
-            .bind(scope.map(|scope| scope.tenant().as_ref()))
-            .bind(scope.map(|scope| scope.project().as_ref()))
-            .bind(after.as_ref().map(|(tenant, _, _)| tenant.as_str()))
-            .bind(after.as_ref().map(|(_, project, _)| project.as_str()))
-            .bind(after.as_ref().map(|(_, _, name)| name.as_str()))
+            .bind(scope.tenant().as_ref())
+            .bind(scope.project().as_ref())
+            .bind(request.page_token)
             .bind(page_size + 1)
             .fetch_all(&self.pool)
             .await
@@ -423,12 +419,31 @@ impl DocumentStorage for PostgresDocumentStorage {
                 next_page_token: if more {
                     documents
                         .last()
-                        .map(|document| page_token(&document.scope, document.name.as_str()))
+                        .map(|document| document.name.as_str().to_string())
                 } else {
                     None
                 },
                 documents,
             })
+        })
+    }
+
+    fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>> {
+        Box::pin(async move {
+            let rows: Vec<(String, String)> = sqlx::query_as(
+                r"
+                    SELECT DISTINCT tenant, project
+                    FROM document_storage
+                    ORDER BY tenant, project
+                ",
+            )
+            .fetch_all(&self.pool)
+            .await
+            .map_err(database_error)?;
+            Ok(rows
+                .into_iter()
+                .map(|(tenant, project)| DocumentScope::from_backend(tenant, project))
+                .collect())
         })
     }
 }

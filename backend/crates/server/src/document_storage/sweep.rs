@@ -1,11 +1,8 @@
 //! Removal of Binary documents whose resource version was never written.
 
-use std::{
-    collections::{HashMap, HashSet},
-    time::Duration,
-};
+use std::{collections::HashSet, time::Duration};
 
-use haste_document_storage::{DocumentMetadata, DocumentScope, ListRequest};
+use haste_document_storage::ListRequest;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_repository::pg::PGConnection;
 use serde::Serialize;
@@ -33,15 +30,15 @@ pub struct SweepReport {
 }
 
 /// Removes documents in `storage` that no resource version in `repo` refers
-/// to, once they are older than `grace`. The listing covers every scope; each
-/// page is grouped by scope and checked against that tenant and project's rows
-/// with one query that the repository's partial index on Binary rows serves,
-/// so the sweep costs a probe per document. Such a document comes from a write
-/// whose row never committed (a rolled back transaction, a write that failed
-/// after the upload, or a crash between the two) or from a project that was
-/// deleted while its documents lived outside the repository database. `grace`
-/// must comfortably exceed the longest transaction, since a document is
-/// uploaded before its row commits.
+/// to, once they are older than `grace`. It walks every scope the store holds
+/// and checks each page of a scope's documents against that tenant and
+/// project's rows with one query that the repository's partial index on Binary
+/// rows serves, so the sweep costs a probe per document. Such a document comes
+/// from a write whose row never committed (a rolled back transaction, a write
+/// that failed after the upload, or a crash between the two) or from a project
+/// that was deleted while its documents lived outside the repository database.
+/// `grace` must comfortably exceed the longest transaction, since a document
+/// is uploaded before its row commits.
 ///
 /// With `dry_run` nothing is removed and the report counts what would be.
 ///
@@ -57,25 +54,22 @@ pub async fn sweep(
     let cutoff = OffsetDateTime::now_utc() - grace;
 
     let mut report = SweepReport::default();
-    let mut page_token = None;
-    loop {
-        let page = storage
-            .storage()
-            .list(ListRequest {
-                scope: None,
-                page_token,
-                page_size: Some(PAGE_SIZE),
-            })
-            .await?;
+    for scope in storage.storage().scopes().await? {
+        let mut page_token = None;
+        loop {
+            let page = storage
+                .storage()
+                .list(
+                    &scope,
+                    ListRequest {
+                        page_token,
+                        page_size: Some(PAGE_SIZE),
+                    },
+                )
+                .await?;
 
-        let mut by_scope: HashMap<&DocumentScope, Vec<&DocumentMetadata>> = HashMap::new();
-        for document in &page.documents {
-            report.examined += 1;
-            by_scope.entry(&document.scope).or_default().push(document);
-        }
-
-        for (scope, documents) in by_scope {
-            let names = documents
+            let names = page
+                .documents
                 .iter()
                 .map(|document| document.name.as_str())
                 .collect::<Vec<_>>();
@@ -83,7 +77,8 @@ pub async fn sweep(
                 .binary_data_extension_values(scope.tenant(), scope.project(), MARKER_URL, &names)
                 .await?;
 
-            for document in documents {
+            for document in &page.documents {
+                report.examined += 1;
                 if in_use.contains(document.name.as_str()) {
                     report.in_use += 1;
                 } else if document
@@ -94,19 +89,17 @@ pub async fn sweep(
                 } else {
                     report.orphaned += 1;
                     if !dry_run {
-                        storage
-                            .storage()
-                            .delete(&document.scope, &document.name)
-                            .await?;
+                        storage.storage().delete(&scope, &document.name).await?;
                         report.removed += 1;
                     }
                 }
             }
-        }
 
-        match page.next_page_token {
-            Some(token) => page_token = Some(token),
-            None => return Ok(report),
+            match page.next_page_token {
+                Some(token) => page_token = Some(token),
+                None => break,
+            }
         }
     }
+    Ok(report)
 }

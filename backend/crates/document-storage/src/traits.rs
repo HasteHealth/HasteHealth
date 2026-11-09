@@ -53,8 +53,16 @@ pub trait DocumentStorage: Send + Sync {
         name: &'a DocumentName,
     ) -> StorageFuture<'a, ()>;
 
-    /// Lists documents one page at a time: those of the request's scope, or
-    /// every document in the store when it names none. Pass the returned
-    /// token back to fetch the next page.
-    fn list(&self, request: ListRequest) -> StorageFuture<'_, ListPage>;
+    /// Lists the documents of `scope` one page at a time, in name order. Pass
+    /// the returned token back to fetch the next page.
+    fn list<'a>(
+        &'a self,
+        scope: &'a DocumentScope,
+        request: ListRequest,
+    ) -> StorageFuture<'a, ListPage>;
+
+    /// Every scope the store holds a document for. The one call that looks
+    /// across tenants and projects, for maintenance such as the orphan sweep,
+    /// which needs the scopes of projects that no longer exist.
+    fn scopes(&self) -> StorageFuture<'_, Vec<DocumentScope>>;
 }
