@@ -37,10 +37,6 @@ testAggregate4
 # testIndexer
 testIndexer3
 
-# testIif
-testIif6
-testIif10
-
 # testStartsWith
 testStartsWithNonString1
 

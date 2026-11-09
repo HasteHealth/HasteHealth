@@ -1393,12 +1393,25 @@ async fn evaluate_iif<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(2, 3))?;
+    singleton("iif", &context)?;
 
     let criterion =
         evaluate_expression(&function.arguments[0], context.clone(), config.clone()).await?;
 
+    // The criterion must be a Boolean (empty counts as false), unlike `where`.
+    let criterion = match criterion.values.as_slice() {
+        [] => false,
+        [value] if BOOLEAN_TYPES.contains(value.fhir_type()) => downcast_bool(*value)?,
+        _ => {
+            return Err(FunctionError::InvalidFunctionCall(
+                "iif criterion must evaluate to a Boolean".to_string(),
+            )
+            .into());
+        }
+    };
+
     // Only the chosen branch is evaluated.
-    let branch = if singleton_boolean("iif", &criterion)? == Some(true) {
+    let branch = if criterion {
         function.arguments.get(1)
     } else {
         function.arguments.get(2)

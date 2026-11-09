@@ -242,6 +242,10 @@ async fn iif() {
     // Short circuit: the branch not taken is not evaluated.
     assert_evaluates("iif(true, 'a', (1 | 2).single())", &["'a'"]).await;
     assert_evaluates("iif(false, (1 | 2).single(), 'b')", &["'b'"]).await;
+    assert_evaluates("{}.iif(true, 1, 2)", &["1"]).await;
+    // A non-Boolean criterion and a multi-item input are errors.
+    assert_errors("iif('x', 1, 2)").await;
+    assert_errors("('a' | 'b').iif(true, 1, 2)").await;
 }
 
 /// <https://hl7.org/fhirpath/N1/#math>
