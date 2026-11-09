@@ -2304,11 +2304,7 @@ fn evaluate_string_match<'a>(
         )));
     };
 
-    let value_string = context
-        .values
-        .first()
-        .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or_default();
+    let value_string = downcast_string(context.values[0])?;
 
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
