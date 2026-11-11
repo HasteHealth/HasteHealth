@@ -4,23 +4,26 @@
 //! limit cannot disagree with what the server enforces. Written by
 //! `cargo run subscription export` and committed; CI re-runs it with `--check`.
 
-use crate::{OPERATION_POINTS, OperationPoints, RequestBudget, ResourceLimit, TIERS, TierLimits};
+use crate::{
+    OPERATION_POINTS, OperationPoints, REQUEST_BUDGET_WINDOW_MINUTES, RequestBudget, ResourceLimit,
+    TIERS, TierLimits,
+};
 use serde::Serialize;
 
-/// What a tier's daily budget buys, in whole requests of one kind.
+/// What a tier's budget buys per window, in whole requests of one kind.
 ///
 /// Derived rather than written down: a budget is only meaningful next to what it
 /// affords, and stating it in requests is how buyers think about it.
 #[derive(Debug, Serialize)]
 pub struct BudgetExamples {
-    pub reads_per_day: Option<u64>,
-    pub writes_per_day: Option<u64>,
-    pub searches_per_day: Option<u64>,
+    pub reads_per_window: Option<u64>,
+    pub writes_per_window: Option<u64>,
+    pub searches_per_window: Option<u64>,
 }
 
 impl BudgetExamples {
     fn for_budget(budget: &RequestBudget, points: &OperationPoints) -> Self {
-        let per_day = |cost: u32| match budget {
+        let per_window = |cost: u32| match budget {
             // Unmetered has no meaningful example count.
             RequestBudget::Unmetered => None,
             RequestBudget::Points(available) if cost > 0 => {
@@ -30,9 +33,9 @@ impl BudgetExamples {
         };
 
         Self {
-            reads_per_day: per_day(points.read),
-            writes_per_day: per_day(points.write),
-            searches_per_day: per_day(points.search),
+            reads_per_window: per_window(points.read),
+            writes_per_window: per_window(points.write),
+            searches_per_window: per_window(points.search),
         }
     }
 }
@@ -45,7 +48,7 @@ pub struct ExportedTier<'a> {
     /// `tier.price` rather than `tier.limits.price`.
     #[serde(flatten)]
     pub limits: &'a TierLimits,
-    /// The request budget rendered for display, e.g. `"250,000 points / day"`.
+    /// The request budget rendered for display, e.g. `"500,000 points / 15 minutes"`.
     pub request_budget_label: String,
     /// The total resource cap rendered for display, e.g. `"250,000"`.
     pub total_resources_label: String,
@@ -61,8 +64,8 @@ pub struct Export<'a> {
     pub comment: &'static str,
     /// The cost of each kind of request, so the page can state it once.
     pub operation_points: &'a OperationPoints,
-    /// How long a request budget lasts before it resets.
-    pub window: &'static str,
+    /// How long a request budget lasts before it resets, e.g. `"15 minutes"`.
+    pub window: String,
     pub tiers: Vec<ExportedTier<'a>>,
 }
 
@@ -81,10 +84,19 @@ fn with_separators(value: u64) -> String {
     out
 }
 
+/// The budget window for display: `"15 minutes"`.
+fn window_label() -> String {
+    format!("{REQUEST_BUDGET_WINDOW_MINUTES} minutes")
+}
+
 fn budget_label(budget: &RequestBudget) -> String {
     match budget {
         RequestBudget::Points(points) => {
-            format!("{} points / day", with_separators(*points as u64))
+            format!(
+                "{} points / {}",
+                with_separators(*points as u64),
+                window_label()
+            )
         }
         RequestBudget::Unmetered => "Unmetered".to_string(),
     }
@@ -102,7 +114,7 @@ pub fn build() -> Export<'static> {
     Export {
         comment: "Generated from backend/crates/subscription by `cargo run subscription export`. Do not edit by hand.",
         operation_points: &OPERATION_POINTS,
-        window: "day",
+        window: window_label(),
         tiers: TIERS
             .iter()
             .map(|limits| ExportedTier {
@@ -139,7 +151,7 @@ mod tests {
         let free = &export.tiers[0];
 
         assert_eq!(free.limits.tier, SubscriptionTier::Free);
-        assert_eq!(free.request_budget_label, "250,000 points / day");
+        assert_eq!(free.request_budget_label, "500,000 points / 15 minutes");
         assert_eq!(free.total_resources_label, "250,000");
 
         let self_hosted = export.tiers.last().expect("tiers are not empty");
@@ -152,13 +164,13 @@ mod tests {
         let export = build();
         let free = &export.tiers[0];
 
-        // 250,000 points at 1 per read, 6 per search and 25 per write.
-        assert_eq!(free.budget_examples.reads_per_day, Some(250_000));
-        assert_eq!(free.budget_examples.searches_per_day, Some(41_666));
-        assert_eq!(free.budget_examples.writes_per_day, Some(10_000));
+        // 500,000 points at 1 per read, 6 per search and 25 per write.
+        assert_eq!(free.budget_examples.reads_per_window, Some(500_000));
+        assert_eq!(free.budget_examples.searches_per_window, Some(83_333));
+        assert_eq!(free.budget_examples.writes_per_window, Some(20_000));
 
         let self_hosted = export.tiers.last().expect("tiers are not empty");
-        assert_eq!(self_hosted.budget_examples.reads_per_day, None);
+        assert_eq!(self_hosted.budget_examples.reads_per_window, None);
     }
 
     /// The page keys its cards off the claim value, so each tier must serialize
@@ -192,7 +204,7 @@ mod tests {
         );
         assert_eq!(
             tiers[0]["request_budget"],
-            serde_json::json!({"points": 250_000})
+            serde_json::json!({"points": 500_000})
         );
 
         // Uncapped limits are the bare tag string, not `{"unlimited": null}`.

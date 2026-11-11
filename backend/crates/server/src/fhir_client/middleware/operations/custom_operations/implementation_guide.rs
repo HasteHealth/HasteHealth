@@ -479,7 +479,7 @@ async fn cooldown(
     let window = i32::try_from(interval).unwrap_or(i32::MAX);
     match rate_limit.check_uncached(key, 1, 1, window).await {
         Ok(_) => Ok(()),
-        Err(RateLimitError::Exceeded) => Err(OperationOutcomeError::error(
+        Err(RateLimitError::Exceeded { .. }) => Err(OperationOutcomeError::error(
             IssueType::throttled(),
             refusal(),
         )),

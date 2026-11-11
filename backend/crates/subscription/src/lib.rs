@@ -37,7 +37,7 @@ impl ResourceLimit {
     }
 }
 
-/// What one request costs against a tier's daily budget.
+/// What one request costs against a tier's request budget.
 ///
 /// Uniform across tiers — a tier buys a larger budget, not cheaper operations —
 /// so the pricing page can state the costs once.
@@ -81,7 +81,21 @@ pub const OPERATION_POINTS: OperationPoints = OperationPoints {
     invocation: 4,
 };
 
-/// A tier's daily request budget, in [`OPERATION_POINTS`].
+/// How long a [`RequestBudget`] lasts before it resets, in minutes.
+///
+/// Short, so a tenant that spends its budget on an import waits minutes for
+/// the next window rather than a day. The budgets are sized to the window: each
+/// fits [`LARGEST_SYNTHEA_BUNDLE_POINTS`], so no realistic single import is
+/// refused outright.
+pub const REQUEST_BUDGET_WINDOW_MINUTES: u64 = 15;
+
+/// What the largest patient bundle in the Synthea sample download costs as a
+/// transaction: 19,020 entries, every one a write. Every metered tier's budget
+/// is at least this, so a whole Synthea patient always fits in one window.
+pub const LARGEST_SYNTHEA_BUNDLE_POINTS: usize = 19_020 * OPERATION_POINTS.write as usize;
+
+/// A tier's request budget per [`REQUEST_BUDGET_WINDOW_MINUTES`], in
+/// [`OPERATION_POINTS`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RequestBudget {
@@ -158,11 +172,12 @@ pub const TIERS: &[TierLimits] = &[
     // resources withheld.
     TierLimits {
         tier: SubscriptionTier::Free,
-        // Enough to evaluate the server against real data: a Synthea patient is
-        // roughly 750 resources, so this affords loading a handful of them and
-        // still querying them the same day. A budget that cannot absorb one
-        // realistic import is a budget that ends the evaluation.
-        request_budget: RequestBudget::Points(250_000),
+        // Enough to evaluate the server against real data: the largest patient
+        // in the Synthea sample download costs 475,500 points, so any whole
+        // patient loads in one window, and the whole 114-bundle sample (about
+        // 2.5 million points) loads in about an hour. A budget that cannot
+        // absorb one realistic import is a budget that ends the evaluation.
+        request_budget: RequestBudget::Points(500_000),
         total_resources: ResourceLimit::Count(250_000),
         // Two: the `system` project, plus one to build in.
         projects: ResourceLimit::Count(2),
@@ -382,30 +397,35 @@ mod tests {
         assert_eq!(p.read, 1, "a read is the unit of cost");
     }
 
+    /// A transaction costing more than a whole window's budget is refused
+    /// however long the caller waits, so every metered tier must fit the
+    /// largest Synthea patient bundle in one window.
+    #[test]
+    fn every_metered_tier_fits_the_largest_synthea_bundle() {
+        for limits in TIERS {
+            assert!(
+                limits.request_budget.as_points() >= LARGEST_SYNTHEA_BUNDLE_POINTS,
+                "{} cannot submit the largest Synthea bundle ({LARGEST_SYNTHEA_BUNDLE_POINTS} points) in one window",
+                limits.display_name
+            );
+        }
+    }
+
     /// The free tier has to absorb one realistic data import or it cannot be
-    /// evaluated. A Synthea patient is roughly 750 resources.
+    /// evaluated, and its resource cap must hold more than one window of writes
+    /// can create, so the two limits do not contradict each other.
     #[test]
     fn free_tier_can_load_and_query_real_data() {
         let free = limits_for(&SubscriptionTier::Free);
         let budget = free.request_budget.as_points();
 
-        let synthea_patient_resources = 744;
-        let cost_of_five_patients = 5 * synthea_patient_resources * OPERATION_POINTS.write as usize;
-
-        assert!(
-            cost_of_five_patients < budget,
-            "the free budget ({budget}) cannot load five Synthea patients ({cost_of_five_patients})"
-        );
-
-        // And the cap must hold far more than the day's writes can create, so
-        // the two limits do not contradict each other.
         let ResourceLimit::Count(cap) = free.total_resources else {
             panic!("the free tier is expected to cap total resources");
         };
-        let writes_per_day = budget / OPERATION_POINTS.write as usize;
+        let writes_per_window = budget / OPERATION_POINTS.write as usize;
         assert!(
-            (cap as usize) > writes_per_day,
-            "the resource cap ({cap}) is below what one day of writes can create ({writes_per_day})"
+            (cap as usize) > writes_per_window,
+            "the resource cap ({cap}) is below what one window of writes can create ({writes_per_window})"
         );
     }
 

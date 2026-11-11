@@ -161,7 +161,7 @@ pub async fn check(
         .await
     {
         Ok(spent) => spent,
-        Err(RateLimitError::Exceeded) => return Ok(CheckOutcome::TooManyAttempts),
+        Err(RateLimitError::Exceeded { .. }) => return Ok(CheckOutcome::TooManyAttempts),
         Err(RateLimitError::Error(error)) => {
             tracing::error!(error, "email code attempt limit check failed");
             return Err(session_error("failed to check the attempt limit"));

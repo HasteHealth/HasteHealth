@@ -202,7 +202,7 @@ Set `signup.enabled = false` on a deployment where visitors must not create tena
 | Key                                         | Env var                                           | Default                                                                                               |
 | ------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `rate_limits.rate_limit_subscription_tiers` | `HASTE_RATE_LIMITS.rate_limit_subscription_tiers` | unset (`None`) — a 4-element array, one limit per subscription tier free,profressional,team,unlimited |
-| `rate_limits.rate_limit_window_seconds`     | `HASTE_RATE_LIMITS.rate_limit_window_seconds`     | `86400` (1 day)                                                                                       |
+| `rate_limits.rate_limit_window_seconds`     | `HASTE_RATE_LIMITS.rate_limit_window_seconds`     | `900` (15 minutes)                                                                                    |
 | `rate_limits.rate_limit_operation_points`   | `HASTE_RATE_LIMITS.rate_limit_operation_points`   | `100`                                                                                                 |
 
 #### `[monitoring]`
