@@ -7,7 +7,11 @@ use crate::{
             build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
         },
         compartment::process_compartment_request,
-        middleware::{Backend, Handler, Output, auth_z::patient_scope, search_includes},
+        middleware::{
+            Backend, Handler, Output,
+            auth_z::{granular_scope, patient_scope},
+            search_includes,
+        },
     },
     route_path::{api_fhir_root_url, append_path_segments},
 };
@@ -32,7 +36,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchEntry, SearchOptions};
-use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_jwt::{ProjectId, ResourceId, TenantId, scopes::SmartResourceScopePermission};
 use haste_reflect::MetaValue;
 use haste_repository::{Repository, fhir::FHIRRepository};
 use std::sync::Arc;
@@ -186,9 +190,11 @@ pub fn to_bundle_entry(
 }
 
 /// The options a search runs with. A caller confined to a patient's
-/// compartment gets the filter that keeps every search there.
-fn search_options(
-    compartment: Option<&str>,
+/// compartment gets the filter that keeps every search there; one whose
+/// scopes on the type are all granular gets the filter that keeps it to the
+/// resources they reach.
+fn search_options<B: Backend>(
+    ctx: &ServerCTX<B>,
     request: &SearchRequest,
     count_limit: Option<u64>,
 ) -> Option<SearchOptions> {
@@ -196,10 +202,20 @@ fn search_options(
         SearchRequest::Type(search) => Some(&search.resource_type),
         SearchRequest::System(_) => None,
     };
+    let compartment = ctx
+        .compartment
+        .as_deref()
+        .and_then(|patient_id| patient_scope::search_filter(patient_id, resource_type));
+    let granular = resource_type.and_then(|resource_type| {
+        granular_scope::search_filter(
+            &ctx.user.claims.scope,
+            resource_type,
+            &SmartResourceScopePermission::Search,
+        )
+    });
     Some(SearchOptions {
         count_limit,
-        any_of: compartment
-            .and_then(|patient_id| patient_scope::search_filter(patient_id, resource_type)),
+        filters: compartment.into_iter().chain(granular).collect(),
     })
 }
 
@@ -277,7 +293,7 @@ async fn delete_matches<B: Backend>(
             &ctx.tenant,
             &ctx.project,
             &search,
-            search_options(ctx.compartment.as_deref(), &search, Some(delete_limit + 1)),
+            search_options(ctx, &search, Some(delete_limit + 1)),
         )
         .await?;
     if found.entries.len() as u64 > delete_limit {
@@ -551,7 +567,7 @@ impl<B: Backend> Handler<B> for Storage {
                             &ctx.tenant,
                             &ctx.project,
                             &update_search,
-                            search_options(ctx.compartment.as_deref(), &update_search, None),
+                            search_options(&ctx, &update_search, None),
                         )
                         .await?;
                     // No matches, no id provided:
@@ -671,7 +687,7 @@ impl<B: Backend> Handler<B> for Storage {
                             &ctx.tenant,
                             &ctx.project,
                             &search_request,
-                            search_options(ctx.compartment.as_deref(), &search_request, None),
+                            search_options(&ctx, &search_request, None),
                         )
                         .await?;
                     let version_ids = search_results
