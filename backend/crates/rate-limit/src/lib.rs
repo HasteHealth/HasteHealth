@@ -4,7 +4,9 @@ pub enum RateLimitError {
     Error(String),
     /// Spending the points would pass `max`. Nothing was spent. `retry_after`
     /// is how long until the window resets and the full `max` is available.
-    Exceeded { retry_after: Duration },
+    Exceeded {
+        retry_after: Duration,
+    },
 }
 
 pub trait RateLimit: Sync + Send {

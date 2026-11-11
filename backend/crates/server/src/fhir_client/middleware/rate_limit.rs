@@ -121,11 +121,20 @@ mod tests {
     #[test]
     fn describes_durations_rounded_up() {
         assert_eq!(describe_duration(Duration::from_secs(1)), "1 second");
-        assert_eq!(describe_duration(Duration::from_millis(44_200)), "45 seconds");
+        assert_eq!(
+            describe_duration(Duration::from_millis(44_200)),
+            "45 seconds"
+        );
         assert_eq!(describe_duration(Duration::from_secs(60)), "1 minute");
         assert_eq!(describe_duration(Duration::from_secs(61)), "2 minutes");
-        assert_eq!(describe_duration(Duration::from_secs(15 * 60)), "15 minutes");
-        assert_eq!(describe_duration(Duration::from_secs(24 * 3600)), "24 hours");
+        assert_eq!(
+            describe_duration(Duration::from_secs(15 * 60)),
+            "15 minutes"
+        );
+        assert_eq!(
+            describe_duration(Duration::from_secs(24 * 3600)),
+            "24 hours"
+        );
     }
 
     /// The client is told when it may retry, in the outcome it already prints.
@@ -141,7 +150,10 @@ mod tests {
         assert_eq!(error.http_status(), 429);
         assert!(diagnostics.contains("costs 18750 points"), "{diagnostics}");
         assert!(diagnostics.contains("every 15 minutes"), "{diagnostics}");
-        assert!(diagnostics.contains("The limit resets at "), "{diagnostics}");
+        assert!(
+            diagnostics.contains("The limit resets at "),
+            "{diagnostics}"
+        );
         assert!(diagnostics.ends_with("(in 10 minutes)."), "{diagnostics}");
     }
 

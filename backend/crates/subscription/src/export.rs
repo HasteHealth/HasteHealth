@@ -92,7 +92,11 @@ fn window_label() -> String {
 fn budget_label(budget: &RequestBudget) -> String {
     match budget {
         RequestBudget::Points(points) => {
-            format!("{} points / {}", with_separators(*points as u64), window_label())
+            format!(
+                "{} points / {}",
+                with_separators(*points as u64),
+                window_label()
+            )
         }
         RequestBudget::Unmetered => "Unmetered".to_string(),
     }
