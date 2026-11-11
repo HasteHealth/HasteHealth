@@ -348,7 +348,7 @@ impl Default for RateLimitsConfig {
     fn default() -> Self {
         Self {
             rate_limit_subscription_tiers: None,
-            rate_limit_window_seconds: 60 * 60 * 24, // 1 day in seconds
+            rate_limit_window_seconds: haste_subscription::REQUEST_BUDGET_WINDOW_MINUTES * 60,
             rate_limit_operation_points: 100,
         }
     }
