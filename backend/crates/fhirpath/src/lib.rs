@@ -497,6 +497,7 @@ async fn evaluate_function<'a>(
         "ofType" | "as" => evaluate_of_type(function, &context),
         "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
+        "precision" => evaluate_precision(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
         "encode" | "decode" => evaluate_codec(function, context, config).await,
         "empty" => evaluate_empty(function, &context),
@@ -614,6 +615,46 @@ fn evaluate_count<'a>(
             ..Default::default()
         })]),
     )
+}
+
+/// <https://hl7.org/fhirpath/N1/#precision-integer>: the digits a Date, `DateTime` or Time
+/// was written with. Decimal is not supported until the engine keeps trailing zeros.
+fn evaluate_precision<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let Some(value) = singleton("precision", context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let any = value.as_any();
+    let precision = if let Some(date) = any.downcast_ref::<FHIRDate>() {
+        date.value.as_ref().map(Date::precision)
+    } else if let Some(datetime) = any.downcast_ref::<FHIRDateTime>() {
+        datetime.value.as_ref().map(DateTime::precision)
+    } else if let Some(time) = any.downcast_ref::<FHIRTime>() {
+        time.value.as_ref().map(Time::precision)
+    } else if let Some(datetime) = any.downcast_ref::<PartialDateTime>() {
+        Some(datetime.precision())
+    } else {
+        return Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            value.fhir_type(),
+            "a Date, DateTime or Time",
+        )));
+    };
+
+    Ok(context.new_context_from(
+        precision
+            .map(|value| {
+                context.allocate_literal(FHIRInteger {
+                    value: Some(value),
+                    ..Default::default()
+                })
+            })
+            .into_iter()
+            .collect(),
+    ))
 }
 
 fn evaluate_case<'a>(

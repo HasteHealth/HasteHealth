@@ -50,7 +50,7 @@ fn time_len(time: &Time) -> usize {
     match time {
         Time::Hour(_) => 1,
         Time::HourMinute(..) => 2,
-        Time::HourMinuteSecond(_) => 3,
+        Time::HourMinuteSecond(_) | Time::HourMinuteSecondFraction(_) => 3,
     }
 }
 

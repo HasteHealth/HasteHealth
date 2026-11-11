@@ -48,12 +48,18 @@ pub fn naive_time(time: &Time) -> NaiveTime {
         Time::HourMinute(hour, minute) => {
             NaiveTime::from_hms_opt(u32::from(*hour), u32::from(*minute), 0)
         }
-        Time::HourMinuteSecond(time) => Some(*time),
+        Time::HourMinuteSecond(time) | Time::HourMinuteSecondFraction(time) => Some(*time),
     }
     .unwrap_or_default()
 }
 
 impl PartialDateTime {
+    /// The digits written: the date's 8 plus 2 per hour, minute and second, 3 for milliseconds.
+    #[must_use]
+    pub fn precision(&self) -> i64 {
+        8 + self.time.precision()
+    }
+
     /// `text` as a `DateTime` with a time, a full date before it, or `None`.
     fn parse(text: &str) -> Option<Self> {
         let (date, time) = text.split_once('T')?;
