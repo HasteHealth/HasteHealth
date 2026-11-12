@@ -3,26 +3,56 @@ use haste_fhir_client::request::{
 };
 use haste_reflect::MetaValue;
 
+/// How a request reached the server, as `%request.channel`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Channel {
+    Rest,
+    Mcp,
+    Operation,
+    Bulk,
+}
+
+impl Channel {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Channel::Rest => "rest",
+            Channel::Mcp => "mcp",
+            Channel::Operation => "operation",
+            Channel::Bulk => "bulk",
+        }
+    }
+}
+
 #[derive(Debug)]
 struct LocalData {
     request_type: String,
     request_level: String,
     resource_type: Option<String>,
+    channel: String,
 }
 
 // Use Internal Hashmap for storing created Values.
 #[derive(Debug)]
 pub struct RequestReflection(FHIRRequest, LocalData);
 
-impl From<FHIRRequest> for RequestReflection {
-    fn from(request: FHIRRequest) -> Self {
+impl RequestReflection {
+    #[must_use]
+    pub fn new(request: FHIRRequest, channel: Channel) -> Self {
         let local_data = LocalData {
             request_level: request_to_level(&request).to_string(),
             request_type: request_to_request_type(&request).to_string(),
             resource_type: request_resource_type_string(&request),
+            channel: channel.as_str().to_string(),
         };
 
         RequestReflection(request, local_data)
+    }
+}
+
+impl From<FHIRRequest> for RequestReflection {
+    fn from(request: FHIRRequest) -> Self {
+        Self::new(request, Channel::Rest)
     }
 }
 
@@ -76,7 +106,7 @@ fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String> {
     }
 }
 
-static SHARED_FIELDS: &[&str] = &["type", "level"];
+static SHARED_FIELDS: &[&str] = &["type", "level", "channel"];
 
 // Type codes pulled from https://hl7.org/fhir/R4/http.html
 //
@@ -166,6 +196,7 @@ impl MetaValue for RequestReflection {
         match field {
             "type" => Some(&self.1.request_type),
             "level" => Some(&self.1.request_level),
+            "channel" => Some(&self.1.channel),
             "resource_type" => self.1.resource_type.as_ref().map(|v| v as &dyn MetaValue),
             "resource" => match &self.0 {
                 FHIRRequest::Create(fhircreate_request) => Some(&fhircreate_request.resource),

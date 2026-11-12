@@ -1,0 +1,2356 @@
+{
+    "resourceType": "TestScript",
+    "id": "access-policy-v3-evaluate",
+    "url": "https://haste.health/fhir/TestScript/access-policy-v3-evaluate",
+    "name": "AccessPolicyV3 evaluation",
+    "title": "AccessPolicyV3 evaluation",
+    "status": "active",
+    "description": "$evaluate-policy on an AccessPolicyV3 reports the tri-state decision: every row of the rule state table, every combining algorithm at two nesting depths, indeterminate rules counting as denies, and the care team nurse example.",
+    "contained": [
+        {
+            "resourceType": "Parameters",
+            "id": "req-read",
+            "parameter": [
+                {
+                    "name": "request",
+                    "resource": {
+                        "resourceType": "Bundle",
+                        "type": "batch",
+                        "entry": [
+                            {
+                                "request": {
+                                    "method": "GET",
+                                    "url": "Patient/p1"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "resourceType": "Parameters",
+            "id": "req-update-medication",
+            "parameter": [
+                {
+                    "name": "request",
+                    "resource": {
+                        "resourceType": "Bundle",
+                        "type": "batch",
+                        "entry": [
+                            {
+                                "request": {
+                                    "method": "PUT",
+                                    "url": "MedicationRequest/m1"
+                                },
+                                "resource": {
+                                    "resourceType": "MedicationRequest",
+                                    "id": "m1",
+                                    "status": "active",
+                                    "intent": "order",
+                                    "medicationCodeableConcept": {
+                                        "text": "Aspirin"
+                                    },
+                                    "subject": {
+                                        "reference": "Patient/p1"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "target-false",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "false"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "target-empty",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "{}"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "condition-false",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "false"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "condition-empty",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "%request.resource.id"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-obligations",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    },
+                    "obligation": [
+                        {
+                            "code": "audit-purpose"
+                        },
+                        {
+                            "code": "max-results",
+                            "value": "100"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-rule",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "indeterminate-syntax",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type ="
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "indeterminate-variable",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%nope = 'x'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "indeterminate-not-boolean",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "'text'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "indeterminate-many",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true | false"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-overrides-depth-1",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    },
+                    "obligation": [
+                        {
+                            "code": "audit-purpose"
+                        }
+                    ]
+                },
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-overrides-depth-2",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "combining": "deny-overrides",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "condition": {
+                                "expression": "true"
+                            },
+                            "obligation": [
+                                {
+                                    "code": "audit-purpose"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "decision",
+                            "type": "deny",
+                            "condition": {
+                                "expression": "true"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-overrides-depth-1",
+            "combining": "permit-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "condition": {
+                        "expression": "true"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    },
+                    "obligation": [
+                        {
+                            "code": "audit-purpose"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-overrides-depth-2",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "combining": "permit-overrides",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "deny",
+                            "condition": {
+                                "expression": "true"
+                            }
+                        },
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "condition": {
+                                "expression": "true"
+                            },
+                            "obligation": [
+                                {
+                                    "code": "audit-purpose"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-unless-permit-depth-1",
+            "combining": "deny-unless-permit",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "false"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-unless-permit-depth-2",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "combining": "deny-unless-permit",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "target": {
+                                "expression": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-unless-deny-depth-1",
+            "combining": "permit-unless-deny",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "target": {
+                        "expression": "false"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-unless-deny-depth-2",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "combining": "permit-unless-deny",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "deny",
+                            "target": {
+                                "expression": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "first-applicable-depth-1",
+            "combining": "first-applicable",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "false"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "condition": {
+                        "expression": "true"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "first-applicable-depth-2",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "combining": "first-applicable",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "target": {
+                                "expression": "false"
+                            }
+                        },
+                        {
+                            "kind": "decision",
+                            "type": "deny",
+                            "condition": {
+                                "expression": "true"
+                            }
+                        },
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "condition": {
+                                "expression": "true"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "deny-overrides-indeterminate",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "'text'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "permit-overrides-indeterminate",
+            "combining": "permit-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "'text'"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "first-applicable-indeterminate",
+            "combining": "first-applicable",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "'text'"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "true"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "constraint-only",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=p1"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "parent-obligations",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "obligation": [
+                        {
+                            "code": "audit-purpose"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "condition": {
+                                "expression": "true"
+                            },
+                            "obligation": [
+                                {
+                                    "code": "max-results",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "request-fields",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "%request.level = 'instance' and %request.type = 'read' and %request.resource_type = 'Patient' and %request.id = 'p1' and %request.channel = 'rest' and %principal.user.exists()"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "care-team-nurse",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "careTeamPatients",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "CareTeam",
+                        "parameters": "participant=%principal.practitioner&status=active&_elements=subject"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Observation",
+                            "search": "patient=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Condition",
+                            "search": "patient=%principal.careTeamPatients"
+                        }
+                    ]
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type in ('read' | 'vread' | 'search' | 'history')"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "target": {
+                        "expression": "%request.resource_type = 'MedicationRequest' and %request.type in ('create' | 'update' | 'patch' | 'delete')"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-evaluate"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-req-read",
+            "resource": {
+                "reference": "#req-read"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-req-update-medication",
+            "resource": {
+                "reference": "#req-update-medication"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-target-false",
+            "resource": {
+                "reference": "#target-false"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-target-empty",
+            "resource": {
+                "reference": "#target-empty"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition-false",
+            "resource": {
+                "reference": "#condition-false"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition-empty",
+            "resource": {
+                "reference": "#condition-empty"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-obligations",
+            "resource": {
+                "reference": "#permit-obligations"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-rule",
+            "resource": {
+                "reference": "#deny-rule"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indeterminate-syntax",
+            "resource": {
+                "reference": "#indeterminate-syntax"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indeterminate-variable",
+            "resource": {
+                "reference": "#indeterminate-variable"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indeterminate-not-boolean",
+            "resource": {
+                "reference": "#indeterminate-not-boolean"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-indeterminate-many",
+            "resource": {
+                "reference": "#indeterminate-many"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-overrides-depth-1",
+            "resource": {
+                "reference": "#deny-overrides-depth-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-overrides-depth-2",
+            "resource": {
+                "reference": "#deny-overrides-depth-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-overrides-depth-1",
+            "resource": {
+                "reference": "#permit-overrides-depth-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-overrides-depth-2",
+            "resource": {
+                "reference": "#permit-overrides-depth-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-unless-permit-depth-1",
+            "resource": {
+                "reference": "#deny-unless-permit-depth-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-unless-permit-depth-2",
+            "resource": {
+                "reference": "#deny-unless-permit-depth-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-unless-deny-depth-1",
+            "resource": {
+                "reference": "#permit-unless-deny-depth-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-unless-deny-depth-2",
+            "resource": {
+                "reference": "#permit-unless-deny-depth-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-first-applicable-depth-1",
+            "resource": {
+                "reference": "#first-applicable-depth-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-first-applicable-depth-2",
+            "resource": {
+                "reference": "#first-applicable-depth-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-deny-overrides-indeterminate",
+            "resource": {
+                "reference": "#deny-overrides-indeterminate"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-permit-overrides-indeterminate",
+            "resource": {
+                "reference": "#permit-overrides-indeterminate"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-first-applicable-indeterminate",
+            "resource": {
+                "reference": "#first-applicable-indeterminate"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-constraint-only",
+            "resource": {
+                "reference": "#constraint-only"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-parent-obligations",
+            "resource": {
+                "reference": "#parent-obligations"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-request-fields",
+            "resource": {
+                "reference": "#request-fields"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-care-team-nurse",
+            "resource": {
+                "reference": "#care-team-nurse"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-target-false",
+            "name": "A false target makes the rule not applicable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-target-false",
+                        "responseId": "r-target-false",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-target-false",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-target-false",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: not-applicable.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: not-applicable.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-target-empty",
+            "name": "An empty target makes the rule not applicable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-target-empty",
+                        "responseId": "r-target-empty",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-target-empty",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-target-empty",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: not-applicable.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: not-applicable.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-condition-false",
+            "name": "A false condition makes the rule not applicable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-condition-false",
+                        "responseId": "r-condition-false",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-condition-false",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-condition-false",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: not-applicable.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: not-applicable.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-condition-empty",
+            "name": "An empty condition makes the rule not applicable, not indeterminate",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-condition-empty",
+                        "responseId": "r-condition-empty",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-condition-empty",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-condition-empty",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: not-applicable.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: not-applicable.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-permit-obligations",
+            "name": "A true condition on a permit rule permits with the rule's obligations",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-obligations",
+                        "responseId": "r-permit-obligations",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-obligations",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-obligations",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit. Obligations: audit-purpose, max-results=100.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit. Obligations: audit-purpose, max-results=100.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-deny-rule",
+            "name": "A true condition on a deny rule denies",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-rule",
+                        "responseId": "r-deny-rule",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-rule",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-rule",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-indeterminate-syntax",
+            "name": "An expression that does not parse is indeterminate",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-indeterminate-syntax",
+                        "responseId": "r-indeterminate-syntax",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-indeterminate-syntax",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-indeterminate-syntax",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-indeterminate-variable",
+            "name": "An unknown variable is indeterminate",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-indeterminate-variable",
+                        "responseId": "r-indeterminate-variable",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-indeterminate-variable",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-indeterminate-variable",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-indeterminate-not-boolean",
+            "name": "A non-boolean result is indeterminate",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-indeterminate-not-boolean",
+                        "responseId": "r-indeterminate-not-boolean",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-indeterminate-not-boolean",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-indeterminate-not-boolean",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-indeterminate-many",
+            "name": "More than one result is indeterminate",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-indeterminate-many",
+                        "responseId": "r-indeterminate-many",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-indeterminate-many",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-indeterminate-many",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-deny-overrides-depth-1",
+            "name": "deny-overrides over the policy's rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-overrides-depth-1",
+                        "responseId": "r-deny-overrides-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-overrides-depth-1",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-overrides-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-deny-overrides-depth-2",
+            "name": "deny-overrides over nested rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-overrides-depth-2",
+                        "responseId": "r-deny-overrides-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-overrides-depth-2",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-overrides-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-permit-overrides-depth-1",
+            "name": "permit-overrides over the policy's rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-overrides-depth-1",
+                        "responseId": "r-permit-overrides-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-overrides-depth-1",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-overrides-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit. Obligations: audit-purpose.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit. Obligations: audit-purpose.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-permit-overrides-depth-2",
+            "name": "permit-overrides over nested rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-overrides-depth-2",
+                        "responseId": "r-permit-overrides-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-overrides-depth-2",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-overrides-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit. Obligations: audit-purpose.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit. Obligations: audit-purpose.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-deny-unless-permit-depth-1",
+            "name": "deny-unless-permit over the policy's rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-unless-permit-depth-1",
+                        "responseId": "r-deny-unless-permit-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-unless-permit-depth-1",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-unless-permit-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "16-deny-unless-permit-depth-2",
+            "name": "deny-unless-permit over nested rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-unless-permit-depth-2",
+                        "responseId": "r-deny-unless-permit-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-unless-permit-depth-2",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-unless-permit-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "17-permit-unless-deny-depth-1",
+            "name": "permit-unless-deny over the policy's rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-unless-deny-depth-1",
+                        "responseId": "r-permit-unless-deny-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-unless-deny-depth-1",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-unless-deny-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "18-permit-unless-deny-depth-2",
+            "name": "permit-unless-deny over nested rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-unless-deny-depth-2",
+                        "responseId": "r-permit-unless-deny-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-unless-deny-depth-2",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-unless-deny-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "19-first-applicable-depth-1",
+            "name": "first-applicable over the policy's rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-first-applicable-depth-1",
+                        "responseId": "r-first-applicable-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-first-applicable-depth-1",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-first-applicable-depth-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "20-first-applicable-depth-2",
+            "name": "first-applicable over nested rules",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-first-applicable-depth-2",
+                        "responseId": "r-first-applicable-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-first-applicable-depth-2",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-first-applicable-depth-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: deny.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "21-deny-overrides-indeterminate",
+            "name": "deny-overrides: an indeterminate rule outranks a permit",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-deny-overrides-indeterminate",
+                        "responseId": "r-deny-overrides-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-deny-overrides-indeterminate",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-deny-overrides-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "22-permit-overrides-indeterminate",
+            "name": "permit-overrides: a permit outranks an indeterminate rule",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-permit-overrides-indeterminate",
+                        "responseId": "r-permit-overrides-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-permit-overrides-indeterminate",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-permit-overrides-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "23-first-applicable-indeterminate",
+            "name": "first-applicable: an indeterminate rule decides",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-first-applicable-indeterminate",
+                        "responseId": "r-first-applicable-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-first-applicable-indeterminate",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-first-applicable-indeterminate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: indeterminate.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: indeterminate.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "24-constraint-only",
+            "name": "A constraint rule decides nothing",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-constraint-only",
+                        "responseId": "r-constraint-only",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-constraint-only",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-constraint-only",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: not-applicable.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: not-applicable.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "25-parent-obligations",
+            "name": "A permitting parent adds its obligations to its nested rules'",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-parent-obligations",
+                        "responseId": "r-parent-obligations",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-parent-obligations",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-parent-obligations",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit. Obligations: max-results=10, audit-purpose.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit. Obligations: max-results=10, audit-purpose.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "26-request-fields",
+            "name": "%request and %principal expose the request and the caller",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-request-fields",
+                        "responseId": "r-request-fields",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-request-fields",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-request-fields",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Policy decision: permit.",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "27-care-team-nurse",
+            "name": "The care team nurse permits a read and denies a MedicationRequest write",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-care-team-nurse",
+                        "responseId": "r-care-team-nurse",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-care-team-nurse",
+                        "sourceId": "fixture-req-read",
+                        "responseId": "e-nurse-read",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A Patient read is permitted",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: permit.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "evaluate-policy",
+                        "resource": "AccessPolicyV3",
+                        "targetId": "r-care-team-nurse",
+                        "sourceId": "fixture-req-update-medication",
+                        "responseId": "e-nurse-update",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest update is denied",
+                        "expression": "OperationOutcome.issue.diagnostics = 'Policy decision: deny.'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

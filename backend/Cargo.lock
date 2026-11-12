@@ -2289,6 +2289,7 @@ dependencies = [
  "haste-pointer",
  "haste-reflect",
  "haste-x-fhir-query",
+ "tracing",
 ]
 
 [[package]]

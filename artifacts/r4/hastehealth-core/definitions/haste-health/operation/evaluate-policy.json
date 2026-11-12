@@ -14,7 +14,8 @@
     "type": false,
     "instance": true,
     "resource": [
-        "AccessPolicyV2"
+        "AccessPolicyV2",
+        "AccessPolicyV3"
     ],
     "parameter": [
         {
