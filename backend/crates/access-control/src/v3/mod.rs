@@ -16,6 +16,7 @@ use haste_fhir_model::r4::{
         terminology::{Accesspolicyv3rulekind, Accesspolicyv3ruletype},
     },
 };
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhirpath::{Config, ExternalConstantResolver, FHIRPathError, FPEngine};
 use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, fmt, future::Future, ops::ControlFlow, pin::Pin, sync::Arc};
@@ -118,25 +119,26 @@ impl fmt::Display for RulePath<'_> {
 }
 
 /// Why a rule is indeterminate.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, OperationOutcomeError)]
 enum Fault {
-    #[error("{0}")]
+    #[error(code = "invalid", diagnostic = "{arg0}")]
     Expression(#[from] FHIRPathError),
-    #[error("the result is not a single boolean")]
+    #[error(code = "invalid", diagnostic = "the result is not a single boolean")]
     NotBoolean,
 }
 
 /// Evaluates a target or condition the `FHIRPath` way: empty is false, one boolean is
 /// itself, anything else is a fault.
-async fn holds(cx: &Cx<'_>, expression: &str) -> Result<bool, Fault> {
+async fn holds(cx: &Cx<'_>, expression: &str) -> Result<bool, OperationOutcomeError> {
     let result = cx
         .engine
         .evaluate_with_config(expression, vec![], cx.config.clone())
-        .await?;
+        .await
+        .map_err(Fault::from)?;
     match result.values() {
         [] => Ok(false),
-        [value] => downcast_bool(*value).map_err(|_| Fault::NotBoolean),
-        _ => Err(Fault::NotBoolean),
+        [value] => Ok(downcast_bool(*value).map_err(|_| Fault::NotBoolean)?),
+        _ => Err(Fault::NotBoolean.into()),
     }
 }
 
