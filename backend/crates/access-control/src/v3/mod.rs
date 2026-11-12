@@ -8,12 +8,14 @@
 mod combining;
 
 use crate::request_reflection::RequestReflection;
-use combining::{Algorithm, algorithm, finish, step};
+use combining::{finish, step};
 use haste_fhir_model::r4::{
     conversion::downcast_bool,
     generated::{
         resources::{AccessPolicyV3, AccessPolicyV3Rule, AccessPolicyV3RuleObligation},
-        terminology::{Accesspolicyv3rulekind, Accesspolicyv3ruletype},
+        terminology::{
+            Accesspolicyv3combining, Accesspolicyv3rulekind, Accesspolicyv3ruletype, BoundCode,
+        },
     },
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -86,7 +88,7 @@ pub async fn evaluate<'p>(environment: &Environment, policy: &'p AccessPolicyV3)
     let mut obligations = Vec::new();
     let decision = combine(
         &cx,
-        algorithm(Some(&policy.combining)),
+        &policy.combining,
         policy.rule.as_deref().unwrap_or_default(),
         None,
         &mut obligations,
@@ -117,6 +119,10 @@ impl fmt::Display for RulePath<'_> {
         write!(f, "rule[{}]", self.index)
     }
 }
+
+/// The combining of a parent rule that names none; like any code no algorithm matches,
+/// it combines deny-overrides.
+static NO_COMBINING: BoundCode<Accesspolicyv3combining> = BoundCode::null();
 
 /// Why a rule is indeterminate.
 #[derive(Debug, OperationOutcomeError)]
@@ -182,7 +188,7 @@ async fn evaluate_rule<'p>(
         Some(nested) if !nested.is_empty() => {
             combine(
                 cx,
-                algorithm(rule.combining.as_ref()),
+                rule.combining.as_ref().unwrap_or(&NO_COMBINING),
                 nested,
                 Some(path),
                 obligations,
@@ -198,11 +204,11 @@ async fn evaluate_rule<'p>(
     decision
 }
 
-/// Folds the rules' decisions under `algorithm`, stopping once the result is settled.
+/// Folds the rules' decisions under `combining`, stopping once the result is settled.
 /// Obligations gathered on the way stay only when the result is a permit.
 fn combine<'a, 'p: 'a>(
     cx: &'a Cx<'a>,
-    algorithm: Algorithm,
+    combining: &'a BoundCode<Accesspolicyv3combining>,
     rules: &'p [AccessPolicyV3Rule],
     parent: Option<&'a RulePath<'a>>,
     obligations: &'a mut Vec<&'p AccessPolicyV3RuleObligation>,
@@ -213,7 +219,7 @@ fn combine<'a, 'p: 'a>(
         for (index, rule) in rules.iter().enumerate() {
             let path = RulePath { parent, index };
             match step(
-                algorithm,
+                combining,
                 result,
                 evaluate_rule(cx, rule, &path, obligations).await,
             ) {
@@ -225,7 +231,7 @@ fn combine<'a, 'p: 'a>(
             }
         }
 
-        let decision = finish(algorithm, result);
+        let decision = finish(combining, result);
         if decision != Decision::Permit {
             obligations.truncate(mark);
         }

@@ -5,27 +5,6 @@ use super::Decision;
 use haste_fhir_model::r4::generated::terminology::{Accesspolicyv3combining, BoundCode};
 use std::{cmp::max_by_key, ops::ControlFlow};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Algorithm {
-    DenyOverrides,
-    PermitOverrides,
-    DenyUnlessPermit,
-    PermitUnlessDeny,
-    FirstApplicable,
-}
-
-/// The algorithm a `combining` code names; absent or unknown is deny-overrides.
-#[must_use]
-pub fn algorithm(code: Option<&BoundCode<Accesspolicyv3combining>>) -> Algorithm {
-    match code.and_then(BoundCode::as_str) {
-        Some("permit-overrides") => Algorithm::PermitOverrides,
-        Some("deny-unless-permit") => Algorithm::DenyUnlessPermit,
-        Some("permit-unless-deny") => Algorithm::PermitUnlessDeny,
-        Some("first-applicable") => Algorithm::FirstApplicable,
-        _ => Algorithm::DenyOverrides,
-    }
-}
-
 /// Rank when a deny wins. An indeterminate rule counts as a deny, so it outranks a permit.
 const fn deny_wins(decision: Decision) -> u8 {
     match decision {
@@ -50,34 +29,44 @@ const fn permit_wins(decision: Decision) -> u8 {
 /// early: a deny under a deny-wins algorithm, or the first applicable rule. A permit never
 /// settles it, so every permitting rule gets to contribute its obligations.
 pub fn step(
-    algorithm: Algorithm,
+    combining: &BoundCode<Accesspolicyv3combining>,
     result: Decision,
     next: Decision,
 ) -> ControlFlow<Decision, Decision> {
-    match algorithm {
-        Algorithm::FirstApplicable if next == Decision::NotApplicable => {
-            ControlFlow::Continue(result)
+    match combining {
+        c if *c == Accesspolicyv3combining::first_applicable() => {
+            if next == Decision::NotApplicable {
+                ControlFlow::Continue(result)
+            } else {
+                ControlFlow::Break(next)
+            }
         }
-        Algorithm::FirstApplicable => ControlFlow::Break(next),
-        Algorithm::DenyOverrides | Algorithm::PermitUnlessDeny if next == Decision::Deny => {
-            ControlFlow::Break(next)
-        }
-        Algorithm::DenyOverrides | Algorithm::PermitUnlessDeny => {
-            ControlFlow::Continue(max_by_key(result, next, |d| deny_wins(*d)))
-        }
-        Algorithm::PermitOverrides | Algorithm::DenyUnlessPermit => {
+        c if *c == Accesspolicyv3combining::permit_overrides()
+            || *c == Accesspolicyv3combining::deny_unless_permit() =>
+        {
             ControlFlow::Continue(max_by_key(result, next, |d| permit_wins(*d)))
         }
+        // deny-overrides and permit-unless-deny; an absent or unknown code is deny-overrides.
+        _ if next == Decision::Deny => ControlFlow::Break(next),
+        _ => ControlFlow::Continue(max_by_key(result, next, |d| deny_wins(*d))),
     }
 }
 
 /// The decision once every rule is folded in: the `unless` algorithms turn "no rule
 /// applied" into their default.
 #[must_use]
-pub const fn finish(algorithm: Algorithm, result: Decision) -> Decision {
-    match (algorithm, result) {
-        (Algorithm::DenyUnlessPermit, Decision::NotApplicable) => Decision::Deny,
-        (Algorithm::PermitUnlessDeny, Decision::NotApplicable) => Decision::Permit,
+pub fn finish(combining: &BoundCode<Accesspolicyv3combining>, result: Decision) -> Decision {
+    match combining {
+        c if result == Decision::NotApplicable
+            && *c == Accesspolicyv3combining::deny_unless_permit() =>
+        {
+            Decision::Deny
+        }
+        c if result == Decision::NotApplicable
+            && *c == Accesspolicyv3combining::permit_unless_deny() =>
+        {
+            Decision::Permit
+        }
         _ => result,
     }
 }
