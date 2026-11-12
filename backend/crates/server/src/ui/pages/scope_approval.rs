@@ -23,7 +23,11 @@ pub fn scope_approval_html(
     authorization_info: &ScopeForm,
     branding: Option<&TenantName>,
 ) -> Markup {
-    let project_id = project.id.clone().map(ProjectId::new).unwrap();
+    let project_id = project
+        .id
+        .clone()
+        .and_then(|id| ProjectId::new(id).ok())
+        .expect("a stored project has a valid id");
     let project_name = project.name.value.as_ref().map_or_else(
         || Cow::Owned(project_id.as_ref().to_string()),
         |s| Cow::Borrowed(s.as_str()),

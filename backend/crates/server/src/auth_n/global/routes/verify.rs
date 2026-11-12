@@ -160,7 +160,7 @@ pub async fn tenant_get<
         &session,
         &csrf_token,
         verified,
-        &TenantId::new(query.tenant),
+        &TenantId::new(query.tenant)?,
     )
     .await
 }
@@ -193,7 +193,7 @@ pub async fn decide_post<
     let Some(verified) = email_code::verified(&session).await? else {
         return Ok(Redirect::to(LOGIN_ROUTE).into_response());
     };
-    let tenant = TenantId::new(form.tenant);
+    let tenant = TenantId::new(form.tenant)?;
 
     match form.decision {
         Decision::Accept => flow::accept_tenant(state.as_ref(), &session, verified, &tenant).await,

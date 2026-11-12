@@ -313,7 +313,7 @@ pub async fn search_all<Repo: Repository, Search: SearchEngine>(
             }),
             Some(SearchOptions {
                 count_limit: Some(MAX_COUNT),
-                any_of: None,
+                filters: Vec::new(),
             }),
         )
         .await?;

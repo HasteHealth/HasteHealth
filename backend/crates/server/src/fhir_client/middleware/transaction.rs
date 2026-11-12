@@ -2,6 +2,7 @@ use crate::fhir_client::{
     ClientState, ServerCTX,
     middleware::{Backend, Middleware, Next, Output},
 };
+use crate::services::TransactionError;
 use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -51,12 +52,7 @@ impl<B: Backend> Middleware<B> for Transaction {
                 next.run(&transaction_state, ctx, request).await
             };
 
-            let repo = Arc::try_unwrap(repo).map_err(|_| {
-                OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "Failed to unwrap transaction client".to_string(),
-                )
-            })?;
+            let repo = Arc::try_unwrap(repo).map_err(|_| TransactionError::ClientStillShared)?;
             match result {
                 Ok(response) => {
                     repo.commit().await?;

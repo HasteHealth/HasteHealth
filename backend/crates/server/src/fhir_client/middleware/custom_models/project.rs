@@ -19,7 +19,6 @@ use haste_repository::{
         SupportedFHIRVersions,
         project::{CreateProject, Project as ProjectModel},
     },
-    utilities::generate_hostname_id,
 };
 use std::sync::Arc;
 
@@ -70,16 +69,16 @@ impl<B: Backend> Middleware<B> for ProjectSync {
                     let fhir_version = fhir_version(project)?;
 
                     let name = project.name.clone();
-                    let id = project
-                        .id
-                        .clone()
-                        .unwrap_or_else(|| generate_hostname_id(Some(8)));
+                    let id = match project.id.clone() {
+                        Some(id) => ProjectId::new(id)?,
+                        None => ProjectId::random(8),
+                    };
 
                     let project_model = TenantModelAdmin::create(
                         state.repo.as_ref(),
                         &ctx.tenant,
                         CreateProject {
-                            id: Some(ProjectId::new(id.clone())),
+                            id: Some(id.clone()),
                             tenant: ctx.tenant.clone(),
                             fhir_version,
                             system_created: ctx.user.claims.resource_type == AuthorKind::System,
@@ -88,6 +87,7 @@ impl<B: Backend> Middleware<B> for ProjectSync {
                     .await?;
 
                     // Stored with the id the row got, as an update.
+                    let id = id.as_ref().to_string();
                     let update =
                         FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
                             resource_type: ResourceType::Project,
@@ -142,7 +142,7 @@ impl<B: Backend> Middleware<B> for ProjectSync {
                         state.repo.as_ref(),
                         &ctx.tenant,
                         ProjectModel {
-                            id: ProjectId::new(update_request.id.clone()),
+                            id: ProjectId::new(update_request.id.clone())?,
                             tenant: ctx.tenant.clone(),
                             fhir_version: cur_model.fhir_version,
                             system_created: false,

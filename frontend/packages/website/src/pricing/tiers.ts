@@ -33,9 +33,9 @@ export type OperationPoints = {
 
 /** What a budget buys per window, in whole requests of one kind. */
 export type BudgetExamples = {
-  reads_per_day: number | null;
-  writes_per_day: number | null;
-  searches_per_day: number | null;
+  reads_per_window: number | null;
+  writes_per_window: number | null;
+  searches_per_window: number | null;
 };
 
 export type Tier = {

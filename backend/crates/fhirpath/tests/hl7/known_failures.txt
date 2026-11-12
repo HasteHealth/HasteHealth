@@ -34,73 +34,7 @@ testAggregate2
 testAggregate3
 testAggregate4
 
-# testIndexer
-testIndexer3
-
-# testIif
-testIif6
-testIif10
-
-# testStartsWith
-testStartsWithNonString1
-
-# testEndsWith
-testEndsWithNonString1
-
-# testContainsString
-testContainsNonString1
-
-# testMatches
-testMatchesFullWithinUrl1
-testMatchesFullWithinUrl3
-testMatchesFullWithinUrl4
-testMatchesFullWithinUrl1a
-testMatchesFullWithinUrl2
-
-# testReplaceMatches
-
-# testEncodeDecode
-testEncodeBase64A
-testEncodeHex
-testEncodeBase64B
-testEncodeUrlBase64
-testDecodeBase64A
-testDecodeHex
-testDecodeBase64B
-testDecodeUrlBase64
-
-# testEscapeUnescape
-testEscapeHtml
-testEscapeJson
-testUnescapeHtml
-testUnescapeJson
-testUnescapeJson2
-testUnescapeJson3
-testUnescapeJson4
-
-# testSplit
-testSplit1
-testSplit2
-testSplit3
-testSplit4
-testSplit5
-testSplit6
-testSplit7
-testSplit8
-
-# testJoin
-testJoinEmpty
-
 # testSort
-testSort1
-testSort2
-testSort3
-testSort4
-testSort5
-testSort6
-testSort7
-testSort8
-testSort9
 testSort10
 
 # testNEquality
@@ -138,10 +72,6 @@ testMinus3
 
 # testMod
 testMod4
-
-# testVariables
-
-# testExtension
 
 # testType
 testType1
@@ -239,10 +169,6 @@ Comparable3
 
 # Precision
 PrecisionDecimal
-PrecisionYear
-PrecisionDateTimeMilliseconds
-PrecisionTimeMinutes
-PrecisionTimeMilliseconds
 
 # polymorphics
 testPolymorphicsB

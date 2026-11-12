@@ -1,4 +1,5 @@
 use crate::auth_n::constant_time;
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
         mfa::routes::totp_verification::totp_verification_route,
@@ -22,7 +23,7 @@ use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest},
-    terminology::{HttpVerb, IssueType},
+    terminology::HttpVerb,
     types::FHIRUri,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -160,10 +161,7 @@ pub async fn login_post<
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
     if !constant_time::str_eq(&login_data.csrf_token, &csrf_token) {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     let login_result = state

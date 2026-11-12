@@ -2,6 +2,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
 pub mod access_control;
+pub mod granular_scope;
 pub mod patient_scope;
 pub mod scope_check;
 

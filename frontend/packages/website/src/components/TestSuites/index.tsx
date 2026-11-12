@@ -627,6 +627,8 @@ const SUITE_BLURBS: Record<string, string> = {
     "What patients, users and backend clients can reach under SMART patient, user and system scopes, and EHR launches.",
   "sql-on-fhir":
     "The SQL on FHIR v2 shared test suite: ViewDefinitions run with $viewdefinition-run, checking the rows that come back and the views that must be refused.",
+  "carin-bb":
+    "Every CARIN Blue Button 2.2.0 example resource written with its profile claimed, and a conformance TestScript per claims data profile with the search parameters the guide adds.",
 };
 
 export function ConformanceOverview() {

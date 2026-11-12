@@ -1,3 +1,4 @@
+use crate::error::ServerError;
 use crate::{
     fhir_client::ServerCTX,
     mcp::{
@@ -172,6 +173,12 @@ impl From<MCPError<serde_json::Value>> for CallError {
     }
 }
 
+impl From<ServerError> for CallError {
+    fn from(error: ServerError) -> Self {
+        CallError::Fhir(error.into())
+    }
+}
+
 impl From<OperationOutcomeError> for CallError {
     fn from(error: OperationOutcomeError) -> Self {
         CallError::Fhir(error)
@@ -321,12 +328,7 @@ fn describe_json_error(error: serde_path_to_error::Error<serde_json::Error>) -> 
 
 /// Helper: build a successful CallToolResult with text + structured content.
 fn success_result(value: &serde_json::Value) -> Result<CallToolResult, CallError> {
-    let text = serde_json::to_string(value).map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!("Failed to serialize result: '{}'", e),
-        )
-    })?;
+    let text = serde_json::to_string(value).map_err(ServerError::from)?;
 
     Ok(CallToolResult {
         structured_content: Some(value.clone()),
@@ -338,13 +340,7 @@ fn success_result(value: &serde_json::Value) -> Result<CallToolResult, CallError
 
 /// Helper: serialize a Resource to JSON value.
 fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, CallError> {
-    serde_json::to_value(resource).map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!("Failed to serialize resource: '{}'", e),
-        )
-        .into()
-    })
+    serde_json::to_value(resource).map_err(|e| CallError::Fhir(ServerError::Serialize(e).into()))
 }
 
 /// Helper: deserialize a JSON value into a FHIR Resource.
@@ -425,12 +421,7 @@ async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeEr
                 .search_type(ctx.clone(), resource_type, parsed_parameters)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize search result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
@@ -685,12 +676,7 @@ async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeEr
                 .history_instance(ctx.clone(), resource_type, args.id, params)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize history result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
@@ -708,24 +694,14 @@ async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeEr
                 .history_type(ctx.clone(), resource_type, params)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize history result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         R4_CAPABILITIES_TOOL_NAME => {
             let capabilities = ctx.client.capabilities(ctx.clone()).await?;
 
-            let json_value = serde_json::to_value(&capabilities).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize capabilities: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&capabilities).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
@@ -752,12 +728,7 @@ async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeEr
 
             let result = ctx.client.transaction(ctx.clone(), bundle).await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize transaction result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
@@ -784,12 +755,7 @@ async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeEr
 
             let result = ctx.client.batch(ctx.clone(), bundle).await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!("Failed to serialize batch result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }

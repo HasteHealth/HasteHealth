@@ -4,6 +4,7 @@
 //! sign-up is turned off (`signup.enabled`). An invitation (a user a tenant
 //! created for the address) must be accepted before it can be entered.
 
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
         constant_time,
@@ -85,10 +86,7 @@ pub fn check_csrf(expected: &str, submitted: &str) -> Result<(), OperationOutcom
     if constant_time::str_eq(expected, submitted) {
         Ok(())
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ))
+        Err(AuthError::InvalidCsrfToken.into())
     }
 }
 
@@ -136,7 +134,7 @@ async fn spend_rate_limit<
 ) -> Refusable<()> {
     match state.rate_limit.check(key, max, 1, HOUR_SECONDS).await {
         Ok(_) => Ok(Ok(())),
-        Err(RateLimitError::Exceeded) => Ok(Err(
+        Err(RateLimitError::Exceeded { .. }) => Ok(Err(
             "Too many codes requested. Wait a while, then try again.".to_string(),
         )),
         Err(RateLimitError::Error(error)) => {
@@ -489,10 +487,10 @@ async fn free_tenant_id<
 ) -> String {
     let candidate = suggested_tenant_id(email);
 
-    if tenant_exists(state, &TenantId::new(candidate.clone())).await {
-        suggested_tenant_id_variant(&candidate)
+    if tenant_exists(state, &candidate).await {
+        suggested_tenant_id_variant(candidate.as_ref())
     } else {
-        candidate
+        candidate.as_ref().to_string()
     }
 }
 

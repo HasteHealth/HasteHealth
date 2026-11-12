@@ -24,11 +24,18 @@ const REFRESH_MARGIN: Duration = Duration::from_secs(60);
 const ASSERTION_LIFETIME: Duration = Duration::from_secs(3600);
 
 /// Where the Google credentials come from.
-#[derive(Clone)]
+///
+/// In configuration it is a table with a `type` field, for example
+/// `{ type = "service_account_key_file", path = "/secrets/key.json" }` or
+/// `{ type = "metadata_server" }`. See [`CredentialsConfig`] for the fields of
+/// each type.
+#[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(from = "CredentialsConfig", into = "CredentialsConfig")]
 pub enum GcsCredentials {
     /// Google's Application Default Credentials lookup: the file named by
     /// `GOOGLE_APPLICATION_CREDENTIALS`, then the file written by
     /// `gcloud auth application-default login`, then the metadata server.
+    #[default]
     ApplicationDefault,
     /// A service account key file as downloaded from the Cloud Console.
     ServiceAccountKeyFile(PathBuf),
@@ -40,6 +47,44 @@ pub enum GcsCredentials {
     AccessToken(String),
     /// No `Authorization` header at all, for emulators such as fake-gcs-server.
     Anonymous,
+}
+
+/// How [`GcsCredentials`] is written in configuration.
+#[derive(Deserialize, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+enum CredentialsConfig {
+    ApplicationDefault,
+    ServiceAccountKeyFile { path: PathBuf },
+    ServiceAccountKeyJson { json: String },
+    MetadataServer,
+    AccessToken { token: String },
+    Anonymous,
+}
+
+impl From<CredentialsConfig> for GcsCredentials {
+    fn from(config: CredentialsConfig) -> Self {
+        match config {
+            CredentialsConfig::ApplicationDefault => Self::ApplicationDefault,
+            CredentialsConfig::ServiceAccountKeyFile { path } => Self::ServiceAccountKeyFile(path),
+            CredentialsConfig::ServiceAccountKeyJson { json } => Self::ServiceAccountKeyJson(json),
+            CredentialsConfig::MetadataServer => Self::MetadataServer,
+            CredentialsConfig::AccessToken { token } => Self::AccessToken(token),
+            CredentialsConfig::Anonymous => Self::Anonymous,
+        }
+    }
+}
+
+impl From<GcsCredentials> for CredentialsConfig {
+    fn from(credentials: GcsCredentials) -> Self {
+        match credentials {
+            GcsCredentials::ApplicationDefault => Self::ApplicationDefault,
+            GcsCredentials::ServiceAccountKeyFile(path) => Self::ServiceAccountKeyFile { path },
+            GcsCredentials::ServiceAccountKeyJson(json) => Self::ServiceAccountKeyJson { json },
+            GcsCredentials::MetadataServer => Self::MetadataServer,
+            GcsCredentials::AccessToken(token) => Self::AccessToken { token },
+            GcsCredentials::Anonymous => Self::Anonymous,
+        }
+    }
 }
 
 /// Redacts key material and tokens.

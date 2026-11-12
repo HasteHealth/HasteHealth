@@ -7,8 +7,14 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use haste_reflect::MetaValue;
-use moka::future::{Cache, CacheBuilder};
-use std::sync::{Arc, LazyLock};
+use moka::{
+    Expiry,
+    future::{Cache, CacheBuilder},
+};
+use std::{
+    sync::{Arc, LazyLock},
+    time::{Duration, Instant},
+};
 
 fn generate_key(
     tenant_id: &TenantId,
@@ -25,20 +31,65 @@ fn generate_key(
     )
 }
 
-/// Resolved canonicals. Only hits are kept: a canonical that is missing now
-/// is looked up again next time, so a profile resolves as soon as it is
-/// created and indexed (an implementation guide installed, say).
+/// What a lookup found: the resource, or that the canonical is unknown.
+#[derive(Clone)]
+enum Cached {
+    Hit(Arc<Resource>),
+    Miss,
+}
+
+/// How long a resolved canonical is served from the cache.
 ///
 /// A lookup reads what the search index has, so one made after a canonical
 /// resource is updated but before the update is indexed finds the previous
 /// version. Entries therefore live at most five minutes, which also bounds
 /// how long another server process serves a version this one replaced.
-static CACHE: LazyLock<Cache<String, Arc<Resource>>> = LazyLock::new(|| {
+const HIT_TTL: Duration = Duration::from_mins(5);
+
+/// How long an unknown canonical is remembered before it is searched again.
+///
+/// A resource whose `meta.profile` names a profile the project does not have
+/// would otherwise run a `StructureDefinition` search on every write. The entry
+/// is short so that a profile created on another server process resolves
+/// soon after it is indexed; on the process that stores the profile the entry
+/// is dropped at once (see `invalidate_misses`).
+const MISS_TTL: Duration = Duration::from_secs(30);
+
+struct CanonicalExpiry;
+
+impl Expiry<String, Cached> for CanonicalExpiry {
+    fn expire_after_create(
+        &self,
+        _key: &String,
+        value: &Cached,
+        _created_at: Instant,
+    ) -> Option<Duration> {
+        Some(match value {
+            Cached::Hit(_) => HIT_TTL,
+            Cached::Miss => MISS_TTL,
+        })
+    }
+}
+
+/// Resolved canonicals, hits and misses with their own lifetimes.
+static CACHE: LazyLock<Cache<String, Cached>> = LazyLock::new(|| {
     CacheBuilder::new(10_000)
-        .time_to_live(std::time::Duration::from_mins(5))
+        .expire_after(CanonicalExpiry)
         .support_invalidation_closures()
         .build()
 });
+
+/// Forgets that canonicals were missing from the project, after one of its
+/// canonical resources (a `StructureDefinition`, `ValueSet` or `CodeSystem`) is
+/// written, so a profile resolves on this process as soon as it is indexed.
+pub fn invalidate_misses(tenant_id: &TenantId, project_id: &ProjectId) {
+    let prefix = format!("{tenant_id}::{project_id}::");
+    if let Err(error) = CACHE.invalidate_entries_if(move |key, value| {
+        matches!(value, Cached::Miss) && key.starts_with(&prefix)
+    }) {
+        tracing::warn!("Failed to invalidate the canonical resolver cache: {error}");
+    }
+}
 
 /// Forgets this process's resolutions for the project, after its artifacts
 /// change in bulk (an implementation guide installed or uninstalled), so the
@@ -54,7 +105,7 @@ pub fn invalidate_project(tenant_id: &TenantId, project_id: &ProjectId) {
 fn version(resource: &Resource) -> Option<&str> {
     resource
         .get_field("version")
-        .and_then(|version| version.as_any().downcast_ref::<Box<FHIRString>>())
+        .and_then(|version| version.as_any().downcast_ref::<FHIRString>())
         .and_then(|version| version.value.as_deref())
 }
 
@@ -90,8 +141,10 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
             &resource_type,
             canonical_url,
         );
-        if let Some(cached) = CACHE.get(&key).await {
-            return Ok(Some(cached));
+        match CACHE.get(&key).await {
+            Some(Cached::Hit(cached)) => return Ok(Some(cached)),
+            Some(Cached::Miss) => return Ok(None),
+            None => {}
         }
 
         let mut parts = canonical_url.splitn(2, '|');
@@ -130,9 +183,8 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
             .nth(index)
             .map(|resource| Arc::new(*resource));
 
-        if let Some(resolved) = &resolved {
-            CACHE.insert(key, resolved.clone()).await;
-        }
+        let cached = resolved.clone().map_or(Cached::Miss, Cached::Hit);
+        CACHE.insert(key, cached).await;
         Ok(resolved)
     }
 }

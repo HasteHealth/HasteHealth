@@ -214,13 +214,6 @@ The same checks cover 7.2.02 to 7.2.05 and 7.4.01 for Bulk Data 1.0.1.
 `known-failures.txt` lists the TestScripts that fail against Haste Health today, and CI skips them.
 Each group below is one server gap.
 
-- **Granular scopes (`fine-grained-scopes-1/`, `-2/`, 14 TestScripts).** The authorize endpoint
-  answers 501 "Invalid smart resource scope" for `patient/[type].rs?category=...`, so these
-  scenarios cannot sign in.
-- **Device under a patient scope (1.7.07, 9.22.5.07).** The server answers 403. It treats Device as
-  outside the Patient compartment and not shared reference data: R4's Patient CompartmentDefinition
-  has no parameter for Device. US Core implantable devices name the patient in `Device.patient`,
-  and g10 expects `patient/Device.rs` to reach them.
 - **OpenID configuration at the issuer (1.11.02).** Inferno fetches
   `[id_token iss]/.well-known/openid-configuration`, and that path answers 404. The server publishes
   the document only at `/.well-known/openid-configuration/w/[tenant]/[project]`.

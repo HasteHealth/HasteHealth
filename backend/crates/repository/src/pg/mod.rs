@@ -11,6 +11,7 @@ use crate::Repository;
 pub use pending::PendingRows;
 
 mod async_job;
+mod binary_data;
 mod failed_indexing;
 mod migrate;
 mod models;
@@ -25,7 +26,8 @@ pub enum StoreError {
     Duplicate,
     #[error(code = "not-found", diagnostic = "Resource not found.")]
     NotFound,
-    #[error(code = "invalid", diagnostic = "SQL Error occured.")]
+    // A failure of the database, not of the request: answers 500.
+    #[error(code = "exception", diagnostic = "Database operation failed.")]
     SQLXError(#[from] sqlx::Error),
     #[error(code = "exception", diagnostic = "Failed to create transaction.")]
     TransactionError,

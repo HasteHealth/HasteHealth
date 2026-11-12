@@ -1,362 +1,231 @@
+//! `#[derive(OperationOutcomeError)]` for error enums. Each variant lists the
+//! issues it answers with; the enum then converts into an
+//! `OperationOutcomeError`, and a `#[from]` field makes it convert from the
+//! error it wraps.
+
+use haste_fhir_model::r4::generated::terminology::{IssueType, ValueSetDef};
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::{format_ident, quote};
 use syn::{
-    Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Type, Variant,
-    parse_macro_input, punctuated::Punctuated,
+    Attribute, Data, DeriveInput, Fields, Ident, LitStr, Type, Variant, parse_macro_input,
+    spanned::Spanned,
 };
 
-static FATAL: &str = "fatal";
-static ERROR: &str = "error";
-static WARNING: &str = "warning";
-static INFORMATION: &str = "information";
+const SEVERITIES: [&str; 4] = ["fatal", "error", "warning", "information"];
 
-fn get_issue_list(attrs: &[Attribute]) -> Vec<MetaList> {
-    let issues: Vec<MetaList> = attrs
-        .iter()
-        .filter_map(|attr| match &attr.meta {
-            Meta::List(meta_list)
-                if meta_list.path.is_ident(FATAL)
-                    || meta_list.path.is_ident(ERROR)
-                    || meta_list.path.is_ident(WARNING)
-                    || meta_list.path.is_ident(INFORMATION) =>
-            {
-                Some(meta_list.clone())
+/// One issue attribute: `#[error(code = "not-found", diagnostic = "...")]`.
+/// `severity` and `code` are the names of the model's constructors.
+struct Issue {
+    severity: Ident,
+    code: Ident,
+    diagnostic: Option<LitStr>,
+}
+
+/// Parse an attribute as an issue, or `None` when it is some other attribute.
+fn parse_issue(attr: &Attribute) -> syn::Result<Option<Issue>> {
+    let Some(severity) = attr
+        .path()
+        .get_ident()
+        .filter(|ident| SEVERITIES.contains(&ident.to_string().as_str()))
+    else {
+        return Ok(None);
+    };
+
+    let mut code = None;
+    let mut diagnostic = None;
+    attr.parse_nested_meta(|meta| {
+        if meta.path.is_ident("code") {
+            let literal: LitStr = meta.value()?.parse()?;
+            let value = literal.value();
+            if IssueType::CODES.binary_search(&value.as_str()).is_err() {
+                return Err(syn::Error::new(
+                    literal.span(),
+                    format!(
+                        "'{value}' is not a FHIR issue type; expected one of {:?}",
+                        IssueType::CODES
+                    ),
+                ));
             }
-            _ => None,
-        })
-        .collect();
-
-    issues
-}
-
-const CODES_ALLOWED: &[&str] = &[
-    "invalid",
-    "structure",
-    "required",
-    "value",
-    "invariant",
-    "security",
-    "login",
-    "unknown",
-    "expired",
-    "forbidden",
-    "suppressed",
-    "processing",
-    "not-supported",
-    "duplicate",
-    "multiple-matches",
-    "not-found",
-    "deleted",
-    "too-long",
-    "code-invalid",
-    "extension",
-    "too-costly",
-    "business-rule",
-    "conflict",
-    "transient",
-    "lock-error",
-    "no-store",
-    "exception",
-    "timeout",
-    "incomplete",
-    "throttled",
-    "informational",
-];
-
-fn get_expr_string(expr: &Expr) -> Option<String> {
-    if let Expr::Lit(lit) = expr
-        && let Lit::Str(lit_str) = &lit.lit
-    {
-        return Some(lit_str.value());
-    }
-
-    None
-}
-
-#[derive(Clone)]
-enum Severity {
-    Fatal,
-    Error,
-    Warning,
-    Information,
-}
-
-impl From<Severity> for String {
-    fn from(severity: Severity) -> Self {
-        match severity {
-            Severity::Fatal => "fatal",
-            Severity::Error => "error",
-            Severity::Warning => "warning",
-            Severity::Information => "information",
+            code = Some(Ident::new(&value.replace('-', "_"), literal.span()));
+        } else if meta.path.is_ident("diagnostic") {
+            diagnostic = Some(meta.value()?.parse()?);
+        } else {
+            return Err(meta.error("expected `code` or `diagnostic`"));
         }
-        .to_string()
-    }
+        Ok(())
+    })?;
+
+    let Some(code) = code else {
+        return Err(syn::Error::new(attr.span(), "an issue needs a `code`"));
+    };
+    Ok(Some(Issue {
+        severity: severity.clone(),
+        code,
+        diagnostic,
+    }))
 }
 
-#[derive(Clone)]
-struct SimpleIssue {
-    severity: Severity,
-    code: String,
-    diagnostic: Option<String>,
-}
-
-fn get_severity(meta_list: &MetaList) -> Severity {
-    if meta_list.path.is_ident("fatal") {
-        Severity::Fatal
-    } else if meta_list.path.is_ident("error") {
-        Severity::Error
-    } else if meta_list.path.is_ident("warning") {
-        Severity::Warning
-    } else if meta_list.path.is_ident("information") {
-        Severity::Information
-    } else {
-        panic!(
-            "Unknown severity type: {}",
-            meta_list.path.get_ident().unwrap()
-        );
-    }
-}
-
-fn get_issue_attributes(attrs: &[Attribute]) -> Vec<SimpleIssue> {
-    let mut simple_issue = vec![];
-    let issue_attributes = get_issue_list(attrs);
-    for issues in issue_attributes {
-        let parsed_arguments = issues
-            .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
-            .unwrap();
-
-        assert!(
-            parsed_arguments.len() <= 2,
-            "Expected exactly 2 arguments for issue attributes"
-        );
-
-        let severity = get_severity(&issues);
-        let mut code: Option<String> = None;
-        let mut diagnostic: Option<String> = None;
-
-        for expression in parsed_arguments {
-            match expression {
-                Expr::Assign(expr_assign) => match expr_assign.left.as_ref() {
-                    Expr::Path(path) => match path.path.get_ident().unwrap().to_string().as_str() {
-                        "code" => {
-                            code = get_expr_string(expr_assign.right.as_ref());
-                            if let Some(code) = code.as_ref() {
-                                assert!(
-                                    CODES_ALLOWED.contains(&code.as_str()),
-                                    "Invalid code: '{code}' Must be one of '{CODES_ALLOWED:?}'",
-                                );
-                            }
-                        }
-                        "diagnostic" => {
-                            diagnostic = get_expr_string(expr_assign.right.as_ref());
-                        }
-                        _ => panic!(
-                            "Unknown error attribute: {}",
-                            path.path.get_ident().unwrap()
-                        ),
-                    },
-                    _ => panic!("Expected an assignment expression"),
-                },
-                _ => {
-                    panic!("Expected an assignment expression");
-                }
-            }
-        }
-
-        simple_issue.push(SimpleIssue {
-            severity,
-            code: code.unwrap_or_else(|| "error".to_string()),
-            diagnostic,
-        });
-    }
-
-    simple_issue
-}
-
-/// Derive the operatiooutcome issues from the
-/// attributes issue, fatal, error, warning, information
-fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
-    let issues = get_issue_attributes(&v.attrs);
-    let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
-        let severity_string: String = simple_issue.severity.clone().into();
-        let severity = quote!{ haste_fhir_model::r4::generated::terminology::BoundCode::<haste_fhir_model::r4::generated::terminology::IssueSeverity>::new(#severity_string).unwrap() };
-
-        let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
+/// The `OperationOutcomeIssue` expression for an issue. A diagnostic is a
+/// format string over the variant's fields as `arg0`, `arg1`, ...
+fn issue_expr(issue: &Issue) -> proc_macro2::TokenStream {
+    let Issue {
+        severity,
+        code,
+        diagnostic,
+    } = issue;
+    let diagnostics = diagnostic.as_ref().map_or_else(
+        || quote! { None },
+        |text| {
             quote! {
-                Some(Box::new(haste_fhir_model::r4::generated::types::FHIRString{
-                    id: None,
-                    extension: None,
-                    value: Some(format!(#diagnostic)),
+                Some(Box::new(haste_fhir_model::r4::generated::types::FHIRString {
+                    value: Some(format!(#text)),
+                    ..Default::default()
                 }))
             }
-        } else {
-            quote! {
-                None
-            }
-        };
-
-        let code_string = &simple_issue.code;
-        let code = quote! {
-            haste_fhir_model::r4::generated::terminology::BoundCode::<haste_fhir_model::r4::generated::terminology::IssueType>::new(#code_string).unwrap()
-        };
-
-        quote! {
-            haste_fhir_model::r4::generated::resources::OperationOutcomeIssue {
-                id: None,
-                extension: None,
-                modifierExtension: None,
-                severity: #severity,
-                code: #code,
-                details: None,
-                diagnostics: #diagnostic,
-                location: None,
-                expression: None,
-            }
-        }
-    });
-
+        },
+    );
     quote! {
-        vec![#(#invariant_operation_outcome_issues),*]
+        haste_fhir_model::r4::generated::resources::OperationOutcomeIssue {
+            severity: haste_fhir_model::r4::generated::terminology::IssueSeverity::#severity(),
+            code: haste_fhir_model::r4::generated::terminology::IssueType::#code(),
+            diagnostics: #diagnostics,
+            ..Default::default()
+        }
     }
 }
 
-fn get_arg_identifier(i: usize) -> Ident {
-    format_ident!("arg{}", i)
-}
+/// A variant's match arm, plus the type of its `#[from]` field if it has one.
+fn variant_arm(
+    name: &Ident,
+    variant: &Variant,
+) -> syn::Result<(proc_macro2::TokenStream, Option<Type>)> {
+    let issues = variant
+        .attrs
+        .iter()
+        .map(parse_issue)
+        .filter_map(Result::transpose)
+        .collect::<syn::Result<Vec<_>>>()?;
+    if issues.is_empty() {
+        return Err(syn::Error::new(
+            variant.span(),
+            "a variant needs a `fatal`, `error`, `warning` or `information` attribute",
+        ));
+    }
 
-#[derive(Debug, Clone)]
-struct FromInformation {
-    variant: Variant,
-    from: usize,
-    error_type: Type,
-}
+    let fields: Vec<_> = match &variant.fields {
+        Fields::Unit => Vec::new(),
+        Fields::Unnamed(unnamed) => unnamed.unnamed.iter().collect(),
+        Fields::Named(named) => {
+            return Err(syn::Error::new(
+                named.span(),
+                "named fields are not supported; use a tuple variant",
+            ));
+        }
+    };
+    let args: Vec<Ident> = (0..fields.len()).map(|i| format_ident!("arg{i}")).collect();
 
-/// Returns the argument identifier for the from variant.
-/// This should be an error.
-fn get_from_error(v: &Variant) -> Option<FromInformation> {
-    let from_fields: Vec<FromInformation> = v
-        .fields
+    let from_positions: Vec<usize> = fields
         .iter()
         .enumerate()
-        .filter_map(|(i, field)| {
-            let from_attr = field.attrs.iter().find(|attr| attr.path().is_ident("from"));
-
-            if from_attr.is_some() {
-                if from_attr.is_some() {
-                    Some(FromInformation {
-                        variant: v.clone(),
-                        from: i,
-                        error_type: field.ty.clone(),
-                    })
-                } else {
-                    panic!("Expected a named field with 'from' attribute");
-                }
-            } else {
-                None
-            }
-        })
+        .filter(|(_, field)| field.attrs.iter().any(|attr| attr.path().is_ident("from")))
+        .map(|(i, _)| i)
         .collect();
-
-    assert!(
-        from_fields.len() <= 1,
-        "Expected only one field with 'from' attribute"
+    if from_positions.len() > 1 {
+        return Err(syn::Error::new(
+            variant.span(),
+            "only one field can be `#[from]`",
+        ));
+    }
+    if !from_positions.is_empty() && fields.len() != 1 {
+        return Err(syn::Error::new(
+            variant.span(),
+            "a variant with a `#[from]` field has no other fields",
+        ));
+    }
+    let from = from_positions.first().map(|&i| fields[i].ty.clone());
+    let source = from_positions.first().map_or_else(
+        || quote! { None },
+        |&i| {
+            let arg = &args[i];
+            quote! { Some(#arg.into()) }
+        },
     );
 
-    from_fields.first().cloned()
+    let ident = &variant.ident;
+    let pattern = if args.is_empty() {
+        quote! { #name::#ident }
+    } else {
+        quote! { #name::#ident(#(#args),*) }
+    };
+    let issues = issues.iter().map(issue_expr);
+    // The diagnostics format the fields before the `#[from]` field moves into the source.
+    let arm = quote! {
+        #pattern => {
+            let outcome = haste_fhir_model::r4::generated::resources::OperationOutcome {
+                issue: vec![#(#issues),*],
+                ..Default::default()
+            };
+            haste_fhir_operation_error::OperationOutcomeError::new(#source, outcome)
+        }
+    };
+    Ok((arm, from))
 }
 
-/// Instantiate the arguments for the variant
-/// This is used in formatting the error message.
-/// Format is arg0, arg1, arg2, ...
-fn instantiate_args(v: &Variant) -> proc_macro2::TokenStream {
-    let arg_identifiers = (0..v.fields.len())
-        .map(get_arg_identifier)
-        .collect::<Vec<_>>();
-    if arg_identifiers.is_empty() {
-        quote! {}
-    } else {
-        quote! {
-            (#(#arg_identifiers),*)
+fn expand(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
+    let Data::Enum(data) = &input.data else {
+        return Err(syn::Error::new(
+            Span::call_site(),
+            "OperationOutcomeError can only be derived for an enum",
+        ));
+    };
+    let name = &input.ident;
+
+    let mut arms = Vec::with_capacity(data.variants.len());
+    let mut from_impls = Vec::new();
+    for variant in &data.variants {
+        let (arm, from) = variant_arm(name, variant)?;
+        arms.push(arm);
+        if let Some(ty) = from {
+            let ident = &variant.ident;
+            from_impls.push(quote! {
+                impl From<#ty> for #name {
+                    fn from(error: #ty) -> Self {
+                        #name::#ident(error)
+                    }
+                }
+            });
         }
     }
+
+    // `track_caller` makes the error's origin the `?` that converted it.
+    Ok(quote! {
+        impl From<#name> for haste_fhir_operation_error::OperationOutcomeError {
+            #[track_caller]
+            fn from(value: #name) -> Self {
+                match value {
+                    #(#arms),*
+                }
+            }
+        }
+        #(#from_impls)*
+    })
 }
 
-/// Derives the [`OperationOutcomeError`] trait for an enum.
+/// Derives `From<YourEnum> for OperationOutcomeError`.
 ///
-/// # Panics
-///
-/// This macro will panic at compile time if it is applied to a struct or a union,
-/// as it can only be derived from an enum definition.
+/// Each variant carries one or more of `#[fatal(...)]`, `#[error(...)]`,
+/// `#[warning(...)]` and `#[information(...)]`, with a `code` from the FHIR
+/// `IssueType` value set and an optional `diagnostic` format string over the
+/// variant's fields as `{arg0}`, `{arg1}`, ... A `#[from]` field becomes the
+/// error's source and also generates `From<ThatError> for YourEnum`.
 #[proc_macro_derive(
     OperationOutcomeError,
     attributes(fatal, error, warning, information, from)
 )]
 pub fn operation_error(input: TokenStream) -> TokenStream {
-    // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
-
-    match input.data {
-        Data::Enum(data) => {
-            let name = input.ident;
-
-            // Errors to implement from trait for.
-            let mut from_information: Vec<FromInformation> = vec![];
-
-            let variants: Vec<proc_macro2::TokenStream> = data.variants.iter().map(|v| {
-                let ident = &v.ident;
-                let op_issues = derive_operation_issues(v);
-                let arg_instantiation = instantiate_args( v);
-
-                let from_error = if let Some(from_info) = get_from_error(v) {
-                    let arg_identifier = get_arg_identifier(from_info.from);
-                    from_information.push(from_info);
-                    quote!{ Some(#arg_identifier.into()) }
-                } else {
-                    quote! { None }
-                };
-
-
-                quote! {
-                    #ident #arg_instantiation => {
-
-                        let mut operation_outcome = haste_fhir_model::r4::generated::resources::OperationOutcome::default();
-                        operation_outcome.issue = #op_issues;
-
-                        haste_fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
-                    }
-                }
-            }).collect();
-
-            let from_impl = from_information.into_iter().map(|from_info| {
-                let error_type = &from_info.error_type;
-                let from_variant = &from_info.variant.ident;
-
-                quote! {
-                    impl From<#error_type> for #name {
-                        fn from(error: #error_type) -> Self {
-                            #name::#from_variant(error)
-                        }
-                    }
-                }
-            });
-
-            let expanded = quote! {
-                impl From<#name> for haste_fhir_operation_error::OperationOutcomeError {
-                    fn from(value: #name) -> Self {
-                        match value {
-                            #(#name::#variants),*
-                        }
-                    }
-                }
-                #(#from_impl)*
-            };
-
-            // println!("{}", expanded.to_string());
-
-            expanded.into()
-        }
-        _ => {
-            panic!("Can only derive OperationOutcomeError from an enum.")
-        }
-    }
+    expand(&input)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }

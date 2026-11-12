@@ -11,6 +11,7 @@
 //! that asks for the pattern. [`operation`] is the first kind of job: an
 //! operation invoked with `Prefer: respond-async`.
 
+use crate::error::ServerError;
 use crate::{auth_n::middleware::jwt::User, route_path::api_v1_path, services::ServerState};
 use axum::{
     Extension,
@@ -60,22 +61,14 @@ pub fn status_url(
     project: &ProjectId,
     job_id: &str,
 ) -> Result<Url, OperationOutcomeError> {
-    let invalid = |e: url::ParseError| {
-        tracing::error!("Failed to derive the job status URL: {:?}", e);
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid API URL configured".to_string(),
-        )
-    };
-
     let mut path = api_v1_path(tenant, project);
     path.push("jobs");
     path.push(job_id);
 
     Url::parse(api_uri)
-        .map_err(invalid)?
+        .map_err(ServerError::from)?
         .join(path.to_str().unwrap_or_default())
-        .map_err(invalid)
+        .map_err(|e| ServerError::from(e).into())
 }
 
 #[derive(Deserialize)]
@@ -176,12 +169,7 @@ pub async fn status_handler<
                 .output
                 .map(|output| output.0)
                 .unwrap_or(serde_json::Value::Null);
-            let body = serde_json::to_string(&body).map_err(|e| {
-                OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    format!("Failed to serialize the job's output: {e}"),
-                )
-            })?;
+            let body = serde_json::to_string(&body).map_err(ServerError::from)?;
 
             Ok((StatusCode::OK, headers, body).into_response())
         }

@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use axum::{extract::FromRequestParts, http::request::Parts};
 use base64::prelude::*;
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -61,12 +62,9 @@ where
             return Ok(Self(None));
         };
 
-        let authorization = header.to_str().map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Invalid Authorization Header".to_string(),
-            )
-        })?;
+        let authorization = header
+            .to_str()
+            .map_err(|_| AuthError::InvalidAuthorizationHeader)?;
 
         Self::from_header(authorization)
     }

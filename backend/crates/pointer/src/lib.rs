@@ -197,7 +197,7 @@ mod test {
         let pointer = pointer.descend::<HumanName>(&Key::Index(0)).unwrap();
         assert_eq!(pointer.path(), "/name/0");
         let pointer = pointer
-            .descend::<Box<FHIRString>>(&Key::Field("family".to_string()))
+            .descend::<FHIRString>(&Key::Field("family".to_string()))
             .unwrap();
         let pointer = pointer
             .descend::<String>(&Key::Field("value".to_string()))

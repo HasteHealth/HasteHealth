@@ -11,6 +11,11 @@ homepage = { workspace = true }
 haste-access-control = { path = "../access-control", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-encryption = { path = "../encryption", version = "0.*" }
+haste-document-storage = { path = "../document-storage", version = "0.*", default-features = false, features = [
+    "filesystem",
+    "gcs",
+    "postgres",
+] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
     "http",
     "axum",
@@ -54,13 +59,14 @@ axum-extra = { version = "0.12.6", default-features = false, features = [
     "typed-header",
     "cached",
 ] }
-base64 = { workspace = true }
+base64 = { workspace = true, features = ["alloc"] }
 chrono = { workspace = true }
 derivative = { workspace = true }
 dotenvy = { workspace = true }
 email_address = { version = "0.2.9", default-features = false, features = [
     "serde_support",
 ] }
+futures-util = { version = "0.3.34", default-features = false, features = ["alloc"] }
 image = { version = "0.25.10", default-features = false, features = [
     "png",
 ] }
@@ -114,6 +120,7 @@ tower-http = { version = "0.6.11", default-features = false, features = [
     "trace",
     "set-header",
     "catch-panic",
+    "request-id",
 ] }
 tower-sessions = { version = "0.15.0", default-features = false, features = [
     "axum-core",

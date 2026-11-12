@@ -4,6 +4,7 @@
 //! policies, from the submitter's stored claims), with the resource it
 //! returns served as the job's result.
 
+use crate::error::ServerError;
 use crate::{
     auth_n::middleware::jwt::User, config::ServerConfig, fhir_client::ServerCTX, jobs::status_url,
     services::ServerState,
@@ -162,12 +163,8 @@ pub async fn submit<
         ));
     }
 
-    let parameters = serde_json::to_value(StoredInvocation::from(request)).map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("Failed to serialize the invocation: {e}"),
-        )
-    })?;
+    let parameters =
+        serde_json::to_value(StoredInvocation::from(request)).map_err(ServerError::from)?;
 
     let job = repo
         .create_job(

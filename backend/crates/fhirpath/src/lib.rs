@@ -172,13 +172,16 @@ async fn evaluate_invocation<'a>(
 
             let float_index = downcast_number(index.values[0])?;
 
-            // Ensure the index is non-negative and has no fractional part
-            if float_index < 0.0 || float_index.fract() != 0.0 {
+            // Index must be an integer; a negative one is out of bounds.
+            if float_index.fract() != 0.0 {
                 return Err(FHIRPathError::OperationError(OperationError::InvalidIndex));
+            }
+            if float_index < 0.0 {
+                return Ok(context.new_context_from(vec![]));
             }
 
             // Suppress clippy warnings because the float is guaranteed to be a valid,
-            // non-negative integer index by the safety checks immediately above.
+            // non-negative integer index by the checks immediately above.
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let index: usize = (float_index as u64)
                 .try_into()
@@ -494,7 +497,9 @@ async fn evaluate_function<'a>(
         "ofType" | "as" => evaluate_of_type(function, &context),
         "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
+        "precision" => evaluate_precision(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
+        "encode" | "decode" => evaluate_codec(function, context, config).await,
         "empty" => evaluate_empty(function, &context),
         "join" => evaluate_join(function, context, config).await,
         "exists" => evaluate_exists(function, context, config).await,
@@ -512,6 +517,7 @@ async fn evaluate_function<'a>(
         }
         "subsetOf" | "supersetOf" => evaluate_subset(function, context, config).await,
         "distinct" | "isDistinct" => evaluate_distinct(function, &context),
+        "sort" => evaluate_sort(function, context, config).await,
         "select" => evaluate_select(function, context, config).await,
         "union" | "combine" | "intersect" | "exclude" => {
             evaluate_combining(function, context, config).await
@@ -522,10 +528,13 @@ async fn evaluate_function<'a>(
         "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
         "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
         "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
+        "escape" | "unescape" => evaluate_escape(function, context, config).await,
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
-        "indexOf" | "substring" | "length" | "toChars" | "trim" | "replace" | "matches"
-        | "replaceMatches" => evaluate_string_function(function, context, config).await,
+        "indexOf" | "substring" | "length" | "toChars" | "split" | "trim" | "replace"
+        | "matches" | "matchesFull" | "replaceMatches" => {
+            evaluate_string_function(function, context, config).await
+        }
         "toBoolean" | "convertsToBoolean" | "toInteger" | "convertsToInteger" | "toDecimal"
         | "convertsToDecimal" | "toString" | "convertsToString" | "toDate" | "convertsToDate"
         | "toDateTime" | "convertsToDateTime" | "toTime" | "convertsToTime" => {
@@ -608,6 +617,46 @@ fn evaluate_count<'a>(
     )
 }
 
+/// <https://hl7.org/fhirpath/N1/#precision-integer>: the digits a Date, `DateTime` or Time
+/// was written with. Decimal is not supported until the engine keeps trailing zeros.
+fn evaluate_precision<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let Some(value) = singleton("precision", context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let any = value.as_any();
+    let precision = if let Some(date) = any.downcast_ref::<FHIRDate>() {
+        date.value.as_ref().map(Date::precision)
+    } else if let Some(datetime) = any.downcast_ref::<FHIRDateTime>() {
+        datetime.value.as_ref().map(DateTime::precision)
+    } else if let Some(time) = any.downcast_ref::<FHIRTime>() {
+        time.value.as_ref().map(Time::precision)
+    } else if let Some(datetime) = any.downcast_ref::<PartialDateTime>() {
+        Some(datetime.precision())
+    } else {
+        return Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            value.fhir_type(),
+            "a Date, DateTime or Time",
+        )));
+    };
+
+    Ok(context.new_context_from(
+        precision
+            .map(|value| {
+                context.allocate_literal(FHIRInteger {
+                    value: Some(value),
+                    ..Default::default()
+                })
+            })
+            .into_iter()
+            .collect(),
+    ))
+}
+
 fn evaluate_case<'a>(
     function: &FunctionInvocation,
     context: &Context<'a>,
@@ -640,6 +689,82 @@ fn evaluate_case<'a>(
     )
 }
 
+/// `encode(format)` / `decode(format)` for `hex`, `base64` and `urlbase64`.
+async fn evaluate_codec<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    use std::fmt::Write;
+
+    use base64::{
+        Engine,
+        engine::general_purpose::{STANDARD, URL_SAFE},
+    };
+
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let op = function.name.0.as_str();
+
+    if context.values.len() > 1 {
+        return Err(FunctionError::InvalidCardinality(op.to_string(), context.values.len()).into());
+    }
+
+    let format_context =
+        evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+
+    if context.values.is_empty() || format_context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    if format_context.values.len() > 1 {
+        return Err(
+            FunctionError::InvalidCardinality(op.to_string(), format_context.values.len()).into(),
+        );
+    }
+
+    let input = downcast_string(context.values[0])?;
+    let format = downcast_string(format_context.values[0])?;
+    let invalid = || FunctionError::InvalidFunctionCall(format!("{op}('{format}') failed"));
+
+    let output = if op == "encode" {
+        match format.as_str() {
+            "hex" => input
+                .bytes()
+                .fold(String::with_capacity(input.len() * 2), |mut acc, b| {
+                    let _ = write!(acc, "{b:02x}");
+                    acc
+                }),
+            "base64" => STANDARD.encode(input),
+            "urlbase64" => URL_SAFE.encode(input),
+            _ => return Err(invalid().into()),
+        }
+    } else {
+        let bytes = match format.as_str() {
+            "hex" => {
+                if !input.len().is_multiple_of(2) || !input.is_ascii() {
+                    return Err(invalid().into());
+                }
+                (0..input.len())
+                    .step_by(2)
+                    .map(|i| u8::from_str_radix(&input[i..i + 2], 16))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| invalid())?
+            }
+            "base64" => STANDARD.decode(&input).map_err(|_| invalid())?,
+            "urlbase64" => URL_SAFE.decode(&input).map_err(|_| invalid())?,
+            _ => return Err(invalid().into()),
+        };
+        String::from_utf8(bytes).map_err(|_| invalid())?
+    };
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRString {
+            value: Some(output),
+            ..Default::default()
+        })]),
+    )
+}
+
 fn evaluate_empty<'a>(
     function: &FunctionInvocation,
     context: &Context<'a>,
@@ -660,6 +785,11 @@ async fn evaluate_join<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+    // Spec: an empty input yields empty.
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
 
     let separator = if let Some(separator_expression) = function.arguments.first() {
         let separator_context =
@@ -1067,6 +1197,82 @@ async fn evaluate_all<'a>(
     Ok(boolean_result(&context, true))
 }
 
+/// <https://hl7.org/fhirpath/N1/#sort>: stable sort by each key expression in turn. A key
+/// written with a leading unary minus sorts descending; an empty key sorts first.
+async fn evaluate_sort<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Many)?;
+
+    // Each key's expression with its direction, `None` being the item itself.
+    let keys: Vec<(Option<&Expression>, bool)> = if function.arguments.is_empty() {
+        vec![(None, false)]
+    } else {
+        function
+            .arguments
+            .iter()
+            .map(|key| match key {
+                Expression::Operation(operation) => match operation.as_ref() {
+                    Operation::Polarity(Polarity::Negative, inner) => (Some(inner), true),
+                    _ => (Some(key), false),
+                },
+                Expression::Singular(_) => (Some(key), false),
+            })
+            .collect()
+    };
+
+    // Evaluate every key once per item: `item_keys[item][key]`.
+    let mut item_keys = Vec::with_capacity(context.values.len());
+    for (index, value) in context.values.iter().enumerate() {
+        let mut values = Vec::with_capacity(keys.len());
+        for (key, _) in &keys {
+            values.push(match key {
+                None => Some(*value),
+                Some(expression) => {
+                    let item = context.new_item_context(*value, index);
+                    let result = evaluate_expression(expression, item, config.clone()).await?;
+                    singleton("sort", &result)?
+                }
+            });
+        }
+        item_keys.push(values);
+    }
+
+    let mut error = None;
+    let mut order: Vec<usize> = (0..context.values.len()).collect();
+    order.sort_by(|a, b| {
+        for (position, (_, descending)) in keys.iter().enumerate() {
+            let ordering = match (item_keys[*a][position], item_keys[*b][position]) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(l), Some(r)) => order_values(l, r)
+                    .unwrap_or_else(|e| {
+                        error.get_or_insert(e);
+                        None
+                    })
+                    .unwrap_or(Ordering::Equal),
+            };
+            let ordering = if *descending {
+                ordering.reverse()
+            } else {
+                ordering
+            };
+            if ordering != Ordering::Equal {
+                return ordering;
+            }
+        }
+        Ordering::Equal
+    });
+    if let Some(error) = error {
+        return Err(error);
+    }
+
+    Ok(context.new_context_from(order.into_iter().map(|i| context.values[i]).collect()))
+}
+
 /// <https://hl7.org/fhirpath/N1/#selectprojection-expression-collection>
 async fn evaluate_select<'a>(
     function: &FunctionInvocation,
@@ -1231,12 +1437,25 @@ async fn evaluate_iif<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(2, 3))?;
+    singleton("iif", &context)?;
 
     let criterion =
         evaluate_expression(&function.arguments[0], context.clone(), config.clone()).await?;
 
+    // The criterion must be a Boolean (empty counts as false), unlike `where`.
+    let criterion = match criterion.values.as_slice() {
+        [] => false,
+        [value] if BOOLEAN_TYPES.contains(value.fhir_type()) => downcast_bool(*value)?,
+        _ => {
+            return Err(FunctionError::InvalidFunctionCall(
+                "iif criterion must evaluate to a Boolean".to_string(),
+            )
+            .into());
+        }
+    };
+
     // Only the chosen branch is evaluated.
-    let branch = if singleton_boolean("iif", &criterion)? == Some(true) {
+    let branch = if criterion {
         function.arguments.get(1)
     } else {
         function.arguments.get(2)
@@ -1361,6 +1580,16 @@ fn compile_regex(pattern: &str) -> Result<Arc<Regex>, FHIRPathError> {
     Ok(regex)
 }
 
+/// `full` anchors both ends; the group keeps alternations inside the anchors.
+fn pattern_matches(input: &str, pattern: &str, full: bool) -> Result<bool, FHIRPathError> {
+    let regex = if full {
+        compile_regex(&format!(r"\A(?:{pattern})\z"))?
+    } else {
+        compile_regex(pattern)?
+    };
+    Ok(regex.is_match(input))
+}
+
 fn char_count(value: &str) -> Result<i64, FHIRPathError> {
     i64::try_from(value.chars().count())
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))
@@ -1381,7 +1610,7 @@ async fn evaluate_string_function<'a>(
     let name = function.name.0.as_str();
     let cardinality = match name {
         "length" | "toChars" | "trim" => Cardinality::Zero,
-        "indexOf" | "matches" => Cardinality::One,
+        "indexOf" | "matches" | "matchesFull" | "split" => Cardinality::One,
         "substring" => Cardinality::Custom(1, 2),
         _ => Cardinality::Custom(2, 2),
     };
@@ -1418,7 +1647,7 @@ async fn evaluate_string_function<'a>(
         }
     };
 
-    let result = match name {
+    Ok(match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
         "trim" => string_result(&context, trim(&input)),
         "toChars" => {
@@ -1430,6 +1659,9 @@ async fn evaluate_string_function<'a>(
             });
             context.new_context_from(chars.collect())
         }
+        "split" => string_argument(0)?.map_or(empty, |separator| {
+            split_result(&context, &input, &separator)
+        }),
         "indexOf" => {
             let Some(substring) = string_argument(0)? else {
                 return Ok(empty);
@@ -1462,12 +1694,10 @@ async fn evaluate_string_function<'a>(
             };
             string_result(&context, input.replace(&pattern, &substitution))
         }
-        "matches" => {
-            let Some(pattern) = string_argument(0)? else {
-                return Ok(empty);
-            };
-            boolean_result(&context, compile_regex(&pattern)?.is_match(&input))
-        }
+        "matches" | "matchesFull" => string_argument(0)?
+            .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
+            .transpose()?
+            .map_or(empty, |matched| boolean_result(&context, matched)),
         "replaceMatches" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
@@ -1476,9 +1706,168 @@ async fn evaluate_string_function<'a>(
             string_result(&context, replace_matches(input, &pattern, &substitution)?)
         }
         _ => unreachable!(),
-    };
+    })
+}
 
-    Ok(result)
+/// <https://hl7.org/fhirpath/N1/#escapetarget--string--string>: empty when the
+/// input or target is empty.
+async fn evaluate_escape<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = function.name.0.as_str();
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+    let Some(input) = singleton(name, &context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let input = downcast_string(input)?;
+    let target = evaluate_expression(&function.arguments[0], context.clone(), config).await?;
+    let Some(target) = singleton(name, &target)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let result = escape_target(name == "escape", &downcast_string(target)?, &input)?;
+    Ok(string_result(&context, result))
+}
+
+/// Escapes or unescapes `input` for the `html` or `json` target.
+fn escape_target(escape: bool, target: &str, input: &str) -> Result<String, FHIRPathError> {
+    match (target, escape) {
+        ("html", true) => Ok(escape_html(input)),
+        ("html", false) => Ok(unescape_html(input)),
+        ("json", true) => Ok(escape_json(input)),
+        ("json", false) => Ok(unescape_json(input)),
+        _ => {
+            let message = format!("Unsupported escape target '{target}'");
+            Err(FunctionError::InvalidFunctionCall(message).into())
+        }
+    }
+}
+
+fn escape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '&' => out.push_str("&amp;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Replaces the entities `escape_html` produces; unknown entities stay as written.
+fn unescape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(start) = rest.find('&') {
+        out.push_str(&rest[..start]);
+        rest = &rest[start..];
+        let decoded = rest.find(';').and_then(|end| {
+            let c = match &rest[1..end] {
+                "lt" => '<',
+                "gt" => '>',
+                "amp" => '&',
+                "quot" => '"',
+                "apos" | "#39" => '\'',
+                _ => return None,
+            };
+            Some((c, end + 1))
+        });
+        if let Some((c, len)) = decoded {
+            out.push(c);
+            rest = &rest[len..];
+        } else {
+            out.push('&');
+            rest = &rest[1..];
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn escape_json(input: &str) -> String {
+    use std::fmt::Write;
+    let mut out = String::with_capacity(input.len());
+    for c in input.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{8}' => out.push_str("\\b"),
+            '\u{c}' => out.push_str("\\f"),
+            c if c < ' ' => {
+                let _ = write!(out, "\\u{:04x}", u32::from(c));
+            }
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Reverses JSON escapes; an invalid escape stays as written.
+fn unescape_json(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut chars = input.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            out.push(c);
+            continue;
+        }
+        let mut lookahead = chars.clone();
+        let decoded = match lookahead.next() {
+            Some('"') => Some('"'),
+            Some('\\') => Some('\\'),
+            Some('/') => Some('/'),
+            Some('n') => Some('\n'),
+            Some('r') => Some('\r'),
+            Some('t') => Some('\t'),
+            Some('b') => Some('\u{8}'),
+            Some('f') => Some('\u{c}'),
+            Some('u') => {
+                let hex: String = lookahead.clone().take(4).collect();
+                u32::from_str_radix(&hex, 16)
+                    .ok()
+                    .filter(|_| hex.len() == 4)
+                    .and_then(char::from_u32)
+                    .inspect(|_| {
+                        lookahead.nth(3);
+                    })
+            }
+            _ => None,
+        };
+        if let Some(d) = decoded {
+            out.push(d);
+            chars = lookahead;
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
+fn split_result<'a>(context: &Context<'a>, input: &str, separator: &str) -> Context<'a> {
+    let allocate = |piece: &str| {
+        context.allocate_literal(FHIRString {
+            value: Some(piece.to_string()),
+            ..Default::default()
+        })
+    };
+    let pieces = if separator.is_empty() {
+        input
+            .chars()
+            .map(|c| allocate(c.encode_utf8(&mut [0; 4])))
+            .collect()
+    } else {
+        input.split(separator).map(allocate).collect()
+    };
+    context.new_context_from(pieces)
 }
 
 /// The kinds of item the conversion functions accept.
@@ -1959,11 +2348,7 @@ fn evaluate_string_match<'a>(
         )));
     };
 
-    let value_string = context
-        .values
-        .first()
-        .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or_default();
+    let value_string = downcast_string(context.values[0])?;
 
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
@@ -2299,6 +2684,28 @@ async fn evaluate_numeric_binary<'a>(
     .await
 }
 
+/// Order of two numbers, strings (code point order), temporals or same-unit Quantities.
+/// `None` when unordered (NaN, imprecise dates); errors on any other operand types.
+fn order_values(l: &dyn MetaValue, r: &dyn MetaValue) -> Result<Option<Ordering>, FHIRPathError> {
+    if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
+        Ok(match order {
+            TemporalOrder::Ordered(ordering) => Some(ordering),
+            TemporalOrder::Unknown => None,
+        })
+    } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
+        Ok(l.partial_cmp(&r))
+    } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
+        Ok(Some(l.cmp(&r)))
+    } else if let Some((l, r)) = as_quantities(l, r) {
+        Ok(quantity_order(l, r))
+    } else {
+        Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            l.fhir_type(),
+            r.fhir_type(),
+        )))
+    }
+}
+
 /// Ordered comparison of two numbers, strings (code point order) or
 /// same-unit Quantities.
 /// Empty when unordered (NaN); errors on any other operand types.
@@ -2311,24 +2718,7 @@ async fn evaluate_ordered_comparison<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     operation_2(left, right, context, config, move |left, right| {
         Box::pin(async move {
-            let (l, r) = (left.values[0], right.values[0]);
-            let ordering = if let Some(order) = temporal_order(l, r).or_else(|| time_order(l, r)) {
-                match order {
-                    TemporalOrder::Ordered(ordering) => Some(ordering),
-                    TemporalOrder::Unknown => None,
-                }
-            } else if let (Ok(l), Ok(r)) = (downcast_number(l), downcast_number(r)) {
-                l.partial_cmp(&r)
-            } else if let (Ok(l), Ok(r)) = (downcast_string(l), downcast_string(r)) {
-                Some(l.cmp(&r))
-            } else if let Some((l, r)) = as_quantities(l, r) {
-                quantity_order(l, r)
-            } else {
-                return Err(FHIRPathError::OperationError(OperationError::InvalidType(
-                    l.fhir_type(),
-                    r.fhir_type(),
-                )));
-            };
+            let ordering = order_values(left.values[0], right.values[0])?;
 
             Ok(left.new_context_from(
                 ordering
@@ -4466,6 +4856,24 @@ mod tests {
         let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
 
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn sort_orders_by_keys() {
+        let engine = FPEngine::new();
+        for (expression, expected) in [
+            ("(3 | 2 | 1).sort() = (1 | 2 | 3)", true),
+            ("('a' | 'b' | 'c').sort(-$this) = ('c' | 'b' | 'a')", true),
+            ("{}.sort().empty()", true),
+        ] {
+            let result = engine.evaluate(expression, vec![]).await.unwrap();
+            let b = result.values[0]
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap();
+            assert_eq!(b.value, Some(expected), "{expression}");
+        }
+        assert!(engine.evaluate("(1 | 'a').sort()", vec![]).await.is_err());
     }
 
     #[tokio::test]

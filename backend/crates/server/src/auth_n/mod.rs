@@ -1,6 +1,7 @@
 pub mod certificates;
 pub mod constant_time;
 mod email;
+pub mod error;
 pub mod global;
 pub mod invitations;
 pub mod mfa;

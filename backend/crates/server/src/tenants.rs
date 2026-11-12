@@ -13,7 +13,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
+use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier, random_hostname_id};
 use haste_repository::{
     Repository,
     admin::TenantModelAdmin,
@@ -21,7 +21,7 @@ use haste_repository::{
         tenant::{CreateTenant, Tenant},
         user::CreateUser,
     },
-    utilities::{HOSTNAME_ID_MIN_LEN, generate_hostname_id, validate_hostname_id},
+    utilities::HOSTNAME_ID_MIN_LEN,
 };
 use std::sync::Arc;
 
@@ -168,9 +168,7 @@ pub fn validate_tenant_id(id: &str) -> Result<TenantId, OperationOutcomeError> {
         )));
     }
 
-    validate_hostname_id(id)?;
-
-    let tenant = TenantId::new(id.to_string());
+    let tenant = TenantId::new(id.to_string())?;
     if tenant == TenantId::System || RESERVED_TENANT_IDS.contains(&id) {
         return Err(invalid(format!(
             "'{id}' is reserved. Choose another tenant id."
@@ -181,12 +179,12 @@ pub fn validate_tenant_id(id: &str) -> Result<TenantId, OperationOutcomeError> {
 }
 
 fn random_tenant_id() -> TenantId {
-    TenantId::new(generate_hostname_id(Some(16)))
+    TenantId::random(16)
 }
 
 /// A valid tenant id to propose for an email address: the organisation from a
 /// work address, otherwise the mailbox name. It may already be taken.
-pub fn suggested_tenant_id(email: &str) -> String {
+pub fn suggested_tenant_id(email: &str) -> TenantId {
     let (mailbox, domain) = email.rsplit_once('@').unwrap_or((email, ""));
     let domain = domain.to_ascii_lowercase();
     let base = if domain.is_empty() || PUBLIC_MAIL_DOMAINS.contains(&domain.as_str()) {
@@ -204,10 +202,7 @@ pub fn suggested_tenant_id(email: &str) -> String {
         .join("-");
     let id = id[..id.len().min(TENANT_ID_MAX_LEN)].trim_end_matches('-');
 
-    validate_tenant_id(id)
-        .unwrap_or_else(|_| random_tenant_id())
-        .as_ref()
-        .to_string()
+    validate_tenant_id(id).unwrap_or_else(|_| random_tenant_id())
 }
 
 /// `base`, a valid tenant id, with a short random suffix, for when `base` is
@@ -221,7 +216,7 @@ pub fn suggested_tenant_id_variant(base: &str) -> String {
         .collect();
     let base = base.trim_end_matches('-');
 
-    format!("{base}-{}", generate_hostname_id(Some(SUFFIX_LEN)))
+    format!("{base}-{}", random_hostname_id(SUFFIX_LEN))
 }
 
 pub async fn create_tenant<

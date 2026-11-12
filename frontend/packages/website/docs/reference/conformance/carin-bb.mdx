@@ -1,0 +1,50 @@
+---
+title: CARIN Blue Button 2.2.0
+sidebar_label: CARIN Blue Button
+description: Haste Health's results for CARIN Blue Button 2.2.0, writing every example resource the implementation guide publishes with its profile claimed and running a conformance TestScript per profile, with its search parameters.
+sidebar_position: 8
+hide_table_of_contents: true
+---
+
+import {
+  SuiteKnownGaps,
+  SuiteLastVerified,
+  SuiteReportTable,
+  SuiteSummary,
+} from "@site/src/components/TestSuites";
+
+# CARIN Blue Button 2.2.0
+
+[CARIN Consumer Directed Payer Data Exchange (CARIN Blue Button)](https://hl7.org/fhir/us/carin-bb/STU2.2/) 2.2.0 profiles FHIR R4 for
+consumer access to claims: explanations of benefit of every claim type, coverage, patients, payers, practitioners and related persons. This suite installs the
+`hl7.fhir.us.carin-bb` package, exactly as HL7 publishes it, into a
+project (after US Core 7.0.0, which its profiles derive from) and runs the
+TestScripts in `backend/testscripts/carin-bb/2.2.0` against it.
+
+Its `examples` TestScripts write each example resource the guide publishes
+with its profile claimed, so a passing TestScript means the server validated a
+conformant resource against its profile and stored it.
+
+Its `profiles` TestScripts are one per profile the guide's server
+CapabilityStatement lists. Each writes a resource that fills the profile's
+required and must-support elements, fixed values and required extensions,
+reads it back, and runs the search parameters the guide adds to base FHIR
+against it. Its `TestScript.metadata` links the profile and names the
+CapabilityStatement.
+
+<SuiteLastVerified suite="carin-bb" />
+
+<SuiteSummary suite="carin-bb" />
+
+## Known gaps
+
+None at the moment.
+
+<SuiteKnownGaps suite="carin-bb" />
+
+## Every TestScript
+
+Examples are grouped by the resource type they write, and the profile
+conformance TestScripts follow in one group.
+
+<SuiteReportTable suite="carin-bb" />

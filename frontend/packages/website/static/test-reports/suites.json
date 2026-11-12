@@ -85,6 +85,20 @@
       "knownGaps": 29,
       "assertions": 314,
       "assertionsPassing": 251
+    },
+    {
+      "id": "carin-bb",
+      "title": "CARIN Blue Button 2.2.0",
+      "page": "/docs/reference/conformance/carin-bb",
+      "generatedAt": "2026-11-01T20:47:11.273Z",
+      "backends": [
+        "postgres"
+      ],
+      "testScripts": 53,
+      "testScriptsPassing": 53,
+      "knownGaps": 0,
+      "assertions": 410,
+      "assertionsPassing": 410
     }
   ]
 }

@@ -58,17 +58,37 @@ pub struct SearchReturn {
     pub entries: Vec<SearchEntry>,
 }
 
-/// Parameters a resource must match at least one of, `ANDed` with the search's
-/// own parameters. Empty matches nothing. The server adds it on the caller's
-/// behalf (a `patient/` scope confining a search to one compartment); it
-/// never comes from a URL.
+/// Parameters a resource must match every one of: one branch of an [`AnyOf`].
 #[derive(Debug, Clone)]
-pub struct AnyOf(pub Vec<Parameter>);
+pub struct AllOf(pub Vec<Parameter>);
+
+/// Branches a resource must match at least one of, `ANDed` with the search's
+/// own parameters. Empty matches nothing. The server adds it on the caller's
+/// behalf (a `patient/` scope confining a search to one compartment, a
+/// granular scope narrowing it to the resources its search parameters
+/// match); it never comes from a URL.
+#[derive(Debug, Clone)]
+pub struct AnyOf(pub Vec<AllOf>);
+
+impl AnyOf {
+    /// One branch per parameter: a resource matches when it matches any one.
+    #[must_use]
+    pub fn of_parameters(parameters: Vec<Parameter>) -> Self {
+        AnyOf(
+            parameters
+                .into_iter()
+                .map(|parameter| AllOf(vec![parameter]))
+                .collect(),
+        )
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct SearchOptions {
     pub count_limit: Option<u64>,
-    pub any_of: Option<AnyOf>,
+    /// Filters added on the caller's behalf; a resource must satisfy every
+    /// one of them.
+    pub filters: Vec<AnyOf>,
 }
 
 #[derive(Clone, Debug)]

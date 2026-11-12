@@ -49,7 +49,7 @@ pub async fn invitation_get<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Query(query): Query<InvitationQuery>,
 ) -> Result<Response, OperationOutcomeError> {
-    let tenant = TenantId::new(query.tenant);
+    let tenant = TenantId::new(query.tenant)?;
 
     let Some(user) =
         invitations::find_invitation(state.repo.as_ref(), &tenant, &query.code).await?
@@ -101,7 +101,7 @@ pub async fn invitation_post<
 ) -> Result<Response, OperationOutcomeError> {
     check_csrf(&csrf_token, &form.csrf_token)?;
 
-    let tenant = TenantId::new(form.tenant);
+    let tenant = TenantId::new(form.tenant)?;
 
     let Some(user) = invitations::find_invitation(state.repo.as_ref(), &tenant, &form.code).await?
     else {

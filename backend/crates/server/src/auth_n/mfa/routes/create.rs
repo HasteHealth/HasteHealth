@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use axum::{
     Form,
     extract::{OriginalUri, State},
@@ -60,20 +61,12 @@ pub async fn create_post<
     Form(create_body): Form<MFACreatePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
     if !constant_time::str_eq(&create_body.csrf_token, &csrf_token) {
-        return Err(OperationOutcomeError::error(
-            IssueType::security(),
-            "Invalid CSRF token.".to_string(),
-        ));
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "User is not logged in.".to_string(),
-            )
-        })?;
+        .map_err(|_| AuthError::NotLoggedIn)?;
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
         state.repo.as_ref(),

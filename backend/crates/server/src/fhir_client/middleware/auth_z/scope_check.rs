@@ -1,25 +1,31 @@
 //! SMART resource scope enforcement.
 //!
-//! Picks the scope that grants a request. A `system/` or `user/` grant reaches
-//! every resource of the type. A `patient/` grant reaches one Patient
-//! compartment: [`patient_scope`] checks the request, the context is confined
-//! to the patient so storage filters its searches, and the response is checked
-//! against the resources it holds.
+//! Picks the scopes that grant a request: those with the permission on the
+//! type, at the highest level held (`system/` over `user/` over `patient/`).
+//! A `system/` or `user/` grant reaches every resource of the type. A
+//! `patient/` grant reaches one Patient compartment: [`patient_scope`] checks
+//! the request, the context is confined to the patient so storage filters its
+//! searches, and the response is checked against the resources it holds. A
+//! grant made only of granular scopes (`patient/Observation.rs?category=...`)
+//! reaches the resources matching any of them: [`granular_scope`] checks the
+//! request, storage filters its searches by the same scopes, and reads are
+//! checked against the resource returned.
 
 use crate::fhir_client::{
-    ClientState, ServerCTX,
+    ClientState, ServerCTX, StorageError,
     middleware::{
         Backend, Middleware, Next, Output,
-        auth_z::{forbidden, patient_scope},
+        auth_z::{forbidden, granular_scope, patient_scope},
     },
     utilities::{is_search_match, map_search_entries, request_to_resource_type},
 };
-use haste_fhir_client::request::{FHIRRequest, FHIRResponse};
+use haste_fhir_client::request::{FHIRReadResponse, FHIRRequest, FHIRResponse};
 use haste_fhir_model::r4::generated::{
-    resources::{BundleEntry, ResourceType},
+    resources::{BundleEntry, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::AnyOf;
 use haste_jwt::scopes::{
     SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
     SmartResourceScopeUser, SmartScope,
@@ -84,47 +90,32 @@ fn resource_scopes(scopes: &Scopes) -> impl Iterator<Item = &SMARTResourceScope>
     })
 }
 
-fn get_highest_value_for_request_scope<'a>(
+/// The scopes that grant `permission` on `resource_type`, at the highest
+/// level any of them holds: when a `system/` scope grants it, the `patient/`
+/// scopes that also would are left aside, since the system one reaches every
+/// patient. Empty when nothing grants it. Every scope returned has the same
+/// level, so the first one's `user` is the level of the grant.
+pub(super) fn granting_scopes<'a>(
     scopes: &'a Scopes,
-    request: &FHIRRequest,
-) -> Result<Option<&'a SMARTResourceScope>, OperationOutcomeError> {
-    let request_scope_requested = request_type_to_permission(request)?;
-    let request_resource_type = request_to_resource_type(request);
-
-    let found_scopes = resource_scopes(scopes)
-        .filter(|s| {
-            fits_resource_type(s, request_resource_type)
-                && s.permissions.has_permission(&request_scope_requested)
-        })
-        .collect::<Vec<_>>();
-
-    // Sort by level weight if for example system scope grants permission and so does a patient scope.
-    // Than system scope should take precedence.
-    let mut sorted_scopes = found_scopes;
-    sorted_scopes.sort_by(|a, b| {
-        let a_weight = get_user_weight_scope(&a.user);
-        let b_weight = get_user_weight_scope(&b.user);
-
-        b_weight.cmp(&a_weight)
-    });
-
-    Ok(sorted_scopes.first().copied())
-}
-
-/// The broadest level at which `scopes` grant `read` on `resource_type`.
-fn read_scope_level<'a>(
-    scopes: &'a Scopes,
-    resource_type: &ResourceType,
-) -> Option<&'a SmartResourceScopeUser> {
-    resource_scopes(scopes)
+    resource_type: Option<&ResourceType>,
+    permission: &SmartResourceScopePermission,
+) -> Vec<&'a SMARTResourceScope> {
+    let fitting: Vec<&SMARTResourceScope> = resource_scopes(scopes)
         .filter(|scope| {
-            fits_resource_type(scope, Some(resource_type))
-                && scope
-                    .permissions
-                    .has_permission(&SmartResourceScopePermission::Read)
+            fits_resource_type(scope, resource_type) && scope.permissions.has_permission(permission)
         })
-        .map(|scope| &scope.user)
-        .max_by_key(|user| get_user_weight_scope(user))
+        .collect();
+    let Some(highest) = fitting
+        .iter()
+        .map(|scope| get_user_weight_scope(&scope.user))
+        .max()
+    else {
+        return Vec::new();
+    };
+    fitting
+        .into_iter()
+        .filter(|scope| get_user_weight_scope(&scope.user) == highest)
+        .collect()
 }
 
 /// Whether every resource scope in the token is patient-level.
@@ -133,10 +124,28 @@ fn only_patient_scopes(scopes: &Scopes) -> bool {
     scopes.peek().is_some() && scopes.all(|scope| scope.user == SmartResourceScopeUser::Patient)
 }
 
+/// Whether the caller may see `resource`: in the `compartment` the request
+/// was confined to, if any, and reached by the `granular` filter, if any.
+async fn resource_allowed(
+    resource: &Resource,
+    compartment: Option<&str>,
+    granular: Option<&AnyOf>,
+) -> bool {
+    let in_compartment = match compartment {
+        Some(patient_id) => patient_scope::resource_in_scope(patient_id, resource).await,
+        None => true,
+    };
+    in_compartment
+        && match granular {
+            Some(filter) => granular_scope::resource_in_scope(filter, resource).await,
+            None => true,
+        }
+}
+
 /// Keeps the matches, which the engine already filtered, and the includes the
-/// caller's scopes allow: an include needs a read scope on its own type, and
-/// at patient level it must be in the compartment of `patient`, the token's
-/// patient.
+/// caller's scopes allow: an include needs a read scope on its own type, at
+/// patient level it must be in the compartment of `patient`, the token's
+/// patient, and under granular read scopes alone it must match one of them.
 async fn filter_entries(
     entries: Vec<BundleEntry>,
     scopes: &Scopes,
@@ -159,14 +168,18 @@ async fn filter_entries(
         let Some(resource) = entry.resource.as_deref() else {
             continue;
         };
-        let allowed = match (read_scope_level(scopes, &resource.resource_type()), patient) {
-            (None, _) | (Some(SmartResourceScopeUser::Patient), None) => false,
-            (Some(SmartResourceScopeUser::Patient), Some(patient_id)) => {
-                patient_scope::resource_in_scope(patient_id, resource).await
-            }
-            (Some(SmartResourceScopeUser::User | SmartResourceScopeUser::System), _) => true,
+        let granting = granting_scopes(
+            scopes,
+            Some(&resource.resource_type()),
+            &SmartResourceScopePermission::Read,
+        );
+        let compartment = match (granting.first().map(|scope| &scope.user), patient) {
+            (None, _) | (Some(SmartResourceScopeUser::Patient), None) => continue,
+            (Some(SmartResourceScopeUser::Patient), Some(patient_id)) => Some(patient_id),
+            (Some(SmartResourceScopeUser::User | SmartResourceScopeUser::System), _) => None,
         };
-        if allowed {
+        let granular = granular_scope::filter_of(&granting);
+        if resource_allowed(resource, compartment, granular.as_ref()).await {
             kept.push(entry);
         }
     }
@@ -174,23 +187,59 @@ async fn filter_entries(
     kept
 }
 
+/// A read as the caller may see it: a resource outside the compartment or
+/// the granular filter answers exactly as one that does not exist.
+///
+/// # Errors
+///
+/// A version read of such a resource is not found.
+async fn filter_read(
+    response: FHIRResponse,
+    compartment: Option<&str>,
+    granular: Option<&AnyOf>,
+) -> Result<FHIRResponse, OperationOutcomeError> {
+    match response {
+        FHIRResponse::Read(read) => {
+            let resource = match read.resource {
+                Some(resource) if resource_allowed(&resource, compartment, granular).await => {
+                    Some(resource)
+                }
+                _ => None,
+            };
+            Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
+        }
+        FHIRResponse::VersionRead(vread) => {
+            if resource_allowed(&vread.resource, compartment, granular).await {
+                Ok(FHIRResponse::VersionRead(vread))
+            } else {
+                Err(StorageError::NotFound(
+                    vread.resource.resource_type(),
+                    vread.resource.id().clone().unwrap_or_default(),
+                )
+                .into())
+            }
+        }
+        other => Ok(other),
+    }
+}
+
 /// The response as the caller may see it: a read is checked against the
-/// `compartment` the request was confined to, a search page's includes
-/// against the caller's scopes.
-/// The response as the caller may see it: a read is checked against the
-/// `compartment` the request was confined to, a search page's includes
-/// against the caller's scopes.
+/// `compartment` the request was confined to and the `granular` filter its
+/// searches ran with, a search page's includes against the caller's scopes.
 async fn filter_response(
     response: FHIRResponse,
     scopes: &Scopes,
     patient: Option<&str>,
     compartment: Option<&str>,
+    granular: Option<&AnyOf>,
 ) -> Result<FHIRResponse, OperationOutcomeError> {
-    match (compartment, response) {
-        (Some(patient_id), response @ (FHIRResponse::Read(_) | FHIRResponse::VersionRead(_))) => {
-            patient_scope::filter_read(patient_id, response).await
+    match response {
+        response @ (FHIRResponse::Read(_) | FHIRResponse::VersionRead(_))
+            if compartment.is_some() || granular.is_some() =>
+        {
+            filter_read(response, compartment, granular).await
         }
-        (_, response) => {
+        response => {
             Ok(
                 map_search_entries(response, |entries| filter_entries(entries, scopes, patient))
                     .await,
@@ -243,16 +292,19 @@ impl<B: Backend> Middleware<B> for SmartScopeAccess {
                 // The caller's claims outlive the context the request runs in.
                 let caller = ctx.clone();
                 let claims = &caller.user.claims;
-                let Some(matched_scope) =
-                    get_highest_value_for_request_scope(&claims.scope, &request)?
-                else {
+                let granting = granting_scopes(
+                    &claims.scope,
+                    request_to_resource_type(&request),
+                    &request_type_to_permission(&request)?,
+                );
+                let Some(level) = granting.first().map(|scope| &scope.user) else {
                     return Err(forbidden("Insufficient SMART scope for this request"));
                 };
 
                 // The compartment this request is confined to: the token's
                 // patient, when a `patient/` scope is what grants it.
                 let patient = claims.patient.as_deref();
-                let compartment = match (&matched_scope.user, patient) {
+                let compartment = match (level, patient) {
                     (SmartResourceScopeUser::Patient, Some(patient_id)) => Some(patient_id),
                     (SmartResourceScopeUser::Patient, None) => {
                         return Err(forbidden(
@@ -261,6 +313,14 @@ impl<B: Backend> Middleware<B> for SmartScopeAccess {
                     }
                     (SmartResourceScopeUser::User | SmartResourceScopeUser::System, _) => None,
                 };
+
+                // The resources the request is confined to, when only
+                // granular scopes grant it. Storage derives the same filter
+                // from the claims for the searches it runs.
+                let granular = granular_scope::filter_of(&granting);
+                if granular.is_some() {
+                    granular_scope::check_request(&request)?;
+                }
 
                 let ctx = match compartment {
                     None => ctx,
@@ -271,7 +331,14 @@ impl<B: Backend> Middleware<B> for SmartScopeAccess {
                 };
 
                 let response = next.run(state, ctx, request).await?;
-                filter_response(response, &claims.scope, patient, compartment).await
+                filter_response(
+                    response,
+                    &claims.scope,
+                    patient,
+                    compartment,
+                    granular.as_ref(),
+                )
+                .await
             }),
         }
     }

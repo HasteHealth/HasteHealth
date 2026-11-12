@@ -12,6 +12,7 @@ name: <Test> E2E
 #   test_e2e_mcp.yml               MCP conformance
 #   test_e2e_g10.yml               ONC (g)(10) Standardized API TestScripts
 #   test_e2e_sql_on_fhir.yml       SQL on FHIR v2 shared test suite TestScripts
+#   test_e2e_carin_bb.yml          CARIN Blue Button 2.2.0 TestScripts: IG examples and profile conformance
 on:
   push:
     branches: ["main"]
@@ -101,13 +102,18 @@ jobs:
     needs: build
     uses: ./.github/workflows/test_e2e_sql_on_fhir.yml
 
+  carin-bb:
+    needs: build
+    uses: ./.github/workflows/test_e2e_carin_bb.yml
+
   # Deploys the website on every push to main, with the conformance pages'
   # data refreshed from this run's TestReports: core, US Core 9.0.0 and 7.0.0,
-  # g10, access control and SQL on FHIR. `continue-on-error` plus the file checks below mean a
-  # build/test failure upstream (no artifacts to download) still deploys, with
-  # the previously committed data for whichever suites have no reports.
+  # g10, access control, SQL on FHIR and CARIN Blue Button 2.2.0.
+  # `continue-on-error` plus the file checks below mean a build/test failure
+  # upstream (no artifacts to download) still deploys, with the previously
+  # committed data for whichever suites have no reports.
   deploy-website:
-    needs: [core-testscripts, us-core, us-core-7, g10, access-control, sql-on-fhir]
+    needs: [core-testscripts, us-core, us-core-7, g10, access-control, sql-on-fhir, carin-bb]
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -149,6 +155,8 @@ jobs:
           add access-control-postgres reports/access-control-testreports-postgres
           add access-control-elasticsearch reports/access-control-testreports-elasticsearch
           add sql-on-fhir-postgres reports/sql-on-fhir-testreports/sql-on-fhir-postgres.json
+          add carin-bb-postgres reports/carin-bb-testreports-postgres/carin-bb-postgres.json
+          add carin-bb-elasticsearch reports/carin-bb-testreports-elasticsearch/carin-bb-elasticsearch.json
           node frontend/packages/website/scripts/generate.mjs test-suites "${args[@]}"
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0

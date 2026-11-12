@@ -31,3 +31,6 @@ After loading the data, you can verify that the data has been successfully impor
 ## Issues
 - If you encounter issues related to bundle size (413 HTTP) errors, consider increasing the `MAX_REQUEST_BODY_SIZE` environment variable in your Docker setup.
 For example, set `MAX_REQUEST_BODY_SIZE=8388608` for 8mb.
+- On a hosted tenant, requests are rate limited per 15-minute window (see [Pricing](/pricing)). The free tier's
+  budget fits any single Synthea patient and roughly 20 patients per window. A request over the limit fails with
+  `429` and an error saying when the limit resets; wait until then before loading the remaining files.

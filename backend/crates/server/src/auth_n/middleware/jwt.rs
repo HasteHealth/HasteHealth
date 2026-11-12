@@ -1,3 +1,4 @@
+use crate::error::ServerError;
 use crate::{
     auth_n::certificates,
     config::ServerConfig,
@@ -16,7 +17,6 @@ use axum::{
 };
 use axum_extra::extract::Cached;
 use derivative::Derivative;
-use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -76,26 +76,14 @@ pub fn derive_well_known_openid_configuration_url(
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/openid-configuration");
 
-    if let Ok(api_url) = Url::parse(api_url) {
-        api_url
-            .join(
-                path.join(project_path(tenant, project).strip_prefix("/").unwrap())
-                    .to_str()
-                    .unwrap_or_default(),
-            )
-            .map_err(|e| {
-                tracing::error!("Failed to derive well-known URL: {:?}", e);
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    "Invalid API URL configured".to_string(),
-                )
-            })
-    } else {
-        Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid API URL configured".to_string(),
-        ))
-    }
+    Url::parse(api_url)
+        .map_err(ServerError::from)?
+        .join(
+            path.join(project_path(tenant, project).strip_prefix("/").unwrap())
+                .to_str()
+                .unwrap_or_default(),
+        )
+        .map_err(|e| ServerError::from(e).into())
 }
 
 pub fn derive_protected_resource_metadata_url(
@@ -103,28 +91,16 @@ pub fn derive_protected_resource_metadata_url(
     api_url: &str,
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/oauth-protected-resource");
-    if let Ok(api_url) = Url::parse(api_url) {
-        let tenant_url = api_url
-            .join(
-                path.join(resource_uri.path().strip_prefix("/").unwrap_or_default())
-                    .to_str()
-                    .unwrap_or_default(),
-            )
-            .map_err(|e| {
-                tracing::error!("Failed to derive well-known URL: {:?}", e);
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    "Invalid API URL configured".to_string(),
-                )
-            })?;
+    let tenant_url = Url::parse(api_url)
+        .map_err(ServerError::from)?
+        .join(
+            path.join(resource_uri.path().strip_prefix("/").unwrap_or_default())
+                .to_str()
+                .unwrap_or_default(),
+        )
+        .map_err(ServerError::from)?;
 
-        Ok(tenant_url)
-    } else {
-        Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid API URL configured".to_string(),
-        ))
-    }
+    Ok(tenant_url)
 }
 
 fn invalid_jwt_response(uri: &Uri, api_url: &str, status_code: StatusCode) -> Response {

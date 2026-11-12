@@ -1,3 +1,5 @@
+use crate::error::ServerError;
+use crate::services::TransactionError;
 use crate::{
     fhir_client::{
         ClientState, FHIRServerClient, ServerCTX, ServerClientConfig,
@@ -5,7 +7,11 @@ use crate::{
             build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
         },
         compartment::process_compartment_request,
-        middleware::{Backend, Handler, Output, auth_z::patient_scope, search_includes},
+        middleware::{
+            Backend, Handler, Output,
+            auth_z::{granular_scope, patient_scope},
+            search_includes,
+        },
     },
     route_path::{api_fhir_root_url, append_path_segments},
 };
@@ -30,7 +36,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchEntry, SearchOptions};
-use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_jwt::{ProjectId, ResourceId, TenantId, scopes::SmartResourceScopePermission};
 use haste_reflect::MetaValue;
 use haste_repository::{Repository, fhir::FHIRRepository};
 use std::sync::Arc;
@@ -49,43 +55,63 @@ pub async fn apply_patch<Repo: Repository>(
     project: &ProjectId,
     fhir_patch_request: &FHIRPatchRequest,
 ) -> Result<Resource, OperationOutcomeError> {
-    let Some(resource) = repo
-        .read_latest(
-            tenant,
-            project,
-            &fhir_patch_request.resource_type,
-            &ResourceId::new(fhir_patch_request.id.to_string()),
-        )
-        .await?
-    else {
-        return Err(OperationOutcomeError::error(
+    let resource = read_patch_target(repo, tenant, project, fhir_patch_request).await?;
+    patch_resource(&resource, fhir_patch_request)
+}
+
+/// The latest version of the resource a patch names.
+///
+/// # Errors
+///
+/// Returns a `not-found` error when there is none.
+pub async fn read_patch_target<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    fhir_patch_request: &FHIRPatchRequest,
+) -> Result<Resource, OperationOutcomeError> {
+    repo.read_latest(
+        tenant,
+        project,
+        &fhir_patch_request.resource_type,
+        &ResourceId::new(fhir_patch_request.id.clone()),
+    )
+    .await?
+    .ok_or_else(|| {
+        OperationOutcomeError::error(
             IssueType::not_found(),
             format!("Resource with id '{}' not found", fhir_patch_request.id),
-        ));
-    };
-
-    let mut json: serde_json::Value = serde_json::to_value(&resource).map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            "Failed to deserialize JSON for patching: ".to_string() + (e.to_string().as_str()),
         )
-    })?;
+    })
+}
+
+/// Applies the patch to `resource`, which may not change its type or `id`.
+///
+/// # Errors
+///
+/// Returns an error when the patch does not apply, its result is not a valid
+/// resource, or the type or `id` changed.
+pub fn patch_resource(
+    resource: &Resource,
+    fhir_patch_request: &FHIRPatchRequest,
+) -> Result<Resource, OperationOutcomeError> {
+    let mut json: serde_json::Value = serde_json::to_value(resource).map_err(ServerError::from)?;
 
     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to apply JSON patch: '{}'", e),
+            format!("Failed to apply JSON patch: '{e}'"),
         )
     })?;
 
     let patched_resource = serde_json::from_value::<Resource>(json).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to deserialize patched resource '{}'.", e),
+            format!("Failed to deserialize patched resource '{e}'."),
         )
     })?;
 
-    if std::mem::discriminant(&resource) != std::mem::discriminant(&patched_resource) {
+    if std::mem::discriminant(resource) != std::mem::discriminant(&patched_resource) {
         return Err(OperationOutcomeError::error(
             IssueType::conflict(),
             "Resource type mismatch after patching".to_string(),
@@ -164,9 +190,11 @@ pub fn to_bundle_entry(
 }
 
 /// The options a search runs with. A caller confined to a patient's
-/// compartment gets the filter that keeps every search there.
-fn search_options(
-    compartment: Option<&str>,
+/// compartment gets the filter that keeps every search there; one whose
+/// scopes on the type are all granular gets the filter that keeps it to the
+/// resources they reach.
+fn search_options<B: Backend>(
+    ctx: &ServerCTX<B>,
     request: &SearchRequest,
     count_limit: Option<u64>,
 ) -> Option<SearchOptions> {
@@ -174,10 +202,20 @@ fn search_options(
         SearchRequest::Type(search) => Some(&search.resource_type),
         SearchRequest::System(_) => None,
     };
+    let compartment = ctx
+        .compartment
+        .as_deref()
+        .and_then(|patient_id| patient_scope::search_filter(patient_id, resource_type));
+    let granular = resource_type.and_then(|resource_type| {
+        granular_scope::search_filter(
+            &ctx.user.claims.scope,
+            resource_type,
+            &SmartResourceScopePermission::Search,
+        )
+    });
     Some(SearchOptions {
         count_limit,
-        any_of: compartment
-            .and_then(|patient_id| patient_scope::search_filter(patient_id, resource_type)),
+        filters: compartment.into_iter().chain(granular).collect(),
     })
 }
 
@@ -255,7 +293,7 @@ async fn delete_matches<B: Backend>(
             &ctx.tenant,
             &ctx.project,
             &search,
-            search_options(ctx.compartment.as_deref(), &search, Some(delete_limit + 1)),
+            search_options(ctx, &search, Some(delete_limit + 1)),
         )
         .await?;
     if found.entries.len() as u64 > delete_limit {
@@ -271,12 +309,7 @@ async fn delete_matches<B: Backend>(
 
     let repo = Arc::new(state.repo.transaction(true).await?);
     let result = delete_each(state, repo.clone(), ctx, found.entries).await;
-    let repo = Arc::try_unwrap(repo).map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            "Failed to unwrap transaction client".to_string(),
-        )
-    })?;
+    let repo = Arc::try_unwrap(repo).map_err(|_| TransactionError::ClientStillShared)?;
     match result {
         Ok(()) => repo.commit().await,
         Err(error) => {
@@ -301,7 +334,8 @@ async fn delete_each<B: Backend>(
             state.config.clone(),
             state.deno_pool.clone(),
         )
-        .with_audit_repo(state.audit_repo.clone()),
+        .with_audit_repo(state.audit_repo.clone())
+        .with_binary_storage(state.binary_storage.clone()),
     );
     let ctx = Arc::new(ctx.swap_client(Arc::new(client)));
     for entry in entries {
@@ -533,7 +567,7 @@ impl<B: Backend> Handler<B> for Storage {
                             &ctx.tenant,
                             &ctx.project,
                             &update_search,
-                            search_options(ctx.compartment.as_deref(), &update_search, None),
+                            search_options(&ctx, &update_search, None),
                         )
                         .await?;
                     // No matches, no id provided:
@@ -653,7 +687,7 @@ impl<B: Backend> Handler<B> for Storage {
                             &ctx.tenant,
                             &ctx.project,
                             &search_request,
-                            search_options(ctx.compartment.as_deref(), &search_request, None),
+                            search_options(&ctx, &search_request, None),
                         )
                         .await?;
                     let version_ids = search_results
@@ -714,7 +748,8 @@ impl<B: Backend> Handler<B> for Storage {
                                 state.config.clone(),
                                 state.deno_pool.clone(),
                             )
-                            .with_audit_repo(state.audit_repo.clone()),
+                            .with_audit_repo(state.audit_repo.clone())
+                            .with_binary_storage(state.binary_storage.clone()),
                         );
 
                         let transaction_context =
@@ -728,12 +763,8 @@ impl<B: Backend> Handler<B> for Storage {
                         .await
                     };
 
-                    let repo = Arc::try_unwrap(transaction_repo).map_err(|_e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            "Failed to unwrap transaction client".to_string(),
-                        )
-                    })?;
+                    let repo = Arc::try_unwrap(transaction_repo)
+                        .map_err(|_| TransactionError::ClientStillShared)?;
 
                     match bundle_response {
                         Ok(transaction_bundle) => {
@@ -758,7 +789,8 @@ impl<B: Backend> Handler<B> for Storage {
                             state.config.clone(),
                             state.deno_pool.clone(),
                         )
-                        .with_audit_repo(state.audit_repo.clone()),
+                        .with_audit_repo(state.audit_repo.clone())
+                        .with_binary_storage(state.binary_storage.clone()),
                     );
 
                     let batch_context = Arc::new(ctx.swap_client(Arc::new(batch_client)));

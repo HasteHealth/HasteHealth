@@ -84,14 +84,13 @@ while read -r id; do allowed+=(--allow-failure "$id"); done < <(
 
 ## Known failures
 
-On 2026-10-31, 89 of the 108 pass. The other 19 are in `known-failures.txt`, by cause. A
+On 2026-11-08, 91 of the 108 pass. The other 17 are in `known-failures.txt`, by cause. A
 TestScript that fails for several causes is listed under the first that shows.
 
 | TestScripts | Cause                                                                                                                                    |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | 9           | `%rowIndex` is not defined, so a view that uses it is refused with 400 "Undefined constant: %rowIndex" (`sof-row-index-01` to `-09`).    |
 | 8           | `lowBoundary()` and `highBoundary()` are not implemented, so the run answers 500 (`sof-fn-boundary-01` to `-08`).                        |
-| 2           | `unionAll` branches whose columns differ, or come in another order, are not refused; the suite expects an error (`sof-union-09`, `-10`). |
 
 ## Not covered
 

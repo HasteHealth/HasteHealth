@@ -37,8 +37,7 @@ use haste_jwt::{
     claims::{IdTokenClaims, SubscriptionTier, UserTokenClaims},
     scopes::{
         LaunchSystemScope, LaunchType, LaunchTypeScope, OIDCScope, SMARTResourceScope, Scope,
-        Scopes, SmartResourceScopePermission, SmartResourceScopePermissions,
-        SmartResourceScopeUser, SmartScope,
+        Scopes, SmartResourceScopePermission, SmartResourceScopeUser, SmartScope,
     },
 };
 use haste_repository::{
@@ -193,17 +192,17 @@ struct SmartContext {
 }
 
 /// Filters SMART resource scopes to only include read and search permissions.
+/// The scope keeps the syntax it was requested in: `patient/Patient.*` is
+/// issued as `patient/Patient.read`, `patient/Patient.cruds` as
+/// `patient/Patient.rs`.
 fn smart_read_only_scopes(scope: SMARTResourceScope) -> Option<SMARTResourceScope> {
-    let kept: Vec<_> = [
+    let permissions = scope.permissions.restricted_to(&[
         SmartResourceScopePermission::Read,
         SmartResourceScopePermission::Search,
-    ]
-    .into_iter()
-    .filter(|permission| scope.permissions.has_permission(permission))
-    .collect();
+    ]);
 
-    (!kept.is_empty()).then(|| SMARTResourceScope {
-        permissions: SmartResourceScopePermissions::new(kept),
+    (!permissions.is_empty()).then(|| SMARTResourceScope {
+        permissions,
         ..scope
     })
 }

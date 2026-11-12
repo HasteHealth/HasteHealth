@@ -1,112 +1,186 @@
-use std::fmt::Write as _;
+//! The PG search schema, as sqlx migrations.
+//!
+//! [`super::schema`] decides which table and column hold each search
+//! parameter, and indexing and search rely on that, so the database has to
+//! match. The migrations under `pg-migrations/` are what a database runs.
+//! After running them, [`run_migration`] reads the catalog and refuses a
+//! database that still lacks something the schema needs; `generate
+//! search-migration` writes the migration creating it instead. A change to an
+//! existing object (a column's type, an index's definition) is written by
+//! hand: drop it, then create it.
+
+use std::collections::HashSet;
 
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use sqlx::{AssertSqlSafe, Pool, Postgres};
+use sqlx::{Pool, Postgres, migrate::Migrator};
 
+use super::PgSearchError;
 use super::schema::{
-    ColumnDef, IndexKind, ResourceTypeSchema, SHARED_TABLES, SchemaRegistry, SharedTable,
-    resource_table_name, shared_table_name, shared_value_columns, sql_type,
+    ColumnDef, IndexKind, SHARED_TABLES, SchemaRegistry, SharedTable, resource_table_name,
+    shared_table_name, shared_value_columns, sql_type, string_prefix_expr,
 };
 
-/// Creates the anchor, the shared tables and one table per resource type.
-/// Idempotent: new parameters are added with `ADD COLUMN IF NOT EXISTS`, and
-/// existing rows read NULL until reindexed.
+/// Records which search migrations ran. Not sqlx's default table, which the
+/// repository's migrations use: the search index may share their database.
+const MIGRATIONS_TABLE: &str = "_sqlx_search_migrations";
+
+fn migrator() -> Migrator {
+    let mut migrator = sqlx::migrate!("./pg-migrations");
+    migrator.dangerous_set_table_name(MIGRATIONS_TABLE);
+    migrator
+}
+
+/// Runs the search migrations that have not run yet (sqlx holds an advisory
+/// lock for the duration, so servers starting together take turns), then
+/// checks the database has everything the schema needs.
 ///
 /// # Errors
 ///
-/// Returns an error if the migration lock cannot be taken or any DDL fails.
+/// Returns an error if a migration fails, or if the database still lacks a
+/// table, column or index the schema needs: a missing column would otherwise
+/// surface as a failed write or search later on.
 pub async fn run_migration(
     pool: &Pool<Postgres>,
     registry: &SchemaRegistry,
 ) -> Result<(), OperationOutcomeError> {
-    // Concurrent `CREATE TABLE IF NOT EXISTS` can fail on
-    // `pg_type_typname_nsp_index` when two servers start together, so the
-    // whole migration runs under an advisory lock.
-    let mut lock = pool.acquire().await.map_err(|e| {
-        wrap(
-            "Failed to acquire a connection for the PG search migration",
-            &e,
-        )
-    })?;
-
-    sqlx::query("SELECT pg_advisory_lock($1)")
-        .bind(MIGRATION_LOCK_KEY)
-        .execute(&mut *lock)
-        .await
-        .map_err(|e| wrap("Failed to take the PG search migration lock", &e))?;
-
-    // DDL runs on the pool; other servers are still blocked on the lock above.
-    let result = run_migration_locked(pool, registry).await;
-
-    // Best-effort: the lock is session-scoped and dies with the connection.
-    let _ = sqlx::query("SELECT pg_advisory_unlock($1)")
-        .bind(MIGRATION_LOCK_KEY)
-        .execute(&mut *lock)
-        .await;
-
-    result
-}
-
-/// Arbitrary but stable. No other advisory lock in this database may use it.
-const MIGRATION_LOCK_KEY: i64 = 0x0F47_5EA4_C401;
-
-async fn run_migration_locked(
-    pool: &Pool<Postgres>,
-    registry: &SchemaRegistry,
-) -> Result<(), OperationOutcomeError> {
-    execute_ddl(
-        pool,
-        &base_migration_sql(registry),
-        "Failed to run PG search base migration",
-    )
-    .await?;
-
-    // A fixed order keeps the per-table ACCESS EXCLUSIVE locks deadlock-free
-    // even without the advisory lock.
-    let mut schemas: Vec<_> = registry.schemas.values().collect();
-    schemas.sort_by(|a, b| a.table_name.cmp(&b.table_name));
-
-    for schema in schemas {
-        execute_ddl(
-            pool,
-            &resource_type_table_sql(schema),
-            &format!("Failed to migrate PG search table '{}'", schema.table_name),
-        )
-        .await?;
+    let missing = migrate_and_diff(pool, registry).await?;
+    if let Some(first) = missing.first() {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::exception(),
+            format!(
+                "The PG search database lacks {} objects this build's search schema needs, \
+                 e.g. `{}`. From backend/ run `bash scripts/search_migration_build.sh`, then \
+                 rebuild and migrate again.",
+                missing.len(),
+                first.lines().next().unwrap_or_default()
+            ),
+        ));
     }
 
     tracing::info!(
-        "PG search index tables created/verified successfully ({} resource type tables).",
+        "PG search index tables migrated ({} resource type tables).",
         registry.schemas.len()
     );
     Ok(())
 }
 
-async fn execute_ddl(
+/// Migrates `pool`, then returns the migration creating what the schema still
+/// lacks, or `None` when it lacks nothing.
+///
+/// # Errors
+///
+/// Returns an error if a migration fails or the catalog cannot be read.
+pub async fn pending_migration(
     pool: &Pool<Postgres>,
-    sql: &str,
-    context: &str,
-) -> Result<(), OperationOutcomeError> {
-    sqlx::raw_sql(AssertSqlSafe(sql))
-        .execute(pool)
-        .await
-        .map(|_| ())
-        .map_err(|e| wrap(context, &e))
+) -> Result<Option<String>, OperationOutcomeError> {
+    let statements = migrate_and_diff(pool, &super::R4_SCHEMA_REGISTRY).await?;
+    Ok((!statements.is_empty()).then(|| HEADER.to_string() + &statements.concat()))
 }
 
-/// The anchor and the shared tables: everything independent of which
-/// parameters exist.
-fn base_migration_sql(registry: &SchemaRegistry) -> String {
-    let resource_table = resource_table_name(&registry.version);
+const HEADER: &str = "\
+-- Generated by `bash scripts/search_migration_build.sh` (from backend/): what the search
+-- schema needs that the database lacked. Do not edit once it has run anywhere.
+";
 
-    let create_anchor = format!(
-        "-- One row per indexed resource. Other tables reference it by `res_key`,
--- which is never reused.
---
--- `sequence` is the repository write sequence of the indexed version; the
--- upsert uses it to reject replays of older versions.
-CREATE TABLE IF NOT EXISTS {resource_table} (
+/// Runs the migrations, then returns the statements creating the schema
+/// objects the database still lacks.
+async fn migrate_and_diff(
+    pool: &Pool<Postgres>,
+    registry: &SchemaRegistry,
+) -> Result<Vec<String>, OperationOutcomeError> {
+    migrator().run(pool).await.map_err(|e| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            format!("Failed to migrate the PG search schema: {e}"),
+        )
+    })?;
+
+    let existing = existing_objects(pool).await?;
+    Ok(schema(registry)
+        .into_iter()
+        .filter(|(object, _)| !existing.contains(object))
+        .map(|(_, sql)| sql)
+        .collect())
+}
+
+/// Something the schema needs, by name.
+#[derive(Debug, PartialEq, Eq, Hash)]
+enum Object {
+    Extension(String),
+    Table(String),
+    Column { table: String, name: String },
+    Index(String),
+    Statistics(String),
+}
+
+/// `(kind, table, name)` of every extension, table, column, index and
+/// statistics object in the database's current schema.
+const CATALOG: &str = "\
+SELECT 'extension', '', extname::text FROM pg_extension
+UNION ALL SELECT 'table', '', tablename::text FROM pg_tables WHERE schemaname = current_schema()
+UNION ALL SELECT 'column', table_name::text, column_name::text FROM information_schema.columns WHERE table_schema = current_schema()
+UNION ALL SELECT 'index', '', indexname::text FROM pg_indexes WHERE schemaname = current_schema()
+UNION ALL SELECT 'statistics', '', stxname::text FROM pg_statistic_ext WHERE stxnamespace = current_schema()::text::regnamespace";
+
+async fn existing_objects(pool: &Pool<Postgres>) -> Result<HashSet<Object>, OperationOutcomeError> {
+    let rows: Vec<(String, String, String)> = sqlx::query_as(CATALOG)
+        .fetch_all(pool)
+        .await
+        .map_err(PgSearchError::from)?;
+
+    Ok(rows
+        .into_iter()
+        .map(|(kind, table, name)| match kind.as_str() {
+            "extension" => Object::Extension(name),
+            "table" => Object::Table(name),
+            "column" => Object::Column { table, name },
+            "index" => Object::Index(name),
+            _ => Object::Statistics(name),
+        })
+        .collect())
+}
+
+/// Every object of the schema with the SQL creating it, in the order a new
+/// database needs them. Tables are in a fixed order so the per-table locks
+/// stay deadlock-free.
+fn schema(registry: &SchemaRegistry) -> Vec<(Object, String)> {
+    let mut types: Vec<_> = registry.schemas.values().collect();
+    types.sort_by(|a, b| a.table_name.cmp(&b.table_name));
+
+    // `:contains` is an unanchored LIKE: trigrams serve it, and `btree_gin`
+    // lets the scope columns lead that index.
+    ["pg_trgm", "btree_gin"]
+        .into_iter()
+        .map(extension)
+        .chain(parameter_table(
+            &resource_table_name(&registry.version),
+            ANCHOR_COLUMNS,
+            &registry.anchor.columns,
+            ANCHOR_SCOPE,
+        ))
+        .chain(
+            SHARED_TABLES
+                .into_iter()
+                .flat_map(|table| shared_table(registry, table)),
+        )
+        .chain(types.into_iter().flat_map(|schema| {
+            parameter_table(
+                &schema.table_name,
+                TYPE_TABLE_COLUMNS,
+                &schema.columns,
+                TYPE_TABLE_SCOPE,
+            )
+        }))
+        .collect()
+}
+
+/// The anchor: one row per indexed resource. Other tables reference it by
+/// `res_key`, which is never reused. `sequence` is the repository write
+/// sequence of the indexed version; the upsert uses it to reject replays of
+/// older versions. Resource-level parameters are its columns, so untyped
+/// searches can read them.
+const ANCHOR_COLUMNS: &str = "
     res_key       BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
     tenant        TEXT NOT NULL,
     project       TEXT NOT NULL,
@@ -114,169 +188,199 @@ CREATE TABLE IF NOT EXISTS {resource_table} (
     resource_id   TEXT NOT NULL,
     version_id    TEXT NOT NULL,
     sequence      BIGINT NOT NULL,
-    PRIMARY KEY (tenant, project, resource_type, resource_id)
-);
-
--- `:contains` is an unanchored LIKE: trigrams serve it, and `btree_gin` lets
--- the scope columns lead that index.
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE EXTENSION IF NOT EXISTS btree_gin;
-"
-    );
-
-    // Resource-level parameters are anchor columns, so untyped searches can
-    // read them.
-    let anchor_columns = add_columns_sql(&resource_table, &registry.anchor.columns);
-    let anchor_indexes = indexes_sql(&resource_table, &registry.anchor.columns, ANCHOR_SCOPE);
-    let shared_tables: String = SHARED_TABLES
-        .into_iter()
-        .map(|table| shared_table_sql(registry, table))
-        .collect();
-
-    create_anchor + &anchor_columns + &anchor_indexes + &shared_tables
-}
-
-/// One shared table. Rows are keyed by `(res_key, param_identity)`, sixteen
-/// bytes instead of the text they hash, and value columns are scalar so the
-/// same B-trees work as on the type tables.
-fn shared_table_sql(registry: &SchemaRegistry, table: SharedTable) -> String {
-    let name = shared_table_name(&registry.version, table);
-
-    let value_columns = shared_value_columns(table)
-        .iter()
-        .map(|column| {
-            let null = if column.nullable { "" } else { " NOT NULL" };
-            format!("    {} {}{null}", column.name, column.sql_type)
-        })
-        .collect::<Vec<_>>()
-        .join(",\n");
-
-    let create_table = format!(
-        "CREATE TABLE IF NOT EXISTS {name} (
-    res_key        BIGINT NOT NULL,
-    param_identity BIGINT NOT NULL,
-{value_columns}
-);
-
--- Correlates rows back to their resource, for clauses and for clearing.
-CREATE INDEX IF NOT EXISTS idx_{name}_resource
-    ON {name} (res_key, param_identity);
-"
-    );
-
-    // Lookup index: the identity (already one project), then the compared
-    // value. String searches compare `LOWER(value)`.
-    let value_key = match table {
-        SharedTable::String => "LOWER(value) text_pattern_ops",
-        SharedTable::Uri | SharedTable::Number => "value",
-        SharedTable::Token => "code",
-        SharedTable::Date => "start_ms, end_ms",
-        SharedTable::Quantity => "start_value, end_value",
-        SharedTable::Reference => "target_id",
-    };
-    let value_index = format!(
-        "CREATE INDEX IF NOT EXISTS idx_{name}_value
-    ON {name} (param_identity, {value_key});
-"
-    );
-
-    // All parameters share the table, so a value's overall frequency says
-    // little about its frequency under one parameter. Without these stats the
-    // planner multiplies selectivities, badly underestimates values common to
-    // one parameter (e.g. a LOINC code under `combo-code`), and picks the wrong
-    // driving index.
-    let stats_key = match table {
-        SharedTable::String => Some("(LOWER(value))"),
-        SharedTable::Uri => Some("value"),
-        SharedTable::Token => Some("code"),
-        SharedTable::Reference => Some("target_id"),
-        SharedTable::Number | SharedTable::Date | SharedTable::Quantity => None,
-    };
-    let statistics = stats_key.map_or_else(String::new, |stats_key| {
-        format!(
-            "CREATE STATISTICS IF NOT EXISTS {name}_identity_stats (mcv, ndistinct, dependencies)
-    ON param_identity, {stats_key} FROM {name};
-ALTER STATISTICS {name}_identity_stats SET STATISTICS 1000;
-"
-        )
-    });
-
-    let contains_index = if matches!(table, SharedTable::String) {
-        format!(
-            "CREATE INDEX IF NOT EXISTS idx_{name}_contains
-    ON {name} USING GIN (param_identity, LOWER(value) gin_trgm_ops);
-"
-        )
-    } else {
-        String::new()
-    };
-
-    create_table + &value_index + &statistics + &contains_index
-}
-
-/// Creates or extends one resource type table. `scope` hashes tenant and
-/// project so indexes stay within one project without storing their text.
-fn resource_type_table_sql(schema: &ResourceTypeSchema) -> String {
-    let table = &schema.table_name;
-
-    format!(
-        "CREATE TABLE IF NOT EXISTS {table} (
-    res_key BIGINT PRIMARY KEY,
-    scope   BIGINT NOT NULL
-);
-"
-    ) + &add_columns_sql(table, &schema.columns)
-        + &indexes_sql(table, &schema.columns, TYPE_TABLE_SCOPE)
-}
-
-fn add_columns_sql(table: &str, columns: &[ColumnDef]) -> String {
-    columns.iter().fold(String::new(), |mut sql, column| {
-        let _ = writeln!(
-            sql,
-            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};",
-            quote_ident(&column.name),
-            sql_type(column.column_type)
-        );
-        sql
-    })
-}
-
-fn indexes_sql(table: &str, columns: &[ColumnDef], scope: &[&str]) -> String {
-    columns
-        .iter()
-        .map(|column| index_sql(table, column, scope))
-        .collect()
-}
-
-/// Leads every type table index, so a query never scans other tenants' rows.
-const TYPE_TABLE_SCOPE: &[&str] = &["scope"];
+    PRIMARY KEY (tenant, project, resource_type, resource_id)";
 
 /// Leads every anchor index. Typed searches (nearly all) pin `resource_type`
 /// too; untyped ones still use the first two.
 const ANCHOR_SCOPE: &[&str] = &["tenant", "project", "resource_type"];
 
-/// The index for one column, led by the equality-constrained `scope` columns.
-fn index_sql(table: &str, column: &ColumnDef, scope: &[&str]) -> String {
-    let name = truncate_identifier(&format!("idx_{table}_{}", column.name));
+/// A resource type table. `scope` hashes tenant and project so indexes stay
+/// within one project without storing their text.
+const TYPE_TABLE_COLUMNS: &str = "
+    res_key BIGINT PRIMARY KEY,
+    scope   BIGINT NOT NULL";
+
+/// Leads every type table index, so a query never scans other tenants' rows.
+const TYPE_TABLE_SCOPE: &[&str] = &["scope"];
+
+/// A table with one column per singular parameter part: the fixed columns,
+/// then each parameter column (added separately, so a new parameter extends
+/// an existing table) and its indexes, led by `scope`.
+fn parameter_table(
+    table: &str,
+    fixed_columns: &str,
+    columns: &[ColumnDef],
+    scope: &[&str],
+) -> Vec<(Object, String)> {
+    std::iter::once(create_table(table, fixed_columns))
+        .chain(columns.iter().map(|column| add_column(table, column)))
+        .chain(
+            columns
+                .iter()
+                .flat_map(|column| column_indexes(table, column, scope)),
+        )
+        .collect()
+}
+
+/// The indexes for one column, led by the equality-constrained `scope`.
+fn column_indexes(table: &str, column: &ColumnDef, scope: &[&str]) -> Vec<(Object, String)> {
+    let name = format!("idx_{table}_{}", column.name);
     let ident = quote_ident(&column.name);
     let lead = scope.join(", ");
 
     match column.index {
-        IndexKind::None => String::new(),
-        IndexKind::BTree => {
-            format!("CREATE INDEX IF NOT EXISTS {name} ON {table} ({lead}, {ident});\n")
-        }
-        IndexKind::BTreeDescending => format!(
-            "CREATE INDEX IF NOT EXISTS {name} ON {table} ({lead}, {ident} DESC NULLS LAST);\n"
-        ),
+        IndexKind::None => vec![],
+        IndexKind::BTree => vec![index(&name, table, "", &format!("{lead}, {ident}"))],
+        IndexKind::BTreeDescending => vec![index(
+            &name,
+            table,
+            "",
+            &format!("{lead}, {ident} DESC NULLS LAST"),
+        )],
         // B-tree for anchored `LIKE 'abc%'`, trigram GIN for `LIKE '%abc%'`.
-        IndexKind::LoweredPrefix => format!(
-            "CREATE INDEX IF NOT EXISTS {name} \
-             ON {table} ({lead}, LOWER({ident}) text_pattern_ops);\n\
-             CREATE INDEX IF NOT EXISTS {name}_ct \
-             ON {table} USING GIN ({lead}, LOWER({ident}) gin_trgm_ops);\n"
-        ),
+        IndexKind::LoweredPrefix => vec![
+            index(
+                &format!("{name}_prefix"),
+                table,
+                "",
+                &format!("{lead}, {} text_pattern_ops", string_prefix_expr(&ident)),
+            ),
+            index(
+                &format!("{name}_ct"),
+                table,
+                "USING GIN ",
+                &format!("{lead}, LOWER({ident}) gin_trgm_ops"),
+            ),
+        ],
     }
+}
+
+/// One shared table, holding a repeating parameter's values one per row.
+/// Rows are keyed by `(res_key, param_identity)`, sixteen bytes instead of
+/// the text they hash, and value columns are scalar so the same B-trees work
+/// as on the type tables.
+fn shared_table(registry: &SchemaRegistry, table: SharedTable) -> Vec<(Object, String)> {
+    let name = shared_table_name(&registry.version, table);
+    let value_columns: Vec<String> = shared_value_columns(table)
+        .iter()
+        .map(|column| {
+            let null = if column.nullable { "" } else { " NOT NULL" };
+            format!("    {} {}{null}", column.name, column.sql_type)
+        })
+        .collect();
+    let columns = format!(
+        "\n    res_key        BIGINT NOT NULL,\n    param_identity BIGINT NOT NULL,\n{}",
+        value_columns.join(",\n")
+    );
+
+    // The lookup index: the identity (already one project), then the compared
+    // value. String searches compare the truncated, lowered value. All
+    // parameters share the table, so a value's overall frequency says little
+    // about its frequency under one parameter: without the statistics the
+    // planner badly underestimates values common to one parameter (a LOINC
+    // code under `combo-code`) and picks the wrong driving index.
+    let prefix = string_prefix_expr("value");
+    let (index_suffix, key, statistics) = match table {
+        SharedTable::String => (
+            "prefix",
+            format!("{prefix} text_pattern_ops"),
+            Some(("prefix_stats", format!("({prefix})"))),
+        ),
+        SharedTable::Token => (
+            "value",
+            "code".into(),
+            Some(("identity_stats", "code".into())),
+        ),
+        SharedTable::Uri => (
+            "value",
+            "value".into(),
+            Some(("identity_stats", "value".into())),
+        ),
+        SharedTable::Reference => (
+            "value",
+            "target_id".into(),
+            Some(("identity_stats", "target_id".into())),
+        ),
+        SharedTable::Number => ("value", "value".into(), None),
+        SharedTable::Date => ("value", "start_ms, end_ms".into(), None),
+        SharedTable::Quantity => ("value", "start_value, end_value".into(), None),
+    };
+
+    let mut objects = vec![
+        create_table(&name, &columns),
+        // Correlates rows back to their resource, for clauses and for clearing.
+        index(
+            &format!("idx_{name}_resource"),
+            &name,
+            "",
+            "res_key, param_identity",
+        ),
+        index(
+            &format!("idx_{name}_{index_suffix}"),
+            &name,
+            "",
+            &format!("param_identity, {key}"),
+        ),
+    ];
+    if let Some((suffix, key)) = statistics {
+        objects.push(create_statistics(&format!("{name}_{suffix}"), &name, &key));
+    }
+    if table == SharedTable::String {
+        objects.push(index(
+            &format!("idx_{name}_contains"),
+            &name,
+            "USING GIN ",
+            "param_identity, LOWER(value) gin_trgm_ops",
+        ));
+    }
+    objects
+}
+
+fn extension(name: &str) -> (Object, String) {
+    (
+        Object::Extension(name.to_string()),
+        format!("CREATE EXTENSION IF NOT EXISTS {name};\n"),
+    )
+}
+
+fn create_table(name: &str, columns: &str) -> (Object, String) {
+    (
+        Object::Table(name.to_string()),
+        format!("CREATE TABLE IF NOT EXISTS {name} ({columns}\n);\n"),
+    )
+}
+
+fn add_column(table: &str, column: &ColumnDef) -> (Object, String) {
+    (
+        Object::Column {
+            table: table.to_string(),
+            name: column.name.clone(),
+        },
+        format!(
+            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};\n",
+            quote_ident(&column.name),
+            sql_type(column.column_type)
+        ),
+    )
+}
+
+/// `using` is `""` for a B-tree or e.g. `"USING GIN "`.
+fn index(name: &str, table: &str, using: &str, key: &str) -> (Object, String) {
+    let name = truncate_identifier(name);
+    (
+        Object::Index(name.clone()),
+        format!("CREATE INDEX IF NOT EXISTS {name} ON {table} {using}({key});\n"),
+    )
+}
+
+fn create_statistics(name: &str, table: &str, key: &str) -> (Object, String) {
+    (
+        Object::Statistics(name.to_string()),
+        format!(
+            "CREATE STATISTICS IF NOT EXISTS {name} (mcv, ndistinct, dependencies) ON param_identity, {key} FROM {table};\n\
+             ALTER STATISTICS {name} SET STATISTICS 1000;\n"
+        ),
+    )
 }
 
 /// Postgres truncates identifiers past `NAMEDATALEN - 1` silently.
@@ -290,10 +394,6 @@ fn quote_ident(name: &str) -> String {
     format!("\"{}\"", name.replace('"', "\"\""))
 }
 
-fn wrap(context: &str, error: &sqlx::Error) -> OperationOutcomeError {
-    OperationOutcomeError::fatal(IssueType::exception(), format!("{context}: {error}"))
-}
-
 /// A shared table's `CREATE TABLE`, so indexing tests can check their inserts
 /// against it. Its shape doesn't depend on the registered parameters.
 #[cfg(test)]
@@ -301,7 +401,9 @@ pub(crate) fn shared_table_sql_for_test(
     version: haste_repository::types::SupportedFHIRVersions,
     table: SharedTable,
 ) -> String {
-    shared_table_sql(&super::schema::generate_schemas(version, &[]), table)
+    shared_table(&super::schema::generate_schemas(version, &[]), table)
+        .swap_remove(0)
+        .1
 }
 
 #[cfg(test)]
@@ -324,17 +426,13 @@ mod tests {
             (TYPE_TABLE_SCOPE, "(scope, "),
             (ANCHOR_SCOPE, "(tenant, project, resource_type, "),
         ] {
-            for index in [
+            for kind in [
                 IndexKind::BTree,
                 IndexKind::BTreeDescending,
                 IndexKind::LoweredPrefix,
             ] {
-                let sql = index_sql("t", &column("code", index), scope);
-                for statement in sql.lines().filter(|line| line.contains("CREATE INDEX")) {
-                    assert!(
-                        statement.contains(lead),
-                        "index does not lead with {lead}: {statement}"
-                    );
+                for (_, sql) in column_indexes("t", &column("code", kind), scope) {
+                    assert!(sql.contains(lead), "index does not lead with {lead}: {sql}");
                 }
             }
         }
