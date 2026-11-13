@@ -9,12 +9,12 @@ homepage = { workspace = true }
 
 [dependencies]
 json-patch = { workspace = true }
-pulldown-cmark = { version = "0.13.0", default-features = false }
+pulldown-cmark = { version = "0.13.6", default-features = false }
 serde = { workspace = true, features = ["derive"] }
 # Keep upstream key order so outputs diff cleanly against the previous build.
 serde_json = { workspace = true, features = ["std", "preserve_order"] }
 thiserror = { workspace = true }
-toml = { version = "0.9.12", default-features = false, features = [
+toml = { version = "1.2.1", default-features = false, features = [
     "parse",
     "serde",
 ] }
