@@ -6,7 +6,6 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_rate_limit::{RateLimit, RateLimitError};
 use haste_repository::utilities::generate_id;
-use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -72,14 +71,17 @@ fn session_error(what: &str) -> OperationOutcomeError {
 }
 
 fn hash_code(salt: &str, code: &str) -> String {
-    format!("{:x}", Sha256::digest(format!("{salt}:{code}")))
+    Sha256::digest(format!("{salt}:{code}"))
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 
 fn generate_code() -> String {
     let max = 10u32.pow(CODE_DIGITS as u32);
     format!(
         "{:0width$}",
-        rand::thread_rng().gen_range(0..max),
+        rand::random_range(0..max),
         width = CODE_DIGITS
     )
 }
@@ -213,4 +215,17 @@ pub async fn clear_verified(session: &Session) -> Result<(), OperationOutcomeErr
         .await
         .map(|_| ())
         .map_err(|_| session_error("failed to clear the verified address"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hash_code_is_lowercase_hex_sha256() {
+        assert_eq!(
+            hash_code("pepper-salt", "042137"),
+            "ae70154548452abbd9d8db0a71c3ecf8cc453af8ea6ab2e5988415ed93d0a2f4"
+        );
+    }
 }

@@ -205,12 +205,7 @@ pub async fn totp_verification_post<
         )
         .await?;
 
-        if totp.check_current(&form_data.otp_code).map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "Invalid verification code.".to_string(),
-            )
-        })? {
+        if totp.check_current(&form_data.otp_code).is_some() {
             is_otp_valid = true;
             break;
         }

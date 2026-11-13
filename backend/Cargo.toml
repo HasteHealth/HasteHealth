@@ -65,6 +65,7 @@ edition = "2024"
 [workspace.dependencies]
 argon2 = { version = "0.6.0", default-features = false, features = [
     "alloc",
+    "getrandom",
     "password-hash",
 ] }
 axum = { version = "0.8.9", default-features = false }
