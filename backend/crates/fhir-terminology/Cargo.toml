@@ -17,3 +17,12 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-jwt = { path = "../jwt", version = "0.*" }
 
 chrono = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["rt", "macros"] }
+
+[[bench]]
+name = "expand_bench"
+harness = false
