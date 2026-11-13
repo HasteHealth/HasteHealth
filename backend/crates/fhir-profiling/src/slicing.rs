@@ -16,7 +16,7 @@ use haste_fhir_model::r4::{
     conversion::downcast_string,
     generated::{
         resources::{Resource, ResourceType, ValueSetComposeInclude},
-        terminology::IssueType,
+        terminology::{BoundCode, IssueType},
         types::{CodeableConcept, Coding},
     },
 };
@@ -42,85 +42,43 @@ pub(crate) fn matches_discriminator(
 ) -> Result<bool, OperationOutcomeError> {
     match kind {
         DiscriminatorKind::Exists => any_discriminator_value(path, value, |_| Ok(true)),
-        DiscriminatorKind::Value => {
-            if let Some(fixed) = target.fixed.as_ref() {
-                return any_discriminator_value(path, value, |value| is_equal(value, fixed));
-            }
-            if let Some(pattern) = target.pattern.as_ref() {
-                return any_discriminator_value(path, value, |value| {
-                    validate_pattern(value, pattern)
-                });
-            }
-            match binding {
-                BindingCodes::Codes(codes) => {
-                    any_discriminator_value(path, value, |value| Ok(codes.matches(value)))
-                }
-                BindingCodes::None | BindingCodes::Unresolvable(_) => after_path(
-                    path,
-                    value,
-                    OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Slice value element definition must have a fixed value, a pattern or a binding for value discriminator"
-                            .to_string(),
-                    ),
-                ),
-            }
-        }
-        DiscriminatorKind::Type => {
-            let Some(expected) = target.types.as_ref() else {
-                return after_path(
-                    path,
-                    value,
-                    OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Slice value element definition must have types for type discriminator"
-                            .to_string(),
-                    ),
-                );
-            };
-            any_discriminator_value(path, value, |value| {
-                let found = value.fhir_type();
-                Ok(expected
-                    .iter()
-                    .any(|type_| type_.code.as_deref() == Some(found)))
-            })
-        }
+        DiscriminatorKind::Value => matches_value(path, target, binding, value),
+        DiscriminatorKind::Type => matches_type(path, target, value),
         DiscriminatorKind::Profile => after_path(
             path,
             value,
-            OperationOutcomeError::error(
-                IssueType::not_supported(),
-                "Profile discriminator type is not supported".to_string(),
-            ),
+            IssueType::not_supported(),
+            "Profile discriminator type is not supported",
         ),
         DiscriminatorKind::Null => after_path(
             path,
             value,
-            OperationOutcomeError::error(
-                IssueType::not_supported(),
-                "Null discriminator type is not supported".to_string(),
-            ),
+            IssueType::not_supported(),
+            "Null discriminator type is not supported",
         ),
         DiscriminatorKind::Unknown => after_path(
             path,
             value,
-            OperationOutcomeError::error(
-                IssueType::not_supported(),
-                "Unsupported discriminator type".to_string(),
-            ),
+            IssueType::not_supported(),
+            "Unsupported discriminator type",
         ),
     }
 }
 
-/// `error`, unless evaluating `path` on `value` fails first: a path the engine
-/// cannot evaluate is reported ahead of what the discriminator lacks.
+/// An error with `message`, unless evaluating `path` on `value` fails first: a
+/// path the engine cannot evaluate is reported ahead of what the discriminator
+/// lacks.
 fn after_path(
     path: &DiscriminatorPath,
     value: &dyn MetaValue,
-    error: OperationOutcomeError,
+    issue_type: BoundCode<IssueType>,
+    message: &str,
 ) -> Result<bool, OperationOutcomeError> {
     any_discriminator_value(path, value, |_| Ok(false))?;
-    Err(error)
+    Err(OperationOutcomeError::error(
+        issue_type,
+        message.to_string(),
+    ))
 }
 
 /// Whether any value `path` selects on `value` passes `test`, stopping at the
@@ -195,6 +153,52 @@ pub(crate) fn items(value: &dyn MetaValue) -> impl Iterator<Item = &dyn MetaValu
             (index == 0).then_some(value)
         }
     })
+}
+
+fn matches_type(
+    path: &DiscriminatorPath,
+    target: &Node,
+    value: &dyn MetaValue,
+) -> Result<bool, OperationOutcomeError> {
+    let Some(expected) = target.types.as_ref() else {
+        return after_path(
+            path,
+            value,
+            IssueType::invalid(),
+            "Slice value element definition must have types for type discriminator",
+        );
+    };
+    any_discriminator_value(path, value, |value| {
+        let found = value.fhir_type();
+        Ok(expected
+            .iter()
+            .any(|type_| type_.code.as_deref() == Some(found)))
+    })
+}
+
+fn matches_value(
+    path: &DiscriminatorPath,
+    target: &Node,
+    binding: &BindingCodes,
+    value: &dyn MetaValue,
+) -> Result<bool, OperationOutcomeError> {
+    if let Some(fixed) = target.fixed.as_ref() {
+        return any_discriminator_value(path, value, |value| is_equal(value, fixed));
+    }
+    if let Some(pattern) = target.pattern.as_ref() {
+        return any_discriminator_value(path, value, |value| validate_pattern(value, pattern));
+    }
+    match binding {
+        BindingCodes::Codes(codes) => {
+            any_discriminator_value(path, value, |value| Ok(codes.matches(value)))
+        }
+        BindingCodes::None | BindingCodes::Unresolvable(_) => after_path(
+            path,
+            value,
+            IssueType::invalid(),
+            "Slice value element definition must have a fixed value, a pattern or a binding for value discriminator",
+        ),
+    }
 }
 
 /// The codes a value set's `compose` allows, read without expanding it. A
