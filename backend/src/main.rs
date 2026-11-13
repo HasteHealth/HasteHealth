@@ -17,7 +17,9 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use reqwest::Url;
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
+use tracing_subscriber::{
+    EnvFilter, Layer as _, filter::LevelFilter, layer::SubscriberExt, registry::Registry,
+};
 use tracing_tree::HierarchicalLayer;
 
 mod cli;
@@ -241,13 +243,8 @@ fn setup_tracing(
     // Error-level events (a failed request, see the server's error middleware)
     // become Sentry events; nothing else is sent, so the layer costs nothing
     // on the happy path.
-    let sentry_layer = sentry::integrations::tracing::layer().event_filter(|metadata| {
-        if *metadata.level() == tracing::Level::ERROR {
-            sentry::integrations::tracing::EventFilter::Event
-        } else {
-            sentry::integrations::tracing::EventFilter::Ignore
-        }
-    });
+    let sentry_layer =
+        sentry::integrations::tracing::ErrorLayer::new().with_filter(LevelFilter::ERROR);
 
     let subscriber = Registry::default()
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
@@ -285,13 +282,11 @@ fn main() -> Result<(), OperationOutcomeError> {
 
     let _guard = sentry::init((
         sentry_location.unwrap_or_default(),
-        sentry::ClientOptions {
-            release: sentry::release_name!(),
+        sentry::ClientOptions::new()
+            .maybe_release(sentry::release_name!())
             // Capture user IPs and potentially sensitive headers when using HTTP server integrations
             // see https://docs.sentry.io/platforms/rust/data-management/data-collected for more info
-            send_default_pii: true,
-            ..Default::default()
-        },
+            .send_default_pii(true),
     ));
 
     tokio::runtime::Builder::new_multi_thread()

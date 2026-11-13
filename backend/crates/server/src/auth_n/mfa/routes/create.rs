@@ -90,14 +90,7 @@ pub async fn create_post<
         ));
     }
 
-    let secret = totp_rs::Secret::default().to_bytes().map_err(|e| {
-        tracing::error!(error = ?e);
-
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            "Could not generate secret for MFA".to_string(),
-        )
-    })?;
+    let secret = totp_rs::Secret::generate().as_bytes().to_vec();
 
     let aes_key_id = get_aes_key(&state.config)?;
     let aes_encryptor = get_aes_encryptor(state.secret_provider.as_ref(), &state.config).await?;

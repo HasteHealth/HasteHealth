@@ -81,7 +81,7 @@ pub async fn activate_html<
     )
     .await?;
 
-    let qr_code = totp.get_qr_base64().map_err(|e| {
+    let qr_code = totp.to_qr_base64().map_err(|e| {
         tracing::error!(error = ?e);
 
         OperationOutcomeError::error(
@@ -193,9 +193,7 @@ pub async fn activate_post<
     )
     .await?;
 
-    let is_otp_valid = totp
-        .check_current(&mfa_activate_data.otp_code)
-        .map_err(|_| AuthError::InvalidOtpCode)?;
+    let is_otp_valid = totp.check_current(&mfa_activate_data.otp_code).is_some();
 
     if !is_otp_valid {
         return Err(AuthError::InvalidOtpCode.into());

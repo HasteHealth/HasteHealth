@@ -66,22 +66,22 @@ dotenvy = { workspace = true }
 email_address = { version = "0.2.9", default-features = false, features = [
     "serde_support",
 ] }
-futures-util = { version = "0.3.34", default-features = false, features = ["alloc"] }
-image = { version = "0.25.10", default-features = false, features = [
-    "png",
+futures-util = { version = "0.3.34", default-features = false, features = [
+    "alloc",
 ] }
+image = { version = "0.25.10", default-features = false, features = ["png"] }
 json-patch = { workspace = true }
 jsonwebtoken = { workspace = true }
 maud = { version = "0.27.0", default-features = false, features = ["axum"] }
 mime_guess = { version = "2.0.5", default-features = false }
 moka = { workspace = true, features = ["future"] }
 petgraph = { version = "0.8.3", default-features = false }
-rand = { version = "0.8", default-features = false }
+rand = { version = "0.10", default-features = false, features = ["thread_rng"] }
 regex = { workspace = true }
 reqwest = { workspace = true, features = ["form", "default-tls", "http2"] }
-rsa = { version = "0.9.10", default-features = false, features = ["pem"] }
+rsa = { version = "0.10.0", default-features = false, features = ["encoding"] }
 rust-embed = { workspace = true, features = ["axum-ex"] }
-sendgrid = { version = "0.26.0", default-features = false }
+sendgrid = { version = "0.27.2", default-features = false }
 sentry = { workspace = true, features = [
     "tower-axum-matched-path",
     "reqwest",
@@ -96,8 +96,8 @@ serde_html_form = { version = "0.4.1", default-features = false, features = [
 ] }
 serde_json = { workspace = true }
 serde_path_to_error = { workspace = true }
-sha1 = { version = "0.10.7", default-features = false }
-sha2 = { version = "0.10.9", default-features = false }
+sha1 = { version = "0.11.0", default-features = false }
+sha2 = { version = "0.11.1", default-features = false }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
     "tls-rustls-ring-native-roots",
@@ -106,13 +106,19 @@ sqlx = { workspace = true, features = [
 ] }
 sqlx-postgres = { workspace = true }
 subtle = { version = "2.6.1", default-features = false }
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync"] }
-totp-rs = { version = "5.7.2", default-features = false, features = [
+tokio = { workspace = true, features = [
+    "macros",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+] }
+totp-rs = { version = "6.0.0", default-features = false, features = [
     "qr",
     "gen_secret",
+    "std",
 ] }
 tower = { version = "0.5.3", default-features = false, features = ["util"] }
-tower-http = { version = "0.6.11", default-features = false, features = [
+tower-http = { version = "0.7.1", default-features = false, features = [
     "fs",
     "cors",
     "normalize-path",
@@ -131,7 +137,7 @@ tower-sessions-sqlx-store = { git = "https://github.com/maxcountryman/tower-sess
     "postgres",
 ] }
 tracing = { workspace = true }
-typify = { version = "0.5.0", default-features = false, features = ["macro"] }
+typify = { version = "0.8.0", default-features = false, features = ["macro"] }
 url = { version = "2.5.8", default-features = false }
 walkdir = { workspace = true }
 zxcvbn = { version = "3.1.1", default-features = false }

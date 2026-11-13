@@ -67,24 +67,24 @@ pub async fn user_mfa_to_totp(
     config: &ServerConfig,
     user: &User,
     user_mfa_credential: UserMFACredential,
-) -> Result<totp_rs::TOTP, OperationOutcomeError> {
-    let totp = totp_rs::TOTP::new(
-        parse_totp_algorithm(&user_mfa_credential.totp_algorithm)?,
-        user_mfa_credential.totp_digits as usize,
-        user_mfa_credential.totp_skew as u8,
-        user_mfa_credential.totp_period as u64,
-        get_totp_secret(secret_provider, config, &user_mfa_credential).await?,
-        Some("Haste Health".to_string()),
-        user.email.clone().unwrap_or(user.id.clone()),
-    )
-    .map_err(|e| {
-        tracing::error!(error = ?e);
+) -> Result<totp_rs::Totp, OperationOutcomeError> {
+    let totp = totp_rs::Builder::new()
+        .with_algorithm(parse_totp_algorithm(&user_mfa_credential.totp_algorithm)?)
+        .with_digits(user_mfa_credential.totp_digits as u8)
+        .with_skew(user_mfa_credential.totp_skew as u16)
+        .with_step_duration(user_mfa_credential.totp_period as u64)
+        .with_secret(get_totp_secret(secret_provider, config, &user_mfa_credential).await?)
+        .with_issuer(Some("Haste Health"))
+        .with_account_name(user.email.clone().unwrap_or(user.id.clone()))
+        .build()
+        .map_err(|e| {
+            tracing::error!(error = ?e);
 
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            "Could not generate TOTP for MFA".to_string(),
-        )
-    })?;
+            OperationOutcomeError::error(
+                IssueType::exception(),
+                "Could not generate TOTP for MFA".to_string(),
+            )
+        })?;
 
     Ok(totp)
 }

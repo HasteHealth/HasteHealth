@@ -1,9 +1,9 @@
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use rand::rngs::OsRng;
+use rand::rngs::SysRng;
 use rsa::{
-    RsaPrivateKey,
+    PrivateKey,
     pkcs1::{DecodeRsaPrivateKey, EncodeRsaPrivateKey, EncodeRsaPublicKey},
     pkcs8::LineEnding,
     traits::PublicKeyParts,
@@ -75,7 +75,7 @@ fn create_jwk_set(
     for certification_entry in certificate_entries.iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
-            RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
+            PrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
         let rsa_public_key = rsa_private.to_public_key();
 
         let mut hasher = Sha1::new();
@@ -86,8 +86,8 @@ fn create_jwk_set(
             kid: derive_kid(cert_path),
             alg: JSONWebKeyAlgorithm::RS256,
             kty: JSONWebKeyType::RSA,
-            e: URL_SAFE_NO_PAD.encode(rsa_public_key.e().clone().to_bytes_be()),
-            n: URL_SAFE_NO_PAD.encode(rsa_public_key.n().clone().to_bytes_be()),
+            e: URL_SAFE_NO_PAD.encode(rsa_public_key.e().to_be_bytes_trimmed_vartime()),
+            n: URL_SAFE_NO_PAD.encode(rsa_public_key.n().to_be_bytes_trimmed_vartime()),
             x5t: Some(URL_SAFE_NO_PAD.encode(x5t)),
         });
     }
@@ -103,7 +103,7 @@ fn create_decoding_keys(
     for certification_entry in certificate_entries.iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
-            RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
+            PrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
 
         let rsa_public_key = rsa_private.to_public_key();
 
@@ -152,7 +152,7 @@ fn create_certifications_if_needed(config: &ServerConfig) -> Result<(), Operatio
 
     // If no private key than write.
     if private_key_files.is_empty() {
-        let mut rng = OsRng;
+        let mut rng = SysRng;
         let bits: usize = 2048;
 
         // Use rfc 3339 format for date. Same as time_rotating.id.
@@ -162,8 +162,8 @@ fn create_certifications_if_needed(config: &ServerConfig) -> Result<(), Operatio
         let private_key_file_name1 = format!("k1_{}.pem", date.format("%Y-%m-%d"));
         let private_key_file_name2 = format!("k2_{}.pem", date2.format("%Y-%m-%d"));
 
-        let priv_key1 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
-        let priv_key2 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        let priv_key1 = PrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        let priv_key2 = PrivateKey::new(&mut rng, bits).expect("failed to generate a key");
 
         std::fs::create_dir_all(cert_dir).unwrap();
         std::fs::write(
@@ -225,5 +225,56 @@ impl CertificationProvider for LocalCertifications {
 
     fn jwk_set(&self) -> Arc<JSONWebKeySet> {
         self.jwk_set.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn generated_keys_publish_a_jwks_that_verifies_their_tokens() {
+        let certification_dir =
+            std::env::temp_dir().join(format!("haste-local-certs-{}", std::process::id()));
+        let config = ServerConfig {
+            certification_dir: certification_dir.clone(),
+            ..ServerConfig::default()
+        };
+
+        let certifications = LocalCertifications::new(&config).unwrap();
+        std::fs::remove_dir_all(&certification_dir).unwrap();
+
+        let jwk_set = certifications.jwk_set();
+        assert_eq!(jwk_set.keys.len(), 2);
+        for key in &jwk_set.keys {
+            // RFC 7518 6.3.1: unsigned big-endian bytes without leading zero octets.
+            assert_eq!(key.e, "AQAB");
+            let n = URL_SAFE_NO_PAD.decode(&key.n).unwrap();
+            assert_eq!(n.len(), 256);
+            assert_ne!(n[0], 0);
+        }
+
+        let encoding_key = certifications.encoding_key().unwrap();
+        let mut header = jsonwebtoken::Header::new(jsonwebtoken::Algorithm::RS256);
+        header.kid = Some(encoding_key.kid.clone());
+        let token = jsonwebtoken::encode(
+            &header,
+            &serde_json::json!({ "sub": "test", "exp": 4_102_444_800u64 }),
+            &encoding_key.encoding_key,
+        )
+        .unwrap();
+
+        let jwk = jwk_set
+            .keys
+            .iter()
+            .find(|key| key.kid == encoding_key.kid)
+            .unwrap();
+        let decoding_key = jsonwebtoken::DecodingKey::from_rsa_components(&jwk.n, &jwk.e).unwrap();
+        jsonwebtoken::decode::<serde_json::Value>(
+            &token,
+            &decoding_key,
+            &jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::RS256),
+        )
+        .unwrap();
     }
 }

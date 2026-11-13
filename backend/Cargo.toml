@@ -63,24 +63,25 @@ homepage = "https://haste.health"
 edition = "2024"
 
 [workspace.dependencies]
-argon2 = { version = "0.5.3", default-features = false, features = [
+argon2 = { version = "0.6.0", default-features = false, features = [
     "alloc",
+    "getrandom",
     "password-hash",
 ] }
 axum = { version = "0.8.9", default-features = false }
-base64 = { version = "0.22.1", default-features = false }
+base64 = { version = "0.23.1", default-features = false }
 bytes = { version = "1.12.1", default-features = false }
 chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
-clap = { version = "4.6.6", default-features = false }
+clap = { version = "4.6.7", default-features = false }
 criterion = { version = "0.8", default-features = false }
 derivative = { version = "2.2.0", default-features = false }
 dotenvy = { version = "0.15.7", default-features = false }
-elasticsearch = { version = "9.0.0-alpha.1", default-features = false, features = [
+elasticsearch = { version = "9.1.0-alpha.1", default-features = false, features = [
     "rustls-tls",
 ] }
 figment = { version = "0.10.19", default-features = false }
-json-patch = { version = "4.2.0", default-features = false }
-jsonwebtoken = { version = "10.4.0", default-features = false, features = [
+json-patch = { version = "5.0.0", default-features = false }
+jsonwebtoken = { version = "12.0.0", default-features = false, features = [
     "use_pem",
 ] }
 mimalloc = { version = "0.1.52", default-features = false }
@@ -94,11 +95,11 @@ regex = { version = "1.13.1", default-features = false, features = [
     "unicode-perl",
 ] }
 reqwest = { version = "0.13", default-features = false }
-rust-embed = { version = "8.12.0", default-features = false }
-sentry = { version = "0.46.2", default-features = false }
+rust-embed = { version = "8.14.0", default-features = false }
+sentry = { version = "0.49.5", default-features = false }
 serde = { version = "1.0.229", default-features = false, features = ["alloc"] }
 serde_path_to_error = "0.1.20"
-serde_json = { version = "1.0.151", default-features = false, features = [
+serde_json = { version = "1.0.154", default-features = false, features = [
     "alloc",
 ] }
 sqlx = { version = "0.9.0", default-features = false, features = [
@@ -107,9 +108,9 @@ sqlx = { version = "0.9.0", default-features = false, features = [
     "migrate",
 ] }
 sqlx-postgres = { version = "0.9.0", default-features = false }
-syn = { version = "2.0.119", default-features = false }
-thiserror = { version = "2.0.20", default-features = false }
-tokio = { version = "1.53.1", default-features = false }
+syn = { version = "3.0.10", default-features = false }
+thiserror = { version = "2.0.21", default-features = false }
+tokio = { version = "1.54.1", default-features = false }
 tracing = { version = "0.1.44", default-features = false }
 walkdir = { version = "2.5.0", default-features = false }
 
@@ -121,8 +122,8 @@ walkdir = { version = "2.5.0", default-features = false }
 # tower-sessions-sqlx-store's, resolves to this one copy. Drop once a
 # crates.io release carries the fix.
 [patch.crates-io]
-sqlx = { git = "https://github.com/transact-rs/sqlx", rev = "b54008a329541c0ce230d8b203e0c00fc8e8ea48" }
-sqlx-postgres = { git = "https://github.com/transact-rs/sqlx", rev = "b54008a329541c0ce230d8b203e0c00fc8e8ea48" }
+sqlx = { git = "https://github.com/transact-rs/sqlx", rev = "987b8c5a74b6da8b71da6b5549925a7f6e59aac9" }
+sqlx-postgres = { git = "https://github.com/transact-rs/sqlx", rev = "987b8c5a74b6da8b71da6b5549925a7f6e59aac9" }
 
 [dependencies]
 base64 = { workspace = true, features = ["alloc"] }
@@ -135,24 +136,24 @@ dialoguer = { version = "0.12.0", default-features = false, features = [
 figment = { workspace = true, features = ["toml", "env"] }
 json-patch = { workspace = true }
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
-opentelemetry = { version = "0.32.0", default-features = false }
-opentelemetry-appender-tracing = { version = "0.32.0", default-features = false }
-opentelemetry-otlp = { version = "0.32.0", default-features = false, features = [
+opentelemetry = { version = "0.33.1", default-features = false }
+opentelemetry-appender-tracing = { version = "0.33.1", default-features = false }
+opentelemetry-otlp = { version = "0.33.1", default-features = false, features = [
     "http-proto",
     "logs",
     "reqwest-blocking-client",
 ] }
-opentelemetry-stdout = { version = "0.32.0", default-features = false }
-opentelemetry_sdk = { version = "0.32.1", default-features = false, features = [
+opentelemetry-stdout = { version = "0.33.1", default-features = false }
+opentelemetry_sdk = { version = "0.33.1", default-features = false, features = [
     "logs",
 ] }
 mimalloc = { workspace = true }
 quote = { workspace = true }
-rand = { version = "0.8", default-features = false, features = ["std"] }
+rand = { version = "0.10", default-features = false, features = ["std"] }
 reqwest = { workspace = true }
 sentry = { workspace = true, features = ["tracing"] }
-sha2 = { version = "0.10.9", default-features = false }
-similar = { version = "2.7.0", default-features = false, features = ["text"] }
+sha2 = { version = "0.11.1", default-features = false }
+similar = { version = "3.2.1", default-features = false, features = ["text"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = [
@@ -166,13 +167,13 @@ tokio = { workspace = true, features = [
     "sync",
     "time",
 ] }
-toml = { version = "0.9.12", default-features = false, features = [
+toml = { version = "1.2.1", default-features = false, features = [
     "display",
     "parse",
     "serde",
 ] }
 tracing = { workspace = true }
-tracing-opentelemetry = { version = "0.33.0", default-features = false }
+tracing-opentelemetry = { version = "0.34.0", default-features = false }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = [
     "env-filter",
     "json",
