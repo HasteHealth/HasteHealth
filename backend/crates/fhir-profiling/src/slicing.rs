@@ -40,60 +40,115 @@ pub(crate) fn matches_discriminator(
     binding: &BindingCodes,
     value: &dyn MetaValue,
 ) -> Result<bool, OperationOutcomeError> {
-    with_discriminator_values(path, value, |values| match kind {
-        DiscriminatorKind::Exists => Ok(!values.is_empty()),
-        DiscriminatorKind::Value => matches_value(values, target, binding),
-        DiscriminatorKind::Type => matches_type(values, target),
-        DiscriminatorKind::Profile => Err(OperationOutcomeError::error(
-            IssueType::not_supported(),
-            "Profile discriminator type is not supported".to_string(),
-        )),
-        DiscriminatorKind::Null => Err(OperationOutcomeError::error(
-            IssueType::not_supported(),
-            "Null discriminator type is not supported".to_string(),
-        )),
-        DiscriminatorKind::Unknown => Err(OperationOutcomeError::error(
-            IssueType::not_supported(),
-            "Unsupported discriminator type".to_string(),
-        )),
-    })
+    match kind {
+        DiscriminatorKind::Exists => any_discriminator_value(path, value, |_| Ok(true)),
+        DiscriminatorKind::Value => {
+            if let Some(fixed) = target.fixed.as_ref() {
+                return any_discriminator_value(path, value, |value| is_equal(value, fixed));
+            }
+            if let Some(pattern) = target.pattern.as_ref() {
+                return any_discriminator_value(path, value, |value| {
+                    validate_pattern(value, pattern)
+                });
+            }
+            match binding {
+                BindingCodes::Codes(codes) => {
+                    any_discriminator_value(path, value, |value| Ok(codes.matches(value)))
+                }
+                BindingCodes::None | BindingCodes::Unresolvable(_) => after_path(
+                    path,
+                    value,
+                    OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        "Slice value element definition must have a fixed value, a pattern or a binding for value discriminator"
+                            .to_string(),
+                    ),
+                ),
+            }
+        }
+        DiscriminatorKind::Type => {
+            let Some(expected) = target.types.as_ref() else {
+                return after_path(
+                    path,
+                    value,
+                    OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        "Slice value element definition must have types for type discriminator"
+                            .to_string(),
+                    ),
+                );
+            };
+            any_discriminator_value(path, value, |value| {
+                let found = value.fhir_type();
+                Ok(expected
+                    .iter()
+                    .any(|type_| type_.code.as_deref() == Some(found)))
+            })
+        }
+        DiscriminatorKind::Profile => after_path(
+            path,
+            value,
+            OperationOutcomeError::error(
+                IssueType::not_supported(),
+                "Profile discriminator type is not supported".to_string(),
+            ),
+        ),
+        DiscriminatorKind::Null => after_path(
+            path,
+            value,
+            OperationOutcomeError::error(
+                IssueType::not_supported(),
+                "Null discriminator type is not supported".to_string(),
+            ),
+        ),
+        DiscriminatorKind::Unknown => after_path(
+            path,
+            value,
+            OperationOutcomeError::error(
+                IssueType::not_supported(),
+                "Unsupported discriminator type".to_string(),
+            ),
+        ),
+    }
 }
 
-/// The values `path` selects on `value`, handed to `f` while they are alive.
-///
-/// `$this` and member chains are walked directly, the way the `FHIRPath` engine
-/// walks a member (`get_field`, then `flatten`). Any other expression goes to
-/// the engine, whose future completes at once for an expression that needs no
-/// external service.
-fn with_discriminator_values<T>(
+/// `error`, unless evaluating `path` on `value` fails first: a path the engine
+/// cannot evaluate is reported ahead of what the discriminator lacks.
+fn after_path(
     path: &DiscriminatorPath,
     value: &dyn MetaValue,
-    f: impl FnOnce(&[&dyn MetaValue]) -> Result<T, OperationOutcomeError>,
-) -> Result<T, OperationOutcomeError> {
+    error: OperationOutcomeError,
+) -> Result<bool, OperationOutcomeError> {
+    any_discriminator_value(path, value, |_| Ok(false))?;
+    Err(error)
+}
+
+/// Whether any value `path` selects on `value` passes `test`, stopping at the
+/// first that does (or at the first error).
+///
+/// `$this` and member chains are walked directly, the way the `FHIRPath` engine
+/// walks a member (`get_field`, then `flatten`), visiting values in the order
+/// the engine would return them. Any other expression goes to the engine, whose
+/// future completes at once for an expression that needs no external service.
+fn any_discriminator_value(
+    path: &DiscriminatorPath,
+    value: &dyn MetaValue,
+    mut test: impl FnMut(&dyn MetaValue) -> Result<bool, OperationOutcomeError>,
+) -> Result<bool, OperationOutcomeError> {
     match path {
-        DiscriminatorPath::This => f(&[value]),
-        DiscriminatorPath::Members(segments) => {
-            let mut current: Vec<&dyn MetaValue> = vec![value];
-            let mut next = Vec::new();
-            for segment in segments {
-                next.clear();
-                next.extend(
-                    current
-                        .iter()
-                        .filter_map(|value| value.get_field(segment))
-                        .flat_map(items),
-                );
-                std::mem::swap(&mut current, &mut next);
-                if current.is_empty() {
-                    break;
-                }
-            }
-            f(&current)
-        }
+        DiscriminatorPath::This => test(value),
+        DiscriminatorPath::Members(segments) => any_member_value(value, segments, &mut test),
         DiscriminatorPath::Expression(expression) => {
             let evaluation = pin!(FP_ENGINE.evaluate(expression, vec![value]));
             match evaluation.poll(&mut Context::from_waker(Waker::noop())) {
-                Poll::Ready(Ok(context)) => f(context.values()),
+                Poll::Ready(Ok(context)) => {
+                    for value in context.values() {
+                        if test(*value)? {
+                            return Ok(true);
+                        }
+                    }
+                    Ok(false)
+                }
                 Poll::Ready(Err(err)) => Err(OperationOutcomeError::error(
                     IssueType::exception(),
                     format!("Failed to evaluate FHIRPath expression for discriminator: {err}"),
@@ -107,6 +162,30 @@ fn with_discriminator_values<T>(
     }
 }
 
+/// Whether any value the member chain `segments` reaches from `value` passes
+/// `test`.
+fn any_member_value<F>(
+    value: &dyn MetaValue,
+    segments: &[String],
+    test: &mut F,
+) -> Result<bool, OperationOutcomeError>
+where
+    F: FnMut(&dyn MetaValue) -> Result<bool, OperationOutcomeError>,
+{
+    let Some((segment, rest)) = segments.split_first() else {
+        return test(value);
+    };
+    let Some(field) = value.get_field(segment) else {
+        return Ok(false);
+    };
+    for item in items(field) {
+        if any_member_value(item, rest, test)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 /// The values a field holds: each element of a list, or the value itself.
 pub(crate) fn items(value: &dyn MetaValue) -> impl Iterator<Item = &dyn MetaValue> {
     (0..).map_while(move |index| {
@@ -116,53 +195,6 @@ pub(crate) fn items(value: &dyn MetaValue) -> impl Iterator<Item = &dyn MetaValu
             (index == 0).then_some(value)
         }
     })
-}
-
-fn matches_type(values: &[&dyn MetaValue], target: &Node) -> Result<bool, OperationOutcomeError> {
-    let expected = target.types.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Slice value element definition must have types for type discriminator".to_string(),
-        )
-    })?;
-    let found: HashSet<&str> = values.iter().map(|value| value.fhir_type()).collect();
-    Ok(expected.iter().any(|type_| {
-        type_
-            .code
-            .as_deref()
-            .is_some_and(|code| found.contains(code))
-    }))
-}
-
-fn matches_value(
-    values: &[&dyn MetaValue],
-    target: &Node,
-    binding: &BindingCodes,
-) -> Result<bool, OperationOutcomeError> {
-    if let Some(fixed) = target.fixed.as_ref() {
-        for value in values {
-            if is_equal(*value, fixed)? {
-                return Ok(true);
-            }
-        }
-        return Ok(false);
-    }
-    if let Some(pattern) = target.pattern.as_ref() {
-        for value in values {
-            if validate_pattern(*value, pattern)? {
-                return Ok(true);
-            }
-        }
-        return Ok(false);
-    }
-    match binding {
-        BindingCodes::Codes(codes) => Ok(values.iter().any(|value| codes.matches(*value))),
-        BindingCodes::None | BindingCodes::Unresolvable(_) => Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Slice value element definition must have a fixed value, a pattern or a binding for value discriminator"
-                .to_string(),
-        )),
-    }
 }
 
 /// The codes a value set's `compose` allows, read without expanding it. A
