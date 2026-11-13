@@ -390,44 +390,45 @@ mod tests {
     }
 
     impl CanonicalResolver for InMemoryResolver {
-        async fn resolve(
+        fn resolve(
             &self,
             resource_type: ResourceType,
             _canonical_url: &str,
-        ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
-            Ok(Some(if resource_type == ResourceType::CodeSystem {
+        ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send
+        {
+            std::future::ready(Ok(Some(if resource_type == ResourceType::CodeSystem {
                 self.code_system.clone()
             } else {
                 self.value_set.clone()
-            }))
+            })))
         }
     }
 
-    fn code(value: &str) -> Box<FHIRCode> {
-        Box::new(FHIRCode {
+    fn code(value: &str) -> FHIRCode {
+        FHIRCode {
             value: Some(value.to_string()),
             ..Default::default()
-        })
+        }
     }
 
-    fn string(value: &str) -> Box<FHIRString> {
-        Box::new(FHIRString {
+    fn string(value: &str) -> FHIRString {
+        FHIRString {
             value: Some(value.to_string()),
             ..Default::default()
-        })
+        }
     }
 
-    fn uri(value: &str) -> Box<FHIRUri> {
-        Box::new(FHIRUri {
+    fn uri(value: &str) -> FHIRUri {
+        FHIRUri {
             value: Some(value.to_string()),
             ..Default::default()
-        })
+        }
     }
 
     fn concept(value: &str, display: &str) -> CodeSystemConcept {
         CodeSystemConcept {
-            code: code(value),
-            display: Some(string(display)),
+            code: Box::new(code(value)),
+            display: Some(Box::new(string(display))),
             ..Default::default()
         }
     }
@@ -438,17 +439,17 @@ mod tests {
     ) -> InMemoryResolver {
         InMemoryResolver {
             code_system: Arc::new(Resource::CodeSystem(CodeSystem {
-                url: Some(uri("http://example.org/cs")),
-                version: Some(string("1.0.0")),
+                url: Some(Box::new(uri("http://example.org/cs"))),
+                version: Some(Box::new(string("1.0.0"))),
                 content,
                 concept: Some(concepts),
                 ..Default::default()
             })),
             value_set: Arc::new(Resource::ValueSet(ValueSet {
-                url: Some(uri("http://example.org/vs")),
+                url: Some(Box::new(uri("http://example.org/vs"))),
                 compose: Some(ValueSetCompose {
                     include: vec![ValueSetComposeInclude {
-                        system: Some(uri("http://example.org/cs")),
+                        system: Some(Box::new(uri("http://example.org/cs"))),
                         ..Default::default()
                     }],
                     ..Default::default()
@@ -460,10 +461,7 @@ mod tests {
 
     fn input() -> ValueSetExpand::Input {
         ValueSetExpand::Input {
-            url: Some(FHIRUri {
-                value: Some("http://example.org/vs".to_string()),
-                ..Default::default()
-            }),
+            url: Some(uri("http://example.org/vs")),
             valueSet: None,
             valueSetVersion: None,
             context: None,
@@ -502,15 +500,15 @@ mod tests {
     #[tokio::test]
     async fn expands_a_flat_code_system() {
         let mut first = concept("a", "Alpha");
-        first.definition = Some(string("The definition of alpha."));
+        first.definition = Some(Box::new(string("The definition of alpha.")));
         first.property = Some(vec![CodeSystemConceptProperty {
-            code: code("status"),
-            value: CodeSystemConceptPropertyValueTypeChoice::Code(code("active")),
+            code: Box::new(code("status")),
+            value: CodeSystemConceptPropertyValueTypeChoice::Code(Box::new(code("active"))),
             ..Default::default()
         }]);
         first.designation = Some(vec![CodeSystemConceptDesignation {
-            language: Some(code("de")),
-            value: string("Alfa"),
+            language: Some(Box::new(code("de"))),
+            value: Box::new(string("Alfa")),
             ..Default::default()
         }]);
 

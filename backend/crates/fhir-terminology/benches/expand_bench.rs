@@ -18,39 +18,39 @@ use std::sync::Arc;
 struct R(Arc<Resource>, Arc<Resource>);
 
 impl CanonicalResolver for R {
-    async fn resolve(
+    fn resolve(
         &self,
         t: ResourceType,
         _u: &str,
-    ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
-        Ok(Some(if t == ResourceType::CodeSystem {
+    ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send {
+        std::future::ready(Ok(Some(if t == ResourceType::CodeSystem {
             self.0.clone()
         } else {
             self.1.clone()
-        }))
+        })))
     }
 }
 
-fn uri(s: &str) -> Box<FHIRUri> {
-    Box::new(FHIRUri {
+fn uri(s: &str) -> FHIRUri {
+    FHIRUri {
         value: Some(s.into()),
         ..Default::default()
-    })
+    }
 }
 
-fn string(s: String) -> Box<FHIRString> {
-    Box::new(FHIRString {
+fn string(s: String) -> FHIRString {
+    FHIRString {
         value: Some(s),
         ..Default::default()
-    })
+    }
 }
 
 fn value_set_for(system: &str) -> Arc<Resource> {
     Arc::new(Resource::ValueSet(ValueSet {
-        url: Some(uri("http://x/vs")),
+        url: Some(Box::new(uri("http://x/vs"))),
         compose: Some(ValueSetCompose {
             include: vec![ValueSetComposeInclude {
-                system: Some(uri(system)),
+                system: Some(Box::new(uri(system))),
                 ..Default::default()
             }],
             ..Default::default()
@@ -66,10 +66,10 @@ fn synthetic(n: usize) -> R {
                 value: Some(format!("code-{i}")),
                 ..Default::default()
             }),
-            display: Some(string(format!("Display {i}"))),
-            definition: Some(string(format!(
+            display: Some(Box::new(string(format!("Display {i}")))),
+            definition: Some(Box::new(string(format!(
                 "The formal definition of concept number {i}, as code systems usually carry one."
-            ))),
+            )))),
             property: Some(vec![CodeSystemConceptProperty {
                 code: Box::new(FHIRCode {
                     value: Some("status".into()),
@@ -85,8 +85,8 @@ fn synthetic(n: usize) -> R {
         })
         .collect();
     let cs = CodeSystem {
-        url: Some(uri("http://x/cs")),
-        version: Some(string("1.0.0".into())),
+        url: Some(Box::new(uri("http://x/cs"))),
+        version: Some(Box::new(string("1.0.0".into()))),
         content: CodesystemContentMode::complete(),
         concept: Some(concepts),
         ..Default::default()
