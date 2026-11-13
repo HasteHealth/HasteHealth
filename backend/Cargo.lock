@@ -2633,11 +2633,14 @@ name = "haste-fhir-terminology"
 version = "0.130.3"
 dependencies = [
  "chrono",
+ "criterion",
  "haste-fhir-client",
  "haste-fhir-generated-ops",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-jwt",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
