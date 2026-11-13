@@ -20,6 +20,7 @@ deno_ast = { version = "0.53.3", default-features = false, features = [
     "transpiling",
 ] }
 deno_core = { version = "=0.413.0", default-features = false, features = [
+    "v8",
     "reactor-tokio",
 ] }
 deno_error = { version = "=0.7.1", default-features = false }
@@ -31,6 +32,7 @@ serde = { workspace = true }
 
 [build-dependencies]
 deno_core = { version = "=0.413.0", default-features = false, features = [
+    "v8",
     "reactor-tokio",
 ] }
 
