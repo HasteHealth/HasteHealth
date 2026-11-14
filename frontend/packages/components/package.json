@@ -39,7 +39,7 @@
     "@codemirror/view": "^6.36.4",
     "@haste-health/fhir-types": "workspace:^",
     "@haste-health/jwt": "workspace:^",
-    "@rollup/plugin-commonjs": "^26.0.3",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.1",
     "@rollup/plugin-typescript": "^11.1.6",
