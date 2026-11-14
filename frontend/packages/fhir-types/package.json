@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/fhir-types",
-  "version": "0.130.4",
+  "version": "0.130.5",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
