@@ -26,9 +26,12 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::AnyOf;
-use haste_jwt::scopes::{
-    SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
-    SmartResourceScopeUser, SmartScope,
+use haste_jwt::{
+    claims::UserTokenClaims,
+    scopes::{
+        SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
+        SmartResourceScopeUser, SmartScope,
+    },
 };
 use std::sync::Arc;
 
@@ -116,6 +119,48 @@ pub(super) fn granting_scopes<'a>(
         .into_iter()
         .filter(|scope| get_user_weight_scope(&scope.user) == highest)
         .collect()
+}
+
+/// The filters a search of `resource_type` the server runs for the caller,
+/// outside this middleware, must carry: those the caller's own search of the
+/// type would run with. A transaction's conditional references are looked up
+/// this way.
+///
+/// # Errors
+///
+/// Forbidden when the caller's scopes grant no search of the type, or grant
+/// it at patient level with no patient in context.
+pub(crate) fn search_filters(
+    claims: &UserTokenClaims,
+    resource_type: &ResourceType,
+) -> Result<Vec<AnyOf>, OperationOutcomeError> {
+    let granting = granting_scopes(
+        &claims.scope,
+        Some(resource_type),
+        &SmartResourceScopePermission::Search,
+    );
+    let compartment = match granting.first().map(|scope| &scope.user) {
+        None => {
+            return Err(forbidden(format!(
+                "Insufficient SMART scope to search {}",
+                resource_type.as_ref()
+            )));
+        }
+        Some(SmartResourceScopeUser::Patient) => {
+            let Some(patient_id) = claims.patient.as_deref() else {
+                return Err(forbidden(
+                    "A patient-level scope grants nothing without a patient in context",
+                ));
+            };
+            patient_scope::search_filter(patient_id, Some(resource_type))
+        }
+        Some(SmartResourceScopeUser::User | SmartResourceScopeUser::System) => None,
+    };
+
+    Ok(compartment
+        .into_iter()
+        .chain(granular_scope::filter_of(&granting))
+        .collect())
 }
 
 /// Whether every resource scope in the token is patient-level.
