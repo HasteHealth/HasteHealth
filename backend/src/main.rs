@@ -3,7 +3,7 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use std::{collections::HashMap, time::Duration};
 
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
 use haste_config::{Config, ConfigType, get_config};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -267,6 +267,10 @@ fn setup_tracing(
 }
 
 fn main() -> Result<(), OperationOutcomeError> {
+    // Answers the shell's completion request and exits when `COMPLETE` is set
+    // (`source <(COMPLETE=zsh haste-health)`); otherwise a no-op.
+    clap_complete::CompleteEnv::with_factory(Cli::command).complete();
+
     let config = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
