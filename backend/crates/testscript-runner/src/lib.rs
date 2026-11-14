@@ -6,14 +6,15 @@ use haste_fhir_client::{
         StatusCode, WithRequestHeaders, header,
     },
     request::{
-        DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
-        FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
-        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
-        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
-        FHIRSearchTypeRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
-        FHIRVersionReadRequest, HistoryRequest, HistoryResponse, InvocationRequest, InvokeResponse,
-        Operation, SearchRequest, SearchResponse, UpdateRequest,
+        DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRBatchResponse,
+        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest,
+        FHIRDeleteSystemRequest, FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest,
+        FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest,
+        FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest,
+        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
+        FHIRTransactionResponse, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
+        HistoryResponse, InvocationRequest, InvokeResponse, Operation, SearchRequest,
+        SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -1091,14 +1092,32 @@ async fn testscript_request_headers(
 const INDEX_POLL_INTERVAL: Duration = Duration::from_millis(100);
 
 /// The write a response records, for requests that change a resource.
+///
+/// A batch or transaction records its last entry that returned a resource:
+/// the worker indexes a tenant's writes in order, and a transaction's writes
+/// commit together, so once that one is visible the others are too.
 fn indexed_write(response: &FHIRResponse) -> Option<IndexedWrite> {
     let (resource, deleted) = match response {
         FHIRResponse::Create(created) => (&created.resource, false),
         FHIRResponse::Update(updated) => (&updated.resource, false),
         FHIRResponse::Patch(patched) => (&patched.resource, false),
         FHIRResponse::Delete(DeleteResponse::Instance(deleted)) => (&deleted.resource, true),
+        FHIRResponse::Batch(FHIRBatchResponse { resource: bundle })
+        | FHIRResponse::Transaction(FHIRTransactionResponse { resource: bundle }) => {
+            return bundle
+                .entry
+                .iter()
+                .flatten()
+                .rev()
+                .find_map(|entry| resource_write(entry.resource.as_deref()?, false));
+        }
         _ => return None,
     };
+    resource_write(resource, deleted)
+}
+
+/// The write of `resource`, which a delete removed when `deleted`.
+fn resource_write(resource: &Resource, deleted: bool) -> Option<IndexedWrite> {
     let json = serde_json::to_value(resource).ok()?;
     Some(IndexedWrite {
         resource_type: ResourceType::try_from(json.get("resourceType")?.as_str()?).ok()?,
@@ -1114,7 +1133,9 @@ fn indexed_write(response: &FHIRResponse) -> Option<IndexedWrite> {
 /// Whether a request's result depends on the search index. Operations
 /// count: `$everything`, `$expand` and `$viewdefinition-run` search for what
 /// they return, and for one that does not the wait is one `_id` search per
-/// pending write.
+/// pending write. So do batches and transactions, whose entries may search or
+/// be conditional, and a transaction resolves its conditional references
+/// (`Practitioner?identifier=...`) by search.
 fn reads_search_index(request: &FHIRRequest) -> bool {
     matches!(
         request,
@@ -1122,6 +1143,8 @@ fn reads_search_index(request: &FHIRRequest) -> bool {
             | FHIRRequest::Delete(DeleteRequest::Type(_) | DeleteRequest::System(_))
             | FHIRRequest::Update(UpdateRequest::Conditional(_))
             | FHIRRequest::Invocation(_)
+            | FHIRRequest::Batch(_)
+            | FHIRRequest::Transaction(_)
     )
 }
 
@@ -2519,6 +2542,10 @@ pub async fn run<CTX: Clone + WithRequestHeaders, Client: FHIRHttpExchange<CTX>>
 mod tests {
     use super::*;
     use haste_fhir_client::request::{FHIRCreateResponse, FHIRDeleteInstanceResponse};
+    use haste_fhir_model::r4::generated::{
+        resources::{Bundle, BundleEntry},
+        terminology::BundleType,
+    };
 
     fn patient(id: &str, version_id: &str) -> Resource {
         serde_json::from_value(serde_json::json!({
@@ -2554,6 +2581,30 @@ mod tests {
     }
 
     #[test]
+    fn a_bundle_records_its_last_written_entry() {
+        let entry = |resource: Option<Resource>| BundleEntry {
+            resource: resource.map(Box::new),
+            ..Default::default()
+        };
+        let response = FHIRResponse::Batch(FHIRBatchResponse {
+            resource: Bundle {
+                type_: BundleType::batch_response(),
+                entry: Some(vec![
+                    entry(Some(patient("p1", "v1"))),
+                    entry(Some(patient("p2", "v1"))),
+                    // A failed entry returns no resource.
+                    entry(None),
+                ]),
+                ..Default::default()
+            },
+        });
+
+        let write = indexed_write(&response).expect("a batch that wrote is a write");
+        assert_eq!(write.id, "p2");
+        assert_eq!(write.version_id.as_deref(), Some("v1"));
+    }
+
+    #[test]
     fn only_index_backed_requests_wait() {
         let search = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
             resource_type: ResourceType::Patient,
@@ -2566,5 +2617,13 @@ mod tests {
             id: "p1".to_string(),
         });
         assert!(!reads_search_index(&read), "a read goes to the repository");
+
+        let transaction = FHIRRequest::Transaction(FHIRTransactionRequest {
+            resource: Bundle::default(),
+        });
+        assert!(
+            reads_search_index(&transaction),
+            "a transaction resolves conditional references by search"
+        );
     }
 }

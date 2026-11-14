@@ -327,6 +327,31 @@ fn point_at(references: Vec<Pin<&mut Reference>>, literal: &str) {
     }
 }
 
+/// A search the engine could not build, naming a parameter the type does not
+/// define ([`IssueType::not_found`]) or a modifier it does not support
+/// ([`IssueType::not_supported`]), makes the conditional reference invalid:
+/// the transaction is refused as a bad request, not as not found or not
+/// implemented. Any other failure is the server's and passes through.
+fn invalid_search(search_uri: &str, error: OperationOutcomeError) -> OperationOutcomeError {
+    let issues = &error.outcome().issue;
+    if !issues.iter().any(|issue| {
+        issue.code == IssueType::not_found() || issue.code == IssueType::not_supported()
+    }) {
+        return error;
+    }
+
+    let reason = issues
+        .iter()
+        .filter_map(|issue| issue.diagnostics.as_ref()?.value.clone())
+        .collect::<Vec<_>>()
+        .join(" ");
+    OperationOutcomeError::error(
+        IssueType::invalid(),
+        format!("Conditional reference '{search_uri}' is not a valid search: {reason}"),
+    )
+    .with_source(error)
+}
+
 /// Points every conditional reference at the one resource its search matches.
 ///
 /// Answered by the search index alone: the id it already holds is all a
@@ -336,7 +361,8 @@ fn point_at(references: Vec<Pin<&mut Reference>>, literal: &str) {
 ///
 /// # Errors
 ///
-/// Forbidden when the caller may not run a reference's search. Per
+/// Forbidden when the caller may not run a reference's search, invalid when
+/// it is not a search the type supports. Per
 /// [https://hl7.org/fhir/R4/http.html#trules] the transaction fails when a
 /// reference matches no resource or more than one.
 async fn resolve_conditional_references<B: Backend>(
@@ -372,7 +398,8 @@ async fn resolve_conditional_references<B: Backend>(
                         filters,
                     }),
                 )
-                .await?;
+                .await
+                .map_err(|error| invalid_search(&search_uri, error))?;
 
             let mut entries = found.entries.into_iter();
             match (entries.next(), entries.next()) {
@@ -745,6 +772,39 @@ mod tests {
                     "Practitioner/existing".to_string()
                 ],
             ]
+        );
+    }
+
+    #[test]
+    fn a_search_the_engine_cannot_build_makes_the_reference_invalid() {
+        let unknown_parameter = OperationOutcomeError::error(
+            IssueType::not_found(),
+            "Search parameter with name 'not-a-parameter' not found.".to_string(),
+        );
+        let invalid = invalid_search("Practitioner?not-a-parameter=1", unknown_parameter);
+        assert_eq!(invalid.http_status(), 400);
+        assert!(
+            invalid.to_string().contains(
+                "Conditional reference 'Practitioner?not-a-parameter=1' is not a valid search: \
+                 Search parameter with name 'not-a-parameter' not found."
+            ),
+            "{invalid}"
+        );
+
+        let unsupported_modifier = OperationOutcomeError::error(
+            IssueType::not_supported(),
+            "Unsupported modifier parameter: 'above'".to_string(),
+        );
+        assert_eq!(
+            invalid_search("Practitioner?identifier:above=1", unsupported_modifier).http_status(),
+            400
+        );
+
+        let server_failure =
+            OperationOutcomeError::fatal(IssueType::exception(), "Database error".to_string());
+        assert_eq!(
+            invalid_search("Practitioner?identifier=1", server_failure).http_status(),
+            500
         );
     }
 
