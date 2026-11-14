@@ -8,6 +8,9 @@ tags:
   - automation
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Setting Up the CLI
 
 The Haste Health CLI is a powerful command-line tool for interacting with FHIR servers, managing configurations, running tests, and automating workflows.
@@ -48,6 +51,55 @@ haste-health --help
 ```
 
 This will display all available commands and options.
+
+## Shell Completion
+
+The CLI can complete what you type when you press Tab: commands, options, FHIR resource types (`haste-health api read Pat` → `Patient`) and the names of your saved profiles (`haste-health profile use`). Completions come from the installed CLI itself, so new commands and newly created profiles show up without any further setup.
+
+Your shell only asks a program for completions once it has been told to, so enable it once by adding a line to your shell's startup file. `haste-health` must be on your `PATH` (an `npm install -g` or binary install); completion doesn't apply to `npx haste-health` or `cargo run`.
+
+<Tabs>
+<TabItem value="zsh" label="zsh" default>
+
+Add to `~/.zshrc`:
+
+```bash
+source <(COMPLETE=zsh haste-health)
+```
+
+The line uses zsh's completion system, so it must come after `compinit`. Frameworks such as Oh My Zsh load it for you; with a plain `~/.zshrc`, put these lines before it:
+
+```bash
+autoload -Uz compinit
+compinit
+```
+
+</TabItem>
+<TabItem value="bash" label="bash">
+
+Add to `~/.bashrc` (on macOS, `~/.bash_profile`):
+
+```bash
+eval "$(COMPLETE=bash haste-health)"
+```
+
+Use `eval` rather than `source <(...)`: the bash 3.2 that ships with macOS ignores `source` on a process substitution.
+
+</TabItem>
+<TabItem value="fish" label="fish">
+
+Add to `~/.config/fish/config.fish`:
+
+```bash
+COMPLETE=fish haste-health | source
+```
+
+</TabItem>
+</Tabs>
+
+Open a new terminal (or `source` the startup file) and try `haste-health api <Tab>`.
+
+The startup line prints a small shell function that calls the CLI on every Tab press, and the shell loads it. Because it runs each time a shell starts, it always points at the CLI you have installed now, including after an upgrade or a reinstall.
 
 ## Initial Setup
 
