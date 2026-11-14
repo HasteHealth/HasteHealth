@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/koa-multipart-form",
-  "version": "0.130.6",
+  "version": "0.130.7",
   "dependencies": {
     "@types/koa": "^3.0.3",
     "multer": "^2.5.0"
