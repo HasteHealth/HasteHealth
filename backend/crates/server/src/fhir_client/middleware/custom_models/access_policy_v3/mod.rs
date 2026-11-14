@@ -10,6 +10,8 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
+mod references;
+
 fn invalid(path: &str, message: &str) -> OperationOutcomeError {
     OperationOutcomeError::fatal(IssueType::invalid(), format!("{path}: {message}."))
 }
@@ -47,12 +49,16 @@ fn validate_rules(rules: &[AccessPolicyV3Rule], parent: &str) -> Result<(), Oper
     Ok(())
 }
 
-fn validate(policy: &AccessPolicyV3) -> Result<(), OperationOutcomeError> {
-    validate_rules(policy.rule.as_deref().unwrap_or_default(), "AccessPolicyV3")
+/// Checks the policy's shape and expressions, then stores what its rules reference in
+/// place of whatever manifest the client sent.
+fn prepare(policy: &mut AccessPolicyV3) -> Result<(), OperationOutcomeError> {
+    validate_rules(policy.rule.as_deref().unwrap_or_default(), "AccessPolicyV3")?;
+    let manifest = references::manifest(policy)?;
+    policy.manifest = (!manifest.is_empty()).then_some(manifest);
+    Ok(())
 }
 
-/// Checks the structure of an `AccessPolicyV3` on save. `FHIRPath` and attribute
-/// validation is separate.
+/// Validates an `AccessPolicyV3` on save and records the attributes each rule needs.
 pub struct AccessPolicyV3Validation;
 
 impl<B: Backend> Middleware<B> for AccessPolicyV3Validation {
@@ -60,17 +66,17 @@ impl<B: Backend> Middleware<B> for AccessPolicyV3Validation {
         &'a self,
         state: &'a ClientState<B>,
         ctx: Arc<ServerCTX<B>>,
-        request: FHIRRequest,
+        mut request: FHIRRequest,
         next: Next<'a, B>,
     ) -> Output<'a> {
-        let resource = match &request {
-            FHIRRequest::Create(create) => Some(&create.resource),
-            FHIRRequest::Update(UpdateRequest::Instance(update)) => Some(&update.resource),
-            FHIRRequest::Update(UpdateRequest::Conditional(update)) => Some(&update.resource),
+        let resource = match &mut request {
+            FHIRRequest::Create(create) => Some(&mut create.resource),
+            FHIRRequest::Update(UpdateRequest::Instance(update)) => Some(&mut update.resource),
+            FHIRRequest::Update(UpdateRequest::Conditional(update)) => Some(&mut update.resource),
             _ => None,
         };
         if let Some(Resource::AccessPolicyV3(policy)) = resource
-            && let Err(error) = validate(policy)
+            && let Err(error) = prepare(policy)
         {
             return Box::pin(std::future::ready(Err(error)));
         }

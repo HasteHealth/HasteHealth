@@ -1,0 +1,1181 @@
+{
+    "resourceType": "TestScript",
+    "id": "access-policy-v3-manifest",
+    "url": "https://haste.health/fhir/TestScript/access-policy-v3-manifest",
+    "name": "AccessPolicyV3 write-time validation and manifest",
+    "title": "AccessPolicyV3 write-time validation and manifest",
+    "status": "active",
+    "description": "On save every FHIRPath expression and search substitution of an AccessPolicyV3 is checked against the context schema and the manifest (per rule, the attributes it needs and their scopes) is stored; each schema violation is rejected.",
+    "contained": [
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "care-team-nurse",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "careTeamPatients",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "CareTeam",
+                        "parameters": "participant=%principal.practitioner&status=active&_elements=subject"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Observation",
+                            "search": "patient=%principal.careTeamPatients"
+                        },
+                        {
+                            "resourceType": "Condition",
+                            "search": "patient=%principal.careTeamPatients"
+                        }
+                    ]
+                },
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type in ('read' | 'vread' | 'search' | 'history')"
+                    }
+                },
+                {
+                    "kind": "decision",
+                    "type": "deny",
+                    "target": {
+                        "expression": "%request.resource_type = 'MedicationRequest' and %request.type in ('create' | 'update' | 'patch' | 'delete')"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "no-attributes",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read' and %principal.user.exists()"
+                    }
+                }
+            ],
+            "manifest": [
+                {
+                    "rule": "rule[0]",
+                    "attribute": [
+                        {
+                            "attributeId": "bogus",
+                            "scope": "request"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "request-scope",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "encounter",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read'"
+                    },
+                    "condition": {
+                        "expression": "%target.subject.exists() and %encounter.exists() and %sct.exists()"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "nested-rule",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "careTeamPatients",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "CareTeam",
+                        "parameters": "participant=%principal.practitioner&status=active&_elements=subject"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "rule": [
+                        {
+                            "kind": "decision",
+                            "type": "permit",
+                            "target": {
+                                "expression": "%request.type = 'read'"
+                            },
+                            "condition": {
+                                "expression": "%principal.careTeamPatients.exists() and %careTeamPatients.count() > 0"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "unknown-attribute",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "%principal.nope.exists()"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "unknown-variable",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%nope = 1"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "unknown-request-field",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.nope = 'x'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "target-uses-request-attribute",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "encounter",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%encounter.exists()"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "target-uses-target",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%target.exists()"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "constraint-uses-request-attribute",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Observation",
+                            "search": "patient=%target.id"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "constraint-uses-request",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "constraint",
+                    "type": "permit",
+                    "data": [
+                        {
+                            "resourceType": "Patient",
+                            "search": "_id=%request.id"
+                        }
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "too-many-request-attributes",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "r0",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                },
+                {
+                    "attributeId": "r1",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                },
+                {
+                    "attributeId": "r2",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                },
+                {
+                    "attributeId": "r3",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                },
+                {
+                    "attributeId": "r4",
+                    "scope": "request",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Encounter",
+                        "parameters": "patient=%request.id"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "attribute-depends-on-attribute",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "careTeamPatients",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "CareTeam",
+                        "parameters": "participant=%principal.practitioner&status=active&_elements=subject"
+                    }
+                },
+                {
+                    "attributeId": "careTeamObservations",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Observation",
+                        "parameters": "patient=%principal.careTeamPatients"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "principal-attribute-uses-request",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "own",
+                    "scope": "principal",
+                    "operation": {
+                        "type": "search-type",
+                        "resourceType": "Patient",
+                        "parameters": "_id=%request.id"
+                    }
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "missing-operation",
+            "combining": "deny-overrides",
+            "attribute": [
+                {
+                    "attributeId": "none",
+                    "scope": "request"
+                }
+            ],
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "target": {
+                        "expression": "%request.type = 'read'"
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceType": "AccessPolicyV3",
+            "id": "invalid-fhirpath",
+            "combining": "deny-overrides",
+            "rule": [
+                {
+                    "kind": "decision",
+                    "type": "permit",
+                    "condition": {
+                        "expression": "%request.type ="
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-policy-v3-manifest"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-care-team-nurse",
+            "resource": {
+                "reference": "#care-team-nurse"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-attributes",
+            "resource": {
+                "reference": "#no-attributes"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-request-scope",
+            "resource": {
+                "reference": "#request-scope"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-nested-rule",
+            "resource": {
+                "reference": "#nested-rule"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-unknown-attribute",
+            "resource": {
+                "reference": "#unknown-attribute"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-unknown-variable",
+            "resource": {
+                "reference": "#unknown-variable"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-unknown-request-field",
+            "resource": {
+                "reference": "#unknown-request-field"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-target-uses-request-attribute",
+            "resource": {
+                "reference": "#target-uses-request-attribute"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-target-uses-target",
+            "resource": {
+                "reference": "#target-uses-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-constraint-uses-request-attribute",
+            "resource": {
+                "reference": "#constraint-uses-request-attribute"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-constraint-uses-request",
+            "resource": {
+                "reference": "#constraint-uses-request"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-too-many-request-attributes",
+            "resource": {
+                "reference": "#too-many-request-attributes"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-attribute-depends-on-attribute",
+            "resource": {
+                "reference": "#attribute-depends-on-attribute"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-principal-attribute-uses-request",
+            "resource": {
+                "reference": "#principal-attribute-uses-request"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-missing-operation",
+            "resource": {
+                "reference": "#missing-operation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-invalid-fhirpath",
+            "resource": {
+                "reference": "#invalid-fhirpath"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-care-team-nurse",
+            "name": "The care team nurse example stores one manifest entry for its constraint",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-care-team-nurse",
+                        "responseId": "r-care-team-nurse",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "targetId": "r-care-team-nurse",
+                        "responseId": "read-care-team-nurse",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One rule references attributes",
+                        "expression": "AccessPolicyV3.manifest.count() = 1",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The constraint is rule[0]",
+                        "expression": "AccessPolicyV3.manifest.rule = 'rule[0]'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It needs careTeamPatients",
+                        "expression": "AccessPolicyV3.manifest.attribute.attributeId = 'careTeamPatients'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A principal-scope attribute",
+                        "expression": "AccessPolicyV3.manifest.attribute.scope = 'principal'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-no-attributes",
+            "name": "A policy without attribute references stores an empty manifest, dropping the client's",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-no-attributes",
+                        "responseId": "r-no-attributes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "targetId": "r-no-attributes",
+                        "responseId": "read-no-attributes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No manifest",
+                        "expression": "AccessPolicyV3.manifest.exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-request-scope",
+            "name": "A condition may use %target and a declared request-scope attribute",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-request-scope",
+                        "responseId": "r-request-scope",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "targetId": "r-request-scope",
+                        "responseId": "read-request-scope",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both are listed for rule[0]",
+                        "expression": "AccessPolicyV3.manifest.where(rule = 'rule[0]').attribute.count() = 2",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "%target is a request-scope attribute",
+                        "expression": "AccessPolicyV3.manifest.attribute.where(attributeId = 'target').scope = 'request'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The declared attribute keeps its scope",
+                        "expression": "AccessPolicyV3.manifest.attribute.where(attributeId = 'encounter').scope = 'request'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-nested-rule",
+            "name": "A nested rule is listed by its path, once per attribute",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-nested-rule",
+                        "responseId": "r-nested-rule",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Created",
+                        "expression": "AccessPolicyV3.id.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "code": "read"
+                        },
+                        "targetId": "r-nested-rule",
+                        "responseId": "read-nested-rule",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The nested rule's path",
+                        "expression": "AccessPolicyV3.manifest.rule = 'rule[0].rule[0]'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Listed once",
+                        "expression": "AccessPolicyV3.manifest.attribute.count() = 1",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-unknown-attribute",
+            "name": "An unknown %principal attribute is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-unknown-attribute",
+                        "responseId": "r-unknown-attribute",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-unknown-variable",
+            "name": "An unknown variable is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-unknown-variable",
+                        "responseId": "r-unknown-variable",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-unknown-request-field",
+            "name": "An unknown %request field is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-unknown-request-field",
+                        "responseId": "r-unknown-request-field",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-target-uses-request-attribute",
+            "name": "A rule target cannot use a request-scope attribute",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-target-uses-request-attribute",
+                        "responseId": "r-target-uses-request-attribute",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-target-uses-target",
+            "name": "A rule target cannot use %target",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-target-uses-target",
+                        "responseId": "r-target-uses-target",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-constraint-uses-request-attribute",
+            "name": "A constraint cannot use a request-scope attribute",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-constraint-uses-request-attribute",
+                        "responseId": "r-constraint-uses-request-attribute",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-constraint-uses-request",
+            "name": "A constraint cannot substitute %request",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-constraint-uses-request",
+                        "responseId": "r-constraint-uses-request",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-too-many-request-attributes",
+            "name": "More than 4 request-scope attributes are rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-too-many-request-attributes",
+                        "responseId": "r-too-many-request-attributes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-attribute-depends-on-attribute",
+            "name": "An attribute cannot depend on another attribute",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-attribute-depends-on-attribute",
+                        "responseId": "r-attribute-depends-on-attribute",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-principal-attribute-uses-request",
+            "name": "A principal-scope attribute cannot use %request",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-principal-attribute-uses-request",
+                        "responseId": "r-principal-attribute-uses-request",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-missing-operation",
+            "name": "An attribute without an operation is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-missing-operation",
+                        "responseId": "r-missing-operation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "16-invalid-fhirpath",
+            "name": "An expression that does not parse is rejected",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "create"
+                        },
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-invalid-fhirpath",
+                        "responseId": "r-invalid-fhirpath",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused with an OperationOutcome",
+                        "expression": "OperationOutcome.issue.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

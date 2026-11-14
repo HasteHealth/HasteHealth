@@ -424,6 +424,44 @@ pub struct AccessPolicyV3Rule {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "An attribute the rule's target, condition or data references."]
+pub struct AccessPolicyV3ManifestAttribute {
+    #[primitive]
+    #[doc = "The attribute referenced."]
+    pub attributeId: Box<FHIRId>,
+    #[primitive]
+    #[doc = "The attribute's scope, principal or request."]
+    pub scope: terminology::BoundCode<terminology::Accesspolicyv3attributescope>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Server-maintained: the attributes each rule references, recomputed on every save."]
+pub struct AccessPolicyV3Manifest {
+    #[primitive]
+    #[doc = "Path of the rule, for example rule[0].rule[1]."]
+    pub rule: Box<FHIRString>,
+    #[cardinality(min = 1u64)]
+    #[doc = "An attribute the rule's target, condition or data references."]
+    pub attribute: Vec<AccessPolicyV3ManifestAttribute>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "AccessPolicyV3"]
 #[fhir_serialize_type = "resource"]
 #[doc = "AccessPolicyV3 resource."]
@@ -445,6 +483,8 @@ pub struct AccessPolicyV3 {
     pub attribute: Option<Vec<AccessPolicyV3Attribute>>,
     #[doc = "Ordered rules that govern how the access policy is applied."]
     pub rule: Option<Vec<AccessPolicyV3Rule>>,
+    #[doc = "Server-maintained: the attributes each rule references, recomputed on every save."]
+    pub manifest: Option<Vec<AccessPolicyV3Manifest>>,
 }
 impl AccessPolicyV3 {
     pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
@@ -457,6 +497,7 @@ impl AccessPolicyV3 {
                 "combining",
                 "attribute",
                 "rule",
+                "manifest",
             ])
             .contains(field)
             {
@@ -481,6 +522,9 @@ impl AccessPolicyV3 {
         }
         if fields.contains(&"rule") {
             out.rule = self.rule;
+        }
+        if fields.contains(&"manifest") {
+            out.manifest = self.manifest;
         }
         Ok(out)
     }
