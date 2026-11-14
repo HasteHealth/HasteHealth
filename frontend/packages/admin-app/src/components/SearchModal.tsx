@@ -129,7 +129,7 @@ function SearchResultItem({
         onMouseEnter={onHover}
         onFocus={onHover}
         className={classNames(
-          "group block w-full text-left cursor-pointer px-2 py-1.5 rounded",
+          "group block w-full text-left cursor-pointer px-2 py-1.5 rounded-sm",
           active ? "bg-gray-50" : "",
         )}
       >
@@ -303,12 +303,12 @@ function SearchModal(props: SearchModalProps) {
 
   return (
     <Modal open={openModal} setOpen={() => setOpenModal(false)}>
-      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-none shadow-sm">
+      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-hidden shadow-xs">
         <input
           ref={(ref) => {
             setInputSearch(ref);
           }}
-          className="focus:outline-none text-left flex-1 text-slate-500 text-sm"
+          className="focus:outline-hidden text-left flex-1 text-slate-500 text-sm"
           placeholder="Search..."
           value={search}
           onChange={(e) => {
@@ -320,7 +320,7 @@ function SearchModal(props: SearchModalProps) {
           onClick={() => {
             setOpenModal(false);
           }}
-          className="shadow-sm cursor flex-none text-xs text-slate-400 p-1 border"
+          className="shadow-xs cursor flex-none text-xs text-slate-400 p-1 border"
         >
           ESC
         </button>

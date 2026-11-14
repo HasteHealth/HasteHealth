@@ -73,7 +73,7 @@ export function ParameterHeader({
           *
         </span>
       )}
-      <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
+      <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
         {typeLabel(definition)}
       </span>
       <span className="font-mono text-[11px] text-slate-500">

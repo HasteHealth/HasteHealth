@@ -9,7 +9,7 @@
     "test:gaps": "node --test --test-concurrency=1 --test-name-pattern='known gap' 'tests/*.test.mjs'"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "ajv": "^8.20.0"
   }
 }

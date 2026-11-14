@@ -131,14 +131,14 @@ function Issue({ issue }: Readonly<{ issue: OperationOutcomeIssue }>) {
           <div className="flex flex-wrap items-center gap-1.5">
             <span
               className={classNames(
-                "rounded px-1.5 py-0.5 text-[11px] font-medium uppercase",
+                "rounded-sm px-1.5 py-0.5 text-[11px] font-medium uppercase",
                 chip,
               )}
             >
               {issue.severity ?? "information"}
             </span>
             {issue.code && (
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
+              <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
                 {issue.code}
               </span>
             )}
@@ -186,7 +186,7 @@ export function OutcomePanel({
           {headerLabel(outcome.status)}
         </span>
         {request && (
-          <span className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-xs text-red-800">
+          <span className="rounded-sm bg-white/70 px-1.5 py-0.5 font-mono text-xs text-red-800">
             {request.method} {request.path}
           </span>
         )}

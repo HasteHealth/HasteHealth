@@ -305,7 +305,7 @@ function ScopeControls({
           <span>Patient reference</span>
           <input
             type="text"
-            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
             placeholder="Patient/123"
             value={patientReference}
             onChange={(event) => setPatientReference(event.target.value)}
@@ -316,7 +316,7 @@ function ScopeControls({
           <span>Group reference(s)</span>
           <input
             type="text"
-            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
             placeholder="Group/1, Group/2"
             value={groupReferences}
             onChange={(event) => setGroupReferences(event.target.value)}
@@ -328,7 +328,7 @@ function ScopeControls({
           <input
             type="number"
             min={0}
-            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
             placeholder="No limit"
             value={limit}
             onChange={(event) => setLimit(event.target.value)}
@@ -390,7 +390,7 @@ function EditorPane({
   isRunning: boolean;
 }) {
   return (
-    <section className="flex min-h-[24rem] flex-1 flex-col rounded border border-slate-200 bg-white">
+    <section className="flex min-h-[24rem] flex-1 flex-col rounded-sm border border-slate-200 bg-white">
       <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h3 className="text-sm font-semibold text-slate-800">
           ViewDefinition Editor
@@ -399,7 +399,7 @@ function EditorPane({
           <div className="flex items-center gap-2 text-xs text-slate-600">
             <span>Format</span>
             <select
-              className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+              className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
               value={exportFormat}
               onChange={(event) =>
                 setExportFormat(event.target.value as ExportFormat)
@@ -445,7 +445,7 @@ function EditorPane({
         isRunning={isRunning}
       />
       <div className="flex flex-1 overflow-hidden p-3">
-        <div className="h-full w-full overflow-hidden rounded border border-slate-200">
+        <div className="h-full w-full overflow-hidden rounded-sm border border-slate-200">
           <CodeMirror
             extensions={extensions}
             value={JSON.stringify(viewDefinition, null, 2)}
@@ -545,7 +545,7 @@ function ResultsPane({
   }, [currentPage, pageSize, results.rows]);
 
   return (
-    <section className="flex min-h-[24rem] flex-1 flex-col rounded border border-slate-200 bg-white">
+    <section className="flex min-h-[24rem] flex-1 flex-col rounded-sm border border-slate-200 bg-white">
       <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h3 className="text-sm font-semibold text-slate-800">Results</h3>
         <div className="text-xs text-slate-500">{totalRows} rows</div>
@@ -558,7 +558,7 @@ function ResultsPane({
       )}
 
       {!isRunning && error && (
-        <div className="m-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        <div className="m-4 rounded-sm border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
           {error}
         </div>
       )}
@@ -576,7 +576,7 @@ function ResultsPane({
             <div className="flex items-center gap-2 text-xs text-slate-600">
               <span>Rows per page</span>
               <select
-                className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+                className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
                 value={pageSize}
                 onChange={(event) => {
                   setPageSize(Number(event.target.value));
@@ -857,7 +857,7 @@ export function ViewDefinitionSqlRunner({
       title: "Raw Output",
       content: (
         <textarea
-          className="min-h-[24rem] w-full flex-1 rounded border border-slate-200 bg-white p-3 text-xs text-slate-700"
+          className="min-h-[24rem] w-full flex-1 rounded-sm border border-slate-200 bg-white p-3 text-xs text-slate-700"
           value={rawOutput}
           readOnly
         />

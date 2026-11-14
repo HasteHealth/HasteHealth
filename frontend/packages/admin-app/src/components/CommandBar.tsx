@@ -96,7 +96,7 @@ export function CommandBar({
     <div>
       <div
         className={classNames(
-          "flex items-center gap-2 rounded-md border bg-white px-2 py-1.5 shadow-sm",
+          "flex items-center gap-2 rounded-md border bg-white px-2 py-1.5 shadow-xs",
           warning ? "border-amber-300" : "border-slate-300",
           "focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500",
         )}
@@ -104,7 +104,7 @@ export function CommandBar({
         <select
           aria-label="HTTP method"
           className={classNames(
-            "shrink-0 rounded border-0 bg-slate-100 py-1 pl-2 pr-7 font-mono text-xs font-semibold focus:ring-0",
+            "shrink-0 rounded-sm border-0 bg-slate-100 py-1 pl-2 pr-7 font-mono text-xs font-semibold focus:ring-0",
             VERB_CLASS[verb],
           )}
           value={verb}
@@ -142,7 +142,7 @@ export function CommandBar({
 
         <button
           className={classNames(
-            "shrink-0 rounded px-2 py-1 text-xs font-medium",
+            "shrink-0 rounded-sm px-2 py-1 text-xs font-medium",
             runButtonClass(parsed),
           )}
           disabled={!parsed || busy}

@@ -73,7 +73,7 @@ function header(
       {showAdd ? (
         <button
           type="button"
-          className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+          className="rounded-sm border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
           onClick={onAddAnswer}
         >
           Add
@@ -87,7 +87,7 @@ function removeButton(onRemove: () => void) {
   return (
     <button
       type="button"
-      className="rounded border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+      className="rounded-sm border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
       onClick={onRemove}
     >
       Remove
@@ -229,7 +229,7 @@ const DisplayRenderer: QuestionnaireItemRenderer = ({
   renderChildren,
 }) => (
   <div className="space-y-2">
-    <div className="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+    <div className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
       {label(item)}
     </div>
     {renderChildren()}
@@ -279,7 +279,7 @@ const ChoiceRenderer: QuestionnaireItemRenderer = ({
               className="flex items-center gap-2"
             >
               {control === "radio-button" ? (
-                <div className="flex w-full flex-col gap-2 rounded border border-slate-300 p-2">
+                <div className="flex w-full flex-col gap-2 rounded-sm border border-slate-300 p-2">
                   {options.map((option, index) => (
                     <label
                       key={`${item.linkId}-radio-${index}`}
@@ -375,7 +375,7 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
           return (
             <div
               key={`${item.linkId}-${answerIndex}`}
-              className="space-y-2 rounded border border-slate-200 p-2"
+              className="space-y-2 rounded-sm border border-slate-200 p-2"
             >
               <Select
                 options={selectOptions}

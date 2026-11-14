@@ -47,5 +47,5 @@ export function MergeViewer({
     }
   }, [root, setView, setState]);
 
-  return <div className="flex flex-grow" ref={root} />;
+  return <div className="flex grow" ref={root} />;
 }

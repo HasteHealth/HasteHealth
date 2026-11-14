@@ -19,7 +19,7 @@ export default function BatchImportView() {
 
   return (
     <div className="flex w-full flex-col gap-6 text-slate-700">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <h1 className="text-2xl font-semibold text-slate-900">Bundle Import</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-500">
           Upload a FHIR Bundle and process it as either a batch or transaction.
@@ -28,7 +28,7 @@ export default function BatchImportView() {
         </p>
       </header>
 
-      <section className="w-full max-w-3xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="w-full max-w-3xl rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <div className="mb-4 flex items-start gap-3">
           <div className="rounded-md bg-brand-50 p-2 text-brand-700">
             <ArrowUpTrayIcon className="h-5 w-5" />

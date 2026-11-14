@@ -149,7 +149,7 @@ function CreateProjectForm({
         </label>
         <input
           aria-describedby="new-project-slug"
-          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
           disabled={creating}
           id="new-project-name"
           onChange={(event) => setName(event.target.value)}
@@ -193,7 +193,7 @@ function GettingStarted({
   takenIds: string[];
 }>) {
   return (
-    <section className="overflow-hidden rounded-lg border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-6 shadow-sm">
+    <section className="overflow-hidden rounded-lg border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-6 shadow-xs">
       <div className="flex items-start gap-3">
         <span className="hidden rounded-md bg-brand-600/10 p-2 text-brand-700 sm:block">
           <BoltIcon className="h-5 w-5" />
@@ -255,8 +255,8 @@ function ProjectCard({
     <article
       className={
         highlight
-          ? "flex flex-col rounded-lg border-2 border-brand-500 bg-white shadow-sm ring-2 ring-brand-100"
-          : "flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm transition hover:border-brand-300 hover:shadow-md"
+          ? "flex flex-col rounded-lg border-2 border-brand-500 bg-white shadow-xs ring-2 ring-brand-100"
+          : "flex flex-col rounded-lg border border-slate-200 bg-white shadow-xs transition hover:border-brand-300 hover:shadow-md"
       }
     >
       <button
@@ -306,13 +306,13 @@ function ProjectCard({
               Delete this project?
             </span>
             <button
-              className="rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-sm px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
               onClick={() => setConfirmingDelete(false)}
             >
               Cancel
             </button>
             <button
-              className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+              className="rounded-sm bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
               onClick={() => {
                 onDelete(project.id!);
                 setConfirmingDelete(false);
@@ -326,7 +326,7 @@ function ProjectCard({
             <button
               title="Edit project settings"
               disabled={system}
-              className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:text-slate-300"
+              className="rounded-sm p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:text-slate-300"
               onClick={() =>
                 navigate(
                   generatePath("/r/Project/:id", {
@@ -340,7 +340,7 @@ function ProjectCard({
             <button
               title="Delete project"
               disabled={system}
-              className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:text-slate-300"
+              className="rounded-sm p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:text-slate-300"
               onClick={() => setConfirmingDelete(true)}
             >
               <TrashIcon className="h-4 w-4" />

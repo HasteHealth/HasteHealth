@@ -54,7 +54,12 @@ overrides:
   katex@>=0.11.0 <0.18.2: '>=0.18.2 <0.18.11'
   hono@<4.13.16: ^4.13.16
   '@hono/node-server@>=2.0.0 <2.1.6': ^2.1.6
+  glob@>=9.0.0 <14.0.2: ^14.0.2
+  # Babel 8 runs the TypeScript presets in the package Babel configs; these pin @babel/core 7.
+  '@storybook/addon-webpack5-compiler-babel>@babel/core': ^8.1.2
+  'jest-config>@babel/core': ^8.1.2
 allowBuilds:
+  '@parcel/watcher': false
   '@swc/core': false
   core-js: true
   core-js-pure: true

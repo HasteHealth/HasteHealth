@@ -136,7 +136,7 @@ export function FHIRResultsTable({
           </span>
           {elapsedMs !== undefined && (
             <span
-              className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600"
+              className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600"
               title="Round trip time as the browser measured it"
             >
               {elapsedMs} ms

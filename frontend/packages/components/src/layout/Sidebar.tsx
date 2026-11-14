@@ -113,7 +113,7 @@ export function SideBar({
             type="button"
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
             onClick={onToggle}
-            className="absolute top-1/2 -right-3 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-700"
+            className="absolute top-1/2 -right-3 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-xs hover:text-slate-700"
           >
             {isOpen ? (
               <ChevronLeftIcon className="h-4 w-4" />

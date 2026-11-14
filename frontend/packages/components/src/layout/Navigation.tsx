@@ -36,7 +36,7 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
   return (
     <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-white focus:ring-offset-2">
           <span className="absolute -inset-1.5" />
           <span className="sr-only">Open user menu</span>
           {user?.imageUrl ? (
@@ -58,7 +58,7 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <div className="bg-white absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="bg-white absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden">
           {children}
         </div>
       </Transition>
@@ -86,7 +86,7 @@ export const Navigation = ({
           <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <img
                     className="h-8 w-8"
                     src={brand.logo.url}
@@ -122,7 +122,7 @@ export const Navigation = ({
               </div>
               <div className="-mr-2 md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative rounded-full p-1 focus:ring-offset-brand-800 text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+                <Disclosure.Button className="relative rounded-full p-1 focus:ring-offset-brand-800 text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-white focus:ring-offset-2">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -156,7 +156,7 @@ export const Navigation = ({
             </div>
             <div className="border-t border-gray-700 pb-3 pt-4">
               <div className="flex items-center px-5">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <img
                     className="h-10 w-10 rounded-full"
                     src={user?.imageUrl}
