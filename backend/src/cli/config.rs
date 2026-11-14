@@ -74,7 +74,9 @@ pub(crate) enum ProfileAuth {
     Public {},
 }
 
-fn read_existing_config(location: &PathBuf) -> Result<CliConfiguration, OperationOutcomeError> {
+pub(crate) fn read_existing_config(
+    location: &PathBuf,
+) -> Result<CliConfiguration, OperationOutcomeError> {
     let config_str = std::fs::read_to_string(location).map_err(|_| {
         OperationOutcomeError::error(
             IssueType::exception(),

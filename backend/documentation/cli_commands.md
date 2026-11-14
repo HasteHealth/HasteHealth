@@ -7,6 +7,17 @@
 | Binary  | `./haste-health <command>`                                   |
 | Docker  | `docker run <image> <command>`                               |
 
+## Shell completion
+
+With `haste-health` on your `PATH`, add the line for your shell to its startup file.
+Tab then completes commands, options, FHIR resource types and saved profile names.
+
+| Shell | Startup file                   | Line                                      |
+| ----- | ------------------------------ | ----------------------------------------- |
+| zsh   | `~/.zshrc`                     | `source <(COMPLETE=zsh haste-health)`     |
+| bash  | `~/.bashrc`                    | `source <(COMPLETE=bash haste-health)`    |
+| fish  | `~/.config/fish/config.fish`   | `COMPLETE=fish haste-health \| source`   |
+
 
 # Command-Line Help for `haste-health`
 

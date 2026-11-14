@@ -10,12 +10,14 @@
 use crate::cli::{
     client::unix_now,
     config::{
-        CliConfiguration, DEFAULT_CLIENT_CREDENTIALS_SCOPE, Profile, ProfileAuth, write_config,
+        CliConfiguration, DEFAULT_CLIENT_CREDENTIALS_SCOPE, Profile, ProfileAuth,
+        read_existing_config, write_config,
     },
     secrets::{self, ProfileSecrets, StoredTokens},
     state::{CONFIG_LOCATION, CliState, SECRETS_LOCATION},
 };
 use clap::{Args, Subcommand, ValueEnum};
+use clap_complete::engine::{ArgValueCandidates, CompletionCandidate};
 use dialoguer::{Confirm, Input, Password, Select, theme::ColorfulTheme};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -133,6 +135,7 @@ pub(crate) enum ProfileCommands {
     /// Show a profile's settings (never secrets or tokens). Defaults to the active profile.
     Show {
         /// Profile name.
+        #[arg(add = ArgValueCandidates::new(profile_names))]
         name: Option<String>,
     },
     /// Create a profile and make it active. Prompts for anything not passed as an option.
@@ -140,16 +143,32 @@ pub(crate) enum ProfileCommands {
     /// Switch the active profile that other commands use. Without NAME, pick from a list.
     Use {
         /// Profile name.
+        #[arg(add = ArgValueCandidates::new(profile_names))]
         name: Option<String>,
     },
     /// Delete a profile and its stored secrets. Without NAME, pick from a list.
     Delete {
         /// Profile name.
+        #[arg(add = ArgValueCandidates::new(profile_names))]
         name: Option<String>,
         /// Delete without asking for confirmation.
         #[arg(short, long)]
         yes: bool,
     },
+}
+
+/// Shell completion candidates for a profile name: the saved profiles. Reads the config
+/// file without creating it, since this runs on every Tab press.
+fn profile_names() -> Vec<CompletionCandidate> {
+    read_existing_config(&CONFIG_LOCATION)
+        .map(|config| {
+            config
+                .profiles
+                .into_iter()
+                .map(|profile| CompletionCandidate::new(profile.name))
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 /// Fills in values that weren't passed on the command line.
