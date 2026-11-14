@@ -16,13 +16,13 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/node": "^22.20.0",
+    "@types/node": "^26.6.6",
     "typescript": "6.0.3"
   },
   "dependencies": {
     "@haste-health/artifacts": "workspace:^",
     "@haste-health/fhir-types": "workspace:^",
-    "commander": "^12.1.0"
+    "commander": "^15.1.0"
   },
   "files": [
     "lib/**"

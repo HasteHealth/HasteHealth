@@ -17,7 +17,7 @@ export const FHIRReferenceReadOnly = ({
       title={value?.reference}
     >
       {resourceType && (
-        <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-brand-700">
+        <span className="rounded-sm bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-brand-700">
           {resourceType}
         </span>
       )}

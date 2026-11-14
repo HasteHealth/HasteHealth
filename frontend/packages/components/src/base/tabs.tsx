@@ -29,13 +29,13 @@ export const Tabs = ({ tabs, rightSide, selectedTab, onTab }: TabsProps) => {
         }}
       >
         <TabList className="sticky top-0 z-10 bg-white flex space-x-4 border-b items-center">
-          <div className="flex space-x-4 flex-grow">
+          <div className="flex space-x-4 grow">
             {tabs.map((tab) => (
               <Tab
                 key={tab.id}
                 className={({ selected }) =>
                   classNames(
-                    "py-2.5 text-sm font-medium leading-5 border-b-2 outline-none",
+                    "py-2.5 text-sm font-medium leading-5 border-b-2 outline-hidden",
                     selected
                       ? "text-brand-600 border-brand-600"
                       : "text-slate-600 hover:text-slate-700 border-transparent",
@@ -48,9 +48,9 @@ export const Tabs = ({ tabs, rightSide, selectedTab, onTab }: TabsProps) => {
           </div>
           {rightSide}
         </TabList>
-        <TabPanels className="mt-2 flex flex-grow flex-col overflow-auto">
+        <TabPanels className="mt-2 flex grow flex-col overflow-auto">
           {tabs.map((tab) => (
-            <TabPanel className="flex flex-grow flex-col" key={tab.id}>
+            <TabPanel className="flex grow flex-col" key={tab.id}>
               {tab.content}
             </TabPanel>
           ))}

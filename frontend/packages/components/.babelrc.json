@@ -2,7 +2,6 @@
   "sourceType": "unambiguous",
   "presets": [
     [
-
       "@babel/preset-env",
       {
         "targets": {
@@ -12,10 +11,12 @@
         }
       }
     ],
-    "@babel/preset-typescript",
+    [
+      "@babel/preset-typescript",
+      {
+        "onlyRemoveTypeImports": false
+      }
+    ],
     "@babel/preset-react"
-  ],
-  "plugins": [
-    "@babel/plugin-syntax-import-attributes"
   ]
 }

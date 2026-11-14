@@ -56,7 +56,7 @@ export function ShortcutHelp({
             Keyboard shortcuts
           </h2>
           <button
-            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
+            className="rounded-sm px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
             onClick={onClose}
             type="button"
           >
@@ -72,7 +72,7 @@ export function ShortcutHelp({
               <span className="flex-1 text-sm text-slate-700">
                 {shortcut.description}
               </span>
-              <kbd className="shrink-0 rounded border border-slate-300 bg-slate-50 px-1.5 py-0.5 font-mono text-xs text-slate-600">
+              <kbd className="shrink-0 rounded-sm border border-slate-300 bg-slate-50 px-1.5 py-0.5 font-mono text-xs text-slate-600">
                 {chord(shortcut)}
               </kbd>
             </li>

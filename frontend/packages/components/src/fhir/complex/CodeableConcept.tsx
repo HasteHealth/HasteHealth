@@ -42,7 +42,7 @@ export const FhirCodeableConceptEditable = ({
             />
             <button
               type="button"
-              className="absolute right-1.5 top-1.5 rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              className="absolute right-1.5 top-1.5 rounded-xs p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
               onClick={() => {
                 const newCoding: Coding[] = [...(value?.coding || [])];
                 newCoding.splice(index, 1);

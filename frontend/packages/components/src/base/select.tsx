@@ -51,7 +51,7 @@ export const Select = ({
       nullable
     >
       <div className="relative">
-        <div className="flex flex-col flex-grow gap-0.5">
+        <div className="flex flex-col grow gap-0.5">
           <Label
             required={required}
             label={label}
@@ -62,7 +62,7 @@ export const Select = ({
           <div className="relative">
             <Combobox.Input
               className={classNames(
-                "outline-none w-full leading-5 text-gray-900 focus:ring-0",
+                "outline-hidden w-full leading-5 text-gray-900 focus:ring-0",
                 inputClassNames({
                   hideBorder: false,
                   issues: issue ? [issue] : [],
@@ -91,7 +91,7 @@ export const Select = ({
           leaveTo="opacity-0"
           afterLeave={() => setQuery("")}
         >
-          <Combobox.Options className="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <Combobox.Options className="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm">
             {query.length > 0 && open && (
               <Combobox.Option
                 value={{ value: query, label: query }}

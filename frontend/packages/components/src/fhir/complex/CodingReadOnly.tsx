@@ -16,7 +16,7 @@ export const FHIRCodingReadOnly = ({
       title={[value.system, value.code].filter(Boolean).join(" | ")}
     >
       {value.code && (
-        <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[11px] leading-none text-indigo-700">
+        <span className="rounded-sm bg-indigo-50 px-1.5 py-0.5 font-mono text-[11px] leading-none text-indigo-700">
           {value.code}
         </span>
       )}

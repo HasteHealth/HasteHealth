@@ -87,7 +87,7 @@ function RecentPanel({
         </span>
         {entries.length > 0 && (
           <button
-            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-sm p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
             onClick={onClear}
             title="Clear"
             type="button"
@@ -96,7 +96,7 @@ function RecentPanel({
           </button>
         )}
         <button
-          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-sm p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           onClick={() => onOpenChange(false)}
           title="Hide"
           type="button"
@@ -141,7 +141,7 @@ function RecentPanel({
                     </div>
                   </button>
                   <button
-                    className="invisible rounded p-1 text-slate-400 hover:bg-slate-200 group-hover:visible"
+                    className="invisible rounded-sm p-1 text-slate-400 hover:bg-slate-200 group-hover:visible"
                     onClick={() => onRemove(entry.command)}
                     title="Remove"
                     type="button"

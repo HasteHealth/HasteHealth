@@ -54,7 +54,7 @@ export const TenantSelect = ({
                 className="p-2 flex cursor-pointer hover:bg-brand-50 dark:hover:bg-brand-800"
               >
                 <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <InitialDisplay value={t.id as string} />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -24,8 +24,8 @@
 		"@mdx-js/react": "^3.1.1",
 		"clsx": "^2.1.1",
 		"prism-react-renderer": "^2.4.1",
-		"react": "^19.2.7",
-		"react-dom": "^19.2.7"
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1"
 	},
 	"devDependencies": {
 		"@docusaurus/faster": "^3.10.2",
@@ -34,12 +34,12 @@
 		"@docusaurus/types": "3.10.2",
 		"@haste-health/codegen": "workspace:^",
 		"@haste-health/fhir-types": "workspace:^",
-		"@tailwindcss/postcss": "^4.3.2",
-		"autoprefixer": "^10.5.2",
-		"postcss": "^8.5.23",
-		"tailwindcss": "^4.3.2",
+		"@tailwindcss/postcss": "^4.3.5",
+		"autoprefixer": "^10.6.2",
+		"postcss": "^8.5.32",
+		"tailwindcss": "^4.3.5",
 		"typescript": "~6.0.3",
-		"wrangler": "^4.130.0"
+		"wrangler": "^4.161.0"
 	},
 	"browserslist": {
 		"production": [

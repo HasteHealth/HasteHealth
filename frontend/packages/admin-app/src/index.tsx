@@ -601,7 +601,7 @@ function ProjectRoot() {
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-3">
         {/* Below `lg` the sidebar is a drawer rather than a column. */}
         <button
-          className="rounded p-1 text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="rounded-sm p-1 text-slate-500 hover:bg-slate-100 lg:hidden"
           onClick={() => setSidebarOpen((open) => !open)}
           title="Toggle navigation"
           type="button"

@@ -66,10 +66,10 @@ const config: StorybookConfig = {
             },
           },
         ],
-        "@babel/preset-typescript",
+        // Babel 8 keeps imports not marked `import type` unless told otherwise.
+        ["@babel/preset-typescript", { onlyRemoveTypeImports: false }],
         "@babel/preset-react",
       ],
-      plugins: ["@babel/plugin-syntax-import-attributes"],
     };
   },
 

@@ -24,11 +24,11 @@
     "@haste-health/hl7.fhir.r4b.core": "workspace:^",
     "@haste-health/testscript-runner": "workspace:^",
     "@iarna/toml": "^2.2.5",
-    "@inquirer/prompts": "^8.5.2",
-    "@types/node": "^22.20.0",
-    "commander": "^12.1.0",
-    "pino": "^9.14.0",
-    "pino-pretty": "^11.3.0"
+    "@inquirer/prompts": "^8.8.0",
+    "@types/node": "^26.6.6",
+    "commander": "^15.1.0",
+    "pino": "^10.4.0",
+    "pino-pretty": "^13.2.0"
   },
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",

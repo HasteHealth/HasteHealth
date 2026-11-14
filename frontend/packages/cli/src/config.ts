@@ -133,8 +133,8 @@ export function configurationCommands(command: Command) {
   command
     .command("add-tenant")
     .description("Add a tenant to the configuration file")
-    .option("-r4, --r4-url <r4Url>", "r4 URL")
-    .option("-r4b, --r4b-url <r4bUrl>", "r4b URL")
+    .option("--r4-url <r4Url>", "r4 URL")
+    .option("--r4b-url <r4bUrl>", "r4b URL")
     .option("-i, --oidc <oidcDiscovery>", "Enter the OIDC discovery URL")
     .option("-a, --auth <authMethod>", "Enter auth method")
     .option("-n, --name <name>", "Tenant name")
