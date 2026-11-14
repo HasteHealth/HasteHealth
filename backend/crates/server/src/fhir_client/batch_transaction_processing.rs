@@ -1,7 +1,10 @@
 use crate::{
     fhir_client::{
         ClientState, ServerCTX,
-        middleware::{Backend, auth_z::scope_check},
+        middleware::{
+            Backend,
+            auth_z::{access_control::RequestPolicy, scope_check},
+        },
         utilities::request_to_resource_type,
     },
     fhir_http::{self, HTTPRequest},
@@ -328,29 +331,41 @@ fn point_at(references: Vec<Pin<&mut Reference>>, literal: &str) {
 ///
 /// Answered by the search index alone: the id it already holds is all a
 /// reference needs, so no resource is read. The lookups run at once, each
-/// with the filters the caller's own search of the type would carry.
+/// authorized as the caller's own search of the type would be: their access
+/// policies must grant it, and it carries the filters their scopes set.
 ///
 /// # Errors
 ///
-/// Per [https://hl7.org/fhir/R4/http.html#trules] the transaction fails when
-/// a reference matches no resource or more than one.
+/// Forbidden when the caller may not run a reference's search. Per
+/// [https://hl7.org/fhir/R4/http.html#trules] the transaction fails when a
+/// reference matches no resource or more than one.
 async fn resolve_conditional_references<B: Backend>(
     state: &ClientState<B>,
     ctx: &ServerCTX<B>,
     conditional_references: ConditionalReferences<'_>,
 ) -> Result<(), OperationOutcomeError> {
+    if conditional_references.is_empty() {
+        return Ok(());
+    }
+
+    let policy = &RequestPolicy::of_caller(state, ctx).await?;
     let lookups = conditional_references
         .into_iter()
         .map(|(search_uri, references)| async move {
             let search = conditional_reference_search(&search_uri)?;
             let filters = scope_check::search_filters(&ctx.user.claims, &search.resource_type)?;
+            let search = SearchRequest::Type(search);
+            if let Some(policy) = policy {
+                policy.check(&FHIRRequest::Search(search.clone())).await?;
+            }
+
             let found = state
                 .search
                 .search(
                     &ctx.fhir_version,
                     &ctx.tenant,
                     &ctx.project,
-                    &SearchRequest::Type(search),
+                    &search,
                     Some(SearchOptions {
                         // Two tell one match from several.
                         count_limit: Some(2),

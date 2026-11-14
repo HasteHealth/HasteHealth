@@ -1,6 +1,6 @@
 ---
 title: Load sample data
-description: How to download Synthea sample FHIR data and load it into a running Haste Health instance using the CLI transaction command.
+description: How to download Synthea sample FHIR data and load it into a running Haste Health instance with the CLI, organizations and practitioners first.
 sidebar_position: 1
 ---
 
@@ -16,12 +16,47 @@ Before loading sample data, ensure you have the following:
 You can download sample FHIR data files from the Synthea project.
 Download R4 data files from [here](https://synthea.mitre.org/downloads).
 
+A Synthea FHIR download holds three kinds of file:
+
+| File | Contains |
+|---|---|
+| `hospitalInformation<timestamp>.json` | The Organizations and Locations where patients receive care, as a `batch` Bundle. |
+| `practitionerInformation<timestamp>.json` | The Practitioners and PractitionerRoles who provide that care, as a `batch` Bundle. |
+| `<Given>_<Family>_<uuid>.json` | One patient and their whole record, as a `transaction` Bundle. |
+
+Patient bundles do not contain the organizations, locations and practitioners they refer to. They name them
+by identifier with [conditional references](https://hl7.org/fhir/R4/http.html#trules) such as
+`Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999499`, which the server resolves to the one
+matching resource when it processes the transaction. Those resources must therefore be loaded first.
 
 ## Load Sample Data into Haste Health
+
+### 1. Load organizations, locations and practitioners
+Load the two information files once per project:
+
 ```bash
-for file in ~/my-synthea-data-fhir/*
+haste-health api batch --file ~/my-synthea-data-fhir/hospitalInformation*.json
+haste-health api batch --file ~/my-synthea-data-fhir/practitionerInformation*.json
+```
+
+### 2. Wait for them to be indexed
+Conditional references are resolved by search, and resources are added to the search index shortly after
+they are written. Before loading patients, check that the practitioners are searchable: the `total` returned
+should equal the number of Practitioner entries in the `practitionerInformation` file.
+
+```bash
+haste-health api search-type Practitioner "_count=0"
+```
+
+### 3. Load the patients
+
+```bash
+for file in ~/my-synthea-data-fhir/*.json
 do
-  haste-health api transaction --file $file
+  case "$(basename "$file")" in
+    hospitalInformation*|practitionerInformation*) continue ;;
+  esac
+  haste-health api transaction --file "$file"
 done
 ```
 
@@ -29,6 +64,13 @@ done
 After loading the data, you can verify that the data has been successfully imported by accessing the Haste Health admin interface or by querying the FHIR API directly. 
 
 ## Issues
+- A patient bundle that fails with `Conditional reference '...' matched no resources.` was loaded before the
+  organizations and practitioners it refers to were loaded and indexed. Complete steps 1 and 2, then load it again.
+- A patient bundle that fails with `Conditional reference '...' matched multiple resources.` refers to a
+  resource that was loaded more than once, for example by loading the same download's information files
+  twice. Load each download's information files only once per project.
+- Load a download's patients after that download's own information files. Another download's information
+  files may not include the organizations and practitioners they refer to.
 - If you encounter issues related to bundle size (413 HTTP) errors, consider increasing the `MAX_REQUEST_BODY_SIZE` environment variable in your Docker setup.
 For example, set `MAX_REQUEST_BODY_SIZE=8388608` for 8mb.
 - On a hosted tenant, requests are rate limited per 15-minute window (see [Pricing](/pricing)). The free tier's
