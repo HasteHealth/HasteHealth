@@ -1,4 +1,4 @@
-use chrono::{Datelike, Days, NaiveDate};
+use chrono::{Datelike, Days, NaiveDate, Timelike};
 use regex::Regex;
 use std::sync::LazyLock;
 
@@ -93,6 +93,33 @@ impl ToString for Date {
     }
 }
 
+impl Date {
+    /// The digits written, as `FHIRPath` `precision()` counts them.
+    #[must_use]
+    pub fn precision(&self) -> i64 {
+        match self {
+            Date::Year(_) => 4,
+            Date::YearMonth(..) => 6,
+            Date::YearMonthDay(..) => 8,
+        }
+    }
+}
+
+impl DateTime {
+    /// The digits written, as `FHIRPath` `precision()` counts them. A full time counts
+    /// to the second, or the millisecond when it has a fraction.
+    #[must_use]
+    pub fn precision(&self) -> i64 {
+        match self {
+            DateTime::Year(_) => 4,
+            DateTime::YearMonth(..) => 6,
+            DateTime::YearMonthDay(..) => 8,
+            DateTime::Iso8601(dt) if dt.nanosecond() == 0 => 14,
+            DateTime::Iso8601(_) => 17,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Instant {
     Iso8601(chrono::DateTime<chrono::Utc>),
@@ -121,6 +148,22 @@ pub enum Time {
     Hour(u8),
     HourMinute(u8, u8),
     HourMinuteSecond(chrono::NaiveTime),
+    /// Seconds written with a fraction, as in a `FHIRPath` literal `@T10:30:00.000`.
+    /// Kept apart so `precision()` sees the digits, which `NaiveTime` drops when zero.
+    HourMinuteSecondFraction(chrono::NaiveTime),
+}
+
+impl Time {
+    /// The digits written, as `FHIRPath` `precision()` counts them.
+    #[must_use]
+    pub fn precision(&self) -> i64 {
+        match self {
+            Time::Hour(_) => 2,
+            Time::HourMinute(..) => 4,
+            Time::HourMinuteSecond(time) if time.nanosecond() == 0 => 6,
+            Time::HourMinuteSecond(_) | Time::HourMinuteSecondFraction(_) => 9,
+        }
+    }
 }
 
 impl ToString for Time {
@@ -128,7 +171,9 @@ impl ToString for Time {
         match self {
             Time::Hour(hour) => format!("{hour:02}"),
             Time::HourMinute(hour, minute) => format!("{hour:02}:{minute:02}"),
-            Time::HourMinuteSecond(time) => time.format("%H:%M:%S%.f").to_string(),
+            Time::HourMinuteSecond(time) | Time::HourMinuteSecondFraction(time) => {
+                time.format("%H:%M:%S%.f").to_string()
+            }
         }
     }
 }
@@ -243,7 +288,12 @@ pub fn parse_partial_time(time_string: &str) -> Result<Time, ParseError> {
         (Some(hour), Some(minute)) if time_string.len() == 5 => {
             Ok(Time::HourMinute(captured(hour), captured(minute)))
         }
-        _ => parse_time(time_string),
+        _ => parse_time(time_string).map(|time| match time {
+            Time::HourMinuteSecond(t) if time_string.contains('.') => {
+                Time::HourMinuteSecondFraction(t)
+            }
+            time => time,
+        }),
     }
 }
 

@@ -34,13 +34,45 @@ fn permissions() -> impl Strategy<Value = String> {
     ]
 }
 
+/// The query of a granular scope: `?param=value` pairs with the characters
+/// a code system URL and token bring.
+fn query() -> impl Strategy<Value = String> {
+    prop::collection::vec(
+        prop::sample::select(vec![
+            "category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory",
+            "category=encounter-diagnosis",
+            "code:in=http://example.org/ValueSet/vitals",
+            "date=gt2020-01-01",
+            "status=final,amended",
+        ]),
+        1..=2,
+    )
+    .prop_map(|pairs| format!("?{}", pairs.join("&")))
+}
+
 fn resource_scope() -> impl Strategy<Value = String> {
     (
         prop::sample::select(vec!["user", "system", "patient"]),
         prop_oneof![Just("*"), prop::sample::select(RESOURCE_TYPES)],
         permissions(),
+        prop_oneof![3 => Just(String::new()), 1 => query()],
     )
-        .prop_map(|(user, level, permissions)| format!("{user}/{level}.{permissions}"))
+        .prop_map(|(user, level, permissions, query)| {
+            // A query needs a resource type, not `*`, and v2 permissions
+            // (letters), not a v1 word.
+            let (level, permissions) = if query.is_empty() {
+                (level, permissions)
+            } else {
+                let letters = match permissions.as_str() {
+                    "*" => "cruds",
+                    "read" => "rs",
+                    "write" => "cud",
+                    letters => letters,
+                };
+                ("Observation", letters.to_string())
+            };
+            format!("{user}/{level}.{permissions}{query}")
+        })
 }
 
 fn scope() -> impl Strategy<Value = String> {
@@ -123,7 +155,7 @@ proptest! {
     /// Nor on text shaped like a scope.
     #[test]
     fn parsing_scope_shaped_text_never_panics(
-        text in "(user|system|patient|launch)/[A-Za-z*./ ]{0,12}"
+        text in "(user|system|patient|launch)/[A-Za-z*./?=&|: ]{0,12}"
     ) {
         let _ = Scopes::try_from(text.as_str());
     }

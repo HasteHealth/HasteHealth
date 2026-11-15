@@ -201,6 +201,7 @@ fn shift_partial_datetime(
             u8::try_from(shifted.minute()).ok()?,
         ),
         Time::HourMinuteSecond(_) => Time::HourMinuteSecond(shifted.time()),
+        Time::HourMinuteSecondFraction(_) => Time::HourMinuteSecondFraction(shifted.time()),
     };
     Some(PartialDateTime {
         date: shifted.date(),
@@ -229,5 +230,6 @@ fn shift_time(time: &Time, duration: Duration) -> Option<Time> {
             ))
         }
         Time::HourMinuteSecond(t) => moved(Some(*t)).map(Time::HourMinuteSecond),
+        Time::HourMinuteSecondFraction(t) => moved(Some(*t)).map(Time::HourMinuteSecondFraction),
     }
 }

@@ -16,7 +16,7 @@ mod predicate;
 use std::sync::{Arc, PoisonError, RwLock};
 
 use crate::{
-    IndexOutcome, IndexResource, MAX_COUNT, ResolvedParameter, SearchEngine, SearchEntry,
+    AnyOf, IndexOutcome, IndexResource, MAX_COUNT, ResolvedParameter, SearchEngine, SearchEntry,
     SearchOptions, SearchReturn,
     indexing_conversion::to_insertable_index,
     memory::R4_SEARCH_PARAMETERS_INDEX,
@@ -61,11 +61,11 @@ struct Criterion<'a> {
     predicate: Predicate<'a>,
 }
 
-/// What a resource must satisfy: every criterion, and one of `any_of`'s when
-/// the search restricts it.
+/// What a resource must satisfy: every criterion, and, for each filter the
+/// search runs with, every criterion of one of its branches.
 struct Criteria<'a> {
     all: Vec<Criterion<'a>>,
-    any_of: Option<Vec<Criterion<'a>>>,
+    filters: Vec<Vec<Vec<Criterion<'a>>>>,
 }
 
 /// The page the result parameters select. The total is always known in
@@ -195,7 +195,6 @@ async fn search(
 ) -> Result<SearchReturn, OperationOutcomeError> {
     let (resource_type, parameters) = request_parts(request);
     let count = max_count(options.as_ref())?;
-    let any_of = options.as_ref().and_then(|options| options.any_of.as_ref());
 
     let criteria = Criteria {
         all: parameters
@@ -204,16 +203,12 @@ async fn search(
             .filter_map(resource_parameter)
             .map(|parameter| criterion(resource_type, parameter))
             .collect::<Result<_, _>>()?,
-        // `ANDed` with the client's parameters; empty matches nothing.
-        any_of: any_of
-            .map(|any_of| {
-                any_of
-                    .0
-                    .iter()
-                    .map(|parameter| criterion(resource_type, parameter))
-                    .collect::<Result<_, _>>()
-            })
-            .transpose()?,
+        // `ANDed` with the client's parameters; an empty filter matches nothing.
+        filters: options
+            .iter()
+            .flat_map(|options| &options.filters)
+            .map(|any_of| branches(resource_type, any_of))
+            .collect::<Result<_, _>>()?,
     };
     let page = parameters
         .parameters()
@@ -263,6 +258,40 @@ fn result_parameter(parameter: &ParsedParameter) -> Option<&Parameter> {
         ParsedParameter::Result(parameter) => Some(parameter),
         ParsedParameter::Resource(_) => None,
     }
+}
+
+/// The criteria of a filter's branches on `resource_type`.
+fn branches<'a>(
+    resource_type: Option<&ResourceType>,
+    any_of: &'a AnyOf,
+) -> Result<Vec<Vec<Criterion<'a>>>, OperationOutcomeError> {
+    any_of
+        .0
+        .iter()
+        .map(|branch| {
+            branch
+                .0
+                .iter()
+                .map(|parameter| criterion(resource_type, parameter))
+                .collect()
+        })
+        .collect()
+}
+
+/// Whether `resource` satisfies `filter`: every parameter of one of its
+/// branches, by the R4 search parameters of the resource's type, evaluated
+/// as this backend searches. For checking one resource already in hand (a
+/// read) against a filter the searches run with.
+///
+/// # Errors
+///
+/// A parameter the R4 index does not define for the type, or one only a
+/// query can evaluate (a chain), is an error rather than a miss, so a caller
+/// can fail closed on it.
+pub async fn satisfies(resource: &Resource, filter: &AnyOf) -> Result<bool, OperationOutcomeError> {
+    let resource_type = resource.resource_type();
+    let branches = branches(Some(&resource_type), filter)?;
+    satisfies_any(&branches, resource).await
 }
 
 /// The criterion for one resource parameter on `resource_type`.
@@ -318,12 +347,28 @@ fn paged(page: Page, parameter: &Parameter) -> Result<Page, OperationOutcomeErro
 /// Whether `stored` satisfies the criteria.
 async fn matched(stored: &Stored, criteria: &Criteria<'_>) -> Result<bool, OperationOutcomeError> {
     let resource = &stored.resource;
-    Ok(every(&criteria.all, resource, matches).await?
-        && if let Some(any_of) = &criteria.any_of {
-            some(any_of, resource, matches).await?
-        } else {
-            true
-        })
+    if !every(&criteria.all, resource, matches).await? {
+        return Ok(false);
+    }
+    for any_of in &criteria.filters {
+        if !satisfies_any(any_of, resource).await? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// Whether `resource` satisfies every criterion of one of `branches`.
+async fn satisfies_any(
+    branches: &[Vec<Criterion<'_>>],
+    resource: &Resource,
+) -> Result<bool, OperationOutcomeError> {
+    for branch in branches {
+        if every(branch, resource, matches).await? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 /// Whether `resource`'s values for the criterion's parameter satisfy the
@@ -367,20 +412,6 @@ async fn every<T, C: Copy, E>(
         }
     }
     Ok(true)
-}
-
-/// Whether `test` holds for some item, stopping at the first it passes.
-async fn some<T, C: Copy, E>(
-    items: impl IntoIterator<Item = T>,
-    context: C,
-    test: impl AsyncFn(T, C) -> Result<bool, E>,
-) -> Result<bool, E> {
-    for item in items {
-        if test(item, context).await? {
-            return Ok(true);
-        }
-    }
-    Ok(false)
 }
 
 /// The items `keep` holds for, in order.

@@ -1,5 +1,6 @@
 mod error;
 mod parser;
+mod references;
 use crate::{
     error::{FunctionError, OperationError},
     parser::{
@@ -25,6 +26,7 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
+pub use references::{ExternalConstant, external_constants};
 use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
@@ -172,13 +174,16 @@ async fn evaluate_invocation<'a>(
 
             let float_index = downcast_number(index.values[0])?;
 
-            // Ensure the index is non-negative and has no fractional part
-            if float_index < 0.0 || float_index.fract() != 0.0 {
+            // Index must be an integer; a negative one is out of bounds.
+            if float_index.fract() != 0.0 {
                 return Err(FHIRPathError::OperationError(OperationError::InvalidIndex));
+            }
+            if float_index < 0.0 {
+                return Ok(context.new_context_from(vec![]));
             }
 
             // Suppress clippy warnings because the float is guaranteed to be a valid,
-            // non-negative integer index by the safety checks immediately above.
+            // non-negative integer index by the checks immediately above.
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let index: usize = (float_index as u64)
                 .try_into()
@@ -494,6 +499,7 @@ async fn evaluate_function<'a>(
         "ofType" | "as" => evaluate_of_type(function, &context),
         "is" => evaluate_is_function(function, &context),
         "count" => evaluate_count(function, &context),
+        "precision" => evaluate_precision(function, &context),
         "upper" | "lower" => evaluate_case(function, &context),
         "encode" | "decode" => evaluate_codec(function, context, config).await,
         "empty" => evaluate_empty(function, &context),
@@ -611,6 +617,46 @@ fn evaluate_count<'a>(
             ..Default::default()
         })]),
     )
+}
+
+/// <https://hl7.org/fhirpath/N1/#precision-integer>: the digits a Date, `DateTime` or Time
+/// was written with. Decimal is not supported until the engine keeps trailing zeros.
+fn evaluate_precision<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let Some(value) = singleton("precision", context)? else {
+        return Ok(context.new_context_from(vec![]));
+    };
+    let any = value.as_any();
+    let precision = if let Some(date) = any.downcast_ref::<FHIRDate>() {
+        date.value.as_ref().map(Date::precision)
+    } else if let Some(datetime) = any.downcast_ref::<FHIRDateTime>() {
+        datetime.value.as_ref().map(DateTime::precision)
+    } else if let Some(time) = any.downcast_ref::<FHIRTime>() {
+        time.value.as_ref().map(Time::precision)
+    } else if let Some(datetime) = any.downcast_ref::<PartialDateTime>() {
+        Some(datetime.precision())
+    } else {
+        return Err(FHIRPathError::OperationError(OperationError::InvalidType(
+            value.fhir_type(),
+            "a Date, DateTime or Time",
+        )));
+    };
+
+    Ok(context.new_context_from(
+        precision
+            .map(|value| {
+                context.allocate_literal(FHIRInteger {
+                    value: Some(value),
+                    ..Default::default()
+                })
+            })
+            .into_iter()
+            .collect(),
+    ))
 }
 
 fn evaluate_case<'a>(
@@ -3229,7 +3275,8 @@ impl<'a> Config<'a> {
 }
 
 /// Variables FHIR defines for every evaluation, resolved before the caller's resolver.
-fn fhir_environment_variable(name: &str) -> Option<String> {
+#[must_use]
+pub fn fhir_environment_variable(name: &str) -> Option<String> {
     match name {
         "sct" => Some("http://snomed.info/sct".to_string()),
         "loinc" => Some("http://loinc.org".to_string()),

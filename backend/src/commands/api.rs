@@ -1,5 +1,6 @@
 use crate::{cli::state::CliState, utilities};
 use clap::Subcommand;
+use clap_complete::engine::{ArgValueCandidates, CompletionCandidate};
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, Resource, ResourceType},
@@ -24,14 +25,20 @@ pub(crate) enum ApiCommands {
         #[arg(short, long)]
         file: Option<String>,
         /// FHIR resource type to create.
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
     },
     /// Read the current version of a resource (`GET [base]/[type]/[id]`).
-    Read { resource_type: String, id: String },
+    Read {
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
+        id: String,
+    },
 
     /// Read a specific historical version of a resource (`GET [base]/[type]/[id]/_history/[vid]`).
     VersionRead {
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         id: String,
         version_id: String,
     },
@@ -44,7 +51,8 @@ pub(crate) enum ApiCommands {
         /// Path to a file containing the JSON Patch document.
         #[arg(short, long)]
         file: Option<String>,
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         id: String,
     },
     /// Create or replace a resource at a known ID (`PUT [base]/[type]/[id]`).
@@ -55,7 +63,8 @@ pub(crate) enum ApiCommands {
         /// Path to a file containing the resource JSON.
         #[arg(short, long)]
         file: Option<String>,
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         id: String,
     },
     /// Submit a transaction Bundle (`POST [base]`, type `transaction`).
@@ -94,14 +103,16 @@ pub(crate) enum ApiCommands {
 
     /// Fetch the history of a resource type (`GET [base]/[type]/_history`).
     HistoryType {
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         /// FHIR search-style parameters, e.g. `_since=2024-01-01`.
         parameters: Option<String>,
     },
 
     /// Fetch the history of a single resource instance (`GET [base]/[type]/[id]/_history`).
     HistoryInstance {
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         id: String,
         /// FHIR search-style parameters, e.g. `_since=2024-01-01`.
         parameters: Option<String>,
@@ -109,7 +120,8 @@ pub(crate) enum ApiCommands {
 
     /// Search a resource type (`GET [base]/[type]?...`).
     SearchType {
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         /// FHIR search parameters, e.g. `name=eve&_count=20`.
         parameters: Option<String>,
     },
@@ -139,7 +151,8 @@ pub(crate) enum ApiCommands {
         /// Path to a file containing the Parameters resource JSON.
         #[arg(short, long)]
         file: Option<String>,
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         operation_name: String,
     },
 
@@ -147,11 +160,16 @@ pub(crate) enum ApiCommands {
     Capabilities {},
 
     /// Delete a single resource instance (`DELETE [base]/[type]/[id]`).
-    DeleteInstance { resource_type: String, id: String },
+    DeleteInstance {
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
+        id: String,
+    },
 
     /// Delete all resources of a type matching search parameters (`DELETE [base]/[type]?...`).
     DeleteType {
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         /// FHIR search parameters selecting which resources to delete.
         parameters: Option<String>,
     },
@@ -170,10 +188,24 @@ pub(crate) enum ApiCommands {
         /// Path to a file containing the Parameters resource JSON.
         #[arg(short, long)]
         file: Option<String>,
-        resource_type: String,
+        #[arg(value_parser = parse_resource_type, add = ArgValueCandidates::new(resource_type_names))]
+        resource_type: ResourceType,
         id: String,
         operation_name: String,
     },
+}
+
+/// Parses a `resource_type` argument, so clap rejects an unknown type before the command runs.
+fn parse_resource_type(value: &str) -> Result<ResourceType, String> {
+    ResourceType::try_from(value).map_err(|_| "not a valid FHIR resource type".to_string())
+}
+
+/// Shell completion candidates for a `resource_type` argument.
+fn resource_type_names() -> Vec<CompletionCandidate> {
+    ResourceType::NAMES
+        .iter()
+        .map(|name| CompletionCandidate::new(*name))
+        .collect()
 }
 
 async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::DeserializeOwned>(
@@ -228,15 +260,7 @@ pub(crate) async fn run(
             resource_type,
             file,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let resource =
                 derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
@@ -251,15 +275,7 @@ pub(crate) async fn run(
             Ok(())
         }
         ApiCommands::Read { resource_type, id } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client.read((), resource_type, id.clone()).await?;
 
@@ -304,15 +320,7 @@ pub(crate) async fn run(
                 ));
             };
 
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client
                 .patch((), resource_type, id.clone(), patches)
@@ -331,15 +339,7 @@ pub(crate) async fn run(
             data,
             file,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let resource =
                 derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
@@ -393,15 +393,7 @@ pub(crate) async fn run(
             id,
             version_id,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client
                 .vread((), resource_type, id.clone(), version_id.clone())
@@ -447,15 +439,7 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client
                 .history_type(
@@ -477,15 +461,7 @@ pub(crate) async fn run(
             id,
             parameters,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client
                 .history_instance(
@@ -507,15 +483,7 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let result = fhir_client
                 .search_type(
@@ -574,15 +542,7 @@ pub(crate) async fn run(
             file,
             data,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
@@ -607,15 +567,7 @@ pub(crate) async fn run(
             file,
             data,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
@@ -650,15 +602,7 @@ pub(crate) async fn run(
             Ok(())
         }
         ApiCommands::DeleteInstance { resource_type, id } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             fhir_client
                 .delete_instance((), resource_type.clone(), id.clone())
@@ -676,15 +620,7 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!(
-                        "'{}' is not a valid FHIR resource type: {}",
-                        resource_type, e
-                    ),
-                )
-            })?;
+            let resource_type = resource_type.clone();
 
             let parsed_parameters =
                 ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?;

@@ -742,6 +742,10 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         }
     });
 
+    let resource_names = resource_types
+        .iter()
+        .map(|resource_type_info| &resource_type_info.resource_type);
+
     quote! {
         #[derive(Error, Debug)]
         pub enum ResourceTypeError {
@@ -755,6 +759,9 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         }
 
         impl ResourceType {
+            /// The FHIR name of every resource type, as `as_ref` returns it.
+            pub const NAMES: &'static [&'static str] = &[#(#resource_names),*];
+
             pub fn deserialize<D: AsRef<[u8]>>(&self, #data_ident: D) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
                 match self {
                     #(#get_resource_deserialize_variant)*

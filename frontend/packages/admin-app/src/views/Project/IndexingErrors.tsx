@@ -22,7 +22,7 @@ function MetricCard({
   detail: string;
 }>) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
       <div className="text-sm font-medium text-slate-500">{title}</div>
       <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
       <div className="mt-1 text-xs text-slate-500">{detail}</div>
@@ -42,7 +42,7 @@ function SectionCard({
   action?: React.ReactNode;
 }>) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
@@ -214,7 +214,7 @@ export default function IndexingErrors() {
 
   return (
     <div className="flex w-full flex-col gap-6 overflow-y-auto">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold text-slate-900">
             Indexing Errors

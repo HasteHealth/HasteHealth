@@ -96,7 +96,7 @@ function StatusChip({ result }: Readonly<{ result: Result }>) {
   const succeeded = result.status === "success";
   return (
     <span
-      className={classNames("rounded px-1.5 py-0.5 text-[11px] font-medium", {
+      className={classNames("rounded-sm px-1.5 py-0.5 text-[11px] font-medium", {
         "bg-emerald-100 text-emerald-800": succeeded,
         "bg-red-100 text-red-800": !succeeded,
       })}
@@ -292,7 +292,7 @@ export function OperationInvocationPanel({
       <div className="space-y-1 border-y border-slate-200 bg-slate-50 px-3 py-2">
         <div className="flex items-center gap-2">
           <code
-            className="min-w-0 flex-1 truncate rounded border border-slate-200 bg-white px-2 py-1 font-mono text-xs text-slate-700"
+            className="min-w-0 flex-1 truncate rounded-sm border border-slate-200 bg-white px-2 py-1 font-mono text-xs text-slate-700"
             title={`POST ${path}`}
           >
             POST {path}

@@ -56,7 +56,7 @@ export function Badge({
   return (
     <span
       className={classNames(
-        "rounded px-1.5 py-0.5 text-xs",
+        "rounded-sm px-1.5 py-0.5 text-xs",
         tone === "amber"
           ? "bg-amber-100 text-amber-800"
           : "bg-slate-100 text-slate-600",

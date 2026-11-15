@@ -269,10 +269,10 @@ export default function ResourceEditor() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 overflow-auto">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <div className="mb-3 flex flex-wrap items-center gap-1 text-sm text-slate-500">
           <button
-            className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
             onClick={() => navigate(generatePath("/", {}))}
             type="button"
           >
@@ -281,7 +281,7 @@ export default function ResourceEditor() {
           </button>
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
           <button
-            className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
             onClick={() => navigate("/")}
             type="button"
           >
@@ -289,14 +289,14 @@ export default function ResourceEditor() {
           </button>
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
           <button
-            className="rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
             onClick={() => navigate(resourceListPath(displayResourceType))}
             type="button"
           >
             {displayResourceType}
           </button>
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
-          <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+          <span className="rounded-sm bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
             {displayId}
           </span>
         </div>
@@ -340,7 +340,7 @@ export default function ResourceEditor() {
         </div>
       </header>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
         <ResourceEditorTabs
           onStructureDefinitionChange={setStructureDefinition}
         />

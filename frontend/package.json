@@ -8,9 +8,9 @@
     "ci:build": "pnpm --recursive run build"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.0",
-    "typedoc": "^0.28.19",
+    "@changesets/cli": "^3.0.3",
+    "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "wrangler": "^4.130.0"
+    "wrangler": "^4.161.0"
   }
 }

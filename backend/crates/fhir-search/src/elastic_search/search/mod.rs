@@ -221,8 +221,11 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     }
 
     // `ANDed` with the client's parameters like any other clause, so nothing in
-    // the URL can widen it.
-    if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
+    // the URL can widen them.
+    for any_of in options
+        .map(|options| options.filters.as_slice())
+        .unwrap_or_default()
+    {
         clauses.push(
             any_of_clause(&parameter_resolver, tenant, project, resource_type, any_of).await?,
         );
@@ -262,8 +265,10 @@ fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcom
     }
 }
 
-/// `any_of`'s parameters as a `bool.should` with one branch required. Empty
-/// matches nothing: a filter with no branch must fail closed.
+/// `any_of`'s branches as a `bool.should` with one branch required, a branch
+/// of several parameters as a `bool.must`. Empty matches nothing: a filter
+/// with no branch must fail closed. A branch with no parameter matches
+/// everything: nothing to match.
 async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
     parameter_resolver: &Arc<ParameterResolver>,
     tenant: &TenantId,
@@ -276,11 +281,19 @@ async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
     }
 
     let mut branches = Vec::with_capacity(any_of.0.len());
-    for param in &any_of.0 {
-        branches.push(
-            build_resource_clause(parameter_resolver, tenant, project, resource_type, param)
-                .await?,
-        );
+    for branch in &any_of.0 {
+        let mut conjuncts = Vec::with_capacity(branch.0.len());
+        for param in &branch.0 {
+            conjuncts.push(
+                build_resource_clause(parameter_resolver, tenant, project, resource_type, param)
+                    .await?,
+            );
+        }
+        branches.push(match conjuncts.len() {
+            0 => json!({ "match_all": {} }),
+            1 => conjuncts.remove(0),
+            _ => json!({ "bool": { "must": conjuncts } }),
+        });
     }
 
     Ok(json!({ "bool": { "should": branches, "minimum_should_match": 1 } }))

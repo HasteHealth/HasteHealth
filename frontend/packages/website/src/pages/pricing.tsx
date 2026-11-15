@@ -9,6 +9,7 @@ import {
   TIERS,
   type Tier,
   type TierId,
+  WINDOW,
   isUnlimited,
   limitCount,
 } from "@site/src/pricing/tiers";
@@ -61,7 +62,7 @@ const COPY: Record<TierId, TierCopy> = {
     body: "A hosted tenant, live in under a minute, with no credit card. Sized so you can load a real dataset and query it the same day — built for the three days you spend comparing backends, and for the prototype that follows.",
     cta: { label: "Start for free", href: SIGNUP_URL },
     includes: [
-      "Room for ~300 Synthea patients, ~13 loadable per day",
+      "Room for ~300 Synthea patients, ~20 loadable every 15 minutes",
       "Full REST API, MCP endpoint and Admin App",
       "Shared infrastructure, no uptime guarantee",
       "Community support",
@@ -105,17 +106,17 @@ function limitsFor(tier: Tier): { label: string; value: string }[] {
 }
 
 /**
- * The one-line explanation of what a tier's budget buys, so "250,000 points /
- * day" means something without leaving the card.
+ * The one-line explanation of what a tier's budget buys, so "500,000 points /
+ * 15 minutes" means something without leaving the card.
  */
 function budgetHint(tier: Tier): string | null {
-  const { searches_per_day, writes_per_day } = tier.budget_examples;
+  const { searches_per_window, writes_per_window } = tier.budget_examples;
 
-  if (searches_per_day === null || writes_per_day === null) {
+  if (searches_per_window === null || writes_per_window === null) {
     return null;
   }
 
-  return `≈ ${searches_per_day.toLocaleString()} searches or ${writes_per_day.toLocaleString()} writes per day`;
+  return `≈ ${searches_per_window.toLocaleString()} searches or ${writes_per_window.toLocaleString()} writes every ${WINDOW}`;
 }
 
 const overages = [
@@ -182,7 +183,7 @@ const compliance = [
  *   10 budget hint   11 call to action
  *
  * The limits block gets four of its own bands rather than being a nested grid:
- * `"50,000,000 points / day"` and `"4 business hours"` wrap to two lines in a
+ * `"50,000,000 points / 15 minutes"` and `"4 business hours"` wrap to two lines in a
  * narrow card while `"Unmetered"` and `"None"` do not, and a nested grid would
  * let each card size those cells independently — which pushes the Support and
  * Uptime SLA labels out of line between cards.

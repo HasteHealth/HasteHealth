@@ -6,10 +6,7 @@ use crate::{
         UserSearchClauses,
     },
 };
-use argon2::{
-    Argon2, PasswordHasher, PasswordVerifier,
-    password_hash::{PasswordHash, SaltString, rand_core::OsRng},
-};
+use argon2::{Argon2, PasswordHasher, PasswordVerifier};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use sqlx::{PgExecutor, QueryBuilder};
@@ -25,9 +22,8 @@ static NO_PASSWORD_HASH: LazyLock<String> = LazyLock::new(|| {
 });
 
 fn hash_password(password: &str) -> Result<String, StoreError> {
-    let salt = SaltString::generate(&mut OsRng);
     let hash = Argon2::default()
-        .hash_password(password.as_bytes(), &salt)
+        .hash_password(password.as_bytes())
         .map_err(StoreError::PasswordHashError)?
         .to_string();
 
@@ -101,11 +97,9 @@ where
                 None => (None, NO_PASSWORD_HASH.clone()),
             };
 
-            let password_matches = PasswordHash::new(&password_hash).is_ok_and(|parsed_hash| {
-                Argon2::default()
-                    .verify_password(password.as_bytes(), &parsed_hash)
-                    .is_ok()
-            });
+            let password_matches = Argon2::default()
+                .verify_password(password.as_bytes(), password_hash.as_str())
+                .is_ok();
 
             // An unverified address is refused only after the hash check, so
             // that refusal takes the same time too.
@@ -422,5 +416,35 @@ impl<Key: AsRef<str> + Send + Sync>
                 search_user(&mut **tx, tenant, clauses).await
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verifies_hashes_written_by_argon2_0_5() {
+        // Hashed with argon2 0.5.3, `Argon2::default()` and `SaltString::generate`.
+        let stored = "$argon2id$v=19$m=19456,t=2,p=1$p0+D8d7asrAaYBihZmCeqA$oX83sKk+YRUjQPHdVuNh6aswTtUw3BH3y/dD/2DFCZs";
+
+        assert!(
+            Argon2::default()
+                .verify_password(b"correct horse battery staple", stored)
+                .is_ok()
+        );
+        assert!(Argon2::default().verify_password(b"wrong", stored).is_err());
+    }
+
+    #[test]
+    fn new_hashes_keep_the_same_parameters() {
+        let hash = hash_password("correct horse battery staple").unwrap();
+
+        assert!(hash.starts_with("$argon2id$v=19$m=19456,t=2,p=1$"));
+        assert!(
+            Argon2::default()
+                .verify_password(b"correct horse battery staple", hash.as_str())
+                .is_ok()
+        );
     }
 }

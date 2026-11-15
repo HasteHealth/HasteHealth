@@ -46,7 +46,7 @@ function SectionCard({
   action?: React.ReactNode;
 }>) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
@@ -72,7 +72,7 @@ function Checkbox({
     <label className="flex items-center gap-2 text-sm text-slate-700">
       <input
         type="checkbox"
-        className="h-4 w-4 rounded border-slate-300 accent-brand-600"
+        className="h-4 w-4 rounded-sm border-slate-300 accent-brand-600"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -194,13 +194,13 @@ function UninstallControl({
             Delete what it installed?
           </span>
           <RowButton
-            className="rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+            className="rounded-sm px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
             onClick={() => setConfirming(false)}
           >
             Cancel
           </RowButton>
           <RowButton
-            className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+            className="rounded-sm bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
             onClick={() => {
               setConfirming(false);
               onUninstall(guide);
@@ -390,7 +390,7 @@ export default function Packages() {
 
   return (
     <div className="flex w-full flex-col gap-6 overflow-y-auto text-slate-700">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <h1 className="text-2xl font-semibold text-slate-900">Packages</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-500">
           Install FHIR packages (implementation guides such as US Core) into

@@ -108,7 +108,7 @@ export const ScopeVerifyForm = ({
           />
           <button
             type="submit"
-            className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
+            className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-hidden focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
           >
             Allow
           </button>
@@ -135,7 +135,7 @@ export const ScopeVerifyForm = ({
           />
           <button
             type="submit"
-            className="w-full text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+            className="w-full text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-hidden  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
           >
             Deny
           </button>

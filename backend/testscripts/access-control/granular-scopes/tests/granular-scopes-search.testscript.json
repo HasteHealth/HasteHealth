@@ -1,0 +1,305 @@
+{
+    "id": "access-control-granular-scopes-search",
+    "url": "https://haste.health/fhir/TestScript/access-control-granular-scopes-search",
+    "name": "Access Control Granular Scopes Search",
+    "title": "Granular scopes: searches",
+    "status": "active",
+    "description": "Run as the granular-scopes login. Searches of a type granted only by granular scopes return the resources matching any of them, whatever the search asks for; a plain scope beside a granular one lifts the filter; includes are filtered the same way.",
+    "resourceType": "TestScript",
+    "contained": [],
+    "fixture": [],
+    "test": [
+        {
+            "id": "01-observation-union",
+            "name": "An Observation search returns the union of the granular scopes' categories",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-granular-scopes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The laboratory Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-lab').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The vital-signs Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-vital').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The survey Observation is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-survey').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-observation-category-outside",
+            "name": "Searching a category outside the granular scopes returns nothing",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-granular-scopes&category=http://terminology.hl7.org/CodeSystem/observation-category|survey",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "response": "okay",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-granular-scopes&category=survey",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A bare code outside the scopes returns no Observation either",
+                        "expression": "Bundle.entry.resource.ofType(Observation).exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-observation-category-inside",
+            "name": "Searching a granted category returns exactly its Observations",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-granular-scopes&category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the laboratory Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).all(id = 'acg-observation-lab')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The laboratory Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-lab').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-granular-scopes&code=http://loinc.org|8867-4",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A code search finds the vital-signs Observation",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-vital').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-condition-plain-wins",
+            "name": "A plain scope beside a granular one on the same type reaches every resource of the type",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "_tag=access-control-granular-scopes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The problem-list Condition is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'acg-condition-problem').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The encounter-diagnosis Condition is returned too",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'acg-condition-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-encounter-class",
+            "name": "A granular scope on another parameter than category filters by it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "_tag=access-control-granular-scopes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The ambulatory Encounter is returned",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'acg-encounter-amb').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The inpatient Encounter is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'acg-encounter-imp').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-revinclude",
+            "name": "_revinclude adds only the resources the granular scopes reach",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=acg-patient&_revinclude=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acg-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The laboratory Observation is included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-lab').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The vital-signs Observation is included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-vital').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The survey Observation is not included",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-survey').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-include",
+            "name": "_include follows a reference to a type a plain scope grants",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=acg-observation-lab&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The laboratory Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acg-observation-lab').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Its patient is included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acg-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

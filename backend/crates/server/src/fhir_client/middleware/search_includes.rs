@@ -31,12 +31,15 @@ use haste_fhir_search::{
     memory::R4_SEARCH_PARAMETERS_INDEX,
 };
 use haste_fhirpath::FPEngine;
-use haste_jwt::{ResourceId, VersionId};
+use haste_jwt::{ResourceId, VersionId, scopes::SmartResourceScopePermission};
 use haste_repository::fhir::{CachePolicy, FHIRRepository};
 
 use crate::fhir_client::{
     ClientState, ServerCTX,
-    middleware::{Backend, auth_z::patient_scope},
+    middleware::{
+        Backend,
+        auth_z::{granular_scope, patient_scope},
+    },
 };
 
 /// Ceiling on resources one search may add through `_include` and
@@ -465,11 +468,21 @@ async fn find_referrers<B: Backend>(
                 chains: Vec::new(),
             })]),
         });
+        // Confined as the caller's own searches of the type are: to the
+        // compartment, and to what granular scopes on the type reach. An
+        // include is a read, so the read scopes decide.
+        let compartment = ctx
+            .compartment
+            .as_deref()
+            .and_then(|patient_id| patient_scope::search_filter(patient_id, Some(&resource_type)));
+        let granular = granular_scope::search_filter(
+            &ctx.user.claims.scope,
+            &resource_type,
+            &SmartResourceScopePermission::Read,
+        );
         let options = SearchOptions {
             count_limit: Some(MAX_REVINCLUDE_PER_DIRECTIVE),
-            any_of: ctx.compartment.as_deref().and_then(|patient_id| {
-                patient_scope::search_filter(patient_id, Some(&resource_type))
-            }),
+            filters: compartment.into_iter().chain(granular).collect(),
         };
 
         let result = match state

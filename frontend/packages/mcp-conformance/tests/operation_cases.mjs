@@ -153,24 +153,37 @@ export const OPERATION_CASES = {
     await fails("fhir_op_registration_info", {});
   },
 
-  // in request 1..1 Bundle; out return 1..1 OperationOutcome.
+  // Instance level on AccessPolicyV2 and AccessPolicyV3, so the call names the
+  // type. in request 1..1 Bundle; out return 1..1 OperationOutcome.
   async fhir_op_evaluate_policy({ ok, fails, create }) {
-    const policy = await create({
-      resourceType: "AccessPolicyV2",
-      name: "conformance",
-      engine: "full-access",
-    });
+    const policies = [
+      await create({
+        resourceType: "AccessPolicyV2",
+        name: "conformance",
+        engine: "full-access",
+      }),
+      await create({
+        resourceType: "AccessPolicyV3",
+        combining: "deny-overrides",
+        rule: [{ kind: "decision", type: "permit" }],
+      }),
+    ];
     const request = {
       resourceType: "Bundle",
       type: "batch",
       entry: [{ request: { method: "GET", url: "Patient" } }],
     };
-    const result = await ok("fhir_op_evaluate_policy", {
-      id: policy.id,
-      request,
-    });
-    assert.equal(result.resourceType, "OperationOutcome");
-    await fails("fhir_op_evaluate_policy", { id: policy.id });
+    for (const { resourceType, id } of policies) {
+      const result = await ok("fhir_op_evaluate_policy", {
+        resourceType,
+        id,
+        request,
+      });
+      assert.equal(result.resourceType, "OperationOutcome");
+      await fails("fhir_op_evaluate_policy", { resourceType, id });
+    }
+    // Two resource types, so the id alone does not say which one.
+    await fails("fhir_op_evaluate_policy", { id: policies[0].id, request });
   },
 
   // in hl7v2 1..1; MSH-2 holds the encoding characters.

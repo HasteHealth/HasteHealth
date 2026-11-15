@@ -766,7 +766,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
           <div className="mt-1 flex flex-col">
             <div className="flex items-center">
               <div className="flex flex-1 ">
-                <span className="text-xs text-slate-500 mr-2 overflow-ellipsis">
+                <span className="text-xs text-slate-500 mr-2 text-ellipsis">
                   {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
@@ -809,7 +809,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
               </div>
             </div>
             <div className="flex items-center justify-end">
-              <span className="text-xs text-slate-500 overflow-ellipsis">
+              <span className="text-xs text-slate-500 text-ellipsis">
                 {data.total ?? 0} total rows
               </span>
             </div>

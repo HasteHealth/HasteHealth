@@ -4533,6 +4533,38 @@ export interface AccessPolicyV3Rule {
    */
   rule?: Array<AccessPolicyV3Rule>;
 }
+export interface AccessPolicyV3ManifestAttribute {
+  /** 
+   * The attribute referenced.
+   */
+  attributeId: id;
+  /** 
+   * The attribute referenced.
+   */
+  _attributeId?: Element
+  /** 
+   * The attribute's scope, principal or request.
+   */
+  scope: code;
+  /** 
+   * The attribute's scope, principal or request.
+   */
+  _scope?: Element
+}
+export interface AccessPolicyV3Manifest {
+  /** 
+   * Path of the rule, for example rule[0].rule[1].
+   */
+  rule: string;
+  /** 
+   * Path of the rule, for example rule[0].rule[1].
+   */
+  _rule?: Element
+  /** 
+   * An attribute the rule's target, condition or data references.
+   */
+  attribute: Array<AccessPolicyV3ManifestAttribute>;
+}
 export interface AccessPolicyV3 {
 resourceType: "AccessPolicyV3"
   /** 
@@ -4575,6 +4607,10 @@ resourceType: "AccessPolicyV3"
    * Ordered rules that govern how the access policy is applied.
    */
   rule?: Array<AccessPolicyV3Rule>;
+  /** 
+   * Server-maintained: the attributes each rule references, recomputed on every save.
+   */
+  manifest?: Array<AccessPolicyV3Manifest>;
 }
 
 export interface ClientApplication {

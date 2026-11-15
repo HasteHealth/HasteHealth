@@ -2,19 +2,19 @@
 //!
 //! Every function takes the id of the patient the token is bound to. A search
 //! on a compartment member type runs with an [`AnyOf`] filter over the R4
-//! compartment parameters; a read is checked against the resource it returned;
+//! compartment parameters; a read is checked against the resource it returned
+//! ([`resource_in_scope`], by the scope middleware);
 //! writes, history, system-level search, chained and reverse-chained
 //! parameters, and every operation but the patient's own `$everything` are
 //! refused. Reference data outside the compartment ([`SHARED_TYPES`]) is
 //! readable as a whole.
 
 use crate::fhir_client::{
-    StorageError,
     compartment::{in_patient_compartment, patient_compartment_parameters},
     middleware::auth_z::forbidden,
 };
 use haste_fhir_client::{
-    request::{FHIRReadResponse, FHIRRequest, FHIRResponse, InvocationRequest, SearchRequest},
+    request::{FHIRRequest, InvocationRequest, SearchRequest},
     url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
@@ -120,46 +120,13 @@ pub fn search_filter(patient_id: &str, resource_type: Option<&ResourceType>) -> 
         parameters.push(parameter("_id", patient_id.to_string()));
     }
 
-    Some(AnyOf(parameters))
+    Some(AnyOf::of_parameters(parameters))
 }
 
 /// Whether `resource` may be returned: a shared type or a compartment member.
 pub async fn resource_in_scope(patient_id: &str, resource: &Resource) -> bool {
     SHARED_TYPES.contains(&resource.resource_type())
         || in_patient_compartment(resource, patient_id).await
-}
-
-/// A read as the caller may see it: a resource outside the compartment
-/// answers exactly as one that does not exist.
-///
-/// # Errors
-///
-/// A version read of a resource outside the compartment is not found.
-pub async fn filter_read(
-    patient_id: &str,
-    response: FHIRResponse,
-) -> Result<FHIRResponse, OperationOutcomeError> {
-    match response {
-        FHIRResponse::Read(read) => {
-            let resource = match read.resource {
-                Some(resource) if resource_in_scope(patient_id, &resource).await => Some(resource),
-                _ => None,
-            };
-            Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
-        }
-        FHIRResponse::VersionRead(vread) => {
-            if resource_in_scope(patient_id, &vread.resource).await {
-                Ok(FHIRResponse::VersionRead(vread))
-            } else {
-                Err(StorageError::NotFound(
-                    vread.resource.resource_type(),
-                    vread.resource.id().clone().unwrap_or_default(),
-                )
-                .into())
-            }
-        }
-        other => Ok(other),
-    }
 }
 
 fn check_type(resource_type: &ResourceType) -> Result<(), OperationOutcomeError> {

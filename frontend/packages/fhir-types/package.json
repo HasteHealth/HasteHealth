@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/fhir-types",
-  "version": "0.130.0",
+  "version": "0.130.7",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
     "./r4b/types": "./lib/generated/r4b/types.js"
   },
   "devDependencies": {
-    "@types/node": "^22.20.0",
+    "@types/node": "^26.6.6",
     "typescript": "6.0.3"
   },
   "files": [

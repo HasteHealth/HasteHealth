@@ -108,7 +108,7 @@ function TypeRow({
     <li className="group flex items-center">
       <button
         className={classNames(
-          "min-w-0 flex-1 truncate rounded py-1 pr-1 text-left text-sm",
+          "min-w-0 flex-1 truncate rounded-sm py-1 pr-1 text-left text-sm",
           indentClass(depth),
           active
             ? "bg-brand-50 font-medium text-brand-900"
@@ -122,7 +122,7 @@ function TypeRow({
       </button>
       <button
         className={classNames(
-          "rounded p-1 text-slate-300 hover:text-amber-500",
+          "rounded-sm p-1 text-slate-300 hover:text-amber-500",
           pinned ? "visible text-amber-500" : "invisible group-hover:visible",
         )}
         onClick={() => onTogglePin(type)}
@@ -162,7 +162,7 @@ function Group({
   return (
     <li>
       <button
-        className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+        className="flex w-full items-center gap-1.5 rounded-sm px-2 py-1 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
         onClick={onToggle}
         aria-expanded={isOpen}
         type="button"
@@ -342,7 +342,7 @@ export function ConsoleSidebar({
         <div className="relative mb-1 px-1">
           <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1.5 h-3.5 w-3.5 text-slate-400" />
           <input
-            className="w-full rounded border border-slate-200 bg-white py-1 pl-7 pr-2 text-xs placeholder:text-slate-400 focus:border-brand-500 focus:ring-0"
+            className="w-full rounded-sm border border-slate-200 bg-white py-1 pl-7 pr-2 text-xs placeholder:text-slate-400 focus:border-brand-500 focus:ring-0"
             placeholder={`Filter ${resourceTypes.length} types`}
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
@@ -361,7 +361,7 @@ export function ConsoleSidebar({
             <li key={path}>
               <button
                 className={classNames(
-                  "flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm",
+                  "flex w-full items-center gap-2 rounded-sm px-2 py-1 text-left text-sm",
                   activePath === path
                     ? "bg-brand-50 font-medium text-brand-900"
                     : "text-slate-700 hover:bg-slate-100",
@@ -378,13 +378,13 @@ export function ConsoleSidebar({
             {/* The shortcuts are only discoverable if something points at
                 them, so they get a permanent place rather than only a chord. */}
             <button
-              className="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm text-slate-700 hover:bg-slate-100"
+              className="flex w-full items-center gap-2 rounded-sm px-2 py-1 text-left text-sm text-slate-700 hover:bg-slate-100"
               onClick={onShowShortcuts}
               type="button"
             >
               <QuestionMarkCircleIcon className="h-4 w-4 shrink-0 text-slate-400" />
               <span className="flex-1">Keyboard shortcuts</span>
-              <kbd className="shrink-0 rounded border border-slate-300 bg-white px-1 font-mono text-[10px] text-slate-500">
+              <kbd className="shrink-0 rounded-sm border border-slate-300 bg-white px-1 font-mono text-[10px] text-slate-500">
                 {modLabel()} /
               </kbd>
             </button>

@@ -86,7 +86,7 @@ impl<Index: IndexSearch, Repo: Repository + Send + Sync> ProjectParameterResolve
         });
         let options = SearchOptions {
             count_limit: Some(MAX_COUNT),
-            any_of: None,
+            filters: Vec::new(),
         };
         // Boxed because this is a whole search running inside a parameter
         // lookup, which itself runs inside a search. Inline, the nested

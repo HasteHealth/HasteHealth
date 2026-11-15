@@ -134,7 +134,7 @@ async fn spend_rate_limit<
 ) -> Refusable<()> {
     match state.rate_limit.check(key, max, 1, HOUR_SECONDS).await {
         Ok(_) => Ok(Ok(())),
-        Err(RateLimitError::Exceeded) => Ok(Err(
+        Err(RateLimitError::Exceeded { .. }) => Ok(Err(
             "Too many codes requested. Wait a while, then try again.".to_string(),
         )),
         Err(RateLimitError::Error(error)) => {

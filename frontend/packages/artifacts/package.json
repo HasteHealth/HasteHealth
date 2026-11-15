@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/artifacts",
-  "version": "0.130.0",
+  "version": "0.130.7",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",
-    "@types/node": "^22.20.0",
+    "@types/node": "^26.6.6",
     "typescript": "6.0.3"
   },
   "files": [

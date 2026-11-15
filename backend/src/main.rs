@@ -3,7 +3,7 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use std::{collections::HashMap, time::Duration};
 
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
 use haste_config::{Config, ConfigType, get_config};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -17,7 +17,9 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use reqwest::Url;
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
+use tracing_subscriber::{
+    EnvFilter, Layer as _, filter::LevelFilter, layer::SubscriberExt, registry::Registry,
+};
 use tracing_tree::HierarchicalLayer;
 
 mod cli;
@@ -241,13 +243,8 @@ fn setup_tracing(
     // Error-level events (a failed request, see the server's error middleware)
     // become Sentry events; nothing else is sent, so the layer costs nothing
     // on the happy path.
-    let sentry_layer = sentry::integrations::tracing::layer().event_filter(|metadata| {
-        if *metadata.level() == tracing::Level::ERROR {
-            sentry::integrations::tracing::EventFilter::Event
-        } else {
-            sentry::integrations::tracing::EventFilter::Ignore
-        }
-    });
+    let sentry_layer =
+        sentry::integrations::tracing::ErrorLayer::new().with_filter(LevelFilter::ERROR);
 
     let subscriber = Registry::default()
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
@@ -270,6 +267,10 @@ fn setup_tracing(
 }
 
 fn main() -> Result<(), OperationOutcomeError> {
+    // Answers the shell's completion request and exits when `COMPLETE` is set
+    // (`source <(COMPLETE=zsh haste-health)`); otherwise a no-op.
+    clap_complete::CompleteEnv::with_factory(Cli::command).complete();
+
     let config = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
@@ -285,13 +286,11 @@ fn main() -> Result<(), OperationOutcomeError> {
 
     let _guard = sentry::init((
         sentry_location.unwrap_or_default(),
-        sentry::ClientOptions {
-            release: sentry::release_name!(),
+        sentry::ClientOptions::new()
+            .maybe_release(sentry::release_name!())
             // Capture user IPs and potentially sensitive headers when using HTTP server integrations
             // see https://docs.sentry.io/platforms/rust/data-management/data-collected for more info
-            send_default_pii: true,
-            ..Default::default()
-        },
+            .send_default_pii(true),
     ));
 
     tokio::runtime::Builder::new_multi_thread()

@@ -514,7 +514,7 @@ export namespace HasteHealthEvaluatePolicy {
     system: false,
     type: false,
     instance: true,
-    resource: ["AccessPolicyV2"],
+    resource: ["AccessPolicyV2", "AccessPolicyV3"],
     parameter: [
       {
         name: "user",
@@ -991,6 +991,7 @@ export namespace HasteHealthDeleteRefreshToken {
     system: true,
     type: false,
     instance: false,
+    affectsState: true,
     parameter: [
       {
         name: "client_id",
@@ -1100,6 +1101,7 @@ export namespace HasteHealthDeleteScope {
     system: true,
     type: false,
     instance: false,
+    affectsState: true,
     parameter: [
       {
         name: "client_id",
@@ -1209,6 +1211,7 @@ export namespace HasteHealthSmartLaunch {
     system: false,
     type: false,
     instance: true,
+    affectsState: true,
     resource: ["ClientApplication"],
     parameter: [
       {
@@ -1280,6 +1283,7 @@ export namespace HasteHealthTenantCustomization {
     system: true,
     type: false,
     instance: false,
+    affectsState: true,
     parameter: [
       {
         name: "name",
@@ -1570,7 +1574,7 @@ export namespace ActivityDefinitionApply {
         min: 1,
         max: "*",
         documentation:
-          "The subject(s) that is/are the target of the activity definition to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the PlanDefinition based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined",
+          "The subject(s) that is/are the target of the activity definition to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the `PlanDefinition` based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined",
         type: "string",
         searchType: "reference",
       },
@@ -1803,7 +1807,7 @@ export namespace CapabilityStatementConforms {
         use: "out",
         min: 1,
         max: "1",
-        documentation: "Outcome of the CapabilityStatement test",
+        documentation: "Outcome of the `CapabilityStatement` test",
         type: "OperationOutcome",
       },
       {
@@ -1812,7 +1816,7 @@ export namespace CapabilityStatementConforms {
         min: 0,
         max: "1",
         documentation:
-          "The intersection of the functionality described by the CapabilityStatement resources",
+          "The intersection of the functionality described by the `CapabilityStatement` resources",
         type: "CapabilityStatement",
       },
       {
@@ -1821,7 +1825,7 @@ export namespace CapabilityStatementConforms {
         min: 0,
         max: "1",
         documentation:
-          "The union of the functionality described by the CapabilityStatement resources",
+          "The union of the functionality described by the `CapabilityStatement` resources",
         type: "CapabilityStatement",
       },
     ],
@@ -1909,7 +1913,7 @@ export namespace CapabilityStatementImplements {
         use: "out",
         min: 1,
         max: "1",
-        documentation: "Outcome of the CapabilityStatement test",
+        documentation: "Outcome of the `CapabilityStatement` test",
         type: "OperationOutcome",
       },
     ],
@@ -1956,7 +1960,7 @@ export namespace CapabilityStatementSubset {
       },
     ],
     description:
-      "This operation asks the server to return a subset of the CapabilityStatement resource - just the REST parts that relate to a set of nominated resources - the resources that the client is interested in",
+      "This operation asks the server to return a subset of the `CapabilityStatement` resource - just the REST parts that relate to a set of nominated resources - the resources that the client is interested in",
     code: "subset",
     resource: ["CapabilityStatement"],
     system: false,
@@ -1987,7 +1991,7 @@ export namespace CapabilityStatementSubset {
         min: 1,
         max: "1",
         documentation:
-          "The subsetted CapabilityStatement resource that is returned. This should be tagged with the SUBSETTED code",
+          "The subsetted `CapabilityStatement` resource that is returned. This should be tagged with the SUBSETTED code",
         type: "CapabilityStatement",
       },
     ],
@@ -2118,7 +2122,7 @@ export namespace ChargeItemDefinitionApply {
         min: 1,
         max: "1",
         documentation:
-          "The ChargeItem on which the definition is to ba applies",
+          "The `ChargeItem` on which the definition is to ba applies",
         type: "Reference",
         targetProfile: ["http://hl7.org/fhir/StructureDefinition/ChargeItem"],
       },
@@ -2181,7 +2185,7 @@ export namespace ClaimSubmit {
       },
     ],
     description:
-      "This operation is used to submit a Claim, Pre-Authorization or Pre-Determination (all instances of Claim resources) for adjudication either as a single Claim resource instance or as a Bundle containing the Claim and other referenced resources, or Bundle containing a batch of Claim resources, either as single Claims resources or Bundle resources, for processing. The only input parameter is the single Claim or Bundle resource and the only output is a single ClaimResponse, Bundle of ClaimResponses or an OperationOutcome resource.",
+      "This operation is used to submit a Claim, Pre-Authorization or Pre-Determination (all instances of Claim resources) for adjudication either as a single Claim resource instance or as a Bundle containing the Claim and other referenced resources, or Bundle containing a batch of Claim resources, either as single Claims resources or Bundle resources, for processing. The only input parameter is the single Claim or Bundle resource and the only output is a single `ClaimResponse`, Bundle of `ClaimResponses` or an `OperationOutcome` resource.",
     code: "submit",
     resource: ["Claim"],
     system: false,
@@ -2203,7 +2207,7 @@ export namespace ClaimSubmit {
         min: 1,
         max: "1",
         documentation:
-          "A ClaimResponse resource or Bundle of claim responses, either as individual ClaimResponse resources or as Bundles each containing a single ClaimResponse plus referenced resources.",
+          "A `ClaimResponse` resource or Bundle of claim responses, either as individual `ClaimResponse` resources or as Bundles each containing a single `ClaimResponse` plus referenced resources.",
         type: "Resource",
       },
     ],
@@ -2994,7 +2998,7 @@ export namespace CodeSystemSubsumes {
         min: 1,
         max: "1",
         documentation:
-          'The subsumption relationship between code/Coding "A" and code/Coding "B". There are 4 possible codes to be returned (equivalent, subsumes, subsumed-by, and not-subsumed) as defined in the concept-subsumption-outcome value set.  If the server is unable to determine the relationship between the codes/Codings, then it returns an error response with an OperationOutcome.',
+          'The subsumption relationship between code/Coding "A" and code/Coding "B". There are 4 possible codes to be returned (equivalent, subsumes, subsumed-by, and not-subsumed) as defined in the concept-subsumption-outcome value set.  If the server is unable to determine the relationship between the codes/Codings, then it returns an error response with an `OperationOutcome`.',
         type: "code",
         binding: {
           strength: "required",
@@ -3075,7 +3079,7 @@ export namespace CodeSystemValidateCode {
         min: 0,
         max: "1",
         documentation:
-          "CodeSystem URL. The server must know the code system (e.g. it is defined explicitly in the server'scode systems, or it is known implicitly by the server",
+          "`CodeSystem` URL. The server must know the code system (e.g. it is defined explicitly in the server'scode systems, or it is known implicitly by the server",
         type: "uri",
       },
       {
@@ -3262,7 +3266,7 @@ export namespace CompositionDocument {
         min: 0,
         max: "1",
         documentation:
-          "Canonical reference to a GraphDefinition. If a URL is provided, it is the canonical reference to a [GraphDefinition](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The GraphDefinition can also specify profiles that apply to the various resources",
+          "Canonical reference to a `GraphDefinition`. If a URL is provided, it is the canonical reference to a [`GraphDefinition`](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The `GraphDefinition` can also specify profiles that apply to the various resources",
         type: "uri",
       },
     ],
@@ -3590,7 +3594,7 @@ export namespace ConceptMapTranslate {
             min: 0,
             max: "1",
             documentation:
-              "A code indicating the equivalence of the translation, using values from [ConceptMapEquivalence](valueset-concept-map-equivalence.html)",
+              "A code indicating the equivalence of the translation, using values from [`ConceptMapEquivalence`](valueset-concept-map-equivalence.html)",
             type: "code",
           },
           {
@@ -3680,7 +3684,7 @@ export namespace CoverageEligibilityRequestSubmit {
       },
     ],
     description:
-      "This operation is used to submit an EligibilityRequest for assessment either as a single EligibilityRequest resource instance or as a Bundle containing the EligibilityRequest and other referenced resources, or Bundle containing a batch of EligibilityRequest resources, either as single EligibilityRequests resources or Bundle resources, for processing. The only input parameter is the single EligibilityRequest or Bundle resource and the only output is a single EligibilityResponse, Bundle of EligibilityResponses or an OperationOutcome resource.",
+      "This operation is used to submit an `EligibilityRequest` for assessment either as a single `EligibilityRequest` resource instance or as a Bundle containing the `EligibilityRequest` and other referenced resources, or Bundle containing a batch of `EligibilityRequest` resources, either as single `EligibilityRequests` resources or Bundle resources, for processing. The only input parameter is the single `EligibilityRequest` or Bundle resource and the only output is a single `EligibilityResponse`, Bundle of `EligibilityResponses` or an `OperationOutcome` resource.",
     code: "submit",
     resource: ["CoverageEligibilityRequest"],
     system: false,
@@ -3693,7 +3697,7 @@ export namespace CoverageEligibilityRequestSubmit {
         min: 1,
         max: "1",
         documentation:
-          "An EligibilityRequest resource or Bundle of EligibilityRequests, either as individual EligibilityRequest resources or as Bundles each containing a single EligibilityRequest plus referenced resources.",
+          "An `EligibilityRequest` resource or Bundle of `EligibilityRequests`, either as individual `EligibilityRequest` resources or as Bundles each containing a single `EligibilityRequest` plus referenced resources.",
         type: "Resource",
       },
       {
@@ -3702,7 +3706,7 @@ export namespace CoverageEligibilityRequestSubmit {
         min: 1,
         max: "1",
         documentation:
-          "An EligibilityResponse resource or Bundle of EligibilityResponse responses, either as individual EligibilityResponse resources or as Bundles each containing a single EligibilityResponse plus referenced resources.",
+          "An `EligibilityResponse` resource or Bundle of `EligibilityResponse` responses, either as individual `EligibilityResponse` resources or as Bundles each containing a single `EligibilityResponse` plus referenced resources.",
         type: "Resource",
       },
     ],
@@ -3750,7 +3754,7 @@ export namespace EncounterEverything {
       },
     ],
     description:
-      'This operation is used to return all the information related to an encounter described in the resource on which this operation is invoked. The response is a bundle of type "searchset". At a minimum, the encounter resource itself is returned, along with any other resources that the server has available for the given encounter for the user. The server also returns whatever resources are needed to support the records - e.g. linked practitioners, locations, organizations etc. The principle intended use for this operation is to provide a patient with access to their record, or to allow a client to retrieve everything for an encounter for efficient display).\r\rThe server SHOULD return all resources it has that:\r\r* are included in the encounter compartment for the identified encounter (have a reference to the encounter)\r* are referenced by the standard extenstion for associating an encounter (where no reference element exists) http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter\r* the server believes are relevant to the context of the encounter for any other reason (internally defined/decided)\r* any resource referenced by the above, including binaries and attachments (to make a more complete package)\r\rIn the US Realm, at a mimimum, the resources returned SHALL include all the data covered by the meaningful use common data elements (see [DAF](http://hl7.org/fhir/us/daf) for further guidance). Other applicable implementation guides may make additional rules about the information that is returned.   Note that for many resources, the exact nature of the link to encounter can be ambiguous (e.g. for a DiagnosticReport, is it the encounter when it was initiated, or when it was reported?)',
+      'This operation is used to return all the information related to an encounter described in the resource on which this operation is invoked. The response is a bundle of type "searchset". At a minimum, the encounter resource itself is returned, along with any other resources that the server has available for the given encounter for the user. The server also returns whatever resources are needed to support the records - e.g. linked practitioners, locations, organizations etc. The principle intended use for this operation is to provide a patient with access to their record, or to allow a client to retrieve everything for an encounter for efficient display).\r\rThe server SHOULD return all resources it has that:\r\r* are included in the encounter compartment for the identified encounter (have a reference to the encounter)\r* are referenced by the standard extenstion for associating an encounter (where no reference element exists) <http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter>\r* the server believes are relevant to the context of the encounter for any other reason (internally defined/decided)\r* any resource referenced by the above, including binaries and attachments (to make a more complete package)\r\rIn the US Realm, at a mimimum, the resources returned SHALL include all the data covered by the meaningful use common data elements (see [DAF](http://hl7.org/fhir/us/daf) for further guidance). Other applicable implementation guides may make additional rules about the information that is returned.   Note that for many resources, the exact nature of the link to encounter can be ambiguous (e.g. for a `DiagnosticReport`, is it the encounter when it was initiated, or when it was reported?)',
     code: "everything",
     comment:
       "The key differences between this operation and simply searching the encounter compartment are:  \n\n* unless the client requests otherwise, the server returns the entire result set in a single bundle (rather than using paging) \n* the server is responsible for determining what resources to return as included resources (rather than the client specifying which ones)\n\nThis frees the client from needing to determine what it could or should ask for, particularly with regard to included resources. Servers should consider returning appropriate Provenance and AuditTrail on the returned resources, even though these are not directly part of the patient compartment. \n\nIt is assumed that the server has identified and secured the context appropriately, and can either associate the authorization context with a single encounter, or determine whether the context has the rights to the nominated encounter, if there is one, or can determine an appropriate list of encouners to provide data for from the context of the request.  If there is no nominated encounter (GET /Encounter/$everything) and the context is not associated with a single encounter record, the actual list of encounters is all encounters that the user associated with the request has access to. In such cases, the server may choose to return an error rather than all the records. Specifying the relationship between the context, a user and encounter records is outside the scope of this specification (though see [The Smart App Launch Implementation Guide](http://hl7.org/fhir/smart-app-launch).   \n\nWhen this operation is used to access multiple encounter records at once, the return bundle could be rather a lot of data; servers may choose to require that such requests are made [asynchronously](async.html), and associated with [bulk data formats](formats.html#bulk). Alternatively, clients may choose to page through the result set (or servers may require this). Paging through the results is done the same as for [Searching](http.html#paging), using the [_count](search.html#count) parameter, and Bundle links. Implementers should note that paging will be slower than simply returning all the results at once (more network traffic, multiple latency delays) but may be required in order not to exhaust available memory reading or writing the whole response in a single package. Unlike searching, there is no inherent user-display order for the $everything operation. Servers might consider sorting the returned resources in descending order of last record update, but are not required to do so. Servers should consider returning appropriate Provenance and AuditTrail on the returned resources, even though these are not directly part of the patient compartment.\n\nThe _since parameter is provided to support periodic queries to get additional information that has changed about the encounter since the last query. This means that the _since parameter is based on record time. The value of the _since parameter should be set to the time from the server. If using direct response, this is the timestamp in the response header. If using the async interface, this is the transaction timestamp in the json response. Servers should ensure that the timestamps a managed such that the client does not miss any changes. Clients should be able to handle getting the same response more than once in the case that the transaction falls on a time boundary. Clients should ensure that the other query parameters are constant to ensure a coherent set of records when doing periodic queries.",
@@ -4010,7 +4014,7 @@ export namespace ListFind {
       },
     ],
     description:
-      "This operation allows a client to find an identified list for a particular function by its function. The operation takes two parameters, the identity of a patient, and the name of a functional list.     The list of defined functional lists can be found at [Current Resource Lists](lifecycle.html#lists). Applications are not required to support all the lists, and may define additional lists of their own.   If the system is able to locate a list that serves the identified purpose, it returns it as the body of the response with a 200 OK status. If the resource cannot be located, the server returns a 404 not found (optionally with an OperationOutcome resource)",
+      "This operation allows a client to find an identified list for a particular function by its function. The operation takes two parameters, the identity of a patient, and the name of a functional list.     The list of defined functional lists can be found at [Current Resource Lists](lifecycle.html#lists). Applications are not required to support all the lists, and may define additional lists of their own.   If the system is able to locate a list that serves the identified purpose, it returns it as the body of the response with a 200 OK status. If the resource cannot be located, the server returns a 404 not found (optionally with an `OperationOutcome` resource)",
     code: "find",
     comment:
       "Note that servers may support searching by a functional list, and not support this operation that allows clients to find the list directly",
@@ -4134,7 +4138,7 @@ export namespace MeasureCareGaps {
         min: 1,
         max: "1",
         documentation:
-          "The result of the care gaps report will be returned as a document bundle with a MeasureReport entry for each included measure",
+          "The result of the care gaps report will be returned as a document bundle with a `MeasureReport` entry for each included measure",
         type: "Bundle",
       },
     ],
@@ -4260,7 +4264,7 @@ export namespace MeasureCollectData {
         min: 1,
         max: "1",
         documentation:
-          "A MeasureReport of type data-collection detailing the results of the operation",
+          "A `MeasureReport` of type data-collection detailing the results of the operation",
         type: "MeasureReport",
       },
       {
@@ -4482,7 +4486,7 @@ export namespace MeasureEvaluateMeasure {
         min: 1,
         max: "1",
         documentation:
-          "The results of the measure calculation. See the MeasureReport resource for a complete description of the output of this operation. Note that implementations may choose to return a MeasureReport with a status of pending to indicate that the report is still being generated. In this case, the client can use a polling method to continually request the MeasureReport until the status is updated to complete",
+          "The results of the measure calculation. See the `MeasureReport` resource for a complete description of the output of this operation. Note that implementations may choose to return a `MeasureReport` with a status of pending to indicate that the report is still being generated. In this case, the client can use a polling method to continually request the `MeasureReport` until the status is updated to complete",
         type: "MeasureReport",
       },
     ],
@@ -4679,7 +4683,7 @@ export namespace MessageHeaderProcessMessage {
       },
     ],
     description:
-      "This operation accepts a message, processes it according to the definition of the event in the message header, and returns one or more response messages.  \n\nIn addition to processing the message event, a server may choose to retain all or some the resources and make them available on a RESTful interface, but is not required to do so.",
+      "This operation accepts a message, processes it according to the definition of the event in the message header, and returns one or more response messages.  \n\nIn addition to processing the message event, a server may choose to retain all or some the resources and make them available on a `RESTful` interface, but is not required to do so.",
     code: "process-message",
     comment:
       'This operation does not use the parameters resource; the parameters "async" and "response-url" always go in the URL, if they are used, and the "content" parameter is always the body of the HTTP message.\n\nWhen processing messages, a server may return one of several status codes:\n* **200 OK**: Indicates that the message has been fully processed.  If an application-level response is expected for the submitted message, that response SHALL be returned as the body of the 200 response.\n* **202 Accepted**: Indicates that the receiving system has accepted custody of the message\n* **204 No Content**: Indicates that the message has been fully processed and would normally have had an application-level response, but because of instructions from the sender (e.g. the [messageheader-response-request](extension-messageheader-response-request.html) extension), no response is being provided\n* **300+**: Indicates that the message was not successfully processed.  The server MAY return an [OperationOutcome](operationoutcome.html) with additional information, and SHOULD do so if the response code is 400 or greater.<br/>\n    The client SHALL interpret a 4xx response to indicate that there is no point resubmitting the unaltered message, and a 5xx response to indicate an unexpected error occurred on the part of the server, with the implication that it may be appropriate to resubmit the original message. Doing so SHOULD NOT result in a duplicate message response. Repeated failures indicate either a fatal problem with the submission or a problem with the receiving application.\n\nThe following rules apply when using $process-message:\n\n* The operation only accepts POST transactions - any other HTTP method will result in an HTTP error\n* The request content type submitted is always [Bundle](bundle.html) with type "message" containing a [Message Header](messageheader.html) resource as the first resource\n* The response content type returned is always [Bundle](bundle.html) with type "message" containing a [Message Header](messageheader.html) resource as the first resource, or an HTTP error\n* If the response is an error, the body SHOULD be an [Errors &mp; Warning](operationoutcome.html) resource with full details\n* The mailbox may be authenticated using standard HTTP authentication methods, including OAuth\n\nThe $process-message operation can be used by any HTTP end-point that accepts FHIR messages, not just FHIR RESTful servers.\n\nIn order to ensure consistency of processing, the [logical rules regarding processing of Bundle.id and message id](messaging.html#reliable) SHALL be followed when messages are processed using this operation.\n\nThe $process-message operation may be used synchronously, or asynchronously.\n\nThe following rules apply when using the $process-message operation synchronously:\n\n* The URL (http://server/base/$process-message) has no parameters\n* It is an error if the sender POSTs a message that requires multiple response messages\n* Servers SHALL accept multiple concurrent message submissions and process them correctly (they are allowed to process them sequentially internally, but multiple concurrent submissions is not an error in its own right)\n\nThe following rules apply when using the $process-message operation asynchronously:\n\n* The URL has at least one parameter: http://server/base/$process-message?async=true\n* The server acknowledges the message with a 200 OK with no body, or returns an HTTP error if the message cannot be processed\n* Accepting the message means that the server has understood the message enough to know where to respond\n* An [OperationOutcome](operationoutcome.html) SHOULD be returned in either case\n* By default, the server responds by invoking the $process-message using the sender\'s stated end-point in the message: POST [MessageHeader.source.endpoint]/$process-messages]\n* Since the source end-point may be manipulated by message transfer engines, an alternative response address may be specified using the parameter "response-url": http://server/base/$process-message?async=true&amp;response-url=http://server2.com/base/anything.  The endpoint at the specified URL SHALL implement the signature of the $process-message operation (parameter async=true, accept a Bundle, return a 200 OK or an error)\n* The server submits response messages to the appropriate end-point with the parameter async=true. There is no response message for the response messages',
@@ -4765,7 +4769,7 @@ export namespace NamingSystemPreferredId {
       },
     ],
     description:
-      "This operation returns the preferred identifiers for identifiers, and terminologies. The operation takes 2 parameters:     \n\n* a system identifier - either a URI, an OID, or a v2 table 0396 (other) code  \n* a code for what kind of identifier is desired (URI, OID, v2 table 0396 identifier)    \n\nand returns either the requested identifier, or an HTTP errors response with an OperationOutcome because either the provided identifier was not recognized, or the requested identiifer type is not known.    \n\nThe principle use of this operation is when converting between v2, CDA and FHIR Identifier/CX/II and CodeableConcepts/C(N/W)E/CD but the operation may also find use when converting metadata such as profiles.",
+      "This operation returns the preferred identifiers for identifiers, and terminologies. The operation takes 2 parameters:     \n\n* a system identifier - either a URI, an OID, or a v2 table 0396 (other) code  \n* a code for what kind of identifier is desired (URI, OID, v2 table 0396 identifier)    \n\nand returns either the requested identifier, or an HTTP errors response with an `OperationOutcome` because either the provided identifier was not recognized, or the requested identiifer type is not known.    \n\nThe principle use of this operation is when converting between v2, CDA and FHIR Identifier/CX/II and CodeableConcepts/C(N/W)E/CD but the operation may also find use when converting metadata such as profiles.",
     code: "preferred-id",
     comment:
       "Servers handle this request by finding the provided identifier in their known naming systems, and returning the requested identifier type ([NamingSystem.uniqueId.type](namingsystem-definitions.html#NamingSystem.uniqueId.type)). If there are multiple possible identifiers of the specified type (e.g. multiple OIDs) the server returns an error.    \n\nIf the server wishes, it can also look through all code systems and value sets it knows about when attempting to find the requested identifier",
@@ -4844,7 +4848,7 @@ export namespace ObservationLastn {
       },
     ],
     description:
-      "The *lastn query* meets the common need for searching for the most recent or last n=number of observations for a subject. For example, retrieving the last 5 temperatures for a patient to view trends or fetching the most recent laboratory results or vitals signs. To ask a server to return the last n=number of observations, the *lastn* query uses the [normal search parameters](observation.html#search) defined for the Observation resource.  However, rather than their normal use, they are interpreted as inputs - i.e.. instead of requiring that the resources literally contain the search parameters, they are passed to a server algorithm of some kind that uses them to determine the most appropriate matches.\n\nThe request for a lastn query SHALL include:\n\n* A `$lastn` operation parameter\n*  A subject using either the `patient` or `subject`  search parameter\n*  A `category` parameter and/or a search parameter that contains a code element in its FHIRpath expression.  ( e.g., `code` or `code-value-concept`)\n\nThe request for a lastn query MAY include:\n\n* Other Observation search parameters and modifiers\n\nThe response from a lastn query is a set of observations:\n\n*  Filtered by additional parameters\n   * If not explicitly filtered by status then will include statuses of 'entered-in-error'\n* 'GROUP BY' `Observation.code`\n   * Codes SHALL be considered equivalent if the `coding.value` *and* `coding.system` are the same.\n   * Text only codes SHALL be treated and grouped based on the text.\n   * For codes with translations (multiple codings), the code translations are assumed to be equal and the grouping by code SHALL follow the transitive property of equality.\n\nfor example:\n\n|Observation.code for observation a|Observation.code for observation b|Observation.code for observation c|number of groups [codes/text in each group]|    \n|---|---|---|---|     \n|a|b|c | 3 [a],[b],[c]|    \n|a|b|a,c | 2 [a.c],[b]|     \n|a|b|a,b | 1 [a,b]|    \n|'textM'|'Text'|'t e x t'|3 ['text'],['Text'],['t e x t']|\n\n* Sorted from most recent to the oldest\n* Limited to the number of requested responses per group specified by the optional *max* query parameter\n  * In case of a tie - when the effective times for >1 Observations are equal - both will be returned.  Therefore, more Observations may be returned than is specified in *max*.  For example, 4 Observations instead of 3 if the 3rd and 4th most recent observation had the same effective time.\n* If no maximum number is given then only the most recent Observation in each group is returned.\n\nThe set of returned observations should represent distinct real world observations and not the same observation with changes in status or versions. If there are no matches, the *lastn* query SHALL return an empty search set with no error, but may include an operation outcome with further advice.",
+      "The *lastn query* meets the common need for searching for the most recent or last n=number of observations for a subject. For example, retrieving the last 5 temperatures for a patient to view trends or fetching the most recent laboratory results or vitals signs. To ask a server to return the last n=number of observations, the *lastn* query uses the [normal search parameters](observation.html#search) defined for the Observation resource.  However, rather than their normal use, they are interpreted as inputs - i.e.. instead of requiring that the resources literally contain the search parameters, they are passed to a server algorithm of some kind that uses them to determine the most appropriate matches.\n\nThe request for a lastn query SHALL include:\n\n* A `$lastn` operation parameter\n*  A subject using either the `patient` or `subject`  search parameter\n*  A `category` parameter and/or a search parameter that contains a code element in its `FHIRpath` expression.  ( e.g., `code` or `code-value-concept`)\n\nThe request for a lastn query MAY include:\n\n* Other Observation search parameters and modifiers\n\nThe response from a lastn query is a set of observations:\n\n*  Filtered by additional parameters\n   * If not explicitly filtered by status then will include statuses of 'entered-in-error'\n* 'GROUP BY' `Observation.code`\n   * Codes SHALL be considered equivalent if the `coding.value` *and* `coding.system` are the same.\n   * Text only codes SHALL be treated and grouped based on the text.\n   * For codes with translations (multiple codings), the code translations are assumed to be equal and the grouping by code SHALL follow the transitive property of equality.\n\nfor example:\n\n|Observation.code for observation a|Observation.code for observation b|Observation.code for observation c|number of groups [codes/text in each group]|    \n|---|---|---|---|     \n|a|b|c | 3 [a],[b],[c]|    \n|a|b|a,c | 2 [a.c],[b]|     \n|a|b|a,b | 1 [a,b]|    \n|'textM'|'Text'|'t e x t'|3 ['text'],['Text'],['t e x t']|\n\n* Sorted from most recent to the oldest\n* Limited to the number of requested responses per group specified by the optional *max* query parameter\n  * In case of a tie - when the effective times for >1 Observations are equal - both will be returned.  Therefore, more Observations may be returned than is specified in *max*.  For example, 4 Observations instead of 3 if the 3rd and 4th most recent observation had the same effective time.\n* If no maximum number is given then only the most recent Observation in each group is returned.\n\nThe set of returned observations should represent distinct real world observations and not the same observation with changes in status or versions. If there are no matches, the *lastn* query SHALL return an empty search set with no error, but may include an operation outcome with further advice.",
     code: "lastn",
     comment:
       'The key differences between this query operation and simply searching Observation using the combination of `_count` and `_sort` parameters are:\r\r* The *lastn* query returns **only** the last N resource grouped by code.  Using the _count query method doesn\'t restrict the total matches so you may need to page through several "A" Observations  before getting to Observation "B".\r* The server is responsible for grouping the observations by codes.  This frees the client from needing to determine which codes she should ask for.\r\rThis operation cannot be performed on observations that the user is not authorized to see.  It is assumed that the server has identified and secured the context appropriately, and can either associate the authorization context with a single patient, or determine whether the context has the rights to the nominated patient, if there is one. If there is no nominated patient (e.g. the operation is invoked at the system level) and the context is not associated with a single patient record, then the server should return an error. Specifying the relationship between the context, a user and patient records is outside the scope of this specification.',
@@ -4925,7 +4929,7 @@ export namespace ObservationStats {
       },
     ],
     description:
-      'The Statistics operation performs a set of statistical calculations on a set of clinical measurements such as a blood pressure as stored on the server.  This operation evaluates [Observation](observation.html) resources having valueQuantity elements that have UCUM unit codes. Observations with a status of \'entered-in-error\' will be excluded from the calculations.  \r\rThe set of Observations is defined by 4 parameters:\r\r*  the subject of the observations for which the statistics are being generated (`subject`)\r* which observations to generate statistics for (`code` and `system`, or `coding`)\r* the time period over which to generate statistics \'duration` or `period`)\r* the set of statistical analyses to return (`statistic`)\r\rPossible statistical analyses (see [StatisticsCode](valueset-observation-statistics.html)):\r\r - **average** ("Average"): The [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) of N measurements over the stated period.\r\n - **maximum** ("Maximum"): The [maximum](https://en.wikipedia.org/wiki/Maximal_element) value of N measurements over the stated period.\r\n - **minimum** ("Minimum"): The [minimum](https://en.wikipedia.org/wiki/Minimal_element) value of N measurements over the stated period.\r\n - **count** ("Count"): The [number] of valid measurements over the stated period that contributed to the other statistical outputs.\r\n - **total-count** ("Total Count"): The total [number] of valid measurements over the stated period, including observations that were ignored because they did not contain valid result values.\r\n - **median** ("Median"): The [median](https://en.wikipedia.org/wiki/Median) of N measurements over the stated period.\r\n - **std-dev** ("Standard Deviation"): The [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) of N measurements over the stated period.\r\n - **sum** ("Sum"): The [sum](https://en.wikipedia.org/wiki/Summation) of N measurements over the stated period.\r\n - **variance** ("Variance"): The [variance](https://en.wikipedia.org/wiki/Variance) of N measurements over the stated period.\r\n - **20-percent** ("20th Percentile"): The 20th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **80-percent** ("80th Percentile"): The 80th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **4-lower** ("Lower Quartile"): The lower [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-upper** ("Upper Quartile"): The upper [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-dev** ("Quartile Deviation"): The difference between the upper and lower [Quartiles](https://en.wikipedia.org/wiki/Quartile) is called the Interquartile range. (IQR = Q3-Q1) Quartile deviation or Semi-interquartile range is one-half the difference between the first and the third quartiles.\r\n - **5-1** ("1st Quintile"): The lowest of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-2** ("2nd Quintile"): The second of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-3** ("3rd Quintile"): The third of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-4** ("4th Quintile"): The fourth of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **skew** ("Skew"): Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean. The skewness value can be positive or negative, or even undefined.  Source: [Wikipedia](https://en.wikipedia.org/wiki/Skewness).\r\n - **kurtosis** ("Kurtosis"): Kurtosis  is a measure of the "tailedness" of the probability distribution of a real-valued random variable.   Source: [Wikipedia](https://en.wikipedia.org/wiki/Kurtosis).\r\n - **regression** ("Regression"): Linear regression is an approach for modeling two-dimensional sample points with one independent variable and one dependent variable (conventionally, the x and y coordinates in a Cartesian coordinate system) and finds a linear function (a non-vertical straight line) that, as accurately as possible, predicts the dependent variable values as a function of the independent variables. Source: [Wikipedia](https://en.wikipedia.org/wiki/Simple_linear_regression)  This Statistic code will return both a gradient and an intercept value.\r\n\r\rIf successful, the operation returns an Observation resource for each code with the results of the statistical calculations as component value pairs where the component code = the statistical code. The Observation also contains the input parameters `patient`,`code` and `duration` parameters. If unsuccessful, an [OperationOutcome](operationoutcome.html) with an error message will be returned.\r\rThe client can request that all the observations on which the statistics are based be returned as well, using the include parameter. If an include parameter is specified, a limit may also be specified; the sources observations are subsetted at the server\'s discretion if count > limit. This functionality is included with the intent of supporting graphical presentation',
+      'The Statistics operation performs a set of statistical calculations on a set of clinical measurements such as a blood pressure as stored on the server.  This operation evaluates [Observation](observation.html) resources having valueQuantity elements that have UCUM unit codes. Observations with a status of \'entered-in-error\' will be excluded from the calculations.  \r\rThe set of Observations is defined by 4 parameters:\r\r*  the subject of the observations for which the statistics are being generated (`subject`)\r* which observations to generate statistics for (`code` and `system`, or `coding`)\r* the time period over which to generate statistics \'duration` or `period`)\r* the set of statistical analyses to return (`statistic`)\r\rPossible statistical analyses (see [`StatisticsCode`](valueset-observation-statistics.html)):\r\r - **average** ("Average"): The [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) of N measurements over the stated period.\r\n - **maximum** ("Maximum"): The [maximum](https://en.wikipedia.org/wiki/Maximal_element) value of N measurements over the stated period.\r\n - **minimum** ("Minimum"): The [minimum](https://en.wikipedia.org/wiki/Minimal_element) value of N measurements over the stated period.\r\n - **count** ("Count"): The [number] of valid measurements over the stated period that contributed to the other statistical outputs.\r\n - **total-count** ("Total Count"): The total [number] of valid measurements over the stated period, including observations that were ignored because they did not contain valid result values.\r\n - **median** ("Median"): The [median](https://en.wikipedia.org/wiki/Median) of N measurements over the stated period.\r\n - **std-dev** ("Standard Deviation"): The [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) of N measurements over the stated period.\r\n - **sum** ("Sum"): The [sum](https://en.wikipedia.org/wiki/Summation) of N measurements over the stated period.\r\n - **variance** ("Variance"): The [variance](https://en.wikipedia.org/wiki/Variance) of N measurements over the stated period.\r\n - **20-percent** ("20th Percentile"): The 20th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **80-percent** ("80th Percentile"): The 80th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **4-lower** ("Lower Quartile"): The lower [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-upper** ("Upper Quartile"): The upper [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-dev** ("Quartile Deviation"): The difference between the upper and lower [Quartiles](https://en.wikipedia.org/wiki/Quartile) is called the Interquartile range. (IQR = Q3-Q1) Quartile deviation or Semi-interquartile range is one-half the difference between the first and the third quartiles.\r\n - **5-1** ("1st Quintile"): The lowest of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-2** ("2nd Quintile"): The second of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-3** ("3rd Quintile"): The third of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-4** ("4th Quintile"): The fourth of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **skew** ("Skew"): Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean. The skewness value can be positive or negative, or even undefined.  Source: [Wikipedia](https://en.wikipedia.org/wiki/Skewness).\r\n - **kurtosis** ("Kurtosis"): Kurtosis  is a measure of the "tailedness" of the probability distribution of a real-valued random variable.   Source: [Wikipedia](https://en.wikipedia.org/wiki/Kurtosis).\r\n - **regression** ("Regression"): Linear regression is an approach for modeling two-dimensional sample points with one independent variable and one dependent variable (conventionally, the x and y coordinates in a Cartesian coordinate system) and finds a linear function (a non-vertical straight line) that, as accurately as possible, predicts the dependent variable values as a function of the independent variables. Source: [Wikipedia](https://en.wikipedia.org/wiki/Simple_linear_regression)  This Statistic code will return both a gradient and an intercept value.\r\n\r\rIf successful, the operation returns an Observation resource for each code with the results of the statistical calculations as component value pairs where the component code = the statistical code. The Observation also contains the input parameters `patient`,`code` and `duration` parameters. If unsuccessful, an [`OperationOutcome`](operationoutcome.html) with an error message will be returned.\r\rThe client can request that all the observations on which the statistics are based be returned as well, using the include parameter. If an include parameter is specified, a limit may also be specified; the sources observations are subsetted at the server\'s discretion if count > limit. This functionality is included with the intent of supporting graphical presentation',
     code: "stats",
     comment:
       "If [modifier extensions](extensibility.html#modifierExtension) are present in the Observation, they must be accounted for by implementers.  A modifier extension may affect the observation.value in a way that it should be excluded from the from the calculations.\r\rThis operation cannot be performed on observations that the user is not authorized to see.  It is assumed that the server has identified and secured the context appropriately, and can either associate the authorization context with a single patient, or determine whether the context has the rights to the nominated patient, if there is one. If there is no nominated patient (e.g. the operation is invoked at the system level) and the context is not associated with a single patient record, then the server should return an error. Specifying the relationship between the context, a user and patient records is outside the scope of this specification.",
@@ -5228,7 +5232,7 @@ export namespace PatientMatch {
         min: 1,
         max: "1",
         documentation:
-          "A bundle contain a set of Patient records that represent possible matches, optionally it may also contain an OperationOutcome with further information about the search results (such as warnings or information messages, such as a count of records that were close but eliminated)  If the operation was unsuccessful, then an OperationOutcome may be returned along with a BadRequest status Code (e.g. security issue, or insufficient properties in patient fragment - check against profile)",
+          "A bundle contain a set of Patient records that represent possible matches, optionally it may also contain an `OperationOutcome` with further information about the search results (such as warnings or information messages, such as a count of records that were close but eliminated)  If the operation was unsuccessful, then an `OperationOutcome` may be returned along with a `BadRequest` status Code (e.g. security issue, or insufficient properties in patient fragment - check against profile)",
         type: "Bundle",
       },
     ],
@@ -5283,7 +5287,7 @@ export namespace PlanDefinitionApply {
       },
     ],
     description:
-      "The apply operation applies a PlanDefinition to a given context",
+      "The apply operation applies a `PlanDefinition` to a given context",
     code: "apply",
     comment:
       "The result of this operation is a CarePlan resource with a single activity represented by a RequestGroup. The RequestGroup will have actions for each of the applicable actions in the plan based on evaluating the applicability condition in context. For each applicable action, the definition is applied as described in the $apply operation of the ActivityDefinition resource, and the resulting resource is added as an activity to the CarePlan. If the ActivityDefinition includes library references, those libraries will be available to the evaluated expressions. If those libraries have parameters, those parameters will be bound by name to the parameters given to the operation. In addition, parameters to the $apply operation are available within dynamicValue expressions as context variables, accessible by the name of the parameter, prefixed with a percent (%) symbol. For a more detailed description, refer to the PlanDefinition and ActivityDefinition resource documentation",
@@ -5307,7 +5311,7 @@ export namespace PlanDefinitionApply {
         min: 1,
         max: "*",
         documentation:
-          "The subject(s) that is/are the target of the plan to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the PlanDefinition based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined",
+          "The subject(s) that is/are the target of the plan to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the `PlanDefinition` based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined",
         type: "string",
         searchType: "reference",
       },
@@ -5388,7 +5392,7 @@ export namespace PlanDefinitionApply {
         min: 1,
         max: "1",
         documentation:
-          "The CarePlan that is the result of applying the plan definition",
+          "The `CarePlan` that is the result of applying the plan definition",
         type: "CarePlan",
       },
     ],
@@ -5557,7 +5561,7 @@ export namespace ResourceGraph {
       },
     ],
     description:
-      "Return an entire graph of resources based on a [GraphDefinition](graphdefinition.html). The operation is invoked on a specific instance of a resource, and the graph definition tells the server what other resources to return in the same packaage",
+      "Return an entire graph of resources based on a [`GraphDefinition`](graphdefinition.html). The operation is invoked on a specific instance of a resource, and the graph definition tells the server what other resources to return in the same packaage",
     code: "graph",
     resource: ["Resource"],
     system: false,
@@ -5877,7 +5881,7 @@ export namespace ResourceValidate {
       },
     ],
     description:
-      "The validate operation checks whether the attached content would be acceptable either generally, as a create, an update or as a delete to an existing resource.  The action the server takes depends on the mode parameter:  \n\n* [mode not provided]: The server checks the content of the resource against any schema, constraint rules, and other general terminology rules \n* create: The server checks the content, and then checks that the content would be acceptable as a create (e.g. that the content would not violate any uniqueness constraints) \n* update: The server checks the content, and then checks that it would accept it as an update against the nominated specific resource (e.g. that there are no changes to immutable fields the server does not allow to change, and checking version integrity if appropriate) \n* delete: The server ignores the content, and checks that the nominated resource is allowed to be deleted (e.g. checking referential integrity rules)  \n\nModes update and delete can only be used when the operation is invoked at the resource instance level.   The return from this operation is an [OperationOutcome](operationoutcome.html)\n\nNote that this operation is not the only way to validate resources - see [Validating Resources](validation.html) for further information.",
+      "The validate operation checks whether the attached content would be acceptable either generally, as a create, an update or as a delete to an existing resource.  The action the server takes depends on the mode parameter:  \n\n* [mode not provided]: The server checks the content of the resource against any schema, constraint rules, and other general terminology rules \n* create: The server checks the content, and then checks that the content would be acceptable as a create (e.g. that the content would not violate any uniqueness constraints) \n* update: The server checks the content, and then checks that it would accept it as an update against the nominated specific resource (e.g. that there are no changes to immutable fields the server does not allow to change, and checking version integrity if appropriate) \n* delete: The server ignores the content, and checks that the nominated resource is allowed to be deleted (e.g. checking referential integrity rules)  \n\nModes update and delete can only be used when the operation is invoked at the resource instance level.   The return from this operation is an [`OperationOutcome`](operationoutcome.html)\n\nNote that this operation is not the only way to validate resources - see [Validating Resources](validation.html) for further information.",
     code: "validate",
     comment:
       "This operation may be used during design and development to validate application design. It can also be used at run-time. One possible use might be that a client asks the server whether a proposed update is valid as the user is editing a dialog and displays an updated error to the user. The operation can be used as part of a light-weight two phase commit protocol but there is no expectation that the server will hold the content of the resource after this operation is used, or that the server guarantees to successfully perform an actual create, update or delete after the validation operation completes.\n\nThis operation returns a 200 OK whether or not the resource is valid. A 4xx or 5xx error means that the validation itself could not be performed, and it is unknown whether the resource is valid or not.\n\nNote: the correct behaviour of validation with regard to language (especially for Coding.display) is currently undefined, and further development and testing may lead to specific requirements or recommendations in subsequent releases\n\nFuture versions of this specifcation may add additional validation parameters. A candidate list is maintained with the [FHIR Validator Documentation](https://confluence.hl7.org/display/FHIR/Using+the+FHIR+Validator)",
@@ -5971,7 +5975,7 @@ export namespace StructureDefinitionQuestionnaire {
       },
     ],
     description:
-      "Generates a [Questionnaire](questionnaire.html) instance  based on a specified [StructureDefinition](structuredefinition.html), creating questions for each core element or extension element found in the [StructureDefinition](structuredefinition.html).    \n\nIf the operation is not called at the instance level, one of the *identifier*, *profile* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored. The response will contain a [Questionnaire](questionnaire.html) instance based on the specified [StructureDefinition](structuredefinition.html) and/or an [OperationOutcome](operationoutcome.html) resource with errors or warnings.  Nested groups are used to handle complex structures and data types.  If the 'supportedOnly' parameter is set to true, only those elements marked as \"must support\" will be included.  \n\nThis operation is intended to enable auto-generation of simple interfaces for arbitrary profiles.  The 'questionnaire' approach to data entry has limitations that will make it less optimal than custom-defined interfaces.  However, this function may be useful for simple applications or for systems that wish to support \"non-core\" resources with minimal development effort.",
+      "Generates a [Questionnaire](questionnaire.html) instance  based on a specified [`StructureDefinition`](structuredefinition.html), creating questions for each core element or extension element found in the [`StructureDefinition`](structuredefinition.html).    \n\nIf the operation is not called at the instance level, one of the *identifier*, *profile* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored. The response will contain a [Questionnaire](questionnaire.html) instance based on the specified [`StructureDefinition`](structuredefinition.html) and/or an [`OperationOutcome`](operationoutcome.html) resource with errors or warnings.  Nested groups are used to handle complex structures and data types.  If the 'supportedOnly' parameter is set to true, only those elements marked as \"must support\" will be included.  \n\nThis operation is intended to enable auto-generation of simple interfaces for arbitrary profiles.  The 'questionnaire' approach to data entry has limitations that will make it less optimal than custom-defined interfaces.  However, this function may be useful for simple applications or for systems that wish to support \"non-core\" resources with minimal development effort.",
     code: "questionnaire",
     comment:
       "**Open Issue**: Ideally, extensions should be populated in the generated [Questionnaire](questionnaire.html) that will support taking [QuestionnaireResponse](questionnaireresponse.html) resources generated from the Questionnaire and turning them back into the appropriate resources.",
@@ -5986,7 +5990,7 @@ export namespace StructureDefinitionQuestionnaire {
         min: 0,
         max: "1",
         documentation:
-          "A logical identifier (i.e. 'StructureDefinition.identifier''). The server must know the StructureDefinition or be able to retrieve it from other known repositories.",
+          "A logical identifier (i.e. 'StructureDefinition.identifier''). The server must know the `StructureDefinition` or be able to retrieve it from other known repositories.",
         type: "canonical",
         targetProfile: [
           "http://hl7.org/fhir/StructureDefinition/StructureDefinition",
@@ -5998,7 +6002,7 @@ export namespace StructureDefinitionQuestionnaire {
         min: 0,
         max: "1",
         documentation:
-          "The [StructureDefinition](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion",
+          "The [`StructureDefinition`](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion",
         type: "string",
         searchType: "token",
       },
@@ -6008,7 +6012,7 @@ export namespace StructureDefinitionQuestionnaire {
         min: 0,
         max: "1",
         documentation:
-          "The StructureDefinition's official URL (i.e. 'StructureDefinition.url'). The server must know the StructureDefinition or be able to retrieve it from other known repositories.",
+          "The `StructureDefinition`'s official URL (i.e. 'StructureDefinition.url'). The server must know the `StructureDefinition` or be able to retrieve it from other known repositories.",
         type: "canonical",
         targetProfile: [
           "http://hl7.org/fhir/StructureDefinition/StructureDefinition",
@@ -6020,7 +6024,7 @@ export namespace StructureDefinitionQuestionnaire {
         min: 0,
         max: "1",
         documentation:
-          "If true, the questionnaire will only include those elements marked as \"mustSupport='true'\" in the StructureDefinition.",
+          "If true, the questionnaire will only include those elements marked as \"mustSupport='true'\" in the `StructureDefinition`.",
         type: "boolean",
       },
       {
@@ -6029,7 +6033,7 @@ export namespace StructureDefinitionQuestionnaire {
         min: 1,
         max: "1",
         documentation:
-          "The questionnaire form generated based on the StructureDefinition.",
+          "The questionnaire form generated based on the `StructureDefinition`.",
         type: "Questionnaire",
       },
     ],
@@ -6076,7 +6080,7 @@ export namespace StructureDefinitionSnapshot {
       },
     ],
     description:
-      "Generates a [StructureDefinition](structuredefinition.html) instance  with  a snapshot, based on a differential in a specified [StructureDefinition](structuredefinition.html).   \n\nIf the operation is not called at the instance level, either *definition* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored.",
+      "Generates a [`StructureDefinition`](structuredefinition.html) instance  with  a snapshot, based on a differential in a specified [`StructureDefinition`](structuredefinition.html).   \n\nIf the operation is not called at the instance level, either *definition* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored.",
     code: "snapshot",
     resource: ["StructureDefinition"],
     system: false,
@@ -6089,7 +6093,7 @@ export namespace StructureDefinitionSnapshot {
         min: 0,
         max: "1",
         documentation:
-          "The [StructureDefinition](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion",
+          "The [`StructureDefinition`](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion",
         type: "StructureDefinition",
       },
       {
@@ -6098,7 +6102,7 @@ export namespace StructureDefinitionSnapshot {
         min: 0,
         max: "1",
         documentation:
-          "The StructureDefinition's canonical URL (i.e. 'StructureDefinition.url'). The server must know the structure definition, or be able to retrieve it from other known repositories.",
+          "The `StructureDefinition`'s canonical URL (i.e. 'StructureDefinition.url'). The server must know the structure definition, or be able to retrieve it from other known repositories.",
         type: "string",
         searchType: "token",
       },
@@ -6252,7 +6256,7 @@ export namespace ValueSetExpand {
       },
     ],
     description:
-      "The definition of a value set is used to create a simple collection of codes suitable for use for data entry or validation. \n\nIf the operation is not called at the instance level, one of the in parameters url, context or valueSet must be provided.  An expanded value set will be returned, or an OperationOutcome with an error message.",
+      "The definition of a value set is used to create a simple collection of codes suitable for use for data entry or validation. \n\nIf the operation is not called at the instance level, one of the in parameters url, context or valueSet must be provided.  An expanded value set will be returned, or an `OperationOutcome` with an error message.",
     code: "expand",
     comment:
       "The value set expansion returned by this query should be treated as a transient result that will change over time (whether it does or not depends on how the value set is specified), so applications should repeat the operation each time the value set is used.  \n\nIf the expansion is too large (at the discretion of the server), the server MAY return an error (OperationOutcome with code too-costly). Clients can work through large flat expansions in a set of pages (partial views of the full expansion) instead of just getting the full expansion in a single exchange by using offset and count parameters, or use the count parameter to request a subset of the expansion for limited purposes. Servers are not obliged to support paging, but if they do, SHALL support both the offset and count parameters. Hierarchical expansions are not subject to paging and servers simply return the entire expansion.  \n\nDifferent servers may return different results from expanding a value set for the following reasons:  \n\n* The underlying code systems are different (e.g. different versions, possibly with different defined behavior) \n* The server optimizes filter includes differently, such as sorting by code frequency \n* Servers introduce arbitrary groups to assist a user to navigate the lists based either on extensions in the definition, or additional knowledge available to the server\n\nWhen a server cannot correctly expand a value set because it does not fully understand the code systems (e.g. it has the wrong version, or incomplete definitions) then it SHALL return an error. If the value set itself is unbounded due to the inclusion of post-coordinated value sets (e.g. SNOMED CT, UCUM), then the extension [http://hl7.org/fhir/StructureDefinition/valueset-unclosed](extension-valueset-unclosed.html) can be used to indicate that the expansion is incomplete",
@@ -6294,7 +6298,7 @@ export namespace ValueSetExpand {
         min: 0,
         max: "1",
         documentation:
-          "The context of the value set, so that the server can resolve this to a value set to expand. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time",
+          "The context of the value set, so that the server can resolve this to a value set to expand. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. <http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation>. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time",
         type: "uri",
       },
       {
@@ -6312,7 +6316,7 @@ export namespace ValueSetExpand {
         min: 0,
         max: "1",
         documentation:
-          'A text filter that is applied to restrict the codes that are returned (this is useful in a UI context). The interpretation of this is delegated to the server in order to allow to determine the most optimal search approach for the context. The server can document the way this parameter works in [TerminologyCapabilities](terminologycapabilities.html)..expansion.textFilter. Typical usage of this parameter includes functionality like:\n\n* using left matching e.g. "acut ast"\n* allowing for wild cards such as %, &, ?\n* searching on definition as well as display(s)\n* allowing for search conditions (and / or / exclusions)\n\nText Search engines such as Lucene or Solr, long with their considerable functionality, might also be used. The optional text search might also be code system specific, and servers might have different implementations for different code systems',
+          'A text filter that is applied to restrict the codes that are returned (this is useful in a UI context). The interpretation of this is delegated to the server in order to allow to determine the most optimal search approach for the context. The server can document the way this parameter works in [`TerminologyCapabilities`](terminologycapabilities.html)..expansion.textFilter. Typical usage of this parameter includes functionality like:\n\n* using left matching e.g. "acut ast"\n* allowing for wild cards such as %, &, ?\n* searching on definition as well as display(s)\n* allowing for search conditions (and / or / exclusions)\n\nText Search engines such as Lucene or Solr, long with their considerable functionality, might also be used. The optional text search might also be code system specific, and servers might have different implementations for different code systems',
         type: "string",
       },
       {
@@ -6546,7 +6550,7 @@ export namespace ValueSetValidateCode {
         min: 0,
         max: "1",
         documentation:
-          "The context of the value set, so that the server can resolve this to a value set to validate against. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time",
+          "The context of the value set, so that the server can resolve this to a value set to validate against. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. <http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation>. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time",
         type: "uri",
       },
       {
