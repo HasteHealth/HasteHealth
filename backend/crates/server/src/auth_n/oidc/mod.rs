@@ -1,3 +1,4 @@
+pub mod client_assertion;
 mod code_verification;
 pub mod error;
 mod extract;

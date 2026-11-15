@@ -12,6 +12,7 @@ pub use pending::PendingRows;
 
 mod async_job;
 mod binary_data;
+mod client_assertion;
 mod failed_indexing;
 mod migrate;
 mod models;

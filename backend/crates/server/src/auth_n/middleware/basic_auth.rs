@@ -94,6 +94,8 @@ pub async fn basic_auth_middleware<
                 &OAuth2TokenBody {
                     client_id: Some(credentials.0.clone()),
                     client_secret: Some(credentials.1.clone()),
+                    client_assertion: None,
+                    client_assertion_type: None,
                     code: None,
                     code_verifier: None,
                     grant_type: OAuth2TokenBodyGrantType::ClientCredentials,

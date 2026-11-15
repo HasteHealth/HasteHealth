@@ -13,6 +13,7 @@ mod mcp;
 mod middleware;
 mod openapi;
 mod route_path;
+mod safe_fetch;
 pub mod server;
 pub mod services;
 mod static_assets;

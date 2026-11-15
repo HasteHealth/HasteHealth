@@ -43,6 +43,14 @@
         "client_secret": {
             "description": "The client Secret used in the initial request. May also be included in the Basic header.",
             "type": "string"
+        },
+        "client_assertion_type": {
+            "description": "How the client authenticates with client_assertion (RFC 7521 section 4.2). Only urn:ietf:params:oauth:client-assertion-type:jwt-bearer is accepted.",
+            "type": "string"
+        },
+        "client_assertion": {
+            "description": "A JWT signed with the client's private key (private_key_jwt, RFC 7523), in place of a client secret.",
+            "type": "string"
         }
     }
 }
