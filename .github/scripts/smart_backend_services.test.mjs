@@ -19,6 +19,7 @@ import { spawnSync } from "node:child_process";
 import { generateKeyPairSync, randomBytes, sign } from "node:crypto";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
+import { setTimeout as sleep } from "node:timers/promises";
 
 const {
   ADMIN_PROFILE = "testing",
@@ -76,9 +77,13 @@ before(async () => {
   tokenEndpoint = configuration.token_endpoint;
 
   cli(`profile use ${ADMIN_PROFILE}`);
+  let written;
   for (const resource of resources) {
-    cli(`api update ${resource.resourceType} ${resource.id}`, { data: JSON.stringify(resource) });
+    written = JSON.parse(
+      cli(`api update ${resource.resourceType} ${resource.id}`, { data: JSON.stringify(resource) }),
+    );
   }
+  await indexed(written);
 });
 
 after(() => {
@@ -165,6 +170,19 @@ describe("The client assertion", () => {
   });
 });
 
+// Waits until search finds `resource` as it was written. A write reaches the
+// search index after it returns, and the token endpoint finds a client's
+// policy through search: a token issued before then carries no policy, and
+// its requests are answered 403. A project's writes are indexed in order, so
+// once the last one is found they all are.
+async function indexed({ resourceType, id, meta }) {
+  for (const deadline = Date.now() + 60_000; Date.now() < deadline; await sleep(200)) {
+    const found = JSON.parse(cli(`api search-type ${resourceType} _id=${id}`));
+    if (found.entry?.some((entry) => entry.resource.meta.versionId === meta.versionId)) return;
+  }
+  throw new Error(`${resourceType}/${id} was not indexed within a minute`);
+}
+
 // A token request as Inferno's BackendServicesAuthorizationRequestBuilder
 // sends it, with `overrides` in place of its fields.
 async function requestToken(overrides) {
@@ -247,15 +265,19 @@ function base64url(value) {
 }
 
 // `cli("api update ClientApplication x", { data })` runs
-// `haste-health api update ClientApplication x --data ...` from backend/.
+// `haste-health api update ClientApplication x --data ...` from backend/ and
+// returns what it prints. Logging is off, as it would print there too.
 function cli(command, flags = {}) {
   const args = [
     ...command.split(" "),
     ...Object.entries(flags).flatMap(([flag, value]) => [`--${flag}`, value]),
   ];
-  const { status } = spawnSync(cliPath, args, {
+  const { status, stdout } = spawnSync(cliPath, args, {
     cwd: backendDir,
-    stdio: ["ignore", "ignore", "inherit"],
+    env: { ...process.env, RUST_LOG: "none" },
+    stdio: ["ignore", "pipe", "inherit"],
+    encoding: "utf8",
   });
   if (status !== 0) throw new Error(`haste-health ${command} failed`);
+  return stdout;
 }
