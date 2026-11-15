@@ -153,9 +153,10 @@ jobs:
           RUST_LOG: info
 
       # Inferno's SMART Backend Services authorization tests (8.1.02 to 8.1.06),
-      # which a TestScript cannot send: the bulk client signs a JWT
-      # (private_key_jwt) in place of its secret. Runs even when a scenario's
-      # TestScripts fail, so both results are reported.
+      # which a TestScript cannot send: a client signs a JWT (private_key_jwt)
+      # in place of a secret. The suite registers that client itself and
+      # removes it afterwards. Runs even when a scenario's TestScripts fail, so
+      # both results are reported.
       - name: "g10: SMART Backend Services (private_key_jwt)"
         if: success() || failure()
         run: node --test --test-reporter=spec .github/scripts/smart_backend_services.test.mjs

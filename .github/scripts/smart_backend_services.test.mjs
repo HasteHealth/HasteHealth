@@ -5,26 +5,27 @@
 // checks on the assertion. A TestScript cannot send these: the token request
 // is a form POST, and each assertion needs a fresh signature, exp and jti.
 //
-// Run against a running server after the g10 setup, which creates CLIENT_ID
-// (test_e2e_g10.yml). Registers a fresh RS384 and ES384 key on that client as
-// its jwks, through the admin's CLI profile.
+// Run against a running server (test_e2e_g10.yml). Through the admin's CLI
+// profile it registers a client of its own, CLIENT_ID, with a fresh RS384 and
+// ES384 key as its jwks, and removes it afterwards: no other test's client is
+// changed.
 //   node --test .github/scripts/smart_backend_services.test.mjs
 //
 // env: ADMIN_PROFILE (testing), TENANT (my-health), PROJECT (system),
-//      HASTE_API_URI (http://localhost:3000), CLIENT_ID (g10-bulk-client),
-//      SCOPE (system/*.rs)
+//      HASTE_API_URI (http://localhost:3000),
+//      CLIENT_ID (smart-backend-services-test), SCOPE (system/*.rs)
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { generateKeyPairSync, randomBytes, sign } from "node:crypto";
 import { join } from "node:path";
-import { before, describe, test } from "node:test";
+import { after, before, describe, test } from "node:test";
 
 const {
   ADMIN_PROFILE = "testing",
   TENANT = "my-health",
   PROJECT = "system",
   HASTE_API_URI = "http://localhost:3000",
-  CLIENT_ID = "g10-bulk-client",
+  CLIENT_ID = "smart-backend-services-test",
   SCOPE = "system/*.rs",
 } = process.env;
 
@@ -35,6 +36,32 @@ const fhirBase = `${HASTE_API_URI}/w/${TENANT}/${PROJECT}/api/v1/fhir/r4`;
 
 const keys = { RS384: newKey("RS384"), ES384: newKey("ES384") };
 let tokenEndpoint;
+
+// The client the suite signs in as, and the policy that lets it read. Full
+// access, as the (g)(10) bulk data client has, leaves SCOPE as its only limit.
+const resources = [
+  {
+    resourceType: "ClientApplication",
+    id: CLIENT_ID,
+    name: "SMART Backend Services test client",
+    grantType: ["client_credentials"],
+    responseTypes: "token",
+    scope: SCOPE,
+    jwks: JSON.stringify({ keys: Object.values(keys).map((key) => key.publicJwk) }),
+  },
+  {
+    resourceType: "AccessPolicyV2",
+    id: `${CLIENT_ID}-policy`,
+    name: "SMART Backend Services test client",
+    engine: "full-access",
+  },
+  {
+    resourceType: "AccessPolicyV2Assignment",
+    id: `${CLIENT_ID}-policy-assignment`,
+    accessPolicy: { reference: `AccessPolicyV2/${CLIENT_ID}-policy` },
+    link: { reference: `ClientApplication/${CLIENT_ID}` },
+  },
+];
 
 before(async () => {
   const response = await fetch(`${fhirBase}/.well-known/smart-configuration`);
@@ -48,11 +75,17 @@ before(async () => {
   ]);
   tokenEndpoint = configuration.token_endpoint;
 
-  const jwks = { keys: Object.values(keys).map((key) => key.publicJwk) };
   cli(`profile use ${ADMIN_PROFILE}`);
-  cli(`api patch ClientApplication ${CLIENT_ID}`, {
-    data: JSON.stringify([{ op: "add", path: "/jwks", value: JSON.stringify(jwks) }]),
-  });
+  for (const resource of resources) {
+    cli(`api update ${resource.resourceType} ${resource.id}`, { data: JSON.stringify(resource) });
+  }
+});
+
+after(() => {
+  cli(`profile use ${ADMIN_PROFILE}`);
+  for (const { resourceType, id } of resources.toReversed()) {
+    cli(`api delete-instance ${resourceType} ${id}`);
+  }
 });
 
 // Inferno's tests, in its order. 8.1.01 (TLS) does not apply to a local http server.
@@ -201,7 +234,7 @@ function newKey(alg) {
     alg === "RS384"
       ? generateKeyPairSync("rsa", { modulusLength: 2048 })
       : generateKeyPairSync("ec", { namedCurve: "P-384" });
-  const kid = `g10-${alg.toLowerCase()}`;
+  const kid = `test-${alg.toLowerCase()}`;
   return {
     kid,
     privateKey,
@@ -213,8 +246,8 @@ function base64url(value) {
   return Buffer.from(value).toString("base64url");
 }
 
-// `cli("api patch ClientApplication x", { data })` runs
-// `haste-health api patch ClientApplication x --data ...` from backend/.
+// `cli("api update ClientApplication x", { data })` runs
+// `haste-health api update ClientApplication x --data ...` from backend/.
 function cli(command, flags = {}) {
   const args = [
     ...command.split(" "),
