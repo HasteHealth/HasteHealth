@@ -54,6 +54,17 @@ pub trait FHIRRepository: Sized {
         version_id: &[&VersionId],
         cache_policy: CachePolicy,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    /// The version `version_id` of the resource `resource_type/resource_id`:
+    /// `None` when the resource has no such version, which includes a
+    /// version id that belongs to another resource.
+    fn read_version(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+        version_id: &VersionId,
+    ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
         tenant_id: &TenantId,
