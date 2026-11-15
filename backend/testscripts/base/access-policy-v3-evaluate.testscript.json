@@ -198,14 +198,14 @@
         },
         {
             "resourceType": "AccessPolicyV3",
-            "id": "indeterminate-syntax",
+            "id": "indeterminate-target-error",
             "combining": "deny-overrides",
             "rule": [
                 {
                     "kind": "decision",
                     "type": "permit",
                     "target": {
-                        "expression": "%request.type ="
+                        "expression": "('a' | 'b').upper() = 'A'"
                     }
                 }
             ],
@@ -219,14 +219,14 @@
         },
         {
             "resourceType": "AccessPolicyV3",
-            "id": "indeterminate-variable",
+            "id": "indeterminate-condition-error",
             "combining": "deny-overrides",
             "rule": [
                 {
                     "kind": "decision",
                     "type": "permit",
-                    "target": {
-                        "expression": "%nope = 'x'"
+                    "condition": {
+                        "expression": "('a' | 'b').upper() = 'A'"
                     }
                 }
             ],
@@ -892,17 +892,17 @@
             "autodelete": false
         },
         {
-            "id": "fixture-indeterminate-syntax",
+            "id": "fixture-indeterminate-target-error",
             "resource": {
-                "reference": "#indeterminate-syntax"
+                "reference": "#indeterminate-target-error"
             },
             "autocreate": false,
             "autodelete": false
         },
         {
-            "id": "fixture-indeterminate-variable",
+            "id": "fixture-indeterminate-condition-error",
             "resource": {
-                "reference": "#indeterminate-variable"
+                "reference": "#indeterminate-condition-error"
             },
             "autocreate": false,
             "autodelete": false
@@ -1344,8 +1344,8 @@
             ]
         },
         {
-            "id": "07-indeterminate-syntax",
-            "name": "An expression that does not parse is indeterminate",
+            "id": "07-indeterminate-target-error",
+            "name": "A target that fails to evaluate is indeterminate",
             "action": [
                 {
                     "operation": {
@@ -1353,8 +1353,8 @@
                             "code": "create"
                         },
                         "resource": "AccessPolicyV3",
-                        "sourceId": "fixture-indeterminate-syntax",
-                        "responseId": "r-indeterminate-syntax",
+                        "sourceId": "fixture-indeterminate-target-error",
+                        "responseId": "r-indeterminate-target-error",
                         "encodeRequestUrl": false
                     }
                 },
@@ -1374,9 +1374,9 @@
                         },
                         "url": "evaluate-policy",
                         "resource": "AccessPolicyV3",
-                        "targetId": "r-indeterminate-syntax",
+                        "targetId": "r-indeterminate-target-error",
                         "sourceId": "fixture-req-read",
-                        "responseId": "e-indeterminate-syntax",
+                        "responseId": "e-indeterminate-target-error",
                         "encodeRequestUrl": false
                     }
                 },
@@ -1391,8 +1391,8 @@
             ]
         },
         {
-            "id": "08-indeterminate-variable",
-            "name": "An unknown variable is indeterminate",
+            "id": "08-indeterminate-condition-error",
+            "name": "A condition that fails to evaluate is indeterminate",
             "action": [
                 {
                     "operation": {
@@ -1400,8 +1400,8 @@
                             "code": "create"
                         },
                         "resource": "AccessPolicyV3",
-                        "sourceId": "fixture-indeterminate-variable",
-                        "responseId": "r-indeterminate-variable",
+                        "sourceId": "fixture-indeterminate-condition-error",
+                        "responseId": "r-indeterminate-condition-error",
                         "encodeRequestUrl": false
                     }
                 },
@@ -1421,9 +1421,9 @@
                         },
                         "url": "evaluate-policy",
                         "resource": "AccessPolicyV3",
-                        "targetId": "r-indeterminate-variable",
+                        "targetId": "r-indeterminate-condition-error",
                         "sourceId": "fixture-req-read",
-                        "responseId": "e-indeterminate-variable",
+                        "responseId": "e-indeterminate-condition-error",
                         "encodeRequestUrl": false
                     }
                 },
