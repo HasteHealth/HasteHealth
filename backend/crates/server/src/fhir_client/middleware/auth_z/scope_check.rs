@@ -10,6 +10,9 @@
 //! reaches the resources matching any of them: [`granular_scope`] checks the
 //! request, storage filters its searches by the same scopes, and reads are
 //! checked against the resource returned.
+//!
+//! The scopes are picked for the resource type a request names, so a read is
+//! answered only with the resource it addresses: that type and id.
 
 use crate::fhir_client::{
     ClientState, ServerCTX, StorageError,
@@ -268,6 +271,46 @@ async fn filter_read(
     }
 }
 
+/// The type and id of the resource a read or version read addresses.
+fn addressed_resource(request: &FHIRRequest) -> Option<(ResourceType, String)> {
+    match request {
+        FHIRRequest::Read(read) => Some((read.resource_type.clone(), read.id.clone())),
+        FHIRRequest::VersionRead(vread) => Some((vread.resource_type.clone(), vread.id.clone())),
+        _ => None,
+    }
+}
+
+/// `response`, when the resource a read holds is the `addressed` one, which
+/// is the resource the request's scopes were picked for. Storage reads by
+/// that type and id, so this holds for whatever it answers.
+///
+/// # Errors
+///
+/// A read that holds any other resource is not found.
+fn confirm_addressed(
+    response: FHIRResponse,
+    addressed: Option<&(ResourceType, String)>,
+) -> Result<FHIRResponse, OperationOutcomeError> {
+    let Some((resource_type, id)) = addressed else {
+        return Ok(response);
+    };
+    let resource = match &response {
+        FHIRResponse::Read(read) => read.resource.as_ref(),
+        FHIRResponse::VersionRead(vread) => Some(&vread.resource),
+        _ => None,
+    };
+
+    match resource {
+        Some(resource)
+            if resource.resource_type() != *resource_type
+                || resource.id().as_deref() != Some(id.as_str()) =>
+        {
+            Err(StorageError::NotFound(resource_type.clone(), id.clone()).into())
+        }
+        _ => Ok(response),
+    }
+}
+
 /// The response as the caller may see it: a read is checked against the
 /// `compartment` the request was confined to and the `granular` filter its
 /// searches ran with, a search page's includes against the caller's scopes.
@@ -375,7 +418,9 @@ impl<B: Backend> Middleware<B> for SmartScopeAccess {
                     }
                 };
 
+                let addressed = addressed_resource(&request);
                 let response = next.run(state, ctx, request).await?;
+                let response = confirm_addressed(response, addressed.as_ref())?;
                 filter_response(
                     response,
                     &claims.scope,
@@ -386,5 +431,110 @@ impl<B: Backend> Middleware<B> for SmartScopeAccess {
                 .await
             }),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::request::{
+        FHIRReadRequest, FHIRSearchTypeRequest, FHIRVersionReadRequest, FHIRVersionReadResponse,
+        SearchRequest,
+    };
+    use haste_fhir_client::url::ParsedParameters;
+    use haste_jwt::VersionId;
+
+    fn resource(resource_type: &ResourceType, id: &str) -> Resource {
+        let json = format!(
+            r#"{{"resourceType":"{}","id":"{id}"}}"#,
+            resource_type.as_ref()
+        );
+        resource_type.deserialize(json.as_bytes()).unwrap()
+    }
+
+    fn read(resource_type: ResourceType, id: &str) -> FHIRRequest {
+        FHIRRequest::Read(FHIRReadRequest {
+            resource_type,
+            id: id.to_string(),
+        })
+    }
+
+    fn version_read(resource_type: ResourceType, id: &str) -> FHIRRequest {
+        FHIRRequest::VersionRead(FHIRVersionReadRequest {
+            resource_type,
+            id: id.to_string(),
+            version_id: VersionId::new("v1".to_string()),
+        })
+    }
+
+    fn read_of(resource: Option<Resource>) -> FHIRResponse {
+        FHIRResponse::Read(FHIRReadResponse { resource })
+    }
+
+    fn version_read_of(resource: Resource) -> FHIRResponse {
+        FHIRResponse::VersionRead(FHIRVersionReadResponse { resource })
+    }
+
+    /// Whether `response` is passed on as the answer to `request`.
+    fn confirmed(request: &FHIRRequest, response: FHIRResponse) -> bool {
+        confirm_addressed(response, addressed_resource(request).as_ref()).is_ok()
+    }
+
+    #[test]
+    fn a_read_is_answered_with_the_resource_it_addresses() {
+        let patient = || resource(&ResourceType::Patient, "p1");
+
+        assert!(confirmed(
+            &read(ResourceType::Patient, "p1"),
+            read_of(Some(patient()))
+        ));
+        assert!(confirmed(
+            &version_read(ResourceType::Patient, "p1"),
+            version_read_of(patient())
+        ));
+        // Nothing found is still an answer.
+        assert!(confirmed(&read(ResourceType::Patient, "p1"), read_of(None)));
+    }
+
+    #[test]
+    fn a_read_is_not_answered_with_another_type() {
+        let patient = || resource(&ResourceType::Patient, "p1");
+
+        assert!(!confirmed(
+            &read(ResourceType::Observation, "p1"),
+            read_of(Some(patient()))
+        ));
+        assert!(!confirmed(
+            &version_read(ResourceType::Observation, "p1"),
+            version_read_of(patient())
+        ));
+    }
+
+    #[test]
+    fn a_read_is_not_answered_with_another_id() {
+        let patient = || resource(&ResourceType::Patient, "p1");
+
+        assert!(!confirmed(
+            &read(ResourceType::Patient, "p2"),
+            read_of(Some(patient()))
+        ));
+        assert!(!confirmed(
+            &version_read(ResourceType::Patient, "p2"),
+            version_read_of(patient())
+        ));
+    }
+
+    #[test]
+    fn other_requests_are_passed_on() {
+        let search = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type: ResourceType::Patient,
+            parameters: ParsedParameters::try_from("").unwrap(),
+        }));
+
+        assert!(addressed_resource(&search).is_none());
+        assert!(confirmed(
+            &search,
+            read_of(Some(resource(&ResourceType::Patient, "p1")))
+        ));
     }
 }
