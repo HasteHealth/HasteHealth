@@ -22,10 +22,10 @@ function MetricCard({
   detail: string;
 }>) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-      <div className="text-sm font-medium text-slate-500">{title}</div>
-      <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
-      <div className="mt-1 text-xs text-slate-500">{detail}</div>
+    <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-4 shadow-sm">
+      <div className="text-xs font-mono uppercase tracking-wider text-[var(--ci-muted)]">{title}</div>
+      <div className="mt-2 text-2xl font-mono font-semibold text-[var(--ci-ink)]">{value}</div>
+      <div className="mt-1 text-xs font-mono text-[var(--ci-muted)]">{detail}</div>
     </div>
   );
 }
@@ -42,11 +42,11 @@ function SectionCard({
   action?: React.ReactNode;
 }>) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
+    <section className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-          <p className="mt-1 text-sm text-slate-500">{description}</p>
+          <h2 className="text-sm font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">{title}</h2>
+          <p className="mt-1 text-xs text-[var(--ci-muted)]">{description}</p>
         </div>
         {action}
       </div>
@@ -57,11 +57,11 @@ function SectionCard({
 
 function StatusBadge({ resolvedAt }: Readonly<{ resolvedAt?: string }>) {
   return resolvedAt ? (
-    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+    <span className="inline-flex items-center rounded-none border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] uppercase text-emerald-500">
       Resolved
     </span>
   ) : (
-    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+    <span className="inline-flex items-center rounded-none border border-red-500/30 bg-red-500/10 px-2 py-0.5 font-mono text-[10px] uppercase text-red-500">
       Unresolved
     </span>
   );
@@ -77,7 +77,7 @@ function FailedResources({
 }>) {
   if (loading) {
     return (
-      <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+      <div className="flex items-center gap-2 py-4 font-mono text-xs text-[var(--ci-muted)]">
         <Loading />
         <span>Loading indexing errors...</span>
       </div>
@@ -86,8 +86,8 @@ function FailedResources({
 
   if (errors.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-500">
-        <ExclamationTriangleIcon className="h-8 w-8 text-slate-300" />
+      <div className="flex flex-col items-center gap-2 py-10 font-mono text-xs text-[var(--ci-muted)]">
+        <ExclamationTriangleIcon className="h-8 w-8 text-[var(--ci-muted)] opacity-40" />
         <span>No indexing errors recorded.</span>
       </div>
     );
@@ -214,12 +214,12 @@ export default function IndexingErrors() {
 
   return (
     <div className="flex w-full flex-col gap-6 overflow-y-auto">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
+      <header className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold text-slate-900">
+          <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">
             Indexing Errors
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs text-[var(--ci-muted)]">
             Resources that failed to index into search. These are skipped rather
             than retried indefinitely.
           </p>
@@ -245,13 +245,13 @@ export default function IndexingErrors() {
         action={
           <div className="flex items-center gap-2">
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-3 py-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-ink)] hover:border-[var(--ci-signal)] hover:text-[var(--ci-signal)] transition-colors"
               onClick={loadErrors}
             >
               Refresh
             </button>
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50"
+              className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-3 py-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-ink)] hover:border-[var(--ci-signal)] hover:text-[var(--ci-signal)] transition-colors disabled:pointer-events-none disabled:opacity-50"
               onClick={resolveAll}
               disabled={resolving || unresolvedCount === 0}
             >

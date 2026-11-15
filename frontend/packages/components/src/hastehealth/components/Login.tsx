@@ -39,7 +39,7 @@ export const Login = ({
         return (
           <div
             key={message}
-            className="text-sm text-green-600 dark:text-green-400"
+            className="text-xs font-mono text-emerald-500"
           >
             {message}
           </div>
@@ -49,20 +49,20 @@ export const Login = ({
     <div>
       {errors?.map((error) => {
         return (
-          <div key={error} className="text-sm text-red-600 dark:text-red-400">
+          <div key={error} className="text-xs font-mono text-red-500">
             {error}
           </div>
         );
       })}
     </div>
-    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+    <h1 className="text-lg font-mono font-bold uppercase tracking-wider text-[var(--ci-ink)] md:text-xl">
       Sign in to your account
     </h1>
     <form className="space-y-4 md:space-y-6" action={action} method="POST">
       <div>
         <label
           htmlFor="email"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-muted)]"
         >
           Your email
         </label>
@@ -71,7 +71,7 @@ export const Login = ({
           name="email"
           id="email"
           defaultValue={email ?? ""}
-          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500"
+          className="w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-2.5 font-mono text-xs text-[var(--ci-ink)] placeholder-[var(--ci-muted)] focus:border-[var(--ci-signal)] focus:outline-none focus:ring-1 focus:ring-[var(--ci-signal)]"
           placeholder="name@company.com"
           required={true}
         />
@@ -80,7 +80,7 @@ export const Login = ({
         <div>
           <label
             htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block mb-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-muted)]"
           >
             Password
           </label>
@@ -89,7 +89,7 @@ export const Login = ({
             name="password"
             id="password"
             placeholder="••••••••"
-            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500"
+            className="w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-2.5 font-mono text-xs text-[var(--ci-ink)] placeholder-[var(--ci-muted)] focus:border-[var(--ci-signal)] focus:outline-none focus:ring-1 focus:ring-[var(--ci-signal)]"
             required={true}
           />
         </div>
@@ -101,15 +101,15 @@ export const Login = ({
               id="remember"
               aria-describedby="remember"
               type="checkbox"
-              className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-brand-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-brand-600 dark:ring-offset-gray-800"
+              className="w-4 h-4 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-signal)] focus:ring-[var(--ci-signal)]"
               defaultChecked={true}
               required={true}
             />
           </div>
-          <div className="ml-3 text-sm">
+          <div className="ml-3 text-xs">
             <label
               htmlFor="remember"
-              className="text-gray-500 dark:text-gray-300"
+              className="font-mono text-xs text-[var(--ci-muted)]"
             >
               Remember me
             </label>
@@ -118,7 +118,7 @@ export const Login = ({
         {forgotPasswordURL && (
           <a
             href={forgotPasswordURL}
-            className="text-sm font-medium text-brand-600 hover:underline dark:text-brand-500"
+            className="font-mono text-xs text-[var(--ci-signal)] hover:underline"
           >
             Forgot password?
           </a>
@@ -126,16 +126,16 @@ export const Login = ({
       </div>
       <button
         type="submit"
-        className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-hidden focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
+        className="w-full rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] hover:bg-[var(--ci-signal-hover)] py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-white transition-colors"
       >
         Sign in
       </button>
       {signupURL && (
-        <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+        <p className="font-mono text-xs text-[var(--ci-muted)]">
           Don’t have an account yet?{" "}
           <a
             href={signupURL}
-            className="font-medium text-brand-600 hover:underline dark:text-brand-500"
+            className="font-semibold text-[var(--ci-signal)] hover:underline"
           >
             Sign up
           </a>
@@ -148,7 +148,7 @@ export const Login = ({
           <a
             key={provider.title}
             href={provider.url}
-            className="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-hidden focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+            className="flex w-full items-center justify-center gap-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] hover:bg-[var(--ci-surface)] py-2.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-ink)] transition-colors"
           >
             {provider.logo && (
               <div className="flex flex-col justify-center">

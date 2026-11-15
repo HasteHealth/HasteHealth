@@ -14,6 +14,7 @@ import {
   MagnifyingGlassIcon,
   PuzzlePieceIcon,
   QuestionMarkCircleIcon,
+  ShieldCheckIcon,
   Squares2X2Icon,
   StarIcon,
   TableCellsIcon,
@@ -39,7 +40,7 @@ const MODULE_ICONS: Record<string, typeof CubeIcon> = {
   Specialized: BeakerIcon,
   Foundation: WrenchScrewdriverIcon,
   "SQL on FHIR": TableCellsIcon,
-  "Haste Health": LockClosedIcon,
+  Platform: LockClosedIcon,
 };
 
 const OPERATE_LINKS = [
@@ -59,6 +60,7 @@ const OPERATE_LINKS = [
     label: "Custom operations",
     Icon: CommandLineIcon,
   },
+  { path: "/roles", label: "Roles & permissions", Icon: ShieldCheckIcon },
   { path: "/settings", label: "Settings", Icon: Cog6ToothIcon },
 ];
 
@@ -108,11 +110,11 @@ function TypeRow({
     <li className="group flex items-center">
       <button
         className={classNames(
-          "min-w-0 flex-1 truncate rounded-sm py-1 pr-1 text-left text-sm",
+          "min-w-0 flex-1 truncate rounded-none py-1 pr-1 text-left text-sm transition-colors",
           indentClass(depth),
           active
-            ? "bg-brand-50 font-medium text-brand-900"
-            : "text-slate-700 hover:bg-slate-100",
+            ? "bg-[var(--ci-signal-soft)] font-medium text-[var(--ci-signal-ink)] border-l-2 border-[var(--ci-signal)]"
+            : "text-[var(--ci-ink-muted)] hover:text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] border-l-2 border-transparent",
         )}
         onClick={() => onNavigate(`/r/${type}`)}
         title={type}
@@ -122,8 +124,8 @@ function TypeRow({
       </button>
       <button
         className={classNames(
-          "rounded-sm p-1 text-slate-300 hover:text-amber-500",
-          pinned ? "visible text-amber-500" : "invisible group-hover:visible",
+          "p-1 text-[var(--ci-muted)] hover:text-[var(--ci-signal)] transition-colors",
+          pinned ? "visible text-[var(--ci-signal)]" : "invisible group-hover:visible",
         )}
         onClick={() => onTogglePin(type)}
         title={pinned ? `Unpin ${type}` : `Pin ${type}`}
@@ -162,19 +164,19 @@ function Group({
   return (
     <li>
       <button
-        className="flex w-full items-center gap-1.5 rounded-sm px-2 py-1 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+        className="flex w-full items-center gap-1.5 rounded-none px-2 py-1 text-left text-sm font-medium text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] transition-colors"
         onClick={onToggle}
         aria-expanded={isOpen}
         type="button"
       >
         {isOpen ? (
-          <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+          <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-[var(--ci-ink-subtle)]" />
         ) : (
-          <ChevronRightIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+          <ChevronRightIcon className="h-3.5 w-3.5 shrink-0 text-[var(--ci-ink-subtle)]" />
         )}
-        <ModuleIcon className="h-4 w-4 shrink-0 text-slate-400" />
+        <ModuleIcon className="h-4 w-4 shrink-0 text-[var(--ci-ink-subtle)]" />
         <span className="min-w-0 flex-1 truncate">{group.module}</span>
-        <span className="shrink-0 text-xs text-slate-400">{count}</span>
+        <span className="shrink-0 text-xs font-mono text-[var(--ci-ink-subtle)]">{count}</span>
       </button>
 
       {isOpen && (
@@ -188,10 +190,10 @@ function Group({
                     new group of its own. */}
                 {group.sections.length > 1 && (
                   <div className="flex items-center gap-1.5 pb-0.5 pl-5 pr-2 pt-2">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
                       {section.label}
                     </span>
-                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="h-px flex-1 bg-[var(--ci-line)]" />
                   </div>
                 )}
                 <ul>
@@ -304,7 +306,7 @@ export function ConsoleSidebar({
     ));
   } else {
     typeList = (
-      <li className="px-2 py-2 text-xs text-slate-400">
+      <li className="px-2 py-2 font-mono text-xs text-[var(--ci-muted)]">
         No type matches “{filter}”.
       </li>
     );
@@ -313,11 +315,11 @@ export function ConsoleSidebar({
   return (
     <nav
       data-sidebar
-      className="flex h-full w-56 shrink-0 flex-col gap-3 overflow-hidden border-r border-slate-200 bg-slate-50 px-2 py-3 xl:w-64"
+      className="flex h-full w-56 shrink-0 flex-col gap-3 overflow-hidden border-r border-[var(--ci-line)] bg-[var(--ci-surface)] px-2 py-3 xl:w-64"
     >
       {pinnedTypes.length > 0 && (
         <section>
-          <h2 className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="px-2 pb-1 text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
             Pinned
           </h2>
           <ul>
@@ -336,13 +338,13 @@ export function ConsoleSidebar({
       )}
 
       <section className="flex min-h-0 flex-1 flex-col">
-        <h2 className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="px-2 pb-1 text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
           Resource types
         </h2>
         <div className="relative mb-1 px-1">
-          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1.5 h-3.5 w-3.5 text-slate-400" />
+          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1.5 h-3.5 w-3.5 text-[var(--ci-ink-subtle)]" />
           <input
-            className="w-full rounded-sm border border-slate-200 bg-white py-1 pl-7 pr-2 text-xs placeholder:text-slate-400 focus:border-brand-500 focus:ring-0"
+            className="w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] py-1 pl-7 pr-2 text-xs text-[var(--ci-ink)] placeholder:text-[var(--ci-ink-subtle)] focus:border-[var(--ci-signal)] focus:outline-none focus:ring-1 focus:ring-[var(--ci-signal)]"
             placeholder={`Filter ${resourceTypes.length} types`}
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
@@ -352,8 +354,8 @@ export function ConsoleSidebar({
         <ul className="min-h-0 flex-1 overflow-auto">{typeList}</ul>
       </section>
 
-      <section className="border-t border-slate-200 pt-2">
-        <h2 className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+      <section className="border-t border-[var(--ci-line)] pt-2">
+        <h2 className="px-2 pb-1 text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
           Operate
         </h2>
         <ul>
@@ -361,15 +363,15 @@ export function ConsoleSidebar({
             <li key={path}>
               <button
                 className={classNames(
-                  "flex w-full items-center gap-2 rounded-sm px-2 py-1 text-left text-sm",
+                  "flex w-full items-center gap-2 rounded-none px-2 py-1 text-left text-sm transition-colors",
                   activePath === path
-                    ? "bg-brand-50 font-medium text-brand-900"
-                    : "text-slate-700 hover:bg-slate-100",
+                    ? "bg-[var(--ci-signal-soft)] font-medium text-[var(--ci-signal-ink)] border-l-2 border-[var(--ci-signal)]"
+                    : "text-[var(--ci-ink-muted)] hover:text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] border-l-2 border-transparent",
                 )}
                 onClick={() => onNavigate(path)}
                 type="button"
               >
-                <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+                <Icon className="h-4 w-4 shrink-0 text-[var(--ci-ink-subtle)]" />
                 {label}
               </button>
             </li>
@@ -378,13 +380,13 @@ export function ConsoleSidebar({
             {/* The shortcuts are only discoverable if something points at
                 them, so they get a permanent place rather than only a chord. */}
             <button
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1 text-left text-sm text-slate-700 hover:bg-slate-100"
+              className="flex w-full items-center gap-2 rounded-none px-2 py-1 text-left text-sm text-[var(--ci-ink-muted)] hover:text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] transition-colors border-l-2 border-transparent"
               onClick={onShowShortcuts}
               type="button"
             >
-              <QuestionMarkCircleIcon className="h-4 w-4 shrink-0 text-slate-400" />
+              <QuestionMarkCircleIcon className="h-4 w-4 shrink-0 text-[var(--ci-ink-subtle)]" />
               <span className="flex-1">Keyboard shortcuts</span>
-              <kbd className="shrink-0 rounded-sm border border-slate-300 bg-white px-1 font-mono text-[10px] text-slate-500">
+              <kbd className="shrink-0 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1 font-mono text-[10px] text-[var(--ci-ink-muted)]">
                 {modLabel()} /
               </kbd>
             </button>

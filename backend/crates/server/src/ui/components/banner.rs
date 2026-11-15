@@ -39,18 +39,19 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
     let display_name = name.0.as_deref().unwrap_or(header);
 
     html! {
-        div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold text-gray-900" {
+        div class="flex flex-col items-center justify-center space-y-2 mb-4" {
+            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
-                div { span class="font-bold" { (display_name) } }
+            div class="flex space-x-1.5 items-center justify-center font-mono text-xs text-[#8c96a5]" {
+                div { span class="font-bold text-[#f0f2f5]" { (display_name) } }
                 @if let Some(project_name) = subheader {
-                    div { span { (project_name) } }
+                    div { span class="text-[#525a66]" { "/" } }
+                    div { span class="text-[#ff5e26]" { (project_name) } }
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="text-xs text-slate-300 hover:text-slate-400" {
+                class="font-mono text-[10px] uppercase tracking-wider text-[#525a66] hover:text-[#ff5e26] transition-colors" {
                 "Powered by Haste Health"
             }
         }

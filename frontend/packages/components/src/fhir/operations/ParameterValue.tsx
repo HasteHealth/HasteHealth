@@ -114,15 +114,16 @@ function BooleanToggle({
   onChange,
 }: Readonly<{ value: unknown; onChange: (value: boolean) => void }>) {
   return (
-    <div className="inline-flex overflow-hidden rounded-md border border-slate-300 text-xs">
+    <div className="inline-flex overflow-hidden rounded-none border border-[var(--ci-line)] text-xs font-mono">
       {[true, false].map((option) => (
         <button
           key={String(option)}
           type="button"
           aria-pressed={value === option}
-          className={classNames("px-3 py-1 font-medium", {
-            "bg-brand-600 text-white": value === option,
-            "bg-white text-slate-700 hover:bg-slate-50": value !== option,
+          className={classNames("px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors", {
+            "bg-[var(--ci-signal)] text-white font-semibold": value === option,
+            "bg-[var(--ci-surface)] text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]":
+              value !== option,
           })}
           onClick={() => onChange(option)}
         >
@@ -250,9 +251,9 @@ export function ParameterValueEditor({
 export function JSONValueView({ value }: Readonly<{ value: unknown }>) {
   const resource = value as { resourceType?: string; id?: string };
   return (
-    <div className="overflow-hidden rounded-md border border-slate-200">
+    <div className="overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
       {resource?.resourceType && (
-        <div className="border-b border-slate-200 bg-slate-50 px-2 py-1 font-mono text-xs text-slate-600">
+        <div className="border-b border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-1 font-mono text-xs text-[var(--ci-ink)]">
           {resource.resourceType}
           {resource.id ? `/${resource.id}` : ""}
         </div>
@@ -278,7 +279,7 @@ export function ParameterValueView({
   value,
 }: Readonly<{ type?: string; value: unknown }>) {
   if (value === undefined || value === null) {
-    return <span className="text-sm text-slate-400">No value</span>;
+    return <span className="font-mono text-xs text-[var(--ci-muted)]">No value</span>;
   }
 
   if (
@@ -287,7 +288,7 @@ export function ParameterValueView({
     typeof value === "boolean"
   ) {
     return (
-      <span className="break-all font-mono text-sm text-slate-800">
+      <span className="break-all font-mono text-xs text-[var(--ci-ink)]">
         {String(value)}
       </span>
     );

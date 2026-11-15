@@ -1,0 +1,131 @@
+/* Shared Clinical Instrument values. Scoped names keep the public site and
+   the legacy clinical surfaces independent while modules migrate. */
+:root {
+  --ci-bg: #f1eee7;
+  --ci-surface: #faf8f4;
+  --ci-surface-raised: #fff;
+  --ci-surface-sunken: #f2eee6;
+  --ci-ink: #0e1013;
+  --ci-ink-muted: #4a5260;
+  --ci-ink-subtle: #5b6472;
+  --ci-line: rgba(14, 16, 19, 0.22);
+  --ci-line-strong: rgba(14, 16, 19, 0.42);
+  --ci-signal: #e5451a;
+  --ci-signal-ink: #b33a12;
+  --ci-signal-soft: rgba(229, 69, 26, 0.10);
+  --ci-font-display: 'Bricolage Grotesque', 'Instrument Sans', sans-serif;
+  --ci-font-body: 'Instrument Sans', sans-serif;
+  --ci-font-mono: 'IBM Plex Mono', monospace;
+
+  /* Restrained elevation: hairline rules do the work, shadows only lift
+     overlays and drawers away from the page. */
+  --ci-shadow-1: 0 1px 2px rgba(14, 16, 19, 0.07);
+  --ci-shadow-2: 0 6px 18px rgba(14, 16, 19, 0.12), 0 1px 2px rgba(14, 16, 19, 0.06);
+  --ci-shadow-3: 0 24px 60px rgba(14, 16, 19, 0.22), 0 4px 12px rgba(14, 16, 19, 0.10);
+  --ci-hover-line: color-mix(in srgb, var(--ci-signal) 55%, var(--ci-line));
+  --ci-hover-shadow: 0 0 18px color-mix(in srgb, var(--ci-signal) 18%, transparent);
+  --ci-signal-hover: color-mix(in srgb, var(--ci-signal) 88%, #000);
+  --ci-ease: 180ms ease;
+
+  /* Alpha variants used by module surfaces (single source of truth). */
+  --a-ci-surface-30: color-mix(in srgb, var(--ci-surface) 30%, transparent);
+  --a-ci-surface-80: color-mix(in srgb, var(--ci-surface) 80%, transparent);
+  --a-ci-surface-85: color-mix(in srgb, var(--ci-surface) 85%, transparent);
+  --a-color-accent-20: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  --a-color-accent-30: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  --a-color-accent-35: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  --a-color-background-50: color-mix(in srgb, var(--color-background) 50%, transparent);
+  --a-color-bg-subtle-30: color-mix(in srgb, var(--color-bg-subtle) 30%, transparent);
+  --a-color-border-subtle-60: color-mix(in srgb, var(--color-border-subtle) 60%, transparent);
+  --a-color-border-subtle-70: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  --a-color-critical-10: color-mix(in srgb, var(--color-critical) 10%, transparent);
+  --a-color-critical-12: color-mix(in srgb, var(--color-critical) 12%, transparent);
+  --a-color-critical-20: color-mix(in srgb, var(--color-critical) 20%, transparent);
+  --a-color-critical-30: color-mix(in srgb, var(--color-critical) 30%, transparent);
+  --a-color-critical-5: color-mix(in srgb, var(--color-critical) 5%, transparent);
+  --a-color-critical-8: color-mix(in srgb, var(--color-critical) 8%, transparent);
+  --a-color-critical-soft-40: color-mix(in srgb, var(--color-critical-soft) 40%, transparent);
+  --a-color-encounters-20: color-mix(in srgb, var(--color-encounters) 20%, transparent);
+  --a-color-encounters-60: color-mix(in srgb, var(--color-encounters) 60%, transparent);
+  --a-color-fire-primary-10: color-mix(in srgb, var(--color-fire-primary) 10%, transparent);
+  --a-color-fire-primary-12: color-mix(in srgb, var(--color-fire-primary) 12%, transparent);
+  --a-color-fire-primary-15: color-mix(in srgb, var(--color-fire-primary) 15%, transparent);
+  --a-color-fire-primary-20: color-mix(in srgb, var(--color-fire-primary) 20%, transparent);
+  --a-color-fire-primary-25: color-mix(in srgb, var(--color-fire-primary) 25%, transparent);
+  --a-color-fire-primary-30: color-mix(in srgb, var(--color-fire-primary) 30%, transparent);
+  --a-color-fire-primary-35: color-mix(in srgb, var(--color-fire-primary) 35%, transparent);
+  --a-color-fire-primary-40: color-mix(in srgb, var(--color-fire-primary) 40%, transparent);
+  --a-color-fire-primary-45: color-mix(in srgb, var(--color-fire-primary) 45%, transparent);
+  --a-color-fire-primary-5: color-mix(in srgb, var(--color-fire-primary) 5%, transparent);
+  --a-color-fire-primary-50: color-mix(in srgb, var(--color-fire-primary) 50%, transparent);
+  --a-color-fire-primary-60: color-mix(in srgb, var(--color-fire-primary) 60%, transparent);
+  --a-color-fire-soft-30: color-mix(in srgb, var(--color-fire-soft) 30%, transparent);
+  --a-color-fire-soft-50: color-mix(in srgb, var(--color-fire-soft) 50%, transparent);
+  --a-color-fire-soft-60: color-mix(in srgb, var(--color-fire-soft) 60%, transparent);
+  --a-color-fire-soft-80: color-mix(in srgb, var(--color-fire-soft) 80%, transparent);
+  --a-color-primary-10: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  --a-color-primary-20: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  --a-color-primary-30: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  --a-color-primary-50: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  --a-color-surface-45: color-mix(in srgb, var(--color-surface) 45%, transparent);
+  --a-color-surface-80: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  --a-color-surface-90: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  --a-color-surface-elevated-20: color-mix(in srgb, var(--color-surface-elevated) 20%, transparent);
+  --a-color-surface-elevated-30: color-mix(in srgb, var(--color-surface-elevated) 30%, transparent);
+  --a-color-surface-elevated-40: color-mix(in srgb, var(--color-surface-elevated) 40%, transparent);
+  --a-color-surface-elevated-50: color-mix(in srgb, var(--color-surface-elevated) 50%, transparent);
+  --a-color-surface-elevated-60: color-mix(in srgb, var(--color-surface-elevated) 60%, transparent);
+  --a-color-surface-elevated-80: color-mix(in srgb, var(--color-surface-elevated) 80%, transparent);
+  --a-color-surface-elevated-95: color-mix(in srgb, var(--color-surface-elevated) 95%, transparent);
+  --a-color-surface-secondary-30: color-mix(in srgb, var(--color-surface-secondary) 30%, transparent);
+  --a-color-surface-secondary-40: color-mix(in srgb, var(--color-surface-secondary) 40%, transparent);
+  --a-color-surface-secondary-50: color-mix(in srgb, var(--color-surface-secondary) 50%, transparent);
+  --a-color-surface-secondary-80: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent);
+  --a-color-surface-secondary-95: color-mix(in srgb, var(--color-surface-secondary) 95%, transparent);
+  --a-color-text-secondary-80: color-mix(in srgb, var(--color-text-secondary) 80%, transparent);
+  --a-color-vitals-10: color-mix(in srgb, var(--color-vitals) 10%, transparent);
+  --a-color-warning-10: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  --a-color-warning-30: color-mix(in srgb, var(--color-warning) 30%, transparent);
+  --a-color-warning-40: color-mix(in srgb, var(--color-warning) 40%, transparent);
+  --a-color-warning-strong-20: color-mix(in srgb, var(--color-warning-strong) 20%, transparent);
+  --a-glass-bg-30: color-mix(in srgb, var(--glass-bg) 30%, transparent);
+  --a-glass-bg-50: color-mix(in srgb, var(--glass-bg) 50%, transparent);
+  --a-glass-bg-90: color-mix(in srgb, var(--glass-bg) 90%, transparent);
+  --a-glass-bg-95: color-mix(in srgb, var(--glass-bg) 95%, transparent);
+  --a-surface-drawer-bg-90: color-mix(in srgb, var(--surface-drawer-bg) 90%, transparent);
+  --a-surface-panel-bg-90: color-mix(in srgb, var(--surface-panel-bg) 90%, transparent);
+  --a-surface-rail-bg-70: color-mix(in srgb, var(--surface-rail-bg) 70%, transparent);
+}
+html[data-theme='dark'] {
+  --ci-bg: #07080b;
+  --ci-surface: #0b0d12;
+  --ci-surface-raised: #10141b;
+  --ci-surface-sunken: #080a0e;
+  --ci-ink: #f4f6fa;
+  --ci-ink-muted: #a4adbc;
+  --ci-ink-subtle: #8b94a3;
+  --ci-line: rgba(255, 255, 255, 0.17);
+  --ci-line-strong: rgba(255, 255, 255, 0.30);
+  --ci-signal: #ff5e26;
+  --ci-signal-ink: #ff9569;
+  --ci-signal-soft: rgba(255, 94, 38, 0.13);
+
+  --ci-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.55);
+  --ci-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --ci-shadow-3: 0 28px 70px rgba(0, 0, 0, 0.7), 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Shared hover feedback for actionable panels and surfaces. Passive panels
+   must not use this class, so a static panel never advertises clickability. */
+.ci-hover {
+  transition: border-color var(--ci-ease), box-shadow var(--ci-ease), background-color var(--ci-ease);
+}
+@media (hover: hover) {
+  .ci-hover:not(:disabled):hover {
+    border-color: var(--ci-hover-line);
+    box-shadow: var(--ci-hover-shadow);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ci-hover { transition: none; }
+}

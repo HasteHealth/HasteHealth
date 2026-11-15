@@ -29,9 +29,9 @@ export function PanelHeader({
   description,
 }: Readonly<PanelHeaderProps>) {
   return (
-    <header className="mb-3 border-b border-slate-200 pb-3">
+    <header className="mb-3 border-b border-[var(--ci-line)] pb-3">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-lg font-semibold leading-7 text-slate-900">
+        <h1 className="text-lg font-mono font-bold leading-7 text-[var(--ci-ink)]">
           {title}
         </h1>
         {badges}
@@ -40,7 +40,7 @@ export function PanelHeader({
         )}
       </div>
       {description !== undefined && (
-        <p className="mt-1 min-h-5 max-w-3xl text-sm text-slate-500">
+        <p className="mt-1 min-h-5 max-w-3xl text-xs text-[var(--ci-muted)]">
           {description}
         </p>
       )}
@@ -56,10 +56,10 @@ export function Badge({
   return (
     <span
       className={classNames(
-        "rounded-sm px-1.5 py-0.5 text-xs",
+        "rounded-none border px-1.5 py-0.5 text-[11px] font-mono uppercase tracking-wider",
         tone === "amber"
-          ? "bg-amber-100 text-amber-800"
-          : "bg-slate-100 text-slate-600",
+          ? "border-amber-500/30 bg-amber-500/10 text-amber-500"
+          : "border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-muted)]",
       )}
     >
       {children}

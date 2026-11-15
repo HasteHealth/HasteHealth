@@ -11,7 +11,7 @@
   "module": "dist/esm/index.js",
   "types": "dist/types.d.ts",
   "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs && pnpm postcss --config postcss.config.js -o dist/index.css src/index.css",
+    "build": "rollup -c --bundleConfigAsCjs && mkdir -p dist/styles && cp src/styles/*.css dist/styles/ && pnpm postcss --config postcss.config.js -o dist/index.css src/index.css",
     "storybook": "storybook dev -p 6006",
     "wrangler": "pnpm build-storybook && wrangler deploy",
     "remove": "wrangler delete",

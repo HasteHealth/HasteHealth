@@ -99,7 +99,7 @@ function CodeView({
           code, which gets a fixed height so the panel shows, and the two
           scroll together. */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto xl:flex-row xl:overflow-hidden">
-        <div className="flex h-80 min-w-0 shrink-0 overflow-auto rounded-md border border-slate-200 xl:h-auto xl:flex-1">
+        <div className="flex h-80 min-w-0 shrink-0 overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] xl:h-auto xl:flex-1">
           <CodeMirror
             readOnly={readOnly}
             extensions={CODE_EXTENSIONS}
@@ -111,7 +111,7 @@ function CodeView({
           />
         </div>
 
-        <div className="flex h-[40rem] shrink-0 flex-col overflow-hidden rounded-md border border-slate-200 xl:h-auto xl:w-[26rem]">
+        <div className="flex h-[40rem] shrink-0 flex-col overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] xl:h-auto xl:w-[26rem]">
           <OperationInvocationPanel
             client={client}
             fhirVersion={R4}
@@ -174,7 +174,7 @@ function LogsView({ operationId }: Readonly<{ operationId: string }>) {
     <div className="flex min-h-0 flex-1 flex-col">
       <PanelHint>Recent executions of this operation.</PanelHint>
       {!loading && (events?.length ?? 0) === 0 ? (
-        <p className="px-1 py-3 text-sm text-slate-500">
+        <p className="px-1 py-3 font-mono text-xs text-[var(--ci-muted)]">
           This operation has not run yet.
         </p>
       ) : (

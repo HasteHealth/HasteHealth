@@ -18,30 +18,30 @@ export default function BatchImportView() {
   const [fileName, setFileName] = useState<string | undefined>(undefined);
 
   return (
-    <div className="flex w-full flex-col gap-6 text-slate-700">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-        <h1 className="text-2xl font-semibold text-slate-900">Bundle Import</h1>
-        <p className="mt-1 max-w-3xl text-sm text-slate-500">
+    <div className="flex w-full flex-col gap-6 text-[var(--ci-ink)]">
+      <header className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
+        <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">Bundle Import</h1>
+        <p className="mt-1 max-w-3xl text-xs text-[var(--ci-muted)]">
           Upload a FHIR Bundle and process it as either a batch or transaction.
           This is useful for bulk loading resources and testing import
           pipelines.
         </p>
       </header>
 
-      <section className="w-full max-w-3xl rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
+      <section className="w-full max-w-3xl rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
         <div className="mb-4 flex items-start gap-3">
-          <div className="rounded-md bg-brand-50 p-2 text-brand-700">
+          <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-2 text-[var(--ci-signal)]">
             <ArrowUpTrayIcon className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="text-sm font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
               Select Bundle File
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-xs text-[var(--ci-muted)]">
               Accepted: JSON FHIR Bundle with{" "}
-              <span className="font-medium">type</span> set to{" "}
-              <span className="font-medium">batch</span> or{" "}
-              <span className="font-medium">transaction</span>.
+              <span className="font-mono text-[var(--ci-ink)]">type</span> set to{" "}
+              <span className="font-mono text-[var(--ci-ink)]">batch</span> or{" "}
+              <span className="font-mono text-[var(--ci-ink)]">transaction</span>.
             </p>
           </div>
         </div>
@@ -82,8 +82,8 @@ export default function BatchImportView() {
           }}
         />
 
-        <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-          <span className="font-medium text-slate-700">Selected:</span>{" "}
+        <div className="mt-3 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 text-xs font-mono text-[var(--ci-ink)]">
+          <span className="text-[var(--ci-muted)]">Selected:</span>{" "}
           {fileName ?? "No file selected"}
         </div>
 

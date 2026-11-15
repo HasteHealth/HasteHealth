@@ -1,9 +1,45 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{html,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Instrument Sans", "system-ui", "sans-serif"],
+        body: ["Instrument Sans", "system-ui", "sans-serif"],
+        display: ["Bricolage Grotesque", "Instrument Sans", "sans-serif"],
+        serif: ["Instrument Serif", "serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
+      },
+      borderRadius: {
+        none: "0px",
+        sm: "0px",
+        DEFAULT: "0px",
+        md: "0px",
+        lg: "0px",
+        xl: "0px",
+        "2xl": "0px",
+        "3xl": "0px",
+        full: "9999px",
+        pill: "9999px",
+      },
+      boxShadow: {
+        elevation1: "var(--ci-shadow-1)",
+        elevation2: "var(--ci-shadow-2)",
+        elevation3: "var(--ci-shadow-3)",
+      },
       colors: {
+        background: "var(--ci-bg)",
+        foreground: "var(--ci-ink)",
+        border: "var(--ci-line)",
+        input: "var(--ci-line)",
+        ring: "var(--ci-signal)",
+        card: { DEFAULT: "var(--ci-surface)", foreground: "var(--ci-ink)" },
+        popover: { DEFAULT: "var(--ci-surface-raised)", foreground: "var(--ci-ink)" },
+        primary: { DEFAULT: "var(--ci-signal)", foreground: "#0a0a0a" },
+        secondary: { DEFAULT: "var(--ci-surface-raised)", foreground: "var(--ci-ink)" },
+        muted: { DEFAULT: "var(--ci-surface-sunken)", foreground: "var(--ci-ink-muted)" },
+        accent: { DEFAULT: "var(--ci-signal-soft)", foreground: "var(--ci-ink)" },
         brand: {
           50: "rgb(var(--hh-color-brand-50) / <alpha-value>)",
           100: "rgb(var(--hh-color-brand-100) / <alpha-value>)",
@@ -15,6 +51,7 @@ module.exports = {
           700: "rgb(var(--hh-color-brand-700) / <alpha-value>)",
           800: "rgb(var(--hh-color-brand-800) / <alpha-value>)",
           900: "rgb(var(--hh-color-brand-900) / <alpha-value>)",
+          950: "var(--hh-color-brand-950)",
         },
       },
     },

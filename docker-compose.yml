@@ -97,7 +97,10 @@ services:
 
   hastehealth-admin-app:
     image: ghcr.io/hastehealth/hastehealth/admin-app:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: docker/admin-app/dockerfile
+    pull_policy: build
     ports:
       - 3001:80
     depends_on:

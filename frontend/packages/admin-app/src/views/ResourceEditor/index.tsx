@@ -268,60 +268,60 @@ export default function ResourceEditor() {
   const displayId = id || "unknown";
 
   return (
-    <div className="flex flex-1 flex-col gap-6 overflow-auto">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-        <div className="mb-3 flex flex-wrap items-center gap-1 text-sm text-slate-500">
+    <div className="flex flex-1 flex-col gap-6 overflow-auto text-[var(--ci-ink)]">
+      <header className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
+        <div className="mb-3 flex flex-wrap items-center gap-1 text-xs font-mono text-[var(--ci-muted)]">
           <button
-            className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="inline-flex items-center gap-1 rounded-none px-1 py-0.5 hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
             onClick={() => navigate(generatePath("/", {}))}
             type="button"
           >
-            <HomeIcon className="h-4 w-4" />
+            <HomeIcon className="h-3.5 w-3.5" />
             Home
           </button>
-          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+          <ChevronRightIcon className="h-3.5 w-3.5 text-[var(--ci-muted)] opacity-50" />
           <button
-            className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="inline-flex items-center gap-1 rounded-none px-1 py-0.5 hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
             onClick={() => navigate("/")}
             type="button"
           >
             Resources
           </button>
-          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+          <ChevronRightIcon className="h-3.5 w-3.5 text-[var(--ci-muted)] opacity-50" />
           <button
-            className="rounded-sm px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-none px-1 py-0.5 hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
             onClick={() => navigate(resourceListPath(displayResourceType))}
             type="button"
           >
             {displayResourceType}
           </button>
-          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
-          <span className="rounded-sm bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+          <ChevronRightIcon className="h-3.5 w-3.5 text-[var(--ci-muted)] opacity-50" />
+          <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-0.5 font-mono text-xs text-[var(--ci-signal-ink)]">
             {displayId}
           </span>
         </div>
 
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-slate-900">
+            <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">
               {displayResourceType} Editor
             </h1>
-            <p className="text-sm text-slate-500">
+            <p className="text-xs text-[var(--ci-muted)]">
               {displayId === "new"
                 ? `Create a new ${displayResourceType} and save it to your project.`
                 : `Review and update ${displayResourceType}/${displayId}.`}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+              <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-0.5 text-[11px] font-mono text-[var(--ci-muted)]">
                 Status: {structureDefinition?.status ?? "unknown"}
               </span>
-              <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+              <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-0.5 text-[11px] font-mono text-[var(--ci-muted)]">
                 Version: {structureDefinition?.version ?? "n/a"}
               </span>
             </div>
           </div>
           <Button
-            className="font-medium"
+            className="font-mono text-xs uppercase tracking-wider"
             buttonSize="small"
             buttonType="secondary"
             onClick={() =>
@@ -333,14 +333,14 @@ export default function ResourceEditor() {
             }
           >
             <div className="flex items-center justify-center">
-              <BookOpenIcon className="mr-1 h-4 w-4" />
+              <BookOpenIcon className="mr-1 h-3.5 w-3.5 text-[var(--ci-signal)]" />
               <span>Docs</span>
             </div>
           </Button>
         </div>
       </header>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
+      <section className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-4 shadow-sm">
         <ResourceEditorTabs
           onStructureDefinitionChange={setStructureDefinition}
         />

@@ -12,12 +12,10 @@ pub fn page_html(children: &Markup) -> Markup {
             link rel="icon" href=(asset_route("img/logo.svg")) {}
             link rel="stylesheet" href=(asset_route("css/app.css")) {}
         }
-        body {
-            section class="bg-background h-screen" {
-                div class="flex flex-col items-center justify-center md:h-screen" {
-                    div class="px-6 py-8 lg:py-0 space-y-4 mx-auto md:-mt-32 min-w-[400px] md:min-w-[500px]" {
-                     (children)
-                    }
+        body class="bg-[#07080b] text-[#f0f2f5] antialiased" {
+            section class="min-h-screen flex items-center justify-center bg-[#07080b] p-4" {
+                div class="flex flex-col items-center justify-center w-full max-w-md" {
+                    (children)
                 }
             }
         }

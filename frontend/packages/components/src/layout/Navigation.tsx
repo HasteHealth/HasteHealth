@@ -36,14 +36,14 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
   return (
     <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-white focus:ring-offset-2">
+        <Menu.Button className="relative flex max-w-xs items-center rounded-none text-[var(--ci-muted)] hover:text-[var(--ci-signal)] transition-colors focus:outline-none">
           <span className="absolute -inset-1.5" />
           <span className="sr-only">Open user menu</span>
           {user?.imageUrl ? (
-            <img className="h-8 w-8 rounded-full" src={user?.imageUrl} alt="" />
+            <img className="h-8 w-8 rounded-none border border-[var(--ci-line)]" src={user?.imageUrl} alt="" />
           ) : (
             <UserCircleIcon
-              className="h-8 w-8 rounded-full"
+              className="h-8 w-8"
               aria-hidden="true"
             />
           )}
@@ -58,7 +58,7 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <div className="bg-white absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden">
+        <div className="bg-[var(--ci-surface)] border border-[var(--ci-line)] text-[var(--ci-ink)] absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-none py-1 shadow-2xl focus:outline-none">
           {children}
         </div>
       </Transition>
@@ -102,9 +102,9 @@ export const Navigation = ({
                         onClick={() => onNavigation(item)}
                         className={classNames(
                           active === item.name
-                            ? "bg-brand-600 text-white"
-                            : "text-brand-700 hover:bg-brand-600 hover:text-white",
-                          "cursor-pointer rounded-md px-3 py-2 text-sm font-medium",
+                            ? "bg-[var(--ci-signal)] text-white font-semibold"
+                            : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]",
+                          "cursor-pointer rounded-none px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors",
                         )}
                         aria-current={active === item.name ? "page" : undefined}
                       >
@@ -122,7 +122,7 @@ export const Navigation = ({
               </div>
               <div className="-mr-2 md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative rounded-full p-1 focus:ring-offset-brand-800 text-brand-700 hover:bg-brand-600 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-white focus:ring-offset-2">
+                <Disclosure.Button className="relative rounded-none p-1 text-[var(--ci-muted)] hover:text-[var(--ci-signal)] focus:outline-none transition-colors">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -144,9 +144,9 @@ export const Navigation = ({
                   href={item.href}
                   className={classNames(
                     active === item.name
-                      ? "bg-brand-600 text-white"
-                      : "text-brand-700 hover:bg-brand-600 hover:text-white",
-                    "block rounded-md px-3 py-2 text-base font-medium",
+                      ? "bg-[var(--ci-signal)] text-white font-semibold"
+                      : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]",
+                    "block rounded-none px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors",
                   )}
                   aria-current={item.name === active ? "page" : undefined}
                 >
@@ -154,20 +154,20 @@ export const Navigation = ({
                 </Disclosure.Button>
               ))}
             </div>
-            <div className="border-t border-gray-700 pb-3 pt-4">
+            <div className="border-t border-[var(--ci-line)] pb-3 pt-4">
               <div className="flex items-center px-5">
                 <div className="shrink-0">
                   <img
-                    className="h-10 w-10 rounded-full"
+                    className="h-10 w-10 rounded-none border border-[var(--ci-line)]"
                     src={user?.imageUrl}
                     alt=""
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium leading-none text-brand-700">
+                  <div className="font-mono text-xs font-semibold leading-none text-[var(--ci-ink)]">
                     {user?.name}
                   </div>
-                  <div className="text-sm font-medium leading-none text-gray-400">
+                  <div className="font-mono text-[11px] leading-none text-[var(--ci-muted)]">
                     {user?.email}
                   </div>
                 </div>
@@ -179,8 +179,8 @@ export const Navigation = ({
                     as="a"
                     href={item.href}
                     className={classNames(
-                      "block rounded-md px-3 py-2 text-base font-medium",
-                      "text-brand-700 hover:bg-brand-600 hover:text-white",
+                      "block rounded-none px-3 py-2 font-mono text-xs uppercase tracking-wider",
+                      "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)] transition-colors",
                     )}
                   >
                     {item.name}

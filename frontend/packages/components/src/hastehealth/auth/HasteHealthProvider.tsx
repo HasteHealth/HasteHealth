@@ -17,6 +17,79 @@ const state_key = (client_id: string) => `haste-health_state_${client_id}`;
 const pkce_code_verifier_key = (client_id: string) =>
   `haste-health_pkce_code_${client_id}`;
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(
+    new RegExp("(?:^|; )" + encodeURIComponent(name) + "=([^;]*)"),
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name: string, value: string, maxAgeSeconds = 600) {
+  if (typeof document === "undefined") return;
+  const encodedName = encodeURIComponent(name);
+  const encodedVal = encodeURIComponent(value);
+  document.cookie = `${encodedName}=${encodedVal}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax`;
+  const host = window.location.hostname;
+  if (host.endsWith("localhost")) {
+    try {
+      document.cookie = `${encodedName}=${encodedVal}; Path=/; Domain=.localhost; Max-Age=${maxAgeSeconds}; SameSite=Lax`;
+    } catch {}
+  }
+}
+
+function removeCookie(name: string) {
+  if (typeof document === "undefined") return;
+  const encodedName = encodeURIComponent(name);
+  document.cookie = `${encodedName}=; Path=/; Max-Age=0; SameSite=Lax`;
+  const host = window.location.hostname;
+  if (host.endsWith("localhost")) {
+    try {
+      document.cookie = `${encodedName}=; Path=/; Domain=.localhost; Max-Age=0; SameSite=Lax`;
+    } catch {}
+  }
+}
+
+export function getStoredAuthValue(key: string): string | null {
+  try {
+    const val = window.sessionStorage.getItem(key);
+    if (val) return val;
+  } catch {}
+  try {
+    const val = window.localStorage.getItem(key);
+    if (val) return val;
+  } catch {}
+  try {
+    const val = getCookie(key);
+    if (val) return val;
+  } catch {}
+  return null;
+}
+
+export function setStoredAuthValue(key: string, value: string) {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {}
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {}
+  try {
+    setCookie(key, value, 600);
+  } catch {}
+}
+
+export function removeStoredAuthValue(key: string) {
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch {}
+  try {
+    window.localStorage.removeItem(key);
+  } catch {}
+  try {
+    removeCookie(key);
+  } catch {}
+}
+
 function getParsedParameters(): Record<string, string> {
   const parameters = window.location.search
     .slice(1)
@@ -46,22 +119,23 @@ async function exchangeAuthCodeForToken({
   parameters: Record<string, string>;
   clientId: string;
 }): Promise<AccessTokenResponse | TokenErrorResponse> {
-  const code_verifier = window.sessionStorage.getItem(
-    pkce_code_verifier_key(clientId),
-  );
-  const localStateParameter = window.sessionStorage.getItem(
-    state_key(clientId),
-  );
+  const code_verifier = getStoredAuthValue(pkce_code_verifier_key(clientId));
+  const localStateParameter = getStoredAuthValue(state_key(clientId));
 
-  if (!parameters.state) throw new Error();
-  if (!parameters.code) throw new Error();
-  if (parameters.state !== localStateParameter)
-    throw new Error("Invalid State");
+  if (!parameters.state || !parameters.code) {
+    throw new Error("Missing authorization code or state in callback parameters");
+  }
 
-  window.sessionStorage.removeItem(state_key(clientId));
-  window.sessionStorage.removeItem(pkce_code_verifier_key(clientId));
+  if (localStateParameter && parameters.state !== localStateParameter) {
+    throw new Error("Invalid State: authorization response state does not match stored state");
+  }
 
-  if (!code_verifier) throw new Error("Invalid Code Verifier");
+  if (!code_verifier) {
+    throw new Error("Invalid Code Verifier: PKCE code verifier not found in storage");
+  }
+
+  removeStoredAuthValue(state_key(clientId));
+  removeStoredAuthValue(pkce_code_verifier_key(clientId));
 
   window.history.replaceState(null, "", location.pathname);
 
@@ -103,11 +177,8 @@ export async function authorize({
   const code_verifier = generateRandomString(43);
   const state = generateRandomString(30);
   const code_challenge = await sha256(code_verifier);
-  window.sessionStorage.setItem(
-    pkce_code_verifier_key(clientId),
-    code_verifier,
-  );
-  window.sessionStorage.setItem(state_key(clientId), state);
+  setStoredAuthValue(pkce_code_verifier_key(clientId), code_verifier);
+  setStoredAuthValue(state_key(clientId), state);
 
   const parameters: Record<string, string> = {
     client_id: clientId,
@@ -275,20 +346,56 @@ export function HasteHealthProvider({
             dispatch({
               type: "ON_ERROR",
               error: parameters.error,
-              error_description: parameters.error_description,
+              error_description:
+                parameters.error_description ?? "Authentication failed",
               error_uri: parameters.error_uri,
               state: parameters.state,
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate:", parameters.error);
             return;
           }
 
-          const payload = await exchangeAuthCodeForToken({
-            parameters,
-            token_endpoint: well_known.token_endpoint,
-            redirect_uri: redirectUrl,
-            clientId,
-          });
+          const codeVerifier = getStoredAuthValue(
+            pkce_code_verifier_key(clientId),
+          );
+          if (!codeVerifier) {
+            // Storage was lost or stale query params remained in address bar.
+            // Re-initiate authorization cleanly rather than crashing into an unhandled state.
+            window.history.replaceState(null, "", location.pathname);
+            console.warn(
+              "No PKCE code verifier found in storage; re-initiating authorization...",
+            );
+            await authorize({
+              refresh,
+              method: authorize_method,
+              authorize_endpoint: well_known.authorization_endpoint,
+              clientId,
+              scope,
+              redirectUrl,
+            });
+            return;
+          }
+
+          let payload: AccessTokenResponse | TokenErrorResponse;
+          try {
+            payload = await exchangeAuthCodeForToken({
+              parameters,
+              token_endpoint: well_known.token_endpoint,
+              redirect_uri: redirectUrl,
+              clientId,
+            });
+          } catch (exchangeErr: any) {
+            window.history.replaceState(null, "", location.pathname);
+            console.error("Token exchange failed:", exchangeErr);
+            dispatch({
+              type: "ON_ERROR",
+              error: "token_exchange_error",
+              error_description:
+                exchangeErr?.message ||
+                "Failed to exchange authorization code for token.",
+            });
+            return;
+          }
 
           if ("error" in payload) {
             window.history.replaceState(null, "", location.pathname);
@@ -299,7 +406,7 @@ export function HasteHealthProvider({
                 payload.error_description ??
                 "The token endpoint rejected the authorization code.",
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate:", payload.error);
             return;
           }
 
@@ -311,7 +418,7 @@ export function HasteHealthProvider({
               error_description:
                 "The token response contained no id token. Check that 'openid' is one of the scopes this application requests and is allowed by its client application.",
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate: missing id_token");
             return;
           }
 
@@ -373,10 +480,12 @@ export function HasteHealthProvider({
 
           // Allows for SPA to redirect back.
           if (onRedirectCallback) {
-            onRedirectCallback(window.sessionStorage.getItem("path") ?? "/");
+            const redirectPath = getStoredAuthValue("path") ?? "/";
+            removeStoredAuthValue("path");
+            onRedirectCallback(redirectPath);
           }
         } else {
-          window.sessionStorage.setItem(
+          setStoredAuthValue(
             "path",
             window.location.href.replace(window.location.origin, ""),
           );
@@ -389,10 +498,16 @@ export function HasteHealthProvider({
             redirectUrl,
           });
         }
-      } catch (error) {
-        // Nothing can catch a rejection from this effect, so log and stop
-        // here rather than rethrowing into an unhandled rejection.
-        console.error(error);
+      } catch (error: any) {
+        window.history.replaceState(null, "", location.pathname);
+        console.error("Authentication initialization failed:", error);
+        dispatch({
+          type: "ON_ERROR",
+          error: "initialization_error",
+          error_description:
+            error?.message ||
+            "An unexpected error occurred during authentication setup.",
+        });
       } finally {
         dispatch({ type: "SET_LOADING", loading: false });
       }
@@ -402,13 +517,35 @@ export function HasteHealthProvider({
   return (
     <HasteHealthContext.Provider value={state}>
       {state.error ? (
-        <OperationOutcomeIssueDisplay
-          issue={{
-            severity: "error" as code,
-            code: state.error.code as code,
-            diagnostics: state.error.description,
-          }}
-        />
+        <div className="min-h-screen flex items-center justify-center bg-[var(--ci-bg)] p-6 text-[var(--ci-ink)]">
+          <div className="max-w-md w-full border border-[var(--ci-line)] bg-[var(--ci-surface)] p-6 space-y-4 shadow-sm">
+            <div className="flex items-center space-x-2 text-[var(--ci-signal)]">
+              <span className="font-mono text-xs uppercase tracking-wider font-semibold">
+                Authentication Notice
+              </span>
+            </div>
+            <div className="text-base font-semibold text-[var(--ci-ink)]">
+              {state.error.code
+                .split("_")
+                .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                .join(" ")}
+            </div>
+            <p className="text-xs text-[var(--ci-muted)] leading-relaxed">
+              {state.error.description}
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = window.location.pathname;
+                }}
+                className="w-full py-2 px-4 bg-[var(--ci-signal)] text-white text-xs font-mono font-medium hover:opacity-90 transition-opacity"
+              >
+                Sign in again
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         children
       )}

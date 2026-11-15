@@ -12,11 +12,10 @@ use crate::{
 use haste_jwt::HOSTNAME_ID_PATTERN;
 use maud::{Markup, html};
 
-const CARD: &str =
-    "border border-brand-50 w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700";
-const INPUT: &str = "bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5";
-const BUTTON: &str = "cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center";
-const LINK: &str = "text-sm font-medium text-brand-600 hover:underline";
+const CARD: &str = "border border-[#1e2229] w-full bg-[#0d0f12] rounded-none shadow-2xl md:mt-0 xl:p-0 text-[#e6e8eb]";
+const INPUT: &str = "bg-[#14171d] border border-[#1e2229] text-[#e6e8eb] font-mono sm:text-xs rounded-none focus:ring-1 focus:ring-[#ff5e26] focus:border-[#ff5e26] block w-full p-2.5 placeholder:text-[#6b7280]";
+const BUTTON: &str = "cursor-pointer w-full text-white bg-[#e5451a] hover:bg-[#ff5e26] focus:ring-2 focus:outline-none focus:ring-[#ff5e26] font-mono text-xs uppercase tracking-wider font-semibold rounded-none px-5 py-2.5 text-center transition-colors";
+const LINK: &str = "text-xs font-mono text-[#ff5e26] hover:underline";
 
 pub const SIGNUP_ROUTE: &str = "/auth/signup";
 pub const LOGIN_ROUTE: &str = "/auth/login";
@@ -260,7 +259,7 @@ pub fn invitation_html(
                     @if tenant_name != tenant_id {
                         " (" (tenant_id) ")"
                     }
-                    " created an account for " span class="font-semibold text-slate-700" { (email) } " on Haste Health. Accepting logs you in there; nothing is shared with the workspace until you do."
+                    " created an account for " span class="font-semibold text-white" { (email) } " on Haste Health. Accepting logs you in there; nothing is shared with the workspace until you do."
                 }
                 button type="submit" name="decision" value="accept" class=(BUTTON) { "Accept and continue" }
                 button type="submit" name="decision" value="decline" class="cursor-pointer w-full rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-gray-50" { "Decline" }

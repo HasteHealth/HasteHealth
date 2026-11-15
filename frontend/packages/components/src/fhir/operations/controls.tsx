@@ -28,7 +28,7 @@ export function Segmented<T extends string>({
   return (
     <fieldset
       aria-label={ariaLabel}
-      className="inline-flex overflow-hidden rounded-md border border-slate-300 text-xs"
+      className="inline-flex overflow-hidden rounded-none border border-[var(--ci-line)] text-xs font-mono"
     >
       {options.map((option) => (
         <button
@@ -38,12 +38,13 @@ export function Segmented<T extends string>({
           title={option.title}
           aria-pressed={value === option.value}
           className={classNames(
-            "border-l border-slate-300 px-2.5 py-1 font-medium first:border-l-0",
+            "border-l border-[var(--ci-line)] px-2.5 py-1 text-xs font-mono uppercase tracking-wider first:border-l-0 transition-colors",
             {
-              "bg-brand-600 text-white": value === option.value,
-              "bg-white text-slate-700 hover:bg-slate-50":
+              "bg-[var(--ci-signal)] text-white font-semibold": value === option.value,
+              "bg-[var(--ci-surface)] text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]":
                 value !== option.value && !option.disabled,
-              "cursor-not-allowed bg-slate-50 text-slate-300": option.disabled,
+              "cursor-not-allowed bg-[var(--ci-surface-sunken)] text-[var(--ci-ink-muted)] opacity-50":
+                option.disabled,
             },
           )}
           onClick={() => onChange(option.value)}
@@ -65,18 +66,18 @@ export function ParameterHeader({
 }>) {
   return (
     <div className="flex min-h-6 flex-wrap items-center gap-1.5">
-      <span className="font-mono text-sm font-medium text-slate-900">
+      <span className="font-mono text-xs font-semibold text-[var(--ci-ink)]">
         {definition.name}
       </span>
       {isRequired(definition) && (
-        <span className="text-xs text-red-600" title="Required">
+        <span className="text-xs text-red-500" title="Required">
           *
         </span>
       )}
-      <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
+      <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--ci-muted)]">
         {typeLabel(definition)}
       </span>
-      <span className="font-mono text-[11px] text-slate-500">
+      <span className="font-mono text-[10px] text-[var(--ci-muted)]">
         {cardinality(definition)}
       </span>
       <div className="flex-1" />
@@ -91,7 +92,7 @@ export function ParameterDocumentation({
 }: Readonly<{ definition: OperationDefinitionParameter }>) {
   if (!definition.documentation) return null;
   return (
-    <p className="whitespace-pre-wrap text-xs text-slate-500">
+    <p className="whitespace-pre-wrap text-xs text-[var(--ci-muted)]">
       {definition.documentation}
     </p>
   );

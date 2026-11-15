@@ -44,47 +44,44 @@ pub fn login_form_html(
 
     page_html(&html! {
         (page_banner(context.tenant.as_ref(), Some(&project_name), Some(&context.branding)))
-        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
-            div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                // div {}
-                // div {}
-                @if let Some(errors) = errors {
-                    div class="mb-4" {
-                        @for error in errors {
-                            div class="text-red-600 text-sm" { (error) }
+        div class="border border-[#1e2229] w-full bg-[#0d0f12] text-[#f0f2f5] p-6 space-y-6 shadow-2xl" {
+            @if let Some(errors) = errors {
+                div class="p-3 bg-red-950/60 border border-red-800 text-red-400 text-xs font-mono" {
+                    @for error in errors {
+                        div { (error) }
+                    }
+                }
+            }
+            div class="space-y-1.5" {
+                h1 class="text-base font-mono font-semibold tracking-wide text-[#f0f2f5]" {
+                    "Sign in to " span class="text-[#ff5e26]" { (client_name) }
+                }
+                p class="text-xs text-[#8c96a5]" { "Enter your clinical platform credentials to access the workspace." }
+            }
+            form class="space-y-4" action=(login_route) method="POST" {
+                input type="hidden" name="csrf_token" value=(csrf_token) {}
+                div class="space-y-1.5" {
+                    label for="email" class="block font-mono text-xs uppercase tracking-wider text-[#8c96a5]" { "Your email" }
+                    input type="email" id="email" class="w-full bg-[#14171d] border border-[#242831] text-[#f0f2f5] text-sm px-3 py-2 outline-none focus:border-[#ff5e26] transition-colors" placeholder="name@company.com" required name="email" value="" {}
+                }
+                div class="space-y-1.5" {
+                    div class="flex items-center justify-between" {
+                        label for="password" class="block font-mono text-xs uppercase tracking-wider text-[#8c96a5]" { "Password" }
+                        a href=(password_reset_route_str) class="text-xs font-mono text-[#ff5e26] hover:underline" { "Forgot password?" }
+                    }
+                    input type="password" id="password" placeholder="••••••••" class="w-full bg-[#14171d] border border-[#242831] text-[#f0f2f5] text-sm px-3 py-2 outline-none focus:border-[#ff5e26] transition-colors" required name="password" {}
+                }
+                button type="submit" class="w-full mt-2 cursor-pointer text-white bg-[#e5451a] hover:bg-[#ff5e26] font-mono text-xs uppercase tracking-wider font-semibold py-2.5 px-4 transition-colors text-center" { "Sign In" }
+            }
+
+            @if let Some(identity_providers) = identity_providers {
+                div class="pt-4 border-t border-[#1e2229] space-y-2" {
+                    @for idp in identity_providers {
+                        a href=(login_route.replace("/interactions/login", &FederatedInitiate{identity_provider_id: idp.id.clone().unwrap_or_default()}.to_string())) class="space-x-2 flex items-center justify-center text-[#f0f2f5] bg-[#14171d] border border-[#242831] hover:border-[#ff5e26] font-mono text-xs py-2 px-4 transition-colors" {
+                            div { (format!("Sign in with {}", idp.name.value.as_ref().unwrap_or(&"Unknown".to_string()))) }
                         }
                     }
                 }
-                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl " { "Sign in to " span class="underline text-slate-500 " {(client_name)} }
-                form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
-                    input type="hidden" name="csrf_token" value=(csrf_token) {}
-                    div {
-                        label for="email" class="block mb-2 text-sm font-medium text-slate-600 " { "Your email" }
-                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
-                    }
-                    div class="space-y-2" {
-                        div {
-                            label for="password" class="block mb-2 text-sm font-medium text-slate-600" { "Password" }
-                            input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5" required name="password" {}
-                        }
-                        div class="flex items-center justify-between" {
-                            a href=(password_reset_route_str) class="text-sm font-medium text-brand-600 hover:underline " { "Forgot password?" }
-                        }
-                    }
-                    button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
-                }
-
-                @if let Some(identity_providers) = identity_providers {
-                    div class="mb-4 space-y-2" {
-                        @for idp in identity_providers {
-                            a href=(login_route.replace("/interactions/login", &FederatedInitiate{identity_provider_id: idp.id.clone().unwrap_or_default()}.to_string())) class="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " {
-                                div { (format!("Sign in with {}", idp.name.value.as_ref().unwrap_or(&"Unknown".to_string()))) }
-                            }
-                        }
-                    }
-                }
-
-
             }
         }
         (version_watermark())

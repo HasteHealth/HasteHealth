@@ -228,7 +228,7 @@ export function FHIRSearchInput({
       className={
         bare
           ? "w-full"
-          : "w-full rounded-md border border-gray-300 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500"
+          : "w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-ink)] focus-within:border-[var(--ci-signal)] focus-within:ring-1 focus-within:ring-[var(--ci-signal)]"
       }
       ref={parent}
     />

@@ -1,0 +1,335 @@
+/*
+ * Application theme tokens.
+ *
+ * The surface, line, ink and signal values below are compatibility aliases for
+ * the Clinical Instrument palette declared in `clinical-instrument.css`
+ * (`--ci-*`). New components should use the `--ci-*` names directly. The legacy
+ * names are kept so every screen that has not been migrated yet inherits the
+ * same solid, rectangular, hairline-ruled language instead of the previous
+ * translucent glass treatment.
+ */
+:root {
+  color-scheme: light;
+
+  /* Base surface (legacy glass names) */
+  --glass-bg: var(--ci-surface);
+  --glass-bg-hover: var(--ci-surface-raised);
+  --glass-bg-active: var(--ci-surface-raised);
+  --glass-border: var(--ci-line);
+  --glass-border-strong: var(--ci-line-strong);
+  --glass-shadow: var(--ci-shadow-1);
+  --glass-shadow-lg: var(--ci-shadow-2);
+
+  /* Card variant */
+  --glass-card-bg: var(--ci-surface);
+  --glass-card-border: var(--ci-line);
+  --glass-card-shadow: var(--ci-shadow-1);
+  --glass-card-shadow-hover: var(--ci-shadow-1);
+
+  /* Sidebar variant */
+  --glass-sidebar-bg: var(--ci-surface);
+  --glass-sidebar-border: var(--ci-line);
+  --glass-sidebar-shadow: none;
+
+  /* Input variant */
+  --glass-input-bg: var(--ci-surface-raised);
+  --glass-input-border: var(--ci-line);
+
+  /* Resource/card variant (data items) */
+  --glass-resource-bg: var(--ci-surface);
+  --glass-resource-bg-hover: var(--ci-surface-raised);
+  --glass-resource-bg-selected: var(--ci-signal-soft);
+  --glass-resource-border: var(--ci-line);
+  --glass-resource-shadow: var(--ci-shadow-1);
+  --glass-resource-shadow-hover: var(--ci-shadow-1);
+
+  /* Dashboard depth */
+  --dashboard-panel-bg: var(--ci-surface);
+  --dashboard-panel-border: var(--ci-line);
+  --dashboard-panel-shadow: var(--ci-shadow-1);
+  --dashboard-panel-shadow-hover: var(--ci-shadow-1);
+  --dashboard-rail-bg: var(--ci-surface);
+  --dashboard-rail-border: var(--ci-line);
+  --dashboard-rail-shadow: var(--ci-shadow-1);
+  --dashboard-rail-shadow-hover: var(--ci-shadow-1);
+  --dashboard-control-bg: var(--ci-surface-raised);
+  --dashboard-control-border: var(--ci-line);
+  --dashboard-control-shadow: none;
+  --dashboard-control-shadow-hover: none;
+
+  /* Semantic surfaces */
+  --surface-panel-bg: var(--ci-surface);
+  --surface-panel-border: var(--ci-line);
+  --surface-panel-shadow: var(--ci-shadow-1);
+  --surface-panel-shadow-hover: var(--ci-shadow-1);
+
+  --surface-rail-bg: var(--ci-surface);
+  --surface-rail-border: var(--ci-line);
+  --surface-rail-shadow: var(--ci-shadow-1);
+  --surface-rail-shadow-hover: var(--ci-shadow-1);
+
+  --surface-filter-bg: var(--ci-surface);
+  --surface-filter-border: var(--ci-line);
+  --surface-filter-shadow: none;
+  --surface-filter-shadow-hover: none;
+
+  --surface-tile-bg: var(--ci-surface);
+  --surface-tile-border: var(--ci-line);
+  --surface-tile-shadow: none;
+  --surface-tile-shadow-hover: none;
+
+  --surface-drawer-bg: var(--ci-surface-raised);
+  --surface-drawer-border: var(--ci-line);
+  --surface-drawer-shadow: var(--ci-shadow-3);
+  --surface-drawer-shadow-hover: var(--ci-shadow-3);
+
+  /* Surfaces are solid; backdrop blur utilities resolve to none. */
+  --surface-blur-sm: 0px;
+  --surface-blur-md: 0px;
+  --surface-blur-lg: 0px;
+
+  /* Core palette */
+  --color-bg: var(--ci-bg);
+  --color-surface: var(--ci-surface);
+  --color-surface-elevated: var(--ci-surface-raised);
+  --color-surface-secondary: var(--ci-surface-sunken);
+  --color-border-subtle: var(--ci-line);
+  --color-text-primary: var(--ci-ink);
+  --color-text-secondary: var(--ci-ink-muted);
+  --color-text-tertiary: var(--ci-ink-subtle);
+
+  /* Informational accent (labs, links, neutral selection) */
+  --color-accent: #0f6ca8;
+  --color-accent-rgb: 15, 108, 168;
+  --color-accent-soft: rgba(15, 108, 168, 0.10);
+
+  /* Signal accent (primary brand and interaction) */
+  --color-fire-primary: var(--ci-signal);
+  --color-fire-primary-rgb: 229, 69, 26;
+  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 74%, #ffb36b);
+  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 52%, #ffcf9a);
+  --color-fire-soft: var(--ci-signal-soft);
+  --color-fire-glow: rgba(229, 69, 26, 0.30);
+
+  /* Subtle signal gradients keep their existing consumers working. */
+  --color-fire-gradient-full: linear-gradient(135deg, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary));
+  --color-fire-gradient-subtle: linear-gradient(135deg, var(--ci-signal-soft), transparent);
+  --color-fire-gradient: linear-gradient(to right, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary), var(--color-fire-secondary), var(--ci-signal));
+
+  /* Focus and hover feedback */
+  --glow-fire-sm: 0 0 0 3px var(--ci-signal-soft);
+  --glow-fire-md: 0 0 14px rgba(229, 69, 26, 0.18);
+  --glow-fire-lg: 0 0 22px rgba(229, 69, 26, 0.24);
+  --glow-hover: 0 0 14px rgba(229, 69, 26, 0.16);
+  --glow-focus: 0 0 0 3px rgba(229, 69, 26, 0.28);
+  --glow-active: 0 0 18px rgba(229, 69, 26, 0.22);
+
+  /* Compatibility aliases for legacy/one-off names used by older modules. */
+  --color-background: var(--ci-bg);
+  --color-bg-base: var(--ci-bg);
+  --color-bg-primary: var(--ci-bg);
+  --color-bg-subtle: var(--ci-surface);
+  --color-surface-hover: var(--ci-surface-raised);
+  --color-border: var(--ci-line);
+  --color-primary: var(--ci-signal);
+  --color-info: var(--color-accent);
+  --color-error: var(--color-critical-strong);
+  --color-careteam: var(--color-encounters);
+  --color-referrals: var(--color-meds);
+  --color-careplans: var(--color-vitals);
+
+  /* Medical domain colors */
+  --color-labs: #0891b2;
+  --color-vitals: #0d9488;
+  --color-meds: #7c3aed;
+  --color-imaging: #d97706;
+  --color-encounters: #0284c7;
+  --color-critical: #dc2626;
+  --color-warning: #ea580c;
+  --color-success: #16a34a;
+
+  /* Badge variant colors (soft backgrounds, strong readable text) */
+  --color-success-soft: rgba(22, 163, 74, 0.15);
+  --color-success-strong: #16a34a;
+  --color-success-ink: #166534;
+  --color-warning-soft: rgba(234, 88, 12, 0.15);
+  --color-warning-strong: #ea580c;
+  --color-warning-ink: #9a3412;
+  --color-critical-soft: rgba(220, 38, 38, 0.15);
+  --color-critical-strong: #dc2626;
+  --color-critical-ink: #b91c1c;
+
+  /* Rectangular geometry: surfaces, controls and panels share square edges. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+
+  --space-4: 0.25rem;
+  /* 4px */
+  --space-8: 0.5rem;
+  /* 8px */
+  --space-12: 0.75rem;
+  /* 12px */
+  --space-16: 1rem;
+  /* 16px */
+  --space-20: 1.25rem;
+  /* 20px */
+  --space-24: 1.5rem;
+  /* 24px */
+  --space-32: 2rem;
+  /* 32px */
+  --space-40: 2.5rem;
+  /* 40px */
+  --space-48: 3rem;
+  /* 48px */
+
+  --elevation-0: 0 0 0 rgba(14, 16, 19, 0);
+  --elevation-1: 0 1px 2px rgba(14, 16, 19, 0.07);
+  --elevation-2: 0 2px 6px rgba(14, 16, 19, 0.09);
+  --elevation-3: 0 8px 24px rgba(14, 16, 19, 0.12);
+  --elevation-4: 0 16px 40px rgba(14, 16, 19, 0.16);
+  --elevation-8: 0 32px 64px rgba(14, 16, 19, 0.22);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Base surface (legacy glass names) */
+  --glass-bg: var(--ci-surface);
+  --glass-bg-hover: var(--ci-surface-raised);
+  --glass-bg-active: var(--ci-surface-raised);
+  --glass-border: var(--ci-line);
+  --glass-border-strong: var(--ci-line-strong);
+  --glass-shadow: var(--ci-shadow-1);
+  --glass-shadow-lg: var(--ci-shadow-2);
+
+  /* Card variant */
+  --glass-card-bg: var(--ci-surface);
+  --glass-card-border: var(--ci-line);
+  --glass-card-shadow: var(--ci-shadow-1);
+  --glass-card-shadow-hover: var(--ci-shadow-1);
+
+  /* Sidebar variant */
+  --glass-sidebar-bg: var(--ci-surface);
+  --glass-sidebar-border: var(--ci-line);
+  --glass-sidebar-shadow: none;
+
+  /* Input variant */
+  --glass-input-bg: var(--ci-surface-raised);
+  --glass-input-border: var(--ci-line);
+
+  /* Resource/card variant (data items) */
+  --glass-resource-bg: var(--ci-surface);
+  --glass-resource-bg-hover: var(--ci-surface-raised);
+  --glass-resource-bg-selected: var(--ci-signal-soft);
+  --glass-resource-border: var(--ci-line);
+  --glass-resource-shadow: var(--ci-shadow-1);
+  --glass-resource-shadow-hover: var(--ci-shadow-1);
+
+  /* Dashboard depth */
+  --dashboard-panel-bg: var(--ci-surface);
+  --dashboard-panel-border: var(--ci-line);
+  --dashboard-panel-shadow: var(--ci-shadow-1);
+  --dashboard-panel-shadow-hover: var(--ci-shadow-1);
+  --dashboard-rail-bg: var(--ci-surface);
+  --dashboard-rail-border: var(--ci-line);
+  --dashboard-rail-shadow: var(--ci-shadow-1);
+  --dashboard-rail-shadow-hover: var(--ci-shadow-1);
+  --dashboard-control-bg: var(--ci-surface-raised);
+  --dashboard-control-border: var(--ci-line);
+  --dashboard-control-shadow: none;
+  --dashboard-control-shadow-hover: none;
+
+  /* Semantic surfaces */
+  --surface-panel-bg: var(--ci-surface);
+  --surface-panel-border: var(--ci-line);
+  --surface-panel-shadow: var(--ci-shadow-1);
+  --surface-panel-shadow-hover: var(--ci-shadow-1);
+
+  --surface-rail-bg: var(--ci-surface);
+  --surface-rail-border: var(--ci-line);
+  --surface-rail-shadow: var(--ci-shadow-1);
+  --surface-rail-shadow-hover: var(--ci-shadow-1);
+
+  --surface-filter-bg: var(--ci-surface);
+  --surface-filter-border: var(--ci-line);
+  --surface-filter-shadow: none;
+  --surface-filter-shadow-hover: none;
+
+  --surface-tile-bg: var(--ci-surface);
+  --surface-tile-border: var(--ci-line);
+  --surface-tile-shadow: none;
+  --surface-tile-shadow-hover: none;
+
+  --surface-drawer-bg: var(--ci-surface-raised);
+  --surface-drawer-border: var(--ci-line);
+  --surface-drawer-shadow: var(--ci-shadow-3);
+  --surface-drawer-shadow-hover: var(--ci-shadow-3);
+
+  /* Surfaces are solid; backdrop blur utilities resolve to none. */
+  --surface-blur-sm: 0px;
+  --surface-blur-md: 0px;
+  --surface-blur-lg: 0px;
+
+  /* Core palette */
+  --color-bg: var(--ci-bg);
+  --color-surface: var(--ci-surface);
+  --color-surface-elevated: var(--ci-surface-raised);
+  --color-surface-secondary: var(--ci-surface-sunken);
+  --color-border-subtle: var(--ci-line);
+  --color-text-primary: var(--ci-ink);
+  --color-text-secondary: var(--ci-ink-muted);
+  --color-text-tertiary: var(--ci-ink-subtle);
+
+  /* Informational accent */
+  --color-accent: #7db6de;
+  --color-accent-rgb: 125, 182, 222;
+  --color-accent-soft: rgba(125, 182, 222, 0.14);
+
+  /* Signal accent */
+  --color-fire-primary: var(--ci-signal);
+  --color-fire-primary-rgb: 255, 94, 38;
+  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 78%, #ffc59a);
+  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 56%, #ffd9ba);
+  --color-fire-soft: var(--ci-signal-soft);
+  --color-fire-glow: rgba(255, 94, 38, 0.35);
+
+  --color-fire-gradient-full: linear-gradient(135deg, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary));
+  --color-fire-gradient-subtle: linear-gradient(135deg, var(--ci-signal-soft), transparent);
+  --color-fire-gradient: linear-gradient(to right, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary), var(--color-fire-secondary), var(--ci-signal));
+
+  --glow-fire-sm: 0 0 0 3px var(--ci-signal-soft);
+  --glow-fire-md: 0 0 16px rgba(255, 94, 38, 0.22);
+  --glow-fire-lg: 0 0 26px rgba(255, 94, 38, 0.3);
+  --glow-hover: 0 0 16px rgba(255, 94, 38, 0.2);
+  --glow-focus: 0 0 0 3px rgba(255, 94, 38, 0.35);
+  --glow-active: 0 0 20px rgba(255, 94, 38, 0.26);
+
+  /* Medical domain colors */
+  --color-labs: #22d3ee;
+  --color-vitals: #2dd4bf;
+  --color-meds: #a78bfa;
+  --color-imaging: #fbbf24;
+  --color-encounters: #38bdf8;
+  --color-critical: #f87171;
+  --color-warning: #fb923c;
+  --color-success: #4ade80;
+
+  /* Badge variant colors */
+  --color-success-soft: rgba(74, 222, 128, 0.2);
+  --color-success-strong: #4ade80;
+  --color-success-ink: #86efac;
+  --color-warning-soft: rgba(251, 146, 60, 0.2);
+  --color-warning-strong: #fb923c;
+  --color-warning-ink: #fdba74;
+  --color-critical-soft: rgba(248, 113, 113, 0.2);
+  --color-critical-strong: #f87171;
+  --color-critical-ink: #fca5a5;
+
+  --elevation-0: 0 0 0 rgba(0, 0, 0, 0);
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.55);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.5);
+  --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --elevation-4: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --elevation-8: 0 32px 64px rgba(0, 0, 0, 0.7);
+}

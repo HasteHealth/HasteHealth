@@ -16,13 +16,13 @@ const ModalContent = ({ setOpen }: { setOpen: (v: boolean) => void }) => {
   return (
     <>
       <div className="mt-2">
-        <p className="text-sm text-gray-500">Modal content</p>
+        <p className="text-xs font-mono text-[var(--ci-muted)]">Modal content</p>
       </div>
 
       <div className="mt-4">
         <button
           type="button"
-          className="inline-flex justify-center rounded-md border border-transparent bg-brand-200 px-4 py-2 text-sm font-medium text-brand-900 hover:bg-brand-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          className="inline-flex justify-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-4 py-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-ink)] hover:bg-[var(--ci-line)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ci-signal)]"
           onClick={() => setOpen(false)}
         >
           Close

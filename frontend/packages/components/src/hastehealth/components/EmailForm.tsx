@@ -27,21 +27,21 @@ export const EmailForm = ({
             return (
               <div
                 key={error}
-                className="text-sm text-red-600 dark:text-red-400"
+                className="text-xs font-mono text-red-500"
               >
                 {error}
               </div>
             );
           })}
       </div>
-      <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <h1 className="text-lg font-mono font-bold uppercase tracking-wider text-[var(--ci-ink)] md:text-xl">
         {header}
       </h1>
       <form className="space-y-4 md:space-y-6" action={action} method="POST">
         <div>
           <label
             htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block mb-1.5 font-mono text-xs uppercase tracking-wider text-[var(--ci-muted)]"
           >
             Enter your email
           </label>
@@ -50,14 +50,14 @@ export const EmailForm = ({
             name="email"
             id="email"
             defaultValue={email}
-            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500"
+            className="w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-2.5 font-mono text-xs text-[var(--ci-ink)] placeholder-[var(--ci-muted)] focus:border-[var(--ci-signal)] focus:outline-none focus:ring-1 focus:ring-[var(--ci-signal)]"
             placeholder="name@company.com"
             required={true}
           />
         </div>
         <button
           type="submit"
-          className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-hidden focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
+          className="w-full rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] hover:bg-[var(--ci-signal-hover)] py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-white transition-colors"
         >
           Continue
         </button>

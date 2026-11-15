@@ -17,9 +17,9 @@ function MetaField({
 }>) {
   return (
     <div className="min-w-0 space-y-0.5">
-      <dt className="text-xs font-medium text-slate-500">{label}</dt>
-      <dd className="truncate text-sm text-slate-800">
-        {value ?? <span className="text-slate-400">—</span>}
+      <dt className="font-mono text-[10px] uppercase tracking-wider text-[var(--ci-muted)]">{label}</dt>
+      <dd className="truncate font-mono text-xs text-[var(--ci-ink)]">
+        {value ?? <span className="text-[var(--ci-muted)]">—</span>}
       </dd>
     </div>
   );
@@ -60,7 +60,7 @@ export const FHIRMetaReadOnly = ({ value }: FHIRMetaReadonlyProps) => {
       : undefined;
 
   return (
-    <div className="rounded-md border border-slate-200 bg-gray-50 px-3 py-2.5">
+    <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2.5">
       <dl className="grid grid-cols-1 gap-x-4 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3">
         <MetaField label="Version ID" value={value?.versionId} />
         <MetaField
