@@ -552,6 +552,75 @@
                 "min": 0,
                 "max": "*",
                 "contentReference": "#AccessPolicyV3.rule"
+            },
+            {
+                "id": "AccessPolicyV3.manifest",
+                "path": "AccessPolicyV3.manifest",
+                "definition": "Server-maintained: the attributes each rule references, recomputed on every save.",
+                "short": "Server-maintained: the attributes each rule references, recomputed on every save.",
+                "min": 0,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.manifest.rule",
+                "path": "AccessPolicyV3.manifest.rule",
+                "definition": "Path of the rule, for example rule[0].rule[1].",
+                "short": "Path of the rule, for example rule[0].rule[1].",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.manifest.attribute",
+                "path": "AccessPolicyV3.manifest.attribute",
+                "definition": "An attribute the rule's target, condition or data references.",
+                "short": "An attribute the rule's target, condition or data references.",
+                "min": 1,
+                "max": "*",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.manifest.attribute.attributeId",
+                "path": "AccessPolicyV3.manifest.attribute.attributeId",
+                "definition": "The attribute referenced.",
+                "short": "The attribute referenced.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "id"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3.manifest.attribute.scope",
+                "path": "AccessPolicyV3.manifest.attribute.scope",
+                "definition": "The attribute's scope, principal or request.",
+                "short": "The attribute's scope, principal or request.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope|4.0.1"
+                }
             }
         ]
     }

@@ -1,5 +1,6 @@
 mod error;
 mod parser;
+mod references;
 use crate::{
     error::{FunctionError, OperationError},
     parser::{
@@ -25,6 +26,7 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
+pub use references::{ExternalConstant, external_constants};
 use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
@@ -3273,7 +3275,8 @@ impl<'a> Config<'a> {
 }
 
 /// Variables FHIR defines for every evaluation, resolved before the caller's resolver.
-fn fhir_environment_variable(name: &str) -> Option<String> {
+#[must_use]
+pub fn fhir_environment_variable(name: &str) -> Option<String> {
     match name {
         "sct" => Some("http://snomed.info/sct".to_string()),
         "loinc" => Some("http://loinc.org".to_string()),
