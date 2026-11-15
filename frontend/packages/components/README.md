@@ -57,6 +57,67 @@ export function PatientForm({ patientSD }: { patientSD: StructureDefinition }) {
 
 `FHIRGenerativeForm` renders an editor for every element of the StructureDefinition and applies edits as JSON patches, so `setValue` receives a function from the old resource to the new one. `client` is handed to the element editors that talk to the server, such as the reference picker and the coding and identifier editors.
 
+## Theming
+
+The stylesheet is built on CSS custom properties, so a host app can re-theme every
+component without forking them. Override the variables on `:root`, or on a wrapper
+element to scope a theme to part of the page.
+
+The existing brand scale is still the primary colour API. It is a set of RGB
+channels, so the usual Tailwind alpha modifiers keep working:
+
+```css
+:root {
+  --hh-color-brand-500: 0 120 200; /* light-theme signal */
+  --hh-color-brand-600: 0 100 180; /* dark-theme signal */
+  --hh-color-brand-700: 0 80 150;  /* hover, links, emphasis */
+}
+```
+
+`--ci-signal` follows that scale by default. The semantic surface tokens can be
+overridden independently:
+
+```css
+:root {
+  --ci-bg: #f4f6f8;
+  --ci-surface: #ffffff;
+  --ci-surface-raised: #ffffff;
+  --ci-surface-sunken: #eef2f6;
+  --ci-ink: #0f1720;
+  --ci-ink-muted: #526070;
+  --ci-ink-subtle: #6b7785;
+  --ci-line: rgb(15 23 32 / 20%);
+  --ci-line-strong: rgb(15 23 32 / 40%);
+  --ci-signal: rgb(var(--hh-color-brand-500));
+  --ci-signal-ink: #0b5f8a;
+  --ci-signal-soft: rgb(0 120 200 / 12%);
+  --ci-on-signal: #ffffff; /* text on primary buttons and selected rows */
+}
+
+html[data-theme='dark'] {
+  --ci-bg: #07080b;
+  --ci-surface: #0b0d12;
+  --ci-surface-raised: #10141b;
+  --ci-surface-sunken: #080a0e;
+  --ci-ink: #f4f6fa;
+  --ci-ink-muted: #a4adbc;
+  --ci-line: rgb(255 255 255 / 17%);
+  --ci-signal: rgb(var(--hh-color-brand-600));
+  --ci-signal-ink: #7cc4ed;
+}
+```
+
+The theme is switched with `html[data-theme="dark"]` (the admin app's
+`ThemeProvider` does this). If you set `--ci-signal` on a wrapper rather than at
+the theme root, set `--ci-signal-ink`, `--ci-signal-soft` and
+`--ci-signal-hover` on the same wrapper as well; those values are derived at the
+theme root.
+
+The main semantic tokens are `--ci-bg`, `--ci-surface`, `--ci-surface-raised`,
+`--ci-surface-sunken`, `--ci-ink`, `--ci-ink-muted`, `--ci-ink-subtle`,
+`--ci-line`, `--ci-line-strong`, `--ci-signal`, `--ci-signal-ink`,
+`--ci-signal-soft`, `--ci-signal-hover` and `--ci-on-signal`.
+
 ## Components
 
 | Group           | Exports                                                                                                                                                                                                                                                                                                                                                                                                       |

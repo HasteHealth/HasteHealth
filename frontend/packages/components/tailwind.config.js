@@ -36,7 +36,7 @@ module.exports = {
         ring: "var(--ci-signal)",
         card: { DEFAULT: "var(--ci-surface)", foreground: "var(--ci-ink)" },
         popover: { DEFAULT: "var(--ci-surface-raised)", foreground: "var(--ci-ink)" },
-        primary: { DEFAULT: "var(--ci-signal)", foreground: "#0a0a0a" },
+        primary: { DEFAULT: "var(--ci-signal)", foreground: "var(--ci-on-signal)" },
         secondary: { DEFAULT: "var(--ci-surface-raised)", foreground: "var(--ci-ink)" },
         muted: { DEFAULT: "var(--ci-surface-sunken)", foreground: "var(--ci-ink-muted)" },
         accent: { DEFAULT: "var(--ci-signal-soft)", foreground: "var(--ci-ink)" },

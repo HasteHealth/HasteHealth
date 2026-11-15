@@ -53,7 +53,7 @@ export default function ResourceTypes() {
             <p className="max-w-2xl text-xs text-[var(--ci-muted)]">{description}</p>
           </div>
           <button
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-none bg-[var(--ci-signal)] px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider font-semibold text-white hover:opacity-90 transition-opacity"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-none bg-[var(--ci-signal)] px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider font-semibold text-[var(--ci-on-signal)] hover:opacity-90 transition-opacity"
             onClick={() =>
               navigate(
                 generatePath("/r/:resourceType/:id", {

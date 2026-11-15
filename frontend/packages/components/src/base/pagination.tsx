@@ -54,7 +54,7 @@ const PaginationItem = ({
           "inline-flex h-8 min-w-8 cursor-pointer items-center justify-center gap-1 rounded-none border px-2.5 font-mono text-[11px] leading-none tracking-wider transition-colors",
           "disabled:cursor-not-allowed disabled:opacity-40",
           {
-            "border-[var(--ci-signal)] bg-[var(--ci-signal)] font-semibold text-white":
+            "border-[var(--ci-signal)] bg-[var(--ci-signal)] font-semibold text-[var(--ci-on-signal)]":
               active,
 
             "border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]":

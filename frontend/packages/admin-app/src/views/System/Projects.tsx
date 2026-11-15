@@ -157,7 +157,7 @@ function CreateProjectForm({
           value={name}
         />
         <button
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-none bg-[var(--ci-signal)] px-4 py-2 text-xs font-mono font-medium text-white hover:bg-[var(--ci-signal-hover)] disabled:cursor-not-allowed disabled:bg-[var(--ci-surface-sunken)] disabled:text-[var(--ci-muted)] transition-colors"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-none bg-[var(--ci-signal)] px-4 py-2 text-xs font-mono font-medium text-[var(--ci-on-signal)] hover:bg-[var(--ci-signal-hover)] disabled:cursor-not-allowed disabled:bg-[var(--ci-surface-sunken)] disabled:text-[var(--ci-muted)] transition-colors"
           disabled={creating || !finalSlug}
           type="submit"
         >

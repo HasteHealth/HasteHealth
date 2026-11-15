@@ -102,7 +102,7 @@ export const Navigation = ({
                         onClick={() => onNavigation(item)}
                         className={classNames(
                           active === item.name
-                            ? "bg-[var(--ci-signal)] text-white font-semibold"
+                            ? "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-semibold"
                             : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]",
                           "cursor-pointer rounded-none px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors",
                         )}
@@ -144,7 +144,7 @@ export const Navigation = ({
                   href={item.href}
                   className={classNames(
                     active === item.name
-                      ? "bg-[var(--ci-signal)] text-white font-semibold"
+                      ? "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-semibold"
                       : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]",
                     "block rounded-none px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors",
                   )}

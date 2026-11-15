@@ -12,10 +12,10 @@ use crate::{
 use haste_jwt::HOSTNAME_ID_PATTERN;
 use maud::{Markup, html};
 
-const CARD: &str = "border border-[#1e2229] w-full bg-[#0d0f12] rounded-none shadow-2xl md:mt-0 xl:p-0 text-[#e6e8eb]";
-const INPUT: &str = "bg-[#14171d] border border-[#1e2229] text-[#e6e8eb] font-mono sm:text-xs rounded-none focus:ring-1 focus:ring-[#ff5e26] focus:border-[#ff5e26] block w-full p-2.5 placeholder:text-[#6b7280]";
-const BUTTON: &str = "cursor-pointer w-full text-white bg-[#e5451a] hover:bg-[#ff5e26] focus:ring-2 focus:outline-none focus:ring-[#ff5e26] font-mono text-xs uppercase tracking-wider font-semibold rounded-none px-5 py-2.5 text-center transition-colors";
-const LINK: &str = "text-xs font-mono text-[#ff5e26] hover:underline";
+const CARD: &str = "border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] rounded-none shadow-2xl md:mt-0 xl:p-0 text-[var(--auth-ink)]";
+const INPUT: &str = "bg-[var(--auth-surface-raised)] border border-[var(--auth-line)] text-[var(--auth-ink)] font-mono sm:text-xs rounded-none focus:ring-1 focus:ring-[var(--auth-signal)] focus:border-[var(--auth-signal)] block w-full p-2.5 placeholder:text-[var(--auth-ink-subtle)]";
+const BUTTON: &str = "cursor-pointer w-full text-[var(--auth-on-signal)] bg-[var(--auth-signal)] hover:bg-[var(--auth-signal-hover)] focus:ring-2 focus:outline-none focus:ring-[var(--auth-signal)] font-mono text-xs uppercase tracking-wider font-semibold rounded-none px-5 py-2.5 text-center transition-colors";
+const LINK: &str = "text-xs font-mono text-[var(--auth-signal-ink)] hover:underline";
 
 pub const SIGNUP_ROUTE: &str = "/auth/signup";
 pub const LOGIN_ROUTE: &str = "/auth/login";

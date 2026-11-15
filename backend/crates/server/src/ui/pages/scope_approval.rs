@@ -10,7 +10,7 @@ use haste_jwt::{ProjectId, TenantId};
 use maud::{Markup, html};
 use std::borrow::Cow;
 
-const CHECKBOX: &str = "w-4 h-4 rounded-none border border-[#242831] bg-[#14171d] text-[#e5451a] focus:ring-1 focus:ring-[#ff5e26] disabled:opacity-60";
+const CHECKBOX: &str = "w-4 h-4 rounded-none border border-[var(--auth-line-strong)] bg-[var(--auth-surface-raised)] text-[var(--auth-signal)] focus:ring-1 focus:ring-[var(--auth-signal)] disabled:opacity-60";
 
 /// The consent page: one checkbox per requested scope, all checked. The user
 /// unchecks what the app should not get, then allows or denies. The scopes
@@ -37,21 +37,21 @@ pub fn scope_approval_html(
 
     page_html(&html! {
             (page_banner(tenant.as_ref(), Some(&project_name), branding))
-            div class="border border-[#1e2229] w-full bg-[#0d0f12] text-[#f0f2f5] p-6 space-y-6 shadow-2xl" {
+            div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] text-[var(--auth-ink)] p-6 space-y-6 shadow-2xl" {
                 form class="space-y-4" action=(scope_route_str) method="POST" {
                     (client_app_header_html(client_application))
                     div {
-                        span class="block text-xs leading-relaxed text-[#8c96a5]" {
+                        span class="block text-xs leading-relaxed text-[var(--auth-ink-muted)]" {
                             "The above app is requesting the following permissions. Uncheck any you do not want to grant, then allow or deny access for the app."
                         }
                     }
-                    div class="max-h-72 overflow-auto border border-[#1e2229]" {
-                        table class="w-full border-collapse font-mono text-xs text-[#f0f2f5]" {
+                    div class="max-h-72 overflow-auto border border-[var(--auth-line)]" {
+                        table class="w-full border-collapse font-mono text-xs text-[var(--auth-ink)]" {
                             tbody {
                                 @for (index, scope) in authorization_info.scope.0.iter().enumerate() {
                                     @let value = String::from(scope.clone());
                                     @let id = format!("scope-{index}");
-                                    tr class="border-b border-[#1e2229] last:border-b-0" {
+                                    tr class="border-b border-[var(--auth-line)] last:border-b-0" {
                                         td class="w-px p-3" {
                                             @if is_fixed_scope(scope) {
                                                 // A disabled checkbox is not submitted, so the scope
@@ -63,9 +63,9 @@ pub fn scope_approval_html(
                                             }
                                         }
                                         td class="py-3 pr-4" {
-                                            label for=(id) class="block text-xs text-[#f0f2f5]" { (value) }
+                                            label for=(id) class="block text-xs text-[var(--auth-ink)]" { (value) }
                                         }
-                                        td class="py-3 pr-4 text-right text-[10px] uppercase tracking-wider text-[#8c96a5]" {
+                                        td class="py-3 pr-4 text-right text-[10px] uppercase tracking-wider text-[var(--auth-ink-muted)]" {
                                             @if is_fixed_scope(scope) { "Required" }
                                         }
                                     }
@@ -87,10 +87,10 @@ pub fn scope_approval_html(
                         input readonly="" class="hidden" type="text" name="aud" value=(aud) {}
                     }
                     div class="flex items-center gap-3 pt-2" {
-                        button type="submit" name="accept" value="on" class="flex-1 cursor-pointer border border-[#e5451a] bg-[#e5451a] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#ff5e26]" {
+                        button type="submit" name="accept" value="on" class="flex-1 cursor-pointer border border-[var(--auth-signal)] bg-[var(--auth-signal)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-on-signal)] transition-colors hover:bg-[var(--auth-signal-hover)]" {
                             "Allow"
                         }
-                        button type="submit" name="accept" value="off" class="flex-1 cursor-pointer border border-[#1e2229] bg-[#14171d] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[#f0f2f5] transition-colors hover:bg-[#1e2229]" {
+                        button type="submit" name="accept" value="off" class="flex-1 cursor-pointer border border-[var(--auth-line)] bg-[var(--auth-surface-raised)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-ink)] transition-colors hover:bg-[var(--auth-line)]" {
                             "Deny"
                         }
                     }

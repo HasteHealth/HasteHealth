@@ -10,9 +10,12 @@
   --ci-ink-subtle: #5b6472;
   --ci-line: rgba(14, 16, 19, 0.22);
   --ci-line-strong: rgba(14, 16, 19, 0.42);
-  --ci-signal: #e5451a;
-  --ci-signal-ink: #b33a12;
-  --ci-signal-soft: rgba(229, 69, 26, 0.10);
+  /* The brand scale stays the public colour API; the semantic signal
+     follows it unless a consumer overrides --ci-signal directly. */
+  --ci-signal: rgb(var(--hh-color-brand-500, 229 69 26));
+  --ci-signal-ink: color-mix(in srgb, var(--ci-signal) 80%, #000);
+  --ci-signal-soft: color-mix(in srgb, var(--ci-signal) 12%, transparent);
+  --ci-on-signal: #fff;
   --ci-font-display: 'Bricolage Grotesque', 'Instrument Sans', sans-serif;
   --ci-font-body: 'Instrument Sans', sans-serif;
   --ci-font-mono: 'IBM Plex Mono', monospace;
@@ -106,9 +109,10 @@ html[data-theme='dark'] {
   --ci-ink-subtle: #8b94a3;
   --ci-line: rgba(255, 255, 255, 0.17);
   --ci-line-strong: rgba(255, 255, 255, 0.30);
-  --ci-signal: #ff5e26;
-  --ci-signal-ink: #ff9569;
-  --ci-signal-soft: rgba(255, 94, 38, 0.13);
+  --ci-signal: rgb(var(--hh-color-brand-600, 255 94 38));
+  --ci-signal-ink: color-mix(in srgb, var(--ci-signal) 72%, #fff);
+  --ci-signal-soft: color-mix(in srgb, var(--ci-signal) 15%, transparent);
+  --ci-on-signal: #fff;
 
   --ci-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.55);
   --ci-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.5);

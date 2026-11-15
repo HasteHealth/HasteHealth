@@ -95,7 +95,7 @@ function LoginWrapper() {
               onClick={() => {
                 window.location.href = window.location.pathname;
               }}
-              className="w-full py-2 px-4 bg-[var(--ci-signal)] text-white text-xs font-mono font-medium hover:opacity-90 transition-opacity"
+              className="w-full py-2 px-4 bg-[var(--ci-signal)] text-[var(--ci-on-signal)] text-xs font-mono font-medium hover:opacity-90 transition-opacity"
             >
               Sign In Again
             </button>

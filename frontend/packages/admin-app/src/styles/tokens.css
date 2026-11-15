@@ -105,11 +105,11 @@
 
   /* Signal accent (primary brand and interaction) */
   --color-fire-primary: var(--ci-signal);
-  --color-fire-primary-rgb: 229, 69, 26;
-  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 74%, #ffb36b);
-  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 52%, #ffcf9a);
+  --color-fire-primary-rgb: var(--hh-color-brand-500);
+  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 74%, #fff);
+  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 52%, #fff);
   --color-fire-soft: var(--ci-signal-soft);
-  --color-fire-glow: rgba(229, 69, 26, 0.30);
+  --color-fire-glow: rgb(var(--color-fire-primary-rgb) / 0.30);
 
   /* Subtle signal gradients keep their existing consumers working. */
   --color-fire-gradient-full: linear-gradient(135deg, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary));
@@ -118,11 +118,11 @@
 
   /* Focus and hover feedback */
   --glow-fire-sm: 0 0 0 3px var(--ci-signal-soft);
-  --glow-fire-md: 0 0 14px rgba(229, 69, 26, 0.18);
-  --glow-fire-lg: 0 0 22px rgba(229, 69, 26, 0.24);
-  --glow-hover: 0 0 14px rgba(229, 69, 26, 0.16);
-  --glow-focus: 0 0 0 3px rgba(229, 69, 26, 0.28);
-  --glow-active: 0 0 18px rgba(229, 69, 26, 0.22);
+  --glow-fire-md: 0 0 14px rgb(var(--color-fire-primary-rgb) / 0.18);
+  --glow-fire-lg: 0 0 22px rgb(var(--color-fire-primary-rgb) / 0.24);
+  --glow-hover: 0 0 14px rgb(var(--color-fire-primary-rgb) / 0.16);
+  --glow-focus: 0 0 0 3px rgb(var(--color-fire-primary-rgb) / 0.28);
+  --glow-active: 0 0 18px rgb(var(--color-fire-primary-rgb) / 0.22);
 
   /* Compatibility aliases for legacy/one-off names used by older modules. */
   --color-background: var(--ci-bg);
@@ -288,22 +288,22 @@ html[data-theme="dark"] {
 
   /* Signal accent */
   --color-fire-primary: var(--ci-signal);
-  --color-fire-primary-rgb: 255, 94, 38;
-  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 78%, #ffc59a);
-  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 56%, #ffd9ba);
+  --color-fire-primary-rgb: var(--hh-color-brand-600);
+  --color-fire-secondary: color-mix(in srgb, var(--ci-signal) 78%, #fff);
+  --color-fire-tertiary: color-mix(in srgb, var(--ci-signal) 56%, #fff);
   --color-fire-soft: var(--ci-signal-soft);
-  --color-fire-glow: rgba(255, 94, 38, 0.35);
+  --color-fire-glow: rgb(var(--color-fire-primary-rgb) / 0.35);
 
   --color-fire-gradient-full: linear-gradient(135deg, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary));
   --color-fire-gradient-subtle: linear-gradient(135deg, var(--ci-signal-soft), transparent);
   --color-fire-gradient: linear-gradient(to right, var(--ci-signal), var(--color-fire-secondary), var(--color-fire-tertiary), var(--color-fire-secondary), var(--ci-signal));
 
   --glow-fire-sm: 0 0 0 3px var(--ci-signal-soft);
-  --glow-fire-md: 0 0 16px rgba(255, 94, 38, 0.22);
-  --glow-fire-lg: 0 0 26px rgba(255, 94, 38, 0.3);
-  --glow-hover: 0 0 16px rgba(255, 94, 38, 0.2);
-  --glow-focus: 0 0 0 3px rgba(255, 94, 38, 0.35);
-  --glow-active: 0 0 20px rgba(255, 94, 38, 0.26);
+  --glow-fire-md: 0 0 16px rgb(var(--color-fire-primary-rgb) / 0.22);
+  --glow-fire-lg: 0 0 26px rgb(var(--color-fire-primary-rgb) / 0.30);
+  --glow-hover: 0 0 16px rgb(var(--color-fire-primary-rgb) / 0.20);
+  --glow-focus: 0 0 0 3px rgb(var(--color-fire-primary-rgb) / 0.35);
+  --glow-active: 0 0 20px rgb(var(--color-fire-primary-rgb) / 0.26);
 
   /* Medical domain colors */
   --color-labs: #22d3ee;

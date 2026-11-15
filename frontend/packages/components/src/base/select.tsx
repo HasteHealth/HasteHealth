@@ -106,7 +106,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-1.5 pl-8 pr-4 font-mono text-xs transition-colors",
                     {
-                      "bg-[var(--ci-signal)] text-white font-medium": active,
+                      "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-medium": active,
                       "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]": !active,
                     },
                   )
@@ -122,7 +122,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-1.5 pl-8 pr-4 font-mono text-xs transition-colors",
                     {
-                      "bg-[var(--ci-signal)] text-white font-medium": active,
+                      "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-medium": active,
                       "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]": !active,
                     },
                   )

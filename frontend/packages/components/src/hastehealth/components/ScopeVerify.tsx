@@ -104,7 +104,7 @@ export const ScopeVerifyForm = ({
           />
           <button
             type="submit"
-            className="w-full rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] hover:bg-[var(--ci-signal-hover)] py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-white transition-colors"
+            className="w-full rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] hover:bg-[var(--ci-signal-hover)] py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ci-on-signal)] transition-colors"
           >
             Allow
           </button>

@@ -18,3 +18,23 @@
   --color-brand-900: oklch(43.7% 0.078 188.216);
   --color-brand-950: oklch(38.6% 0.063 188.416);
 }
+
+:root {
+  /* Server-rendered auth surfaces. Override these to re-theme login,
+     consent and invitation pages without editing the templates. */
+  --auth-bg: #07080b;
+  --auth-surface: #0d0f12;
+  --auth-surface-raised: #14171d;
+  --auth-ink: #f0f2f5;
+  --auth-ink-muted: #8c96a5;
+  --auth-ink-subtle: #525a66;
+  --auth-line: #1e2229;
+  --auth-line-strong: #242831;
+  --auth-signal: #e5451a;
+  --auth-signal-hover: #ff5e26;
+  --auth-signal-ink: #ff5e26;
+  --auth-on-signal: #fff;
+  --auth-error: #f87171;
+  --auth-error-line: #991b1b;
+  --auth-error-soft: rgb(127 29 29 / 60%);
+}

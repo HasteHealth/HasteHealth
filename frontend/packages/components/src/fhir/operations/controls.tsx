@@ -40,7 +40,7 @@ export function Segmented<T extends string>({
           className={classNames(
             "border-l border-[var(--ci-line)] px-2.5 py-1 text-xs font-mono uppercase tracking-wider first:border-l-0 transition-colors",
             {
-              "bg-[var(--ci-signal)] text-white font-semibold": value === option.value,
+              "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-semibold": value === option.value,
               "bg-[var(--ci-surface)] text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]":
                 value !== option.value && !option.disabled,
               "cursor-not-allowed bg-[var(--ci-surface-sunken)] text-[var(--ci-ink-muted)] opacity-50":

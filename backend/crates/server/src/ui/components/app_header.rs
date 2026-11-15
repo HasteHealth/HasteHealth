@@ -12,10 +12,10 @@ pub fn client_app_header_html(client_app: &ClientApplication) -> Markup {
 
     html! {
         div class="flex flex-col justify-center items-center gap-3 mb-2" {
-            div class="flex justify-center items-center w-12 h-12 rounded-none border border-[#1e2229] bg-[#14171d] font-mono text-base font-semibold text-[#ff5e26]" {
+            div class="flex justify-center items-center w-12 h-12 rounded-none border border-[var(--auth-line)] bg-[var(--auth-surface-raised)] font-mono text-base font-semibold text-[var(--auth-signal-ink)]" {
                 (client_name.chars().next().unwrap_or('U').to_uppercase())
             }
-            div class="font-mono text-base font-semibold tracking-wide text-[#f0f2f5]" {
+            div class="font-mono text-base font-semibold tracking-wide text-[var(--auth-ink)]" {
                 (client_name)
             }
         }

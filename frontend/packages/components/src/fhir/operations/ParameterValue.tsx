@@ -121,7 +121,7 @@ function BooleanToggle({
           type="button"
           aria-pressed={value === option}
           className={classNames("px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors", {
-            "bg-[var(--ci-signal)] text-white font-semibold": value === option,
+            "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-semibold": value === option,
             "bg-[var(--ci-surface)] text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]":
               value !== option,
           })}

@@ -44,40 +44,40 @@ pub fn login_form_html(
 
     page_html(&html! {
         (page_banner(context.tenant.as_ref(), Some(&project_name), Some(&context.branding)))
-        div class="border border-[#1e2229] w-full bg-[#0d0f12] text-[#f0f2f5] p-6 space-y-6 shadow-2xl" {
+        div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] text-[var(--auth-ink)] p-6 space-y-6 shadow-2xl" {
             @if let Some(errors) = errors {
-                div class="p-3 bg-red-950/60 border border-red-800 text-red-400 text-xs font-mono" {
+                div class="p-3 bg-[var(--auth-error-soft)] border border-[var(--auth-error-line)] text-[var(--auth-error)] text-xs font-mono" {
                     @for error in errors {
                         div { (error) }
                     }
                 }
             }
             div class="space-y-1.5" {
-                h1 class="text-base font-mono font-semibold tracking-wide text-[#f0f2f5]" {
-                    "Sign in to " span class="text-[#ff5e26]" { (client_name) }
+                h1 class="text-base font-mono font-semibold tracking-wide text-[var(--auth-ink)]" {
+                    "Sign in to " span class="text-[var(--auth-signal-ink)]" { (client_name) }
                 }
-                p class="text-xs text-[#8c96a5]" { "Enter your clinical platform credentials to access the workspace." }
+                p class="text-xs text-[var(--auth-ink-muted)]" { "Enter your clinical platform credentials to access the workspace." }
             }
             form class="space-y-4" action=(login_route) method="POST" {
                 input type="hidden" name="csrf_token" value=(csrf_token) {}
                 div class="space-y-1.5" {
-                    label for="email" class="block font-mono text-xs uppercase tracking-wider text-[#8c96a5]" { "Your email" }
-                    input type="email" id="email" class="w-full bg-[#14171d] border border-[#242831] text-[#f0f2f5] text-sm px-3 py-2 outline-none focus:border-[#ff5e26] transition-colors" placeholder="name@company.com" required name="email" value="" {}
+                    label for="email" class="block font-mono text-xs uppercase tracking-wider text-[var(--auth-ink-muted)]" { "Your email" }
+                    input type="email" id="email" class="w-full bg-[var(--auth-surface-raised)] border border-[var(--auth-line-strong)] text-[var(--auth-ink)] text-sm px-3 py-2 outline-none focus:border-[var(--auth-signal)] transition-colors" placeholder="name@company.com" required name="email" value="" {}
                 }
                 div class="space-y-1.5" {
                     div class="flex items-center justify-between" {
-                        label for="password" class="block font-mono text-xs uppercase tracking-wider text-[#8c96a5]" { "Password" }
-                        a href=(password_reset_route_str) class="text-xs font-mono text-[#ff5e26] hover:underline" { "Forgot password?" }
+                        label for="password" class="block font-mono text-xs uppercase tracking-wider text-[var(--auth-ink-muted)]" { "Password" }
+                        a href=(password_reset_route_str) class="text-xs font-mono text-[var(--auth-signal-ink)] hover:underline" { "Forgot password?" }
                     }
-                    input type="password" id="password" placeholder="••••••••" class="w-full bg-[#14171d] border border-[#242831] text-[#f0f2f5] text-sm px-3 py-2 outline-none focus:border-[#ff5e26] transition-colors" required name="password" {}
+                    input type="password" id="password" placeholder="••••••••" class="w-full bg-[var(--auth-surface-raised)] border border-[var(--auth-line-strong)] text-[var(--auth-ink)] text-sm px-3 py-2 outline-none focus:border-[var(--auth-signal)] transition-colors" required name="password" {}
                 }
-                button type="submit" class="w-full mt-2 cursor-pointer text-white bg-[#e5451a] hover:bg-[#ff5e26] font-mono text-xs uppercase tracking-wider font-semibold py-2.5 px-4 transition-colors text-center" { "Sign In" }
+                button type="submit" class="w-full mt-2 cursor-pointer text-[var(--auth-on-signal)] bg-[var(--auth-signal)] hover:bg-[var(--auth-signal-hover)] font-mono text-xs uppercase tracking-wider font-semibold py-2.5 px-4 transition-colors text-center" { "Sign In" }
             }
 
             @if let Some(identity_providers) = identity_providers {
-                div class="pt-4 border-t border-[#1e2229] space-y-2" {
+                div class="pt-4 border-t border-[var(--auth-line)] space-y-2" {
                     @for idp in identity_providers {
-                        a href=(login_route.replace("/interactions/login", &FederatedInitiate{identity_provider_id: idp.id.clone().unwrap_or_default()}.to_string())) class="space-x-2 flex items-center justify-center text-[#f0f2f5] bg-[#14171d] border border-[#242831] hover:border-[#ff5e26] font-mono text-xs py-2 px-4 transition-colors" {
+                        a href=(login_route.replace("/interactions/login", &FederatedInitiate{identity_provider_id: idp.id.clone().unwrap_or_default()}.to_string())) class="space-x-2 flex items-center justify-center text-[var(--auth-ink)] bg-[var(--auth-surface-raised)] border border-[var(--auth-line-strong)] hover:border-[var(--auth-signal)] font-mono text-xs py-2 px-4 transition-colors" {
                             div { (format!("Sign in with {}", idp.name.value.as_ref().unwrap_or(&"Unknown".to_string()))) }
                         }
                     }

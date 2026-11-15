@@ -374,7 +374,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
                   buttonSize="medium"
                   disabled={savingBranding}
                   onClick={saveBranding}
-                  className="rounded-none bg-[var(--ci-signal)] text-white hover:opacity-90 font-mono text-xs uppercase tracking-wider"
+                  className="rounded-none bg-[var(--ci-signal)] text-[var(--ci-on-signal)] hover:opacity-90 font-mono text-xs uppercase tracking-wider"
                 >
                   {savingBranding ? "Saving..." : "Save Branding"}
                 </Button>

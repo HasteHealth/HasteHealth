@@ -43,15 +43,15 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
             a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1.5 items-center justify-center font-mono text-xs text-[#8c96a5]" {
-                div { span class="font-bold text-[#f0f2f5]" { (display_name) } }
+            div class="flex space-x-1.5 items-center justify-center font-mono text-xs text-[var(--auth-ink-muted)]" {
+                div { span class="font-bold text-[var(--auth-ink)]" { (display_name) } }
                 @if let Some(project_name) = subheader {
-                    div { span class="text-[#525a66]" { "/" } }
-                    div { span class="text-[#ff5e26]" { (project_name) } }
+                    div { span class="text-[var(--auth-ink-subtle)]" { "/" } }
+                    div { span class="text-[var(--auth-signal-ink)]" { (project_name) } }
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="font-mono text-[10px] uppercase tracking-wider text-[#525a66] hover:text-[#ff5e26] transition-colors" {
+                class="font-mono text-[10px] uppercase tracking-wider text-[var(--auth-ink-subtle)] hover:text-[var(--auth-signal-ink)] transition-colors" {
                 "Powered by Haste Health"
             }
         }

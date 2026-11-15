@@ -90,7 +90,7 @@ const SMALL_BUTTON =
   "rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--ci-ink-muted)] transition-colors hover:border-[var(--ci-signal)] hover:text-[var(--ci-ink)]";
 
 const PRIMARY_BUTTON =
-  "inline-flex items-center justify-center gap-1.5 rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[var(--ci-signal-hover)] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-1.5 rounded-none border border-[var(--ci-signal)] bg-[var(--ci-signal)] px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ci-on-signal)] transition-colors hover:bg-[var(--ci-signal-hover)] disabled:cursor-not-allowed disabled:opacity-50";
 
 const SECONDARY_BUTTON =
   "inline-flex items-center justify-center gap-1.5 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ci-ink)] transition-colors hover:bg-[var(--ci-surface-sunken)] disabled:cursor-not-allowed disabled:opacity-50";
