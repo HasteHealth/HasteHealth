@@ -7,8 +7,6 @@ module.exports = {
       fontFamily: {
         sans: ["Instrument Sans", "system-ui", "sans-serif"],
         body: ["Instrument Sans", "system-ui", "sans-serif"],
-        display: ["Bricolage Grotesque", "Instrument Sans", "sans-serif"],
-        serif: ["Instrument Serif", "serif"],
         mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {

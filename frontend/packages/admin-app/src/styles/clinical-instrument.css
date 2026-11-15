@@ -16,7 +16,6 @@
   --ci-signal-ink: color-mix(in srgb, var(--ci-signal) 80%, #000);
   --ci-signal-soft: color-mix(in srgb, var(--ci-signal) 12%, transparent);
   --ci-on-signal: #fff;
-  --ci-font-display: 'Bricolage Grotesque', 'Instrument Sans', sans-serif;
   --ci-font-body: 'Instrument Sans', sans-serif;
   --ci-font-mono: 'IBM Plex Mono', monospace;
 
