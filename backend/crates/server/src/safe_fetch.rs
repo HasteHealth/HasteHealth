@@ -15,14 +15,20 @@
 //! - uses no proxy, which would carry the request somewhere else;
 //! - gives up after short timeouts and refuses a body over a size limit.
 
-use reqwest::{Url, header, redirect};
+use reqwest::{
+    Url,
+    dns::{Name, Resolve, Resolving},
+    header, redirect,
+};
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Arc,
     time::Duration,
 };
 use url::Host;
 
+const RESOLVE_TIMEOUT: Duration = Duration::from_secs(5);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 const TOTAL_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -31,7 +37,7 @@ const TOTAL_TIMEOUT: Duration = Duration::from_secs(10);
 pub enum FetchError {
     /// Not an `https` URL with a host name, or one that carries credentials.
     NotPublicHttps,
-    /// The host name did not resolve.
+    /// The host name did not resolve, or not within `RESOLVE_TIMEOUT`.
     Unresolvable,
     /// The host resolved to an address that is not publicly routable.
     PrivateAddress,
@@ -112,20 +118,25 @@ fn is_public_ipv6(ip: Ipv6Addr) -> bool {
 
     let s = ip.segments();
 
-    let special = ip.is_unspecified()
-        || ip.is_loopback()
-        || ip.is_multicast() // ff00::/8
-        || s[..6] == [0, 0, 0, 0, 0, 0] // ::/96, deprecated IPv4-compatible addresses
-        || (s[0] == 0x0064 && s[1] == 0xff9b) // 64:ff9b::/96 and 64:ff9b:1::/48, NAT64
-        || (s[0] == 0x0100 && s[1..4] == [0, 0, 0]) // 100::/64, discard-only
-        || (s[0] & 0xfe00) == 0xfc00 // fc00::/7, unique local
-        || (s[0] & 0xffc0) == 0xfe80 // fe80::/10, link-local
-        || (s[0] & 0xffc0) == 0xfec0 // fec0::/10, deprecated site-local
-        || (s[0] == 0x2001 && s[1] < 0x0200) // 2001::/23, IETF protocol assignments (Teredo, benchmarking, documentation, ORCHID)
-        || (s[0] == 0x2001 && s[1] == 0x0db8) // 2001:db8::/32, documentation
-        || s[0] == 0x2002 // 2002::/16, 6to4
-        || (s[0] == 0x3fff && (s[1] & 0xf000) == 0) // 3fff::/20, documentation
-        || s[0] == 0x5f00; // 5f00::/16, segment routing
+    // Only global unicast, 2000::/3, is routed on the internet. Everything
+    // outside it is refused: the unspecified and loopback addresses, unique
+    // local (fc00::/7), link-local (fe80::/10), multicast (ff00::/8), NAT64
+    // (64:ff9b::/96, 64:ff9b:1::/48) and the other forms that embed an IPv4
+    // address, and space that is not allocated at all.
+    if (s[0] & 0xe000) != 0x2000 {
+        return false;
+    }
+
+    let special = match s[0] {
+        // 2001::/23, IETF protocol assignments (Teredo, benchmarking, ORCHID),
+        // and 2001:db8::/32, documentation
+        0x2001 => s[1] < 0x0200 || s[1] == 0x0db8,
+        // 2002::/16, 6to4
+        0x2002 => true,
+        // 3fff::/20, documentation
+        0x3fff => (s[1] & 0xf000) == 0,
+        _ => false,
+    };
 
     !special
 }
@@ -139,10 +150,13 @@ async fn public_addrs(url: &Url) -> Result<Vec<SocketAddr>, FetchError> {
     let addrs: Vec<SocketAddr> = match url.host().ok_or(FetchError::NotPublicHttps)? {
         Host::Ipv4(ip) => vec![SocketAddr::new(IpAddr::V4(ip), port)],
         Host::Ipv6(ip) => vec![SocketAddr::new(IpAddr::V6(ip), port)],
-        Host::Domain(domain) => tokio::net::lookup_host((domain, port))
-            .await
-            .map_err(|_| FetchError::Unresolvable)?
-            .collect(),
+        Host::Domain(domain) => {
+            tokio::time::timeout(RESOLVE_TIMEOUT, tokio::net::lookup_host((domain, port)))
+                .await
+                .map_err(|_| FetchError::Unresolvable)?
+                .map_err(|_| FetchError::Unresolvable)?
+                .collect()
+        }
     };
 
     if addrs.is_empty() {
@@ -154,6 +168,19 @@ async fn public_addrs(url: &Url) -> Result<Vec<SocketAddr>, FetchError> {
     }
 
     Ok(addrs)
+}
+
+/// The resolver of a client whose host is pinned to the addresses that were
+/// checked. It refuses every lookup, so the client connects to the pinned
+/// addresses or not at all.
+struct NoResolve;
+
+impl Resolve for NoResolve {
+    fn resolve(&self, _name: Name) -> Resolving {
+        Box::pin(std::future::ready(Err(
+            "only the pinned addresses are used".into(),
+        )))
+    }
 }
 
 /// GETs `url`, a public `https` URL, and returns its body of at most
@@ -170,6 +197,7 @@ pub async fn fetch_public_https(url: &str, max_bytes: usize) -> Result<Vec<u8>, 
         .no_proxy()
         .connect_timeout(CONNECT_TIMEOUT)
         .timeout(TOTAL_TIMEOUT)
+        .dns_resolver(Arc::new(NoResolve))
         .resolve_to_addrs(host, &addrs)
         .user_agent(concat!("haste-health/", env!("CARGO_PKG_VERSION")))
         .build()
@@ -237,7 +265,13 @@ mod tests {
             "::ffff:127.0.0.1",
             "::ffff:169.254.169.254",
             "::ffff:10.0.0.1",
+            "::ffff:0:169.254.169.254",
             "::10.0.0.1",
+            "0:0:0:1::1",
+            "200::1",
+            "4000::1",
+            "e000::1",
+            "fb00::1",
             "64:ff9b::a9fe:a9fe",
             "64:ff9b:1::1",
             "100::1",

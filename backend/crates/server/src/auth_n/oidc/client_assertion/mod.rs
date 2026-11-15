@@ -131,10 +131,7 @@ fn key_error(kid: &str, error: KeyError) -> OIDCError {
         KeyError::InvalidJwks => {
             invalid_client("The client's registered keys are not a JSON Web Key Set.")
         }
-        KeyError::Fetch(error) => {
-            tracing::warn!(%error, "Could not fetch a client's jwksUri");
-            invalid_client("The client's jwksUri could not be fetched.")
-        }
+        KeyError::Fetch => invalid_client("The client's jwksUri could not be fetched."),
         KeyError::UnknownKid => invalid_client(format!(
             "No registered key has the kid '{kid}' the client assertion names."
         )),
