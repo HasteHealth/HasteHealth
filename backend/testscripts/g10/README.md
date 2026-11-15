@@ -253,8 +253,7 @@ are not covered for the same reasons.
   - Invalid code and invalid client: 9.17.03, 9.17.04.
   - Invalid PKCE verifiers: 9.18.01 to 9.18.12.
   - Refresh after revocation: 9.3.03.
-  - Asymmetric client authentication: 9.21 (supported; checked with
-    `backend/scripts/private_key_jwt.mjs` as for 8.1).
+  - Asymmetric client authentication: 9.21 (supported; checked by hand, as for 8.1).
 - **Token, id_token and discovery document contents.** These are JSON documents, not FHIR
   resources, and the runner asserts only on FHIR bodies.
   - The token response body: 1.9.06, 2.4.06, 3.8.08.
@@ -264,9 +263,8 @@ are not covered for the same reasons.
   - The id_token checks: 1.11.01, 1.11.03, 1.11.05, 1.11.06.
   - The SMART configuration fields and capabilities: 1.8.02, 1.8.05, 3.7.02, 3.7.05.
 - **SMART Backend Services authorization.** 8.1.02 to 8.1.06 POST a JWT client assertion, signed
-  with Inferno's key, to the token endpoint. The server accepts such assertions (`private_key_jwt`,
-  for a client registered with `jwks` or `jwksUri`); `backend/scripts/private_key_jwt.mjs` signs
-  one and requests a token with it, which is how this is checked by hand.
+  with Inferno's key, to the token endpoint. The server supports this (`private_key_jwt`); check it by
+  hand with `backend/scripts/private_key_jwt.mjs`.
 - **Token introspection (9.20) and revocation (9.3.01, 9.3.02).** Introspection is a POST with a
   body. Revocation needs a step between sign-in and the tests that revokes the scenario's tokens,
   which the harness does not have.
