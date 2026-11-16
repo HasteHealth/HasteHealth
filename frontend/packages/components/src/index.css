@@ -118,19 +118,81 @@
     @apply border-red-500 focus:border-red-500 focus:outline-hidden;
   }
   .btn {
-    @apply px-4 py-2 rounded-md inline-block cursor-pointer shadow-xs border border-slate-700/10 disabled:bg-gray-100 disabled:hover:bg-gray-100 disabled:cursor-not-allowed disabled:border-slate-700/10 disabled:text-gray-400;
+    @apply inline-flex min-h-8 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--ci-line)] px-3 py-1.5 font-mono text-xs font-medium tracking-wide disabled:bg-[var(--ci-surface-sunken)] disabled:cursor-not-allowed disabled:text-[var(--ci-ink-muted)] disabled:opacity-60;
+    transition: border-color var(--ci-ease), box-shadow var(--ci-ease), background-color var(--ci-ease), color var(--ci-ease);
+  }
+  .btn:not(:disabled):hover {
+    border-color: var(--ci-hover-line);
+    box-shadow: var(--ci-hover-shadow);
   }
   .btn-primary {
-    @apply text-white bg-brand-600 hover:bg-brand-700;
+    @apply border-[var(--ci-signal)] bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-semibold hover:bg-[var(--ci-signal-hover)];
   }
   .btn-secondary {
-    @apply hover:text-slate-800 text-slate-700 hover:bg-gray-50;
+    @apply border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)];
   }
   .btn-error {
-    @apply text-white bg-red-500 hover:bg-red-600;
+    @apply border-red-600 bg-red-600 text-white hover:bg-red-700;
   }
 }
 
-.cm-scroller {
+.cm-editor {
+  background-color: var(--ci-surface) !important;
+  color: var(--ci-ink) !important;
+  font-family: var(--ci-font-mono) !important;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.cm-editor .cm-scroller {
   overflow: auto;
+  font-family: var(--ci-font-mono) !important;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.cm-editor .cm-content,
+.cm-editor .cm-line {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.cm-editor .cm-gutters {
+  background-color: var(--ci-surface-sunken) !important;
+  color: var(--ci-ink-muted) !important;
+  border-right: 1px solid var(--ci-line) !important;
+}
+.cm-editor .cm-activeLineGutter {
+  background-color: var(--ci-surface-raised) !important;
+  color: var(--ci-ink) !important;
+}
+.cm-editor .cm-activeLine {
+  background-color: var(--ci-surface-raised) !important;
+}
+.cm-editor .cm-cursor {
+  border-left-color: var(--ci-signal) !important;
+}
+.cm-editor .cm-selectionBackground,
+.cm-editor.cm-focused .cm-selectionBackground {
+  background-color: var(--ci-signal-soft) !important;
+}
+html[data-theme='dark'] .cm-editor .cm-line {
+  color: var(--ci-ink);
+}
+html[data-theme='dark'] .cm-editor .tok-string,
+html[data-theme='dark'] .cm-editor .cm-string {
+  color: #7dd3fc !important;
+}
+html[data-theme='dark'] .cm-editor .tok-number,
+html[data-theme='dark'] .cm-editor .cm-number {
+  color: #fb923c !important;
+}
+html[data-theme='dark'] .cm-editor .tok-propertyName,
+html[data-theme='dark'] .cm-editor .cm-property {
+  color: #a78bfa !important;
+}
+html[data-theme='dark'] .cm-editor .tok-keyword,
+html[data-theme='dark'] .cm-editor .cm-keyword {
+  color: #f472b6 !important;
+}
+html[data-theme='dark'] .cm-editor .tok-bool,
+html[data-theme='dark'] .cm-editor .tok-null {
+  color: #ff5e26 !important;
 }

@@ -48,10 +48,10 @@ function EntryValue({ entry }: Readonly<{ entry: ParametersParameter }>) {
   if (entry.part) {
     const keys = contentKeys(entry.part);
     return (
-      <div className="space-y-3 border-l-2 border-slate-200 pl-3">
+      <div className="space-y-3 border-l border-[var(--ci-line)] pl-3">
         {entry.part.map((part, index) => (
           <div key={keys[index]} className="space-y-1">
-            <span className="font-mono text-sm font-medium text-slate-900">
+            <span className="font-mono text-xs font-semibold text-[var(--ci-ink)]">
               {part.name}
             </span>
             <EntryValue entry={part} />
@@ -75,7 +75,7 @@ function DeclaredEntryValue({
 }>) {
   if (isPartParameter(definition)) {
     return (
-      <div className="border-l-2 border-slate-200 pl-3">
+      <div className="border-l border-[var(--ci-line)] pl-3">
         <ParameterList
           definitions={definition.part ?? []}
           list={entry.part ?? []}
@@ -117,7 +117,7 @@ function ParameterList({
             <ParameterHeader definition={definition} />
             <ParameterDocumentation definition={definition} />
             {entries.length === 0 ? (
-              <span className="text-sm text-slate-400">
+              <span className="font-mono text-xs text-[var(--ci-muted)]">
                 {ran ? "Not returned" : "No value yet"}
               </span>
             ) : (
@@ -180,7 +180,7 @@ export function OperationParametersView({
   if (definitions.length === 0 && undeclared.length === 0) {
     const direction = use === "in" ? "input" : "output";
     return (
-      <p className="text-sm text-slate-500">
+      <p className="font-mono text-xs text-[var(--ci-muted)]">
         {ran
           ? "The response carried no parameters."
           : `This operation declares no ${direction} parameters.`}
@@ -194,13 +194,13 @@ export function OperationParametersView({
     <div className="space-y-4">
       <ParameterList definitions={definitions} list={list} ran={ran} />
       {undeclared.length > 0 && (
-        <div className="space-y-3 border-t border-slate-200 pt-3">
-          <p className="text-xs font-medium text-slate-500">
+        <div className="space-y-3 border-t border-[var(--ci-line)] pt-3">
+          <p className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ci-muted)]">
             Not declared by the operation
           </p>
           {undeclared.map((entry, index) => (
             <div key={undeclaredKeys[index]} className="space-y-1">
-              <span className="font-mono text-sm font-medium text-slate-900">
+              <span className="font-mono text-xs font-semibold text-[var(--ci-ink)]">
                 {entry.name}
               </span>
               <EntryValue entry={entry} />

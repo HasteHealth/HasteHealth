@@ -18,7 +18,7 @@ export const FHIRAddressReadOnly = ({
   ].filter(Boolean);
 
   return (
-    <span className="whitespace-nowrap text-slate-700" title={parts.join(", ")}>
+    <span className="whitespace-nowrap text-[var(--ci-ink)]" title={parts.join(", ")}>
       {parts.join(", ")}
     </span>
   );

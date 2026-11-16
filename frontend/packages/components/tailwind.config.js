@@ -4,6 +4,11 @@ module.exports = {
   content: ["./src/**/*.{html,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Instrument Sans", "system-ui", "sans-serif"],
+        body: ["Instrument Sans", "system-ui", "sans-serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
+      },
       borderRadius: {
         none: "0px",
         sm: "0px",

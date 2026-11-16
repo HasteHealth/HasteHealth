@@ -38,7 +38,7 @@ export const FHIRTimingEditable = ({
             />
             <button
               type="button"
-              className=" rounded-xs p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              className="p-0.5 text-[var(--ci-muted)] transition-colors hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-signal)]"
               onClick={() => {
                 onEventRemove(idx);
                 const events = value?.event

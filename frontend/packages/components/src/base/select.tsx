@@ -12,6 +12,8 @@ export interface SelectProps {
   onChange?: (value: Option) => void;
   issue?: string;
   label?: string;
+  id?: string;
+  ariaLabel?: string;
   open?: boolean;
   required?: boolean;
 }
@@ -20,6 +22,8 @@ export const Select = ({
   value,
   options,
   label,
+  id,
+  ariaLabel,
   issue,
   open = false,
   onChange,
@@ -56,13 +60,15 @@ export const Select = ({
             required={required}
             label={label}
             className={classNames(
-              "block text-xs font-medium leading-4 text-slate-700",
+              "block text-xs font-mono uppercase tracking-wider text-[var(--ci-muted)]",
             )}
           />
           <div className="relative">
             <Combobox.Input
+              id={id}
+              aria-label={ariaLabel}
               className={classNames(
-                "outline-hidden w-full leading-5 text-gray-900 focus:ring-0",
+                "outline-none w-full leading-5 text-[var(--ci-ink)] bg-transparent font-mono text-xs focus:ring-0 pr-8",
                 inputClassNames({
                   hideBorder: false,
                   issues: issue ? [issue] : [],
@@ -72,12 +78,13 @@ export const Select = ({
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button
+              aria-label="Open options"
               className={classNames(
-                "absolute inset-y-0 right-0 flex items-center pr-2",
+                "absolute inset-y-0 right-0 flex cursor-pointer items-center px-2",
               )}
             >
               <ChevronUpDownIcon
-                className="h-5 w-5 text-gray-400"
+                className="h-4 w-4 text-[var(--ci-muted)]"
                 aria-hidden="true"
               />
             </Combobox.Button>
@@ -91,16 +98,16 @@ export const Select = ({
           leaveTo="opacity-0"
           afterLeave={() => setQuery("")}
         >
-          <Combobox.Options className="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm">
+          <Combobox.Options className="z-30 absolute mt-1 max-h-60 w-full overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] py-1 font-mono text-xs shadow-2xl focus:outline-none">
             {query.length > 0 && open && (
               <Combobox.Option
                 value={{ value: query, label: query }}
                 className={({ active }) =>
                   classNames(
-                    "relative cursor-default select-none py-2 pl-10 pr-4",
+                    "relative cursor-default select-none py-1.5 pl-8 pr-4 font-mono text-xs transition-colors",
                     {
-                      "bg-brand-600 text-white": active,
-                      "text-gray-900": !active,
+                      "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-medium": active,
+                      "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]": !active,
                     },
                   )
                 }
@@ -113,10 +120,10 @@ export const Select = ({
                 key={option.value}
                 className={({ active }) =>
                   classNames(
-                    "relative cursor-default select-none py-2 pl-10 pr-4",
+                    "relative cursor-default select-none py-1.5 pl-8 pr-4 font-mono text-xs transition-colors",
                     {
-                      "bg-brand-600 text-white": active,
-                      "text-gray-900": !active,
+                      "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] font-medium": active,
+                      "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]": !active,
                     },
                   )
                 }
@@ -126,7 +133,7 @@ export const Select = ({
                   <>
                     <span
                       className={classNames("block truncate", {
-                        "font-medium": selected,
+                        "font-semibold": selected,
                         "font-normal": !selected,
                       })}
                     >
@@ -135,14 +142,14 @@ export const Select = ({
                     {selected ? (
                       <span
                         className={classNames(
-                          "absolute inset-y-0 left-0 flex items-center pl-3",
+                          "absolute inset-y-0 left-0 flex items-center pl-2",
                           {
                             "text-white": active,
-                            "text-brand-600": !active,
+                            "text-[var(--ci-signal)]": !active,
                           },
                         )}
                       >
-                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                        <CheckIcon className="h-4 w-4" aria-hidden="true" />
                       </span>
                     ) : null}
                   </>

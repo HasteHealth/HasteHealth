@@ -29,11 +29,11 @@ const StatefulQuestionnaire = ({ schema, value }: StoryStateProps) => {
         value={current}
         onChange={setCurrent}
       />
-      <div className="rounded-sm border border-slate-200 bg-slate-50 p-3">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+      <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3">
+        <div className="mb-2 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--ci-muted)]">
           QuestionnaireResponse Preview
         </div>
-        <pre className="max-h-80 overflow-auto text-xs text-slate-800">
+        <pre className="max-h-80 overflow-auto font-mono text-xs text-[var(--ci-ink)]">
           {JSON.stringify(current, null, 2)}
         </pre>
       </div>
