@@ -447,17 +447,18 @@ impl<B: Backend> Handler<B> for Storage {
                     )))
                 }
                 FHIRRequest::VersionRead(vread_request) => {
-                    let mut vread_resources = state
+                    let resource = state
                         .repo
-                        .read_by_version_ids(
+                        .read_version(
                             &ctx.tenant,
                             &ctx.project,
-                            &[&vread_request.version_id],
-                            haste_repository::fhir::CachePolicy::Cache,
+                            &vread_request.resource_type,
+                            &ResourceId::new(vread_request.id.clone()),
+                            &vread_request.version_id,
                         )
                         .await?;
 
-                    if vread_resources.is_empty() {
+                    let Some(resource) = resource else {
                         return Err(OperationOutcomeError::error(
                             IssueType::not_found(),
                             format!(
@@ -467,9 +468,9 @@ impl<B: Backend> Handler<B> for Storage {
                                 vread_request.id
                             ),
                         ));
-                    }
+                    };
                     Ok(FHIRResponse::VersionRead(FHIRVersionReadResponse {
-                        resource: vread_resources.swap_remove(0),
+                        resource,
                     }))
                 }
                 FHIRRequest::History(history_request) => {

@@ -1,7 +1,4 @@
-use haste_fhir_model::r4::generated::resources::Resource;
 use haste_fhir_operation_error::derive::OperationOutcomeError;
-use haste_jwt::VersionId;
-use moka::future::Cache;
 use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -9,6 +6,7 @@ use tokio::sync::Mutex;
 use crate::Repository;
 
 pub use pending::PendingRows;
+pub use version_cache::VersionCache;
 
 mod async_job;
 mod binary_data;
@@ -20,6 +18,7 @@ mod pending;
 mod rate_limit;
 mod sequence;
 mod transaction;
+mod version_cache;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {
@@ -48,10 +47,10 @@ pub enum StoreError {
 /// Connection types supported by the repository traits.
 #[derive(Debug, Clone)]
 pub enum PGConnection {
-    Pool(sqlx::Pool<Postgres>, Cache<VersionId, Resource>),
+    Pool(sqlx::Pool<Postgres>, VersionCache),
     Transaction(
         Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
-        Cache<VersionId, Resource>,
+        VersionCache,
         PendingRows,
     ),
 }
@@ -61,11 +60,11 @@ static TOTAL_CACHE_SIZE: u64 = 1000 * 10;
 impl PGConnection {
     #[must_use]
     pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
-        PGConnection::Pool(pool, Cache::new(TOTAL_CACHE_SIZE))
+        PGConnection::Pool(pool, VersionCache::new(TOTAL_CACHE_SIZE))
     }
 
     #[must_use]
-    pub fn cache(&self) -> &Cache<VersionId, Resource> {
+    pub fn cache(&self) -> &VersionCache {
         match self {
             PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache, _) => cache,
         }

@@ -37,6 +37,13 @@
             "autodelete": false
         }
     ],
+    "variable": [
+        {
+            "name": "CreatedVersion",
+            "sourceId": "create-response",
+            "expression": "Patient.meta.versionId"
+        }
+    ],
     "setup": {
         "action": [
             {
@@ -151,6 +158,66 @@
                         "operator": "notEquals",
                         "compareToSourceId": "create-response",
                         "compareToSourceExpression": "Patient.meta.versionId",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "VRead under another resource type",
+            "name": "VRead under another resource type",
+            "description": "A version is read as a version of its own resource: the Patient's id and version id under Observation answer 404 with an OperationOutcome.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "resource": "Observation",
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "VRead under another type is notFound",
+                        "response": "notFound",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "VRead under another type returns an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "VRead under another id",
+            "name": "VRead under another id",
+            "description": "The Patient's version id under the id of another Patient answers 404 with an OperationOutcome.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Patient/vread-test-another-patient/_history/${CreatedVersion}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "VRead under another id is notFound",
+                        "response": "notFound",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "VRead under another id returns an OperationOutcome",
+                        "resource": "OperationOutcome",
                         "warningOnly": false
                     }
                 }

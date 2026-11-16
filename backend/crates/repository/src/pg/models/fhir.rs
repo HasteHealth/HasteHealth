@@ -1,7 +1,7 @@
 use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
-        PGConnection, StoreError,
+        PGConnection, StoreError, VersionCache,
         pending::{self, PendingRows},
         transaction::{commit_transaction, create_transaction},
     },
@@ -22,7 +22,6 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
-use moka::future::Cache;
 use sqlx::{
     PgExecutor, Postgres, QueryBuilder, Row, query_builder::Separated, types::time::OffsetDateTime,
 };
@@ -42,13 +41,15 @@ struct HistoryValue {
 }
 
 async fn read_version_ids_from_cache<'a>(
-    cache: &Cache<VersionId, Resource>,
+    cache: &VersionCache,
+    tenant_id: &TenantId,
+    project_id: &ProjectId,
     version_ids: &'a [&VersionId],
 ) -> (Vec<Resource>, Vec<&'a VersionId>) {
     let mut remaining_version_ids = vec![];
     let mut cached_resources = vec![];
     for version_id in version_ids {
-        if let Some(resource) = cache.get(*version_id).await {
+        if let Some(resource) = cache.get(tenant_id, project_id, version_id).await {
             cached_resources.push(resource);
         } else {
             remaining_version_ids.push(*version_id);
@@ -145,7 +146,7 @@ impl FHIRRepository for PGConnection {
         }
 
         let (cached_result, remaining_version_ids) =
-            read_version_ids_from_cache(self.cache(), version_ids).await;
+            read_version_ids_from_cache(self.cache(), tenant_id, project_id, version_ids).await;
 
         if remaining_version_ids.is_empty() {
             return Ok(cached_result);
@@ -158,7 +159,14 @@ impl FHIRRepository for PGConnection {
 
                 if cache_policy == CachePolicy::Cache {
                     for v in &res {
-                        cache.insert(v.version_id.clone(), v.resource.clone()).await;
+                        cache
+                            .insert(
+                                tenant_id,
+                                project_id,
+                                v.version_id.clone(),
+                                v.resource.clone(),
+                            )
+                            .await;
                     }
                 }
 
@@ -177,7 +185,14 @@ impl FHIRRepository for PGConnection {
 
                 if cache_policy == CachePolicy::Cache {
                     for v in &res {
-                        cache.insert(v.version_id.clone(), v.resource.clone()).await;
+                        cache
+                            .insert(
+                                tenant_id,
+                                project_id,
+                                v.version_id.clone(),
+                                v.resource.clone(),
+                            )
+                            .await;
                     }
                 }
 
@@ -185,6 +200,42 @@ impl FHIRRepository for PGConnection {
                     .into_iter()
                     .chain(res.into_iter().map(|r| r.resource))
                     .collect::<Vec<_>>())
+            }
+        }
+    }
+
+    async fn read_version(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+        version_id: &VersionId,
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
+        match self {
+            PGConnection::Pool(pool, _) => {
+                read_version(
+                    pool,
+                    tenant_id,
+                    project_id,
+                    resource_type,
+                    resource_id,
+                    version_id,
+                )
+                .await
+            }
+            PGConnection::Transaction(tx, _, pending) => {
+                pending.flush(tx).await?;
+                let mut conn = tx.lock().await;
+                read_version(
+                    &mut **conn,
+                    tenant_id,
+                    project_id,
+                    resource_type,
+                    resource_id,
+                    version_id,
+                )
+                .await
             }
         }
     }
@@ -425,6 +476,40 @@ where
     });
 
     Ok(response)
+}
+
+/// The version `version_id` of `resource_type/resource_id`. The primary key
+/// finds the row by its version id; the type and id leave it out unless it
+/// is a version of that resource.
+async fn read_version<'a, 'e, E>(
+    executor: E,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    resource_type: &'a ResourceType,
+    resource_id: &'a ResourceId,
+    version_id: &'a VersionId,
+) -> Result<Option<Resource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let response = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+        r"
+            SELECT resource
+            FROM resources
+            WHERE tenant = $1 AND project = $2 AND version_id = $3
+                AND resource_type = $4 AND id = $5
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(version_id.as_ref())
+    .bind(resource_type.as_ref())
+    .bind(resource_id.as_ref())
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::from)?;
+
+    Ok(response.map(|(json,)| json.0))
 }
 
 async fn read_latest<'a, 'e, E>(
