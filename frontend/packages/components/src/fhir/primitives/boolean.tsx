@@ -16,14 +16,14 @@ export const FHIRBooleanEditable = ({
       <label className="inline-flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
-          className="h-4 w-4 rounded-sm border-slate-300 text-brand-600 focus:ring-brand-400"
+          className="h-4 w-4 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-signal)] focus:ring-[var(--ci-signal)]"
           checked={value ?? false}
           onChange={(e) => {
             onChange?.call(this, e.target.checked);
           }}
         />
         {label && (
-          <span className="text-xs font-medium leading-4 text-slate-700">
+          <span className="font-mono text-xs text-[var(--ci-ink)]">
             {label}
           </span>
         )}

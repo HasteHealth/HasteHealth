@@ -49,11 +49,11 @@ export default function ResourceTypes() {
       <header>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-            <p className="max-w-2xl text-sm text-slate-500">{description}</p>
+            <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">{title}</h1>
+            <p className="max-w-2xl text-xs text-[var(--ci-muted)]">{description}</p>
           </div>
           <button
-            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-none bg-[var(--ci-signal)] px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider font-semibold text-[var(--ci-on-signal)] hover:opacity-90 transition-opacity"
             onClick={() =>
               navigate(
                 generatePath("/r/:resourceType/:id", {
@@ -69,8 +69,8 @@ export default function ResourceTypes() {
         </div>
       </header>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-xs">
-        <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+      <section className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3 shadow-sm">
+        <div className="mb-3 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 text-xs font-mono text-[var(--ci-muted)]">
           Select a row to open the full editor for that resource.
         </div>
         <FHIRGenerativeSearchTable

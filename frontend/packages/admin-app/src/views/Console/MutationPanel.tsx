@@ -322,31 +322,31 @@ export function MutationPanel({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div
-        className={`rounded-lg border p-3 ${
+        className={`rounded-none border p-3 ${
           conditional
-            ? "border-red-300 bg-red-50"
-            : "border-amber-300 bg-amber-50"
+            ? "border-red-500/30 bg-red-500/10 text-red-400"
+            : "border-amber-500/30 bg-amber-500/10 text-amber-400"
         }`}
       >
         <div className="flex items-start gap-2">
           <ExclamationTriangleIcon
             className={`mt-0.5 h-5 w-5 shrink-0 ${
-              conditional ? "text-red-600" : "text-amber-600"
+              conditional ? "text-red-500" : "text-amber-500"
             }`}
           />
           <div className="min-w-0 flex-1">
             <p
-              className={`text-sm font-medium ${
-                conditional ? "text-red-900" : "text-amber-900"
+              className={`text-xs font-mono font-medium ${
+                conditional ? "text-red-400" : "text-amber-400"
               }`}
             >
               {warning}
             </p>
-            <p className="mt-0.5 font-mono text-xs text-slate-600">
+            <p className="mt-0.5 font-mono text-xs text-[var(--ci-ink)]">
               {request.method} {request.path}
             </p>
             {conditional && (
-              <p className="mt-1 text-xs text-red-700">
+              <p className="mt-1 text-xs font-mono text-red-400">
                 This acts on every resource the search matches, which may be
                 more than you expect. Run the same path as a GET first to see
                 what it would hit.
@@ -383,7 +383,7 @@ export function MutationPanel({
       {outcome && <OutcomePanel outcome={outcome} request={request} />}
 
       {needsBody && (
-        <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-3">
+        <div className="flex min-h-0 flex-1 flex-col rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3">
           {bodyTabs.length > 1 ? (
             <Tabs selectedTab={selectedTab} onTab={onTab} tabs={bodyTabs} />
           ) : (

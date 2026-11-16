@@ -136,8 +136,8 @@ function Elements({
 
   return (
     <div className="overflow-auto">
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+      <table className="w-full text-xs font-mono">
+        <thead className="sticky top-0 bg-[var(--ci-surface-raised)] border-b border-[var(--ci-line)] text-left uppercase tracking-wider text-[var(--ci-muted)]">
           <tr>
             <th className="px-3 py-2 font-medium">Element</th>
             <th className="px-3 py-2 font-medium">Type</th>
@@ -148,29 +148,29 @@ function Elements({
           {present.map((path) => {
             const { info, inherited } = describe(elements, path);
             return (
-              <tr key={path} className="border-t border-slate-100 align-top">
-                <td className="whitespace-nowrap px-3 py-1.5 font-mono text-xs text-slate-800">
+              <tr key={path} className="border-t border-[var(--ci-line)] align-top hover:bg-[var(--ci-surface-raised)] transition-colors">
+                <td className="whitespace-nowrap px-3 py-1.5 font-mono text-xs text-[var(--ci-ink)]">
                   {path}
                 </td>
-                <td className="whitespace-nowrap px-3 py-1.5 text-xs text-slate-500">
+                <td className="whitespace-nowrap px-3 py-1.5 text-xs text-[var(--ci-muted)]">
                   {/* An inherited row describes its ancestor, so showing that
                       ancestor's type against a leaf would be misleading. */}
                   {typeLabel(info, inherited)}
                 </td>
-                <td className="px-3 py-1.5 text-xs text-slate-600">
+                <td className="px-3 py-1.5 text-xs text-[var(--ci-ink-muted)]">
                   {info?.short ? (
                     <>
                       {info.short}{" "}
                       {inherited && (
-                        <span className="text-slate-400">
+                        <span className="text-[var(--ci-muted)]">
                           (part of{" "}
-                          <span className="font-mono">{inherited}</span>
+                          <span className="font-mono text-[var(--ci-ink)]">{inherited}</span>
                           {info.types.length > 0 && `, a ${info.types[0]}`})
                         </span>
                       )}
                     </>
                   ) : (
-                    <span className="text-slate-400">
+                    <span className="text-[var(--ci-muted)]">
                       An extension or a profile element.
                     </span>
                   )}

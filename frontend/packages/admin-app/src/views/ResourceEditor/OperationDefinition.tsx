@@ -191,14 +191,14 @@ function OperationCodeEditor({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+      <div className="mb-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)]">
         Edit the operation source code, then run it from the panel on the right:
         choose where it runs, fill in its input parameters and read its output.
       </div>
       {/* A fixed height, so the code scrolls inside its editor and the run
           panel keeps its size however long the code is. */}
       <div className="flex h-[calc(100vh-10rem)] min-h-[36rem] gap-3">
-        <div className="flex min-w-0 flex-1 overflow-hidden rounded-md border border-slate-200">
+        <div className="flex min-w-0 flex-1 overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
           <CodeMirror
             extensions={extensions}
             value={value}
@@ -214,7 +214,7 @@ function OperationCodeEditor({
           />
         </div>
         {operation && (
-          <div className="flex w-[28rem] shrink-0 flex-col overflow-hidden rounded-md border border-slate-200">
+          <div className="flex w-[28rem] shrink-0 flex-col overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
             <OperationInvocationPanel
               client={client}
               fhirVersion={R4}
@@ -253,7 +253,7 @@ function OperationAuditEvents({ operationId }: { operationId: string }) {
 
   return (
     <div className="space-y-2">
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+      <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)]">
         Recent execution events for this operation.
       </div>
       <Table

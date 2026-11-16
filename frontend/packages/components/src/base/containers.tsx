@@ -10,16 +10,16 @@ export const inputClassNames = ({
 }) =>
   classNames(
     "min-h-8",
-    "flex relative px-2 py-1 group-aria-disabled:bg-gray-50",
-    "placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200",
-    "focus:outline-hidden focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm ",
-    "invalid:border-red-500 invalid:text-red-600 focus:invalid:border-red-500 focus:invalid:ring-red-500 disabled:shadow-none",
+    "flex relative px-2.5 py-1.5 font-mono text-xs rounded-none transition-colors",
+    "placeholder-[var(--ci-muted)] disabled:opacity-50",
+    "focus:outline-none focus:border-[var(--ci-signal)] focus:ring-1 focus:ring-[var(--ci-signal)] block w-full",
+    "invalid:border-red-500 invalid:text-red-600 focus:invalid:border-red-500 focus:invalid:ring-red-500",
     {
       border: !hideBorder,
-      "focus:ring-1": !hideBorder,
-      "border-slate-300": issues.length === 0 ? true : false,
-      "text-red-500": issues.length !== 0 ? true : false,
-      "border-red-500": issues.length !== 0 ? true : false,
+      "border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)]":
+        issues.length === 0,
+      "text-red-500 border-red-500 bg-[var(--ci-surface-raised)]":
+        issues.length !== 0,
     },
   );
 
@@ -83,9 +83,9 @@ export const InputContainer = ({
       required={required}
       className={classNames(
         {
-          "mb-0.5 block text-xs font-medium leading-4 text-slate-700":
+          "mb-1 block text-xs font-mono uppercase tracking-wider text-[var(--ci-muted)]":
             !inlineLabel,
-          "mr-2 text-xs font-medium leading-4 text-slate-700": inlineLabel,
+          "mr-2 text-xs font-mono uppercase tracking-wider text-[var(--ci-muted)]": inlineLabel,
         },
         labelProps?.className,
       )}

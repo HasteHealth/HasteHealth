@@ -28,17 +28,17 @@ export const Tabs = ({ tabs, rightSide, selectedTab, onTab }: TabsProps) => {
           }
         }}
       >
-        <TabList className="sticky top-0 z-10 bg-white flex space-x-4 border-b items-center">
-          <div className="flex space-x-4 grow">
+        <TabList className="sticky top-0 z-10 bg-[var(--ci-surface)] flex space-x-4 border-b border-[var(--ci-line)] items-center">
+          <div className="flex space-x-4 flex-grow">
             {tabs.map((tab) => (
               <Tab
                 key={tab.id}
                 className={({ selected }) =>
                   classNames(
-                    "py-2.5 text-sm font-medium leading-5 border-b-2 outline-hidden",
+                    "py-2 text-xs font-mono uppercase tracking-wider font-semibold border-b-2 outline-none cursor-pointer transition-colors",
                     selected
-                      ? "text-brand-600 border-brand-600"
-                      : "text-slate-600 hover:text-slate-700 border-transparent",
+                      ? "text-[var(--ci-signal)] border-[var(--ci-signal)]"
+                      : "text-[var(--ci-muted)] hover:text-[var(--ci-ink)] border-transparent",
                   )
                 }
               >

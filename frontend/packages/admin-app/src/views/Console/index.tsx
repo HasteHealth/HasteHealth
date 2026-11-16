@@ -66,28 +66,28 @@ function RecentPanel({
     return (
       <aside className="hidden shrink-0 xl:flex">
         <button
-          className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+          className="flex flex-col items-center gap-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-2 py-3 text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
           onClick={() => onOpenChange(true)}
           title={`Recent commands${count}`}
           type="button"
         >
           <ClockIcon className="h-4 w-4" />
-          <span className="text-[11px] [writing-mode:vertical-rl]">Recent</span>
+          <span className="text-[11px] font-mono [writing-mode:vertical-rl]">Recent</span>
         </button>
       </aside>
     );
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col rounded-lg border border-slate-200 bg-white xl:flex">
-      <header className="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
-        <ClockIcon className="h-4 w-4 text-slate-400" />
-        <span className="flex-1 text-sm font-medium text-slate-700">
+    <aside className="hidden w-64 shrink-0 flex-col rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-ink)] xl:flex">
+      <header className="flex items-center gap-2 border-b border-[var(--ci-line)] px-3 py-2 text-[var(--ci-ink)]">
+        <ClockIcon className="h-4 w-4 text-[var(--ci-muted)]" />
+        <span className="flex-1 text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
           Recent
         </span>
         {entries.length > 0 && (
           <button
-            className="rounded-sm p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-none p-1 text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
             onClick={onClear}
             title="Clear"
             type="button"
@@ -96,7 +96,7 @@ function RecentPanel({
           </button>
         )}
         <button
-          className="rounded-sm p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-none p-1 text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] transition-colors"
           onClick={() => onOpenChange(false)}
           title="Hide"
           type="button"
@@ -105,7 +105,7 @@ function RecentPanel({
         </button>
       </header>
       {entries.length === 0 ? (
-        <p className="px-3 py-4 text-xs text-slate-400">
+        <p className="px-3 py-4 text-xs font-mono text-[var(--ci-muted)]">
           Commands you run appear here.
         </p>
       ) : (
@@ -118,8 +118,8 @@ function RecentPanel({
               <li key={`${label}-${entry.at}`}>
                 <div
                   className={classNames(
-                    "group flex items-center gap-1 px-2 py-1.5 text-xs",
-                    active ? "bg-brand-50" : "hover:bg-slate-50",
+                    "group flex items-center gap-1 px-2 py-1.5 text-xs transition-colors",
+                    active ? "bg-[var(--ci-signal-soft)]" : "hover:bg-[var(--ci-surface-raised)]",
                   )}
                 >
                   <button
@@ -131,17 +131,17 @@ function RecentPanel({
                     <div
                       className={classNames(
                         "truncate font-mono",
-                        active ? "text-brand-800" : "text-slate-700",
+                        active ? "text-[var(--ci-signal)] font-semibold" : "text-[var(--ci-ink)]",
                       )}
                     >
                       {label}
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-[11px] font-mono text-[var(--ci-muted)]">
                       {age(entry.at)}
                     </div>
                   </button>
                   <button
-                    className="invisible rounded-sm p-1 text-slate-400 hover:bg-slate-200 group-hover:visible"
+                    className="invisible rounded-none p-1 text-[var(--ci-muted)] hover:text-[var(--ci-ink)] group-hover:visible"
                     onClick={() => onRemove(entry.command)}
                     title="Remove"
                     type="button"
@@ -163,18 +163,18 @@ function Welcome({
   resourceTypeCount,
 }: Readonly<{ resourceTypeCount: number }>) {
   return (
-    <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
-      <p className="font-medium text-slate-800">
+    <div className="rounded-none border border-dashed border-[var(--ci-line)] bg-[var(--ci-surface)] p-6 text-xs text-[var(--ci-ink)]">
+      <p className="font-mono text-sm font-semibold text-[var(--ci-ink)]">
         Type a FHIR path above and press Enter.
       </p>
-      <ul className="mt-3 space-y-1 font-mono text-xs text-slate-500">
-        <li>Patient?name=Smith</li>
-        <li>Patient/123</li>
-        <li>Observation?subject:Patient.name=Smith</li>
-        <li>Patient/_history</li>
-        <li>DELETE Patient/123</li>
+      <ul className="mt-3 space-y-1.5 font-mono text-xs text-[var(--ci-muted)]">
+        <li className="hover:text-[var(--ci-signal)] cursor-pointer">Patient?name=Smith</li>
+        <li className="hover:text-[var(--ci-signal)] cursor-pointer">Patient/123</li>
+        <li className="hover:text-[var(--ci-signal)] cursor-pointer">Observation?subject:Patient.name=Smith</li>
+        <li className="hover:text-[var(--ci-signal)] cursor-pointer">Patient/_history</li>
+        <li className="hover:text-[var(--ci-signal)] cursor-pointer">DELETE Patient/123</li>
       </ul>
-      <p className="mt-3 text-xs text-slate-400">
+      <p className="mt-3 text-xs font-mono text-[var(--ci-muted)]">
         {resourceTypeCount} resource types available. Pick a verb on the left of
         the bar to write instead of read.
       </p>
@@ -355,7 +355,7 @@ export default function Console() {
     }
 
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
+      <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-4 text-xs font-mono text-[var(--ci-muted)]">
         System level operations are not runnable from here yet.
       </div>
     );
@@ -377,7 +377,7 @@ export default function Console() {
       />
 
       <div className="flex min-h-0 w-full flex-1 gap-3">
-        <section className="flex min-w-0 flex-1 flex-col overflow-auto rounded-lg border border-slate-200 bg-white p-3">
+        <section className="flex min-w-0 flex-1 flex-col overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3">
           {body}
         </section>
 

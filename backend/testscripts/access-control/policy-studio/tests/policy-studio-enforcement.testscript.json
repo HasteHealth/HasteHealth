@@ -1,0 +1,337 @@
+{
+  "id": "access-control-policy-studio-enforcement",
+  "url": "https://haste.health/fhir/TestScript/access-control-policy-studio-enforcement",
+  "name": "Access Control Policy Studio Enforcement",
+  "title": "Policy studio: clinician matrix enforcement",
+  "status": "active",
+  "description": "Run as the policy-studio member. Observation create/read/search/update are granted, Patient read is granted, and delete and unconfigured types are forbidden.",
+  "resourceType": "TestScript",
+  "contained": [
+    {
+      "id": "ps-new-observation",
+      "resourceType": "Observation",
+      "meta": {
+        "tag": [
+          {
+            "code": "policy-studio"
+          }
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Created by the policy studio test"
+      }
+    },
+    {
+      "id": "ps-new-patient",
+      "resourceType": "Patient",
+      "name": [
+        {
+          "family": "Denied",
+          "given": [
+            "Create"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ps-patient",
+      "resourceType": "Patient",
+      "meta": {
+        "tag": [
+          {
+            "code": "policy-studio"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ps-observation",
+      "resourceType": "Observation",
+      "meta": {
+        "tag": [
+          {
+            "code": "policy-studio"
+          }
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Policy studio"
+      }
+    },
+    {
+      "id": "ps-observation-delete",
+      "resourceType": "Observation",
+      "meta": {
+        "tag": [
+          {
+            "code": "policy-studio"
+          }
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Policy studio delete target"
+      }
+    },
+    {
+      "id": "ps-basic",
+      "resourceType": "Basic",
+      "code": {
+        "text": "Policy studio unconfigured type"
+      }
+    }
+  ],
+  "fixture": [
+    {
+      "id": "fixture-ps-new-observation",
+      "resource": {
+        "reference": "#ps-new-observation"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-ps-new-patient",
+      "resource": {
+        "reference": "#ps-new-patient"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-ps-patient",
+      "resource": {
+        "reference": "#ps-patient"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-ps-observation",
+      "resource": {
+        "reference": "#ps-observation"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-ps-observation-delete",
+      "resource": {
+        "reference": "#ps-observation-delete"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-ps-basic",
+      "resource": {
+        "reference": "#ps-basic"
+      },
+      "autocreate": false,
+      "autodelete": false
+    }
+  ],
+  "test": [
+    {
+      "id": "01-create-observation-allowed",
+      "name": "Observation create is granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "resource": "Observation",
+            "sourceId": "fixture-ps-new-observation",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The created Observation is returned",
+            "resource": "Observation",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "02-read-observation-allowed",
+      "name": "Observation read is granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "read"
+            },
+            "resource": "Observation",
+            "targetId": "fixture-ps-observation",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "Observation/ps-observation is returned",
+            "expression": "Observation.id = 'ps-observation'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "03-search-observation-allowed",
+      "name": "Observation search is granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "search"
+            },
+            "resource": "Observation",
+            "params": "_tag=policy-studio",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The search returns at least one Observation",
+            "expression": "Bundle.entry.resource.ofType(Observation).exists()",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "04-update-observation-allowed",
+      "name": "Observation update is granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "update"
+            },
+            "resource": "Observation",
+            "targetId": "fixture-ps-observation",
+            "sourceId": "fixture-ps-observation",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The updated Observation is returned",
+            "resource": "Observation",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "05-delete-observation-denied",
+      "name": "Observation delete is not granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "delete"
+            },
+            "resource": "Observation",
+            "targetId": "fixture-ps-observation-delete",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The delete is forbidden",
+            "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "06-read-basic-denied",
+      "name": "An unconfigured type is forbidden",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "read"
+            },
+            "resource": "Basic",
+            "targetId": "fixture-ps-basic",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The Basic read is forbidden",
+            "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "07-create-patient-denied",
+      "name": "Patient write is not granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "resource": "Patient",
+            "sourceId": "fixture-ps-new-patient",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The create is forbidden",
+            "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "08-read-patient-allowed",
+      "name": "Patient read is granted by the matrix",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "read"
+            },
+            "resource": "Patient",
+            "targetId": "fixture-ps-patient",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "Patient/ps-patient is returned",
+            "expression": "Patient.id = 'ps-patient'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

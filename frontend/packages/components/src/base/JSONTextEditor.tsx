@@ -48,11 +48,11 @@ export function JSONTextEditor({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="mb-2 flex items-center gap-2">
-        {hint && <span className="text-xs text-slate-500">{hint}</span>}
+        {hint && <span className="font-mono text-xs text-[var(--ci-muted)]">{hint}</span>}
         <div className="flex flex-1 items-center justify-end gap-2">
           {error ? (
             <span
-              className="flex items-center text-xs text-red-600"
+              className="flex items-center font-mono text-xs text-red-500"
               title={error}
             >
               <ExclamationCircleIcon className="mr-1 h-4 w-4" />
@@ -60,7 +60,7 @@ export function JSONTextEditor({
             </span>
           ) : (
             value.trim() !== "" && (
-              <span className="flex items-center text-xs text-emerald-600">
+              <span className="flex items-center font-mono text-xs text-emerald-500">
                 <CheckCircleIcon className="mr-1 h-4 w-4" />
                 Valid
               </span>
@@ -79,8 +79,8 @@ export function JSONTextEditor({
                 }
               }}
             >
-              <span className="flex items-center">
-                <SparklesIcon className="mr-1 h-4 w-4" />
+              <span className="flex items-center font-mono text-xs uppercase tracking-wider">
+                <SparklesIcon className="mr-1 h-3.5 w-3.5" />
                 Format
               </span>
             </Button>
@@ -88,7 +88,7 @@ export function JSONTextEditor({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 overflow-auto border">
+      <div className="flex min-h-0 flex-1 overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
         <CodeMirror
           readOnly={readOnly}
           extensions={extensions}

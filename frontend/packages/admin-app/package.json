@@ -40,6 +40,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "node --experimental-strip-types --test src/theme/accents.test.ts src/views/Roles/policyDraft.test.ts src/views/Roles/policyCheck.test.ts",
     "preview": "vite preview",
     "wrangler": "pnpm run build && wrangler deploy",
     "remove": "wrangler delete"

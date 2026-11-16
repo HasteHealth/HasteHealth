@@ -10,14 +10,14 @@ export const FHIRQuantityReadOnly = ({
   value,
 }: Readonly<FHIRQuantityReadOnlyProps>) => {
   return (
-    <span className="inline-flex items-baseline gap-1 whitespace-nowrap">
+    <span className="inline-flex items-baseline gap-1 whitespace-nowrap text-[var(--ci-ink)]">
       {value?.value !== undefined && (
-        <span className="font-mono tabular-nums text-slate-800">
+        <span className="font-mono tabular-nums">
           {value.value}
         </span>
       )}
       {value?.unit && (
-        <span className="text-[11px] text-slate-400">{value.unit}</span>
+        <span className="text-[11px] text-[var(--ci-muted)]">{value.unit}</span>
       )}
     </span>
   );
