@@ -19,7 +19,7 @@ pub fn otp_code_input(digits: usize) -> Markup {
                 maxlength="1"
                 autocomplete="one-time-code"
                 data-mfa-digit=(i)
-                class=(format!("{digit_class} h-12 w-10 rounded-lg border border-gray-300 bg-gray-50 text-center text-xl font-semibold text-slate-900 focus:border-brand-600 focus:outline-none focus:ring-brand-600")) {}
+                class=(format!("{digit_class} h-12 w-10 rounded-none border border-[var(--auth-line-strong)] bg-[var(--auth-surface-raised)] text-center font-mono text-xl font-semibold text-[var(--auth-ink)] focus:border-[var(--auth-signal)] focus:outline-none focus:ring-1 focus:ring-[var(--auth-signal)]")) {}
             }
         }
         script src=(asset_route("js/otp_code.js")) {}
