@@ -1,5 +1,6 @@
 @import "tailwindcss" source(".");
 @import "./styles/tokens.css";
+@import "./styles/clinical-instrument-fonts.css";
 @import "./styles/clinical-instrument.css";
 @config "../tailwind.config.js";
 
