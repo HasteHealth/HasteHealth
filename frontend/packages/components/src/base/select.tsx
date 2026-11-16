@@ -12,6 +12,8 @@ export interface SelectProps {
   onChange?: (value: Option) => void;
   issue?: string;
   label?: string;
+  id?: string;
+  ariaLabel?: string;
   open?: boolean;
   required?: boolean;
 }
@@ -20,6 +22,8 @@ export const Select = ({
   value,
   options,
   label,
+  id,
+  ariaLabel,
   issue,
   open = false,
   onChange,
@@ -61,6 +65,8 @@ export const Select = ({
           />
           <div className="relative">
             <Combobox.Input
+              id={id}
+              aria-label={ariaLabel}
               className={classNames(
                 "outline-hidden w-full leading-5 text-gray-900 focus:ring-0",
                 inputClassNames({
@@ -72,8 +78,9 @@ export const Select = ({
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button
+              aria-label="Open options"
               className={classNames(
-                "absolute inset-y-0 right-0 flex items-center pr-2",
+                "absolute inset-y-0 right-0 flex cursor-pointer items-center pr-2",
               )}
             >
               <ChevronUpDownIcon
@@ -91,7 +98,8 @@ export const Select = ({
           leaveTo="opacity-0"
           afterLeave={() => setQuery("")}
         >
-          <Combobox.Options className="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm">
+          {/* Above sticky table headers (z-10) and console panels (z-20). */}
+          <Combobox.Options className="z-30 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm">
             {query.length > 0 && open && (
               <Combobox.Option
                 value={{ value: query, label: query }}
