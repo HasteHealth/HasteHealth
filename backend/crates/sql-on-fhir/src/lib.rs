@@ -1,5 +1,5 @@
 use base64::{Engine as _, engine::general_purpose};
-use futures::future::{BoxFuture, try_join, try_join_all};
+use futures::future::{BoxFuture, try_join};
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
@@ -29,6 +29,8 @@ use crate::conversions::primitives::PrimitiveValue;
 mod compartment;
 mod conversions;
 mod output;
+#[cfg(test)]
+mod tests;
 mod union;
 
 /// An undefined constant or an unparsable expression is the caller's mistake; any other
@@ -324,11 +326,19 @@ struct Run<'v> {
 
 /// Adds the rows of `resources`: those of the view's type that pass its `where`. Returns whether
 /// the run has all the rows it asked for. Without `_limit`, more than `max_rows` refuses the run.
+///
+/// A resource's rows are built only as far as the run can use them: up to `_limit`, else one row
+/// past `max_rows`, which is all it takes to refuse the run. At least one is built, so that a
+/// `_limit` of 0 still reports a mistake in the view.
 async fn add_rows<'v>(
     run: &Run<'v>,
     resources: &[Resource],
     rows: &mut Vec<Row<'v>>,
 ) -> Result<bool, OperationOutcomeError> {
+    let cap = run
+        .limit
+        .unwrap_or_else(|| run.limits.max_rows.saturating_add(1));
+
     for resource in resources_of_type(resources, &run.resource_type) {
         if !passes_where_clauses(
             run.fp_engine,
@@ -347,6 +357,7 @@ async fn add_rows<'v>(
                 run.variables.clone(),
                 run.view_definition,
                 resource,
+                cap.saturating_sub(rows.len()).max(1),
             )
             .await?,
         );
@@ -650,9 +661,12 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
 /// Column values by name. Names borrow from the view.
 type Row<'a> = OrderMap<&'a str, OutputResults>;
 
-/// Cross product of two row sets, `left`'s columns first.
-fn join<'a>(left: &[Row<'a>], right: Vec<Row<'a>>) -> Vec<Row<'a>> {
+/// The first `cap` rows of the cross product of two row sets, `left`'s columns first.
+fn join<'a>(left: &[Row<'a>], mut right: Vec<Row<'a>>, cap: usize) -> Vec<Row<'a>> {
     let copy = |(&name, value): (&&'a str, &OutputResults)| (name, value.clone());
+
+    // Each row of `left` takes all of `right` in turn, so no row of `right` past `cap` is used.
+    right.truncate(cap);
 
     match left {
         // The fold's empty start row.
@@ -665,6 +679,7 @@ fn join<'a>(left: &[Row<'a>], right: Vec<Row<'a>>) -> Vec<Row<'a>> {
         _ => left
             .iter()
             .cartesian_product(&right)
+            .take(cap)
             .map(|(l, r)| l.iter().chain(r).map(copy).collect())
             .collect(),
     }
@@ -678,13 +693,15 @@ enum OutputResults {
     Collection(Vec<Option<PrimitiveValue>>),
 }
 
-/// A resource's rows: the cross product of each select's rows. Rows borrow only from the view
-/// (`'v`), not from the resource (`'r`), so a page of resources can go once its rows are made.
+/// A resource's rows: the cross product of each select's rows, built as far as its first `cap`
+/// rows. Rows borrow only from the view (`'v`), not from the resource (`'r`), so a page of
+/// resources can go once its rows are made.
 async fn process_resource<'r, 'v: 'r>(
     fp_engine: &'r FPEngine,
     variables: Arc<HashMap<String, &'r dyn MetaValue>>,
     view_definition: &'v ViewDefinition,
     input: &'r Resource,
+    cap: usize,
 ) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let fp_config = Arc::new(
         Config::builder()
@@ -694,11 +711,19 @@ async fn process_resource<'r, 'v: 'r>(
             .with_resource_id(input.id().clone().unwrap_or_default()),
     );
 
-    let per_select = select_rows(fp_engine, &fp_config, &view_definition.select, input).await?;
+    let per_select = select_rows(
+        fp_engine,
+        &fp_config,
+        &view_definition.select,
+        input,
+        1,
+        cap,
+    )
+    .await?;
 
     Ok(per_select
         .into_iter()
-        .fold(vec![Row::new()], |rows, more| join(&rows, more)))
+        .fold(vec![Row::new()], |rows, more| join(&rows, more, cap)))
 }
 
 /// Evaluates `path` on `node`; `what` names the expression in errors.
@@ -777,28 +802,67 @@ async fn walk_repeat<'a>(
     Ok((nodes, arenas))
 }
 
-/// Each select's rows on `node`, in order.
+/// Each select's rows on `node`, in order: as many as the first `cap` rows of their cross product
+/// use. `later` counts the rows joined after the selects: a `unionAll`'s, or 1 without one.
+///
+/// The product repeats the later rows under each earlier one, so the selects are read from the
+/// last one back: the rows read so far say how few the select before them can add, and each
+/// select is asked for no more. The rows built stay near `cap`, however many the selects
+/// multiply to.
 async fn select_rows<'r, 'v: 'r>(
     fp_engine: &'r FPEngine,
     fp_config: &Arc<Config<'r>>,
     selects: &'v [ViewDefinitionSelect],
     node: &'r dyn MetaValue,
+    mut later: usize,
+    cap: usize,
 ) -> Result<Vec<Vec<Row<'v>>>, OperationOutcomeError> {
-    try_join_all(
-        selects
-            .iter()
-            .map(|select| process_select(fp_engine, fp_config.clone(), select, node)),
-    )
-    .await
+    let mut per_select = Vec::with_capacity(selects.len());
+
+    for select in selects.iter().rev() {
+        // With no later rows the product stays empty. The select is still read, so that a
+        // mistake in it is reported.
+        let wanted = if later == 0 { 1 } else { cap.div_ceil(later) };
+        let rows = process_select(fp_engine, fp_config.clone(), select, node, wanted).await?;
+
+        later = later.saturating_mul(rows.len()).min(cap);
+        per_select.push(rows);
+    }
+
+    per_select.reverse();
+    Ok(per_select)
 }
 
-/// A select's rows: per focus node, its columns joined with its nested and `unionAll` rows. The
-/// focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
+/// The first `cap` rows of a `unionAll` on `node`: each branch's rows, one branch after another.
+async fn union_rows<'r, 'v: 'r>(
+    fp_engine: &'r FPEngine,
+    fp_config: &Arc<Config<'r>>,
+    branches: &'v [ViewDefinitionSelect],
+    node: &'r dyn MetaValue,
+    cap: usize,
+) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
+    let mut rows = Vec::new();
+
+    for branch in branches {
+        let room = cap.saturating_sub(rows.len());
+        if room == 0 {
+            break;
+        }
+
+        rows.extend(process_select(fp_engine, fp_config.clone(), branch, node, room).await?);
+    }
+
+    Ok(rows)
+}
+
+/// A select's first `cap` rows: per focus node, its columns joined with its nested and `unionAll`
+/// rows. The focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
 fn process_select<'r, 'v: 'r>(
     fp_engine: &'r FPEngine,
     fp_config: Arc<Config<'r>>,
     select: &'v ViewDefinitionSelect,
     input: &'r dyn MetaValue,
+    cap: usize,
 ) -> BoxFuture<'r, Result<Vec<Row<'v>>, OperationOutcomeError>> {
     Box::pin(async move {
         let for_each = select.forEach.as_ref().and_then(|p| p.value.as_deref());
@@ -832,30 +896,35 @@ fn process_select<'r, 'v: 'r>(
             return Ok(vec![null_row]);
         }
 
-        let mut rows = Vec::with_capacity(nodes.len());
+        let mut rows = Vec::with_capacity(nodes.len().min(cap));
         for node in nodes {
+            let room = cap.saturating_sub(rows.len());
+            if room == 0 {
+                break;
+            }
+
             let columns = column_row(fp_engine, &fp_config, select, node).await?;
+            let union = match select.unionAll.as_deref() {
+                Some(branches) => {
+                    Some(union_rows(fp_engine, &fp_config, branches, node, room).await?)
+                }
+                None => None,
+            };
             let nested = select_rows(
                 fp_engine,
                 &fp_config,
                 select.select.as_deref().unwrap_or_default(),
                 node,
+                union.as_ref().map_or(1, Vec::len),
+                room,
             )
             .await?;
-            let union = match select.unionAll.as_deref() {
-                Some(branches) => Some(
-                    select_rows(fp_engine, &fp_config, branches, node)
-                        .await?
-                        .concat(),
-                ),
-                None => None,
-            };
 
             rows.extend(
                 nested
                     .into_iter()
                     .chain(union)
-                    .fold(vec![columns], |rows, more| join(&rows, more)),
+                    .fold(vec![columns], |rows, more| join(&rows, more, room)),
             );
         }
 
