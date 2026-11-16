@@ -31,6 +31,18 @@
   ::file-selector-button {
     all: revert;
   }
+
+  /* ...but the native button still has to follow the app theme. */
+  ::file-selector-button {
+    margin-right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--ci-line);
+    background-color: var(--ci-surface-raised);
+    color: var(--ci-ink);
+    font-family: var(--ci-font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
 }
 
 @layer base {

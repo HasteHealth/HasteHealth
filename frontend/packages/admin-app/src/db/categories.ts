@@ -21,7 +21,7 @@ import SPEC_CATEGORIES from "./resource-categories.json";
 
 /** Types the spec gives no category, grouped by where they come from. */
 const EXTRA_GROUPS: Record<string, string[]> = {
-  "Haste Health.Access control": [
+  "Platform.Access control": [
     "AccessPolicyV2",
     "AccessPolicyV2Assignment",
     "ClientApplication",
@@ -29,8 +29,8 @@ const EXTRA_GROUPS: Record<string, string[]> = {
     "Membership",
     "User",
   ],
-  "Haste Health.Workspace": ["Project"],
-  "Haste Health.Exchange": ["HL7V2"],
+  "Platform.Workspace": ["Project"],
+  "Platform.Exchange": ["HL7V2"],
   // ViewDefinition is SQL on FHIR's, not ours, even though it is carried here
   // with some changes of our own.
   "SQL on FHIR.Projections": ["ViewDefinition"],
@@ -69,7 +69,7 @@ const MODULE_ORDER = [
   "Specialized",
   "Foundation",
   "SQL on FHIR",
-  "Haste Health",
+  "Platform",
   "Other",
 ];
 

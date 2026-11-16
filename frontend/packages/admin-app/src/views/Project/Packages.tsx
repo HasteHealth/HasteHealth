@@ -46,11 +46,11 @@ function SectionCard({
   action?: React.ReactNode;
 }>) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
+    <section className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-          <p className="mt-1 text-sm text-slate-500">{description}</p>
+          <h2 className="text-sm font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">{title}</h2>
+          <p className="mt-1 text-xs text-[var(--ci-muted)]">{description}</p>
         </div>
         {action}
       </div>
@@ -69,10 +69,10 @@ function Checkbox({
   onChange: (checked: boolean) => void;
 }>) {
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-700">
+    <label className="flex items-center gap-2 text-xs text-[var(--ci-ink)]">
       <input
         type="checkbox"
-        className="h-4 w-4 rounded-sm border-slate-300 accent-brand-600"
+        className="h-4 w-4 rounded-none border border-[var(--ci-line-strong)] accent-[var(--ci-signal)]"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -82,15 +82,15 @@ function Checkbox({
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  installed: "bg-green-100 text-green-800",
-  updated: "bg-blue-100 text-blue-800",
-  skipped: "bg-slate-100 text-slate-700",
+  installed: "border-emerald-600/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  updated: "border-sky-600/40 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  skipped: "border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] text-[var(--ci-muted)]",
 };
 
 function StatusBadge({ status }: Readonly<{ status: string }>) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+      className={`inline-flex items-center rounded-none border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${
         STATUS_STYLES[status] ?? STATUS_STYLES.skipped
       }`}
     >
@@ -117,24 +117,24 @@ function InstallResult({ output }: Readonly<{ output: Install.Output }>) {
     .filter((warning, index, all) => all.indexOf(warning) === index);
 
   return (
-    <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4">
-      <h3 className="text-sm font-semibold text-slate-900">Result</h3>
-      <ul className="flex flex-col gap-1.5 text-sm">
+    <div className="mt-5 flex flex-col gap-3 border-t border-[var(--ci-line)] pt-4">
+      <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">Result</h3>
+      <ul className="flex flex-col gap-1.5 text-xs">
         {(output.package ?? []).map((result: PackageResult) => (
           <li
             key={`${result.name}@${result.version}`}
             className="flex flex-wrap items-center gap-2"
           >
             <StatusBadge status={result.status} />
-            <span className="font-medium text-slate-900">
+            <span className="font-medium text-[var(--ci-ink)]">
               {result.name}@{result.version}
             </span>
-            <span className="text-slate-500">{resultSummary(result)}</span>
+            <span className="text-[var(--ci-ink-muted)]">{resultSummary(result)}</span>
           </li>
         ))}
       </ul>
       {warnings.length > 0 && (
-        <details className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <details className="rounded-none border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-200">
           <summary className="cursor-pointer font-medium">
             {warnings.length} warning{warnings.length === 1 ? "" : "s"}
           </summary>
@@ -190,17 +190,17 @@ function UninstallControl({
     <div className="flex items-center justify-end gap-1">
       {confirming ? (
         <>
-          <span className="mr-1 text-xs text-slate-600">
+          <span className="mr-1 text-xs text-[var(--ci-ink-muted)]">
             Delete what it installed?
           </span>
           <RowButton
-            className="rounded-sm px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+            className="rounded-none px-2 py-1 text-xs font-medium text-[var(--ci-ink-muted)] hover:bg-[var(--ci-surface-sunken)] hover:text-[var(--ci-ink)]"
             onClick={() => setConfirming(false)}
           >
             Cancel
           </RowButton>
           <RowButton
-            className="rounded-sm bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+            className="rounded-none bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
             onClick={() => {
               setConfirming(false);
               onUninstall(guide);
@@ -211,7 +211,7 @@ function UninstallControl({
         </>
       ) : (
         <RowButton
-          className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+          className="rounded-none border border-[var(--ci-line-strong)] px-2 py-1 text-xs font-medium text-[var(--ci-ink)] hover:border-red-400 hover:bg-red-500/10 hover:text-red-600"
           onClick={() => setConfirming(true)}
         >
           Uninstall
@@ -234,7 +234,7 @@ function InstalledPackages({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+      <div className="flex items-center gap-2 py-4 text-xs text-[var(--ci-ink-muted)]">
         <Loading />
         <span>Loading packages...</span>
       </div>
@@ -243,8 +243,8 @@ function InstalledPackages({
 
   if (guides.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-500">
-        <PuzzlePieceIcon className="h-8 w-8 text-slate-300" />
+      <div className="flex flex-col items-center gap-2 py-10 text-xs text-[var(--ci-ink-muted)]">
+        <PuzzlePieceIcon className="h-8 w-8 text-[var(--ci-ink-subtle)]" />
         <span>No packages installed.</span>
       </div>
     );
@@ -389,10 +389,10 @@ export default function Packages() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6 overflow-y-auto text-slate-700">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-        <h1 className="text-2xl font-semibold text-slate-900">Packages</h1>
-        <p className="mt-1 max-w-3xl text-sm text-slate-500">
+    <div className="flex w-full flex-col gap-6 overflow-y-auto text-[var(--ci-ink)]">
+      <header className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 shadow-sm">
+        <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">Packages</h1>
+        <p className="mt-1 max-w-3xl text-xs text-[var(--ci-muted)]">
           Install FHIR packages (implementation guides such as US Core) into
           this project. Their profiles are enforced when resources are written,
           their SearchParameters can be searched, and their ValueSets and
@@ -406,7 +406,7 @@ export default function Packages() {
           <>
             Name packages from{" "}
             <a
-              className="text-brand-700 hover:underline"
+              className="text-[var(--ci-signal-ink)] hover:underline"
               href="https://packages.fhir.org"
               target="_blank"
               rel="noreferrer"
@@ -463,7 +463,7 @@ export default function Packages() {
         action={
           <button
             title="Refresh"
-            className="rounded-md border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50"
+            className="rounded-none border border-[var(--ci-line)] p-1.5 text-[var(--ci-ink-muted)] hover:bg-[var(--ci-surface-sunken)] hover:text-[var(--ci-ink)] transition-colors"
             onClick={loadGuides}
           >
             <ArrowPathIcon className="h-4 w-4" />

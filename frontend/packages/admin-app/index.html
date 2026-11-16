@@ -4,11 +4,34 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#f1eee7" />
     <meta name="description" content="Haste Health admin app" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Admin</title>
+    <script>
+      // Apply the stored theme before the stylesheet paints. Light is the
+      // default; "system" follows the operating system.
+      (function () {
+        try {
+          var pref =
+            localStorage.getItem("hastehealth-theme-preference") ||
+            localStorage.getItem("hastehealth-theme");
+          var dark =
+            pref === "dark" ||
+            (pref === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.setAttribute(
+            "data-theme",
+            dark ? "dark" : "light",
+          );
+          var accent = localStorage.getItem("hastehealth-theme-accent");
+          if (accent && accent !== "teal") {
+            document.documentElement.setAttribute("data-accent", accent);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

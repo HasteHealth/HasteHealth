@@ -49,7 +49,7 @@ function SlugHint({
 }>) {
   if (typed && !slug) {
     return (
-      <span className="text-amber-700">
+      <span className="text-[var(--ci-signal)] font-mono text-xs">
         Add more letters or numbers: an address needs at least {MIN_SLUG_LENGTH}{" "}
         characters.
       </span>
@@ -58,10 +58,10 @@ function SlugHint({
   if (!finalSlug) return null;
 
   return (
-    <span className="text-slate-500">
-      Address: <span className="font-mono text-slate-700">{finalSlug}</span>
+    <span className="text-[var(--ci-muted)] font-mono text-xs">
+      Address: <span className="text-[var(--ci-ink)] font-semibold">{finalSlug}</span>
       {adjusted && (
-        <span className="text-amber-700">
+        <span className="text-[var(--ci-signal)]">
           {" "}
           ({slug} is taken, so this one is free)
         </span>
@@ -149,7 +149,7 @@ function CreateProjectForm({
         </label>
         <input
           aria-describedby="new-project-slug"
-          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+          className="min-w-0 flex-1 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 text-xs font-mono text-[var(--ci-ink)] placeholder:text-[var(--ci-muted)] focus:border-[var(--ci-signal)] focus:outline-none transition-colors"
           disabled={creating}
           id="new-project-name"
           onChange={(event) => setName(event.target.value)}
@@ -157,17 +157,17 @@ function CreateProjectForm({
           value={name}
         />
         <button
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-none bg-[var(--ci-signal)] px-4 py-2 text-xs font-mono font-medium text-[var(--ci-on-signal)] hover:bg-[var(--ci-signal-hover)] disabled:cursor-not-allowed disabled:bg-[var(--ci-surface-sunken)] disabled:text-[var(--ci-muted)] transition-colors"
           disabled={creating || !finalSlug}
           type="submit"
         >
           {creating ? "Creating…" : "Create and open"}
-          <ArrowRightIcon className="h-4 w-4" />
+          <ArrowRightIcon className="h-3.5 w-3.5" />
         </button>
       </form>
 
       {/* The id is the address, so it is shown before the write. */}
-      <p className="min-h-5 text-xs" id="new-project-slug">
+      <p className="min-h-5 text-xs font-mono" id="new-project-slug">
         <SlugHint
           adjusted={adjusted}
           finalSlug={finalSlug}
@@ -193,19 +193,19 @@ function GettingStarted({
   takenIds: string[];
 }>) {
   return (
-    <section className="overflow-hidden rounded-lg border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-6 shadow-xs">
+    <section className="overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-6 shadow-sm">
       <div className="flex items-start gap-3">
-        <span className="hidden rounded-md bg-brand-600/10 p-2 text-brand-700 sm:block">
+        <span className="hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-2 text-[var(--ci-signal)] sm:block">
           <BoltIcon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1 space-y-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-base font-mono font-semibold text-[var(--ci-ink)]">
               {hasProjects
                 ? "Spin up another sandbox"
                 : "Try the FHIR API in a sandbox"}
             </h2>
-            <p className="max-w-2xl text-sm text-slate-600">
+            <p className="max-w-2xl text-xs text-[var(--ci-muted)] leading-relaxed">
               A project is an isolated FHIR server with its own data, its own
               users and the full REST API. Name one and it opens in a new tab,
               ready for creating resources and running searches.
@@ -216,19 +216,19 @@ function GettingStarted({
             <CreateProjectForm onCreated={onCreated} takenIds={takenIds} />
           </div>
 
-          <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-[var(--ci-muted)]">
             <span className="inline-flex items-center gap-1">
               <CommandLineIcon className="h-3.5 w-3.5" />
               Opens the console, where every resource type is browsable and
               editable
             </span>
             <a
-              className="text-brand-700 hover:underline"
-              href="https://haste.health"
+              className="text-[var(--ci-signal)] hover:underline"
+              href="https://hl7.org/fhir/R4/"
               rel="noreferrer"
               target="_blank"
             >
-              Read the docs
+              FHIR R4 spec
             </a>
           </p>
         </div>
@@ -255,12 +255,12 @@ function ProjectCard({
     <article
       className={
         highlight
-          ? "flex flex-col rounded-lg border-2 border-brand-500 bg-white shadow-xs ring-2 ring-brand-100"
-          : "flex flex-col rounded-lg border border-slate-200 bg-white shadow-xs transition hover:border-brand-300 hover:shadow-md"
+          ? "flex flex-col rounded-none border-2 border-[var(--ci-signal)] bg-[var(--ci-surface)] shadow-sm"
+          : "flex flex-col rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] shadow-sm transition hover:border-[var(--ci-signal)]"
       }
     >
       <button
-        className="group flex-1 rounded-t-lg p-5 text-left hover:bg-brand-50/40 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:hover:bg-gray-50"
+        className="group flex-1 rounded-none p-5 text-left hover:bg-[var(--ci-surface-raised)] transition-colors disabled:cursor-not-allowed disabled:bg-[var(--ci-surface-sunken)]"
         disabled={system}
         onClick={() => openProject(project.id as string)}
         title={
@@ -268,51 +268,51 @@ function ProjectCard({
         }
       >
         <div className="flex items-start justify-between gap-2">
-          <h3 className="truncate text-base font-semibold text-slate-900 group-disabled:text-slate-400">
+          <h3 className="truncate text-sm font-mono font-semibold text-[var(--ci-ink)] group-disabled:text-[var(--ci-muted)] group-hover:text-[var(--ci-signal)] transition-colors">
             {project.name ?? "Unnamed Project"}
           </h3>
-          <ArrowTopRightOnSquareIcon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 group-hover:text-brand-600 group-disabled:invisible" />
+          <ArrowTopRightOnSquareIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ci-muted)] group-hover:text-[var(--ci-signal)] group-disabled:invisible transition-colors" />
         </div>
-        <p className="mt-1 truncate font-mono text-xs text-slate-500">
+        <p className="mt-1 truncate font-mono text-xs text-[var(--ci-muted)]">
           {project.id}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 group-disabled:bg-slate-100 group-disabled:text-slate-500">
+          <span className="inline-flex items-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-0.5 text-[10px] font-mono font-medium text-[var(--ci-signal-ink)]">
             FHIR {project.fhirVersion?.toUpperCase()}
           </span>
           {system && (
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+            <span className="inline-flex items-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] px-2 py-0.5 text-[10px] font-mono font-medium text-[var(--ci-muted)]">
               This console
             </span>
           )}
           {project.identityProvider?.length ? (
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+            <span className="inline-flex items-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-2 py-0.5 text-[10px] font-mono font-medium text-[var(--ci-muted)]">
               {project.identityProvider.length} identity provider
               {project.identityProvider.length === 1 ? "" : "s"}
             </span>
           ) : null}
         </div>
         {/* Kept even when hidden, so cards in a row stay aligned. */}
-        <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand-700 group-hover:underline group-disabled:invisible">
+        <span className="mt-4 inline-flex items-center gap-1 text-xs font-mono font-medium text-[var(--ci-signal)] group-hover:underline group-disabled:invisible">
           Open console
           <ArrowRightIcon className="h-3.5 w-3.5" />
         </span>
       </button>
 
-      <div className="flex items-center justify-end gap-1 border-t border-slate-100 px-4 py-2">
+      <div className="flex items-center justify-end gap-1 border-t border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] px-4 py-2">
         {confirmingDelete ? (
           <>
-            <span className="mr-auto text-xs text-slate-600">
+            <span className="mr-auto text-xs font-mono text-[var(--ci-muted)]">
               Delete this project?
             </span>
             <button
-              className="rounded-sm px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-none px-2 py-1 text-xs font-mono text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]"
               onClick={() => setConfirmingDelete(false)}
             >
               Cancel
             </button>
             <button
-              className="rounded-sm bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+              className="rounded-none bg-red-600 px-2 py-1 text-xs font-mono text-white hover:bg-red-700"
               onClick={() => {
                 onDelete(project.id!);
                 setConfirmingDelete(false);
@@ -326,7 +326,7 @@ function ProjectCard({
             <button
               title="Edit project settings"
               disabled={system}
-              className="rounded-sm p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:text-slate-300"
+              className="rounded-none p-1.5 text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)] disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
               onClick={() =>
                 navigate(
                   generatePath("/r/Project/:id", {
@@ -340,7 +340,7 @@ function ProjectCard({
             <button
               title="Delete project"
               disabled={system}
-              className="rounded-sm p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:text-slate-300"
+              className="rounded-none p-1.5 text-[var(--ci-muted)] hover:bg-red-950/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
               onClick={() => setConfirmingDelete(true)}
             >
               <TrashIcon className="h-4 w-4" />
@@ -358,13 +358,13 @@ function NewProjectCard() {
 
   return (
     <button
-      className="flex min-h-36 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-300 bg-white/50 p-5 text-slate-500 hover:border-brand-400 hover:text-brand-700"
+      className="flex min-h-36 flex-col items-center justify-center gap-1 rounded-none border border-dashed border-[var(--ci-line)] bg-[var(--ci-surface)] p-5 text-[var(--ci-muted)] hover:border-[var(--ci-signal)] hover:text-[var(--ci-signal)] transition-colors"
       onClick={() => navigate(generatePath("/r/Project/new", {}))}
       type="button"
     >
-      <PlusIcon className="h-6 w-6" />
-      <span className="text-sm font-medium">New project</span>
-      <span className="text-center text-xs text-slate-400">
+      <PlusIcon className="h-5 w-5" />
+      <span className="text-xs font-mono font-medium">New project</span>
+      <span className="text-center text-[10px] font-mono text-[var(--ci-muted)]">
         With identity providers and access policies
       </span>
     </button>
@@ -452,8 +452,8 @@ export default function Projects() {
   return (
     <div className="flex w-full flex-col gap-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold text-slate-900">Projects</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-xl font-mono font-semibold text-[var(--ci-ink)]">Projects</h1>
+        <p className="text-xs font-mono text-[var(--ci-muted)]">
           Isolated FHIR sandboxes. Open one to use its API, or manage the users
           and identity providers that reach it.
         </p>
@@ -468,7 +468,7 @@ export default function Projects() {
       )}
 
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-xs font-mono text-[var(--ci-muted)]">
           <Loading />
           <span>Loading projects…</span>
         </div>
@@ -476,7 +476,7 @@ export default function Projects() {
         // On a first run the form above is the whole page.
         sandboxCount > 0 && (
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-slate-700">
+            <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
               Your projects ({sandboxCount})
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
