@@ -1,0 +1,8 @@
+{
+  "description": "A member using the clinician matrix from the Roles & Permissions studio: Observation create/read/update, Patient read, and refusals for delete and unconfigured types.",
+  "grantType": "authorization_code",
+  "userEmail": "policy-studio-member@example.org",
+  "clientId": "policy-studio-app",
+  "redirectUri": "http://127.0.0.1:8976/callback",
+  "scope": "openid offline_access user/*.*"
+}

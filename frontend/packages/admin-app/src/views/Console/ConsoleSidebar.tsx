@@ -14,6 +14,7 @@ import {
   MagnifyingGlassIcon,
   PuzzlePieceIcon,
   QuestionMarkCircleIcon,
+  ShieldCheckIcon,
   Squares2X2Icon,
   StarIcon,
   TableCellsIcon,
@@ -59,6 +60,7 @@ const OPERATE_LINKS = [
     label: "Custom operations",
     Icon: CommandLineIcon,
   },
+  { path: "/roles", label: "Roles & permissions", Icon: ShieldCheckIcon },
   { path: "/settings", label: "Settings", Icon: Cog6ToothIcon },
 ];
 

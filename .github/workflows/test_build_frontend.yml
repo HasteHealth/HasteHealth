@@ -47,3 +47,7 @@ jobs:
       - name: Build dependencies
         run: pnpm ci:build
         working-directory: ./frontend
+
+      - name: Run admin app unit tests
+        run: pnpm --filter @haste-health/admin-app test
+        working-directory: ./frontend

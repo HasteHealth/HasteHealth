@@ -44,6 +44,7 @@ import { Shortcut, useShortcuts } from "./hooks/useShortcuts";
 import { ShortcutHelp } from "./components/ShortcutHelp";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
+import PolicyStudio from "./views/Roles/PolicyStudio";
 // import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
 import {
   deriveProjectId,
@@ -348,6 +349,11 @@ const router =
                           id: "packages",
                           path: "packages",
                           element: <Packages />,
+                        },
+                        {
+                          id: "roles",
+                          path: "roles",
+                          element: <PolicyStudio />,
                         },
                       ],
                     },
