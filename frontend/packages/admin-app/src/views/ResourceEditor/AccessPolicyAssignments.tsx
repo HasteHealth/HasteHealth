@@ -65,6 +65,15 @@ function describe(resource: Resource | undefined): string | undefined {
   }
 }
 
+function AssignmentType({ reference }: Readonly<{ reference: Reference }>) {
+  const { resourceType } = splitReference(reference);
+  return (
+    <Tag color={TYPE_COLORS[resourceType] ?? "gray"}>
+      {resourceType ?? "Unknown"}
+    </Tag>
+  );
+}
+
 function AssignmentTarget({
   reference,
   resolved,
@@ -79,33 +88,34 @@ function AssignmentTarget({
   const name = describe(target);
 
   return (
-    <div className="flex items-center min-w-0">
-      <Tag color={TYPE_COLORS[resourceType] ?? "gray"}>{resourceType}</Tag>
-      <div className="flex flex-col min-w-0">
-        {resourceType && resourceId ? (
-          <Link
-            className="truncate font-medium text-brand-600 hover:text-brand-700 hover:underline"
-            to={generatePath("/r/:resourceType/:id", {
-              resourceType,
-              id: resourceId,
-            })}
-          >
-            {name ?? resourceId}
-          </Link>
-        ) : (
-          <span className="truncate font-medium">{reference.reference}</span>
+    <div className="flex min-w-0 flex-col gap-0.5">
+      {resourceType && resourceId ? (
+        <Link
+          className="truncate font-medium text-brand-600 hover:text-brand-700 hover:underline"
+          to={generatePath("/r/:resourceType/:id", {
+            resourceType,
+            id: resourceId,
+          })}
+          title={name ?? resourceId}
+        >
+          {name ?? resourceId}
+        </Link>
+      ) : (
+        <span className="truncate font-medium">{reference.reference}</span>
+      )}
+      {name && (
+        <span
+          className="truncate text-xs text-slate-500"
+          title={reference.reference}
+        >
+          {reference.reference}
+        </span>
+      )}
+      {reference.reference &&
+        reference.reference in resolved &&
+        target === undefined && (
+          <span className="text-xs text-red-600">Not found</span>
         )}
-        {name && (
-          <span className="truncate text-xs text-slate-500">
-            {reference.reference}
-          </span>
-        )}
-        {reference.reference &&
-          reference.reference in resolved &&
-          target === undefined && (
-            <span className="text-xs text-red-600">Not found</span>
-          )}
-      </div>
     </div>
   );
 }
@@ -434,19 +444,20 @@ export default function AccessPolicyAssignments({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
+          <table className="w-full border-collapse text-left text-sm text-slate-600">
             <thead className="border-b text-xs font-medium">
               <tr>
-                <th className="px-4 py-2">Assigned to</th>
-                <th className="px-4 py-2">Change</th>
-                <th className="px-4 py-2" />
+                <th className="whitespace-nowrap px-4 py-2">Type</th>
+                <th className="px-4 py-2">Target</th>
+                <th className="whitespace-nowrap px-4 py-2">Change</th>
+                <th className="whitespace-nowrap px-4 py-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {assignments.length === 0 && legacyTargets.length === 0 && (
                 <tr>
                   <td
-                    colSpan={3}
+                    colSpan={4}
                     className="px-4 py-6 text-center text-slate-500"
                   >
                     Not assigned to anything yet.
@@ -455,18 +466,24 @@ export default function AccessPolicyAssignments({
               )}
               {assignments.map((assignment) => (
                 <tr key={assignment.id} className="border-b">
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 align-middle">
+                    <AssignmentType reference={assignment.link} />
+                  </td>
+                  <td className="px-4 py-3 align-middle">
                     <AssignmentTarget
                       reference={assignment.link}
                       resolved={resolved}
                     />
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 align-middle">
                     <FHIRReferenceEditable
                       resourceTypesAllowed={ASSIGNABLE_TYPES}
                       fhirVersion={R4}
                       client={client}
                       value={assignment.link}
+                      showValue={false}
+                      searchLabel="Change"
+                      searchAriaLabel={`Change the assignment target (currently ${assignment.link.reference})`}
                       onChange={(link) => {
                         if (
                           link?.reference &&
@@ -477,7 +494,7 @@ export default function AccessPolicyAssignments({
                       }}
                     />
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-3 text-right align-middle">
                     <Button
                       buttonType="secondary"
                       buttonSize="small"
@@ -497,22 +514,25 @@ export default function AccessPolicyAssignments({
                   key={`legacy-${target.link.reference}-${index}`}
                   className="border-b bg-yellow-50"
                 >
-                  <td className="px-4 py-2">
-                    <div className="flex items-center">
+                  <td className="px-4 py-3 align-middle">
+                    <AssignmentType reference={target.link} />
+                  </td>
+                  <td className="px-4 py-3 align-middle">
+                    <div className="flex min-w-0 items-center gap-2">
                       <AssignmentTarget
                         reference={target.link}
                         resolved={resolved}
                       />
-                      <Tag color="yellow" className="ml-2">
-                        deprecated target
+                      <Tag color="yellow" className="shrink-0">
+                        deprecated
                       </Tag>
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-xs text-slate-500">
+                  <td className="px-4 py-3 text-xs text-slate-500 align-middle">
                     Set in <span className="font-mono">target.link</span> on the
                     policy.
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-3 text-right align-middle">
                     <Button
                       buttonType="secondary"
                       buttonSize="small"
