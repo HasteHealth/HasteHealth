@@ -379,7 +379,7 @@ async fn resolve_conditional_references<B: Backend>(
         .into_iter()
         .map(|(search_uri, references)| async move {
             let search = conditional_reference_search(&search_uri)?;
-            let filters = scope_check::search_filters(&ctx.user.claims, &search.resource_type)?;
+            let filters = scope_check::search_filters(&ctx.user.claims, &search)?;
             let search = SearchRequest::Type(search);
             if let Some(policy) = policy {
                 policy.check(&FHIRRequest::Search(search.clone())).await?;
