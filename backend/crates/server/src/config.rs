@@ -270,6 +270,14 @@ pub enum SecretProviderConfig {
 pub struct FHIRConfig {
     /// Max delete limit for type-delete and system-delete operations.
     pub delete_limit: u64,
+    /// Most distinct conditional references (`Type?search`) one transaction may
+    /// resolve; a bundle above this is refused. Each is a search, so it caps a
+    /// transaction's search work. The largest Synthea sample patient has 19.
+    pub max_conditional_references: usize,
+    /// How many of a transaction's conditional-reference searches run at once.
+    /// Kept below `search.max_connections` (default 20) so one transaction
+    /// cannot monopolize the shared search pool. 0 is treated as 1.
+    pub conditional_reference_concurrency: usize,
 }
 
 #[derive(Derivative, Clone, Deserialize, Serialize)]
@@ -305,7 +313,11 @@ pub enum IpSource {
 
 impl Default for FHIRConfig {
     fn default() -> Self {
-        Self { delete_limit: 100 }
+        Self {
+            delete_limit: 100,
+            max_conditional_references: 100,
+            conditional_reference_concurrency: 12,
+        }
     }
 }
 

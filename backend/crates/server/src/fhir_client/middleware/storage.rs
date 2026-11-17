@@ -85,24 +85,69 @@ pub async fn read_patch_target<Repo: Repository>(
     })
 }
 
+/// The most bytes the `copy` operations of one patch may add to a resource.
+/// `copy` is the only operation that adds more than its request carries.
+const MAX_PATCH_COPY_BYTES: usize = 4 * 1024 * 1024;
+
+/// The memory a copy of `value` takes, in bytes.
+fn json_size(value: &serde_json::Value) -> usize {
+    use serde_json::Value;
+
+    size_of::<Value>()
+        + match value {
+            Value::String(text) => text.len(),
+            Value::Array(items) => items.iter().map(json_size).sum(),
+            Value::Object(fields) => fields
+                .iter()
+                .map(|(name, value)| name.len() + json_size(value))
+                .sum(),
+            _ => 0,
+        }
+}
+
+/// Refuses a patch whose copies exceed [`MAX_PATCH_COPY_BYTES`].
+fn copies_too_much() -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!("JSON patch copies more than {MAX_PATCH_COPY_BYTES} bytes."),
+    );
+
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
 /// Applies the patch to `resource`, which may not change its type or `id`.
 ///
 /// # Errors
 ///
-/// Returns an error when the patch does not apply, its result is not a valid
-/// resource, or the type or `id` changed.
+/// Returns an error when the patch does not apply, copies more than
+/// [`MAX_PATCH_COPY_BYTES`], its result is not a valid resource, or the type
+/// or `id` changed.
 pub fn patch_resource(
     resource: &Resource,
     fhir_patch_request: &FHIRPatchRequest,
 ) -> Result<Resource, OperationOutcomeError> {
     let mut json: serde_json::Value = serde_json::to_value(resource).map_err(ServerError::from)?;
 
-    json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            format!("Failed to apply JSON patch: '{e}'"),
-        )
-    })?;
+    // `json` is dropped when the patch fails, so the operations are applied
+    // one by one without the undo log `json_patch::patch` keeps.
+    let mut copy_budget = MAX_PATCH_COPY_BYTES;
+    for (index, operation) in fhir_patch_request.patch.iter().enumerate() {
+        if let json_patch::PatchOperation::Copy(copy) = operation
+            && let Some(source) = json.pointer(copy.from.as_str())
+        {
+            copy_budget = copy_budget
+                .checked_sub(json_size(source))
+                .ok_or_else(copies_too_much)?;
+        }
+
+        json_patch::patch_unsafe(&mut json, std::slice::from_ref(operation)).map_err(|mut e| {
+            e.operation = index;
+            OperationOutcomeError::error(
+                IssueType::invalid(),
+                format!("Failed to apply JSON patch: '{e}'"),
+            )
+        })?;
+    }
 
     let patched_resource = serde_json::from_value::<Resource>(json).map_err(|e| {
         OperationOutcomeError::error(
@@ -851,7 +896,7 @@ impl<B: Backend> Handler<B> for Storage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use haste_fhir_model::r4::generated::resources::Patient;
+    use haste_fhir_model::r4::generated::resources::{Patient, ResourceType};
 
     /// `fullUrl` has to address the resource under the FHIR root. The root's
     /// last segment is `fhir`, which `Url::join` would treat as the document to
@@ -872,6 +917,66 @@ mod tests {
         assert_eq!(
             entry.fullUrl.and_then(|url| url.value).as_deref(),
             Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
+    }
+
+    fn patch_patient(operations: serde_json::Value) -> Result<Resource, OperationOutcomeError> {
+        let patient = serde_json::from_str(
+            r#"{"resourceType":"Patient","id":"jp","name":[{"family":"Doe","given":["Jo"]}]}"#,
+        )
+        .unwrap();
+
+        patch_resource(
+            &patient,
+            &FHIRPatchRequest {
+                resource_type: ResourceType::Patient,
+                id: "jp".to_string(),
+                patch: serde_json::from_value(operations).unwrap(),
+            },
+        )
+    }
+
+    #[test]
+    fn patch_copies_a_value() {
+        let patched = patch_patient(serde_json::json!([
+            {"op": "copy", "from": "/name/0", "path": "/name/-"}
+        ]))
+        .unwrap();
+
+        let Resource::Patient(patient) = patched else {
+            panic!("patched resource is not a Patient");
+        };
+        assert_eq!(patient.name.map(|names| names.len()), Some(2));
+    }
+
+    /// Copying an array into itself doubles it, so 64 copies cannot be applied.
+    #[test]
+    fn patch_refuses_copies_over_the_limit() {
+        let copy = serde_json::json!({"op": "copy", "from": "/name", "path": "/name/-"});
+
+        let error = patch_patient(vec![copy; 64].into()).unwrap_err();
+
+        assert_eq!(error.http_status(), 422);
+        assert_eq!(error.outcome().issue[0].code.as_str(), Some("too-costly"));
+    }
+
+    /// A failed operation is reported by its position in the patch.
+    #[test]
+    fn patch_error_names_the_failed_operation() {
+        let error = patch_patient(serde_json::json!([
+            {"op": "test", "path": "/id", "value": "jp"},
+            {"op": "remove", "path": "/missing"}
+        ]))
+        .unwrap_err();
+
+        let diagnostics = error.outcome().issue[0].diagnostics.as_ref().unwrap();
+        assert!(
+            diagnostics
+                .value
+                .as_deref()
+                .unwrap()
+                .contains("operation '/1'"),
+            "{diagnostics:?}"
         );
     }
 }
