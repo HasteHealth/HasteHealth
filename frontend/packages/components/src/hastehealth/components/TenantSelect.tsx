@@ -16,19 +16,14 @@ export interface TenantSelectProps {
 
 export const InitialDisplay = ({ value }: { value: string }) => {
   const initial = value.substring(0, 1).toUpperCase();
-  const color = generateTailwindColorFromValue(value);
 
   return (
     <div
       className={classNames(
-        "w-8 h-8 flex justify-center items-center rounded-full",
-        `bg-${color}-100`,
-        `text-${color}-800`,
-        `dark:bg-${color}-800`,
-        `dark:text-${color}-100`,
+        "w-8 h-8 flex justify-center items-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-signal)] font-mono text-xs font-bold",
       )}
     >
-      <span className="font-bold">{initial}</span>
+      <span>{initial}</span>
     </div>
   );
 };
@@ -42,7 +37,7 @@ export const TenantSelect = ({
 }: TenantSelectProps) => {
   return (
     <Container logo={logo} title={title}>
-      <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <h1 className="text-lg font-mono font-bold uppercase tracking-wider text-[var(--ci-ink)] md:text-xl">
         Choose a tenant
       </h1>
       <ul className="space-y-2">
@@ -51,21 +46,20 @@ export const TenantSelect = ({
             <li key={t.id}>
               <a
                 href={generateTenantURL(email, t.id)}
-                className="p-2 flex cursor-pointer hover:bg-brand-50 dark:hover:bg-brand-800"
+                className="p-2.5 flex cursor-pointer rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] hover:bg-[var(--ci-surface-raised)] transition-colors"
               >
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="shrink-0">
+                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                  <div className="flex-shrink-0">
                     <InitialDisplay value={t.id as string} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                    <p className="text-xs font-mono font-medium text-[var(--ci-ink)] truncate">
                       {t.id}
                     </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
+                    <p className="text-[11px] font-mono text-[var(--ci-muted)] truncate">
                       {t.userRole}
                     </p>
                   </div>
-                  <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white"></div>
                 </div>
               </a>
             </li>

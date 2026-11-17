@@ -26,7 +26,7 @@ export const FhirCodeableConceptEditable = ({
         {value?.coding?.map((coding, index) => (
           <div
             key={`${coding.code}-${coding.system}`}
-            className="relative rounded-md border border-slate-200 bg-white p-2 pr-8"
+            className="relative rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-2 pr-8 text-[var(--ci-ink)]"
           >
             <FHIRCodingEditable
               fhirVersion={fhirVersion}
@@ -42,7 +42,7 @@ export const FhirCodeableConceptEditable = ({
             />
             <button
               type="button"
-              className="absolute right-1.5 top-1.5 rounded-xs p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              className="absolute right-1.5 top-1.5 rounded-none p-0.5 text-[var(--ci-muted)] transition-colors hover:bg-[var(--ci-surface-raised)] hover:text-[var(--ci-ink)]"
               onClick={() => {
                 const newCoding: Coding[] = [...(value?.coding || [])];
                 newCoding.splice(index, 1);

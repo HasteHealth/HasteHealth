@@ -29,11 +29,13 @@ export function SideBarItem({
     >
       <div
         className={classNames(
-          "cursor-pointer flex items-center p-1 px-2 group rounded-lg group",
+          "cursor-pointer flex items-center px-3 py-2 group transition-colors text-sm",
           isOpen ? undefined : "justify-center",
           {
-            "text-slate-800 hover:bg-slate-200": !active,
-            "text-brand-900 bg-brand-200": active,
+            "text-[var(--ci-ink-muted)] hover:text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] border-l-2 border-transparent":
+              !active,
+            "text-[var(--ci-signal-ink)] bg-[var(--ci-signal-soft)] border-l-2 border-[var(--ci-signal)] font-medium":
+              active,
           },
         )}
       >
@@ -70,9 +72,11 @@ export function SideBarItemGroup({
   return (
     <li {...props}>
       {isOpen ? (
-        <div className="px-2 text-brand-900 text-xs underline">{label}</div>
+        <div className="px-3 mb-1 text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
+          {label}
+        </div>
       ) : (
-        <div className="mx-2 border-t border-slate-200" />
+        <div className="mx-2 border-t border-[var(--ci-line)]" />
       )}
       <div className={classNames("mt-1", { "ml-1": isOpen })}>
         <ul className="space-y-1">{children}</ul>
@@ -97,7 +101,7 @@ export function SideBar({
       <aside
         id="sidebar-multi-level-sidebar"
         className={classNames(
-          "relative flex h-full shrink-0 flex-col border-r bg-white transition-[width] duration-200",
+          "relative flex h-full shrink-0 flex-col border-r border-[var(--ci-line)] bg-[var(--ci-surface)] transition-[width] duration-200",
           isOpen ? "w-[260px]" : "w-[76px]",
         )}
         aria-label="Sidebar"
@@ -113,7 +117,7 @@ export function SideBar({
             type="button"
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
             onClick={onToggle}
-            className="absolute top-1/2 -right-3 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-xs hover:text-slate-700"
+            className="absolute top-1/2 -right-3 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink-muted)] shadow-sm hover:text-[var(--ci-ink)] hover:border-[var(--ci-signal)]"
           >
             {isOpen ? (
               <ChevronLeftIcon className="h-4 w-4" />
@@ -137,11 +141,11 @@ export const SidebarLayout = ({
   sidebar: React.ReactNode;
 }) => {
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-screen w-full bg-[var(--ci-bg)] text-[var(--ci-ink)]">
       {sidebar}
       <div className="flex min-w-0 flex-1 flex-col">
         {navbar}
-        <div className="flex-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden bg-[var(--ci-bg)]">
           {children}
         </div>
       </div>

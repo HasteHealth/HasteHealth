@@ -11,7 +11,7 @@ export const FHIRHumanNameReadOnly = ({
 }: Readonly<FHIRHumanNameReadOnlyProps>) => {
   if (value?.text) {
     return (
-      <span className="whitespace-nowrap text-slate-700">{value.text}</span>
+      <span className="whitespace-nowrap text-[var(--ci-ink)]">{value.text}</span>
     );
   }
 
@@ -20,13 +20,13 @@ export const FHIRHumanNameReadOnly = ({
     .join(" ");
 
   return (
-    <span className="inline-flex items-baseline gap-1 whitespace-nowrap">
-      {lead && <span className="text-slate-700">{lead}</span>}
+    <span className="inline-flex items-baseline gap-1 whitespace-nowrap text-[var(--ci-ink)]">
+      {lead && <span>{lead}</span>}
       {value?.family && (
-        <span className="font-semibold text-slate-800">{value.family}</span>
+        <span className="font-semibold">{value.family}</span>
       )}
       {value?.suffix && (
-        <span className="text-slate-500">{value.suffix.join(" ")}</span>
+        <span className="text-[var(--ci-muted)]">{value.suffix.join(" ")}</span>
       )}
     </span>
   );

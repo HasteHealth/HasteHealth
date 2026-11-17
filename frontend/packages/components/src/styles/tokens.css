@@ -1,0 +1,17 @@
+/*
+ * Legacy application aliases.
+ *
+ * The Clinical Instrument palette (`--ci-*`) in `clinical-instrument.css` is
+ * the theme API. These two names are the only legacy colour aliases still
+ * referenced by the admin app; new code should use the `--ci-*` tokens
+ * directly.
+ */
+:root {
+  --color-warning: #ea580c;
+  --color-warning-strong: #ea580c;
+}
+
+html[data-theme="dark"] {
+  --color-warning: #fb923c;
+  --color-warning-strong: #fb923c;
+}

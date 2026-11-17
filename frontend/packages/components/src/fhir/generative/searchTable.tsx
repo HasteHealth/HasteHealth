@@ -140,9 +140,9 @@ function SearchColumnModalBody({
   } = useRowKeys(value.value.length);
 
   return (
-    <div className="space-y-4 text-slate-600">
-      <fieldset className="text-sm">
-        <legend className="mb-1">Modifiers</legend>
+    <div className="space-y-4 font-mono text-xs text-[var(--ci-ink)]">
+      <fieldset className="text-xs">
+        <legend className="mb-1 uppercase tracking-wider text-[var(--ci-muted)]">Modifiers</legend>
         <div>
           <Select
             value={value.modifier}
@@ -161,8 +161,8 @@ function SearchColumnModalBody({
         </div>
       </fieldset>
 
-      <fieldset className=" text-sm">
-        <legend className="mb-1">Values</legend>
+      <fieldset className="text-xs">
+        <legend className="mb-1 uppercase tracking-wider text-[var(--ci-muted)]">Values</legend>
         <div className="space-y-1">
           {value.value.map((v, i) => {
             return (
@@ -194,7 +194,7 @@ function SearchColumnModalBody({
           })}
           <button
             type="button"
-            className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
+            className="cursor-pointer mt-1 font-mono text-xs text-[var(--ci-muted)] hover:text-[var(--ci-signal)] transition-colors"
             onClick={() => {
               onRowAdd();
               props.onChange({
@@ -264,15 +264,15 @@ function SearchColumnModal(props: Readonly<SearchColumnModalProps>) {
     <div>
       <div className="mb-2">
         <div>
-          <span className="font-semibold text-base">
+          <span className="font-mono text-sm font-semibold text-[var(--ci-ink)]">
             {props.searchParameter.name}
           </span>
-          <span className="ml-2 text-slate-400 text-sm">
+          <span className="ml-2 font-mono text-xs text-[var(--ci-muted)]">
             {props.searchParameter.type}
           </span>
         </div>
-        <div className="mt-1 text-xs text-nowrap truncate">
-          <span className="ml-2 text-slate-400 ">
+        <div className="mt-1 text-xs text-nowrap truncate font-mono">
+          <span className="ml-2 font-mono text-xs text-[var(--ci-muted)]">
             {props.searchParameter.expression}
           </span>
         </div>
@@ -573,7 +573,7 @@ function SearchParameterSortControl({
       return (
         <ArrowUpIcon
           className={classNames(
-            "cursor-pointer w-4 h-4 hover:text-brand-400 text-brand-400",
+            "cursor-pointer w-4 h-4 text-[var(--ci-signal)] hover:opacity-80 transition-opacity",
           )}
           onClick={() => {
             const values = [
@@ -598,8 +598,8 @@ function SearchParameterSortControl({
     default: {
       return (
         <ArrowDownIcon
-          className={classNames("cursor-pointer w-4 h-4 hover:text-brand-400", {
-            "text-brand-400": (sortParam?.value ?? []).includes(
+          className={classNames("cursor-pointer w-4 h-4 hover:text-[var(--ci-signal)] transition-colors", {
+            "text-[var(--ci-signal)]": (sortParam?.value ?? []).includes(
               `-${searchParameter.code}`,
             ),
           })}
@@ -733,8 +733,8 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                             openParamModal(true);
                           }}
                         >
-                          <div className="mr-2">{searchParameter.code}</div>
-                          <FunnelIcon className="hover:text-brand-400 cursor-pointer w-4 h-4" />
+                          <div className="mr-2 font-mono text-xs">{searchParameter.code}</div>
+                          <FunnelIcon className="hover:text-[var(--ci-signal)] cursor-pointer w-3.5 h-3.5 transition-colors" />
                         </button>
                         <div className="flex justify-end">
                           <SearchParameterSortControl
@@ -766,7 +766,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
           <div className="mt-1 flex flex-col">
             <div className="flex items-center">
               <div className="flex flex-1 ">
-                <span className="text-xs text-slate-500 mr-2 text-ellipsis">
+                <span className="text-xs font-mono text-[var(--ci-muted)] mr-2 text-ellipsis">
                   {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
@@ -809,7 +809,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
               </div>
             </div>
             <div className="flex items-center justify-end">
-              <span className="text-xs text-slate-500 text-ellipsis">
+              <span className="text-xs font-mono text-[var(--ci-muted)] text-ellipsis">
                 {data.total ?? 0} total rows
               </span>
             </div>
