@@ -7672,6 +7672,8 @@
         },
         {
             "id": "fixture-too-many-conditionals",
+            "autocreate": false,
+            "autodelete": false,
             "resource": {
                 "reference": "#too-many-conditionals"
             }
