@@ -21,17 +21,17 @@ function DropDownMenu({ links, children }: DropdownMenuProps) {
       <div>
         <Menu.Button as="div">{children}</Menu.Button>
         <div className="relative">
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden">
+          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] py-1 font-mono text-xs shadow-2xl focus:outline-none">
             {links.map((link) => (
               <Menu.Item key={link.key}>
                 {({ active }) => (
                   <a
                     {...link}
                     className={classNames(
-                      "cursor-pointer block px-4 py-2 text-sm",
+                      "cursor-pointer block px-4 py-2 text-xs font-mono transition-colors",
                       active
-                        ? "bg-brand-600 text-white"
-                        : "text-brand-600 hover:bg-brand-600 hover:text-white",
+                        ? "bg-[var(--ci-signal)] text-[var(--ci-on-signal)]"
+                        : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)]",
                       link.className,
                     )}
                   >

@@ -8,7 +8,7 @@ export function Add({
   return (
     <button
       type="button"
-      className="flex items-center text-xs text-brand-500 cursor-pointer hover:text-brand-600"
+      className="flex items-center font-mono text-xs text-[var(--ci-signal)] cursor-pointer hover:underline uppercase tracking-wider transition-colors"
       onClick={() => {
         onChange();
       }}

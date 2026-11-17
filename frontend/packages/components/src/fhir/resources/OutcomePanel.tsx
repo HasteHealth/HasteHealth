@@ -85,20 +85,20 @@ function severityStyle(severity: string | undefined) {
     case "error":
       return {
         Icon: ExclamationCircleIcon,
-        row: "text-red-800",
-        chip: "bg-red-100 text-red-800",
+        row: "text-red-500",
+        chip: "border border-red-500/30 bg-red-500/10 text-red-500 rounded-none",
       };
     case "warning":
       return {
         Icon: ExclamationTriangleIcon,
-        row: "text-amber-800",
-        chip: "bg-amber-100 text-amber-800",
+        row: "text-amber-500",
+        chip: "border border-amber-500/30 bg-amber-500/10 text-amber-500 rounded-none",
       };
     default:
       return {
         Icon: InformationCircleIcon,
-        row: "text-slate-700",
-        chip: "bg-slate-100 text-slate-700",
+        row: "text-[var(--ci-ink)]",
+        chip: "border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] rounded-none",
       };
   }
 }
@@ -124,34 +124,34 @@ function Issue({ issue }: Readonly<{ issue: OperationOutcomeIssue }>) {
   const where = [...(issue.expression ?? []), ...(issue.location ?? [])];
 
   return (
-    <li className="border-t border-slate-200 px-3 py-2 first:border-t-0">
+    <li className="border-t border-[var(--ci-line)] px-3 py-2 first:border-t-0">
       <div className={classNames("flex items-start gap-2 text-sm", row)}>
         <Icon className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
               className={classNames(
-                "rounded-sm px-1.5 py-0.5 text-[11px] font-medium uppercase",
+                "rounded-none px-1.5 py-0.5 text-[10px] font-mono font-medium uppercase tracking-wider",
                 chip,
               )}
             >
               {issue.severity ?? "information"}
             </span>
             {issue.code && (
-              <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600">
+              <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--ci-muted)]">
                 {issue.code}
               </span>
             )}
           </div>
 
-          <p className="mt-1 whitespace-pre-wrap">
+          <p className="mt-1 whitespace-pre-wrap text-[var(--ci-ink)]">
             {issue.diagnostics ??
               issue.details?.text ??
               "No further detail was provided."}
           </p>
 
           {where.length > 0 && (
-            <p className="mt-1 font-mono text-xs text-slate-500">
+            <p className="mt-1 font-mono text-xs text-[var(--ci-muted)]">
               at {where.join(", ")}
             </p>
           )}
@@ -179,14 +179,14 @@ export function OutcomePanel({
   const issues = outcome.outcome?.issue ?? [];
 
   return (
-    <div className="overflow-hidden rounded-lg border border-red-200 bg-white">
-      <header className="flex flex-wrap items-center gap-2 border-b border-red-200 bg-red-50 px-3 py-2">
-        <ExclamationCircleIcon className="h-4 w-4 text-red-700" />
-        <span className="text-sm font-medium text-red-900">
+    <div className="overflow-hidden rounded-none border border-red-500/30 bg-[var(--ci-surface)] text-[var(--ci-ink)]">
+      <header className="flex flex-wrap items-center gap-2 border-b border-red-500/30 bg-red-500/10 px-3 py-2">
+        <ExclamationCircleIcon className="h-4 w-4 text-red-500" />
+        <span className="text-xs font-mono font-semibold uppercase tracking-wider text-red-400">
           {headerLabel(outcome.status)}
         </span>
         {request && (
-          <span className="rounded-sm bg-white/70 px-1.5 py-0.5 font-mono text-xs text-red-800">
+          <span className="rounded-none bg-red-500/20 px-1.5 py-0.5 font-mono text-[11px] text-red-300">
             {request.method} {request.path}
           </span>
         )}
@@ -199,15 +199,15 @@ export function OutcomePanel({
           ))}
         </ul>
       ) : (
-        <p className="px-3 py-3 text-sm text-slate-700">{outcome.message}</p>
+        <p className="px-3 py-3 text-xs font-mono text-[var(--ci-ink)]">{outcome.message}</p>
       )}
 
       {outcome.outcome && (
-        <details className="border-t border-slate-200">
-          <summary className="cursor-pointer px-3 py-2 text-xs text-slate-500 hover:bg-slate-50">
+        <details className="border-t border-[var(--ci-line)]">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-mono text-[var(--ci-muted)] hover:bg-[var(--ci-surface-raised)] transition-colors">
             Raw OperationOutcome
           </summary>
-          <pre className="max-h-64 overflow-auto bg-slate-50 px-3 py-2 font-mono text-xs text-slate-700">
+          <pre className="max-h-64 overflow-auto bg-[var(--ci-surface-sunken)] border-t border-[var(--ci-line)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)]">
             {JSON.stringify(outcome.outcome, null, 2)}
           </pre>
         </details>

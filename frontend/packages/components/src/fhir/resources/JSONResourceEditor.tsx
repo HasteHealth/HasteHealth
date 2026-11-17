@@ -98,14 +98,14 @@ export function JSONResourceEditor({
         <div className="flex flex-1 justify-end">
           {error ? (
             <span
-              className="flex items-center text-xs text-red-600"
+              className="flex items-center font-mono text-xs text-red-500"
               title={error}
             >
               <ExclamationCircleIcon className="mr-1 h-4 w-4" />
               <span className="max-w-96 truncate">{error}</span>
             </span>
           ) : (
-            <span className="flex items-center text-xs text-emerald-600">
+            <span className="flex items-center font-mono text-xs text-emerald-500">
               <CheckCircleIcon className="mr-1 h-4 w-4" />
               Valid JSON
             </span>
@@ -113,7 +113,7 @@ export function JSONResourceEditor({
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-auto border">
+      <div className="flex flex-1 overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
         <CodeMirror
           extensions={extensions}
           value={text}

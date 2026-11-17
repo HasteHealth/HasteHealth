@@ -57,6 +57,93 @@ export function PatientForm({ patientSD }: { patientSD: StructureDefinition }) {
 
 `FHIRGenerativeForm` renders an editor for every element of the StructureDefinition and applies edits as JSON patches, so `setValue` receives a function from the old resource to the new one. `client` is handed to the element editors that talk to the server, such as the reference picker and the coding and identifier editors.
 
+## Theming
+
+Every visual value the library uses is a CSS custom property, so a host app can
+re-theme the components without forking them. Override the variables on
+`:root`, or on a wrapper element to scope a theme to part of the page.
+
+### Brand and primary colour
+
+The `--hh-color-brand-*` scale is the primary colour API. It is a set of RGB
+channels, so Tailwind's alpha modifiers keep working. Teal is the default.
+
+```css
+:root {
+  --hh-color-brand-500: 20 184 166;
+  --hh-color-brand-600: 13 148 136;
+  --hh-color-brand-700: 15 118 110;
+}
+```
+
+`--ci-signal` follows `--hh-color-brand-600` (and its dark-theme value), so an
+existing brand override also re-colours primary buttons, selected rows and
+focus rings. `--ci-signal` remains directly overridable when a host wants the
+interactive colour to differ from the brand.
+
+The default is the original Haste Health light palette: white surfaces, slate
+ink and the teal brand. The **Ember** accent (`data-accent="ember"`) switches
+both the brand to orange-red and the light surfaces to the warm paper palette.
+Every component picks it up through `--ci-signal` and the surface tokens.
+
+```html
+<html lang="en" data-theme="light" data-accent="ember">
+```
+
+### Semantic tokens
+
+The default light theme keeps the original white/slate surfaces with the teal
+brand. Override any of these to change the surfaces and ink independently of the
+brand:
+
+```css
+:root {
+  --ci-bg: #f1f5f9;
+  --ci-surface: #ffffff;
+  --ci-surface-raised: #ffffff;
+  --ci-surface-sunken: #f8fafc;
+  --ci-ink: #0f172a;
+  --ci-ink-muted: #475569;
+  --ci-ink-subtle: #64748b;
+  --ci-line: #e2e8f0;
+  --ci-line-strong: #cbd5e1;
+  --ci-signal: rgb(var(--hh-color-brand-600));
+  --ci-signal-ink: #0b6b62;
+  --ci-signal-soft: rgb(13 148 136 / 12%);
+  --ci-signal-hover: #0a7a70;
+  --ci-on-signal: #ffffff;
+}
+```
+
+The Ember accent adds the paper surfaces on top of the orange-red brand:
+
+```css
+html[data-accent="ember"] {
+  --ci-bg: #f1eee7;
+  --ci-surface: #faf8f4;
+  --ci-surface-raised: #ffffff;
+  --ci-surface-sunken: #f2eee6;
+  --ci-ink: #0e1013;
+  --ci-ink-muted: #4a5260;
+  --ci-ink-subtle: #5b6472;
+  --ci-line: rgb(14 16 19 / 22%);
+  --ci-line-strong: rgb(14 16 19 / 42%);
+}
+```
+
+Dark mode is selected with `html[data-theme="dark"]`; it uses the dark neutral
+surfaces and does not turn on the paper palette. The admin app's
+`ThemeProvider` sets the theme and accent, remembers both choices and applies
+them before first paint. If you set `--ci-signal` on a wrapper rather than at
+the theme root, set `--ci-signal-ink`, `--ci-signal-soft`, `--ci-signal-hover`
+and `--ci-on-signal` on the same wrapper as well; those values are derived at
+the theme root.
+
+The main semantic tokens are `--ci-bg`, `--ci-surface`, `--ci-surface-raised`,
+`--ci-surface-sunken`, `--ci-ink`, `--ci-ink-muted`, `--ci-ink-subtle`,
+`--ci-line`, `--ci-line-strong`, `--ci-signal`, `--ci-signal-ink`,
+`--ci-signal-soft`, `--ci-signal-hover` and `--ci-on-signal`.
+
 ## Components
 
 | Group           | Exports                                                                                                                                                                                                                                                                                                                                                                                                       |

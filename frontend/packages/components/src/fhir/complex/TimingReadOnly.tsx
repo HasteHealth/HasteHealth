@@ -26,5 +26,5 @@ export const FHIRTimingReadOnly = ({
   if (value.code) {
     return <FHIRCodeableConceptReadOnly value={value.code} />;
   }
-  return <span className="text-slate-300">—</span>;
+  return <span className="text-[var(--ci-muted)]">—</span>;
 };

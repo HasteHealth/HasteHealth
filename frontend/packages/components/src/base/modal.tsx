@@ -38,7 +38,7 @@ export function Modal({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
@@ -54,7 +54,7 @@ export function Modal({
               >
                 <Dialog.Panel
                   className={classNames(
-                    "w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all",
+                    "w-full transform overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-6 text-left text-[var(--ci-ink)] align-middle shadow-2xl transition-all",
                     {
                       "max-w-md": size === "small",
                       "max-w-lg": size === "medium",
@@ -65,7 +65,7 @@ export function Modal({
                 >
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
+                    className="text-base font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]"
                   >
                     {modalTitle}
                   </Dialog.Title>

@@ -1,4 +1,7 @@
 @import "tailwindcss" source(".");
+@import "./styles/tokens.css";
+@import "./styles/clinical-instrument-fonts.css";
+@import "./styles/clinical-instrument.css";
 @config "../tailwind.config.js";
 
 /* Tailwind 3 defaults that Tailwind 4 changed. */
@@ -33,30 +36,105 @@
 
 @layer base {
   :root {
-    /* --hh-color-brand-50: 240 253 250;
-		--hh-color-brand-100: 204 251 241;
-		--hh-color-brand-200: 153 246 228;
-		--hh-color-brand-300: 94 234 212;
-		--hh-color-brand-400: 45 212 191;
-		--hh-color-brand-500: 20 184 166;
-		--hh-color-brand-600: 13 148 136;
-		--hh-color-brand-700: 15 118 110;
-		--hh-color-brand-800: 17 94 89;
-		--hh-color-brand-900: 19 78 74; */
-
-    /* Teal */
-    /* do teal based on website colors for teal */
-    --hh-color-brand: 74.62 178.75 160.69;
-    --hh-color-brand-50: 240.28 253.09 250.13;
-    --hh-color-brand-100: 203.18 251.39 241.16;
-    --hh-color-brand-200: 149.69 246.7 228.12;
-    --hh-color-brand-300: 70.28 236.5 212.54;
-    --hh-color-brand-400: -101.02 221.8 194.08;
-    --hh-color-brand-500: -56.5 212.99 189.55;
-    --hh-color-brand-600: -54.12 187.01 166.99;
-    --hh-color-brand-700: -41.94 150.26 137.01;
-    --hh-color-brand-800: -23.98 119.59 110.92;
-    --hh-color-brand-900: -7.01 95.15 89.79;
-    --hh-color-brand-950: 10.71 78.58 74.4;
+    /* Teal, the default brand. */
+    --hh-color-brand: 20 184 166;
+    --hh-color-brand-50: 240 253 250;
+    --hh-color-brand-100: 204 251 241;
+    --hh-color-brand-200: 153 246 228;
+    --hh-color-brand-300: 94 234 212;
+    --hh-color-brand-400: 45 212 191;
+    --hh-color-brand-500: 20 184 166;
+    --hh-color-brand-600: 13 148 136;
+    --hh-color-brand-700: 15 118 110;
+    --hh-color-brand-800: 17 94 89;
+    --hh-color-brand-900: 19 78 74;
+    --hh-color-brand-950: 4 47 46;
   }
+
+  /* Optional paper/orange-red accent: set data-accent="ember" on <html>. */
+  html[data-accent="ember"] {
+    --hh-color-brand: 229 69 26;
+    --hh-color-brand-50: 254 242 237;
+    --hh-color-brand-100: 253 226 216;
+    --hh-color-brand-200: 252 201 183;
+    --hh-color-brand-300: 249 164 137;
+    --hh-color-brand-400: 245 116 80;
+    --hh-color-brand-500: 240 90 50;
+    --hh-color-brand-600: 229 69 26;
+    --hh-color-brand-700: 206 53 14;
+    --hh-color-brand-800: 169 41 12;
+    --hh-color-brand-900: 139 36 14;
+    --hh-color-brand-950: 64 15 6;
+  }
+
+  html[data-theme="dark"] {
+    --hh-color-brand: 45 212 191;
+    --hh-color-brand-50: 4 47 46;
+    --hh-color-brand-100: 17 94 89;
+    --hh-color-brand-200: 15 118 110;
+    --hh-color-brand-300: 13 148 136;
+    --hh-color-brand-400: 20 184 166;
+    --hh-color-brand-500: 20 184 166;
+    --hh-color-brand-600: 45 212 191;
+    --hh-color-brand-700: 94 234 212;
+    --hh-color-brand-800: 153 246 228;
+    --hh-color-brand-900: 204 251 241;
+    --hh-color-brand-950: 240 253 250;
+  }
+
+  html[data-theme="dark"][data-accent="ember"] {
+    --hh-color-brand: 255 94 38;
+    --hh-color-brand-50: 36 14 7;
+    --hh-color-brand-100: 64 15 6;
+    --hh-color-brand-200: 115 33 16;
+    --hh-color-brand-300: 139 36 14;
+    --hh-color-brand-400: 169 41 12;
+    --hh-color-brand-500: 206 53 14;
+    --hh-color-brand-600: 255 94 38;
+    --hh-color-brand-700: 255 125 79;
+    --hh-color-brand-800: 255 160 125;
+    --hh-color-brand-900: 255 197 175;
+    --hh-color-brand-950: 254 233 224;
+  }
+
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+    animation-duration: 0s !important;
+  }
+
+  /* Native select popups follow the app theme, not the operating system's. */
+  html[data-theme="dark"] select {
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] select {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--ci-bg);
+    color: var(--ci-ink);
+    font-family: var(--ci-font-body);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom scrollbars matching the clinical instrument surfaces. */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ci-surface-sunken);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ci-line);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ci-line-strong);
 }

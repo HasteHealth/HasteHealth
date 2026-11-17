@@ -38,13 +38,13 @@ export const Input = (props: InputProps) => {
       label={label}
       labelProps={labelProps}
       issues={issues}
-      inputContainerClass="bg-white"
+      inputContainerClass="bg-[var(--ci-surface-raised)]"
     >
       <>
         <input
           {...inputProps}
           className={classNames(
-            "w-full outline-hidden border-none group-aria-disabled:bg-gray-50",
+            "w-full outline-none border-none bg-transparent text-[var(--ci-ink)] font-mono text-xs placeholder-[var(--ci-muted)]",
             inputProps?.className,
           )}
         />
