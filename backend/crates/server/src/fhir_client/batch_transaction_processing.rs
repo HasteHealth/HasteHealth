@@ -10,7 +10,7 @@ use crate::{
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
-use futures_util::future::try_join_all;
+use futures_util::{StreamExt as _, TryStreamExt as _, stream};
 use haste_fhir_client::{
     request::{
         FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, HistoryResponse, InvokeResponse,
@@ -352,19 +352,50 @@ fn invalid_search(search_uri: &str, error: OperationOutcomeError) -> OperationOu
     .with_source(error)
 }
 
+/// Most distinct conditional references one transaction may carry. Each one is
+/// a search, so this bounds the search work a single request can ask for. The
+/// largest patient bundle in the Synthea sample download has 19 distinct
+/// conditional references, so this is ample headroom for real data while
+/// refusing a bundle crafted to fan out into tens of thousands of searches.
+const MAX_CONDITIONAL_REFERENCES: usize = 1_000;
+
+/// How many of a transaction's conditional-reference searches run at once.
+/// Bounded so one request cannot saturate the shared search connection pool:
+/// the rest wait their turn rather than all being issued together. Matches the
+/// bound used elsewhere for per-request fan-out (`binary_content`).
+const CONDITIONAL_REFERENCE_CONCURRENCY: usize = 8;
+
+/// A transaction with more conditional references than [`MAX_CONDITIONAL_REFERENCES`]:
+/// well formed, but past this server's limits, so 422 like other limit refusals.
+fn too_many_conditional_references(count: usize) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!(
+            "This transaction has {count} distinct conditional references, more than the \
+             {MAX_CONDITIONAL_REFERENCES} one transaction may resolve. Split it into smaller \
+             transactions."
+        ),
+    );
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
 /// Points every conditional reference at the one resource its search matches.
 ///
 /// Answered by the search index alone: the id it already holds is all a
-/// reference needs, so no resource is read. The lookups run at once, each
-/// authorized as the caller's own search of the type would be: their access
-/// policies must grant it, and it carries the filters their scopes set.
+/// reference needs, so no resource is read. The lookups run with bounded
+/// concurrency ([`CONDITIONAL_REFERENCE_CONCURRENCY`]) and are capped in number
+/// ([`MAX_CONDITIONAL_REFERENCES`]), so one transaction cannot fan out into an
+/// unbounded burst of concurrent searches. Each is authorized as the caller's
+/// own search of the type would be: their access policies must grant it, and it
+/// carries the filters their scopes set.
 ///
 /// # Errors
 ///
-/// Forbidden when the caller may not run a reference's search, invalid when
-/// it is not a search the type supports. Per
-/// [https://hl7.org/fhir/R4/http.html#trules] the transaction fails when a
-/// reference matches no resource or more than one.
+/// Too costly when the transaction carries more than
+/// [`MAX_CONDITIONAL_REFERENCES`] distinct references. Forbidden when the caller
+/// may not run a reference's search, invalid when it is not a search the type
+/// supports. Per [https://hl7.org/fhir/R4/http.html#trules] the transaction
+/// fails when a reference matches no resource or more than one.
 async fn resolve_conditional_references<B: Backend>(
     state: &ClientState<B>,
     ctx: &ServerCTX<B>,
@@ -373,54 +404,85 @@ async fn resolve_conditional_references<B: Backend>(
     if conditional_references.is_empty() {
         return Ok(());
     }
+    if conditional_references.len() > MAX_CONDITIONAL_REFERENCES {
+        return Err(too_many_conditional_references(
+            conditional_references.len(),
+        ));
+    }
 
-    let policy = &RequestPolicy::of_caller(state, ctx).await?;
+    let policy = RequestPolicy::of_caller(state, ctx).await?;
     let lookups = conditional_references
         .into_iter()
-        .map(|(search_uri, references)| async move {
-            let search = conditional_reference_search(&search_uri)?;
-            let filters = scope_check::search_filters(&ctx.user.claims, &search.resource_type)?;
-            let search = SearchRequest::Type(search);
-            if let Some(policy) = policy {
-                policy.check(&FHIRRequest::Search(search.clone())).await?;
-            }
+        .map(|(search_uri, references)| {
+            resolve_one_conditional_reference(state, ctx, policy.as_ref(), search_uri, references)
+        })
+        .collect::<Vec<_>>();
 
-            let found = state
-                .search
-                .search(
-                    &ctx.fhir_version,
-                    &ctx.tenant,
-                    &ctx.project,
-                    &search,
-                    Some(SearchOptions {
-                        // Two tell one match from several.
-                        count_limit: Some(2),
-                        filters,
-                    }),
-                )
-                .await
-                .map_err(|error| invalid_search(&search_uri, error))?;
+    stream::iter(lookups)
+        .buffer_unordered(CONDITIONAL_REFERENCE_CONCURRENCY)
+        .try_collect::<()>()
+        .await
+}
 
-            let mut entries = found.entries.into_iter();
-            match (entries.next(), entries.next()) {
-                (Some(entry), None) => {
-                    let literal = format!("{}/{}", entry.resource_type.as_ref(), entry.id.as_ref());
-                    point_at(references, &literal);
-                    Ok(())
-                }
-                (None, _) => Err(OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!("Conditional reference '{search_uri}' matched no resources."),
-                )),
-                (Some(_), Some(_)) => Err(OperationOutcomeError::error(
-                    IssueType::conflict(),
-                    format!("Conditional reference '{search_uri}' matched multiple resources."),
-                )),
-            }
-        });
+/// Resolves one conditional reference: runs its search and points every
+/// reference that shares the search URI at the single resource it matches.
+///
+/// A named function (rather than an inline `async` block) so the lookups have a
+/// concrete future type that [`stream::iter`] can buffer with bounded
+/// concurrency.
+///
+/// # Errors
+///
+/// Forbidden when `policy` does not grant the search, invalid when it is not a
+/// search the type supports, and -- per
+/// [https://hl7.org/fhir/R4/http.html#trules] -- when the search matches no
+/// resource or more than one.
+async fn resolve_one_conditional_reference<B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
+    policy: Option<&RequestPolicy<B>>,
+    search_uri: String,
+    references: Vec<Pin<&mut Reference>>,
+) -> Result<(), OperationOutcomeError> {
+    let search = conditional_reference_search(&search_uri)?;
+    let filters = scope_check::search_filters(&ctx.user.claims, &search.resource_type)?;
+    let search = SearchRequest::Type(search);
+    if let Some(policy) = policy {
+        policy.check(&FHIRRequest::Search(search.clone())).await?;
+    }
 
-    try_join_all(lookups).await?;
-    Ok(())
+    let found = state
+        .search
+        .search(
+            &ctx.fhir_version,
+            &ctx.tenant,
+            &ctx.project,
+            &search,
+            Some(SearchOptions {
+                // Two tell one match from several.
+                count_limit: Some(2),
+                filters,
+            }),
+        )
+        .await
+        .map_err(|error| invalid_search(&search_uri, error))?;
+
+    let mut entries = found.entries.into_iter();
+    match (entries.next(), entries.next()) {
+        (Some(entry), None) => {
+            let literal = format!("{}/{}", entry.resource_type.as_ref(), entry.id.as_ref());
+            point_at(references, &literal);
+            Ok(())
+        }
+        (None, _) => Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("Conditional reference '{search_uri}' matched no resources."),
+        )),
+        (Some(_), Some(_)) => Err(OperationOutcomeError::error(
+            IssueType::conflict(),
+            format!("Conditional reference '{search_uri}' matched multiple resources."),
+        )),
+    }
 }
 
 /// Prepares a transaction bundle before its transaction opens, to keep that
@@ -805,6 +867,27 @@ mod tests {
         assert_eq!(
             invalid_search("Practitioner?identifier=1", server_failure).http_status(),
             500
+        );
+    }
+
+    #[test]
+    fn too_many_conditional_references_is_refused_as_too_costly() {
+        let error = too_many_conditional_references(MAX_CONDITIONAL_REFERENCES + 1);
+
+        // Well formed but past the server's limits: 422, not 400.
+        assert_eq!(error.http_status(), 422);
+        let diagnostics = error.outcome().issue[0]
+            .diagnostics
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .expect("the refusal has diagnostics");
+        assert!(
+            diagnostics.contains(&(MAX_CONDITIONAL_REFERENCES + 1).to_string()),
+            "{diagnostics}"
+        );
+        assert!(
+            diagnostics.contains(&MAX_CONDITIONAL_REFERENCES.to_string()),
+            "{diagnostics}"
         );
     }
 
