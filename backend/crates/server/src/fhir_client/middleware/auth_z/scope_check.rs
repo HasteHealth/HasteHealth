@@ -191,6 +191,7 @@ fn searches_every_resource(scopes: &Scopes) -> bool {
             .any(|scope| scope.user != SmartResourceScopeUser::Patient && !scope.is_granular())
     };
     in_full(None)
+    // If in full but later scope limits than limit to that lower scope.
         && resource_scopes(scopes).all(|scope| match &scope.level {
             SmartResourceScopeLevel::AllResources => true,
             SmartResourceScopeLevel::ResourceType(resource_type) => in_full(Some(resource_type)),
@@ -217,7 +218,7 @@ pub(crate) fn check_search_parameters(
         let ParsedParameter::Resource(param) = parameter else {
             continue;
         };
-        let reverse = param.name.starts_with("_has");
+        let reverse = param.name == "_has";
         if !reverse && !param.is_chained() {
             continue;
         }
@@ -569,6 +570,8 @@ mod tests {
             "code=1234-5&_count=10",
             "subject=Patient/p1",
             "_list=l1",
+            // Only starts like `_has`.
+            "_haste-health-author=Membership/m1",
         ] {
             assert!(allowed(VITAL_SIGNS, query), "{query}");
         }
