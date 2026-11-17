@@ -66,14 +66,14 @@ function header(
 ) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <label className="text-sm font-medium text-slate-800">
+      <label className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
         {label(item)}
-        {item.required ? <span className="ml-1 text-red-600">*</span> : null}
+        {item.required ? <span className="ml-1 text-red-500">*</span> : null}
       </label>
       {showAdd ? (
         <button
           type="button"
-          className="rounded-sm border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+          className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-2 py-1 font-mono text-xs text-[var(--ci-ink)] hover:border-[var(--ci-signal)] hover:text-[var(--ci-signal)] transition-colors"
           onClick={onAddAnswer}
         >
           Add
@@ -87,7 +87,7 @@ function removeButton(onRemove: () => void) {
   return (
     <button
       type="button"
-      className="rounded-sm border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+      className="rounded-none border border-red-500/30 bg-red-500/10 px-2 py-1 font-mono text-xs text-red-500 hover:bg-red-500/20 transition-colors"
       onClick={onRemove}
     >
       Remove
@@ -218,8 +218,8 @@ function primitiveRenderer(
 }
 
 const GroupRenderer: QuestionnaireItemRenderer = ({ item, renderChildren }) => (
-  <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-    <div className="text-sm font-semibold text-slate-900">{label(item)}</div>
+  <div className="space-y-3 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] p-4 text-[var(--ci-ink)]">
+    <div className="text-sm font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">{label(item)}</div>
     <div className="space-y-4">{renderChildren()}</div>
   </div>
 );
@@ -229,7 +229,7 @@ const DisplayRenderer: QuestionnaireItemRenderer = ({
   renderChildren,
 }) => (
   <div className="space-y-2">
-    <div className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+    <div className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-3 py-2 text-xs font-mono text-[var(--ci-ink)]">
       {label(item)}
     </div>
     {renderChildren()}
@@ -279,7 +279,7 @@ const ChoiceRenderer: QuestionnaireItemRenderer = ({
               className="flex items-center gap-2"
             >
               {control === "radio-button" ? (
-                <div className="flex w-full flex-col gap-2 rounded-sm border border-slate-300 p-2">
+                <div className="flex w-full flex-col gap-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-2">
                   {options.map((option, index) => (
                     <label
                       key={`${item.linkId}-radio-${index}`}
@@ -375,7 +375,7 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
           return (
             <div
               key={`${item.linkId}-${answerIndex}`}
-              className="space-y-2 rounded-sm border border-slate-200 p-2"
+              className="space-y-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-2"
             >
               <Select
                 options={selectOptions}
@@ -409,7 +409,7 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
                       }
                 }
               />
-              <p className="text-xs text-slate-500">
+              <p className="font-mono text-[11px] text-[var(--ci-muted)]">
                 Type to select an option or create a custom value.
               </p>
               {item.repeats && answer
@@ -443,7 +443,7 @@ function jsonRenderer<T>(
         {rows(item, answers).map(({ answer, answerIndex }) => (
           <div key={`${item.linkId}-${answerIndex}`} className="flex gap-2">
             <textarea
-              className="h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs"
+              className="h-24 w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)] focus:border-[var(--ci-signal)] focus:outline-none"
               readOnly={item.readOnly}
               value={JSON.stringify(read(answer) ?? {}, null, 2)}
               placeholder={`${typeLabel} JSON`}
@@ -625,7 +625,7 @@ const AttachmentRenderer: QuestionnaireItemRenderer = ({
         >
           <input
             type="file"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)] focus:border-[var(--ci-signal)] focus:outline-none"
             disabled={item.readOnly}
             onChange={(event) => {
               const file = event.target.files?.[0];

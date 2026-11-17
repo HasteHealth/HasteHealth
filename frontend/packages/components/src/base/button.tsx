@@ -28,11 +28,11 @@ function btnTypeClass(type: ButtonType) {
 function btnSize(size: ButtonSize) {
   switch (size) {
     case "small":
-      return "text-xs";
+      return "text-xs px-2.5 py-1";
     case "medium":
-      return "text-base";
+      return "text-sm px-3 py-2";
     case "large":
-      return "text-lg";
+      return "text-base px-4 py-2.5";
   }
 }
 

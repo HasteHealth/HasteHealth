@@ -43,28 +43,28 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-md border border-slate-200 bg-slate-50 p-3">
-        <h3 className="text-sm font-semibold text-slate-900">Documentation</h3>
-        <p className="mt-1 text-sm text-slate-600">
+      <section className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3">
+        <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">Documentation</h3>
+        <p className="mt-1 text-xs text-[var(--ci-muted)]">
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="cursor-pointer text-brand-600 hover:text-brand-700"
-            href="https://haste.health/docs/category/identity-providers"
+            className="cursor-pointer text-[var(--ci-signal)] hover:underline"
+            href="https://hl7.org/fhir/smart-app-launch/"
             rel="noreferrer"
             target="_blank"
           >
-            documentation
+            SMART on FHIR documentation
           </a>
           .
         </p>
       </section>
 
-      <section className="space-y-2 rounded-md border border-slate-200 bg-white p-3">
-        <h3 className="text-sm font-semibold text-slate-900">
+      <section className="space-y-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] p-3">
+        <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
           Registration Information
         </h3>
-        <p className="text-sm text-slate-500">
+        <p className="text-xs text-[var(--ci-muted)]">
           Registration information for registering an OIDC client with this
           identity provider.
         </p>

@@ -13,7 +13,7 @@ export function PanelHint({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+    <div className="mb-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2 font-mono text-xs text-[var(--ci-ink)]">
       {children}
     </div>
   );
@@ -24,7 +24,7 @@ export function PanelWarning({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="mb-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+    <div className="mb-2 rounded-none border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-mono text-xs text-amber-500">
       {children}
     </div>
   );
@@ -33,7 +33,7 @@ export function PanelWarning({
 /** An inline code chip, for parameter and field names. */
 export function Chip({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <code className="mr-1 rounded-sm bg-white px-1 py-0.5 font-mono">
+    <code className="mr-1 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1 py-0.5 font-mono text-xs text-[var(--ci-ink)]">
       {children}
     </code>
   );

@@ -33,19 +33,19 @@ export interface CommandBarProps {
 
 /** Colour for each verb, so the destructive ones read as such. */
 const VERB_CLASS: Record<Verb, string> = {
-  GET: "text-slate-700",
-  POST: "text-emerald-700",
-  PUT: "text-blue-700",
-  PATCH: "text-violet-700",
-  DELETE: "text-red-700",
+  GET: "text-[var(--ci-ink)]",
+  POST: "text-emerald-500",
+  PUT: "text-blue-500",
+  PATCH: "text-violet-500",
+  DELETE: "text-red-500",
 };
 
 /** Colours the Run button: amber for a mutation, brand for a read. */
 function runButtonClass(parsed: Command | undefined): string {
-  if (!parsed) return "cursor-not-allowed bg-slate-100 text-slate-400";
+  if (!parsed) return "cursor-not-allowed bg-[var(--ci-surface-sunken)] text-[var(--ci-ink-muted)] border border-[var(--ci-line)]";
   return isMutation(parsed)
-    ? "bg-amber-600 text-white hover:bg-amber-700"
-    : "bg-brand-600 text-white hover:bg-brand-700";
+    ? "bg-[var(--color-warning)] text-white hover:bg-[var(--color-warning-strong)] border border-[var(--color-warning)] font-mono font-semibold"
+    : "bg-[var(--ci-signal)] text-[var(--ci-on-signal)] hover:opacity-90 border border-[var(--ci-signal)] font-mono font-semibold";
 }
 
 /**
@@ -96,15 +96,15 @@ export function CommandBar({
     <div>
       <div
         className={classNames(
-          "flex items-center gap-2 rounded-md border bg-white px-2 py-1.5 shadow-xs",
-          warning ? "border-amber-300" : "border-slate-300",
-          "focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500",
+          "flex items-center gap-2 rounded-none border bg-[var(--ci-surface-raised)] px-2 py-1.5 shadow-sm transition-colors",
+          warning ? "border-[var(--color-warning)]" : "border-[var(--ci-line)]",
+          "focus-within:border-[var(--ci-signal)] focus-within:ring-1 focus-within:ring-[var(--ci-signal)]",
         )}
       >
         <select
           aria-label="HTTP method"
           className={classNames(
-            "shrink-0 rounded-sm border-0 bg-slate-100 py-1 pl-2 pr-7 font-mono text-xs font-semibold focus:ring-0",
+            "shrink-0 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] py-1 pl-2 pr-7 font-mono text-xs font-semibold focus:ring-0",
             VERB_CLASS[verb],
           )}
           value={verb}
@@ -142,7 +142,7 @@ export function CommandBar({
 
         <button
           className={classNames(
-            "shrink-0 rounded-sm px-2 py-1 text-xs font-medium",
+            "shrink-0 rounded-none px-3 py-1.5 text-xs font-medium ci-hover",
             runButtonClass(parsed),
           )}
           disabled={!parsed || busy}
@@ -159,16 +159,16 @@ export function CommandBar({
       {/* What the typing actually sends, so the API is learnable by use. */}
       <div className="mt-1 flex min-h-5 items-center gap-2 px-1 text-xs">
         {request ? (
-          <span className="font-mono text-slate-500">
+          <span className="font-mono text-[var(--ci-ink-muted)]">
             {request.method} {request.path}
           </span>
         ) : (
           text.trim() !== "" && (
-            <span className="text-slate-400">Keep typing…</span>
+            <span className="text-[var(--ci-ink-subtle)]">Keep typing…</span>
           )
         )}
         {warning && (
-          <span className="flex items-center gap-1 text-amber-700">
+          <span className="flex items-center gap-1 text-[var(--color-warning)]">
             <ExclamationTriangleIcon className="h-3.5 w-3.5" />
             {warning}
           </span>

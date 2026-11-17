@@ -296,39 +296,39 @@ function ScopeControls({
   isRunning: boolean;
 }>) {
   return (
-    <details className="border-b border-slate-200 px-4 py-2 text-xs text-slate-600">
-      <summary className="cursor-pointer select-none font-medium text-slate-700">
+    <details className="border-b border-[var(--ci-line)] bg-[var(--ci-surface)] px-4 py-2 font-mono text-xs text-[var(--ci-ink)]">
+      <summary className="cursor-pointer select-none font-mono text-xs uppercase tracking-wider text-[var(--ci-ink)]">
         Scope &amp; output options
       </summary>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1 font-mono text-xs text-[var(--ci-muted)]">
           <span>Patient reference</span>
           <input
             type="text"
-            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] px-2 py-1 font-mono text-xs focus:border-[var(--ci-signal)] focus:outline-none"
             placeholder="Patient/123"
             value={patientReference}
             onChange={(event) => setPatientReference(event.target.value)}
             disabled={isRunning}
           />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1 font-mono text-xs text-[var(--ci-muted)]">
           <span>Group reference(s)</span>
           <input
             type="text"
-            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] px-2 py-1 font-mono text-xs focus:border-[var(--ci-signal)] focus:outline-none"
             placeholder="Group/1, Group/2"
             value={groupReferences}
             onChange={(event) => setGroupReferences(event.target.value)}
             disabled={isRunning}
           />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1 font-mono text-xs text-[var(--ci-muted)]">
           <span>Row limit</span>
           <input
             type="number"
             min={0}
-            className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
+            className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] px-2 py-1 font-mono text-xs focus:border-[var(--ci-signal)] focus:outline-none"
             placeholder="No limit"
             value={limit}
             onChange={(event) => setLimit(event.target.value)}
@@ -345,7 +345,7 @@ function ScopeControls({
           <span>Include CSV header</span>
         </label>
       </div>
-      <p className="mt-2 text-[11px] text-slate-500">
+      <p className="mt-2 text-[11px] font-mono text-[var(--ci-muted)]">
         Restricting to a patient or group only applies when the ViewDefinition's
         resource type is part of the Patient compartment (e.g. Observation,
         Condition) or is Patient itself.
@@ -390,16 +390,16 @@ function EditorPane({
   isRunning: boolean;
 }) {
   return (
-    <section className="flex min-h-[24rem] flex-1 flex-col rounded-sm border border-slate-200 bg-white">
-      <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-slate-800">
+    <section className="flex min-h-[24rem] flex-1 flex-col rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-ink)]">
+      <header className="flex items-center justify-between border-b border-[var(--ci-line)] px-4 py-3">
+        <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">
           ViewDefinition Editor
         </h3>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-2 text-xs font-mono text-[var(--ci-muted)]">
             <span>Format</span>
             <select
-              className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
+              className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] px-2 py-1 font-mono text-xs"
               value={exportFormat}
               onChange={(event) =>
                 setExportFormat(event.target.value as ExportFormat)
@@ -445,7 +445,7 @@ function EditorPane({
         isRunning={isRunning}
       />
       <div className="flex flex-1 overflow-hidden p-3">
-        <div className="h-full w-full overflow-hidden rounded-sm border border-slate-200">
+        <div className="h-full w-full overflow-hidden rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
           <CodeMirror
             extensions={extensions}
             value={JSON.stringify(viewDefinition, null, 2)}
@@ -482,13 +482,13 @@ function ResultsTable({
   const rowKeys = contentKeys(rows);
   return (
     <div className="flex-1 overflow-auto">
-      <table className="w-full min-w-[42rem] text-left text-xs text-slate-700">
-        <thead className="sticky top-0 bg-slate-50">
+      <table className="w-full min-w-[42rem] text-left text-xs text-[var(--ci-ink)]">
+        <thead className="sticky top-0 bg-[var(--ci-surface-raised)] border-b border-[var(--ci-line)] font-mono text-[11px] uppercase tracking-wider text-[var(--ci-muted)]">
           <tr>
             {headers.map((header) => (
               <th
                 key={header}
-                className="border-b border-slate-200 px-3 py-2 font-semibold text-slate-900"
+                className="border-b border-[var(--ci-line)] px-3 py-2 font-medium"
               >
                 {header}
               </th>
@@ -499,12 +499,12 @@ function ResultsTable({
           {rows.map((row, rowIndex) => (
             <tr
               key={rowKeys[rowIndex]}
-              className="odd:bg-white even:bg-slate-50/40"
+              className="border-b border-[var(--ci-line)] hover:bg-[var(--ci-surface-raised)] transition-colors"
             >
               {row.map((value, colIndex) => (
                 <td
                   key={`cell-${rowIndex}-${colIndex}`}
-                  className="border-b border-slate-100 px-3 py-2 align-top text-slate-700"
+                  className="px-3 py-2 align-top font-mono text-xs text-[var(--ci-ink)]"
                 >
                   {value || "-"}
                 </td>
@@ -545,10 +545,10 @@ function ResultsPane({
   }, [currentPage, pageSize, results.rows]);
 
   return (
-    <section className="flex min-h-[24rem] flex-1 flex-col rounded-sm border border-slate-200 bg-white">
-      <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-slate-800">Results</h3>
-        <div className="text-xs text-slate-500">{totalRows} rows</div>
+    <section className="flex min-h-[24rem] flex-1 flex-col rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-ink)]">
+      <header className="flex items-center justify-between border-b border-[var(--ci-line)] px-4 py-3">
+        <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-ink)]">Results</h3>
+        <div className="text-xs font-mono text-[var(--ci-muted)]">{totalRows} rows</div>
       </header>
 
       {isRunning && (
@@ -558,13 +558,13 @@ function ResultsPane({
       )}
 
       {!isRunning && error && (
-        <div className="m-4 rounded-sm border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        <div className="m-4 rounded-none border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-mono text-red-500">
           {error}
         </div>
       )}
 
       {!isRunning && !error && results.headers.length === 0 && (
-        <div className="flex flex-1 items-center justify-center px-4 text-sm text-slate-500">
+        <div className="flex flex-1 items-center justify-center px-4 text-xs font-mono text-[var(--ci-muted)]">
           Run a ViewDefinition to preview tabular output.
         </div>
       )}
@@ -572,11 +572,11 @@ function ResultsPane({
       {!isRunning && !error && results.headers.length > 0 && (
         <>
           <ResultsTable headers={results.headers} rows={pagedRows} />
-          <footer className="flex items-center justify-between border-t border-slate-200 px-4 py-3">
-            <div className="flex items-center gap-2 text-xs text-slate-600">
+          <footer className="flex items-center justify-between border-t border-[var(--ci-line)] px-4 py-3">
+            <div className="flex items-center gap-2 text-xs font-mono text-[var(--ci-muted)]">
               <span>Rows per page</span>
               <select
-                className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs"
+                className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] px-2 py-1 font-mono text-xs"
                 value={pageSize}
                 onChange={(event) => {
                   setPageSize(Number(event.target.value));
@@ -857,7 +857,7 @@ export function ViewDefinitionSqlRunner({
       title: "Raw Output",
       content: (
         <textarea
-          className="min-h-[24rem] w-full flex-1 rounded-sm border border-slate-200 bg-white p-3 text-xs text-slate-700"
+          className="min-h-[24rem] w-full flex-1 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] p-3 font-mono text-xs text-[var(--ci-ink)]"
           value={rawOutput}
           readOnly
         />

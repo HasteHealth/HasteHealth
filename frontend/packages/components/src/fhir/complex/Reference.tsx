@@ -1,4 +1,4 @@
-import { MagnifyingGlassCircleIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
 import {
@@ -21,6 +21,12 @@ export type FHIRReferenceEditableProps = EditableProps<Reference> &
   ClientProps & {
     disabled?: boolean;
     resourceTypesAllowed?: ResourceType<FHIR_VERSION>[];
+    /** Hide the current reference when another part of the row shows it. */
+    showValue?: boolean;
+    /** Label for the search button; defaults to "Search". */
+    searchLabel?: string;
+    /** Accessible name for the search button. */
+    searchAriaLabel?: string;
   };
 
 const ReferenceView = ({
@@ -79,7 +85,7 @@ const ReferenceView = ({
     />
   ) : (
     <div className="flex justify-center items-center">
-      <span className="font-semibold text-slate-600">Resource not found</span>
+      <span className="font-mono text-xs text-[var(--ci-muted)]">Resource not found</span>
     </div>
   );
 };
@@ -94,14 +100,14 @@ const SearchResult = ({
   return (
     <button
       type="button"
-      className="hover:bg-brand-200 py-2 px-4 cursor-pointer border w-full text-left"
+      className="hover:bg-[var(--ci-surface-raised)] py-2 px-4 cursor-pointer border border-[var(--ci-line)] bg-[var(--ci-surface)] w-full text-left font-mono text-xs transition-colors"
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,
         })
       }
     >
-      <span className="font-semibold text-slate-700">
+      <span className="font-semibold text-[var(--ci-ink)]">
         {resource.resourceType}/{resource.id}
       </span>
     </button>
@@ -123,8 +129,8 @@ const ReferenceSearch = ({
 
   return (
     <div>
-      <div className="flex space-x-1 text-slate-700  ">
-        <div className="w-36">
+      <div className="flex space-x-1 text-[var(--ci-ink)] font-mono text-xs">
+        <div className="w-64">
           <Select
             value={resourceType}
             onChange={(option) =>
@@ -166,6 +172,9 @@ export const FHIRReferenceEditable = ({
   label,
   fhirVersion,
   resourceTypesAllowed,
+  showValue = true,
+  searchLabel = "Search",
+  searchAriaLabel = "Search for a resource to reference",
 }: FHIRReferenceEditableProps) => {
   return (
     <Modal
@@ -200,22 +209,25 @@ export const FHIRReferenceEditable = ({
               label={label}
               issues={issue ? [issue] : []}
             >
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  className="text-brand-400 hover:text-brand-500 cursor-pointer"
-                  onClick={() => openDisplay(true)}
-                >
-                  {value?.reference}
-                </button>
+              <div className="flex flex-wrap items-center gap-2">
+                {showValue && value?.reference && (
+                  <button
+                    type="button"
+                    className="text-[var(--ci-signal)] hover:underline cursor-pointer font-mono text-xs"
+                    onClick={() => openDisplay(true)}
+                  >
+                    {value.reference}
+                  </button>
+                )}
                 {!disabled && (
                   <button
                     type="button"
-                    aria-label="Search for a resource to reference"
-                    className="text-slate-700 hover:text-brand-700 cursor-pointer font-semibold"
+                    aria-label={searchAriaLabel}
+                    className="inline-flex cursor-pointer items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[var(--ci-signal)] transition-colors hover:underline"
                     onClick={() => openSearch(true)}
                   >
-                    <MagnifyingGlassCircleIcon className="w-5 h-5" />
+                    <MagnifyingGlassIcon className="h-3.5 w-3.5" />
+                    {searchLabel}
                   </button>
                 )}
               </div>

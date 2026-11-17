@@ -79,7 +79,7 @@ function AppChoices({
   }
   if (!apps.data?.length) {
     return (
-      <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+      <p className="rounded-none border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-mono text-xs text-amber-500">
         No client application has a launch URL. Set <code>launchUri</code> on a
         ClientApplication, and include <code>launch</code> in its scope, to
         launch it from here.
@@ -87,25 +87,25 @@ function AppChoices({
     );
   }
   return (
-    <ul className="max-h-72 divide-y divide-slate-200 overflow-auto rounded-md border border-slate-200">
+    <ul className="max-h-72 divide-y divide-[var(--ci-line)] overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)]">
       {apps.data.map((app) => (
         <li key={app.id}>
           <button
             type="button"
             aria-pressed={selected === app.id}
             className={classNames(
-              "flex w-full flex-col items-start px-3 py-2 text-left",
+              "flex w-full flex-col items-start px-3 py-2 text-left transition-colors",
               {
-                "bg-brand-50": selected === app.id,
-                "hover:bg-slate-50": selected !== app.id,
+                "bg-[var(--ci-signal-soft)]": selected === app.id,
+                "hover:bg-[var(--ci-surface-raised)]": selected !== app.id,
               },
             )}
             onClick={() => onSelect(app.id)}
           >
-            <span className="text-sm font-medium text-slate-900">
+            <span className="font-mono text-xs font-semibold text-[var(--ci-ink)]">
               {app.name}
             </span>
-            <span className="font-mono text-xs text-slate-500">
+            <span className="font-mono text-[11px] text-[var(--ci-muted)]">
               {app.launchUri}
             </span>
           </button>
@@ -179,20 +179,20 @@ function LaunchDialog({
   };
 
   if (typeof subject === "string") {
-    return <p className="text-sm text-slate-600">{subject}</p>;
+    return <p className="font-mono text-xs text-amber-500">{subject}</p>;
   }
 
   const chosen = apps.data?.find((app) => app.id === selected);
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600">
+      <p className="font-mono text-xs text-[var(--ci-muted)]">
         Opens the app in a new tab for{" "}
-        <span className="font-mono">{subject.patient}</span>
+        <span className="text-[var(--ci-ink)] font-semibold">{subject.patient}</span>
         {subject.encounter && (
           <>
             {" "}
-            in <span className="font-mono">{subject.encounter}</span>
+            in <span className="text-[var(--ci-ink)] font-semibold">{subject.encounter}</span>
           </>
         )}
         , signed in as you. The launch expires after five minutes.

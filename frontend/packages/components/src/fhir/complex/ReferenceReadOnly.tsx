@@ -13,15 +13,15 @@ export const FHIRReferenceReadOnly = ({
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      className="inline-flex items-center gap-1.5 whitespace-nowrap font-mono text-xs text-[var(--ci-ink)]"
       title={value?.reference}
     >
       {resourceType && (
-        <span className="rounded-sm bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-brand-700">
+        <span className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-[var(--ci-signal-ink)]">
           {resourceType}
         </span>
       )}
-      <span className="text-slate-700">
+      <span className="text-[var(--ci-ink)]">
         {value?.display ?? id ?? value?.reference}
       </span>
     </span>

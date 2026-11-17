@@ -57,7 +57,7 @@ function RenderCell({
   return (
     <td
       key={column.id}
-      className="overflow-auto whitespace-nowrap px-4 py-2 font-medium"
+      className="overflow-auto whitespace-nowrap px-4 py-2.5 font-mono text-xs text-[var(--ci-ink)]"
     >
       {render}
     </td>
@@ -72,14 +72,14 @@ export function Table({
 }: TableProps) {
   return (
     <div className="overflow-x-auto overflow-y-auto">
-      <table className="text-left text-xs text-slate-600 w-full">
-        <thead className="sticky top-0 z-10 bg-white border-b font-medium">
+      <table className="text-left text-xs text-[var(--ci-ink)] w-full border-collapse">
+        <thead className="sticky top-0 z-10 bg-[var(--ci-surface-raised)] border-b border-[var(--ci-line)] font-mono text-[11px] uppercase tracking-wider text-[var(--ci-muted)]">
           <tr>
             {columns.map((column, i) => (
               <th
                 onClick={(_e) => column.onClick?.call(undefined, column)}
                 key={i}
-                className="px-4 py-2 whitespace-nowrap "
+                className="px-4 py-2.5 whitespace-nowrap font-medium"
               >
                 {column.content}
               </th>
@@ -96,7 +96,7 @@ export function Table({
                 // `button` would hide the cells from a screen reader.
                 tabIndex={0}
                 data-table-row
-                className="border cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:bg-brand-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+                className="border-b border-[var(--ci-line)] cursor-pointer hover:bg-[var(--ci-surface-raised)] transition-colors focus:outline-none focus-visible:bg-[var(--ci-surface-raised)] focus-visible:ring-1 focus-visible:ring-[var(--ci-signal)]"
                 onClick={(e) => {
                   onRowClick(row, e);
                 }}

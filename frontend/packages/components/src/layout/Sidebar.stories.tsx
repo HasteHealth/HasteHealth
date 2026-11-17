@@ -60,7 +60,7 @@ const LayoutExample = () => (
           <SideBarItem logo={<InboxArrowDownIcon />}>
             <div className="flex">
               <span className="flex-1 whitespace-nowrap">Inbox</span>
-              <span className="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium text-brand-800 bg-brand-200 rounded-full dark:bg-brand-900 dark:text-brand-300">
+              <span className="inline-flex items-center justify-center w-4 h-4 p-2 ml-3 font-mono text-[11px] font-semibold text-[var(--ci-signal)] bg-[var(--ci-surface-raised)] border border-[var(--ci-line)]">
                 3
               </span>
             </div>
@@ -69,10 +69,10 @@ const LayoutExample = () => (
       </SideBar>
     }
   >
-    <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg ">
+    <div className="p-4 border border-[var(--ci-line)] border-dashed">
       <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="flex items-center justify-center h-24 rounded-sm bg-gray-50 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center h-24 bg-[var(--ci-surface-raised)] border border-[var(--ci-line)]">
+          <p className="text-2xl text-[var(--ci-muted)]">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -90,8 +90,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center h-24 rounded-sm bg-gray-50 ">
-          <p className="text-2xl text-gray-400">
+        <div className="flex items-center justify-center h-24 rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)]">
+          <p className="text-2xl text-[var(--ci-muted)]">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -109,8 +109,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center h-24 rounded-sm bg-gray-50 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center h-24 rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)]">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -129,8 +129,8 @@ const LayoutExample = () => (
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-center h-48 mb-4 rounded-sm bg-gray-50">
-        <p className="text-2xl text-gray-400">
+      <div className="flex items-center justify-center h-48 mb-4 rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)]">
+        <p className="text-2xl text-[var(--ci-muted)]">
           <svg
             className="w-3.5 h-3.5"
             aria-hidden="true"
@@ -149,8 +149,8 @@ const LayoutExample = () => (
         </p>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -168,8 +168,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -187,8 +187,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -206,8 +206,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -226,8 +226,8 @@ const LayoutExample = () => (
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-center h-48 mb-4 rounded-sm bg-gray-50 ">
-        <p className="text-2xl text-gray-400 ">
+      <div className="flex items-center justify-center h-48 mb-4 rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] ">
+        <p className="text-2xl text-[var(--ci-muted)] ">
           <svg
             className="w-3.5 h-3.5"
             aria-hidden="true"
@@ -246,8 +246,8 @@ const LayoutExample = () => (
         </p>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -265,8 +265,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -284,8 +284,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"
@@ -303,8 +303,8 @@ const LayoutExample = () => (
             </svg>
           </p>
         </div>
-        <div className="flex items-center justify-center rounded-sm bg-gray-50 h-28 ">
-          <p className="text-2xl text-gray-400 ">
+        <div className="flex items-center justify-center rounded-none bg-[var(--ci-surface-raised)] border border-[var(--ci-line)] h-28 ">
+          <p className="text-2xl text-[var(--ci-muted)] ">
             <svg
               className="w-3.5 h-3.5"
               aria-hidden="true"

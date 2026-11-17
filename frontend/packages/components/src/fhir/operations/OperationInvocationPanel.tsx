@@ -66,7 +66,7 @@ type Result =
 
 function SectionTitle({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--ci-muted)]">
       {children}
     </span>
   );
@@ -91,7 +91,7 @@ function invocationTarget(
 function StatusChip({ result }: Readonly<{ result: Result }>) {
   if (result.status === "idle") return null;
   if (result.status === "running") {
-    return <span className="text-xs text-slate-500">Running...</span>;
+    return <span className="font-mono text-xs text-[var(--ci-muted)]">Running...</span>;
   }
   const succeeded = result.status === "success";
   return (
@@ -225,7 +225,7 @@ export function OperationInvocationPanel({
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
+    <div className="flex h-full min-h-0 flex-col bg-[var(--ci-surface)] text-[var(--ci-ink)]">
       <section
         aria-label="Input"
         className="min-h-0 flex-[3] space-y-4 overflow-auto p-3"
@@ -252,7 +252,7 @@ export function OperationInvocationPanel({
             />
           </div>
           {levels.length === 0 && (
-            <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
+            <p className="rounded-none border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-xs font-mono text-amber-500">
               The definition allows no level: set system, type or instance to
               true.
             </p>
@@ -289,10 +289,10 @@ export function OperationInvocationPanel({
         />
       </section>
 
-      <div className="space-y-1 border-y border-slate-200 bg-slate-50 px-3 py-2">
+      <div className="space-y-1 border-y border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-3 py-2">
         <div className="flex items-center gap-2">
           <code
-            className="min-w-0 flex-1 truncate rounded-sm border border-slate-200 bg-white px-2 py-1 font-mono text-xs text-slate-700"
+            className="min-w-0 flex-1 truncate rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-2 py-1 font-mono text-xs text-[var(--ci-ink)]"
             title={`POST ${path}`}
           >
             POST {path}
@@ -306,23 +306,23 @@ export function OperationInvocationPanel({
               void run();
             }}
           >
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider font-semibold">
               <PlayIcon className="h-3.5 w-3.5" />
               {result.status === "running" ? "Running" : "Run"}
             </span>
           </Button>
         </div>
         {disabledReason && (
-          <p className="text-xs text-amber-700">{disabledReason}</p>
+          <p className="text-xs font-mono text-amber-500">{disabledReason}</p>
         )}
         {missing.length > 0 && (
-          <p className="text-xs text-amber-700">
+          <p className="text-xs font-mono text-amber-500">
             Required parameters without a value:{" "}
             <span className="font-mono">{missing.join(", ")}</span>
           </p>
         )}
         {!disabledReason && runHint && (
-          <p className="text-xs text-slate-500">{runHint}</p>
+          <p className="text-xs font-mono text-[var(--ci-muted)]">{runHint}</p>
         )}
       </div>
 
@@ -359,7 +359,7 @@ export function OperationInvocationPanel({
           />
         )}
         {result.status === "success" && outputMode === "json" && (
-          <div className="overflow-hidden rounded-md border border-slate-200">
+          <div className="overflow-hidden rounded-none border border-[var(--ci-line)]">
             <CodeMirror
               readOnly
               extensions={jsonExtensions}

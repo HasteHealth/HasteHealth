@@ -27,6 +27,31 @@ runtime (which is how the Docker image is configured without a rebuild). The
 client id defaults to `admin-app`, the OIDC client the server registers for this
 app; its redirect target is the server's `admin_app_redirect_uri` setting.
 
+## Themes and accents
+
+The **Appearance** section in Settings stores two local preferences:
+
+- `hastehealth-theme-preference` — `light`, `dark` or `system`;
+- `hastehealth-theme-accent` — an accent id from [`src/theme/accents.ts`](./src/theme/accents.ts).
+
+The default teal accent has no `data-accent` attribute. Any other accent id is
+written to `data-accent` on `<html>`; the matching CSS block lives in
+[`src/index.css`](./src/index.css). The pre-paint script in `index.html` applies
+both preferences before the first paint, so a reload does not flash the wrong
+palette.
+
+To add an accent:
+
+1. add an entry to `ACCENT_THEMES` in `src/theme/accents.ts` (id, label,
+   description and preview swatches), and
+2. add an `html[data-accent="<id>"] { ... }` block in `src/index.css` with the
+   brand channels for that accent.
+
+The components read the `--ci-*` tokens, so no component needs to change. A
+deployment can also supply an accent without registering it by setting
+`data-accent` and the corresponding CSS variables; the registry only drives the
+picker.
+
 ## Deployment
 
 The app is served from Cloudflare Workers as static assets ([`wrangler.jsonc`](./wrangler.jsonc),

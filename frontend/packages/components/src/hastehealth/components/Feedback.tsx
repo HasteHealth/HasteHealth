@@ -17,12 +17,12 @@ export const Feedback = ({
 }) => (
   <Container logo={logo} title={title}>
     {header && (
-      <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <h1 className="text-lg font-mono font-bold uppercase tracking-wider text-[var(--ci-ink)] md:text-xl">
         {header}
       </h1>
     )}
 
-    <p className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+    <p className="mb-2 font-mono text-xs text-[var(--ci-ink)]">
       {content}
     </p>
 

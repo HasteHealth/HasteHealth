@@ -129,15 +129,15 @@ function SearchResultItem({
         onMouseEnter={onHover}
         onFocus={onHover}
         className={classNames(
-          "group block w-full text-left cursor-pointer px-2 py-1.5 rounded-sm",
-          active ? "bg-gray-50" : "",
+          "group block w-full text-left cursor-pointer px-3 py-2 rounded-none transition-colors",
+          active ? "bg-[var(--ci-signal-soft)] text-[var(--ci-signal-ink)]" : "text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)]",
         )}
       >
-        <span className="block text-sm group-hover:text-slate-700 font-medium">
+        <span className="block text-sm font-medium">
           {item.label}
         </span>
         {item.kind === "resource" && item.profile && (
-          <span className="block text-xs text-slate-400 group-hover:text-slate-500">
+          <span className="block text-xs font-mono text-[var(--ci-ink-subtle)]">
             {item.profile}
           </span>
         )}
@@ -303,13 +303,13 @@ function SearchModal(props: SearchModalProps) {
 
   return (
     <Modal open={openModal} setOpen={() => setOpenModal(false)}>
-      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-hidden shadow-xs">
+      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-none border-b border-[var(--ci-line)] bg-[var(--ci-surface-raised)]">
         <input
           ref={(ref) => {
             setInputSearch(ref);
           }}
-          className="focus:outline-hidden text-left flex-1 text-slate-500 text-sm"
-          placeholder="Search..."
+          className="focus:outline-none text-left flex-1 text-[var(--ci-ink)] bg-transparent text-sm font-mono placeholder:text-[var(--ci-ink-subtle)]"
+          placeholder="Search resources, paths..."
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -320,7 +320,7 @@ function SearchModal(props: SearchModalProps) {
           onClick={() => {
             setOpenModal(false);
           }}
-          className="shadow-xs cursor flex-none text-xs text-slate-400 p-1 border"
+          className="cursor flex-none text-xs font-mono text-[var(--ci-ink-muted)] px-1.5 py-0.5 border border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] rounded-none"
         >
           ESC
         </button>
@@ -328,16 +328,16 @@ function SearchModal(props: SearchModalProps) {
       <div className="w-full" />
       <ul
         aria-label="Search results"
-        className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto"
+        className="px-2 py-2 max-h-96 overflow-y-auto text-[var(--ci-ink)]"
       >
         {flatResults.length === 0 && (
-          <li className="px-2 py-4 text-sm text-slate-400">No results.</li>
+          <li className="px-2 py-4 text-sm text-[var(--ci-ink-subtle)]">No results.</li>
         )}
         {groupedResults.map(
           (group) =>
             group.items.length > 0 && (
               <li key={group.category} className="mb-2">
-                <div className="px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                <div className="px-2 pt-2 pb-1 text-[10px] font-mono font-medium uppercase tracking-wider text-[var(--ci-ink-subtle)]">
                   {group.category}
                 </div>
                 <ul aria-label={group.category} className="space-y-0.5">

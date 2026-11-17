@@ -104,13 +104,13 @@ export function FHIRResultsTable({
             id: code,
             content: (
               <button
-                className="flex w-full items-center gap-1 text-left hover:text-brand-600"
+                className="flex w-full items-center gap-1 text-left font-mono text-xs uppercase tracking-wider text-[var(--ci-muted)] hover:text-[var(--ci-signal)] transition-colors"
                 onClick={() => onSortChange(nextSort(code, sort))}
                 type="button"
                 title={`Sort by ${code}`}
               >
                 <span>{code}</span>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-[var(--ci-signal)]">
                   {sortLabel(code, sort)}
                 </span>
               </button>
@@ -130,13 +130,13 @@ export function FHIRResultsTable({
   return (
     <div className="flex h-full w-full flex-col">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-2 text-xs text-slate-500">
+        <span className="flex items-center gap-2 text-xs font-mono text-[var(--ci-muted)]">
           <span>
             {resultSummary(resources.length, offset, total)}
           </span>
           {elapsedMs !== undefined && (
             <span
-              className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600"
+              className="rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ci-ink)]"
               title="Round trip time as the browser measured it"
             >
               {elapsedMs} ms
@@ -152,10 +152,10 @@ export function FHIRResultsTable({
 
       {/* An empty table renders as nothing, which reads as a broken page. */}
       {!loading && resources.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-md border border-dashed border-slate-200 py-12 text-center">
-          <MagnifyingGlassIcon className="h-8 w-8 text-slate-300" />
-          <p className="text-sm font-medium text-slate-600">No matches</p>
-          <p className="max-w-sm text-xs text-slate-400">
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-none border border-dashed border-[var(--ci-line)] bg-[var(--ci-surface)] py-12 text-center">
+          <MagnifyingGlassIcon className="h-8 w-8 text-[var(--ci-muted)] opacity-50" />
+          <p className="text-sm font-mono font-medium text-[var(--ci-ink)]">No matches</p>
+          <p className="max-w-sm text-xs font-mono text-[var(--ci-muted)]">
             {offset > 0
               ? "There is nothing on this page. Go back to the first page to see earlier results."
               : "The search ran and returned no resources. Try removing a parameter, or loosening one with a modifier such as :contains."}
@@ -224,30 +224,31 @@ function ColumnPicker({
   return (
     <div className="relative" ref={container}>
       <button
-        className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
+        className="inline-flex items-center gap-1.5 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] px-2.5 py-1 text-xs font-mono uppercase tracking-wider text-[var(--ci-ink)] hover:border-[var(--ci-signal)] transition-colors"
         onClick={() => setOpen((isOpen) => !isOpen)}
         type="button"
       >
-        <Bars3BottomLeftIcon className="h-4 w-4" />
-        Columns
-        <ChevronUpDownIcon className="h-4 w-4" />
+        <Bars3BottomLeftIcon className="h-3.5 w-3.5 text-[var(--ci-signal)]" />
+        <span>Columns</span>
+        <ChevronUpDownIcon className="h-3.5 w-3.5 text-[var(--ci-muted)]" />
       </button>
       {open && (
-        <div className="absolute right-0 z-20 mt-1 max-h-80 w-64 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+        <div className="absolute right-0 z-20 mt-1 max-h-80 w-64 overflow-auto rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] py-1 shadow-2xl">
           {parameters.map((parameter) => {
             const code = parameter.code as string;
             return (
               <label
                 key={code}
-                className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-slate-100"
+                className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs font-mono text-[var(--ci-ink)] hover:bg-[var(--ci-surface-raised)] transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={visible.includes(code)}
                   onChange={() => toggle(code)}
+                  className="rounded-none border-[var(--ci-line)] text-[var(--ci-signal)] focus:ring-[var(--ci-signal)]"
                 />
                 <span className="flex-1 truncate">{code}</span>
-                <span className="text-xs text-slate-400">
+                <span className="text-[11px] font-mono text-[var(--ci-muted)]">
                   {parameter.type as string}
                 </span>
               </label>

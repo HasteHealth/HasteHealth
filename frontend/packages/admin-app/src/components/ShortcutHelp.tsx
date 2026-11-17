@@ -20,9 +20,6 @@ function chord(shortcut: Shortcut): string {
 
 /**
  * The list of shortcuts, shown over the console.
- *
- * A native `<dialog>` rather than a styled div: it traps focus, closes on Esc
- * and announces itself as a dialog without any of that being reimplemented.
  */
 export function ShortcutHelp({
   shortcuts,
@@ -32,12 +29,7 @@ export function ShortcutHelp({
 
   useEffect(() => {
     const element = dialog.current;
-    // `showModal` is what gives the backdrop and the focus trap, so the
-    // dialog is opened here rather than with the `open` attribute.
     element?.showModal();
-    // Light dismiss, where the browser supports it: a click on the backdrop
-    // closes the dialog without a listener on a non-interactive element.
-    // Esc works regardless, and so does the Esc button in the header.
     element?.setAttribute("closedby", "any");
   }, []);
 
@@ -45,34 +37,32 @@ export function ShortcutHelp({
     <dialog
       ref={dialog}
       aria-label="Keyboard shortcuts"
-      className="max-h-[80vh] w-full max-w-md rounded-lg border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-slate-900/30"
-      // `onClose` fires for Esc and for `close()`, so the one handler covers
-      // every way the dialog goes away.
+      className="m-auto max-h-[80vh] w-full max-w-md rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface)] text-[var(--ci-ink)] p-0 shadow-2xl backdrop:bg-black/60"
       onClose={onClose}
     >
       <div className="max-h-[80vh] overflow-auto">
-        <header className="flex items-center border-b border-slate-200 px-4 py-2">
-          <h2 className="flex-1 text-sm font-medium text-slate-800">
+        <header className="flex items-center border-b border-[var(--ci-line)] bg-[var(--ci-surface-raised)] px-4 py-2.5">
+          <h2 className="flex-1 text-sm font-semibold text-[var(--ci-ink)]">
             Keyboard shortcuts
           </h2>
           <button
-            className="rounded-sm px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
+            className="rounded-none border border-[var(--ci-line)] px-2 py-0.5 font-mono text-xs text-[var(--ci-ink-muted)] hover:bg-[var(--ci-surface-sunken)] hover:text-[var(--ci-ink)]"
             onClick={onClose}
             type="button"
           >
             Esc
           </button>
         </header>
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-[var(--ci-line)]">
           {shortcuts.map((shortcut) => (
             <li
               key={`${shortcut.key}-${shortcut.mod}-${shortcut.shift}`}
-              className="flex items-center gap-3 px-4 py-2"
+              className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--ci-surface-sunken)] transition-colors"
             >
-              <span className="flex-1 text-sm text-slate-700">
+              <span className="flex-1 text-sm text-[var(--ci-ink)]">
                 {shortcut.description}
               </span>
-              <kbd className="shrink-0 rounded-sm border border-slate-300 bg-slate-50 px-1.5 py-0.5 font-mono text-xs text-slate-600">
+              <kbd className="shrink-0 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-sunken)] px-1.5 py-0.5 font-mono text-xs text-[var(--ci-ink-muted)]">
                 {chord(shortcut)}
               </kbd>
             </li>
