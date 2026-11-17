@@ -352,50 +352,19 @@ fn invalid_search(search_uri: &str, error: OperationOutcomeError) -> OperationOu
     .with_source(error)
 }
 
-/// Most distinct conditional references one transaction may carry. Each one is
-/// a search, so this bounds the search work a single request can ask for. The
-/// largest patient bundle in the Synthea sample download has 19 distinct
-/// conditional references, so this is ample headroom for real data while
-/// refusing a bundle crafted to fan out into tens of thousands of searches.
-const MAX_CONDITIONAL_REFERENCES: usize = 1_000;
-
-/// How many of a transaction's conditional-reference searches run at once.
-/// Bounded so one request cannot saturate the shared search connection pool:
-/// the rest wait their turn rather than all being issued together. Matches the
-/// bound used elsewhere for per-request fan-out (`binary_content`).
-const CONDITIONAL_REFERENCE_CONCURRENCY: usize = 8;
-
-/// A transaction with more conditional references than [`MAX_CONDITIONAL_REFERENCES`]:
-/// well formed, but past this server's limits, so 422 like other limit refusals.
-fn too_many_conditional_references(count: usize) -> OperationOutcomeError {
+/// Past `fhir.max_conditional_references`: well formed but past a server limit,
+/// so 422 like other limit refusals.
+fn too_many_conditional_references(count: usize, limit: usize) -> OperationOutcomeError {
     let error = OperationOutcomeError::error(
         IssueType::too_costly(),
         format!(
             "This transaction has {count} distinct conditional references, more than the \
-             {MAX_CONDITIONAL_REFERENCES} one transaction may resolve. Split it into smaller \
-             transactions."
+             {limit} one transaction may resolve. Split it into smaller transactions."
         ),
     );
     OperationOutcomeError::unprocessable(error.outcome().clone())
 }
 
-/// Points every conditional reference at the one resource its search matches.
-///
-/// Answered by the search index alone: the id it already holds is all a
-/// reference needs, so no resource is read. The lookups run with bounded
-/// concurrency ([`CONDITIONAL_REFERENCE_CONCURRENCY`]) and are capped in number
-/// ([`MAX_CONDITIONAL_REFERENCES`]), so one transaction cannot fan out into an
-/// unbounded burst of concurrent searches. Each is authorized as the caller's
-/// own search of the type would be: their access policies must grant it, and it
-/// carries the filters their scopes set.
-///
-/// # Errors
-///
-/// Too costly when the transaction carries more than
-/// [`MAX_CONDITIONAL_REFERENCES`] distinct references. Forbidden when the caller
-/// may not run a reference's search, invalid when it is not a search the type
-/// supports. Per [https://hl7.org/fhir/R4/http.html#trules] the transaction
-/// fails when a reference matches no resource or more than one.
 async fn resolve_conditional_references<B: Backend>(
     state: &ClientState<B>,
     ctx: &ServerCTX<B>,
@@ -404,11 +373,15 @@ async fn resolve_conditional_references<B: Backend>(
     if conditional_references.is_empty() {
         return Ok(());
     }
-    if conditional_references.len() > MAX_CONDITIONAL_REFERENCES {
+    let limit = state.config.fhir.max_conditional_references;
+    if conditional_references.len() > limit {
         return Err(too_many_conditional_references(
             conditional_references.len(),
+            limit,
         ));
     }
+    // 0 would stall `buffer_unordered`; floor at 1.
+    let concurrency = state.config.fhir.conditional_reference_concurrency.max(1);
 
     let policy = RequestPolicy::of_caller(state, ctx).await?;
     let lookups = conditional_references
@@ -419,24 +392,14 @@ async fn resolve_conditional_references<B: Backend>(
         .collect::<Vec<_>>();
 
     stream::iter(lookups)
-        .buffer_unordered(CONDITIONAL_REFERENCE_CONCURRENCY)
+        .buffer_unordered(concurrency)
         .try_collect::<()>()
         .await
 }
 
-/// Resolves one conditional reference: runs its search and points every
-/// reference that shares the search URI at the single resource it matches.
-///
-/// A named function (rather than an inline `async` block) so the lookups have a
-/// concrete future type that [`stream::iter`] can buffer with bounded
-/// concurrency.
-///
-/// # Errors
-///
-/// Forbidden when `policy` does not grant the search, invalid when it is not a
-/// search the type supports, and -- per
-/// [https://hl7.org/fhir/R4/http.html#trules] -- when the search matches no
-/// resource or more than one.
+/// Runs one conditional reference's search and points every reference sharing
+/// its URI at the single resource it matches. Named (not an inline `async`
+/// block) so the lookups have a concrete future type `buffer_unordered` can hold.
 async fn resolve_one_conditional_reference<B: Backend>(
     state: &ClientState<B>,
     ctx: &ServerCTX<B>,
@@ -872,7 +835,7 @@ mod tests {
 
     #[test]
     fn too_many_conditional_references_is_refused_as_too_costly() {
-        let error = too_many_conditional_references(MAX_CONDITIONAL_REFERENCES + 1);
+        let error = too_many_conditional_references(101, 100);
 
         // Well formed but past the server's limits: 422, not 400.
         assert_eq!(error.http_status(), 422);
@@ -881,14 +844,9 @@ mod tests {
             .as_ref()
             .and_then(|d| d.value.clone())
             .expect("the refusal has diagnostics");
-        assert!(
-            diagnostics.contains(&(MAX_CONDITIONAL_REFERENCES + 1).to_string()),
-            "{diagnostics}"
-        );
-        assert!(
-            diagnostics.contains(&MAX_CONDITIONAL_REFERENCES.to_string()),
-            "{diagnostics}"
-        );
+        // Both the actual count and the configured limit are named.
+        assert!(diagnostics.contains("101"), "{diagnostics}");
+        assert!(diagnostics.contains("100"), "{diagnostics}");
     }
 
     #[test]

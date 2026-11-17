@@ -39,6 +39,8 @@ Any field not set by either source falls back to the default documented below.
 | Key                 | Env var                   | Default                                                             |
 | ------------------- | ------------------------- | ------------------------------------------------------------------- |
 | `fhir.delete_limit` | `HASTE_FHIR.delete_limit` | `100` — max resources removed by a single type/system-level delete. |
+| `fhir.max_conditional_references` | `HASTE_FHIR.max_conditional_references` | `100` — most distinct conditional references one transaction may resolve; a bundle above it is refused with `422` (`too-costly`). |
+| `fhir.conditional_reference_concurrency` | `HASTE_FHIR.conditional_reference_concurrency` | `12` — how many of a transaction's conditional-reference searches run at once. Keep below `search.max_connections`. |
 
 #### `[repo]` — resource storage backend
 
