@@ -58,12 +58,7 @@ fn evaluate_literal<'b>(
     context: &Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
-        Literal::String(string) => Ok(context.new_context_from(vec![context.allocate_literal(
-            FHIRString {
-                value: Some(string.clone()),
-                ..Default::default()
-            },
-        )])),
+        Literal::String(string) => string_result(context, string.clone()),
         Literal::Integer(int) => Ok(context.new_context_from(vec![context.allocate_literal(
             FHIRInteger {
                 value: Some(*int),
@@ -683,12 +678,7 @@ fn evaluate_case<'a>(
         _ => unreachable!(),
     };
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(transformed),
-            ..Default::default()
-        })]),
-    )
+    string_result(context, transformed)
 }
 
 /// `encode(format)` / `decode(format)` for `hex`, `base64` and `urlbase64`.
@@ -759,12 +749,7 @@ async fn evaluate_codec<'a>(
         String::from_utf8(bytes).map_err(|_| invalid())?
     };
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(output),
-            ..Default::default()
-        })]),
-    )
+    string_result(&context, output)
 }
 
 fn evaluate_empty<'a>(
@@ -808,19 +793,21 @@ async fn evaluate_join<'a>(
         String::new()
     };
 
-    let joined = context
+    let items = context
         .values
         .iter()
         .map(|v| downcast_string(*v))
-        .collect::<Result<Vec<_>, _>>()?
-        .join(&separator);
+        .collect::<Result<Vec<_>, _>>()?;
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(joined),
-            ..Default::default()
-        })]),
-    )
+    // Sized before it is built: the separator repeats between every two items.
+    let length = items
+        .iter()
+        .map(String::len)
+        .sum::<usize>()
+        .saturating_add(separator.len().saturating_mul(items.len() - 1));
+    context.check_string_length(length)?;
+
+    string_result(&context, items.join(&separator))
 }
 
 async fn evaluate_exists<'a>(
@@ -1543,8 +1530,25 @@ async fn evaluate_math<'a>(
     Ok(number_result(&context, result))
 }
 
+/// Sized before it is built: a longer substitution grows the input by the difference for
+/// each match.
+fn replace(
+    context: &Context<'_>,
+    input: &str,
+    pattern: &str,
+    substitution: &str,
+) -> Result<String, FHIRPathError> {
+    if substitution.len() > pattern.len() {
+        let growth = substitution.len() - pattern.len();
+        let matches = input.matches(pattern).count();
+        context.check_string_length(input.len().saturating_add(matches.saturating_mul(growth)))?;
+    }
+    Ok(input.replace(pattern, substitution))
+}
+
 /// An empty pattern would match between every character, so it leaves the input as is.
 fn replace_matches(
+    context: &Context<'_>,
     input: String,
     pattern: &str,
     substitution: &str,
@@ -1552,16 +1556,49 @@ fn replace_matches(
     if pattern.is_empty() {
         return Ok(input);
     }
-    Ok(compile_regex(pattern)?
-        .replace_all(&input, substitution)
-        .into_owned())
+    let regex = compile_regex(pattern)?;
+    // A group is never longer than its match, so a match expands to at most this many
+    // times its length on top of the substitution's own.
+    let references = substitution.matches('$').count();
+
+    // Built match by match, as `Regex::replace_all` does, to size each expansion first.
+    let mut replaced = String::new();
+    let mut copied = 0;
+    for captures in regex.captures_iter(&input) {
+        let Some(matched) = captures.get(0) else {
+            continue;
+        };
+        replaced.push_str(&input[copied..matched.start()]);
+        let expansion = references
+            .saturating_mul(matched.len())
+            .saturating_add(substitution.len());
+        context.check_string_length(replaced.len().saturating_add(expansion))?;
+        captures.expand(substitution, &mut replaced);
+        copied = matched.end();
+    }
+    replaced.push_str(&input[copied..]);
+    Ok(replaced)
 }
 
-fn string_result<'a>(context: &Context<'a>, value: String) -> Context<'a> {
-    context.new_context_from(vec![context.allocate_literal(FHIRString {
-        value: Some(value),
-        ..Default::default()
-    })])
+/// Most memory the strings one evaluation creates may take, in bytes. A string function's
+/// result can be many times its input (`'a'.replace('a', 'aaaaaaaaaa')`) and be the input
+/// of the next call, so evaluation fails past this.
+const STRING_BYTE_LIMIT: usize = 4 * 1024 * 1024;
+
+/// The memory a created string of `length` bytes takes, in bytes.
+fn string_memory(length: usize) -> usize {
+    size_of::<FHIRString>().saturating_add(length)
+}
+
+/// Refuses an evaluation whose strings exceed [`STRING_BYTE_LIMIT`].
+fn strings_too_costly() -> FHIRPathError {
+    FHIRPathError::TooCostly(format!(
+        "the strings an evaluation creates may take at most {STRING_BYTE_LIMIT} bytes"
+    ))
+}
+
+fn string_result<'a>(context: &Context<'a>, value: String) -> Result<Context<'a>, FHIRPathError> {
+    Ok(context.new_context_from(vec![context.allocate_string(value)?]))
 }
 
 /// Compiled patterns, which come from expressions and are cached like their ASTs.
@@ -1651,19 +1688,17 @@ async fn evaluate_string_function<'a>(
 
     Ok(match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
-        "trim" => string_result(&context, trim(&input)),
+        "trim" => string_result(&context, trim(&input))?,
         "toChars" => {
-            let chars = input.chars().map(|c| {
-                context.allocate_literal(FHIRString {
-                    value: Some(c.to_string()),
-                    ..Default::default()
-                })
-            });
-            context.new_context_from(chars.collect())
+            let chars = input
+                .chars()
+                .map(|c| context.allocate_string(c.to_string()));
+            context.new_context_from(chars.collect::<Result<_, _>>()?)
         }
-        "split" => string_argument(0)?.map_or(empty, |separator| {
-            split_result(&context, &input, &separator)
-        }),
+        "split" => match string_argument(0)? {
+            Some(separator) => split_result(&context, &input, &separator)?,
+            None => empty,
+        },
         "indexOf" => {
             let Some(substring) = string_argument(0)? else {
                 return Ok(empty);
@@ -1687,14 +1722,15 @@ async fn evaluate_string_function<'a>(
             // An empty length is the same as none.
             let length = integer_argument(1)?
                 .map_or(usize::MAX, |length| usize::try_from(length).unwrap_or(0));
-            string_result(&context, input.chars().skip(start).take(length).collect())
+            string_result(&context, input.chars().skip(start).take(length).collect())?
         }
         "replace" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
                 return Ok(empty);
             };
-            string_result(&context, input.replace(&pattern, &substitution))
+            let replaced = replace(&context, &input, &pattern, &substitution)?;
+            string_result(&context, replaced)?
         }
         "matches" | "matchesFull" => string_argument(0)?
             .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
@@ -1705,7 +1741,8 @@ async fn evaluate_string_function<'a>(
             else {
                 return Ok(empty);
             };
-            string_result(&context, replace_matches(input, &pattern, &substitution)?)
+            let replaced = replace_matches(&context, input, &pattern, &substitution)?;
+            string_result(&context, replaced)?
         }
         _ => unreachable!(),
     })
@@ -1729,7 +1766,7 @@ async fn evaluate_escape<'a>(
         return Ok(context.new_context_from(vec![]));
     };
     let result = escape_target(name == "escape", &downcast_string(target)?, &input)?;
-    Ok(string_result(&context, result))
+    string_result(&context, result)
 }
 
 /// Escapes or unescapes `input` for the `html` or `json` target.
@@ -1854,22 +1891,24 @@ fn unescape_json(input: &str) -> String {
 }
 
 /// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
-fn split_result<'a>(context: &Context<'a>, input: &str, separator: &str) -> Context<'a> {
-    let allocate = |piece: &str| {
-        context.allocate_literal(FHIRString {
-            value: Some(piece.to_string()),
-            ..Default::default()
-        })
-    };
+fn split_result<'a>(
+    context: &Context<'a>,
+    input: &str,
+    separator: &str,
+) -> Result<Context<'a>, FHIRPathError> {
+    let allocate = |piece: &str| context.allocate_string(piece.to_string());
     let pieces = if separator.is_empty() {
         input
             .chars()
             .map(|c| allocate(c.encode_utf8(&mut [0; 4])))
-            .collect()
+            .collect::<Result<_, _>>()?
     } else {
-        input.split(separator).map(allocate).collect()
+        input
+            .split(separator)
+            .map(allocate)
+            .collect::<Result<_, _>>()?
     };
-    context.new_context_from(pieces)
+    Ok(context.new_context_from(pieces))
 }
 
 /// The kinds of item the conversion functions accept.
@@ -2149,30 +2188,35 @@ fn evaluate_conversion<'a>(
         None => (false, &name["to".len()..]),
     };
 
-    let converted = Convertible::of(value)?.and_then(|value| match target {
-        "Boolean" => to_boolean(value).map(|value| boolean_result(context, value)),
-        "Integer" => {
+    let converted = match (Convertible::of(value)?, target) {
+        (None, _) => None,
+        (Some(value), "Boolean") => to_boolean(value).map(|value| boolean_result(context, value)),
+        (Some(value), "Integer") => {
             to_integer(value).map(|value| number_result(context, Some(Number::Integer(value))))
         }
-        "Decimal" => {
+        (Some(value), "Decimal") => {
             to_decimal(value).map(|value| number_result(context, Some(Number::Decimal(value))))
         }
-        "String" => to_string(value).map(|value| string_result(context, value)),
-        "Date" => to_date(value).map(|value| {
+        (Some(value), "String") => to_string(value)
+            .map(|value| string_result(context, value))
+            .transpose()?,
+        (Some(value), "Date") => to_date(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRDate {
                 value: Some(value),
                 ..Default::default()
             })])
         }),
-        "DateTime" => to_date_time(value).map(|value| datetime_result(context, value)),
-        "Time" => to_time(value).map(|value| {
+        (Some(value), "DateTime") => {
+            to_date_time(value).map(|value| datetime_result(context, value))
+        }
+        (Some(value), "Time") => to_time(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRTime {
                 value: Some(value),
                 ..Default::default()
             })])
         }),
         _ => unreachable!(),
-    });
+    };
 
     if converts {
         Ok(boolean_result(context, converted.is_some()))
@@ -2647,12 +2691,7 @@ async fn evaluate_add<'a>(
                 let left_string = downcast_string(left.values[0])?;
                 let right_string = downcast_string(right.values[0])?;
 
-                Ok(
-                    left.new_context_from(vec![left.allocate_literal(FHIRString {
-                        value: Some(left_string + &right_string),
-                        ..Default::default()
-                    })]),
-                )
+                string_result(&left, left_string + &right_string)
             } else {
                 Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
                     left.values[0].fhir_type(),
@@ -3095,7 +3134,7 @@ async fn evaluate_concatenate<'a>(
             }
         }
 
-        Ok(string_result(&left, concatenated))
+        string_result(&left, concatenated)
     })
     .await
 }
@@ -3297,12 +3336,7 @@ async fn resolve_external_constant<'a>(
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     if let Some(value) = fhir_environment_variable(name) {
-        return Ok(
-            context.new_context_from(vec![context.allocate_literal(FHIRString {
-                value: Some(value),
-                ..Default::default()
-            })]),
-        );
+        return string_result(&context, value);
     }
 
     let external_constant = match resolver {
@@ -3392,6 +3426,38 @@ impl<'a> Context<'a> {
             .into());
         }
         Ok(())
+    }
+
+    /// Fails if a string of `length` bytes would take the evaluation's strings past
+    /// [`STRING_BYTE_LIMIT`]. Asked before building a result that can be many times the
+    /// size of its input.
+    fn check_string_length(&self, length: usize) -> Result<(), FHIRPathError> {
+        let total = self
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .string_bytes()
+            .saturating_add(string_memory(length));
+        if total > STRING_BYTE_LIMIT {
+            return Err(strings_too_costly());
+        }
+        Ok(())
+    }
+
+    /// Allocates a string the evaluation created, failing once the evaluation's strings
+    /// pass [`STRING_BYTE_LIMIT`].
+    fn allocate_string(&self, value: String) -> Result<&'a dyn MetaValue, FHIRPathError> {
+        let mut allocator = self
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if allocator.add_string_bytes(string_memory(value.len())) > STRING_BYTE_LIMIT {
+            return Err(strings_too_costly());
+        }
+        Ok(allocator.allocate_literal(FHIRString {
+            value: Some(value),
+            ..Default::default()
+        }))
     }
 
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
@@ -5069,5 +5135,66 @@ mod tests {
             .downcast_ref::<FHIRBoolean>()
             .unwrap();
         assert_eq!(b.value, Some(false));
+    }
+
+    /// `'a'`, made ten times as long by each of `calls` calls of `call`.
+    fn grown(call: &str, calls: usize) -> String {
+        format!("'a'{}", call.repeat(calls))
+    }
+
+    /// Whether evaluating `expression` is refused for the strings it creates.
+    async fn too_costly(expression: &str) -> bool {
+        matches!(
+            FPEngine::new().evaluate(expression, vec![]).await,
+            Err(FHIRPathError::TooCostly(_))
+        )
+    }
+
+    const REPLACE: &str = ".replace('a', 'aaaaaaaaaa')";
+
+    /// The number `expression` evaluates to.
+    async fn number(expression: &str) -> f64 {
+        let result = FPEngine::new().evaluate(expression, vec![]).await.unwrap();
+        downcast_number(result.values[0]).unwrap()
+    }
+
+    #[tokio::test]
+    async fn strings_within_the_limit_are_created() {
+        // 1 MB, after the 111 KB of the strings it was made from.
+        let length = format!("{}.length()", grown(REPLACE, 6));
+        assert_eq!(number(&length).await, 1_000_000.0);
+
+        // 10,000 strings of one character.
+        let count = format!("{}.toChars().count()", grown(REPLACE, 4));
+        assert_eq!(number(&count).await, 10_000.0);
+    }
+
+    #[tokio::test]
+    async fn a_string_that_grows_past_the_limit_is_refused() {
+        // 10 MB, and 10^40 bytes.
+        assert!(too_costly(&grown(REPLACE, 7)).await);
+        assert!(too_costly(&grown(REPLACE, 40)).await);
+        // Every character surrounded by 1 MB.
+        assert!(too_costly(&format!("'aaaaa'.replace('', {})", grown(REPLACE, 6))).await);
+
+        assert!(too_costly(&grown(".replaceMatches('a', 'aaaaaaaaaa')", 7)).await);
+        assert!(too_costly(&grown(".replaceMatches('(a+)', '$1$1$1$1$1$1$1$1$1$1')", 7)).await);
+
+        // Twice as long with every repetition.
+        assert!(too_costly("'a'.repeat($this + $this)").await);
+        assert!(too_costly("'a'.repeat($this & $this)").await);
+    }
+
+    #[tokio::test]
+    async fn strings_that_together_pass_the_limit_are_refused() {
+        // 100,000 strings of one character.
+        let characters = grown(REPLACE, 5);
+        assert!(too_costly(&format!("{characters}.toChars()")).await);
+        assert!(too_costly(&format!("{characters}.split('')")).await);
+
+        // 10,000 strings, each made 1 KB longer, and joined by 10 KB.
+        let items = format!("{}.toChars()", grown(REPLACE, 4));
+        assert!(too_costly(&format!("{items}.select($this + {})", grown(REPLACE, 3))).await);
+        assert!(too_costly(&format!("{items}.join({})", grown(REPLACE, 4))).await);
     }
 }

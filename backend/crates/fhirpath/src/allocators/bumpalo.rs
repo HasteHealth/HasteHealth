@@ -6,6 +6,7 @@ pub struct Allocator {
     arena: bumpalo::Bump,
     now: Option<chrono::DateTime<chrono::Utc>>,
     repeat_items: usize,
+    string_bytes: usize,
 }
 
 impl Allocator {
@@ -14,6 +15,7 @@ impl Allocator {
             arena: bumpalo::Bump::new(),
             now: None,
             repeat_items: 0,
+            string_bytes: 0,
         }
     }
 
@@ -28,6 +30,18 @@ impl Allocator {
     pub fn add_repeat_items(&mut self, count: usize) -> usize {
         self.repeat_items = self.repeat_items.saturating_add(count);
         self.repeat_items
+    }
+
+    /// The memory the strings this evaluation created take, in bytes.
+    pub fn string_bytes(&self) -> usize {
+        self.string_bytes
+    }
+
+    /// Adds `bytes` to the memory the strings this evaluation created take and returns
+    /// the new total.
+    pub fn add_string_bytes(&mut self, bytes: usize) -> usize {
+        self.string_bytes = self.string_bytes.saturating_add(bytes);
+        self.string_bytes
     }
 }
 
