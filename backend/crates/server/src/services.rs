@@ -160,7 +160,9 @@ async fn build_services(
     let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
     let binary_storage = document_storage::connect(config.as_ref()).await?;
 
-    let terminology = Arc::new(FHIRCanonicalTerminology::new());
+    let terminology = Arc::new(FHIRCanonicalTerminology::with_limits(
+        config.terminology.expansion_limits(),
+    ));
 
     let search_engine = haste_fhir_search::config::create_search_engine(
         &config.search,

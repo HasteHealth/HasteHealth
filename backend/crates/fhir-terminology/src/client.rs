@@ -16,7 +16,36 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{borrow::Cow, pin::Pin, sync::Arc};
 
-pub struct FHIRCanonicalTerminology;
+/// Bounds on one expansion. Value sets include each other by canonical, so
+/// nothing else bounds how deep or how wide an expansion gets. One that would
+/// pass a limit is refused rather than answered with part of its concepts.
+#[derive(Debug, Clone, Copy)]
+pub struct ExpansionLimits {
+    /// Most concepts an expansion holds, nested `contains` counted.
+    pub max_expansion_concepts: usize,
+    /// Most value sets an expansion resolves through `compose.include.valueSet`,
+    /// one resolved twice counted twice.
+    pub max_included_value_sets: usize,
+    /// Longest chain of `compose.include.valueSet` references an expansion follows.
+    pub max_value_set_depth: usize,
+}
+
+impl Default for ExpansionLimits {
+    /// Well above what the FHIR R4 core, US Core and CARIN Blue Button packages
+    /// need: their largest code system has 3,156 concepts, and no value set of
+    /// theirs resolves more than 11 others or includes more than 2 levels deep.
+    fn default() -> Self {
+        Self {
+            max_expansion_concepts: 100_000,
+            max_included_value_sets: 1_000,
+            max_value_set_depth: 32,
+        }
+    }
+}
+
+pub struct FHIRCanonicalTerminology {
+    limits: ExpansionLimits,
+}
 
 impl Default for FHIRCanonicalTerminology {
     fn default() -> Self {
@@ -27,7 +56,13 @@ impl Default for FHIRCanonicalTerminology {
 impl FHIRCanonicalTerminology {
     #[must_use]
     pub fn new() -> Self {
-        FHIRCanonicalTerminology
+        Self::with_limits(ExpansionLimits::default())
+    }
+
+    /// Expands within `limits` instead of the default ones.
+    #[must_use]
+    pub fn with_limits(limits: ExpansionLimits) -> Self {
+        FHIRCanonicalTerminology { limits }
     }
 }
 
@@ -50,13 +85,6 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
     }
 }
 
-/// Longest chain of `compose.include.valueSet` references an expansion follows.
-const MAX_VALUE_SET_DEPTH: usize = 32;
-/// Most value sets an expansion resolves through `compose.include.valueSet`.
-const MAX_INCLUDED_VALUE_SETS: usize = 1_000;
-/// Most concepts an expansion holds, nested `contains` counted.
-const MAX_EXPANSION_CONCEPTS: usize = 100_000;
-
 /// Past a limit of the expansion: well formed but more than the server
 /// expands, so 422 like other limit refusals.
 fn too_costly(diagnostic: String) -> OperationOutcomeError {
@@ -64,10 +92,9 @@ fn too_costly(diagnostic: String) -> OperationOutcomeError {
     OperationOutcomeError::unprocessable(error.outcome().clone())
 }
 
-/// What one expansion has used of its limits. Value sets include each other
-/// by canonical, so nothing else bounds how deep or how wide an expansion gets.
-#[derive(Default)]
+/// What one expansion has used of its limits.
 struct ExpansionState {
+    limits: ExpansionLimits,
     /// Canonical of the value set the expansion was asked for.
     root: Option<String>,
     /// Canonicals of the included value sets being expanded, outermost first.
@@ -77,6 +104,16 @@ struct ExpansionState {
 }
 
 impl ExpansionState {
+    fn new(limits: ExpansionLimits, root: Option<String>) -> Self {
+        Self {
+            limits,
+            root,
+            path: Vec::new(),
+            included_value_sets: 0,
+            concepts: 0,
+        }
+    }
+
     /// Records that the value set at `canonical` is about to be expanded
     /// inside the ones already on the path.
     fn enter(&mut self, canonical: &str) -> Result<(), OperationOutcomeError> {
@@ -91,15 +128,17 @@ impl ExpansionState {
                 error.outcome().clone(),
             ));
         }
-        if self.path.len() >= MAX_VALUE_SET_DEPTH {
+        if self.path.len() >= self.limits.max_value_set_depth {
             return Err(too_costly(format!(
-                "ValueSet includes other value sets more than {MAX_VALUE_SET_DEPTH} levels deep"
+                "ValueSet includes other value sets more than {} levels deep",
+                self.limits.max_value_set_depth
             )));
         }
         self.included_value_sets += 1;
-        if self.included_value_sets > MAX_INCLUDED_VALUE_SETS {
+        if self.included_value_sets > self.limits.max_included_value_sets {
             return Err(too_costly(format!(
-                "ValueSet includes more than {MAX_INCLUDED_VALUE_SETS} other value sets"
+                "ValueSet includes more than {} other value sets",
+                self.limits.max_included_value_sets
             )));
         }
         self.path.push(canonical.to_string());
@@ -113,9 +152,10 @@ impl ExpansionState {
     /// Counts concepts about to join the expansion, before they are copied.
     fn add_concepts(&mut self, count: usize) -> Result<(), OperationOutcomeError> {
         self.concepts = self.concepts.saturating_add(count);
-        if self.concepts > MAX_EXPANSION_CONCEPTS {
+        if self.concepts > self.limits.max_expansion_concepts {
             return Err(too_costly(format!(
-                "ValueSet expands to more than {MAX_EXPANSION_CONCEPTS} concepts"
+                "ValueSet expands to more than {} concepts",
+                self.limits.max_expansion_concepts
             )));
         }
         Ok(())
@@ -328,16 +368,17 @@ fn expand_included_valueset<'a, Resolver: CanonicalResolver + Sync + Send + Clon
 async fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
     canonical_resolution: Resolver,
     input: ValueSetExpand::Input,
+    limits: ExpansionLimits,
 ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
     let resolved = resolve_valueset(canonical_resolution.clone(), input).await?;
 
     if let Some(resource) = resolved
         && let Resource::ValueSet(value_set) = &*resource
     {
-        let mut state = ExpansionState {
-            root: value_set.url.as_ref().and_then(|url| url.value.clone()),
-            ..Default::default()
-        };
+        let mut state = ExpansionState::new(
+            limits,
+            value_set.url.as_ref().and_then(|url| url.value.clone()),
+        );
 
         let contains = get_valueset_expansion(canonical_resolution, value_set, &mut state).await?;
         let mut expanded_valueset = value_set.clone();
@@ -365,7 +406,7 @@ impl FHIRTerminology for FHIRCanonicalTerminology {
         resolver: Resolver,
         input: ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
-        expand_valueset(resolver, input).await
+        expand_valueset(resolver, input, self.limits).await
     }
     async fn validate<Resolver: CanonicalResolver + Send + Clone + Sync + 'static>(
         &self,
@@ -919,50 +960,69 @@ mod tests {
         )
     }
 
+    /// A value set that includes `included` empty value sets.
+    fn wide(included: usize) -> Canonicals {
+        Canonicals::new(vec![
+            value_set(
+                "http://example.org/vs/wide",
+                vec![include_value_sets(&vec![
+                    "http://example.org/vs/empty";
+                    included
+                ])],
+            ),
+            value_set("http://example.org/vs/empty", vec![]),
+        ])
+    }
+
+    /// The number of concepts at the top of the expansion.
+    async fn expand_within(
+        limits: ExpansionLimits,
+        resolver: Canonicals,
+        url: &str,
+    ) -> Result<usize, OperationOutcomeError> {
+        let output = FHIRCanonicalTerminology::with_limits(limits)
+            .expand(resolver, input_for(url))
+            .await?;
+        Ok(output.return_.expansion.unwrap().contains.unwrap().len())
+    }
+
+    fn assert_too_costly(result: Result<usize, OperationOutcomeError>, diagnostic: &str) {
+        let error = result.unwrap_err();
+        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
+        assert_eq!(diagnostics(&error), diagnostic);
+    }
+
     #[tokio::test]
     async fn follows_included_value_sets_up_to_the_depth_limit() {
-        let output = FHIRCanonicalTerminology::new()
-            .expand(
-                chain(MAX_VALUE_SET_DEPTH),
-                input_for("http://example.org/vs/0"),
-            )
-            .await
-            .unwrap();
-        assert_eq!(output.return_.expansion.unwrap().contains.unwrap().len(), 1);
+        let limits = ExpansionLimits::default();
+        let url = "http://example.org/vs/0";
 
-        let error = expand_error(chain(MAX_VALUE_SET_DEPTH + 1), "http://example.org/vs/0").await;
+        let at_limit = expand_within(limits, chain(limits.max_value_set_depth), url).await;
+        assert_eq!(at_limit.unwrap(), 1);
 
-        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
-        assert_eq!(
-            diagnostics(&error),
-            format!(
-                "ValueSet includes other value sets more than {MAX_VALUE_SET_DEPTH} levels deep"
-            )
+        assert_too_costly(
+            expand_within(limits, chain(limits.max_value_set_depth + 1), url).await,
+            "ValueSet includes other value sets more than 32 levels deep",
         );
     }
 
     #[tokio::test]
     async fn refuses_more_included_value_sets_than_the_limit() {
-        let includes = vec!["http://example.org/vs/empty"; MAX_INCLUDED_VALUE_SETS + 1];
-        let resolver = Canonicals::new(vec![
-            value_set(
-                "http://example.org/vs/wide",
-                vec![include_value_sets(&includes)],
-            ),
-            value_set("http://example.org/vs/empty", vec![]),
-        ]);
+        let limits = ExpansionLimits::default();
+        let url = "http://example.org/vs/wide";
 
-        let error = expand_error(resolver, "http://example.org/vs/wide").await;
+        let at_limit = expand_within(limits, wide(limits.max_included_value_sets), url).await;
+        assert_eq!(at_limit.unwrap(), 0);
 
-        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
-        assert_eq!(
-            diagnostics(&error),
-            format!("ValueSet includes more than {MAX_INCLUDED_VALUE_SETS} other value sets")
+        assert_too_costly(
+            expand_within(limits, wide(limits.max_included_value_sets + 1), url).await,
+            "ValueSet includes more than 1000 other value sets",
         );
     }
 
     #[tokio::test]
     async fn refuses_an_expansion_with_more_concepts_than_the_limit() {
+        let limits = ExpansionLimits::default();
         // Each include of `codes` adds 1,000 concepts, half of them nested.
         let concepts = (0..500)
             .map(|i| {
@@ -970,34 +1030,77 @@ mod tests {
                 parent.concept = Some(vec![concept(&format!("c{i}"), "Child")]);
                 parent
             })
-            .collect();
-        let includes = vec!["http://example.org/vs/codes"; MAX_EXPANSION_CONCEPTS / 1_000 + 1];
-        let resolver = Canonicals::new(vec![
-            Resource::CodeSystem(CodeSystem {
-                url: Some(Box::new(uri("http://example.org/cs"))),
-                content: CodesystemContentMode::complete(),
-                concept: Some(concepts),
-                ..Default::default()
-            }),
-            value_set(
-                "http://example.org/vs/codes",
-                vec![ValueSetComposeInclude {
-                    system: Some(Box::new(uri("http://example.org/cs"))),
+            .collect::<Vec<_>>();
+        let resolver = |included: usize| {
+            Canonicals::new(vec![
+                Resource::CodeSystem(CodeSystem {
+                    url: Some(Box::new(uri("http://example.org/cs"))),
+                    content: CodesystemContentMode::complete(),
+                    concept: Some(concepts.clone()),
                     ..Default::default()
-                }],
-            ),
-            value_set(
-                "http://example.org/vs/wide",
-                vec![include_value_sets(&includes)],
-            ),
-        ]);
+                }),
+                value_set(
+                    "http://example.org/vs/codes",
+                    vec![ValueSetComposeInclude {
+                        system: Some(Box::new(uri("http://example.org/cs"))),
+                        ..Default::default()
+                    }],
+                ),
+                value_set(
+                    "http://example.org/vs/wide",
+                    vec![include_value_sets(&vec![
+                        "http://example.org/vs/codes";
+                        included
+                    ])],
+                ),
+            ])
+        };
+        let url = "http://example.org/vs/wide";
+        let includes = limits.max_expansion_concepts / 1_000;
 
-        let error = expand_error(resolver, "http://example.org/vs/wide").await;
+        let at_limit = expand_within(limits, resolver(includes), url).await;
+        assert_eq!(at_limit.unwrap(), limits.max_expansion_concepts / 2);
 
-        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
+        assert_too_costly(
+            expand_within(limits, resolver(includes + 1), url).await,
+            "ValueSet expands to more than 100000 concepts",
+        );
+    }
+
+    #[tokio::test]
+    async fn expands_within_the_limits_it_is_given() {
+        let limits = ExpansionLimits {
+            max_expansion_concepts: 2,
+            max_included_value_sets: 3,
+            max_value_set_depth: 1,
+        };
+
+        let chained = "http://example.org/vs/0";
+        assert_eq!(expand_within(limits, chain(1), chained).await.unwrap(), 1);
+        assert_too_costly(
+            expand_within(limits, chain(2), chained).await,
+            "ValueSet includes other value sets more than 1 levels deep",
+        );
+
+        let included = "http://example.org/vs/wide";
+        assert_eq!(expand_within(limits, wide(3), included).await.unwrap(), 0);
+        assert_too_costly(
+            expand_within(limits, wide(4), included).await,
+            "ValueSet includes more than 3 other value sets",
+        );
+
+        let inline = "http://example.org/vs/inline";
+        let codes =
+            |codes: &[&str]| Canonicals::new(vec![value_set(inline, vec![include_codes(codes)])]);
         assert_eq!(
-            diagnostics(&error),
-            format!("ValueSet expands to more than {MAX_EXPANSION_CONCEPTS} concepts")
+            expand_within(limits, codes(&["a", "b"]), inline)
+                .await
+                .unwrap(),
+            2
+        );
+        assert_too_costly(
+            expand_within(limits, codes(&["a", "b", "c"]), inline).await,
+            "ValueSet expands to more than 2 concepts",
         );
     }
 }
