@@ -32,12 +32,24 @@ let expanded = terminology.expand(resolver, input).await?.return_;
 
 `expand` resolves the value set by `url` (or takes it inline as `valueSet`), then walks `compose.include`: inline concepts are copied, included value sets are expanded recursively, and a bare `system` pulls every concept of the resolved `CodeSystem` (content `complete`, `fragment` or `supplement`; `not-present` is an error). `validate` expands the same way and looks for the `code`.
 
+An expansion is bounded by `client::ExpansionLimits`: by default 100,000 concepts, 1,000 included value sets and 32 levels of value sets including one another. One that would pass a limit fails with a `too-costly` error, and a value set that includes itself, directly or through others, with an `invalid` one. `FHIRCanonicalTerminology::with_limits` takes other limits:
+
+```rust
+use haste_fhir_terminology::client::{ExpansionLimits, FHIRCanonicalTerminology};
+
+let terminology = FHIRCanonicalTerminology::with_limits(ExpansionLimits {
+    max_expansion_concepts: 10_000,
+    ..ExpansionLimits::default()
+});
+```
+
 What is not covered yet, so you can plan around it: `expand` ignores `filter`, `offset`, `count` and the other expansion options; `validate` only accepts the `code` input (not `coding` or `codeableConcept`) and matches on the code alone, without the system; and `lookup` is declared on the trait but `FHIRCanonicalTerminology` does not implement it.
 
 ## API
 
 - `FHIRTerminology`: `expand`, `validate` and `lookup`, each taking a `CanonicalResolver` and the matching generated `Input`, and returning the generated `Output`.
 - `client::FHIRCanonicalTerminology`: the implementation described above.
+- `client::ExpansionLimits`: the bounds on one expansion, passed to `FHIRCanonicalTerminology::with_limits`.
 - `TerminologyError`: `ExpansionError`, `ValidationError`, `LookupError`, convertible into `OperationOutcomeError`.
 
 ## Links
