@@ -147,7 +147,7 @@ fn check_type(resource_type: &ResourceType) -> Result<(), OperationOutcomeError>
 /// the filter never sees. Neither can be bounded, so both are refused.
 fn check_search_parameters(parameters: &ParsedParameters) -> Result<(), OperationOutcomeError> {
     for parameter in parameters.parameters() {
-        if parameter.name().starts_with("_has") {
+        if parameter.name() == "_has" {
             return Err(forbidden(
                 "Reverse chaining (_has) is not supported under a patient-level scope",
             ));
