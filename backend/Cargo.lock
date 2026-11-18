@@ -2911,7 +2911,6 @@ dependencies = [
  "moka",
  "petgraph",
  "rand 0.10.2",
- "regex",
  "reqwest 0.13.5",
  "rsa",
  "rust-embed",
