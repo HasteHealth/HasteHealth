@@ -264,8 +264,8 @@ async fn a_mistake_is_reported_where_no_row_is_used() {
 
 #[tokio::test]
 async fn a_column_too_costly_to_evaluate_is_refused() {
-    // A string ten times as long with every call: 10 MB.
-    let path = format!("'a'{}.length()", ".replace('a', 'aaaaaaaaaa')".repeat(7));
+    // A string ten times as long with every call: 100 MB.
+    let path = format!("'a'{}.length()", ".replace('a', 'aaaaaaaaaa')".repeat(8));
     let column = json!({"column": [{"name": "length", "path": path}]});
 
     let result = rows(&view(&json!([column])), &[patient("p", 1)], None, 10_000).await;

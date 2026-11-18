@@ -31,7 +31,10 @@ use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
     collections::{HashMap, HashSet},
-    sync::{Arc, LazyLock, Mutex},
+    sync::{
+        Arc, LazyLock, Mutex, MutexGuard,
+        atomic::{AtomicUsize, Ordering as AtomicOrdering},
+    },
 };
 
 mod allocators;
@@ -805,7 +808,7 @@ async fn evaluate_join<'a>(
         .map(String::len)
         .sum::<usize>()
         .saturating_add(separator.len().saturating_mul(items.len() - 1));
-    context.check_string_length(length)?;
+    context.check_bytes(length)?;
 
     string_result(&context, items.join(&separator))
 }
@@ -1541,7 +1544,7 @@ fn replace(
     if substitution.len() > pattern.len() {
         let growth = substitution.len() - pattern.len();
         let matches = input.matches(pattern).count();
-        context.check_string_length(input.len().saturating_add(matches.saturating_mul(growth)))?;
+        context.check_bytes(input.len().saturating_add(matches.saturating_mul(growth)))?;
     }
     Ok(input.replace(pattern, substitution))
 }
@@ -1572,29 +1575,12 @@ fn replace_matches(
         let expansion = references
             .saturating_mul(matched.len())
             .saturating_add(substitution.len());
-        context.check_string_length(replaced.len().saturating_add(expansion))?;
+        context.check_bytes(replaced.len().saturating_add(expansion))?;
         captures.expand(substitution, &mut replaced);
         copied = matched.end();
     }
     replaced.push_str(&input[copied..]);
     Ok(replaced)
-}
-
-/// Most memory the strings one evaluation creates may take, in bytes. A string function's
-/// result can be many times its input (`'a'.replace('a', 'aaaaaaaaaa')`) and be the input
-/// of the next call, so evaluation fails past this.
-const STRING_BYTE_LIMIT: usize = 4 * 1024 * 1024;
-
-/// The memory a created string of `length` bytes takes, in bytes.
-fn string_memory(length: usize) -> usize {
-    size_of::<FHIRString>().saturating_add(length)
-}
-
-/// Refuses an evaluation whose strings exceed [`STRING_BYTE_LIMIT`].
-fn strings_too_costly() -> FHIRPathError {
-    FHIRPathError::TooCostly(format!(
-        "the strings an evaluation creates may take at most {STRING_BYTE_LIMIT} bytes"
-    ))
 }
 
 fn string_result<'a>(context: &Context<'a>, value: String) -> Result<Context<'a>, FHIRPathError> {
@@ -3237,6 +3223,7 @@ fn evaluate_expression<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Pin<Box<impl Future<Output = Result<Context<'a>, FHIRPathError>>>> {
     Box::pin(async move {
+        context.check_bytes(0)?;
         match ast {
             Expression::Operation(operation) => {
                 evaluate_operation(operation, context, config).await
@@ -3264,8 +3251,38 @@ impl ResolvedValue {
     }
 }
 
+/// Most memory the values one evaluation creates may take, in bytes. An expression can
+/// create far more than it is given: a string function's result can be many times its
+/// input (`'a'.replace('a', 'aaaaaaaaaa')`) and be the input of the next call, and nested
+/// iterations multiply what they evaluate. Evaluation fails past this.
+const VALUE_BYTE_LIMIT: usize = 16 * 1024 * 1024;
+
+/// Refuses an evaluation whose values exceed [`VALUE_BYTE_LIMIT`].
+fn values_too_costly() -> FHIRPathError {
+    FHIRPathError::TooCostly(format!(
+        "the values an evaluation creates may take at most {VALUE_BYTE_LIMIT} bytes"
+    ))
+}
+
+/// What the contexts of one evaluation share.
+struct Evaluation {
+    allocator: Mutex<allocators::bumpalo::Allocator>,
+    // The memory the values created so far take, in bytes. Outside the lock, as every
+    // expression evaluated reads it.
+    bytes: AtomicUsize,
+}
+
+impl Evaluation {
+    fn new() -> Arc<Self> {
+        Arc::new(Self {
+            allocator: Mutex::new(allocators::bumpalo::Allocator::new()),
+            bytes: AtomicUsize::new(0),
+        })
+    }
+}
+
 pub struct Context<'a> {
-    allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
+    evaluation: Arc<Evaluation>,
     values: Vec<&'a dyn MetaValue>,
     // Position of the current item in an iteration function, backing `$index`.
     index: Option<usize>,
@@ -3373,22 +3390,26 @@ impl<'a> IntoIterator for &'a Context<'_> {
 }
 
 impl<'a> Context<'a> {
-    fn new(
-        values: Vec<&'a dyn MetaValue>,
-        allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
-    ) -> Self {
+    /// The context a new evaluation starts from.
+    fn new(values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
-            allocator,
+            evaluation: Evaluation::new(),
             values,
             index: None,
         }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
-            allocator: self.allocator.clone(),
+            evaluation: self.evaluation.clone(),
             values,
             index: self.index,
         }
+    }
+    fn allocator(&self) -> MutexGuard<'_, allocators::bumpalo::Allocator> {
+        self.evaluation
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
     /// A singleton context for one item of an iteration function, binding `$index`.
     fn new_item_context(&self, value: &'a dyn MetaValue, index: usize) -> Self {
@@ -3398,27 +3419,17 @@ impl<'a> Context<'a> {
         }
     }
     fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .allocate_resolved(value)
+        self.allocator().allocate_resolved(value)
     }
 
     fn now(&self) -> chrono::DateTime<chrono::Utc> {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .now()
+        self.allocator().now()
     }
 
     /// Counts items `repeat()` produced, failing once the evaluation's total passes
     /// [`REPEAT_ITEM_LIMIT`].
     fn count_repeat_items(&self, count: usize) -> Result<(), FHIRPathError> {
-        let total = self
-            .allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .add_repeat_items(count);
+        let total = self.allocator().add_repeat_items(count);
         if total > REPEAT_ITEM_LIMIT {
             return Err(FunctionError::InvalidFunctionCall(format!(
                 "repeat() produced more than {REPEAT_ITEM_LIMIT} items"
@@ -3428,43 +3439,37 @@ impl<'a> Context<'a> {
         Ok(())
     }
 
-    /// Fails if a string of `length` bytes would take the evaluation's strings past
-    /// [`STRING_BYTE_LIMIT`]. Asked before building a result that can be many times the
-    /// size of its input.
-    fn check_string_length(&self, length: usize) -> Result<(), FHIRPathError> {
-        let total = self
-            .allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .string_bytes()
-            .saturating_add(string_memory(length));
-        if total > STRING_BYTE_LIMIT {
-            return Err(strings_too_costly());
+    /// Fails if `more` bytes would take the evaluation's values past [`VALUE_BYTE_LIMIT`].
+    /// Asked before every expression is evaluated, and with the size of a result that can
+    /// be many times its input before it is built.
+    fn check_bytes(&self, more: usize) -> Result<(), FHIRPathError> {
+        let bytes = self.evaluation.bytes.load(AtomicOrdering::Relaxed);
+        if bytes.saturating_add(more) > VALUE_BYTE_LIMIT {
+            return Err(values_too_costly());
         }
         Ok(())
     }
 
-    /// Allocates a string the evaluation created, failing once the evaluation's strings
-    /// pass [`STRING_BYTE_LIMIT`].
+    /// Allocates a string the evaluation created, unless it takes the evaluation's values
+    /// past [`VALUE_BYTE_LIMIT`].
     fn allocate_string(&self, value: String) -> Result<&'a dyn MetaValue, FHIRPathError> {
-        let mut allocator = self
-            .allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if allocator.add_string_bytes(string_memory(value.len())) > STRING_BYTE_LIMIT {
-            return Err(strings_too_costly());
-        }
-        Ok(allocator.allocate_literal(FHIRString {
+        self.check_bytes(value.len())?;
+        self.evaluation
+            .bytes
+            .fetch_add(value.len(), AtomicOrdering::Relaxed);
+        Ok(self.allocate_literal(FHIRString {
             value: Some(value),
             ..Default::default()
         }))
     }
 
+    /// Allocates a value the evaluation created, counting the memory of its type. Past
+    /// [`VALUE_BYTE_LIMIT`] the next expression evaluated fails.
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .allocate_literal(value)
+        self.evaluation
+            .bytes
+            .fetch_add(size_of::<T>(), AtomicOrdering::Relaxed);
+        self.allocator().allocate_literal(value)
     }
 
     /// The values, which live as long as `'a` rather than this borrow.
@@ -3487,7 +3492,7 @@ impl<'a> Context<'a> {
 impl Clone for Context<'_> {
     fn clone(&self) -> Self {
         Self {
-            allocator: self.allocator.clone(),
+            evaluation: self.evaluation.clone(),
             values: self.values.clone(),
             index: self.index,
         }
@@ -3540,11 +3545,7 @@ impl FPEngine {
     {
         let ast = get_ast(path)?;
 
-        // Store created.
-        let allocator: Arc<Mutex<allocators::bumpalo::Allocator>> =
-            Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
-
-        let context = Context::new(values, allocator.clone());
+        let context = Context::new(values);
 
         let result = evaluate_expression(&ast, context, None).await?;
         Ok(result)
@@ -3570,10 +3571,7 @@ impl FPEngine {
     {
         let ast = get_ast(path)?;
 
-        // Store created.
-        let allocator = Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
-
-        let context = Context::new(values, allocator.clone());
+        let context = Context::new(values);
 
         let result = evaluate_expression(&ast, context, Some(config)).await?;
 
@@ -5137,20 +5135,24 @@ mod tests {
         assert_eq!(b.value, Some(false));
     }
 
-    /// `'a'`, made ten times as long by each of `calls` calls of `call`.
-    fn grown(call: &str, calls: usize) -> String {
-        format!("'a'{}", call.repeat(calls))
+    /// `'a'`, made ten times as long by each of `calls` calls of `.replace()`.
+    fn grown(calls: usize) -> String {
+        format!("'a'{}", ".replace('a', 'aaaaaaaaaa')".repeat(calls))
     }
 
-    /// Whether evaluating `expression` is refused for the strings it creates.
+    /// Ten integers, selected for each of ten integers `depth` times over: 10^(`depth` + 1).
+    fn selected(depth: usize) -> String {
+        const TEN: &str = "(1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10)";
+        (0..depth).fold(TEN.to_string(), |inner, _| format!("{TEN}.select({inner})"))
+    }
+
+    /// Whether evaluating `expression` is refused for the values it creates.
     async fn too_costly(expression: &str) -> bool {
         matches!(
             FPEngine::new().evaluate(expression, vec![]).await,
             Err(FHIRPathError::TooCostly(_))
         )
     }
-
-    const REPLACE: &str = ".replace('a', 'aaaaaaaaaa')";
 
     /// The number `expression` evaluates to.
     async fn number(expression: &str) -> f64 {
@@ -5159,26 +5161,34 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn strings_within_the_limit_are_created() {
-        // 1 MB, after the 111 KB of the strings it was made from.
-        let length = format!("{}.length()", grown(REPLACE, 6));
-        assert_eq!(number(&length).await, 1_000_000.0);
+    async fn values_within_the_limit_are_created() {
+        // 10 MB, after the 1.1 MB of the strings it was made from.
+        let length = format!("{}.length()", grown(7));
+        assert_eq!(number(&length).await, 10_000_000.0);
 
         // 10,000 strings of one character.
-        let count = format!("{}.toChars().count()", grown(REPLACE, 4));
+        let count = format!("{}.toChars().count()", grown(4));
         assert_eq!(number(&count).await, 10_000.0);
+
+        // 1,000 integers.
+        let count = format!("{}.count()", selected(2));
+        assert_eq!(number(&count).await, 1_000.0);
     }
 
     #[tokio::test]
     async fn a_string_that_grows_past_the_limit_is_refused() {
-        // 10 MB, and 10^40 bytes.
-        assert!(too_costly(&grown(REPLACE, 7)).await);
-        assert!(too_costly(&grown(REPLACE, 40)).await);
-        // Every character surrounded by 1 MB.
-        assert!(too_costly(&format!("'aaaaa'.replace('', {})", grown(REPLACE, 6))).await);
+        // 100 MB, and 10^40 bytes.
+        assert!(too_costly(&grown(8)).await);
+        assert!(too_costly(&grown(40)).await);
+        // 1 MB around each of twenty characters.
+        let twenty = "a".repeat(20);
+        assert!(too_costly(&format!("'{twenty}'.replace('', {})", grown(6))).await);
 
-        assert!(too_costly(&grown(".replaceMatches('a', 'aaaaaaaaaa')", 7)).await);
-        assert!(too_costly(&grown(".replaceMatches('(a+)', '$1$1$1$1$1$1$1$1$1$1')", 7)).await);
+        // 10 KB in place of each of 10,000 characters, and a match of 1 MB twenty times over.
+        let text = grown(4);
+        assert!(too_costly(&format!("{text}.replaceMatches('a', {text})")).await);
+        let groups = "$1".repeat(20);
+        assert!(too_costly(&format!("{}.replaceMatches('(a+)', '{groups}')", grown(6))).await);
 
         // Twice as long with every repetition.
         assert!(too_costly("'a'.repeat($this + $this)").await);
@@ -5186,15 +5196,74 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn strings_that_together_pass_the_limit_are_refused() {
-        // 100,000 strings of one character.
-        let characters = grown(REPLACE, 5);
+    async fn values_that_together_pass_the_limit_are_refused() {
+        // 1,000,000 strings of one character.
+        let characters = grown(6);
         assert!(too_costly(&format!("{characters}.toChars()")).await);
         assert!(too_costly(&format!("{characters}.split('')")).await);
 
         // 10,000 strings, each made 1 KB longer, and joined by 10 KB.
-        let items = format!("{}.toChars()", grown(REPLACE, 4));
-        assert!(too_costly(&format!("{items}.select($this + {})", grown(REPLACE, 3))).await);
-        assert!(too_costly(&format!("{items}.join({})", grown(REPLACE, 4))).await);
+        let items = format!("{}.toChars()", grown(4));
+        assert!(too_costly(&format!("{items}.select($this + {})", grown(3))).await);
+        assert!(too_costly(&format!("{items}.join({})", grown(4))).await);
+
+        // 10,000,000 integers.
+        assert!(too_costly(&selected(6)).await);
+    }
+
+    /// A value that owns memory outside an evaluation's arena.
+    #[derive(Debug)]
+    struct Owner {
+        _owned: Arc<()>,
+    }
+
+    impl MetaValue for Owner {
+        fn fields(&self) -> Vec<&'static str> {
+            vec![]
+        }
+        fn get_field<'a>(&'a self, _field: &str) -> Option<&'a dyn MetaValue> {
+            None
+        }
+        fn get_field_mut<'a>(&'a mut self, _field: &str) -> Option<&'a mut dyn MetaValue> {
+            None
+        }
+        fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
+            None
+        }
+        fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
+            None
+        }
+        fn flatten(&self) -> Vec<&dyn MetaValue> {
+            vec![self]
+        }
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
+        fn fhir_type(&self) -> &'static str {
+            "Owner"
+        }
+        fn is_many(&self) -> bool {
+            false
+        }
+    }
+
+    #[test]
+    fn an_evaluation_drops_the_values_it_created() {
+        let owned = Arc::new(());
+        let value = || Owner {
+            _owned: owned.clone(),
+        };
+        let context = Context::new(vec![]);
+        let last = context.new_context_from(vec![
+            context.allocate_literal(value()),
+            context.allocate(ResolvedValue::Box(Box::new(value()))),
+        ]);
+        assert_eq!(Arc::strong_count(&owned), 3);
+
+        // The values live as long as any context of their evaluation.
+        drop(context);
+        assert_eq!(Arc::strong_count(&owned), 3);
+        drop(last);
+        assert_eq!(Arc::strong_count(&owned), 1);
     }
 }
