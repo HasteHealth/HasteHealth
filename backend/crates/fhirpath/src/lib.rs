@@ -1,14 +1,15 @@
+mod cache;
 mod error;
 mod parser;
 mod references;
 use crate::{
+    cache::WeightedCache,
     error::{FunctionError, OperationError},
     parser::{
         Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation, Polarity,
         QualifiedIdentifier, Term, Unit,
     },
 };
-use dashmap::DashMap;
 pub use error::FHIRPathError;
 use haste_fhir_model::r4::{
     conversion::{
@@ -1587,22 +1588,51 @@ fn string_result<'a>(context: &Context<'a>, value: String) -> Result<Context<'a>
     Ok(context.new_context_from(vec![context.allocate_string(value)?]))
 }
 
-/// Compiled patterns, which come from expressions and are cached like their ASTs.
-static REGEX: LazyLock<DashMap<String, Arc<Regex>>> = LazyLock::new(DashMap::new);
+/// The size limits a pattern is compiled under, smallest first. The first one it fits
+/// stands in for its compiled size, which `regex` does not report, and the last is the
+/// `regex` default, so the patterns that compile are the ones that always did.
+const REGEX_SIZE_LIMITS: [usize; 3] = [256 << 10, 2 << 20, 10 << 20];
+
+/// Room for about 250 patterns that fit the smallest size limit, or 6 that need the largest.
+const REGEX_CACHE_CAPACITY: usize = 64 << 20;
+
+/// Compiled patterns, which come from expressions and are cached like their ASTs. A
+/// pattern weighs its text plus the size limit it was compiled under.
+static REGEX: LazyLock<WeightedCache<Arc<Regex>>> =
+    LazyLock::new(|| WeightedCache::new(REGEX_CACHE_CAPACITY));
 
 fn compile_regex(pattern: &str) -> Result<Arc<Regex>, FHIRPathError> {
     if let Some(regex) = REGEX.get(pattern) {
-        return Ok(regex.clone());
+        return Ok(regex);
     }
 
-    // The spec's 'single line' mode, where '.' also matches a newline.
-    let regex = RegexBuilder::new(pattern)
-        .dot_matches_new_line(true)
-        .build()
+    let (regex, size_limit) = build_regex(pattern)
         .map_err(|e| FunctionError::InvalidFunctionCall(format!("invalid regex: {e}")))?;
     let regex = Arc::new(regex);
-    REGEX.insert(pattern.to_string(), regex.clone());
+    REGEX.insert(
+        pattern,
+        regex.clone(),
+        pattern.len().saturating_add(size_limit),
+    );
     Ok(regex)
+}
+
+/// Compiles `pattern` under the smallest of [`REGEX_SIZE_LIMITS`] it fits.
+fn build_regex(pattern: &str) -> Result<(Regex, usize), regex::Error> {
+    let mut too_big = regex::Error::CompiledTooBig(0);
+    for size_limit in REGEX_SIZE_LIMITS {
+        // The spec's 'single line' mode, where '.' also matches a newline.
+        match RegexBuilder::new(pattern)
+            .dot_matches_new_line(true)
+            .size_limit(size_limit)
+            .build()
+        {
+            Ok(regex) => return Ok((regex, size_limit)),
+            Err(e @ regex::Error::CompiledTooBig(_)) => too_big = e,
+            Err(e) => return Err(e),
+        }
+    }
+    Err(too_big)
 }
 
 /// `full` anchors both ends; the group keeps alternations inside the anchors.
@@ -3501,15 +3531,27 @@ impl Clone for Context<'_> {
 
 pub struct FPEngine {}
 
-static AST: LazyLock<DashMap<String, Arc<Expression>>> = LazyLock::new(DashMap::new);
+/// Room for the text of the cached expressions. An expression weighs its length plus
+/// [`AST_ENTRY_OVERHEAD`]; its AST is a multiple of that, about 40 times for the densest text.
+const AST_CACHE_CAPACITY: usize = 4 << 20;
+
+/// Bounds the number of short expressions, which cost more than their text.
+const AST_ENTRY_OVERHEAD: usize = 256;
+
+static AST: LazyLock<WeightedCache<Arc<Expression>>> =
+    LazyLock::new(|| WeightedCache::new(AST_CACHE_CAPACITY));
 
 fn get_ast(path: &str) -> Result<Arc<Expression>, FHIRPathError> {
     if let Some(expression_ast) = AST.get(path) {
-        return Ok(expression_ast.clone());
+        return Ok(expression_ast);
     }
 
     let expression_ast = Arc::new(parser::parse(path)?);
-    AST.insert(path.to_string(), expression_ast.clone());
+    AST.insert(
+        path,
+        expression_ast.clone(),
+        path.len().saturating_add(AST_ENTRY_OVERHEAD),
+    );
 
     Ok(expression_ast)
 }
@@ -5265,5 +5307,57 @@ mod tests {
         assert_eq!(Arc::strong_count(&owned), 3);
         drop(last);
         assert_eq!(Arc::strong_count(&owned), 1);
+    }
+
+    #[tokio::test]
+    async fn ast_cache_stays_within_capacity() {
+        let engine = FPEngine::new();
+        // More one-off expressions than the cache has room for.
+        let count = AST_CACHE_CAPACITY / AST_ENTRY_OVERHEAD + 1_000;
+        for i in 0..count {
+            let result = engine.evaluate(&format!("'cache-{i}'"), vec![]).await;
+            assert_eq!(result.unwrap().values.len(), 1);
+            assert!(AST.weight() <= AST_CACHE_CAPACITY);
+        }
+
+        assert!(AST.get("'cache-0'").is_none());
+    }
+
+    #[tokio::test]
+    async fn ast_cache_skips_expression_over_capacity() {
+        let expression = format!("'{}'", "a".repeat(AST_CACHE_CAPACITY));
+        let result = FPEngine::new().evaluate(&expression, vec![]).await;
+
+        assert_eq!(result.unwrap().values.len(), 1);
+        assert!(AST.get(&expression).is_none());
+    }
+
+    #[tokio::test]
+    async fn regex_cache_stays_within_capacity() {
+        let engine = FPEngine::new();
+        // More one-off patterns than the cache has room for.
+        let count = REGEX_CACHE_CAPACITY / REGEX_SIZE_LIMITS[0] + 50;
+        for i in 0..count {
+            let expression = format!("'a'.matches('cache-{i}')");
+            let result = engine.evaluate(&expression, vec![]).await;
+            assert_eq!(result.unwrap().values.len(), 1);
+            assert!(REGEX.weight() <= REGEX_CACHE_CAPACITY);
+        }
+
+        assert!(REGEX.get("cache-0").is_none());
+    }
+
+    #[test]
+    fn regex_weighs_the_size_limit_it_fits() {
+        let size_limit = |pattern| build_regex(pattern).map(|(_, size_limit)| size_limit);
+
+        assert_eq!(size_limit("[a-z]+").unwrap(), REGEX_SIZE_LIMITS[0]);
+        assert_eq!(size_limit(r"\w{20}").unwrap(), REGEX_SIZE_LIMITS[1]);
+        assert_eq!(size_limit(r"\w{100}").unwrap(), REGEX_SIZE_LIMITS[2]);
+        // Too big for the last limit, the `regex` default.
+        assert_eq!(
+            size_limit(r"\w{1000}").unwrap_err(),
+            regex::Error::CompiledTooBig(10 * (1 << 20))
+        );
     }
 }
