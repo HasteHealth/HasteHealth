@@ -50,6 +50,78 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
     }
 }
 
+/// Longest chain of `compose.include.valueSet` references an expansion follows.
+const MAX_VALUE_SET_DEPTH: usize = 32;
+/// Most value sets an expansion resolves through `compose.include.valueSet`.
+const MAX_INCLUDED_VALUE_SETS: usize = 1_000;
+/// Most concepts an expansion holds, nested `contains` counted.
+const MAX_EXPANSION_CONCEPTS: usize = 100_000;
+
+/// Past a limit of the expansion: well formed but more than the server
+/// expands, so 422 like other limit refusals.
+fn too_costly(diagnostic: String) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(IssueType::too_costly(), diagnostic);
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
+/// What one expansion has used of its limits. Value sets include each other
+/// by canonical, so nothing else bounds how deep or how wide an expansion gets.
+#[derive(Default)]
+struct ExpansionState {
+    /// Canonical of the value set the expansion was asked for.
+    root: Option<String>,
+    /// Canonicals of the included value sets being expanded, outermost first.
+    path: Vec<String>,
+    included_value_sets: usize,
+    concepts: usize,
+}
+
+impl ExpansionState {
+    /// Records that the value set at `canonical` is about to be expanded
+    /// inside the ones already on the path.
+    fn enter(&mut self, canonical: &str) -> Result<(), OperationOutcomeError> {
+        if self.root.as_deref() == Some(canonical)
+            || self.path.iter().any(|entered| entered == canonical)
+        {
+            let error = OperationOutcomeError::error(
+                IssueType::invalid(),
+                format!("ValueSet '{canonical}' includes itself through compose.include.valueSet"),
+            );
+            return Err(OperationOutcomeError::unprocessable(
+                error.outcome().clone(),
+            ));
+        }
+        if self.path.len() >= MAX_VALUE_SET_DEPTH {
+            return Err(too_costly(format!(
+                "ValueSet includes other value sets more than {MAX_VALUE_SET_DEPTH} levels deep"
+            )));
+        }
+        self.included_value_sets += 1;
+        if self.included_value_sets > MAX_INCLUDED_VALUE_SETS {
+            return Err(too_costly(format!(
+                "ValueSet includes more than {MAX_INCLUDED_VALUE_SETS} other value sets"
+            )));
+        }
+        self.path.push(canonical.to_string());
+        Ok(())
+    }
+
+    fn leave(&mut self) {
+        self.path.pop();
+    }
+
+    /// Counts concepts about to join the expansion, before they are copied.
+    fn add_concepts(&mut self, count: usize) -> Result<(), OperationOutcomeError> {
+        self.concepts = self.concepts.saturating_add(count);
+        if self.concepts > MAX_EXPANSION_CONCEPTS {
+            return Err(too_costly(format!(
+                "ValueSet expands to more than {MAX_EXPANSION_CONCEPTS} concepts"
+            )));
+        }
+        Ok(())
+    }
+}
+
 fn are_codes_inline(include: &ValueSetComposeInclude) -> bool {
     include.concept.is_some()
 }
@@ -100,6 +172,13 @@ fn get_concepts(codesystem: &CodeSystem) -> Result<&[CodeSystemConcept], Operati
             "CodeSystem content has invalid value".to_string(),
         )),
     }
+}
+
+fn count_concepts(concepts: &[CodeSystemConcept]) -> usize {
+    concepts
+        .iter()
+        .map(|c| 1 + c.concept.as_deref().map_or(0, count_concepts))
+        .sum()
 }
 
 fn code_system_concept_to_valueset_expansion(
@@ -153,51 +232,18 @@ async fn get_valueset_expansion_contains<
 >(
     canonical_resolution: Resolver,
     include: &ValueSetComposeInclude,
+    state: &mut ExpansionState,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     if are_codes_inline(include) {
+        state.add_concepts(include.concept.as_ref().map_or(0, Vec::len))?;
         Ok(codes_inline_to_expansion(include))
     } else if let Some(valueset_uris) = include.valueSet.as_ref() {
         let mut contains = vec![];
         for valueset_uri in valueset_uris {
             if let Some(valueset_uri) = valueset_uri.value.as_ref() {
-                let output = expand_valueset(
-                    canonical_resolution.clone(),
-                    ValueSetExpand::Input {
-                        url: Some(FHIRUri {
-                            value: Some(valueset_uri.clone()),
-                            ..Default::default()
-                        }),
-                        valueSet: None,
-                        valueSetVersion: None,
-                        context: None,
-                        contextDirection: None,
-                        filter: None,
-                        date: None,
-                        offset: None,
-                        count: None,
-                        includeDesignations: None,
-                        designation: None,
-                        includeDefinition: None,
-                        activeOnly: None,
-                        excludeNested: None,
-                        excludeNotForUI: None,
-                        excludePostCoordinated: None,
-                        displayLanguage: None,
-                        exclude_system: None,
-                        system_version: None,
-                        check_system_version: None,
-                        force_system_version: None,
-                    },
-                )
-                .await?;
-
                 contains.extend(
-                    output
-                        .return_
-                        .expansion
-                        .unwrap_or_default()
-                        .contains
-                        .unwrap_or_default(),
+                    expand_included_valueset(canonical_resolution.clone(), valueset_uri, state)
+                        .await?,
                 );
             }
         }
@@ -208,6 +254,8 @@ async fn get_valueset_expansion_contains<
             resolve_codesystem(canonical_resolution.clone(), uri.as_str()).await?
         && let Resource::CodeSystem(code_system) = &*resource
     {
+        let concepts = get_concepts(code_system)?;
+        state.add_concepts(count_concepts(concepts))?;
         Ok(code_system_concept_to_valueset_expansion(
             code_system
                 .url
@@ -217,7 +265,7 @@ async fn get_valueset_expansion_contains<
                 .version
                 .as_ref()
                 .and_then(|version| version.value.as_deref()),
-            get_concepts(code_system)?,
+            concepts,
         ))
     } else {
         Ok(vec![])
@@ -227,51 +275,88 @@ async fn get_valueset_expansion_contains<
 async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
     canonical_resolution: Resolver,
     value_set: &ValueSet,
+    state: &mut ExpansionState,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     let mut result = Vec::new();
     if let Some(compose) = value_set.compose.as_ref() {
         for include in &compose.include {
             result.extend(
-                get_valueset_expansion_contains(canonical_resolution.clone(), include).await?,
+                get_valueset_expansion_contains(canonical_resolution.clone(), include, state)
+                    .await?,
             );
         }
     }
     Ok(result)
 }
 
-fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
+fn valueset_not_resolved() -> OperationOutcomeError {
+    OperationOutcomeError::error(
+        IssueType::not_found(),
+        "ValueSet could not be resolved".to_string(),
+    )
+}
+
+/// Expands a value set another one includes by canonical. This is where an
+/// expansion recurses, so the future is boxed and `state` is checked first.
+fn expand_included_valueset<'a, Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
+    canonical_resolution: Resolver,
+    canonical: &'a str,
+    state: &'a mut ExpansionState,
+) -> Pin<
+    Box<
+        dyn Future<Output = Result<Vec<ValueSetExpansionContains>, OperationOutcomeError>>
+            + Send
+            + 'a,
+    >,
+> {
+    Box::pin(async move {
+        state.enter(canonical)?;
+
+        let resolved = canonical_resolution
+            .resolve(ResourceType::ValueSet, canonical)
+            .await?;
+        let Some(Resource::ValueSet(value_set)) = resolved.as_deref() else {
+            return Err(valueset_not_resolved());
+        };
+        let contains = get_valueset_expansion(canonical_resolution, value_set, state).await?;
+
+        state.leave();
+        Ok(contains)
+    })
+}
+
+async fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
     canonical_resolution: Resolver,
     input: ValueSetExpand::Input,
-) -> Pin<Box<dyn Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send>> {
-    // Implementation would go here
-    Box::pin(async move {
-        let resolved = resolve_valueset(canonical_resolution.clone(), input).await?;
+) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
+    let resolved = resolve_valueset(canonical_resolution.clone(), input).await?;
 
-        if let Some(resource) = resolved
-            && let Resource::ValueSet(value_set) = &*resource
-        {
-            let contains = get_valueset_expansion(canonical_resolution.clone(), value_set).await?;
-            let mut expanded_valueset = value_set.clone();
+    if let Some(resource) = resolved
+        && let Resource::ValueSet(value_set) = &*resource
+    {
+        let mut state = ExpansionState {
+            root: value_set.url.as_ref().and_then(|url| url.value.clone()),
+            ..Default::default()
+        };
 
-            expanded_valueset.expansion = Some(ValueSetExpansion {
-                contains: Some(contains),
-                timestamp: Box::new(FHIRDateTime {
-                    value: Some(DateTime::Iso8601(chrono::Utc::now())),
-                    ..Default::default()
-                }),
+        let contains = get_valueset_expansion(canonical_resolution, value_set, &mut state).await?;
+        let mut expanded_valueset = value_set.clone();
+
+        expanded_valueset.expansion = Some(ValueSetExpansion {
+            contains: Some(contains),
+            timestamp: Box::new(FHIRDateTime {
+                value: Some(DateTime::Iso8601(chrono::Utc::now())),
                 ..Default::default()
-            });
+            }),
+            ..Default::default()
+        });
 
-            Ok(ValueSetExpand::Output {
-                return_: expanded_valueset,
-            })
-        } else {
-            Err(OperationOutcomeError::error(
-                IssueType::not_found(),
-                "ValueSet could not be resolved".to_string(),
-            ))
-        }
-    })
+        Ok(ValueSetExpand::Output {
+            return_: expanded_valueset,
+        })
+    } else {
+        Err(valueset_not_resolved())
+    }
 }
 
 impl FHIRTerminology for FHIRCanonicalTerminology {
@@ -378,10 +463,12 @@ mod tests {
         resources::{
             CodeSystemConceptDesignation, CodeSystemConceptProperty,
             CodeSystemConceptPropertyValueTypeChoice, ValueSetCompose,
+            ValueSetComposeIncludeConcept,
         },
         terminology::BoundCode,
-        types::FHIRCode,
+        types::{FHIRCanonical, FHIRCode},
     };
+    use std::collections::HashMap;
 
     #[derive(Clone)]
     struct InMemoryResolver {
@@ -608,6 +695,309 @@ mod tests {
         assert_eq!(
             issue.diagnostics.as_ref().and_then(|d| d.value.as_deref()),
             Some("CodeSystem content is 'not-present'")
+        );
+    }
+
+    /// Resolves each canonical to the resource stored under it.
+    #[derive(Clone, Default)]
+    struct Canonicals(Arc<HashMap<String, Arc<Resource>>>);
+
+    impl Canonicals {
+        fn new(resources: Vec<Resource>) -> Self {
+            Canonicals(Arc::new(
+                resources
+                    .into_iter()
+                    .map(|resource| {
+                        let url = match &resource {
+                            Resource::ValueSet(value_set) => value_set.url.clone(),
+                            Resource::CodeSystem(code_system) => code_system.url.clone(),
+                            _ => None,
+                        };
+                        (url.unwrap().value.unwrap(), Arc::new(resource))
+                    })
+                    .collect(),
+            ))
+        }
+    }
+
+    impl CanonicalResolver for Canonicals {
+        fn resolve(
+            &self,
+            _resource_type: ResourceType,
+            canonical_url: &str,
+        ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send
+        {
+            std::future::ready(Ok(self.0.get(canonical_url).cloned()))
+        }
+    }
+
+    fn include_value_sets(urls: &[&str]) -> ValueSetComposeInclude {
+        ValueSetComposeInclude {
+            valueSet: Some(
+                urls.iter()
+                    .map(|url| FHIRCanonical {
+                        value: Some((*url).to_string()),
+                        ..Default::default()
+                    })
+                    .collect(),
+            ),
+            ..Default::default()
+        }
+    }
+
+    fn include_codes(codes: &[&str]) -> ValueSetComposeInclude {
+        ValueSetComposeInclude {
+            system: Some(Box::new(uri("http://example.org/cs"))),
+            concept: Some(
+                codes
+                    .iter()
+                    .map(|value| ValueSetComposeIncludeConcept {
+                        code: Box::new(code(value)),
+                        ..Default::default()
+                    })
+                    .collect(),
+            ),
+            ..Default::default()
+        }
+    }
+
+    fn value_set(url: &str, include: Vec<ValueSetComposeInclude>) -> Resource {
+        Resource::ValueSet(ValueSet {
+            url: Some(Box::new(uri(url))),
+            compose: Some(ValueSetCompose {
+                include,
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+
+    fn input_for(url: &str) -> ValueSetExpand::Input {
+        ValueSetExpand::Input {
+            url: Some(uri(url)),
+            ..input()
+        }
+    }
+
+    async fn expand_error(resolver: Canonicals, url: &str) -> OperationOutcomeError {
+        FHIRCanonicalTerminology::new()
+            .expand(resolver, input_for(url))
+            .await
+            .unwrap_err()
+    }
+
+    fn diagnostics(error: &OperationOutcomeError) -> &str {
+        error.outcome().issue[0]
+            .diagnostics
+            .as_ref()
+            .and_then(|d| d.value.as_deref())
+            .unwrap()
+    }
+
+    #[tokio::test]
+    async fn refuses_a_value_set_that_includes_itself() {
+        let resolver = Canonicals::new(vec![value_set(
+            "http://example.org/vs/loop",
+            vec![include_value_sets(&["http://example.org/vs/loop"])],
+        )]);
+
+        let error = expand_error(resolver, "http://example.org/vs/loop").await;
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::invalid());
+        assert_eq!(
+            diagnostics(&error),
+            "ValueSet 'http://example.org/vs/loop' includes itself through compose.include.valueSet"
+        );
+    }
+
+    #[tokio::test]
+    async fn refuses_value_sets_that_include_each_other() {
+        let resolver = Canonicals::new(vec![
+            value_set(
+                "http://example.org/vs/a",
+                vec![include_value_sets(&["http://example.org/vs/b"])],
+            ),
+            value_set(
+                "http://example.org/vs/b",
+                vec![include_value_sets(&["http://example.org/vs/a"])],
+            ),
+        ]);
+
+        let error = expand_error(resolver, "http://example.org/vs/a").await;
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::invalid());
+        assert_eq!(
+            diagnostics(&error),
+            "ValueSet 'http://example.org/vs/a' includes itself through compose.include.valueSet"
+        );
+    }
+
+    #[tokio::test]
+    async fn refuses_to_validate_against_a_value_set_that_includes_itself() {
+        let resolver = Canonicals::new(vec![value_set(
+            "http://example.org/vs/loop",
+            vec![include_value_sets(&["http://example.org/vs/loop"])],
+        )]);
+
+        let error = FHIRCanonicalTerminology::new()
+            .validate(
+                resolver,
+                ValueSetValidateCode::Input {
+                    url: Some(uri("http://example.org/vs/loop")),
+                    context: None,
+                    valueSet: None,
+                    valueSetVersion: None,
+                    code: Some(code("a")),
+                    system: None,
+                    systemVersion: None,
+                    display: None,
+                    coding: None,
+                    codeableConcept: None,
+                    date: None,
+                    abstract_: None,
+                    displayLanguage: None,
+                },
+            )
+            .await
+            .unwrap_err();
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::invalid());
+    }
+
+    #[tokio::test]
+    async fn expands_a_value_set_reached_through_two_includes() {
+        let resolver = Canonicals::new(vec![
+            value_set(
+                "http://example.org/vs/a",
+                vec![include_value_sets(&[
+                    "http://example.org/vs/b",
+                    "http://example.org/vs/c",
+                ])],
+            ),
+            value_set(
+                "http://example.org/vs/b",
+                vec![include_value_sets(&["http://example.org/vs/d"])],
+            ),
+            value_set(
+                "http://example.org/vs/c",
+                vec![include_value_sets(&["http://example.org/vs/d"])],
+            ),
+            value_set("http://example.org/vs/d", vec![include_codes(&["x", "y"])]),
+        ]);
+
+        let contains = FHIRCanonicalTerminology::new()
+            .expand(resolver, input_for("http://example.org/vs/a"))
+            .await
+            .unwrap()
+            .return_
+            .expansion
+            .unwrap()
+            .contains
+            .unwrap();
+
+        let codes = contains
+            .iter()
+            .map(|c| c.code.as_ref().and_then(|c| c.value.as_deref()))
+            .collect::<Vec<_>>();
+        assert_eq!(codes, vec![Some("x"), Some("y"), Some("x"), Some("y")]);
+    }
+
+    /// `http://example.org/vs/0` including `/1` including `/2` and so on, the
+    /// last of `included` value sets holding one code.
+    fn chain(included: usize) -> Canonicals {
+        Canonicals::new(
+            (0..=included)
+                .map(|level| {
+                    let include = if level == included {
+                        include_codes(&["a"])
+                    } else {
+                        include_value_sets(&[&format!("http://example.org/vs/{}", level + 1)])
+                    };
+                    value_set(&format!("http://example.org/vs/{level}"), vec![include])
+                })
+                .collect(),
+        )
+    }
+
+    #[tokio::test]
+    async fn follows_included_value_sets_up_to_the_depth_limit() {
+        let output = FHIRCanonicalTerminology::new()
+            .expand(
+                chain(MAX_VALUE_SET_DEPTH),
+                input_for("http://example.org/vs/0"),
+            )
+            .await
+            .unwrap();
+        assert_eq!(output.return_.expansion.unwrap().contains.unwrap().len(), 1);
+
+        let error = expand_error(chain(MAX_VALUE_SET_DEPTH + 1), "http://example.org/vs/0").await;
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
+        assert_eq!(
+            diagnostics(&error),
+            format!(
+                "ValueSet includes other value sets more than {MAX_VALUE_SET_DEPTH} levels deep"
+            )
+        );
+    }
+
+    #[tokio::test]
+    async fn refuses_more_included_value_sets_than_the_limit() {
+        let includes = vec!["http://example.org/vs/empty"; MAX_INCLUDED_VALUE_SETS + 1];
+        let resolver = Canonicals::new(vec![
+            value_set(
+                "http://example.org/vs/wide",
+                vec![include_value_sets(&includes)],
+            ),
+            value_set("http://example.org/vs/empty", vec![]),
+        ]);
+
+        let error = expand_error(resolver, "http://example.org/vs/wide").await;
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
+        assert_eq!(
+            diagnostics(&error),
+            format!("ValueSet includes more than {MAX_INCLUDED_VALUE_SETS} other value sets")
+        );
+    }
+
+    #[tokio::test]
+    async fn refuses_an_expansion_with_more_concepts_than_the_limit() {
+        // Each include of `codes` adds 1,000 concepts, half of them nested.
+        let concepts = (0..500)
+            .map(|i| {
+                let mut parent = concept(&format!("p{i}"), "Parent");
+                parent.concept = Some(vec![concept(&format!("c{i}"), "Child")]);
+                parent
+            })
+            .collect();
+        let includes = vec!["http://example.org/vs/codes"; MAX_EXPANSION_CONCEPTS / 1_000 + 1];
+        let resolver = Canonicals::new(vec![
+            Resource::CodeSystem(CodeSystem {
+                url: Some(Box::new(uri("http://example.org/cs"))),
+                content: CodesystemContentMode::complete(),
+                concept: Some(concepts),
+                ..Default::default()
+            }),
+            value_set(
+                "http://example.org/vs/codes",
+                vec![ValueSetComposeInclude {
+                    system: Some(Box::new(uri("http://example.org/cs"))),
+                    ..Default::default()
+                }],
+            ),
+            value_set(
+                "http://example.org/vs/wide",
+                vec![include_value_sets(&includes)],
+            ),
+        ]);
+
+        let error = expand_error(resolver, "http://example.org/vs/wide").await;
+
+        assert_eq!(error.outcome().issue[0].code, IssueType::too_costly());
+        assert_eq!(
+            diagnostics(&error),
+            format!("ValueSet expands to more than {MAX_EXPANSION_CONCEPTS} concepts")
         );
     }
 }
