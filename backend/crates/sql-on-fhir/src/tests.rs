@@ -261,3 +261,16 @@ async fn a_mistake_is_reported_where_no_row_is_used() {
     let result = rows(&view(&json!([mistake, no_rows()])), &patients, None, 10_000).await;
     assert_eq!(result.unwrap_err().http_status(), 400);
 }
+
+#[tokio::test]
+async fn a_column_too_costly_to_evaluate_is_refused() {
+    // A string ten times as long with every call: 100 MB.
+    let path = format!("'a'{}.length()", ".replace('a', 'aaaaaaaaaa')".repeat(8));
+    let column = json!({"column": [{"name": "length", "path": path}]});
+
+    let result = rows(&view(&json!([column])), &[patient("p", 1)], None, 10_000).await;
+
+    let error = result.unwrap_err();
+    assert_eq!(error.outcome().issue[0].code.as_str(), Some("too-costly"));
+    assert_eq!(error.http_status(), 422);
+}

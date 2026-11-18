@@ -33,13 +33,18 @@ mod output;
 mod tests;
 mod union;
 
-/// An undefined constant or an unparsable expression is the caller's mistake; any other
-/// `FHIRPath` failure stays a server error.
-fn fhirpath_issue_type(e: &haste_fhirpath::FHIRPathError) -> BoundCode<IssueType> {
+/// An undefined constant or an unparsable expression is the caller's mistake, and an expression
+/// too costly to evaluate answers 422 like a run past its limits; any other `FHIRPath` failure
+/// stays a server error.
+fn fhirpath_error(e: &haste_fhirpath::FHIRPathError, message: String) -> OperationOutcomeError {
     match e {
         haste_fhirpath::FHIRPathError::UndefinedConstant(_)
-        | haste_fhirpath::FHIRPathError::ParseError(_) => IssueType::invalid(),
-        _ => IssueType::exception(),
+        | haste_fhirpath::FHIRPathError::ParseError(_) => invalid(message),
+        haste_fhirpath::FHIRPathError::TooCostly(_) => {
+            let error = OperationOutcomeError::error(IssueType::too_costly(), message);
+            OperationOutcomeError::unprocessable(error.outcome().clone())
+        }
+        _ => OperationOutcomeError::error(IssueType::exception(), message),
     }
 }
 
@@ -737,12 +742,7 @@ async fn evaluate<'a>(
     fp_engine
         .evaluate_with_config(path, vec![node], fp_config.clone())
         .await
-        .map_err(|e| {
-            OperationOutcomeError::error(
-                fhirpath_issue_type(&e),
-                format!("Error evaluating {what}: {e}"),
-            )
-        })
+        .map_err(|e| fhirpath_error(&e, format!("Error evaluating {what}: {e}")))
 }
 
 /// Nodes and the evaluations that found them. Computed nodes live in an evaluation's arena, so
@@ -1061,10 +1061,7 @@ async fn passes_where_clauses(
             )
             .await
             .map_err(|e| {
-                OperationOutcomeError::error(
-                    fhirpath_issue_type(&e),
-                    format!("Error evaluating where clause expression: {e}"),
-                )
+                fhirpath_error(&e, format!("Error evaluating where clause expression: {e}"))
             })?;
 
         // An empty result excludes the resource, like `false`.
