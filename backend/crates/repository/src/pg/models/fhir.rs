@@ -1,8 +1,9 @@
 use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
-        PGConnection, StoreError, VersionCache,
+        PGConnection, StoreError, VersionCache, decode_resource,
         pending::{self, PendingRows},
+        row_resource_type,
         transaction::{commit_transaction, create_transaction},
     },
     types::{FHIRMethod, SupportedFHIRVersions},
@@ -18,12 +19,12 @@ use haste_fhir_model::r4::{
         resources::{Resource, ResourceType},
         terminology::IssueType,
     },
-    sqlx::FHIRJson,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use sqlx::{
-    PgExecutor, Postgres, QueryBuilder, Row, query_builder::Separated, types::time::OffsetDateTime,
+    PgExecutor, Postgres, QueryBuilder, Row, postgres::PgRow, query_builder::Separated,
+    types::time::OffsetDateTime,
 };
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
@@ -32,12 +33,6 @@ use tokio::sync::Mutex;
 struct ReturnVersionedResource {
     resource: Resource,
     version_id: VersionId,
-}
-
-#[derive(sqlx::FromRow, Debug)]
-struct HistoryValue {
-    pub resource: FHIRJson<Resource>,
-    pub request_method: String,
 }
 
 async fn read_version_ids_from_cache<'a>(
@@ -419,9 +414,9 @@ where
         .map(std::convert::AsRef::as_ref)
         .collect();
 
-    // Fetched as raw `PgRow`s (not `query_as` into a `FromRow` struct) so the
-    // JSON body can be decoded straight out of each row's own buffer.
-    let rows = sqlx::query(
+    // Rows are decoded in `try_map` as they stream in, overlapping with the
+    // server sending the rest of the result.
+    let mut response = sqlx::query(
         r"
             SELECT resource, resource_type, version_id
             FROM resources
@@ -431,42 +426,25 @@ where
     .bind(tenant_id.as_ref())
     .bind(project_id.as_ref())
     .bind(&bound_version_ids)
+    .try_map(|row: PgRow| {
+        let resource_type = row_resource_type(&row)?;
+        Ok(ReturnVersionedResource {
+            resource: decode_resource(&row, &resource_type)?,
+            version_id: row.try_get("version_id")?,
+        })
+    })
     .fetch_all(executor)
     .await
-    .map_err(StoreError::from)?;
+    .map_err(|e| match e {
+        sqlx::Error::Decode(e) => StoreError::DeserializeError(e.to_string()),
+        e => StoreError::from(e),
+    })?;
 
     // Create a lookup table to remember the original order of the requested version IDs.
     let mut requested_order: HashMap<&VersionId, usize> = HashMap::with_capacity(version_ids.len());
     for (index, version_id) in version_ids.iter().enumerate() {
         requested_order.insert(*version_id, index);
     }
-
-    let mut response = rows
-        .iter()
-        .map(|row| {
-            let resource_type: ResourceType =
-                row.try_get("resource_type").map_err(StoreError::from)?;
-            let version_id: VersionId = row.try_get("version_id").map_err(StoreError::from)?;
-
-            // Borrow the JSONB payload directly out of the row and hand the
-            // raw bytes straight to `ResourceType::deserialize` (which
-            // dispatches to the concrete struct's `serde_json::from_slice`)
-            // Avoids enum allocation by deserializing directly from the raw bytes.
-            let raw = row.try_get_raw("resource").map_err(StoreError::from)?;
-            let bytes = raw
-                .as_bytes()
-                .map_err(|e| StoreError::DeserializeError(e.to_string()))?;
-            // Strip the leading JSONB binary version-marker byte.
-            let resource = resource_type
-                .deserialize(&bytes[1..])
-                .map_err(|e| StoreError::DeserializeError(e.to_string()))?;
-
-            Ok(ReturnVersionedResource {
-                resource,
-                version_id,
-            })
-        })
-        .collect::<Result<Vec<_>, StoreError>>()?;
 
     response.sort_by_key(|r| {
         requested_order
@@ -492,7 +470,7 @@ async fn read_version<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let response = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+    let response = sqlx::query(
         r"
             SELECT resource
             FROM resources
@@ -505,11 +483,12 @@ where
     .bind(version_id.as_ref())
     .bind(resource_type.as_ref())
     .bind(resource_id.as_ref())
+    .try_map(|row: PgRow| decode_resource(&row, resource_type))
     .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    Ok(response.map(|(json,)| json.0))
+    Ok(response)
 }
 
 async fn read_latest<'a, 'e, E>(
@@ -522,7 +501,7 @@ async fn read_latest<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let response = sqlx::query_as::<_, (FHIRJson<Resource>, bool)>(
+    let response = sqlx::query(
         r"
             SELECT resource, deleted
             FROM resources
@@ -535,14 +514,17 @@ where
     .bind(project_id.as_ref())
     .bind(resource_id.as_ref())
     .bind(resource_type.as_ref())
+    .try_map(|row: PgRow| {
+        if row.try_get("deleted")? {
+            return Ok(None);
+        }
+        decode_resource(&row, resource_type).map(Some)
+    })
     .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    match response {
-        Some((_, true)) | None => Ok(None),
-        Some((json, _)) => Ok(Some(json.0)),
-    }
+    Ok(response.flatten())
 }
 
 /// The lookup of [`read_latest`] for every key, in one statement. The lateral
@@ -561,9 +543,9 @@ where
     let types: Vec<&str> = keys.iter().map(|(type_, _)| type_.as_ref()).collect();
     let ids: Vec<&str> = keys.iter().map(|(_, id)| id.as_ref()).collect();
 
-    let rows = sqlx::query_as::<_, (FHIRJson<Resource>, bool)>(
+    let rows = sqlx::query(
         r"
-            SELECT r.resource, r.deleted
+            SELECT r.resource, r.deleted, k.resource_type
             FROM unnest($3::text[], $4::text[]) AS k(resource_type, id)
             CROSS JOIN LATERAL (
                 SELECT resource, deleted
@@ -579,14 +561,17 @@ where
     .bind(project_id.as_ref())
     .bind(&types)
     .bind(&ids)
+    .try_map(|row: PgRow| {
+        if row.try_get("deleted")? {
+            return Ok(None);
+        }
+        decode_resource(&row, &row_resource_type(&row)?).map(Some)
+    })
     .fetch_all(executor)
     .await
     .map_err(StoreError::from)?;
 
-    Ok(rows
-        .into_iter()
-        .filter_map(|(json, deleted)| (!deleted).then_some(json.0))
-        .collect())
+    Ok(rows.into_iter().flatten().collect())
 }
 
 fn process_history_parameters(
@@ -655,7 +640,7 @@ where
     E: PgExecutor<'e>,
 {
     let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT resource, request_method FROM resources WHERE ");
+        QueryBuilder::new(r"SELECT resource, resource_type, request_method FROM resources WHERE ");
 
     let mut clauses = query_builder.separated(" AND ");
     clauses
@@ -730,15 +715,18 @@ where
         query_builder.push(" OFFSET ").push_bind(offset);
     }
 
-    let query = query_builder.build_query_as::<HistoryValue>();
-
-    let result: Vec<HistoryValue> = query.fetch_all(executor).await.map_err(StoreError::from)?;
-
-    Ok(result
-        .into_iter()
-        .map(|r| ResourceHistoryValue {
-            resource: r.resource.0,
-            request_method: r.request_method,
+    let result = query_builder
+        .build()
+        .try_map(|row: PgRow| {
+            let resource_type = row_resource_type(&row)?;
+            Ok(ResourceHistoryValue {
+                resource: decode_resource(&row, &resource_type)?,
+                request_method: row.try_get("request_method")?,
+            })
         })
-        .collect::<Vec<_>>())
+        .fetch_all(executor)
+        .await
+        .map_err(StoreError::from)?;
+
+    Ok(result)
 }
