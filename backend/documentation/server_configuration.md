@@ -74,6 +74,14 @@ so the two never share tables. Create it before running `admin migrate search`:
 psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
 ```
 
+The server opens its search connections with
+`plan_cache_mode = force_custom_plan`, so Postgres plans every search with its
+values instead of switching to one generic plan. To choose another mode, set it
+in the URL's `options`, e.g. `?options=-c%20plan_cache_mode%3Dauto`. A
+connection pooler that rejects the `options` startup parameter (PgBouncer, unless
+`ignore_startup_parameters` lists it) needs the mode set on the server instead:
+`ALTER ROLE <search role> SET plan_cache_mode = force_custom_plan`.
+
 `admin migrate search` (also part of `admin migrate all`) runs the sqlx migrations
 in `backend/crates/fhir-search/pg-migrations` that have not run yet, recorded in
 the `_sqlx_search_migrations` table, and then fails if the database still lacks a
