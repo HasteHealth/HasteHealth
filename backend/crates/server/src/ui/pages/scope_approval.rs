@@ -10,8 +10,7 @@ use haste_jwt::{ProjectId, TenantId};
 use maud::{Markup, html};
 use std::borrow::Cow;
 
-const CHECKBOX: &str =
-    "w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 disabled:opacity-60";
+const CHECKBOX: &str = "w-4 h-4 rounded-none border border-[var(--auth-line-strong)] bg-[var(--auth-surface-raised)] text-[var(--auth-signal)] focus:ring-1 focus:ring-[var(--auth-signal)] disabled:opacity-60";
 
 /// The consent page: one checkbox per requested scope, all checked. The user
 /// unchecks what the app should not get, then allows or denies. The scopes
@@ -38,22 +37,22 @@ pub fn scope_approval_html(
 
     page_html(&html! {
             (page_banner(tenant.as_ref(), Some(&project_name), branding))
-            div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
-                form class="p-6 space-y-4 md:space-y-6 sm:p-8" action=(scope_route_str) method="POST" {
+            div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] text-[var(--auth-ink)] p-6 space-y-6 shadow-2xl" {
+                form class="space-y-4" action=(scope_route_str) method="POST" {
                     (client_app_header_html(client_application))
                     div {
-                        span class="text-sm text-slate-500" {
+                        span class="block text-xs leading-relaxed text-[var(--auth-ink-muted)]" {
                             "The above app is requesting the following permissions. Uncheck any you do not want to grant, then allow or deny access for the app."
                         }
                     }
-                    div class="max-h-72 overflow-auto" {
-                        table class="border-collapse w-full" {
+                    div class="max-h-72 overflow-auto border border-[var(--auth-line)]" {
+                        table class="w-full border-collapse font-mono text-xs text-[var(--auth-ink)]" {
                             tbody {
                                 @for (index, scope) in authorization_info.scope.0.iter().enumerate() {
                                     @let value = String::from(scope.clone());
                                     @let id = format!("scope-{index}");
-                                    tr class="border border-gray-200" {
-                                        td class="p-4 w-px" {
+                                    tr class="border-b border-[var(--auth-line)] last:border-b-0" {
+                                        td class="w-px p-3" {
                                             @if is_fixed_scope(scope) {
                                                 // A disabled checkbox is not submitted, so the scope
                                                 // travels in a hidden field.
@@ -63,10 +62,10 @@ pub fn scope_approval_html(
                                                 input id=(id) type="checkbox" class=(CHECKBOX) name="scope" value=(value) checked {}
                                             }
                                         }
-                                        td class="py-4 pr-4" {
-                                            label for=(id) class="block" { (value) }
+                                        td class="py-3 pr-4" {
+                                            label for=(id) class="block text-xs text-[var(--auth-ink)]" { (value) }
                                         }
-                                        td class="py-4 pr-4 text-right text-xs text-slate-400" {
+                                        td class="py-3 pr-4 text-right text-[10px] uppercase tracking-wider text-[var(--auth-ink-muted)]" {
                                             @if is_fixed_scope(scope) { "Required" }
                                         }
                                     }
@@ -87,15 +86,15 @@ pub fn scope_approval_html(
                     @if let Some(aud) = &authorization_info.aud {
                         input readonly="" class="hidden" type="text" name="aud" value=(aud) {}
                     }
-                    div class="justify-center items-center flex space-x-4" {
-                        button type="submit" name="accept" value="on" class="cursor-pointer text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800" {
+                    div class="flex items-center gap-3 pt-2" {
+                        button type="submit" name="accept" value="on" class="flex-1 cursor-pointer border border-[var(--auth-signal)] bg-[var(--auth-signal)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-on-signal)] transition-colors hover:bg-[var(--auth-signal-hover)]" {
                             "Allow"
                         }
-                        button type="submit" name="accept" value="off" class="cursor-pointer text-slate-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
+                        button type="submit" name="accept" value="off" class="flex-1 cursor-pointer border border-[var(--auth-line)] bg-[var(--auth-surface-raised)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-ink)] transition-colors hover:bg-[var(--auth-line)]" {
                             "Deny"
                         }
                     }
+                }
             }
-        }
     })
 }

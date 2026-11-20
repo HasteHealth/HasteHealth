@@ -23,10 +23,10 @@ pub fn project_select_html(
 ) -> Result<Markup, OperationOutcomeError> {
     Ok(page_html(&html! {
         (page_banner(tenant.as_ref(), None, branding))
-        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
+        div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] rounded-none shadow-2xl md:mt-0 xl:p-0 text-[var(--auth-ink)]" {
             @if projects.is_empty() {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    span class="font-semibold leading-tight text-red-600 text-md " { "No projects found. Please contact your administrator." }
+                    span class="font-mono text-xs font-semibold leading-tight text-[var(--auth-error)] " { "No projects found. Please contact your administrator." }
                 }
             } @else {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
@@ -36,7 +36,7 @@ pub fn project_select_html(
                             in projects.iter() {
                                 div {
                                     a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or_default())
-                                    class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
+                                    class="block w-full rounded-none border border-[var(--auth-line)] bg-[var(--auth-surface-raised)] px-4 py-2.5 text-center font-mono text-xs font-medium text-[var(--auth-ink)] transition-colors hover:border-[var(--auth-signal)] hover:bg-[var(--auth-signal-soft)]" {
                                         (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                                     }
                                 }

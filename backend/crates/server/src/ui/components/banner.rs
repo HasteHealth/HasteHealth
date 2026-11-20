@@ -20,13 +20,13 @@ pub struct TenantContext {
 pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
     html! {
         div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold text-gray-900" {
+            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(asset_route("img/logo_text.svg")) alt="logo" {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-slate-400 mt-[-12px]" {
-                div { span class="font-bold" { (header) } }
+            div class="flex space-x-1 items-center justify-center font-mono text-xs text-[var(--auth-ink-muted)] mt-[-12px]" {
+                div { span class="font-bold text-[var(--auth-ink)]" { (header) } }
                 @if let Some(subheader) = subheader {
-                    div { span { (subheader) } }
+                    div { span class="text-[var(--auth-signal-ink)]" { (subheader) } }
                 }
             }
         }
@@ -39,18 +39,19 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
     let display_name = name.0.as_deref().unwrap_or(header);
 
     html! {
-        div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold text-gray-900" {
+        div class="flex flex-col items-center justify-center space-y-2 mb-4" {
+            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
-                div { span class="font-bold" { (display_name) } }
+            div class="flex space-x-1.5 items-center justify-center font-mono text-xs text-[var(--auth-ink-muted)]" {
+                div { span class="font-bold text-[var(--auth-ink)]" { (display_name) } }
                 @if let Some(project_name) = subheader {
-                    div { span { (project_name) } }
+                    div { span class="text-[var(--auth-ink-subtle)]" { "/" } }
+                    div { span class="text-[var(--auth-signal-ink)]" { (project_name) } }
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="text-xs text-slate-300 hover:text-slate-400" {
+                class="font-mono text-[10px] uppercase tracking-wider text-[var(--auth-ink-subtle)] hover:text-[var(--auth-signal-ink)] transition-colors" {
                 "Powered by Haste Health"
             }
         }
