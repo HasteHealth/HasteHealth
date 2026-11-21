@@ -1,0 +1,11 @@
+# TestScripts that fail against Haste Health today, and scenarios that cannot run.
+# test_e2e_g10.yml does not run them; README.md explains each. Remove a line once
+# its TestScript passes. A scenario directory ending in / skips the whole scenario.
+
+# Bulk Data: no $export operation, and GET operation invocations answer 501. The kick-off scripts
+# stop with an execution error when no Content-Location comes back.
+multi-patient-api/tests/g10-bulk-capability-statement.testscript.json
+multi-patient-api/tests/g10-bulk-export-cancel.testscript.json
+multi-patient-api/tests/g10-bulk-export-output-format.testscript.json
+multi-patient-api/tests/g10-bulk-export-since.testscript.json
+multi-patient-api/tests/g10-bulk-group-export.testscript.json

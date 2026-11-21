@@ -1,0 +1,226 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-row-index-04",
+  "url": "https://haste.health/fhir/TestScript/sof-row-index-04",
+  "name": "sof-row-index-04",
+  "title": "SQL on FHIR row_index: %rowIndex with nested forEach",
+  "status": "active",
+  "description": "Each nesting level has its own independent %rowIndex value Suite test 4 of tests/row_index.json (row_index), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  }
+                ]
+              },
+              {
+                "forEach": "contact",
+                "column": [
+                  {
+                    "name": "contact_index",
+                    "path": "%rowIndex",
+                    "type": "integer"
+                  },
+                  {
+                    "name": "contact_family",
+                    "path": "name.family",
+                    "type": "string"
+                  }
+                ],
+                "select": [
+                  {
+                    "forEach": "telecom",
+                    "column": [
+                      {
+                        "name": "telecom_index",
+                        "path": "%rowIndex",
+                        "type": "integer"
+                      },
+                      {
+                        "name": "system",
+                        "path": "system",
+                        "type": "code"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "Smith",
+                "given": [
+                  "John",
+                  "James"
+                ]
+              },
+              {
+                "family": "Jones",
+                "given": [
+                  "Jane"
+                ]
+              }
+            ],
+            "contact": [
+              {
+                "name": {
+                  "family": "Contact1"
+                },
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "111-1111"
+                  },
+                  {
+                    "system": "email",
+                    "value": "a@example.com"
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "family": "Contact2"
+                },
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "222-2222"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "Brown"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "QuestionnaireResponse",
+            "id": "qr1",
+            "questionnaire": "http://example.com/Questionnaire/q1",
+            "status": "completed",
+            "item": [
+              {
+                "linkId": "1",
+                "text": "Group 1",
+                "item": [
+                  {
+                    "linkId": "1.1",
+                    "text": "Question 1.1"
+                  },
+                  {
+                    "linkId": "1.2",
+                    "text": "Question 1.2"
+                  }
+                ]
+              },
+              {
+                "linkId": "2",
+                "text": "Group 2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "%rowIndex with nested forEach",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 3 in all. [{\"id\": \"pt1\", \"contact_index\": 0, \"contact_family\": \"Contact1\", \"telecom_index\": 0, \"system\": \"phone\"}, {\"id\": \"pt1\", \"contact_index\": 0, \"contact_family\": \"Contact1\", \"telecom_index\": 1, \"system\": \"email\"}, {\"id\": \"pt1\", \"contact_index\": 1, \"contact_family\": \"Contact2\", \"telecom_index\": 0, \"system\": \"phone\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJjb250YWN0X2luZGV4IjowLCJjb250YWN0X2ZhbWlseSI6IkNvbnRhY3QxIiwidGVsZWNvbV9pbmRleCI6MCwic3lzdGVtIjoicGhvbmUifSx7ImlkIjoicHQxIiwiY29udGFjdF9pbmRleCI6MCwiY29udGFjdF9mYW1pbHkiOiJDb250YWN0MSIsInRlbGVjb21faW5kZXgiOjEsInN5c3RlbSI6ImVtYWlsIn0seyJpZCI6InB0MSIsImNvbnRhY3RfaW5kZXgiOjEsImNvbnRhY3RfZmFtaWx5IjoiQ29udGFjdDIiLCJ0ZWxlY29tX2luZGV4IjowLCJzeXN0ZW0iOiJwaG9uZSJ9XQ=='",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

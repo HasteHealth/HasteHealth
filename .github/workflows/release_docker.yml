@@ -1,0 +1,119 @@
+name: <Release> Docker
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  SERVER_IMAGE_NAME: hastehealth/hastehealth
+  ADMIN_APP_IMAGE_NAME: hastehealth/admin-app
+
+jobs:
+  server:
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      id-token: "write"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The tag still has the previous release's versions, so set this release's.
+      - name: Stamp release version
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Log in to registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u $ --password-stdin
+      - uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
+      - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+      - name: Compute image names
+        id: vars
+        run: |
+          IMAGE_NAME=$(echo $SERVER_IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          GCP_IMAGE_ID=${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{vars.GAR_REPOSITORY}}/hastehealth
+
+          # This changes all uppercase characters to lowercase.
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          GCP_IMAGE_ID=$(echo $GCP_IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$GITHUB_REF_NAME
+
+          echo "image_id=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+          echo "gcp_image_id=$GCP_IMAGE_ID" >> "$GITHUB_OUTPUT"
+      - name: Build and Publish Image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/haste-health.dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.gcp_image_id }}:latest
+            ${{ steps.vars.outputs.gcp_image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:latest
+          labels: |
+            runnumber=${{ github.run_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # Build the runtime stage fresh, so its OS package upgrade isn't a
+          # cached layer from an earlier release.
+          no-cache-filters: runtime
+
+  admin-app:
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Log in to registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u $ --password-stdin
+      - name: Compute image names
+        id: vars
+        run: |
+          IMAGE_NAME=$(echo $ADMIN_APP_IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          # This changes all uppercase characters to lowercase.
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$GITHUB_REF_NAME
+
+          echo "image_id=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+      - name: Build and Publish Image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/admin-app/dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:latest
+          labels: |
+            runnumber=${{ github.run_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # Build the runtime stage fresh, so its OS package upgrade isn't a
+          # cached layer from an earlier release.
+          no-cache-filters: runtime

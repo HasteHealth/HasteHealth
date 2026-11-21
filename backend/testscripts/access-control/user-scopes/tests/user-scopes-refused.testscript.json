@@ -1,0 +1,126 @@
+{
+    "id": "access-control-user-scopes-refused",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-scopes-refused",
+    "name": "Access Control User Scopes Refused",
+    "title": "User scopes: refused reads and searches",
+    "status": "active",
+    "description": "Run as the user-scopes login (user/Patient.rs user/Observation.crs user/Encounter.r). Types no scope grants, a search without s, and a system-level search are refused with 403.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acu-practitioner",
+            "resourceType": "Practitioner",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acu-practitioner",
+            "resource": {
+                "reference": "#acu-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-type-not-granted",
+            "name": "Reading or searching a type no scope grants is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-acu-practitioner",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Practitioner read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Practitioner",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Practitioner search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-not-granted",
+            "name": "Searching Encounters is refused: Encounter.r has no s",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-system-search",
+            "name": "A system-level search is refused: no scope covers every type",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_id=acu-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The system-level search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

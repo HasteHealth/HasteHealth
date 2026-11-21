@@ -54,6 +54,17 @@ pub trait FHIRRepository: Sized {
         version_id: &[&VersionId],
         cache_policy: CachePolicy,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    /// The version `version_id` of the resource `resource_type/resource_id`:
+    /// `None` when the resource has no such version, which includes a
+    /// version id that belongs to another resource.
+    fn read_version(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+        version_id: &VersionId,
+    ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
         tenant_id: &TenantId,
@@ -61,6 +72,15 @@ pub trait FHIRRepository: Sized {
         resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
+    /// [`Self::read_latest`] for many keys in one round trip: the current
+    /// version of each `(type, id)` that exists and is not deleted, in no
+    /// particular order. A key that does not resolve is left out.
+    fn read_latest_many(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        keys: &[(ResourceType, ResourceId)],
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn history(
         &self,
         tenant_id: &TenantId,

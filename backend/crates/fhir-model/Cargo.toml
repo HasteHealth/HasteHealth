@@ -8,6 +8,9 @@ homepage = { workspace = true }
 
 [features]
 sqlx = ["dep:sqlx"]
+# Exposes `r4::strategies`, the proptest generators for FHIR primitives, to
+# other crates' dev-dependencies.
+testing = ["dep:proptest"]
 
 [dependencies]
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*", features = [
@@ -16,6 +19,7 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 
 chrono = { workspace = true }
+proptest = { workspace = true, optional = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
@@ -24,7 +28,12 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true }
+proptest = { workspace = true }
 
 [[bench]]
 name = "serialization_bench"
+harness = false
+
+[[bench]]
+name = "datetime_bench"
 harness = false

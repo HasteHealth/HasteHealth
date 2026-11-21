@@ -1,0 +1,32 @@
+{
+  "resourceType": "Parameters",
+  "id": "example-quantities",
+  "parameter": [
+    {
+      "name": "no-unit",
+      "valueQuantity": {
+        "value": 1
+      }
+    },
+    {
+      "name": "no-unit-2",
+      "valueQuantity": {
+        "value": 1
+      }
+    },
+    {
+      "name": "unit-text",
+      "valueQuantity": {
+        "value": 1,
+        "unit": "tablets"
+      }
+    },
+    {
+      "name": "unit-text-2",
+      "valueQuantity": {
+        "value": 1,
+        "unit": "tablets"
+      }
+    }
+  ]
+}

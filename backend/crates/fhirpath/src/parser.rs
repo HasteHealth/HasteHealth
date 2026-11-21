@@ -14,7 +14,14 @@ pub enum Literal {
     Date(String),
     DateTime(String),
     Time(String),
-    // Quantity(f64, String),
+    /// Value and unit; a unit is UCUM (from a string) or a calendar duration keyword.
+    Quantity(f64, Unit),
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum Unit {
+    Ucum(String),
+    Calendar(String),
 }
 
 #[derive(PartialEq, Debug)]
@@ -65,6 +72,7 @@ pub enum Operation {
     // Additive Operations
     Add(Expression, Expression),
     Subtraction(Expression, Expression),
+    Concatenate(Expression, Expression),
     // Multiplicative Operations
     Multiplication(Expression, Expression),
     Division(Expression, Expression),
@@ -99,14 +107,19 @@ pub enum Operation {
 
 parser! {
     grammar parser() for str {
-        rule _w() = quiet!{[' ' | '\n' | '\t']*}
+        // Whitespace and <https://hl7.org/fhirpath/N1/#comments>.
+        rule _w() = quiet!{(
+            [' ' | '\n' | '\r' | '\t']
+            / "//" [^'\n']*
+            / "/*" (!"*/" [_])* "*/"
+        )*}
 
         rule invocation() -> Invocation
           = "$this" { Invocation::This }
           / "$index" { Invocation::IndexAccessor }
           / "$total" { Invocation::Total }
 
-          / identifier:IDENTIFIER()"(" args:(operations() ** ",") ")" {
+          / identifier:IDENTIFIER() "(" args:((_w() o:operations() _w() { o }) ** ",") _w() ")" {
                 Invocation::Function(FunctionInvocation {
                     name: Identifier(identifier),
                     arguments: args,
@@ -154,9 +167,8 @@ parser! {
         }
 
         rule literal_string() -> Literal
-        // / [^'\"']
-          = "'" s:$(("\\'" / [^('\n' | '\r' | '\0' | '\'' )])*) "'" {
-            Literal::String(s.to_string())
+          = "'" s:$(("\\" [_] / [^('\0' | '\'' | '\\')])*) "'" {?
+            unescape(s).map(Literal::String)
         }
 
         rule literal_integer () -> Literal
@@ -172,6 +184,22 @@ parser! {
                 .map(Literal::Float)
                 .map_err(|_| "Failed to parse number.")
         }
+
+        // <https://hl7.org/fhirpath/N1/#quantity>: `4.5 'mg'` or `2 years`.
+        rule literal_quantity () -> Literal
+          = value:$(['0'..='9']+ ("." ['0'..='9']+)?) _w() unit:quantity_unit() {?
+            value.parse::<f64>()
+                .map(|value| Literal::Quantity(value, unit))
+                .map_err(|_| "Failed to parse number.")
+        }
+
+        rule quantity_unit () -> Unit
+          = "'" s:$(("\\" [_] / [^('\n' | '\r' | '\0' | '\'' | '\\')])*) "'" {?
+            unescape(s).map(Unit::Ucum)
+          }
+          / unit:$(("year" / "month" / "week" / "day" / "hour" / "minute" / "second" / "millisecond") "s"?) !['a'..='z' | 'A'..='Z' | '0'..='9' | '_'] {
+            Unit::Calendar(unit.to_string())
+          }
 
         rule literal_boolean () -> Literal
           = "true" { Literal::Boolean(true) }
@@ -193,7 +221,7 @@ parser! {
           }
 
         rule DATE () -> String
-          = date:$(['0'..='9']*<4,4> "-" ['0'..='9']*<2,2> "-" ['0'..='9']*<2,2>) {
+          = date:$(['0'..='9']*<4,4> ("-" ['0'..='9']*<2,2> ("-" ['0'..='9']*<2,2>)?)?) {
             date.to_string()
         }
 
@@ -207,7 +235,12 @@ parser! {
             time.to_string()
         }
 
+        // Simple or backtick-delimited <https://hl7.org/fhirpath/N1/#identifiers>.
         rule IDENTIFIER () -> String
+          = SIMPLE_IDENTIFIER()
+          / "`" s:$(("\\" [_] / [^('\0' | '`' | '\\')])*) "`" {? unescape(s) }
+
+        rule SIMPLE_IDENTIFIER () -> String
           = id:$((['a'..='z' | 'A'..='Z'] / "_")((['a'..='z' | 'A'..='Z' | '0'..='9']) / "_")*) {
             id.to_string()
         }
@@ -244,11 +277,14 @@ parser! {
           = "{}" { Literal::Null }
           / literal_boolean()
           / literal_string()
+          / literal_quantity()
           / literal_float()
           / literal_integer()
           / literal_datetime()
           / literal_time()
           / literal_date()
+
+        pub rule expression() -> Expression = _w() e:operations() _w() { e }
 
         pub rule operations() -> Expression = precedence!{
             x:(@) _w() "implies"  _w() y:@ {
@@ -307,10 +343,11 @@ parser! {
                 }
             }
             --
-            x:(@) _w() op:$("+" / "-") _w() y:@ {
+            x:(@) _w() op:$("+" / "-" / "&") _w() y:@ {
                 match op{
                     "+" => Expression::Operation(Box::new(Operation::Add(x, y))),
                     "-" => Expression::Operation(Box::new(Operation::Subtraction(x, y))),
+                    "&" => Expression::Operation(Box::new(Operation::Concatenate(x, y))),
                     _ => unreachable!(),
                 }
              }
@@ -340,7 +377,46 @@ parser! {
 }
 
 pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
-    parser::operations(input).map_err(FHIRPathError::ParseError)
+    parser::expression(input).map_err(FHIRPathError::ParseError)
+}
+
+/// Resolves the escapes of <https://hl7.org/fhirpath/N1/#string>; a `\` before
+/// any other character is dropped.
+fn unescape(raw: &str) -> Result<String, &'static str> {
+    if !raw.contains('\\') {
+        return Ok(raw.to_string());
+    }
+
+    let mut unescaped = String::with_capacity(raw.len());
+    let mut chars = raw.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            unescaped.push(c);
+            continue;
+        }
+
+        // The grammar always puts a character after a '\\'.
+        let escaped = match chars.next() {
+            Some('r') => '\r',
+            Some('n') => '\n',
+            Some('t') => '\t',
+            Some('f') => '\u{c}',
+            Some('u') => {
+                let hex = chars.by_ref().take(4).collect::<String>();
+                // `from_str_radix` alone would accept a leading `+`.
+                (hex.len() == 4 && hex.bytes().all(|b| b.is_ascii_hexdigit()))
+                    .then(|| u32::from_str_radix(&hex, 16).ok())
+                    .flatten()
+                    .and_then(char::from_u32)
+                    .ok_or("Invalid \\u escape.")?
+            }
+            Some(escaped) => escaped,
+            None => break,
+        };
+        unescaped.push(escaped);
+    }
+
+    Ok(unescaped)
 }
 
 #[cfg(test)]
@@ -351,10 +427,18 @@ mod tests {
     fn literals() {
         let escaped_string = parser::literal("'hello \\' world'").unwrap();
 
+        assert_eq!(escaped_string, Literal::String("hello ' world".to_string()));
+
         assert_eq!(
-            escaped_string,
-            Literal::String("hello \\' world".to_string())
+            parser::literal("4.5 'mg'").unwrap(),
+            Literal::Quantity(4.5, Unit::Ucum("mg".to_string()))
         );
+        assert_eq!(
+            parser::literal("2 years").unwrap(),
+            Literal::Quantity(2.0, Unit::Calendar("years".to_string()))
+        );
+        // A trailing word is not a unit.
+        assert!(parser::literal("2 dayz").is_err());
 
         let time = parser::literal("@T14:34:28").unwrap();
         assert_eq!(time, Literal::Time("14:34:28".to_string()));
@@ -412,5 +496,28 @@ mod tests {
 
         let result = parser::operations("-$this.field[45 + 23]").unwrap();
         insta::assert_debug_snapshot!(result);
+    }
+
+    #[test]
+    fn grammar_gaps() {
+        assert_eq!(
+            parser::operations("Patient.`\\u006eame`").unwrap(),
+            parser::operations("Patient.name").unwrap()
+        );
+        assert!(parser::operations("`Patient`.name").is_ok());
+        assert!(parser::operations("Patient.is(FHIR.`Patient`)").is_ok());
+        assert!(parser::operations("%`vs-administrative-gender`").is_ok());
+        assert!(parser::literal("'\\u+041'").is_err());
+        assert_eq!(
+            parser::literal("'\\u0041'").unwrap(),
+            Literal::String("A".to_string())
+        );
+        assert_eq!(
+            parser::literal("'A\nB'").unwrap(),
+            Literal::String("A\nB".to_string())
+        );
+        assert!(parser::operations("(1|2).combine( -1)").is_ok());
+        assert!(parser::operations("(1|2).combine(1, -1)").is_ok());
+        assert!(parser::operations("(1|2).count( )").is_ok());
     }
 }

@@ -1,0 +1,220 @@
+{
+    "id": "uri-above-below-modifiers",
+    "url": "https://haste.health/fhir/TestScript/uri-above-below-modifiers",
+    "title": "Uri :above and :below",
+    "name": "Uri above and below modifier tests",
+    "status": "active",
+    "description": "url:below is a prefix match and url:above matches stored ancestors; LIKE wildcards in the value are literal.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "vs-a",
+            "resourceType": "ValueSet",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "uri-modifier-test"
+                    }
+                ]
+            },
+            "url": "http://acme.org/fhir/ValueSet/123",
+            "status": "active"
+        },
+        {
+            "id": "vs-b",
+            "resourceType": "ValueSet",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "uri-modifier-test"
+                    }
+                ]
+            },
+            "url": "http://acme.org/fhir/other_set",
+            "status": "active"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-vs-a",
+            "resource": {
+                "reference": "#vs-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-vs-b",
+            "resource": {
+                "reference": "#vs-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-uri-above-below",
+            "name": "Uri hierarchy checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-vs-a",
+                        "responseId": "create-fixture-vs-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-vs-b",
+                        "responseId": "create-fixture-vs-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:below=http://acme.org/fhir/&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:below=http://acme.org/fhir/ValueSet/&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:below=http://acme.org/fhir/ValueSet/1_3&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:below=http://acme.org/fhir/%25&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:above=http://acme.org/fhir/ValueSet/123/_history/5&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:above=http://acme.org/fhir/ValueSet/1234&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "ValueSet",
+                        "params": "url:above=http://acme.org/fhir/other_set&_tag=uri-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

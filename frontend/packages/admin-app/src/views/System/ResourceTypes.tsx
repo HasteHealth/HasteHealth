@@ -69,7 +69,7 @@ export default function ResourceTypes() {
         </div>
       </header>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+      <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-xs">
         <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
           Select a row to open the full editor for that resource.
         </div>

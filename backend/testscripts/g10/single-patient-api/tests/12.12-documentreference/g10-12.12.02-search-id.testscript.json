@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.12.02-search-id",
+    "url": "https://haste.health/fhir/TestScript/g10-12.12.02-search-id",
+    "name": "g10-12.12.02-search-id",
+    "title": "12.12.02 Server returns valid results for DocumentReference search by _id",
+    "status": "active",
+    "description": "g10 12.12.02 (SH-PAT-2; US Core 6.1.0: group 10.12). Server returns valid results for DocumentReference search by _id. US Core SHALL search. Every result must match every parameter, and the record's DocumentReference/g10-cardiology-report-note must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-documentreference-id-g10-cardiology-report-note",
+            "name": "GET DocumentReference?_id=g10-cardiology-report-note",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DocumentReference",
+                        "params": "_id=g10-cardiology-report-note",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DocumentReference/g10-cardiology-report-note is returned",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).where(id = 'g10-cardiology-report-note').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DocumentReference returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DocumentReference).all((id = 'g10-cardiology-report-note'))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

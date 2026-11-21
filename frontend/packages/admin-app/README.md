@@ -27,6 +27,15 @@ runtime (which is how the Docker image is configured without a rebuild). The
 client id defaults to `admin-app`, the OIDC client the server registers for this
 app; its redirect target is the server's `admin_app_redirect_uri` setting.
 
+## Deployment
+
+The app is served from Cloudflare Workers as static assets ([`wrangler.jsonc`](./wrangler.jsonc),
+routes on `haste-admin.app`). The GitHub workflow `<Release> Admin App`
+(`.github/workflows/release_admin_app.yml`) builds and deploys it; it only runs
+when started by hand from the Actions tab, with the branch or tag to build and
+the two configuration values above as inputs. `pnpm wrangler` does the same from
+a local checkout, using the `.env` values.
+
 ## Documentation
 
 The user-facing guide is [docs/guides/admin_app.mdx](../website/docs/guides/admin_app.mdx)

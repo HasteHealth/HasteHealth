@@ -1,0 +1,137 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "AccessPolicyV3Assignment",
+    "url": "https://haste-health.com/StructureDefinition/AccessPolicyV3Assignment",
+    "version": "4.0.1",
+    "name": "AccessPolicyV3Assignment",
+    "status": "active",
+    "publisher": "haste-health",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "AccessPolicyV3Assignment",
+    "description": "Links an AccessPolicyV3 to the resource it applies to, ordered by priority.",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+    "derivation": "specialization",
+    "snapshot": {
+        "element": [
+            {
+                "id": "AccessPolicyV3Assignment",
+                "path": "AccessPolicyV3Assignment",
+                "min": 0,
+                "max": "*",
+                "base": {
+                    "path": "AccessPolicyV3Assignment",
+                    "min": 0,
+                    "max": "*"
+                },
+                "definition": "AccessPolicyV3Assignment resource.",
+                "isModifier": false,
+                "isSummary": false
+            },
+            {
+                "id": "AccessPolicyV3Assignment.id",
+                "path": "AccessPolicyV3Assignment.id",
+                "short": "Logical id of this artifact",
+                "min": 0,
+                "max": "1",
+                "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+                "base": {
+                    "path": "Resource.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "string"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV3Assignment.meta",
+                "path": "AccessPolicyV3Assignment.meta",
+                "short": "Metadata about the resource",
+                "min": 0,
+                "max": "1",
+                "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+                "base": {
+                    "path": "Resource.meta",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "code": "Meta"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children",
+                        "expression": "hasValue() or (children().count() > id.count())",
+                        "xpath": "@value|f:*|h:div",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV3Assignment.accessPolicy",
+                "path": "AccessPolicyV3Assignment.accessPolicy",
+                "definition": "The access policy that this assignment grants.",
+                "short": "The access policy that this assignment grants.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Reference",
+                        "targetProfile": [
+                            "https://haste-health.com/StructureDefinition/AccessPolicyV3"
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3Assignment.link",
+                "path": "AccessPolicyV3Assignment.link",
+                "definition": "The target reference the access policy applies to.",
+                "short": "The target reference the access policy applies to.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Reference",
+                        "targetProfile": [
+                            "https://haste-health.com/StructureDefinition/ClientApplication",
+                            "https://haste-health.com/StructureDefinition/Membership",
+                            "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV3Assignment.priority",
+                "path": "AccessPolicyV3Assignment.priority",
+                "definition": "Order of evaluation under first-applicable; lower first.",
+                "short": "Order of evaluation under first-applicable; lower first.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "integer"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -25,13 +25,13 @@ haste-subscription = { path = "../subscription", version = "0.*" }
 argon2 = { workspace = true }
 chrono = { workspace = true }
 moka = { workspace = true, features = ["future"] }
-nanoid = { version = "0.4.0", default-features = false }
+nanoid = { version = "0.5.0", default-features = false }
 regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
-    "tls-native-tls",
+    "tls-rustls-ring-native-roots",
     "postgres",
     "time",
 ] }

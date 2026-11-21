@@ -50,6 +50,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/implementation_guide.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/indexing_errors.json",
       "resourceType": "OperationDefinition"
     },
@@ -67,6 +71,10 @@
     },
     {
       "filename": "definitions/haste-health/operation/scopes/list.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/smart_launch.json",
       "resourceType": "OperationDefinition"
     },
     {
@@ -94,11 +102,43 @@
       "resourceType": "SearchParameter"
     },
     {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3_assignment/access-policy.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3_assignment/link.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3/combining.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v3/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
       "filename": "definitions/haste-health/search_parameter/client_application/grant_type.json",
       "resourceType": "SearchParameter"
     },
     {
       "filename": "definitions/haste-health/search_parameter/client_application/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/url.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/deidentification_policy/version.json",
       "resourceType": "SearchParameter"
     },
     {
@@ -154,7 +194,19 @@
       "resourceType": "StructureDefinition"
     },
     {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v3_assignment.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v3.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
       "filename": "definitions/haste-health/structure_definition/client_application.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/deidentification_policy.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -218,6 +270,62 @@
       "resourceType": "ValueSet"
     },
     {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3AttributeScope.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3AttributeScope.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Combining.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Combining.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3FieldMode.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3FieldMode.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Obligation.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Obligation.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Redaction.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3Redaction.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleKind.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleKind.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleType.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v3/AccessPolicyV3RuleType.json",
+      "resourceType": "ValueSet"
+    },
+    {
       "filename": "definitions/haste-health/terminology/access-policy/authentication/grant_type.json",
       "resourceType": "CodeSystem"
     },
@@ -303,6 +411,30 @@
     },
     {
       "filename": "definitions/haste-health/terminology/canonical_resources.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyAction.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyAction.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyDefault.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyDefault.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyStatus.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/deidentification-policy/DeidentificationPolicyStatus.json",
       "resourceType": "ValueSet"
     },
     {

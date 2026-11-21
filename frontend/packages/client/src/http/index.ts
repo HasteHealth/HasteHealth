@@ -50,6 +50,44 @@ function querySuffix(queryString: string): string {
   return queryString ? `?${queryString}` : "";
 }
 
+/**
+ * The FHIR root a request is resolved against, always ending in `/`.
+ *
+ * A string base URL is the FHIR root and is used as given. The FHIR version
+ * belongs to the project, so it is not appended to the path; pass a function
+ * if a deployment needs the URL to vary by version.
+ */
+function fhirBaseUrl(state: HTTPClientState, fhirVersion: FHIR_VERSION) {
+  const FHIRUrl =
+    typeof state.url === "string" ? state.url : state.url(fhirVersion);
+  return FHIRUrl.endsWith("/") ? FHIRUrl : FHIRUrl + "/";
+}
+
+/**
+ * Refuses a request URL that resolves outside the FHIR root.
+ *
+ * Resource types and ids are joined into the URL as given, and callers often
+ * take them from a browser route that has already been percent-decoded. A
+ * value such as `//other.example/x` would make `new URL` resolve to another
+ * origin, and `../` (or `%2e%2e`) segments would climb out of the FHIR path,
+ * either way sending the bearer token somewhere it was not issued for.
+ */
+function assertWithinBase(url: string, base: string) {
+  const target = new URL(url);
+  const root = new URL(base);
+  if (
+    target.origin !== root.origin ||
+    !target.pathname.startsWith(root.pathname)
+  ) {
+    throw new OperationError(
+      outcomeError(
+        "security",
+        "Refused a request whose URL is outside the FHIR server's base URL",
+      ),
+    );
+  }
+}
+
 async function toHTTPRequest(
   state: HTTPClientState,
   context: HTTPContext,
@@ -65,14 +103,7 @@ async function toHTTPRequest(
     ...context.headers,
   };
 
-  // A string base URL is the FHIR root and is used as given. The FHIR version
-  // belongs to the project, so it is not appended to the path; pass a function
-  // if a deployment needs the URL to vary by version.
-  let FHIRUrl =
-    typeof state.url === "string" ? state.url : state.url(request.fhirVersion);
-  if (!FHIRUrl.endsWith("/")) {
-    FHIRUrl = FHIRUrl + "/";
-  }
+  const FHIRUrl = fhirBaseUrl(state, request.fhirVersion);
 
   if (state.getAccessToken) {
     const token = await state.getAccessToken();
@@ -630,6 +661,10 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
           state,
           context.ctx,
           context.request,
+        );
+        assertWithinBase(
+          httpRequest.url,
+          fhirBaseUrl(state, context.request.fhirVersion),
         );
         const response = await fetch(httpRequest.url, {
           method: httpRequest.method,

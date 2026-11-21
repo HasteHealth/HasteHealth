@@ -156,6 +156,32 @@
         "max": "1"
       },
       {
+        "id": "ClientApplication.jwks",
+        "path": "ClientApplication.jwks",
+        "short": "The client's public keys, as a JSON Web Key Set (RFC 7517) document, for private_key_jwt client authentication.",
+        "definition": "The client's public signing keys as a JSON Web Key Set (RFC 7517) document, used to verify the JWT client assertions of a confidential asymmetric client (SMART App Launch client-confidential-asymmetric, SMART Backend Services). Each key carries a kid the assertion names. Register either jwks or jwksUri; jwks takes precedence when both are set.",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "ClientApplication.jwksUri",
+        "path": "ClientApplication.jwksUri",
+        "short": "The https URL of the client's JSON Web Key Set, for private_key_jwt client authentication.",
+        "definition": "The URL the client publishes its JSON Web Key Set at. The server fetches and caches it, and refreshes it when an assertion names a kid it has not seen. It must be an https URL on a public host.",
+        "type": [
+          {
+            "code": "uri"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
         "id": "ClientApplication.redirectUri",
         "path": "ClientApplication.redirectUri",
         "definition": "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value.",
@@ -167,6 +193,19 @@
         ],
         "min": 0,
         "max": "5"
+      },
+      {
+        "id": "ClientApplication.launchUri",
+        "path": "ClientApplication.launchUri",
+        "definition": "URL an EHR opens to start the app in a SMART App Launch EHR launch. The iss (the FHIR base URL) and launch (an opaque launch identifier) parameters are added to its query.",
+        "short": "URL the app is opened at for a SMART EHR launch.",
+        "type": [
+          {
+            "code": "uri"
+          }
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "ClientApplication.uri",

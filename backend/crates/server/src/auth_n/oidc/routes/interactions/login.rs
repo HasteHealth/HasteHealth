@@ -1,3 +1,5 @@
+use crate::auth_n::constant_time;
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
         mfa::routes::totp_verification::totp_verification_route,
@@ -21,7 +23,7 @@ use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest},
-    terminology::{HttpVerb, IssueType},
+    terminology::HttpVerb,
     types::FHIRUri,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -158,11 +160,8 @@ pub async fn login_post<
     CSRFToken(csrf_token): CSRFToken,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    if login_data.csrf_token != csrf_token {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
+    if !constant_time::str_eq(&login_data.csrf_token, &csrf_token) {
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     let login_result = state
@@ -179,6 +178,7 @@ pub async fn login_post<
     match login_result {
         LoginResult::Success { user } => {
             let authorization_redirect = redirect_authorize_uri(&uri, "/interactions/login");
+            session::user::rotate_session_id(&current_session).await?;
             session::user::set_initial_authorization_state(
                 state.repo.as_ref(),
                 &current_session,

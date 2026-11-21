@@ -1,10 +1,11 @@
 use crate::{
     auth_n::oidc::{
+        client_assertion,
         error::{OIDCError, OIDCErrorCode},
-        routes::{authorize, jwks, token},
+        routes::{authorize, introspect, jwks, token},
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, project_path},
+    route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, issuer_url, project_path},
     services::ServerState,
 };
 use axum::{
@@ -30,6 +31,9 @@ pub struct WellKnownDiscoveryDocument {
     pub scopes_supported: Vec<String>,
     pub response_types_supported: Vec<String>,
     pub token_endpoint_auth_methods_supported: Vec<String>,
+    /// The JWS algorithms a `private_key_jwt` client assertion may be signed
+    /// with (RFC 8414 section 2).
+    pub token_endpoint_auth_signing_alg_values_supported: Vec<String>,
     pub id_token_signing_alg_values_supported: Vec<String>,
     pub subject_types_supported: Vec<String>,
 }
@@ -86,6 +90,14 @@ pub struct SmartConfigurationDocument {
      */
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub token_endpoint_auth_methods_supported: Option<Vec<String>>,
+
+    /**
+     * CONDITIONAL.  Array of JWS signing algorithms the token endpoint
+     * accepts for a private_key_jwt client assertion.  Required if the
+     * server's capabilities include client-confidential-asymmetric.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub token_endpoint_auth_signing_alg_values_supported: Option<Vec<String>>,
 
     /**
      * OPTIONAL.  If available, URL to the OAuth2 dynamic registration
@@ -357,9 +369,9 @@ pub async fn oauth_protected_resource<
         ));
     };
 
-    // Default to openid profile user/*.* scopes for FHIR access.
+    // Default to openid profile user/*.cruds scopes for FHIR access.
     let default_scopes =
-        Scopes::try_from("openid profile user/*.* offline_access fhirUser").unwrap_or_default();
+        Scopes::try_from("openid profile user/*.cruds offline_access fhirUser").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
@@ -401,6 +413,45 @@ pub async fn oauth_protected_resource<
     Ok(Json(oauth_protected_resource))
 }
 
+/// The configured API URL, which every endpoint URL is built on.
+fn api_url(api_url_string: &str) -> Result<Url, OIDCError> {
+    if api_url_string.is_empty() {
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("api_uri is not set in the configuration".to_string()),
+            None,
+        ));
+    }
+
+    Url::parse(api_url_string).map_err(|_| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Invalid api_uri format".to_string()),
+            None,
+        )
+    })
+}
+
+/// The project's token endpoint URL, as the discovery documents advertise it
+/// and as a client assertion's `aud` must name it.
+pub fn token_endpoint_url(
+    tenant: &TenantId,
+    project: &ProjectId,
+    api_url_string: &str,
+) -> Result<String, OIDCError> {
+    let token_path = api_v1_oidc_auth_path(tenant, project).join(
+        token::TokenPath
+            .to_string()
+            .strip_prefix('/')
+            .unwrap_or_default(),
+    );
+
+    api_url(api_url_string)?
+        .join(token_path.to_str().unwrap_or_default())
+        .map(|url| url.to_string())
+        .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))
+}
+
 pub fn create_oidc_discovery_document(
     tenant: &TenantId,
     project: &ProjectId,
@@ -429,9 +480,6 @@ pub fn create_oidc_discovery_document(
             .unwrap(),
     );
 
-    let token_path = api_v1_oidc_auth_path(tenant, project)
-        .join(token::TokenPath.to_string().strip_prefix("/").unwrap());
-
     let jwks_path = api_v1_oidc_path(tenant, project)
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
@@ -440,18 +488,14 @@ pub fn create_oidc_discovery_document(
         // used to look this document up (RFC 8414 §3.3) - the same
         // tenant/project-scoped URL `oauth_protected_resource` advertises
         // via `authorization_servers`, not the bare root API URL.
-        issuer: api_url
-            .join(project_path(tenant, project).to_str().unwrap_or_default())
-            .unwrap_or(api_url.clone())
+        issuer: issuer_url(api_url_string, tenant, project)
+            .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?
             .to_string(),
         authorization_endpoint: api_url
             .join(authorize_path.to_str().unwrap_or_default())
             .unwrap()
             .to_string(),
-        token_endpoint: api_url
-            .join(token_path.to_str().unwrap_or_default())
-            .unwrap()
-            .to_string(),
+        token_endpoint: token_endpoint_url(tenant, project, api_url_string)?,
         jwks_uri: api_url
             .join(jwks_path.to_str().unwrap_or_default())
             .unwrap()
@@ -463,15 +507,18 @@ pub fn create_oidc_discovery_document(
             "offline_access".to_string(),
             "fhirUser".to_string(),
         ],
-        response_types_supported: vec![
-            "code".to_string(),
-            "id_token".to_string(),
-            "id_token token".to_string(),
-        ],
+        // Only the authorization code flow is implemented.
+        response_types_supported: vec!["code".to_string()],
         token_endpoint_auth_methods_supported: vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),
+            "private_key_jwt".to_string(),
+            "none".to_string(),
         ],
+        token_endpoint_auth_signing_alg_values_supported: client_assertion::SIGNING_ALGORITHMS
+            .iter()
+            .map(ToString::to_string)
+            .collect(),
         id_token_signing_alg_values_supported: vec!["RS256".to_string()],
         subject_types_supported: vec!["public".to_string()],
     };
@@ -507,24 +554,29 @@ pub fn create_smart_configuration(
             .unwrap(),
     );
 
-    let token_path = api_v1_oidc_auth_path(tenant, project)
-        .join(token::TokenPath.to_string().strip_prefix("/").unwrap());
-
     let jwks_path = api_v1_oidc_path(tenant, project)
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
+    let introspect_path = api_v1_oidc_auth_path(tenant, project).join(
+        introspect::IntrospectPath
+            .to_string()
+            .strip_prefix("/")
+            .unwrap(),
+    );
+
     let smart_document = SmartConfigurationDocument {
-        issuer: Some(api_url.to_string()),
+        issuer: Some(
+            issuer_url(api_url_string, tenant, project)
+                .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?
+                .to_string(),
+        ),
         authorization_endpoint: Some(
             api_url
                 .join(authorize_path.to_str().unwrap_or_default())
                 .unwrap()
                 .to_string(),
         ),
-        token_endpoint: api_url
-            .join(token_path.to_str().unwrap_or_default())
-            .unwrap()
-            .to_string(),
+        token_endpoint: token_endpoint_url(tenant, project, api_url_string)?,
         jwks_uri: Some(
             api_url
                 .join(jwks_path.to_str().unwrap_or_default())
@@ -537,28 +589,51 @@ pub fn create_smart_configuration(
             "email".to_string(),
             "offline_access".to_string(),
             "fhirUser".to_string(),
-            // SMART scopes supported TODO patient scopes.
+            "launch".to_string(),
+            "launch/patient".to_string(),
+            "launch/encounter".to_string(),
+            "patient/*.rs".to_string(),
             "user/*.cruds".to_string(),
             "system/*.cruds".to_string(),
         ]),
-        response_types_supported: Some(vec![
-            "code".to_string(),
-            "id_token".to_string(),
-            "id_token token".to_string(),
-        ]),
+        response_types_supported: Some(vec!["code".to_string()]),
         token_endpoint_auth_methods_supported: Some(vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),
+            // Confidential asymmetric clients and backend services, with a
+            // signed assertion in place of a secret.
+            "private_key_jwt".to_string(),
+            // Public clients, which use PKCE instead of a secret.
+            "none".to_string(),
         ]),
+        token_endpoint_auth_signing_alg_values_supported: Some(
+            client_assertion::SIGNING_ALGORITHMS
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+        ),
         grant_types_supported: vec![
             "authorization_code".to_string(),
             "client_credentials".to_string(),
+            "refresh_token".to_string(),
         ],
         capabilities: vec![
             "sso-openid-connect".to_string(),
+            "authorize-post".to_string(),
+            "client-public".to_string(),
             "client-confidential-symmetric".to_string(),
+            "client-confidential-asymmetric".to_string(),
             "launch-standalone".to_string(),
+            "launch-ehr".to_string(),
+            "context-ehr-patient".to_string(),
+            "context-ehr-encounter".to_string(),
+            "context-banner".to_string(),
+            "context-standalone-patient".to_string(),
+            "context-style".to_string(),
+            "permission-offline".to_string(),
+            "permission-patient".to_string(),
             "permission-user".to_string(),
+            "permission-v1".to_string(),
             "permission-v2".to_string(),
         ],
         code_challenge_methods_supported: vec!["S256".to_string()],
@@ -568,7 +643,12 @@ pub fn create_smart_configuration(
         user_access_brand_bundle: None,
         user_access_brand_identifier: None,
         management_endpoint: None,
-        introspection_endpoint: None,
+        introspection_endpoint: Some(
+            api_url
+                .join(introspect_path.to_str().unwrap_or_default())
+                .unwrap()
+                .to_string(),
+        ),
         revocation_endpoint: None,
     };
 

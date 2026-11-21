@@ -1,0 +1,174 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-foreach-04",
+  "url": "https://haste.health/fhir/TestScript/sof-foreach-04",
+  "name": "sof-foreach-04",
+  "title": "SQL on FHIR foreach: forEach: two on the same level",
+  "status": "active",
+  "description": "TBD Suite test 4 of tests/foreach.json (foreach), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "forEach": "contact",
+                "column": [
+                  {
+                    "name": "cont_family",
+                    "path": "name.family",
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "forEach": "name",
+                "column": [
+                  {
+                    "name": "pat_family",
+                    "path": "family",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "F1.1"
+              },
+              {
+                "family": "F1.2"
+              }
+            ],
+            "contact": [
+              {
+                "telecom": [
+                  {
+                    "system": "phone"
+                  }
+                ],
+                "name": {
+                  "family": "FC1.1",
+                  "given": [
+                    "N1",
+                    "N1`"
+                  ]
+                }
+              },
+              {
+                "telecom": [
+                  {
+                    "system": "email"
+                  }
+                ],
+                "gender": "unknown",
+                "name": {
+                  "family": "FC1.2",
+                  "given": [
+                    "N2"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "name": [
+              {
+                "family": "F2.1"
+              },
+              {
+                "family": "F2.2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt3"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "forEach: two on the same level",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 4 in all. Rows in the order Haste Health returns them (the suite compares rows in any order). [{\"cont_family\": \"FC1.1\", \"pat_family\": \"F1.1\"}, {\"cont_family\": \"FC1.1\", \"pat_family\": \"F1.2\"}, {\"cont_family\": \"FC1.2\", \"pat_family\": \"F1.1\"}, {\"cont_family\": \"FC1.2\", \"pat_family\": \"F1.2\"}]",
+            "expression": "Binary.data = 'W3siY29udF9mYW1pbHkiOiJGQzEuMSIsInBhdF9mYW1pbHkiOiJGMS4xIn0seyJjb250X2ZhbWlseSI6IkZDMS4xIiwicGF0X2ZhbWlseSI6IkYxLjIifSx7ImNvbnRfZmFtaWx5IjoiRkMxLjIiLCJwYXRfZmFtaWx5IjoiRjEuMSJ9LHsiY29udF9mYW1pbHkiOiJGQzEuMiIsInBhdF9mYW1pbHkiOiJGMS4yIn1d'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

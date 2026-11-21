@@ -33,7 +33,7 @@ export function PanelWarning({
 /** An inline code chip, for parameter and field names. */
 export function Chip({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <code className="mr-1 rounded bg-white px-1 py-0.5 font-mono">
+    <code className="mr-1 rounded-sm bg-white px-1 py-0.5 font-mono">
       {children}
     </code>
   );

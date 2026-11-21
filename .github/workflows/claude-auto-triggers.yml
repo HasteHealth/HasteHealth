@@ -1,0 +1,18 @@
+name: <Auto> Agent pickup
+on:
+  issues:
+    types: [labeled]
+jobs:
+  fire:
+    if: github.event.label.name == 'ready-for-agent'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -X POST "$URL" \
+            -H "Authorization: Bearer ${{ secrets.CLAUDE_DISPATCH_TOKEN }}" \
+            -H "anthropic-beta: experimental-cc-routine-2026-04-01" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"Issue #${{ github.event.issue.number }} was just labeled ready-for-agent.\"}"
+        env:
+          URL: https://api.anthropic.com/v1/claude_code/routines/trig_01QjZKsPcc6xjkeJJnYiYaGW/fire

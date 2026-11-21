@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.10.02-search-patient",
+    "url": "https://haste.health/fhir/TestScript/g10-12.10.02-search-patient",
+    "name": "g10-12.10.02-search-patient",
+    "title": "12.10.02 Server returns valid results for DiagnosticReport search by patient",
+    "status": "active",
+    "description": "g10 12.10.02 (SH-PAT-2; US Core 6.1.0: group 10.10). Server returns valid results for DiagnosticReport search by patient. US Core SHALL search. Every result must match every parameter, and the record's DiagnosticReport/g10-bone-density-report must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-diagnosticreport-patient-g10-example",
+            "name": "GET DiagnosticReport?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -19,7 +19,6 @@ haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 
 base64 = { workspace = true, features = ["alloc"] }
-chrono = { workspace = true }
 csv = { version = "1.4", default-features = false }
 futures = { version = "0.3.34", default-features = false, features = ["alloc"] }
 itertools = { version = "0.15.0", default-features = false, features = ["use_alloc"] }

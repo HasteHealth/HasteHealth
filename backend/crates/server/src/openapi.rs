@@ -1,4 +1,6 @@
+use crate::error::ServerError;
 use crate::{
+    SERVER_VERSION,
     load_artifacts::{get_all_sds, get_all_sps},
     services::ServerState,
 };
@@ -80,12 +82,7 @@ fn build_resource_schemas(
 
         let schema = haste_sd_to_json_schema::isolated_schema(schema_base_url, sd)?;
 
-        let json_str = serde_json::to_string(&schema).map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::exception(),
-                format!("Failed to serialize schema for {}", type_name),
-            )
-        })?;
+        let json_str = serde_json::to_string(&schema).map_err(ServerError::from)?;
 
         schemas.insert(type_name, json_str);
     }
@@ -121,7 +118,6 @@ async fn ensure_schemas_generated<
     .await?;
 
     let api_url = &state.config.api_uri;
-    let api_version = env!("CARGO_PKG_VERSION");
     let supported_names = get_supported_resource_names(&sds);
 
     // The schema_base_url points to the endpoint that serves individual resource schemas
@@ -129,7 +125,7 @@ async fn ensure_schemas_generated<
 
     let openapi_document = haste_openapi_schema_generator::open_api_schema_generator(
         api_url,
-        api_version,
+        SERVER_VERSION,
         &schema_base_url,
         &sds,
         &sps,
@@ -172,12 +168,7 @@ pub async fn openapi_document_handler<
     if let Some(doc) = &*guard {
         Ok((
             headers,
-            serde_json::to_string(doc).map_err(|_e| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    "Failed to serialize OpenAPI document".to_string(),
-                )
-            })?,
+            serde_json::to_string(doc).map_err(ServerError::from)?,
         )
             .into_response())
     } else {

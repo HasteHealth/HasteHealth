@@ -28,7 +28,7 @@ Anything left unset by either source falls back to the default listed below.
 
 - **Top-level fields**: `HASTE_<FIELD>` — e.g. `HASTE_API_URI`, `HASTE_CERTIFICATION_DIR`, `HASTE_MAX_REQUEST_BODY_SIZE`.
 - **Nested sections**: `HASTE_<SECTION>.<field>` — the prefix plus the section name, then a **literal dot**, then the field name exactly as it appears in TOML (lowercase) — e.g. `HASTE_REPO.database_url`, `HASTE_SEARCH.username`, `HASTE_SECURITY.publicize_fhir_metadata`.
-- Sections that select a backend/provider via a tag (`repo`, `search`, `email`, `security.encryption`) need that tag set too, e.g. `HASTE_REPO.backend=postgres`.
+- Sections that select a backend/provider via a tag (`repo`, `search`, `document_storage`, `email`, `security.encryption`) need that tag set too, e.g. `HASTE_REPO.backend=postgres`.
 
 ## Reference
 
@@ -48,6 +48,8 @@ Anything left unset by either source falls back to the default listed below.
 | Key | Env var | Default |
 | --- | --- | --- |
 | `fhir.delete_limit` | `HASTE_FHIR.delete_limit` | `100` — max resources removed by a single type/system-level delete. |
+| `fhir.max_conditional_references` | `HASTE_FHIR.max_conditional_references` | `100` — most distinct conditional references one transaction may resolve; a bundle above it is refused with `422` (`too-costly`). |
+| `fhir.conditional_reference_concurrency` | `HASTE_FHIR.conditional_reference_concurrency` | `12` — how many of a transaction's conditional-reference searches run at once. Keep below `search.max_connections`. |
 
 ### `[repo]` — resource storage backend
 
@@ -79,6 +81,67 @@ Tagged by `backend`; two backends exist: `elasticsearch` (the default) and `post
 | `search.database_url` | `HASTE_SEARCH.database_url` | `postgresql://postgres:postgres@127.0.0.1/haste_health_search` — a separate database from `[repo]`'s |
 | `search.max_connections` | `HASTE_SEARCH.max_connections` | `20` |
 
+### `[document_storage]`
+
+On by default. `Binary.data` of at least `binary_min_bytes` bytes (after base64 decoding) is written to document storage instead of the resource row and put back on every read (read, vread, history and search), so clients see no difference. Smaller content stays in the row. Every version keeps its own document, and a delete leaves earlier versions' documents in place.
+
+A document belongs to the tenant and project of its resource and is named `Binary/<document id>` within them. Every storage call names that tenant and project, so a request can only ever reach its own project's documents. They are columns in Postgres, a directory per tenant and project on the filesystem, and the leading segments of the object name in a bucket.
+
+Tagged by `backend`:
+
+- `postgres` (the default): one table in the repository database (`document_storage`, with the content in a `bytea` column), so a deployment needs nothing beyond the database it already has. `haste-health admin migrate repo` (or `migrate all`) creates it; until it has run, writing a Binary over the threshold fails with an error naming that command. `database_url` puts it in another database; in the repository database, deleting a project deletes its documents with it.
+- `filesystem`: a directory, for development, tests and single-node deployments.
+- `gcs`: a Google Cloud Storage bucket.
+- `none`: all content stays in the resource rows.
+
+Setting any key of the section, such as `binary_min_bytes`, means setting `backend` as well.
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `document_storage.backend` | `HASTE_DOCUMENT_STORAGE.backend` (`postgres` / `filesystem` / `gcs` / `none`) | `postgres` |
+| `document_storage.binary_min_bytes` | `HASTE_DOCUMENT_STORAGE.binary_min_bytes` | `65536` (64 KiB) |
+| `document_storage.sweep_interval_seconds` | `HASTE_DOCUMENT_STORAGE.sweep_interval_seconds` | `86400` (a day); `0` turns the automatic sweep off |
+| `document_storage.sweep_grace_seconds` | `HASTE_DOCUMENT_STORAGE.sweep_grace_seconds` | `86400`; must exceed the longest transaction |
+
+**`backend = "postgres"`**:
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `document_storage.database_url` | `HASTE_DOCUMENT_STORAGE.database_url` | the `repo` database |
+| `document_storage.max_connections` | `HASTE_DOCUMENT_STORAGE.max_connections` | `10`, its own pool |
+
+**`backend = "filesystem"`**:
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `document_storage.root` | `HASTE_DOCUMENT_STORAGE.root` | required; created when missing |
+
+**`backend = "gcs"`**:
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `document_storage.bucket` | `HASTE_DOCUMENT_STORAGE.bucket` | — |
+| `document_storage.prefix` | `HASTE_DOCUMENT_STORAGE.prefix` | none; a folder-like prefix before every object, so deployments can share a bucket |
+| `document_storage.endpoint` | `HASTE_DOCUMENT_STORAGE.endpoint` | `https://storage.googleapis.com`; point it at an emulator for development |
+| `document_storage.credentials.type` | `HASTE_DOCUMENT_STORAGE.credentials.type` | `application_default` |
+
+Credential types, with their extra field:
+
+- `application_default`: the file named by `GOOGLE_APPLICATION_CREDENTIALS`, then the file `gcloud auth application-default login` writes, then the metadata server.
+- `service_account_key_file`, with `path`: a service account key file.
+- `service_account_key_json`, with `json`: the contents of a service account key file.
+- `metadata_server`: the metadata server of GCE, GKE, Cloud Run and similar runtimes.
+- `anonymous`: no credentials, for emulators such as fake-gcs-server.
+- `access_token`, with `token`: a fixed OAuth2 access token, for tests.
+
+The server and the `worker` (which runs asynchronous jobs through the same FHIR client) need the same settings. A process with storage off answers 500 for a Binary whose content is in document storage, rather than returning it without its content.
+
+Give every deployment storage of its own (a database, directory, bucket or prefix): the sweep below removes any document the deployment's own database has no version for.
+
+A Binary still arrives as base64 inside a FHIR JSON body, so `max_request_body_size` limits its size as before.
+
+A write uploads its document before the database row commits, so a rolled back transaction or a failed write can leave a document that no version refers to. Each async-job worker removes those every `sweep_interval_seconds`, once they are older than `sweep_grace_seconds`. `haste-health admin document-storage sweep` does the same on demand, for documents older than `--older-than-hours` (default 24); `--dry-run` only counts them.
+
 ### `[email]` — optional
 
 `None`/absent by default (email sending disabled). Tagged by `backend`; only `sendgrid` exists today.
@@ -89,12 +152,24 @@ Tagged by `backend`; two backends exist: `elasticsearch` (the default) and `post
 | `email.api_key` | `HASTE_EMAIL.api_key` |
 | `email.from_address` | `HASTE_EMAIL.from_address` |
 
+### `[signup]`
+
+Self-service sign-up and login at `/auth/signup` and `/auth/login`.
+
+Set `signup.enabled = false` on a deployment where visitors must not create tenants (workspaces) for themselves. `/auth/signup` then answers `403`, the links to it are hidden, and an address with no account that logs in at `/auth/login` is told there is no account instead of being offered a new tenant. Login for existing users is unaffected, and tenants are created with `haste-health admin tenant create`.
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `signup.enabled` | `HASTE_SIGNUP.enabled` | `true` |
+| `signup.turnstile.site_key` | `HASTE_SIGNUP.turnstile.site_key` | unset — with `secret_key`, adds a [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) bot check to the forms. |
+| `signup.turnstile.secret_key` | `HASTE_SIGNUP.turnstile.secret_key` | unset |
+
 ### `[rate_limits]`
 
 | Key | Env var | Default |
 | --- | --- | --- |
 | `rate_limits.rate_limit_subscription_tiers` | `HASTE_RATE_LIMITS.rate_limit_subscription_tiers` | unset — a 4-element array, one limit per subscription tier (Free/Professional/Team/Unlimited). |
-| `rate_limits.rate_limit_window_seconds` | `HASTE_RATE_LIMITS.rate_limit_window_seconds` | `86400` (1 day) |
+| `rate_limits.rate_limit_window_seconds` | `HASTE_RATE_LIMITS.rate_limit_window_seconds` | `900` (15 minutes) — how long a tier's request budget lasts before it resets. |
 | `rate_limits.rate_limit_operation_points` | `HASTE_RATE_LIMITS.rate_limit_operation_points` | `100` |
 
 ### `[monitoring]`
@@ -129,6 +204,41 @@ Tagged by `type`: `environment` (default), `gcp`, or `aws`.
 | `security.encryption.project_id` (gcp only) | `HASTE_SECURITY.encryption.project_id` | — |
 | `security.encryption.region` (aws only) | `HASTE_SECURITY.encryption.region` | — |
 
+### `[packages]`
+
+Settings for installing FHIR packages (implementation guides) with `ImplementationGuide/$install`. See [Implementation Guides](/docs/guides/implementation_guides).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `packages.registry_url` | `HASTE_PACKAGES.registry_url` | `https://packages.fhir.org` | The FHIR package registry packages are fetched from. Must be `https`; redirects are followed only within it. Empty turns off fetching, so packages can only be uploaded. |
+| `packages.skip_dependencies` | `HASTE_PACKAGES.skip_dependencies` | `hl7.terminology`, `hl7.terminology.r4`, `hl7.terminology.r5`, `us.nlm.vsac`, `us.cdc.phinvads`, `hl7.fhir.uv.xver-r5.r4`, `hl7.fhir.uv.xver-r4b.r4`, `hl7.fhir.uv.xver-r3.r4`, `hl7.fhir.uv.xver-r2.r4` | Packages not installed as a dependency. Naming one directly still installs it. |
+| `packages.max_package_bytes` | `HASTE_PACKAGES.max_package_bytes` | `20971520` (20 MiB) | Largest package download or upload, compressed. |
+| `packages.max_files` | `HASTE_PACKAGES.max_files` | `20000` | Most files in one package. |
+| `packages.max_install_packages` | `HASTE_PACKAGES.max_install_packages` | `50` | Most packages one install fetches or uploads, dependencies included. A fetch that fails still counts. |
+| `packages.max_install_bytes` | `HASTE_PACKAGES.max_install_bytes` | `209715200` (200 MiB) | Most the packages of one install may unpack to together, uploads included. Checked while unpacking. An install's peak memory is about four times this. |
+| `packages.max_concurrent_installs` | `HASTE_PACKAGES.max_concurrent_installs` | `1` | Installs one server runs at once. Another is refused with `429`. |
+| `packages.free_tier_install_interval_seconds` | `HASTE_PACKAGES.free_tier_install_interval_seconds` | `120` | How often one Free tier tenant may start an install, in seconds. Another within this time is refused with `429`. `0` turns the wait off. |
+| `packages.free_tier_shared_install_interval_seconds` | `HASTE_PACKAGES.free_tier_shared_install_interval_seconds` | `60` | How often any Free tier tenant may start an install, all of them together, in seconds. Another within this time is refused with `429`. Set it well above how long one install takes. `0` turns the wait off. |
+
+### `[sql_on_fhir]`
+
+Limits on one `$viewdefinition-run`. A run answers with the whole table in one response, so one past either limit is refused rather than answered with part of the table. See [SQL on FHIR](/docs/guides/sql_on_fhir).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `sql_on_fhir.max_rows` | `HASTE_SQL_ON_FHIR.max_rows` | `10000` | Most rows one run returns. A run that would return more is refused with `422` (`too-costly`), and a larger `_limit` with `400`. |
+| `sql_on_fhir.max_resources` | `HASTE_SQL_ON_FHIR.max_resources` | `50000` | Most resources one run reads from storage, earlier versions included. A run that would read more is refused with `422` (`too-costly`). |
+
+### `[terminology]`
+
+Limits on one value set expansion, for `ValueSet/$expand` and `ValueSet/$validate-code`. An expansion holds every concept of the value set, those of the value sets it includes among them, so one past a limit is refused rather than answered with part of its concepts. See [$expand](/docs/api/rest_api/terminology/endpoints/expand#limits).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `terminology.max_expansion_concepts` | `HASTE_TERMINOLOGY.max_expansion_concepts` | `100000` | Most concepts one expansion holds, nested `contains` counted. A larger expansion is refused with `422` (`too-costly`). |
+| `terminology.max_included_value_sets` | `HASTE_TERMINOLOGY.max_included_value_sets` | `1000` | Most value sets one expansion resolves through `compose.include.valueSet`, at any depth; one included twice counts twice. An expansion that needs more is refused with `422` (`too-costly`). |
+| `terminology.max_value_set_depth` | `HASTE_TERMINOLOGY.max_value_set_depth` | `32` | Longest chain of value sets including one another that one expansion follows. A longer chain is refused with `422` (`too-costly`). |
+
 ### `[operations]`
 
 | Key | Env var | Default | Notes |
@@ -159,6 +269,12 @@ password = "elastic"
 # backend = "postgres"
 # database_url = "postgresql://postgres:postgres@127.0.0.1/haste_health_search"
 # max_connections = 20
+
+# Binary content of 64 KiB or more goes to a table in the repo database by
+# default. To keep it in a directory instead:
+# [document_storage]
+# backend = "filesystem"
+# root = "/var/lib/haste-health/documents"
 
 [operations]
 deno_pool_threads = 4
@@ -194,4 +310,10 @@ HASTE_SEARCH.backend=elasticsearch
 HASTE_SEARCH.url=http://elasticsearch:9200
 HASTE_SEARCH.username=elastic
 HASTE_SEARCH.password=elastic
+
+# Optional: Binary content in a Google Cloud Storage bucket instead of the
+# repository database.
+# HASTE_DOCUMENT_STORAGE.backend=gcs
+# HASTE_DOCUMENT_STORAGE.bucket=my-bucket
+# HASTE_DOCUMENT_STORAGE.credentials.type=metadata_server
 ```

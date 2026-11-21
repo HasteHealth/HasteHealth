@@ -3,7 +3,6 @@
     "title": "OAuth2TokenIntrospectionBody",
     "type": "object",
     "description": "https://datatracker.ietf.org/doc/html/rfc7662#section-2.1",
-    "additionalProperties": false,
     "required": [
         "token"
     ],
@@ -11,6 +10,18 @@
     "properties": {
         "token": {
             "description": "Token to introspect.",
+            "type": "string"
+        },
+        "token_type_hint": {
+            "description": "A hint about the type of the token submitted for introspection.",
+            "type": "string"
+        },
+        "client_id": {
+            "description": "The caller's client id, when it authenticates in the body (client_secret_post).",
+            "type": "string"
+        },
+        "client_secret": {
+            "description": "The caller's client secret, when it authenticates in the body (client_secret_post).",
             "type": "string"
         }
     }

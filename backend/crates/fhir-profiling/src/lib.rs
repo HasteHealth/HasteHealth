@@ -1,18 +1,24 @@
+//! Validates a FHIR resource against a profile (a `StructureDefinition` with
+//! `derivation = constraint`).
+//!
+//! A profile is compiled once into a tree the validator walks directly, and
+//! that compiled form, the profiles it refers to and the value sets its slices
+//! bind are cached for as long as the [`CanonicalResolver`] keeps handing out
+//! the same resources. Validating a resource is then a synchronous walk over
+//! the value with no path parsing and no resolver calls.
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, Resource, ResourceType, StructureDefinition},
     terminology::{IssueType, TypeDerivationRule},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_pointer::Path;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
-use crate::element::validate_element;
-
-mod element;
+mod compile;
+mod graph;
 mod slicing;
-mod utilities;
+mod validate;
 mod validators;
 
 pub struct FHIRProfileArguments<Resolver: CanonicalResolver> {
@@ -83,28 +89,17 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
 pub async fn validate_profile(
     ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
-    let mut outcome = OperationOutcome::default();
-    match ctx.profile().derivation.as_ref() {
-        derivation if derivation == Some(&TypeDerivationRule::constraint()) => {
-            let element_location = Path::new()
-                .descend("snapshot")
-                .descend("element")
-                .descend("0");
-
-            let starting_path = Path::new();
-
-            let result = validate_element(ctx, &element_location, &starting_path).await?;
-            outcome.issue.extend(result);
-        }
-        _ => {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Only profiles with derivation 'constraint' are supported".to_string(),
-            ));
-        }
+    if ctx.profile().derivation.as_ref() != Some(&TypeDerivationRule::constraint()) {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Only profiles with derivation 'constraint' are supported".to_string(),
+        ));
     }
-
-    Ok(outcome)
+    let graph = graph::graph_for(ctx.resolver.as_ref(), &ctx.profile).await?;
+    Ok(OperationOutcome {
+        issue: validate::validate(&graph, ctx.root)?,
+        ..Default::default()
+    })
 }
 
 /// Validates a value against the profile identified by its canonical URL.

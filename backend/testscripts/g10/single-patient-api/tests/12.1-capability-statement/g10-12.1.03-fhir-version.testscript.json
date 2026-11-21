@@ -1,0 +1,41 @@
+{
+    "id": "g10-12.1.03-fhir-version",
+    "url": "https://haste.health/fhir/TestScript/g10-12.1.03-fhir-version",
+    "name": "g10-12.1.03-fhir-version",
+    "title": "12.1.03 The server uses FHIR R4",
+    "status": "active",
+    "description": "g10 12.1.03 (SH-PAT-1). The CapabilityStatement's fhirVersion is 4.0.x.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-fhir-version",
+            "name": "fhirVersion",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "capabilities"
+                        },
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The CapabilityStatement is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "fhirVersion is R4",
+                        "expression": "CapabilityStatement.fhirVersion.startsWith('4.0')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

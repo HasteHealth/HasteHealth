@@ -1,0 +1,79 @@
+{
+    "id": "smart-launch-client-refused",
+    "url": "https://haste.health/fhir/TestScript/smart-launch-client-refused",
+    "name": "SMART Launch Client Refused",
+    "title": "SMART launch: a client cannot start one",
+    "status": "active",
+    "description": "Run with a client-credentials token. Only a signed-in user can start a SMART EHR launch, since the same user must then authorize the app.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "slr-app",
+            "resourceType": "ClientApplication",
+            "name": "slr-app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code"
+        },
+        {
+            "id": "slr-launch",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/slr-patient"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-slr-app",
+            "resource": {
+                "reference": "#slr-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-slr-launch",
+            "resource": {
+                "reference": "#slr-launch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-client-refused",
+            "name": "A client-credentials token cannot start a launch",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-slr-app",
+                        "sourceId": "fixture-slr-launch",
+                        "encodeRequestUrl": false,
+                        "description": "Refused before anything is read."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The launch is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

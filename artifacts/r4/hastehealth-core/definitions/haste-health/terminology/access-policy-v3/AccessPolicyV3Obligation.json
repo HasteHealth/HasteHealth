@@ -1,0 +1,70 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3obligation",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Obligation",
+            "resource": {
+                "id": "accesspolicyv3obligation-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Obligation",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Obligation",
+                "title": "AccessPolicyV3Obligation",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 obligations.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "require-approval",
+                        "display": "require-approval"
+                    },
+                    {
+                        "code": "step-up",
+                        "display": "step-up"
+                    },
+                    {
+                        "code": "audit-purpose",
+                        "display": "audit-purpose"
+                    },
+                    {
+                        "code": "rate-limit",
+                        "display": "rate-limit"
+                    },
+                    {
+                        "code": "max-results",
+                        "display": "max-results"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3obligation",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Obligation",
+                "title": "AccessPolicyV3Obligation",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 obligations.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Obligation"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

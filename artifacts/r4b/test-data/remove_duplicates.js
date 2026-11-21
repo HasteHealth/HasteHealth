@@ -25,4 +25,6 @@ function dedupeDirecotry(directory) {
   }
 }
 
-dedupeDirecotry(process.argv[2]);
+// Fixed to the examples next to this script rather than a CLI argument so it
+// can never delete files outside this package.
+dedupeDirecotry(path.join(import.meta.dirname, "examples-json"));

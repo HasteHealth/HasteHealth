@@ -1,7 +1,7 @@
 //! Storage for CLI secret material (OIDC client secrets, cached OAuth tokens).
 //!
 //! Kept in its own file, separate from [`crate::cli::config`], so that secrets never show
-//! up when a user inspects their config (e.g. `haste-health config show-profile`) and so
+//! up when a user inspects their config (e.g. `haste-health profile show`) and so
 //! the two files can be handled differently (e.g. excluded from dotfile backups/sync).
 
 use haste_fhir_model::r4::generated::terminology::IssueType;

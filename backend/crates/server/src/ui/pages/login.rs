@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
-    ui::components::{TenantContext, page_banner, page_html},
+    ui::components::{TenantContext, page_banner, page_html, version_watermark},
 };
 use haste_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
 use haste_jwt::ProjectId;
@@ -16,7 +16,11 @@ pub fn login_form_html(
     login_route: &str,
     errors: Option<Vec<String>>,
 ) -> Markup {
-    let project_id = project.id.clone().map(ProjectId::new).unwrap();
+    let project_id = project
+        .id
+        .clone()
+        .and_then(|id| ProjectId::new(id).ok())
+        .expect("a stored project has a valid id");
     let project_name = project.name.value.as_ref().map_or_else(
         || Cow::Owned(project_id.as_ref().to_string()),
         |s| Cow::Borrowed(s.as_str()),
@@ -83,5 +87,6 @@ pub fn login_form_html(
 
             }
         }
+        (version_watermark())
     })
 }

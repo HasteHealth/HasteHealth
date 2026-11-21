@@ -25,12 +25,7 @@ pub enum PrimitiveValue {
 
 #[allow(dead_code)]
 fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
-    value.as_any().downcast_ref::<T>().or_else(|| {
-        value
-            .as_any()
-            .downcast_ref::<Box<T>>()
-            .map(std::convert::AsRef::as_ref)
-    })
+    value.as_any().downcast_ref::<T>()
 }
 
 fn convert_with<T, R, F>(
@@ -62,14 +57,44 @@ fn unsupported_type_error(type_name: &str) -> OperationOutcomeError {
     )
 }
 
+/// The `FHIRPath` System types whose values a FHIR primitive type's values can be, as FHIR maps
+/// them (<https://hl7.org/fhir/R4/fhirpath.html#types>). `url` and `canonical` specialize
+/// `uri`; `date` and `instant` values can also be the engine's `System.Date` and
+/// `System.Instant`.
+fn system_types_of(fhir_type: &str) -> &'static [&'static str] {
+    const STRING: &[&str] = &["http://hl7.org/fhirpath/System.String"];
+    const INTEGER: &[&str] = &["http://hl7.org/fhirpath/System.Integer"];
+    const TEMPORAL: &[&str] = &[
+        "http://hl7.org/fhirpath/System.DateTime",
+        "http://hl7.org/fhirpath/System.Date",
+        "http://hl7.org/fhirpath/System.Instant",
+    ];
+    match fhir_type {
+        "boolean" => &["http://hl7.org/fhirpath/System.Boolean"],
+        "string" | "uri" | "url" | "canonical" | "code" | "oid" | "id" | "uuid" | "markdown"
+        | "base64Binary" => STRING,
+        "integer" | "unsignedInt" | "positiveInt" => INTEGER,
+        "decimal" => &["http://hl7.org/fhirpath/System.Decimal"],
+        "date" | "dateTime" | "instant" => TEMPORAL,
+        "time" => &["http://hl7.org/fhirpath/System.Time"],
+        _ => &[],
+    }
+}
+
 pub fn convert_meta_value(
     type_: &str,
     value: &dyn MetaValue,
 ) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
-    if value.fhir_type() != type_ {
+    let value_type = value.fhir_type();
+    if value_type != type_ {
+        // A FHIRPath System value (a resource's `id`, a literal, `%rowIndex`) stands for the
+        // FHIR primitive types that map to its System type.
+        if system_types_of(type_).contains(&value_type) {
+            return convert_fhirpath_system_type(value_type, value);
+        }
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Expected type '{type_}' but got '{}'", value.fhir_type()),
+            format!("Expected type '{type_}' but got '{value_type}'"),
         ));
     }
 
@@ -180,12 +205,6 @@ fn convert_fhirpath_system_type(
         "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
             .downcast_ref::<String>()
-            .or_else(|| {
-                value
-                    .as_any()
-                    .downcast_ref::<Box<String>>()
-                    .map(std::convert::AsRef::as_ref)
-            })
             .cloned()
             .map(PrimitiveValue::String)),
         "http://hl7.org/fhirpath/System.Boolean" => Ok(value

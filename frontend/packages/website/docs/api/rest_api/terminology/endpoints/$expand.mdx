@@ -103,6 +103,10 @@ Content-Type: application/fhir+json
 }
 ```
 
+## Limits
+
+An expansion is answered whole, so it is bounded. One that would hold more than 100,000 concepts, resolve more than 1,000 included value sets (`compose.include.valueSet`, at any depth) or follow value sets including one another more than 32 levels deep is refused with `422` and a `too-costly` `OperationOutcome`. A value set that includes itself, directly or through the value sets it includes, is refused with `422` and an `invalid` `OperationOutcome`. `$validate-code` expands the value set first, so the same applies to it. The limits are the server settings `terminology.max_expansion_concepts`, `terminology.max_included_value_sets` and `terminology.max_value_set_depth` (see [Configuration](/docs/reference/configuration#terminology)).
+
 ## Error Handling
 
 If there are any issues with the request (e.g., missing required parameters, invalid value set), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.

@@ -1,43 +1,36 @@
-use haste_fhir_client::url::{Parameter, parse_prefix};
+use haste_fhir_client::url::Prefix;
 
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
-    value_expr, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, target_params, value_expr,
+    wrap_predicate,
 };
-use crate::{
-    indexing_conversion::get_decimal_range, query::QueryBuildError,
-    search_ranges::approximate_decimal,
-};
+use crate::query::{QueryBuildError, value::NumberValue};
 
 /// A FHIR number has implicit precision, so equality is range containment.
 pub fn number_clause(
-    parsed_parameter: &Parameter,
+    values: &[NumberValue],
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    require_values(parsed_parameter)?;
-
     let column = value_expr(target)?;
-    let (predicate, params) = or_predicates(
-        &parsed_parameter.value,
-        target_params(target),
-        |value, params| number_predicate(value, &column, params),
-    )?;
+    let (predicate, params) = or_predicates(values, target_params(target), |number, params| {
+        Ok(number_predicate(number, &column, params))
+    })?;
 
     Ok(wrap_predicate(target, false, &predicate, params))
 }
 
 fn number_predicate(
-    value: &str,
+    number: &NumberValue,
     column: &str,
     params: Vec<SqlParam>,
-) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
-    let (prefix, num_str) = parse_prefix(value);
-    let range = get_decimal_range(num_str)
-        .map_err(|_e| QueryBuildError::InvalidParameterValue(num_str.to_string()))?;
-    let (low, high) = (SqlParam::Float64(range.start), SqlParam::Float64(range.end));
+) -> (String, Vec<SqlParam>) {
+    let (low, high) = (
+        SqlParam::Float64(number.range.start),
+        SqlParam::Float64(number.range.end),
+    );
 
-    Ok(match prefix {
-        Some("ne") => {
+    match number.prefix {
+        Prefix::Ne => {
             let (params, i) = bind(params, [low, high]);
             (
                 format!("NOT ({column} >= ${i} AND {column} <= ${})", i + 1),
@@ -45,37 +38,29 @@ fn number_predicate(
             )
         }
         // For a single value, `sa`/`eb` mean the same as `gt`/`lt`.
-        Some("gt" | "sa") => {
+        Prefix::Gt | Prefix::Sa => {
             let (params, i) = bind(params, [high]);
             (format!("{column} > ${i}"), params)
         }
-        Some("lt" | "eb") => {
+        Prefix::Lt | Prefix::Eb => {
             let (params, i) = bind(params, [low]);
             (format!("{column} < ${i}"), params)
         }
-        Some("ge") => {
+        Prefix::Ge => {
             let (params, i) = bind(params, [low]);
             (format!("{column} >= ${i}"), params)
         }
-        Some("le") => {
+        Prefix::Le => {
             let (params, i) = bind(params, [high]);
             (format!("{column} <= ${i}"), params)
         }
-        Some("eq") | None => {
+        // `ap` was widened when it was parsed.
+        Prefix::Eq | Prefix::Ap => {
             let (params, i) = bind(params, [low, high]);
             (
                 format!("({column} >= ${i} AND {column} <= ${})", i + 1),
                 params,
             )
         }
-        Some("ap") => {
-            let (low, high) = approximate_decimal(&range);
-            let (params, i) = bind(params, [SqlParam::Float64(low), SqlParam::Float64(high)]);
-            (
-                format!("({column} >= ${i} AND {column} <= ${})", i + 1),
-                params,
-            )
-        }
-        Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),
-    })
+    }
 }

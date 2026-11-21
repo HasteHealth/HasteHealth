@@ -1,5 +1,5 @@
+use crate::auth_n::error::AuthError;
 use axum::{extract::FromRequestParts, http::request::Parts};
-use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -23,12 +23,9 @@ where
             return Ok(Self(None));
         };
 
-        let authorization = header.to_str().map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Invalid Authorization Header".to_string(),
-            )
-        })?;
+        let authorization = header
+            .to_str()
+            .map_err(|_| AuthError::InvalidAuthorizationHeader)?;
 
         // Check that its a well-formed bearer and return
         let split = authorization.split_once(' ');
@@ -38,10 +35,7 @@ where
             // Found empty bearer; sometimes request libraries format them as this
             _ if authorization == "Bearer" => Ok(Self::from_header("")),
             // Found nothing
-            _ => Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Invalid Authorization Header".to_string(),
-            )),
+            _ => Err(AuthError::InvalidAuthorizationHeader.into()),
         }
     }
 }

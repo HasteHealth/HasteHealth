@@ -1,0 +1,401 @@
+{
+    "id": "g10-12.1.05-profile-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.1.05-profile-support",
+    "name": "g10-12.1.05-profile-support",
+    "title": "12.1.05 The CapabilityStatement lists the required US Core profiles",
+    "status": "active",
+    "description": "g10 12.1.05 (SH-PAT-1). rest.resource.supportedProfile lists every one of the 46 US Core 7 profiles g10 requires (version suffix ignored).",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-profiles",
+            "name": "supportedProfile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "capabilities"
+                        },
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The CapabilityStatement is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-allergyintolerance is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-careplan is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-careteam is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-condition-encounter-diagnosis is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-condition-problems-health-concerns is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-coverage is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-implantable-device is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-diagnosticreport-lab is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-diagnosticreport-note is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-documentreference is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-encounter is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-goal is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-immunization is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-location is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-location' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-location|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-medicationdispense is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-medicationrequest is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-lab is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-blood-pressure is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-bmi is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-head-circumference is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-head-circumference' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-head-circumference|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-body-height is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-body-weight is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-body-temperature is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-heart-rate is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-heart-rate|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "pediatric-bmi-for-age is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "head-occipital-frontal-circumference-percentile is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "pediatric-weight-for-height is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-pulse-oximetry is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-respiratory-rate is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-smokingstatus is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-clinical-result is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-clinical-result|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-occupation is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-pregnancyintent is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancyintent' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancyintent|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-pregnancystatus is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancystatus|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-observation-screening-assessment is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-treatment-intervention-preference is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-care-experience-preference is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-average-blood-pressure is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-organization is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-patient is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-practitioner is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-procedure is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-provenance is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-relatedperson is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-servicerequest is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "us-core-specimen is a supported profile",
+                        "expression": "CapabilityStatement.rest.resource.supportedProfile.where($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen' or $this.startsWith('http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

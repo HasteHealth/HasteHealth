@@ -1,0 +1,252 @@
+{
+    "id": "search-string-long-value",
+    "url": "https://haste.health/fhir/TestScript/search-string-long-value",
+    "name": "Search String Long Value Test",
+    "title": "String search over a value longer than the indexed prefix",
+    "status": "active",
+    "description": "A string value of several thousand characters (a ValueSet.description, incompressible so the index cannot shrink it) is indexed and searchable: a prefix term matches case-insensitively, a prefix term longer than the indexed prefix is still compared against the whole value, :contains finds text beyond the indexed prefix, and :exact compares the whole value, not only its indexed prefix.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "long-description-valueset",
+            "resourceType": "ValueSet",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "string-long-value-test"
+                    }
+                ]
+            },
+            "url": "https://haste.health/fhir/ValueSet/string-long-value-test",
+            "name": "StringLongValueTest",
+            "status": "active",
+            "description": "The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq5b0bdwiiiqrzzlfo5a l7u62opu54o0v9rode6xk6nttt9xk3fh6yljq1nd 5zwy6k8c7fqgrfif2py1zku2i5nh180hsrpy9am7 2bbpqnlsj8mrtq2k8w50hnynsgbha8sie6xt16w7 uah22wt8zv5hyyn9ar6m370tk27mx7ay1zve5psb 0jzrleawq08tj3q5k36cr6g1ewe2bk6kfzrtn7np vree7x369dkt9rwoz9zl4qvoqpbzu1prmek2jq37 kii2xtzphntegozu5glcdbnc572vrhlgozo52yko ps39yn2qv5hnfcaa4uysmzkjbayj8dyqif3tac8d 7icrh1fmb5irm2yvrqppdlw197dw908m81ereqlg jdn1cdf646xguci8c2iz2b7rfquftcydquiqyhtg 1p69nvv6z4gi27978bskmxy7ug0wiect8u0tuwru 76a7hjuuue2r43xyfdid75qpvxxzt3v86kbjqoih l0dg8rgnqe7fenl61bx5som5p12x8m4eq0ma8y65 ez61cw3amta8ht6u89s70870t2ti62i9kqa1cx0z sbffayr3rx4vy3h4wj0jblqxis0q6s0r1v5n5z1f einjobgqj4gzlaf1d9n81wdg90hqrl4dnfyh2s65 zh4gjymk7q08s58nv5gawrd82tgo6rrp0jiqm09d 86j0rr4tr5n5x4pvll28jd6u7inu54vhiiqof8dl hom6t1uabtoforvr7ybhvwihqjcwefgtupr7dxbf izxpgvra6uhwirzf7408ztot9id6hlpn1r8bq8r7 q4izgxe8x896bt2ijejn4vxskjy2zhjrsa8aiy9g 3b11rx0z3dg4cachi76w9rw4ppg9wkhcu1wqd10y wsv2p7jdvh6l85vhb4nylzogpvvp34x5m12z8h5r ijay0gbel3y6sjj7gqb3zo8za8p1klvpe89klyb6 n1pc7m68epz3hdyf9g4c7pabt3r0ki9u82609kzy m5rxjqrlfxvjqqqwyr3ajiqome8m81pi93zmfejd bzy0ii88epyismzwlotjw58sf6tn3bsgx2qdduki gh1pn66zhny7iqahmy48orck96o0r0zr5gil9b3c 5nz8vpgec12ml6m6y7xmoxevd3cljs4c6ezfz6tz rw4d94b1tuj9rex0z7bhc7agvvx9cxe5f82v68ak uxnjjgzu60xvqxcepqz9sfekr0fis9qpngr4d6tn 8e9uvs7ic2xcbu0k9c71lmohi6hr3mdx3vwoaa5c kq9caof7lc7mn2sp56xuzemlmt14xb5bg1vve0m6 596424kr7tz8qqtac33wo62n4vjy1dhwaq8dtyau vtdnfvheis0vobl6xtsy073em0ocpopzynjtxat2 5kjbx19v65uhs9r1atf5h6oq1xodg666kisdenad 1bedac8vvba9n4mrs97qolnzdp92cvu0hbl6flno ltgduje2jocswdf2molhdmdhfosq71pcqmuww3yy f1p5vlhpe1r8tvx03xwuz46bxitkti9jk3jikfqp wukr4te1j9w2gjuel48ccmwx6w6xvhlycrndptuz pxdosamgiox6rjkoet66881264l6wm1ernojinbk 5xldxfpnf2mvkbnu49cdx59wi5e6utuf4v0eqeub luouqqt50asksdh11nrw5sqlujwgzw7mz2j4pcpf ec7644u7k5zay992kxdxw2p8tf2wmki2cxvl54ao d2k6nz3huqikvil7to913369tk76tnsjavh1y6l2 282xndfgg8yi2zl427cm25yswlrlb9de9o2u2vgy d3r03v6gkz8146jujwimon3jgg1d3jx9urzay52t tyuslg5l2j3g8h8uu59vu93u5z8nkp8mpdudv0bw xx0nsouzylaywooeuynsg1awf0jh8lvjy1u87rnm kk8kjh27i1ivuibwlop55cfi84jnxirwey4b73mp natcr7meghzvg274rj1xwy01x9nmejppbpz32gdl 7ac1r0ipx0vd63i7xdwhph1jbxijsb4b4e1f486g i8z80p7y4u2henxggwgmhfa61pft5d19tzcbr42o ru428dr6l23slu6z09z4otbej5hxqt8tig6i3c24 u8xia8mre3sar6bzhgu2f57vcmkdhch97tmk8jon f6w1rispeqdb1s411elnc10ww6jloodxe2unoqj7 yg4a4tqsniycy38bio5gs1m7vgpp5hl5w1z90bzj 1idsy1gmr41q6guj98qb9gx3qgsif0yb4i9z5o6b yd0fpc3fscwceectwtf84wukw7puopntt8uta4qo jpkfqzmik9euynkc2nzhtos62vfeeoh7393ak318 hmaptn7stqwrsdba2cneu2thphmbmib2b9o4l8ao iebiuf78qmza8rwq8yz7783rfl4zin7b7dujouzc 046eci908y8rcnmtyt7brm878kofn4kdzsajgc14 ln3gzoeiv6456x1p2qzwyoyglweb05d3ho3w6fvc r7vik1t2p5yb6qhsqbfu6losfk3xz24g5fcdbrcr tl84vb3vpowdb26mzjlofzclua387kc1oq72mcy0 z61r2vbf40k1k8666lr04sw3z9yspw887oqbeqyk qq5bk4hojhydleg393bdrd74nw2hvuyysfo29w11 1rljdvwyeuljh8n4ow7kntkiz15wc8ebxpjnz26r 1v4vfdi94lfaeblrm3z86rq9ygz3peuibydswb2u a8uzd2g1zhba90wlzcjs70k4sqcz80juk3z9i6fz qz5cskryrhqahg3j3ppcofggchcq0jwhdyok85kw z6ku7edatg2fadr9tq3yhoti66bx2g1jrhxqnvj9 oao4wi0v12hqd7s6umnopywqa56i14f7rgog1zjh 27nknrxuwqjboq48bvblmqoe1xxmgazvv0vqzrwe 1o4wsbg7dko82s1zaezjn4z5g0k5nt9ctsiq6t4i 1v7unrct6s5tqksqvjqy25kycfnud7tc0guiawpw 71p7fcvb2bkrn1skcc5y8hys1dov05n6fvzlp75e 0znqascqflq21tgtd4lq9nicz9a6tayvgqkmely7 bozba70ldz0mkof288vqm6qypsqjrxr6om8bgnrk uokcoyqqnqyccj51txzwmsrq4jwjydeqe5n3tcrv a5111x5m1zsgfkvx1yhyd1mho4yliogwu62ky4lc 6mpihr9aaxsndtjiek0riemk0nz85le5pnejpmj9 qexfw7rl4199oi9h11xo29zvlddx3k3xwj3m848s niosgfo16nt5dyndttn1a3u0pgk6dykb655x91b1 yp7a9cmuci2l2jjq6yf6hey4xnc70o4mkpm7vt46 pnshacuf7l38f0i8ciuw2mz3fzxasnwxag2ztlto vvncdbl3ucr7repai0wr5cyht0po71qaaj4jwep9 9jizivmiihicrrwajae31ztiz1x2ws4lratod5da f3apizyorlnkfvwfh9onv982f1wklgwl5f31neeq vzxu17em0w75wh2vaot0imr6cktdhrhl92p31dj5 x6syf1i6o15ex87ldnmbwpp77090kpao68dj9fbj 8roxvigq0wc9d3cuttyty4shag1enhap4envnss3 396n3yfbet2ns0lzy3op5asr45whhn2yn0dly1x7 je6kcn683tt4ib21w1xnrn34r0sr2ehu2s7o6upj kqp0b1zoiefk3yoszrasjh1st09djgk751hdwutc t2cws9nqrks6v9fciiyuv4ksbqb8b083b6yghbyf 5nwc048umai44q16g0297sfd1jwmf3xhvgnukkvf ns9e5362yx774ljaltljnip3if569yz18614r4im ycri2njy2dwojs5vjezeeabefi9qdn1vrwmk0fwh 12v6gadj0nmek36bustj2dcskbubjqgoq55meisb pklp3gamxkrgftoyt8itit8ht7gn2zgbz4as44xl n49m78oi1mx5odphxecn1v02232xcnqi7g0mugao mymttxobprtlhawjy53howdfpkm1iyzwfc93wsxv xahytrd64rd5u1396ok6czqmumhk00qifqprl31b jt6ij0c3657cygs03g810bqdsqu6bi8dnugkt07j f757e1xj3zus59e7ibfnx46jli1cewtqxxt0z42x u0ji4qq14ds75w5i2j4jove9xk00troa4wfq5z3c 1q57jujnyhhuj4727j5jdmzvq5sc1fnbuzspt1w2 urhxcsngqbqvhz3s8rxj5dgy2ua3piujn5kswond 3r334x11eowdugy85vjmer553u38f5r8hi0fjyg1 9nja9hgfvh9x0ze02t12z8i34ygvrjqcgkcauvck 02b19zhzdbip65yuisii9jjpmbn593x417a0pyrb 7ug6p1qi739xqhfwz2x0625y8bd5uogbwel4hoj3 ekr4xlocs2893spat4jmmlteqkztl3zfwwoa8k3i syjvvqajmqnadc3so7hejmlb1kk2ud26wsi87dph 25o6uhtjr0qhbax6ldukccbqpbs45vfmlwfxjxm3 y2wfpogpft7xfhxp9sthk0n3imf1eyjptq64yhgx 34znvjrumczruginx4ucd3i356nrqjshuovumh0n."
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-long-description-valueset",
+            "resource": {
+                "reference": "#long-description-valueset"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-long-string-value",
+            "name": "A long string value is searchable by prefix, :contains and :exact",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-long-description-valueset",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description=The long description&_tag=string-long-value-test",
+                        "description": "Prefix term."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description=the LONG description&_tag=string-long-value-test",
+                        "description": "Prefix term, other case."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description=The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq5b0bdwiiiqrzzlfo5a l7u62opu54o0v9rode6xk6nttt9xk3fh6yljq1nd 5zwy6k8c7fqgrfif2py1zku2i5nh&_tag=string-long-value-test",
+                        "description": "Prefix term longer than the indexed prefix."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description=The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq5b0bdwiiiqrzzlfo5a l7u62opu54o0v9rode6xk6nttt9xk3fh6yljq1nd 5zwy6k8c7fqgrfif2pX1zku2i5nh&_tag=string-long-value-test",
+                        "description": "Long prefix term that differs after the indexed prefix."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description:contains=urhxcsngqbqvhz3s8rxj5dgy2ua3piujn5kswond&_tag=string-long-value-test",
+                        "description": "Text beyond the indexed prefix."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description:contains=dnowsk5njuip3au2ygd5jxr8s3zhvqbqgnscxhru&_tag=string-long-value-test",
+                        "description": "Text that is not in the value."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description:exact=The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq5b0bdwiiiqrzzlfo5a l7u62opu54o0v9rode6xk6nttt9xk3fh6yljq1nd 5zwy6k8c7fqgrfif2py1zku2i5nh180hsrpy9am7 2bbpqnlsj8mrtq2k8w50hnynsgbha8sie6xt16w7 uah22wt8zv5hyyn9ar6m370tk27mx7ay1zve5psb 0jzrleawq08tj3q5k36cr6g1ewe2bk6kfzrtn7np vree7x369dkt9rwoz9zl4qvoqpbzu1prmek2jq37 kii2xtzphntegozu5glcdbnc572vrhlgozo52yko ps39yn2qv5hnfcaa4uysmzkjbayj8dyqif3tac8d 7icrh1fmb5irm2yvrqppdlw197dw908m81ereqlg jdn1cdf646xguci8c2iz2b7rfquftcydquiqyhtg 1p69nvv6z4gi27978bskmxy7ug0wiect8u0tuwru 76a7hjuuue2r43xyfdid75qpvxxzt3v86kbjqoih l0dg8rgnqe7fenl61bx5som5p12x8m4eq0ma8y65 ez61cw3amta8ht6u89s70870t2ti62i9kqa1cx0z sbffayr3rx4vy3h4wj0jblqxis0q6s0r1v5n5z1f einjobgqj4gzlaf1d9n81wdg90hqrl4dnfyh2s65 zh4gjymk7q08s58nv5gawrd82tgo6rrp0jiqm09d 86j0rr4tr5n5x4pvll28jd6u7inu54vhiiqof8dl hom6t1uabtoforvr7ybhvwihqjcwefgtupr7dxbf izxpgvra6uhwirzf7408ztot9id6hlpn1r8bq8r7 q4izgxe8x896bt2ijejn4vxskjy2zhjrsa8aiy9g 3b11rx0z3dg4cachi76w9rw4ppg9wkhcu1wqd10y wsv2p7jdvh6l85vhb4nylzogpvvp34x5m12z8h5r ijay0gbel3y6sjj7gqb3zo8za8p1klvpe89klyb6 n1pc7m68epz3hdyf9g4c7pabt3r0ki9u82609kzy m5rxjqrlfxvjqqqwyr3ajiqome8m81pi93zmfejd bzy0ii88epyismzwlotjw58sf6tn3bsgx2qdduki gh1pn66zhny7iqahmy48orck96o0r0zr5gil9b3c 5nz8vpgec12ml6m6y7xmoxevd3cljs4c6ezfz6tz rw4d94b1tuj9rex0z7bhc7agvvx9cxe5f82v68ak uxnjjgzu60xvqxcepqz9sfekr0fis9qpngr4d6tn 8e9uvs7ic2xcbu0k9c71lmohi6hr3mdx3vwoaa5c kq9caof7lc7mn2sp56xuzemlmt14xb5bg1vve0m6 596424kr7tz8qqtac33wo62n4vjy1dhwaq8dtyau vtdnfvheis0vobl6xtsy073em0ocpopzynjtxat2 5kjbx19v65uhs9r1atf5h6oq1xodg666kisdenad 1bedac8vvba9n4mrs97qolnzdp92cvu0hbl6flno ltgduje2jocswdf2molhdmdhfosq71pcqmuww3yy f1p5vlhpe1r8tvx03xwuz46bxitkti9jk3jikfqp wukr4te1j9w2gjuel48ccmwx6w6xvhlycrndptuz pxdosamgiox6rjkoet66881264l6wm1ernojinbk 5xldxfpnf2mvkbnu49cdx59wi5e6utuf4v0eqeub luouqqt50asksdh11nrw5sqlujwgzw7mz2j4pcpf ec7644u7k5zay992kxdxw2p8tf2wmki2cxvl54ao d2k6nz3huqikvil7to913369tk76tnsjavh1y6l2 282xndfgg8yi2zl427cm25yswlrlb9de9o2u2vgy d3r03v6gkz8146jujwimon3jgg1d3jx9urzay52t tyuslg5l2j3g8h8uu59vu93u5z8nkp8mpdudv0bw xx0nsouzylaywooeuynsg1awf0jh8lvjy1u87rnm kk8kjh27i1ivuibwlop55cfi84jnxirwey4b73mp natcr7meghzvg274rj1xwy01x9nmejppbpz32gdl 7ac1r0ipx0vd63i7xdwhph1jbxijsb4b4e1f486g i8z80p7y4u2henxggwgmhfa61pft5d19tzcbr42o ru428dr6l23slu6z09z4otbej5hxqt8tig6i3c24 u8xia8mre3sar6bzhgu2f57vcmkdhch97tmk8jon f6w1rispeqdb1s411elnc10ww6jloodxe2unoqj7 yg4a4tqsniycy38bio5gs1m7vgpp5hl5w1z90bzj 1idsy1gmr41q6guj98qb9gx3qgsif0yb4i9z5o6b yd0fpc3fscwceectwtf84wukw7puopntt8uta4qo jpkfqzmik9euynkc2nzhtos62vfeeoh7393ak318 hmaptn7stqwrsdba2cneu2thphmbmib2b9o4l8ao iebiuf78qmza8rwq8yz7783rfl4zin7b7dujouzc 046eci908y8rcnmtyt7brm878kofn4kdzsajgc14 ln3gzoeiv6456x1p2qzwyoyglweb05d3ho3w6fvc r7vik1t2p5yb6qhsqbfu6losfk3xz24g5fcdbrcr tl84vb3vpowdb26mzjlofzclua387kc1oq72mcy0 z61r2vbf40k1k8666lr04sw3z9yspw887oqbeqyk qq5bk4hojhydleg393bdrd74nw2hvuyysfo29w11 1rljdvwyeuljh8n4ow7kntkiz15wc8ebxpjnz26r 1v4vfdi94lfaeblrm3z86rq9ygz3peuibydswb2u a8uzd2g1zhba90wlzcjs70k4sqcz80juk3z9i6fz qz5cskryrhqahg3j3ppcofggchcq0jwhdyok85kw z6ku7edatg2fadr9tq3yhoti66bx2g1jrhxqnvj9 oao4wi0v12hqd7s6umnopywqa56i14f7rgog1zjh 27nknrxuwqjboq48bvblmqoe1xxmgazvv0vqzrwe 1o4wsbg7dko82s1zaezjn4z5g0k5nt9ctsiq6t4i 1v7unrct6s5tqksqvjqy25kycfnud7tc0guiawpw 71p7fcvb2bkrn1skcc5y8hys1dov05n6fvzlp75e 0znqascqflq21tgtd4lq9nicz9a6tayvgqkmely7 bozba70ldz0mkof288vqm6qypsqjrxr6om8bgnrk uokcoyqqnqyccj51txzwmsrq4jwjydeqe5n3tcrv a5111x5m1zsgfkvx1yhyd1mho4yliogwu62ky4lc 6mpihr9aaxsndtjiek0riemk0nz85le5pnejpmj9 qexfw7rl4199oi9h11xo29zvlddx3k3xwj3m848s niosgfo16nt5dyndttn1a3u0pgk6dykb655x91b1 yp7a9cmuci2l2jjq6yf6hey4xnc70o4mkpm7vt46 pnshacuf7l38f0i8ciuw2mz3fzxasnwxag2ztlto vvncdbl3ucr7repai0wr5cyht0po71qaaj4jwep9 9jizivmiihicrrwajae31ztiz1x2ws4lratod5da f3apizyorlnkfvwfh9onv982f1wklgwl5f31neeq vzxu17em0w75wh2vaot0imr6cktdhrhl92p31dj5 x6syf1i6o15ex87ldnmbwpp77090kpao68dj9fbj 8roxvigq0wc9d3cuttyty4shag1enhap4envnss3 396n3yfbet2ns0lzy3op5asr45whhn2yn0dly1x7 je6kcn683tt4ib21w1xnrn34r0sr2ehu2s7o6upj kqp0b1zoiefk3yoszrasjh1st09djgk751hdwutc t2cws9nqrks6v9fciiyuv4ksbqb8b083b6yghbyf 5nwc048umai44q16g0297sfd1jwmf3xhvgnukkvf ns9e5362yx774ljaltljnip3if569yz18614r4im ycri2njy2dwojs5vjezeeabefi9qdn1vrwmk0fwh 12v6gadj0nmek36bustj2dcskbubjqgoq55meisb pklp3gamxkrgftoyt8itit8ht7gn2zgbz4as44xl n49m78oi1mx5odphxecn1v02232xcnqi7g0mugao mymttxobprtlhawjy53howdfpkm1iyzwfc93wsxv xahytrd64rd5u1396ok6czqmumhk00qifqprl31b jt6ij0c3657cygs03g810bqdsqu6bi8dnugkt07j f757e1xj3zus59e7ibfnx46jli1cewtqxxt0z42x u0ji4qq14ds75w5i2j4jove9xk00troa4wfq5z3c 1q57jujnyhhuj4727j5jdmzvq5sc1fnbuzspt1w2 urhxcsngqbqvhz3s8rxj5dgy2ua3piujn5kswond 3r334x11eowdugy85vjmer553u38f5r8hi0fjyg1 9nja9hgfvh9x0ze02t12z8i34ygvrjqcgkcauvck 02b19zhzdbip65yuisii9jjpmbn593x417a0pyrb 7ug6p1qi739xqhfwz2x0625y8bd5uogbwel4hoj3 ekr4xlocs2893spat4jmmlteqkztl3zfwwoa8k3i syjvvqajmqnadc3so7hejmlb1kk2ud26wsi87dph 25o6uhtjr0qhbax6ldukccbqpbs45vfmlwfxjxm3 y2wfpogpft7xfhxp9sthk0n3imf1eyjptq64yhgx 34znvjrumczruginx4ucd3i356nrqjshuovumh0n.&_tag=string-long-value-test",
+                        "description": "The whole value."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description:exact=The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq5b0bdwiiiqrzzlfo5a l7u62opu54o0v9rode6xk6nttt9xk3fh6yljq1nd 5zwy6k8c7fqgrfif2py1zku2i5nh180hsrpy9am7 2bbpqnlsj8mrtq2k8w50hnynsgbha8sie6xt16w7 uah22wt8zv5hyyn9ar6m370tk27mx7ay1zve5psb 0jzrleawq08tj3q5k36cr6g1ewe2bk6kfzrtn7np vree7x369dkt9rwoz9zl4qvoqpbzu1prmek2jq37 kii2xtzphntegozu5glcdbnc572vrhlgozo52yko ps39yn2qv5hnfcaa4uysmzkjbayj8dyqif3tac8d 7icrh1fmb5irm2yvrqppdlw197dw908m81ereqlg jdn1cdf646xguci8c2iz2b7rfquftcydquiqyhtg 1p69nvv6z4gi27978bskmxy7ug0wiect8u0tuwru 76a7hjuuue2r43xyfdid75qpvxxzt3v86kbjqoih l0dg8rgnqe7fenl61bx5som5p12x8m4eq0ma8y65 ez61cw3amta8ht6u89s70870t2ti62i9kqa1cx0z sbffayr3rx4vy3h4wj0jblqxis0q6s0r1v5n5z1f einjobgqj4gzlaf1d9n81wdg90hqrl4dnfyh2s65 zh4gjymk7q08s58nv5gawrd82tgo6rrp0jiqm09d 86j0rr4tr5n5x4pvll28jd6u7inu54vhiiqof8dl hom6t1uabtoforvr7ybhvwihqjcwefgtupr7dxbf izxpgvra6uhwirzf7408ztot9id6hlpn1r8bq8r7 q4izgxe8x896bt2ijejn4vxskjy2zhjrsa8aiy9g 3b11rx0z3dg4cachi76w9rw4ppg9wkhcu1wqd10y wsv2p7jdvh6l85vhb4nylzogpvvp34x5m12z8h5r ijay0gbel3y6sjj7gqb3zo8za8p1klvpe89klyb6 n1pc7m68epz3hdyf9g4c7pabt3r0ki9u82609kzy m5rxjqrlfxvjqqqwyr3ajiqome8m81pi93zmfejd bzy0ii88epyismzwlotjw58sf6tn3bsgx2qdduki gh1pn66zhny7iqahmy48orck96o0r0zr5gil9b3c 5nz8vpgec12ml6m6y7xmoxevd3cljs4c6ezfz6tz rw4d94b1tuj9rex0z7bhc7agvvx9cxe5f82v68ak uxnjjgzu60xvqxcepqz9sfekr0fis9qpngr4d6tn 8e9uvs7ic2xcbu0k9c71lmohi6hr3mdx3vwoaa5c kq9caof7lc7mn2sp56xuzemlmt14xb5bg1vve0m6 596424kr7tz8qqtac33wo62n4vjy1dhwaq8dtyau vtdnfvheis0vobl6xtsy073em0ocpopzynjtxat2 5kjbx19v65uhs9r1atf5h6oq1xodg666kisdenad 1bedac8vvba9n4mrs97qolnzdp92cvu0hbl6flno ltgduje2jocswdf2molhdmdhfosq71pcqmuww3yy f1p5vlhpe1r8tvx03xwuz46bxitkti9jk3jikfqp wukr4te1j9w2gjuel48ccmwx6w6xvhlycrndptuz pxdosamgiox6rjkoet66881264l6wm1ernojinbk 5xldxfpnf2mvkbnu49cdx59wi5e6utuf4v0eqeub luouqqt50asksdh11nrw5sqlujwgzw7mz2j4pcpf ec7644u7k5zay992kxdxw2p8tf2wmki2cxvl54ao d2k6nz3huqikvil7to913369tk76tnsjavh1y6l2 282xndfgg8yi2zl427cm25yswlrlb9de9o2u2vgy d3r03v6gkz8146jujwimon3jgg1d3jx9urzay52t tyuslg5l2j3g8h8uu59vu93u5z8nkp8mpdudv0bw xx0nsouzylaywooeuynsg1awf0jh8lvjy1u87rnm kk8kjh27i1ivuibwlop55cfi84jnxirwey4b73mp natcr7meghzvg274rj1xwy01x9nmejppbpz32gdl 7ac1r0ipx0vd63i7xdwhph1jbxijsb4b4e1f486g i8z80p7y4u2henxggwgmhfa61pft5d19tzcbr42o ru428dr6l23slu6z09z4otbej5hxqt8tig6i3c24 u8xia8mre3sar6bzhgu2f57vcmkdhch97tmk8jon f6w1rispeqdb1s411elnc10ww6jloodxe2unoqj7 yg4a4tqsniycy38bio5gs1m7vgpp5hl5w1z90bzj 1idsy1gmr41q6guj98qb9gx3qgsif0yb4i9z5o6b yd0fpc3fscwceectwtf84wukw7puopntt8uta4qo jpkfqzmik9euynkc2nzhtos62vfeeoh7393ak318 hmaptn7stqwrsdba2cneu2thphmbmib2b9o4l8ao iebiuf78qmza8rwq8yz7783rfl4zin7b7dujouzc 046eci908y8rcnmtyt7brm878kofn4kdzsajgc14 ln3gzoeiv6456x1p2qzwyoyglweb05d3ho3w6fvc r7vik1t2p5yb6qhsqbfu6losfk3xz24g5fcdbrcr tl84vb3vpowdb26mzjlofzclua387kc1oq72mcy0 z61r2vbf40k1k8666lr04sw3z9yspw887oqbeqyk qq5bk4hojhydleg393bdrd74nw2hvuyysfo29w11 1rljdvwyeuljh8n4ow7kntkiz15wc8ebxpjnz26r 1v4vfdi94lfaeblrm3z86rq9ygz3peuibydswb2u a8uzd2g1zhba90wlzcjs70k4sqcz80juk3z9i6fz qz5cskryrhqahg3j3ppcofggchcq0jwhdyok85kw z6ku7edatg2fadr9tq3yhoti66bx2g1jrhxqnvj9 oao4wi0v12hqd7s6umnopywqa56i14f7rgog1zjh 27nknrxuwqjboq48bvblmqoe1xxmgazvv0vqzrwe 1o4wsbg7dko82s1zaezjn4z5g0k5nt9ctsiq6t4i 1v7unrct6s5tqksqvjqy25kycfnud7tc0guiawpw 71p7fcvb2bkrn1skcc5y8hys1dov05n6fvzlp75e 0znqascqflq21tgtd4lq9nicz9a6tayvgqkmely7 bozba70ldz0mkof288vqm6qypsqjrxr6om8bgnrk uokcoyqqnqyccj51txzwmsrq4jwjydeqe5n3tcrv a5111x5m1zsgfkvx1yhyd1mho4yliogwu62ky4lc 6mpihr9aaxsndtjiek0riemk0nz85le5pnejpmj9 qexfw7rl4199oi9h11xo29zvlddx3k3xwj3m848s niosgfo16nt5dyndttn1a3u0pgk6dykb655x91b1 yp7a9cmuci2l2jjq6yf6hey4xnc70o4mkpm7vt46 pnshacuf7l38f0i8ciuw2mz3fzxasnwxag2ztlto vvncdbl3ucr7repai0wr5cyht0po71qaaj4jwep9 9jizivmiihicrrwajae31ztiz1x2ws4lratod5da f3apizyorlnkfvwfh9onv982f1wklgwl5f31neeq vzxu17em0w75wh2vaot0imr6cktdhrhl92p31dj5 x6syf1i6o15ex87ldnmbwpp77090kpao68dj9fbj 8roxvigq0wc9d3cuttyty4shag1enhap4envnss3 396n3yfbet2ns0lzy3op5asr45whhn2yn0dly1x7 je6kcn683tt4ib21w1xnrn34r0sr2ehu2s7o6upj kqp0b1zoiefk3yoszrasjh1st09djgk751hdwutc t2cws9nqrks6v9fciiyuv4ksbqb8b083b6yghbyf 5nwc048umai44q16g0297sfd1jwmf3xhvgnukkvf ns9e5362yx774ljaltljnip3if569yz18614r4im ycri2njy2dwojs5vjezeeabefi9qdn1vrwmk0fwh 12v6gadj0nmek36bustj2dcskbubjqgoq55meisb pklp3gamxkrgftoyt8itit8ht7gn2zgbz4as44xl n49m78oi1mx5odphxecn1v02232xcnqi7g0mugao mymttxobprtlhawjy53howdfpkm1iyzwfc93wsxv xahytrd64rd5u1396ok6czqmumhk00qifqprl31b jt6ij0c3657cygs03g810bqdsqu6bi8dnugkt07j f757e1xj3zus59e7ibfnx46jli1cewtqxxt0z42x u0ji4qq14ds75w5i2j4jove9xk00troa4wfq5z3c 1q57jujnyhhuj4727j5jdmzvq5sc1fnbuzspt1w2 urhxcsngqbqvhz3s8rxj5dgy2ua3piujn5kswond 3r334x11eowdugy85vjmer553u38f5r8hi0fjyg1 9nja9hgfvh9x0ze02t12z8i34ygvrjqcgkcauvck 02b19zhzdbip65yuisii9jjpmbn593x417a0pyrb 7ug6p1qi739xqhfwz2x0625y8bd5uogbwel4hoj3 ekr4xlocs2893spat4jmmlteqkztl3zfwwoa8k3i syjvvqajmqnadc3so7hejmlb1kk2ud26wsi87dph 25o6uhtjr0qhbax6ldukccbqpbs45vfmlwfxjxm3 y2wfpogpft7xfhxp9sthk0n3imf1eyjptq64yhgx 34znvjrumczruginx4ucd3i356nrqjshuovumh0n!&_tag=string-long-value-test",
+                        "description": "The whole value with its last character changed."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ValueSet",
+                        "params": "description:exact=The long description of this value set begins here. Its opaque identifiers are: ieqh524yng5by1a2rogubbb8ayn1b7o259owoo3s b09glshv616mts56zc4pz0lx9xf26gk7zx5b4ctz kk6oam89oz6ww3r9ay6i79n1d4x9m605w0wa88v3 bol9lf9qcefb2arprhlwsekkq7krs3u54hbtyv0m qgq6n1bobzjck2618o72o7bzu1dtindteettk0qi a9cn3k6cymwgn1m5gys65buzsbkmuiv1nrgy9w85 8pecfikk8nrv6qxvvhsp5i9guc0eyjivhye9ofrx s8h3rgcsaaf0hcmp0kh2kpkg1y8s9q4ugnucbasu 2zuzeeu3hqn84wql8ntmpxfrf2fvoytculutpvg8 fpobpzer9eebasw54jg6ue6lljjutg6sinj8cu9n lt18kdpqe219q8283azvkq&_tag=string-long-value-test",
+                        "description": "Only the indexed prefix of the value."
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "ValueSet",
+                    "params": "_tag=string-long-value-test",
+                    "description": "Delete data created during test."
+                }
+            }
+        ]
+    }
+}

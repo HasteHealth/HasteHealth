@@ -1,23 +1,17 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     utilities::{is_search_match, map_search_entries},
 };
 use haste_access_control::context::{PolicyContext, PolicyEnvironment, UserInfo};
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
-    request::{FHIRReadRequest, FHIRRequest, FHIRResponse},
+    request::{FHIRReadRequest, FHIRRequest},
 };
 use haste_fhir_model::r4::generated::resources::{AccessPolicyV2, BundleEntry, Resource};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, UserRole};
-use haste_repository::Repository;
+use haste_repository::fhir::FHIRRepository;
 use std::sync::Arc;
 
 /// Reusable pieces for evaluating extra policy checks without re-deriving
@@ -114,105 +108,111 @@ async fn filter_unauthorized_includes<
     kept
 }
 
-pub struct AccessControlMiddleware {}
-impl AccessControlMiddleware {
-    pub fn new() -> Self {
-        Self {}
+/// A member's access policies, ready to evaluate requests: those the member
+/// sends, and those the server makes on their behalf outside this middleware
+/// (a transaction's conditional references are looked up that way).
+pub(crate) struct RequestPolicy<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> {
+    auth: IncludeAuthContext<Client>,
+    policies: Vec<Arc<AccessPolicyV2>>,
+}
+
+impl<B: Backend> RequestPolicy<B> {
+    /// The caller's policies, or `None` when their role is not subject to
+    /// any: Admin and Owner proceed without restrictions.
+    pub(crate) async fn of_caller(
+        state: &ClientState<B>,
+        ctx: &ServerCTX<B>,
+    ) -> Result<Option<Self>, OperationOutcomeError> {
+        match ctx.user.claims.user_role {
+            UserRole::Admin | UserRole::Owner => Ok(None),
+            UserRole::Member => Ok(Some(Self::member(state, ctx).await?)),
+        }
+    }
+
+    async fn member(
+        state: &ClientState<B>,
+        ctx: &ServerCTX<B>,
+    ) -> Result<Self, OperationOutcomeError> {
+        let policies: Vec<Arc<AccessPolicyV2>> = state
+            .repo
+            .read_by_version_ids(
+                &ctx.tenant,
+                &ctx.project,
+                &ctx.user
+                    .claims
+                    .access_policy_version_ids
+                    .iter()
+                    .collect::<Vec<_>>(),
+                haste_repository::fhir::CachePolicy::Cache,
+            )
+            .await?
+            .into_iter()
+            .filter_map(|v| match v {
+                Resource::AccessPolicyV2(policy) => Some(Arc::new(policy)),
+                _ => None,
+            })
+            .collect();
+
+        // Use System context for policy evaluation.
+        let system_ctx = Arc::new(ServerCTX::system(
+            ctx.tenant.clone(),
+            ctx.project.clone(),
+            ctx.client.clone(),
+            ctx.rate_limit.clone(),
+        ));
+        let user_info = Arc::new(UserInfo {
+            id: ctx.user.claims.user_id.as_ref().to_string(),
+        });
+        let auth = IncludeAuthContext {
+            client: ctx.client.clone(),
+            system_ctx,
+            tenant: ctx.tenant.clone(),
+            project: ctx.project.clone(),
+            user_info,
+        };
+
+        Ok(RequestPolicy { auth, policies })
     }
 }
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for AccessControlMiddleware
+
+impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>
+    RequestPolicy<Client>
 {
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
-        Box::pin(async move {
-            match context.ctx.user.claims.user_role {
-                // Admin and Owner roles are allowed to proceed without restrictions
-                UserRole::Admin | UserRole::Owner => {
-                    if let Some(next) = next {
-                        return next(state, context).await;
-                    }
-                    Ok(context)
-                }
-                UserRole::Member => {
-                    let policies = state
-                        .repo
-                        .read_by_version_ids(
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &context
-                                .ctx
-                                .user
-                                .claims
-                                .access_policy_version_ids
-                                .iter()
-                                .collect::<Vec<_>>(),
-                            haste_repository::fhir::CachePolicy::Cache,
-                        )
-                        .await?
-                        .into_iter()
-                        .filter_map(|v| match v {
-                            Resource::AccessPolicyV2(policy) => Some(Arc::new(policy)),
-                            _ => None,
-                        })
-                        .collect();
+    /// `Err` (forbidden) when no policy grants `request`.
+    pub(crate) async fn check(&self, request: &FHIRRequest) -> Result<(), OperationOutcomeError> {
+        evaluate_request_policy(&self.auth, request, &self.policies).await
+    }
+}
 
-                    // Use System context for policy evaluation.
-                    let system_ctx = Arc::new(ServerCTX::system(
-                        context.ctx.tenant.clone(),
-                        context.ctx.project.clone(),
-                        context.ctx.client.clone(),
-                        context.ctx.rate_limit.clone(),
-                    ));
-                    let user_info = Arc::new(UserInfo {
-                        id: context.ctx.user.claims.user_id.as_ref().to_string(),
-                    });
-                    let auth = IncludeAuthContext {
-                        client: context.ctx.client.clone(),
-                        system_ctx,
-                        tenant: context.ctx.tenant.clone(),
-                        project: context.ctx.project.clone(),
-                        user_info,
-                    };
+/// Enforces a member's access policies: the request must be granted, and a
+/// search page keeps only the includes a direct read of them would be granted.
+pub struct AccessControl;
 
-                    evaluate_request_policy(&auth, &context.request, &policies).await?;
+impl<B: Backend> Middleware<B> for AccessControl {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        match ctx.user.claims.user_role {
+            // Admin and Owner roles are allowed to proceed without restrictions
+            UserRole::Admin | UserRole::Owner => next.run(state, ctx, request),
+            UserRole::Member => Box::pin(async move {
+                let policy = RequestPolicy::member(state, &ctx).await?;
+                policy.check(&request).await?;
 
-                    let mut result = if let Some(next) = next {
-                        next(state, context).await?
-                    } else {
-                        context
-                    };
+                let response = next.run(state, ctx, request).await?;
 
-                    if let Some(response) = result.response.take() {
-                        result.response = Some(
-                            map_search_entries(response, |entries| {
-                                filter_unauthorized_includes(entries, &auth, &policies)
-                            })
-                            .await,
-                        );
-                    }
-
-                    Ok(result)
-                }
-            }
-        })
+                Ok(map_search_entries(response, |entries| {
+                    filter_unauthorized_includes(entries, &policy.auth, &policy.policies)
+                })
+                .await)
+            }),
+        }
     }
 }
 
@@ -221,7 +221,7 @@ mod tests {
     use super::*;
     use crate::auth_n::middleware::jwt::User;
     use haste_fhir_client::{
-        request::{FHIRRequest, FHIRResponse},
+        request::{FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, SearchRequest},
         url::ParsedParameters,
     };
     use haste_fhir_model::r4::generated::{
@@ -491,8 +491,8 @@ mod tests {
         client_resources: HashMap<(ResourceType, String), Resource>,
         user_id: &str,
     ) -> IncludeAuthContext<FakeClient> {
-        let tenant = TenantId::new("test-tenant".to_string());
-        let project = ProjectId::new("test-project".to_string());
+        let tenant = TenantId::new("test-tenant".to_string()).unwrap();
+        let project = ProjectId::new("test-project".to_string()).unwrap();
         let fake_client = Arc::new(FakeClient {
             resources: client_resources,
         });
@@ -509,6 +509,9 @@ mod tests {
                 subscription_tier: SubscriptionTier::Free,
                 scope: Scopes(vec![]),
                 fhir_user: None,
+                patient: None,
+                encounter: None,
+                client_id: None,
                 user_id: AuthorId::new(user_id.to_string()),
                 resource_type: AuthorKind::Membership,
                 access_policy_version_ids: vec![],
@@ -563,6 +566,41 @@ mod tests {
         });
         let result = evaluate_request_policy(&auth, &read_request, &policies).await;
         assert!(result.is_ok(), "policy evaluation error: {result:?}");
+    }
+
+    /// A search the server runs for a member, such as a transaction's
+    /// conditional reference lookup, is held to the member's policies.
+    #[tokio::test]
+    async fn request_policy_denies_a_search_the_policies_do_not_grant() {
+        let read_only = AccessPolicyV2 {
+            name: Box::new(FHIRString::from("read only".to_string())),
+            engine: AccessPolicyv2Engine::rule_engine(),
+            rule: Some(vec![AccessPolicyV2Rule {
+                name: Box::new(FHIRString::from("r".to_string())),
+                condition: Some(AccessPolicyV2RuleCondition {
+                    expression: text_fhirpath("%request.type = 'read'"),
+                }),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        };
+        let policy = RequestPolicy {
+            auth: member_auth(HashMap::new(), "auth-patient"),
+            policies: vec![Arc::new(read_only)],
+        };
+
+        let read = FHIRRequest::Read(FHIRReadRequest {
+            resource_type: ResourceType::Practitioner,
+            id: "whatever".to_string(),
+        });
+        let search = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type: ResourceType::Practitioner,
+            parameters: ParsedParameters::try_from("identifier=http://hl7.org/fhir/sid/us-npi|1")
+                .unwrap(),
+        }));
+
+        assert!(policy.check(&read).await.is_ok());
+        assert!(policy.check(&search).await.is_err());
     }
 
     #[tokio::test]

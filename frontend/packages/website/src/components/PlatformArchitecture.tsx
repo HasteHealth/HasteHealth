@@ -17,9 +17,9 @@ const USER_PROJECT_CHIPS: Chip[] = [
 
 export function TenantHierarchyDiagram() {
   return (
-    <div className="not-prose mb-6 rounded-2xl border-2 border-brand-300 bg-brand-50/40 p-5 md:p-6">
+    <div className="not-prose mb-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 md:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full border border-brand-300 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-brand-800">
+        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-800">
           Tenant
         </span>
         <span className="font-mono text-sm text-slate-600">acme-health</span>
@@ -56,13 +56,13 @@ function ProjectCard({
     <div
       className={`rounded-xl border p-4 ${
         accent
-          ? "border-brand-400 bg-white shadow-sm"
+          ? "border-brand-500 bg-white shadow-sm"
           : "border-slate-200 bg-white"
       }`}
     >
-      <div className="text-sm font-semibold text-brand-950">{title}</div>
+      <div className="text-sm font-semibold text-ink-950">{title}</div>
       {badge ? (
-        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-brand-600">
+        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-brand-800">
           {badge}
         </div>
       ) : null}
@@ -72,7 +72,7 @@ function ProjectCard({
             <Link
               key={chip.label}
               to={chip.href}
-              className="rounded-md border border-brand-200 bg-brand-50 px-2.5 py-1.5 text-xs font-medium text-brand-900 hover:bg-brand-100"
+              className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 no-underline transition-colors hover:border-brand-500 hover:text-ink-950 hover:no-underline"
             >
               {chip.label}
             </Link>
@@ -103,12 +103,12 @@ export function RequestFlowDiagram() {
     <div className="not-prose my-6 flex flex-col gap-2 md:flex-row md:items-stretch md:gap-2">
       {FLOW_STEPS.map((step, i) => (
         <div key={step.title} className="flex flex-1 flex-col items-stretch gap-2 md:flex-row md:items-center">
-          <div className="flex-1 rounded-xl border border-brand-200 bg-white p-4 shadow-sm">
+          <div className="flex-1 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgb(15_23_42/0.04)]">
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-bold text-white">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-800 text-[11px] font-bold text-white">
                 {i + 1}
               </span>
-              <span className="text-sm font-semibold text-brand-950">
+              <span className="text-sm font-semibold text-ink-950">
                 {step.title}
               </span>
             </div>
@@ -118,10 +118,10 @@ export function RequestFlowDiagram() {
           </div>
           {i < FLOW_STEPS.length - 1 ? (
             <>
-              <span className="hidden shrink-0 text-lg text-brand-300 md:block" aria-hidden="true">
+              <span className="hidden shrink-0 text-lg text-slate-400 md:block" aria-hidden="true">
                 →
               </span>
-              <span className="block shrink-0 rotate-90 text-lg text-brand-300 md:hidden" aria-hidden="true">
+              <span className="block shrink-0 rotate-90 text-lg text-slate-400 md:hidden" aria-hidden="true">
                 →
               </span>
             </>

@@ -1,0 +1,329 @@
+{
+    "id": "access-control-user-scopes-allowed",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-scopes-allowed",
+    "name": "Access Control User Scopes Allowed",
+    "title": "User scopes: allowed requests",
+    "status": "active",
+    "description": "Run as the user-scopes login (user/Patient.rs user/Observation.crs user/Encounter.r). Every resource of a granted type is reachable, whichever patient it belongs to, with exactly the granted permissions.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acu-patient-a",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-patient-b",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-observation-b",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-b"
+            }
+        },
+        {
+            "id": "acu-encounter",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acu-patient-a",
+            "resource": {
+                "reference": "#acu-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-patient-b",
+            "resource": {
+                "reference": "#acu-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-b",
+            "resource": {
+                "reference": "#acu-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-encounter",
+            "resource": {
+                "reference": "#acu-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read-any-patient",
+            "name": "Every patient is readable: no compartment limits these scopes",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acu-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first patient is read",
+                        "expression": "Patient.id = 'acu-patient-a'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acu-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The second patient is read",
+                        "expression": "Patient.id = 'acu-patient-b'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read-any-observation",
+            "name": "Any patient's Observation is readable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The second patient's Observation is read",
+                        "expression": "Observation.id = 'acu-observation-b'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-read-without-search",
+            "name": "Encounter.r reads an Encounter by id",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acu-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter is read",
+                        "expression": "Encounter.id = 'acu-encounter'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-search-patients",
+            "name": "A Patient search returns every patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=access-control-user-scopes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both patients are returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acu-patient-a' or id = 'acu-patient-b').count() = 2",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-search-observations",
+            "name": "An Observation search returns every patient's Observations",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-user-scopes",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first patient's Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acu-observation-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The second patient's Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acu-observation-b').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-include-granted-type",
+            "name": "An include of a granted type is kept",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=acu-observation-a&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acu-patient-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-include-ungranted-type",
+            "name": "An include of a type no scope grants is dropped",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=acu-observation-a&_include=Observation:performer",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acu-observation-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The practitioner is not included",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-history",
+            "name": "History is allowed with search permission",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "history"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acu-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "History answers with a history Bundle",
+                        "expression": "Bundle.type = 'history'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

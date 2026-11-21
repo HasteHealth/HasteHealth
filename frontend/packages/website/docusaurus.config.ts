@@ -3,6 +3,7 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import tailwind from "@tailwindcss/postcss";
 import autoprefixer from "autoprefixer";
+import homepageFacts from "./plugins/homepage-facts";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -21,8 +22,8 @@ const config: Config = {
       },
     },
     // Site-wide Organization structured data (schema.org). Individual pages
-    // should NOT repeat this block — see generate.mjs for the per-resource
-    // structured data used on generated FHIR reference pages instead.
+    // should NOT repeat this block; the generated FHIR reference pages carry
+    // their own per-resource structured data (scripts/generate/fhir.mjs).
     {
       tagName: "script",
       attributes: { type: "application/ld+json" },
@@ -77,7 +78,7 @@ const config: Config = {
   themes: ["@docusaurus/theme-mermaid"],
 
   plugins: [
-    async function myPlugin(context, options) {
+    function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -88,6 +89,9 @@ const config: Config = {
         },
       };
     },
+    // Conformance and MCP totals for the homepage, read from the generated
+    // reports at build time.
+    homepageFacts,
   ],
 
   presets: [
@@ -134,11 +138,11 @@ const config: Config = {
     // Default social card (og:image / twitter:image), 1200x630, for any page
     // that doesn't set its own `image` in Layout/frontmatter.
     //
-    // Generated, not hand-made: `pnpm generate-social-card` builds
+    // Generated, not hand-made: `pnpm generate social-card` builds
     // static/img/social-card.svg and rasterizes it. Its headline has to match
     // the homepage H1 in src/pages/index.tsx, and its proof figures come from
     // the same conformance report the site renders. Edit
-    // scripts/social-card.mjs and regenerate; a PNG edited by hand is
+    // scripts/generate/social-card.mjs and regenerate; a PNG edited by hand is
     // overwritten and will drift from the site's copy again.
     image: "img/social-card.png",
     // Global <meta> tags injected on every page. Per-page title/description
@@ -195,7 +199,7 @@ const config: Config = {
           ],
         },
         {
-          to: "/docs/reference/conformance/test-coverage",
+          to: "/docs/reference/conformance/overview",
           label: "Conformance",
           position: "left",
           activeBaseRegex: "^/docs/reference/conformance/",
@@ -329,6 +333,27 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+    },
+    // Diagrams in the docs take the site's palette (src/css/custom.css)
+    // instead of Mermaid's default lilac. Mermaid derives its shades from
+    // these, and only understands hex.
+    mermaid: {
+      theme: { light: "base", dark: "base" },
+      options: {
+        themeVariables: {
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          primaryColor: "#f0fdfa", // brand-50
+          primaryBorderColor: "#00786f", // brand-800
+          primaryTextColor: "#011315", // ink-950
+          lineColor: "#62748e", // slate-500
+          secondaryColor: "#f8fafc", // slate-50
+          tertiaryColor: "#ffffff",
+          edgeLabelBackground: "#ffffff",
+          noteBkgColor: "#f8fafc",
+          noteBorderColor: "#cad5e2", // slate-300
+          noteTextColor: "#314158", // slate-700
+        },
+      },
     },
     algolia: {
       // The application ID provided by Algolia

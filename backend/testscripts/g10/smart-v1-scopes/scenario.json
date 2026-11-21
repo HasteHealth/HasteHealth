@@ -1,0 +1,8 @@
+{
+    "description": "g10 App Launch with SMART v1 scopes (9.22 / 9.13): a patient (a member User linked to Patient/g10-example) signing in to an app requesting patient/[type].read scopes.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-v1@example.org",
+    "clientId": "g10-v1-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "launch/patient openid fhirUser offline_access patient/Medication.read patient/AllergyIntolerance.read patient/CarePlan.read patient/CareTeam.read patient/Condition.read patient/Device.read patient/DiagnosticReport.read patient/DocumentReference.read patient/Encounter.read patient/Goal.read patient/Immunization.read patient/Location.read patient/MedicationRequest.read patient/Observation.read patient/Organization.read patient/Patient.read patient/Practitioner.read patient/Procedure.read patient/Provenance.read patient/PractitionerRole.read patient/Specimen.read patient/Coverage.read patient/MedicationDispense.read patient/ServiceRequest.read"
+}

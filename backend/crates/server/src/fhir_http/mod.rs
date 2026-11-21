@@ -1,13 +1,13 @@
+use crate::fhir_client::{Backend, ServerCTX};
 use axum::body::Bytes;
 use axum::http::Method;
 use haste_fhir_client::request::{
     CompartmentRequest, DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest,
     FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
-    FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
-    FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest,
+    FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRPatchRequest,
     FHIRReadRequest, FHIRRequest, FHIRSearchSystemRequest, FHIRSearchTypeRequest,
     FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
-    InvocationRequest, Operation, OperationParseError, SearchRequest, UpdateRequest,
+    OperationParseError, SearchRequest, UpdateRequest,
 };
 use haste_fhir_client::url::{ParseError, ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{
@@ -20,7 +20,9 @@ use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_jwt::VersionId;
 use haste_repository::types::SupportedFHIRVersions;
 use json_patch::Patch;
-use std::collections::HashMap;
+use std::sync::Arc;
+
+mod invocation;
 
 #[derive(Debug)]
 pub enum HTTPBody {
@@ -29,19 +31,15 @@ pub enum HTTPBody {
 }
 
 #[derive(Debug)]
-pub struct HTTPRequest {
+pub struct HTTPRequest<'a> {
     method: Method,
     path: String,
     body: HTTPBody,
-    query: HashMap<String, String>,
+    /// The query string, without its `?`.
+    query: &'a str,
 }
-impl HTTPRequest {
-    pub fn new(
-        method: Method,
-        path: String,
-        body: HTTPBody,
-        query: HashMap<String, String>,
-    ) -> Self {
+impl<'a> HTTPRequest<'a> {
+    pub fn new(method: Method, path: String, body: HTTPBody, query: &'a str) -> Self {
         HTTPRequest {
             method,
             path,
@@ -107,13 +105,19 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
     Ok(params)
 }
 
+/// Decodes the query string preserving parameter order and duplicates.
+fn parse_query(query: &str) -> Result<ParsedParameters, FHIRRequestParsingError> {
+    let pairs: Vec<(String, String)> = url::form_urlencoded::parse(query.as_bytes())
+        .into_owned()
+        .collect();
+    Ok(ParsedParameters::try_from(pairs.as_slice())?)
+}
+
 /// Search parameters for a POST `_search`, from the form-encoded body combined
 /// with the query string.
 ///
 /// Per the spec a parameter means the same thing in either place, and one that
-/// appears in both is the same as repeating it. A repeat is carried as a
-/// comma-joined value, which is how `ParsedParameters` already represents
-/// several values for one parameter.
+/// appears in both is the same as repeating it.
 ///
 /// The body is read as `application/x-www-form-urlencoded` whenever there is
 /// one. An empty body leaves the query string as the whole search, which is
@@ -121,7 +125,9 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
 fn get_search_parameters_body(
     req: HTTPRequest,
 ) -> Result<ParsedParameters, FHIRRequestParsingError> {
-    let mut parameters = req.query;
+    let mut pairs: Vec<(String, String)> = url::form_urlencoded::parse(req.query.as_bytes())
+        .into_owned()
+        .collect();
 
     let body = match &req.body {
         HTTPBody::Bytes(body) => body.as_ref(),
@@ -129,19 +135,9 @@ fn get_search_parameters_body(
         HTTPBody::Resource(_) => return Err(FHIRRequestParsingError::InvalidBody),
     };
 
-    for (name, value) in url::form_urlencoded::parse(body).into_owned() {
-        parameters
-            .entry(name)
-            .and_modify(|existing| {
-                // The same parameter in both places repeats it, rather than one
-                // side silently winning.
-                existing.push(',');
-                existing.push_str(&value);
-            })
-            .or_insert(value);
-    }
+    pairs.extend(url::form_urlencoded::parse(body).into_owned());
 
-    Ok(ParsedParameters::try_from(&parameters)?)
+    Ok(ParsedParameters::try_from(pairs.as_slice())?)
 }
 
 fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
@@ -168,100 +164,74 @@ search-system       /_search	                          POST	application/x-www-fo
 delete-conditional	/[type]?	                          DELETE	N/A	N/A	N/A	O: If-Match
 update-conditional  /[type]?                            PUT	R	Resource	O	O: If-Match
 history-system	    /_history	                          GET	N/A	N/A	N/A	N/A
-(operation)	        /$[name]                            POST	R	Parameters	N/A	N/A
-                                                        GET	N/A	N/A	N/A	N/A
-                                                        POST	application/x-www-form-urlencoded	form data	N/A	N/A
 */
 fn parse_request_1_non_empty(
     _fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<String>,
     req: HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
-    if url_chunks[0].starts_with("$") {
-        match req.method {
-            Method::POST => {
-                // Handle operation request
-                Ok(FHIRRequest::Invocation(InvocationRequest::System(
-                    FHIRInvokeSystemRequest {
-                        operation: Operation::new(&url_chunks[0]),
-                        parameters: get_parameters(req)?,
+    match req.method {
+        Method::POST => {
+            match url_chunks[0].as_str() {
+                "_search" => Ok(FHIRRequest::Search(SearchRequest::System(
+                    FHIRSearchSystemRequest {
+                        parameters: get_search_parameters_body(req)?,
                     },
-                )))
-            }
-            Method::GET => {
-                // Handle operation request
-                Err(FHIRRequestParsingError::Unsupported(
-                    "GET operation requests are not supported".to_string(),
-                ))
-            }
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Invalid method for invocation".to_string(),
-            )),
-        }
-    } else {
-        match req.method {
-            Method::POST => {
-                match url_chunks[0].as_str() {
-                    "_search" => Ok(FHIRRequest::Search(SearchRequest::System(
-                        FHIRSearchSystemRequest {
-                            parameters: get_search_parameters_body(req)?,
-                        },
-                    ))),
-                    _ => {
-                        let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-                        let resource = get_resource(&resource_type, req)?;
-                        // Handle create request
-                        Ok(FHIRRequest::Create(FHIRCreateRequest {
-                            resource_type,
-                            resource,
-                        }))
-                    }
-                }
-            }
-            Method::PUT => {
-                let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-                let parameters = ParsedParameters::try_from(&req.query)?;
-                let resource = get_resource(&resource_type, req)?;
-                Ok(FHIRRequest::Update(UpdateRequest::Conditional(
-                    FHIRConditionalUpdateRequest {
-                        parameters,
+                ))),
+                _ => {
+                    let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
+                    let resource = get_resource(&resource_type, req)?;
+                    // Handle create request
+                    Ok(FHIRRequest::Create(FHIRCreateRequest {
                         resource_type,
                         resource,
-                    },
-                )))
-            }
-            Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::Type(
-                FHIRDeleteTypeRequest {
-                    parameters: ParsedParameters::try_from(&req.query)?,
-                    resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                },
-            ))),
-            Method::GET => {
-                match url_chunks[0].as_str() {
-                    "metadata" => {
-                        // Handle capabilities request
-                        Ok(FHIRRequest::Capabilities)
-                    }
-                    "_history" => Ok(FHIRRequest::History(HistoryRequest::System(
-                        FHIRHistorySystemRequest {
-                            parameters: ParsedParameters::try_from(&req.query)?,
-                        },
-                    ))),
-                    _ => {
-                        // Handle search request
-                        Ok(FHIRRequest::Search(SearchRequest::Type(
-                            FHIRSearchTypeRequest {
-                                resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                                parameters: ParsedParameters::try_from(&req.query)?,
-                            },
-                        )))
-                    }
+                    }))
                 }
             }
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Unsupported method for FHIR request".to_string(),
-            )),
         }
+        Method::PUT => {
+            let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
+            let parameters = parse_query(req.query)?;
+            let resource = get_resource(&resource_type, req)?;
+            Ok(FHIRRequest::Update(UpdateRequest::Conditional(
+                FHIRConditionalUpdateRequest {
+                    parameters,
+                    resource_type,
+                    resource,
+                },
+            )))
+        }
+        Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::Type(
+            FHIRDeleteTypeRequest {
+                parameters: parse_query(req.query)?,
+                resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+            },
+        ))),
+        Method::GET => {
+            match url_chunks[0].as_str() {
+                "metadata" => {
+                    // Handle capabilities request
+                    Ok(FHIRRequest::Capabilities)
+                }
+                "_history" => Ok(FHIRRequest::History(HistoryRequest::System(
+                    FHIRHistorySystemRequest {
+                        parameters: parse_query(req.query)?,
+                    },
+                ))),
+                _ => {
+                    // Handle search request
+                    Ok(FHIRRequest::Search(SearchRequest::Type(
+                        FHIRSearchTypeRequest {
+                            resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+                            parameters: parse_query(req.query)?,
+                        },
+                    )))
+                }
+            }
+        }
+        _ => Err(FHIRRequestParsingError::Unsupported(
+            "Unsupported method for FHIR request".to_string(),
+        )),
     }
 }
 
@@ -299,13 +269,13 @@ fn parse_request_1_empty(
             // Handle search system request
             Ok(FHIRRequest::Search(SearchRequest::System(
                 FHIRSearchSystemRequest {
-                    parameters: ParsedParameters::try_from(&req.query)?,
+                    parameters: parse_query(req.query)?,
                 },
             )))
         }
         Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::System(
             FHIRDeleteSystemRequest {
-                parameters: ParsedParameters::try_from(&req.query)?,
+                parameters: parse_query(req.query)?,
             },
         ))),
         _ => Err(FHIRRequestParsingError::Unsupported(
@@ -327,9 +297,6 @@ fn parse_request_1(
 }
 
 /*
-(operation)	        /[type]/$[name]                     POST	R	Parameters	N/A	N/A
-                                                        GET	N/A	N/A	N/A	N/A
-                                                        POST	application/x-www-form-urlencoded	form data	N/A	N/A
 search-type         /[type]/_search?	                POST	application/x-www-form-urlencoded	form data	N/A	N/A
 read            	/[type]/[id]	                    GET‡	N/A	N/A	N/A	O: If-Modified-Since, If-None-Match
 update             	/[type]/[id]                      	PUT	R	Resource	O	O: If-Match
@@ -342,101 +309,74 @@ fn parse_request_2(
     url_chunks: Vec<String>,
     req: HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
-    if url_chunks[1].starts_with("$") {
-        match req.method {
-            Method::POST => {
-                // Handle operation request
-                Ok(FHIRRequest::Invocation(InvocationRequest::Type(
-                    FHIRInvokeTypeRequest {
-                        resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        operation: Operation::new(&url_chunks[1]),
-                        parameters: get_parameters(req)?,
-                    },
-                )))
-            }
-            Method::GET => {
-                // Handle operation request
-                Err(FHIRRequestParsingError::Unsupported(
-                    "GET operation requests are not supported".to_string(),
-                ))
-            }
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Invalid method for invocation".to_string(),
-            )),
-        }
-    } else {
-        match req.method {
-            Method::POST => {
-                match url_chunks[1].as_str() {
-                    "_search" => {
-                        // Handle search request
-                        let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-                        Ok(FHIRRequest::Search(SearchRequest::Type(
-                            FHIRSearchTypeRequest {
-                                resource_type,
-                                parameters: get_search_parameters_body(req)?,
-                            },
-                        )))
-                    }
-                    _ => Err(FHIRRequestParsingError::Unsupported(
-                        "To create new resources run post at resource root.".to_string(),
-                    )),
-                }
-            }
-            Method::GET => {
-                if url_chunks[1] == "_history" {
-                    Ok(FHIRRequest::History(HistoryRequest::Type(
-                        FHIRHistoryTypeRequest {
-                            resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                            parameters: ParsedParameters::try_from(&req.query)?,
+    match req.method {
+        Method::POST => {
+            match url_chunks[1].as_str() {
+                "_search" => {
+                    // Handle search request
+                    let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
+                    Ok(FHIRRequest::Search(SearchRequest::Type(
+                        FHIRSearchTypeRequest {
+                            resource_type,
+                            parameters: get_search_parameters_body(req)?,
                         },
                     )))
-                } else {
-                    // Handle read request
-                    Ok(FHIRRequest::Read(FHIRReadRequest {
-                        resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        id: url_chunks[1].to_string(),
-                    }))
                 }
+                _ => Err(FHIRRequestParsingError::Unsupported(
+                    "To create new resources run post at resource root.".to_string(),
+                )),
             }
-            Method::PUT => {
-                let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-                let resource = get_resource(&resource_type, req)?;
-                Ok(FHIRRequest::Update(UpdateRequest::Instance(
-                    FHIRUpdateInstanceRequest {
-                        resource_type,
-                        id: url_chunks[1].to_string(),
-                        resource,
+        }
+        Method::GET => {
+            if url_chunks[1] == "_history" {
+                Ok(FHIRRequest::History(HistoryRequest::Type(
+                    FHIRHistoryTypeRequest {
+                        resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+                        parameters: parse_query(req.query)?,
                     },
                 )))
-            }
-            Method::PATCH => Ok(FHIRRequest::Patch(FHIRPatchRequest {
-                resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                id: url_chunks[1].to_string(),
-                patch: match req.body {
-                    HTTPBody::Bytes(body) => serde_json::from_slice::<Patch>(&body)?,
-                    _ => Err(FHIRRequestParsingError::Unsupported(
-                        "PATCH requests must have a JSON body".to_string(),
-                    ))?,
-                },
-            })),
-            Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::Instance(
-                FHIRDeleteInstanceRequest {
+            } else {
+                // Handle read request
+                Ok(FHIRRequest::Read(FHIRReadRequest {
                     resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                     id: url_chunks[1].to_string(),
-                },
-            ))),
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Unsupported method for FHIR request.".to_string(),
-            )),
+                }))
+            }
         }
+        Method::PUT => {
+            let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
+            let resource = get_resource(&resource_type, req)?;
+            Ok(FHIRRequest::Update(UpdateRequest::Instance(
+                FHIRUpdateInstanceRequest {
+                    resource_type,
+                    id: url_chunks[1].to_string(),
+                    resource,
+                },
+            )))
+        }
+        Method::PATCH => Ok(FHIRRequest::Patch(FHIRPatchRequest {
+            resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+            id: url_chunks[1].to_string(),
+            patch: match req.body {
+                HTTPBody::Bytes(body) => serde_json::from_slice::<Patch>(&body)?,
+                _ => Err(FHIRRequestParsingError::Unsupported(
+                    "PATCH requests must have a JSON body".to_string(),
+                ))?,
+            },
+        })),
+        Method::DELETE => Ok(FHIRRequest::Delete(DeleteRequest::Instance(
+            FHIRDeleteInstanceRequest {
+                resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+                id: url_chunks[1].to_string(),
+            },
+        ))),
+        _ => Err(FHIRRequestParsingError::Unsupported(
+            "Unsupported method for FHIR request.".to_string(),
+        )),
     }
 }
 
 /*
-(operation)            /[type]/[id]/$[name]             POST R Parameters N/A N/A
-                                                        GET	N/A	N/A	N/A	N/A
-                                                        POST application/x-www-form-urlencoded	form data	N/A	N/A
 history-instance	  /[type]/[id]/_history	            GET	N/A	N/A	N/A	N/A
 compartment-request   /[type]/[id]/[compartment-type]   GET N/A N/A N/A N/A
 */
@@ -445,59 +385,34 @@ fn parse_request_3(
     url_chunks: Vec<String>,
     req: HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
-    if url_chunks[2].starts_with("$") {
-        match req.method {
-            Method::POST => {
-                // Handle operation request
-                Ok(FHIRRequest::Invocation(InvocationRequest::Instance(
-                    FHIRInvokeInstanceRequest {
+    match req.method {
+        Method::GET => {
+            if url_chunks[2] == "_history" {
+                Ok(FHIRRequest::History(HistoryRequest::Instance(
+                    FHIRHistoryInstanceRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         id: url_chunks[1].to_string(),
-                        operation: Operation::new(&url_chunks[2]),
-                        parameters: get_parameters(req)?,
+                        parameters: parse_query(req.query)?,
                     },
                 )))
             }
-            Method::GET => {
-                // Handle operation request
-                Err(FHIRRequestParsingError::Unsupported(
-                    "GET operation requests are not supported".to_string(),
-                ))
-            }
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Invalid method for invocation".to_string(),
-            )),
-        }
-    } else {
-        match req.method {
-            Method::GET => {
-                if url_chunks[2] == "_history" {
-                    Ok(FHIRRequest::History(HistoryRequest::Instance(
-                        FHIRHistoryInstanceRequest {
-                            resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                            id: url_chunks[1].to_string(),
-                            parameters: ParsedParameters::try_from(&req.query)?,
+            // Process Compartment request
+            else {
+                Ok(FHIRRequest::Compartment(CompartmentRequest {
+                    resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+                    id: url_chunks[1].to_string(),
+                    request: Box::new(FHIRRequest::Search(SearchRequest::Type(
+                        FHIRSearchTypeRequest {
+                            resource_type: ResourceType::try_from(url_chunks[2].as_str())?,
+                            parameters: parse_query(req.query)?,
                         },
-                    )))
-                }
-                // Process Compartment request
-                else {
-                    Ok(FHIRRequest::Compartment(CompartmentRequest {
-                        resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        id: url_chunks[1].to_string(),
-                        request: Box::new(FHIRRequest::Search(SearchRequest::Type(
-                            FHIRSearchTypeRequest {
-                                resource_type: ResourceType::try_from(url_chunks[2].as_str())?,
-                                parameters: ParsedParameters::try_from(&req.query)?,
-                            },
-                        ))),
-                    }))
-                }
+                    ))),
+                }))
             }
-            _ => Err(FHIRRequestParsingError::Unsupported(
-                "Unsupported method for FHIR request.".to_string(),
-            )),
         }
+        _ => Err(FHIRRequestParsingError::Unsupported(
+            "Unsupported method for FHIR request.".to_string(),
+        )),
     }
 }
 
@@ -532,15 +447,22 @@ fn parse_request_4(
     }
 }
 
-pub fn http_request_to_fhir_request(
+/// The FHIR request `req` makes in `ctx`. An operation invoked with GET is
+/// typed against its definition.
+pub async fn http_request_to_fhir_request<B: Backend>(
     fhir_version: SupportedFHIRVersions,
-    req: HTTPRequest,
+    req: HTTPRequest<'_>,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     let url_pieces = req
         .path
         .split_terminator('/')
         .map(|c| c.to_string())
         .collect::<Vec<String>>();
+
+    if let Some(target) = invocation::target(&url_pieces)? {
+        return invocation::invocation(target, req, ctx).await;
+    }
 
     match url_pieces.len() {
         0 | 1 => parse_request_1(fhir_version, url_pieces, req),
@@ -550,4 +472,58 @@ pub fn http_request_to_fhir_request(
         _ => Err(FHIRRequestParsingError::InvalidPath),
     }
     .map_err(|e| e.into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::url::ParsedParameter;
+
+    #[test]
+    fn parses_repeated_revinclude_and_include_parameters() {
+        let query = "_id=256897&_revinclude=Condition:encounter&_revinclude=Observation:encounter&_include=Encounter:patient";
+        let req = HTTPRequest::new(
+            Method::GET,
+            "Encounter".to_string(),
+            HTTPBody::Bytes(Bytes::new()),
+            query,
+        );
+        let fhir_req = parse_request_1(
+            SupportedFHIRVersions::R4,
+            vec!["Encounter".to_string()],
+            req,
+        )
+        .unwrap();
+        match fhir_req {
+            FHIRRequest::Search(SearchRequest::Type(search)) => {
+                let revincludes: Vec<_> = search
+                    .parameters
+                    .parameters()
+                    .iter()
+                    .filter_map(|p| match p {
+                        ParsedParameter::Result(p) if p.name == "_revinclude" => {
+                            Some(p.value.clone())
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(revincludes.len(), 2);
+                assert_eq!(revincludes[0], vec!["Condition:encounter"]);
+                assert_eq!(revincludes[1], vec!["Observation:encounter"]);
+
+                let includes: Vec<_> = search
+                    .parameters
+                    .parameters()
+                    .iter()
+                    .filter_map(|p| match p {
+                        ParsedParameter::Result(p) if p.name == "_include" => Some(p.value.clone()),
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(includes.len(), 1);
+                assert_eq!(includes[0], vec!["Encounter:patient"]);
+            }
+            _ => panic!("Expected Search::Type request"),
+        }
+    }
 }

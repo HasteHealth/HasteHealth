@@ -14,6 +14,7 @@ import { R4, ResourceType } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import { Target } from "../../query/model";
+import { HISTORY_AUTHOR_SELECTOR } from "../../utilities";
 import { Badge, PanelHeader } from "./PanelHeader";
 
 /** How a history listing names itself, matching the path it lists. */
@@ -192,8 +193,7 @@ export function HistoryPanel({
           {
             id: "author",
             content: "Author",
-            selector:
-              "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
+            selector: HISTORY_AUTHOR_SELECTOR,
             selectorType: "fhirpath",
           },
           {

@@ -1,25 +1,65 @@
 packages:
   # - "."
   - "../artifacts/r4/*"
+  # The US Core 7.0.0 package exactly as HL7 publishes it, for the US Core
+  # 7.0.0 TestScripts. Its package.json depends on FHIR packages that are not
+  # on npm (hl7.fhir.r4.core and others), so it stays out of the workspace.
+  - "!../artifacts/r4/hl7.fhir.us.core-7.0.0"
+  # The CARIN Blue Button 2.2.0 package exactly as HL7 publishes it, for its TestScripts;
+  # out of the workspace for the same reason.
+  - "!../artifacts/r4/hl7.fhir.us.carin-bb"
   - "../artifacts/r4b/*"
   - "packages/*"
 overrides:
   undici: '^7.29.1'
   mocha>js-yaml: '^4.3.1'
   nanoid: '^3.3.17'
-  sharp: '>=0.35.4'
+  sharp: '>=0.35.5'
+  proxy-addr: '^2.0.8'
+  shell-quote: '^1.11.0'
+  source-map-js: '^1.2.2'
+  compression: '^1.8.2'
+  # Docusaurus 3 asks for ^1, but only 2.1.2 is patched; Docusaurus 4 uses ^2.
+  tinypool: '^2.1.2'
   webpackbar: '^7.0.0'
-  markdown-it: '^14.3.1'
+  markdown-it: '^14.3.3'
   webpack-dev-middleware: '^7.4.6'
   image-size: '^2.0.3'
-  qs: '^6.16.0'
+  qs: '^6.16.1'
   'uuid@<11.1.1': '^11.1.1'
-  serialize-javascript: '^7.0.5'
+  serialize-javascript: '^7.1.3'
   lodash-es: '^4.18.0'
   'brace-expansion@<2.0.0': '^1.1.21'
   'brace-expansion@>=2.0.0 <3.0.0': '^2.1.7'
   'brace-expansion@>=4.0.0': '^5.0.12'
+  handlebars@>=4.0.0 <=4.7.9: ^4.7.10
+  launch-editor@<=2.14.1: ^2.14.2
+  follow-redirects@>=1.16.0 <1.16.1: ^1.16.1
+  dompurify@<=3.4.15: ^3.4.16
+  joi@<17.13.8: ^17.13.8
+  # 6.1.5 backports the 7.1.6 fix; its users (Tailwind 3, cssnano) need ^6.
+  postcss-selector-parser@>=6.0.0 <6.1.5: ^6.1.5
+  postcss-selector-parser@>=7.0.0 <7.1.6: ^7.1.6
+  fast-copy@>=3.0.0 <3.1.0: ^3.1.0
+  storybook@>=10.0.0 <10.6.2: ^10.6.2
+  body-parser@<1.20.9: ^1.20.9
+  body-parser@>=2.0.0 <2.4.0: ^2.4.0
+  multer@>=2.0.0 <2.5.0: ^2.5.0
+  undici@>=7.18.0 <7.30.1: ^7.30.1
+  fast-uri@>=3.0.0 <3.1.9: ^3.1.9
+  follow-redirects@>=1.16.0 <=1.16.1: ^1.16.2
+  joi@>=17.1.1 <17.13.9: ^17.13.9
+  # mermaid 11, which Docusaurus's theme-mermaid uses, asks for ^0.16; only 0.18.2 is patched.
+  # 0.18.11 is deprecated ("accidentally published with breaking changes").
+  katex@>=0.11.0 <0.18.2: '>=0.18.2 <0.18.11'
+  hono@<4.13.16: ^4.13.16
+  '@hono/node-server@>=2.0.0 <2.1.6': ^2.1.6
+  glob@>=9.0.0 <14.0.2: ^14.0.2
+  # Babel 8 runs the TypeScript presets in the package Babel configs; these pin @babel/core 7.
+  '@storybook/addon-webpack5-compiler-babel>@babel/core': ^8.1.2
+  'jest-config>@babel/core': ^8.1.2
 allowBuilds:
+  '@parcel/watcher': false
   '@swc/core': false
   core-js: true
   core-js-pure: true
@@ -40,6 +80,30 @@ auditConfig:
     # Transitive dep in mocha test package
     # for js-yaml
     - 'GHSA-52cp-r559-cp3m'
+    # No patched release yet (braces <=3.0.3, latest 3.0.3). Only reached by
+    # build tooling: micromatch/chokidar in devDependencies and the website's
+    # Docusaurus build. Remove once braces ships a fix.
+    - 'GHSA-vfj7-8cjw-p6xm'
+    # No patched release yet (http-cache-semantics <=4.2.0; 4.3.0 leaves
+    # max-stale handling unchanged).
+    # Only reached by Docusaurus's update-notifier in the website build, a
+    # single-user client cache rather than a shared one. Remove once
+    # http-cache-semantics ships a fix.
+    - 'GHSA-ch52-4w7c-c8xp'
+    # No patched release yet (deepmerge <=4.3.1, latest 4.3.1). Only reached by
+    # build and test tooling: rollup's node-resolve, svgr in the website build,
+    # Storybook's fork-ts-checker and jest. Remove once deepmerge ships a fix.
+    - 'GHSA-gcqx-w48m-w2h4'
+    # minimatch <11.0.1 (only 11.0.1 is patched). Only reached by typedoc, the
+    # docs generator, matching the entry point patterns of our own config.
+    # typedoc (latest 0.28.20) asks for ^10 and fails on 11, which removed
+    # matchOne. Remove once typedoc supports minimatch 11.
+    - 'GHSA-g3hv-75wg-m249'
+    # No patched release yet (picomatch <=4.0.7, latest 4.0.7). Only reached by
+    # build and test tooling, which matches the patterns of our own configs:
+    # tinyglobby under changesets, micromatch and chokidar under jest and the
+    # website's Docusaurus build. Remove once picomatch ships a fix.
+    - 'GHSA-fc5q-39xc-vjpf'
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.16 || 1.1.18 || 1.1.21 || 2.1.2 || 2.1.4 || 2.1.7 || 5.0.8 || 5.0.9 || 5.0.12
@@ -51,13 +115,13 @@ minimumReleaseAgeExclude:
   - serialize-javascript@6.0.2 || 7.0.5 || 7.1.2
   - uuid@11.1.1
   - webpack-dev-server@5.2.6
-  - body-parser@1.20.6
+  - body-parser@1.20.6 || 1.20.9 || 2.4.0
   - svgo@2.8.3 || 2.8.4 || 3.3.4 || 3.3.5 || 4.0.2 || 4.1.0
   - dompurify@3.4.12 || 3.4.13
   - react-router@8.3.0
   - miniflare@4.20260722.1 || 5.20260908.0-alpha
   - wrangler@4.115.0 || 4.130.0
-  - undici@7.29.0 || 7.29.1 || 7.30.0
+  - undici@7.29.0 || 7.29.1 || 7.30.0 || 7.30.1
   - fast-uri@3.1.5 || 3.1.6
   - mermaid@11.16.1
   - image-size@2.0.3 || 2.0.4
@@ -65,8 +129,11 @@ minimumReleaseAgeExclude:
   - webpack-dev-middleware@7.4.6
   - browserslist@4.28.7
   - qs@6.15.4 || 6.16.0
-  - joi@17.13.5 || 17.13.6
+  - joi@17.13.5 || 17.13.6 || 17.13.9
   - colord@2.9.4
   - baseline-browser-mapping@2.11.0
   - sharp@0.35.4
-  - multer@2.3.0 || 2.4.0
+  - multer@2.3.0 || 2.4.0 || 2.5.0
+  - handlebars@4.7.10
+  - storybook@10.6.2
+  - follow-redirects@1.16.2

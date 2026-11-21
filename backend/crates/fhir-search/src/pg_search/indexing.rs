@@ -80,7 +80,7 @@ pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
     // Resolve once per (tenant, project, type): a cold cache hits the database.
     let parameter_sets = resolve_parameter_sets(parameter_resolver.as_ref(), &resources).await?;
 
-    let (converted, failed) = convert_batch(
+    let (converted, mut failed) = convert_batch(
         fp_engine,
         schema_registry.clone(),
         &parameter_sets,
@@ -97,7 +97,7 @@ pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
         );
     }
 
-    write_batch(pool, schema_registry, converted).await?;
+    failed.extend(write_converted(pool, schema_registry, converted).await?);
 
     Ok(IndexOutcome {
         succeeded: total - failed.len(),
@@ -161,6 +161,8 @@ fn dedupe_keep_last(
 
 /// One resource's rows, ready to bind.
 struct Converted {
+    /// Reported with the error if the write rejects this resource.
+    resource: IndexResource,
     key: ResourceKey,
     version_id: String,
     sequence: i64,
@@ -310,7 +312,13 @@ async fn convert_batch(
 
         match result {
             // The final version is indexed, so the displaced ones are handled.
-            Ok(entry) => converted.push(entry),
+            Ok(write) => converted.push(Converted {
+                key: resource_key(&resource),
+                version_id: resource.version_id.as_ref().to_string(),
+                sequence: resource.sequence,
+                write,
+                resource,
+            }),
             Err(error) => {
                 failed.extend(displaced.into_iter().map(superseded_failure));
                 failed.push(IndexFailure { resource, error });
@@ -336,8 +344,8 @@ async fn convert_resource(
     schema_registry: &SchemaRegistry,
     parameter_set: Option<&ParameterSet>,
     resource: &IndexResource,
-) -> Result<Converted, OperationOutcomeError> {
-    let write = match &resource.fhir_method {
+) -> Result<Option<ConvertedWrite>, OperationOutcomeError> {
+    Ok(match &resource.fhir_method {
         FHIRMethod::Create | FHIRMethod::Update => {
             let set = parameter_set.ok_or_else(|| {
                 OperationOutcomeError::fatal(
@@ -354,13 +362,6 @@ async fn convert_resource(
         method @ FHIRMethod::Read => {
             return Err(PgSearchError::UnsupportedFHIRMethod((*method).clone()).into());
         }
-    };
-
-    Ok(Converted {
-        key: resource_key(resource),
-        version_id: resource.version_id.as_ref().to_string(),
-        sequence: resource.sequence,
-        write,
     })
 }
 
@@ -875,7 +876,7 @@ async fn insert_shared_table(
         })
         .execute(conn)
         .await
-        .map_err(PgSearchError::from)?;
+        .map_err(|e| write_error("Failed to insert shared search rows", e))?;
     Ok(())
 }
 
@@ -902,30 +903,22 @@ struct AnchorKey {
 ///
 /// The anchor goes first: its upsert allocates or keeps each `res_key` and
 /// reports which resources already existed. Only those and deletes have old
-/// rows to clear. Any failure aborts the transaction and the worker retries
-/// the batch.
+/// rows to clear. Any failure aborts the transaction.
+///
+/// `converted` is sorted by key: one lock order for every writer, so
+/// overlapping batches queue instead of deadlocking.
 async fn write_batch(
     pool: &Pool<Postgres>,
     schema_registry: &SchemaRegistry,
-    mut converted: Vec<Converted>,
+    converted: &[Converted],
 ) -> Result<(), OperationOutcomeError> {
-    if converted.is_empty() {
-        return Ok(());
-    }
-
-    // One lock order for every writer, so overlapping batches queue instead of
-    // deadlocking.
-    converted.sort_by(|a, b| a.key.cmp(&b.key));
-
     let (deletes, writes): (Vec<&Converted>, Vec<&Converted>) =
         converted.iter().partition(|entry| entry.write.is_none());
 
-    let mut tx = pool.begin().await.map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("Failed to begin PG search transaction: {e}"),
-        )
-    })?;
+    let mut tx = pool
+        .begin()
+        .await
+        .map_err(|e| write_error("Failed to begin PG search transaction", e))?;
 
     let removed = delete_anchors(tx.as_mut(), schema_registry, &deletes).await?;
     let anchors = upsert_anchors(tx.as_mut(), schema_registry, &writes).await?;
@@ -984,12 +977,82 @@ async fn write_batch(
 
     insert_shared_rows(tx.as_mut(), schema_registry, &shared_rows).await?;
 
-    tx.commit().await.map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("Failed to commit PG search transaction: {e}"),
-        )
-    })
+    tx.commit()
+        .await
+        .map_err(|e| write_error("Failed to commit PG search transaction", e))
+}
+
+/// Writes the batch in one transaction. When Postgres rejects the rows
+/// themselves, each resource is written on its own: the ones at fault come
+/// back as failures, for the worker to park, and the rest still land. Any
+/// other error fails the batch, and the worker retries it.
+async fn write_converted(
+    pool: &Pool<Postgres>,
+    schema_registry: &SchemaRegistry,
+    mut converted: Vec<Converted>,
+) -> Result<Vec<IndexFailure>, OperationOutcomeError> {
+    if converted.is_empty() {
+        return Ok(Vec::new());
+    }
+    converted.sort_by(|a, b| a.key.cmp(&b.key));
+
+    match write_batch(pool, schema_registry, &converted).await {
+        Ok(()) => Ok(Vec::new()),
+        Err(error) if rejects_the_rows(&error) => {
+            tracing::warn!(
+                error = %error,
+                "PG search: a batch of {} was rejected; writing its resources one at a time.",
+                converted.len()
+            );
+            write_each(pool, schema_registry, converted).await
+        }
+        Err(error) => Err(error),
+    }
+}
+
+/// Writes each resource in its own transaction and returns the ones Postgres
+/// rejected. Any other error is returned as it is.
+async fn write_each(
+    pool: &Pool<Postgres>,
+    schema_registry: &SchemaRegistry,
+    converted: Vec<Converted>,
+) -> Result<Vec<IndexFailure>, OperationOutcomeError> {
+    let mut failed = Vec::new();
+
+    for entry in converted {
+        match write_batch(pool, schema_registry, std::slice::from_ref(&entry)).await {
+            Ok(()) => {}
+            Err(error) if rejects_the_rows(&error) => failed.push(IndexFailure {
+                resource: entry.resource,
+                error,
+            }),
+            Err(error) => return Err(error),
+        }
+    }
+
+    Ok(failed)
+}
+
+/// Whether Postgres rejected the rows themselves, so the same batch can never
+/// succeed on a retry: a data exception (SQLSTATE class 22), an integrity
+/// constraint (23) or a program limit, such as an index entry larger than a
+/// third of a page (54). Everything else (a lost connection, a deadlock, a
+/// table the migration has not created yet) clears up on its own or with an
+/// operator's help, and retrying loses nothing.
+fn rejects_the_rows(error: &OperationOutcomeError) -> bool {
+    error
+        .causes()
+        .filter_map(|cause| cause.downcast_ref::<sqlx::Error>())
+        .filter_map(|error| error.as_database_error()?.code())
+        .any(|code| matches!(code.get(..2), Some("22" | "23" | "54")))
+}
+
+/// A failed statement of the write, with the `sqlx` error kept as the source
+/// so [`rejects_the_rows`] can read its SQLSTATE.
+#[track_caller]
+fn write_error(step: &str, error: sqlx::Error) -> OperationOutcomeError {
+    OperationOutcomeError::fatal(IssueType::exception(), format!("{step}: {error}"))
+        .with_source(error)
 }
 
 /// Deletes the anchor rows of deleted resources and returns their
@@ -1028,7 +1091,7 @@ async fn delete_anchors(
         .bind(sequence)
         .fetch_all(conn)
         .await
-        .map_err(PgSearchError::from)?;
+        .map_err(|e| write_error("Failed to delete anchor rows", e))?;
 
     Ok(rows
         .iter()
@@ -1099,12 +1162,9 @@ async fn upsert_anchors(
             });
 
         let rows = query.fetch_all(&mut *conn).await.map_err(|e| {
-            OperationOutcomeError::fatal(
-                IssueType::exception(),
-                format!(
-                    "Failed to upsert anchor rows into {}: {e}",
-                    anchor.table_name
-                ),
+            write_error(
+                &format!("Failed to upsert anchor rows into {}", anchor.table_name),
+                e,
             )
         })?;
 
@@ -1177,7 +1237,7 @@ async fn delete_by_res_key(
     .bind(res_keys)
     .execute(conn)
     .await
-    .map_err(PgSearchError::from)?;
+    .map_err(|e| write_error("Failed to clear search rows", e))?;
     Ok(())
 }
 
@@ -1252,12 +1312,12 @@ async fn insert_type_rows(
             });
 
         query.execute(&mut *conn).await.map_err(|e| {
-            OperationOutcomeError::fatal(
-                IssueType::exception(),
-                format!(
-                    "Failed to insert system search columns into {}: {e}",
+            write_error(
+                &format!(
+                    "Failed to insert system search columns into {}",
                     schema.table_name
                 ),
+                e,
             )
         })?;
     }

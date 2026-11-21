@@ -1,4 +1,4 @@
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use crate::error::ServerError;
 use haste_fhir_operation_error::OperationOutcomeError;
 // This module provides functions to generate routes for different entities in the system.
 use haste_jwt::{ProjectId, TenantId};
@@ -79,25 +79,29 @@ pub fn api_fhir_root_url(
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<Url, OperationOutcomeError> {
-    let api_url = Url::parse(api_url_string).map_err(|e| {
-        tracing::error!("Failed to parse API URL: {:?}", e);
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid API URL configured".to_string(),
-        )
-    })?;
+    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
 
     let fhir_url = api_url
         .join(api_v1_fhir_path(tenant, project).to_str().unwrap())
-        .map_err(|e| {
-            tracing::error!("Failed to derive FHIR URL: {:?}", e);
-            OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Invalid API URL configured".to_string(),
-            )
-        })?;
+        .map_err(ServerError::from)?;
 
     Ok(fhir_url)
+}
+
+/// The identifier of a project's authorization server: what its discovery
+/// document returns as `issuer` and `oauth_protected_resource` lists under
+/// `authorization_servers`. An id token names it in `iss`, so the two must
+/// agree.
+pub fn issuer_url(
+    api_url_string: &str,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<Url, OperationOutcomeError> {
+    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
+
+    api_url
+        .join(project_path(tenant, project).to_str().unwrap_or_default())
+        .map_err(|e| ServerError::from(e).into())
 }
 
 #[cfg(test)]
@@ -136,8 +140,8 @@ mod tests {
     fn fhir_root_url_has_no_version_segment() {
         let url = api_fhir_root_url(
             "https://api.haste.health",
-            &TenantId::new("acme".to_string()),
-            &ProjectId::new("default".to_string()),
+            &TenantId::new("acme".to_string()).unwrap(),
+            &ProjectId::new("default".to_string()).unwrap(),
         )
         .unwrap();
 

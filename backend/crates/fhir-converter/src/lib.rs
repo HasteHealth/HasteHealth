@@ -33,8 +33,8 @@ pub fn convert_input(input: Input) -> Result<minijinja::Value, OperationOutcomeE
                 jinja_extensions::conversions::hl7v2::JHL7V2::new(parsed_message),
             )))
         }
-        Input::FHIR(resource) => Ok(minijinja::Value::from_serialize(resource)),
-        Input::JSON(json) => Ok(minijinja::Value::from_serialize(json)),
+        Input::FHIR(resource) => Ok(minijinja::Value::from(minijinja::value::Serde(resource))),
+        Input::JSON(json) => Ok(minijinja::Value::from(minijinja::value::Serde(json))),
     }
 }
 
@@ -158,7 +158,7 @@ where
     S: serde::Serialize,
 {
     let output_data = template
-        .render(ctx)
+        .render(minijinja::value::Serde(ctx))
         .map_err(|e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()))?;
 
     match output {

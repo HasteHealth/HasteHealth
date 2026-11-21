@@ -1,0 +1,214 @@
+{
+    "id": "access-control-system-scope-subset-granted",
+    "url": "https://haste.health/fhir/TestScript/access-control-system-scope-subset-granted",
+    "name": "Access Control System Scope Subset Granted",
+    "title": "System scope subset: granted requests",
+    "status": "active",
+    "description": "Run as the system-scope-subset login, allowed system/*.rs system/Observation.cud and signed in with system/Patient.rs system/Observation.cs system/Encounter.r. Each requested scope is within the allowed ones, so the sign-in succeeded and the requested access works.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acss-patient",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Sam"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acss-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acss-patient"
+            }
+        },
+        {
+            "id": "acss-encounter",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acss-patient"
+            }
+        },
+        {
+            "id": "acss-new-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scope-subset"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Respiratory rate"
+            },
+            "subject": {
+                "reference": "Patient/acss-patient"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acss-patient",
+            "resource": {
+                "reference": "#acss-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acss-observation",
+            "resource": {
+                "reference": "#acss-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acss-encounter",
+            "resource": {
+                "reference": "#acss-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acss-new-observation",
+            "resource": {
+                "reference": "#acss-new-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-wildcard-type",
+            "name": "system/*.rs allows requesting system/Patient.rs",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acss-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is read",
+                        "expression": "Patient.id = 'acss-patient'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=acss-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is found",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acss-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-permission-subset",
+            "name": "system/*.rs allows requesting system/Encounter.r",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acss-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter is read",
+                        "expression": "Encounter.id = 'acss-encounter'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-permissions-from-two-scopes",
+            "name": "system/*.rs and system/Observation.cud together allow requesting system/Observation.cs",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-acss-new-observation",
+                        "encodeRequestUrl": false,
+                        "description": "c comes from system/Observation.cud."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The created Observation is returned",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=access-control-system-scope-subset",
+                        "encodeRequestUrl": false,
+                        "description": "s comes from system/*.rs."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is found",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'acss-observation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -31,7 +31,7 @@ pub fn get_tenant_resource_limits(
     if let ResourceLimit::Count(limit) = haste_subscription::resource_limit_for(tier, resource_type)
     {
         limits.push(TenantResourceLimit::Count {
-            resource_type: Some(resource_type.clone()),
+            resource_type: Some(*resource_type),
             limit,
         });
     }

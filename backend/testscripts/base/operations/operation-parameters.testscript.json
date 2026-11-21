@@ -1,0 +1,273 @@
+{
+    "id": "operation-parameters",
+    "url": "https://haste.health/fhir/TestScript/operation-parameters",
+    "name": "Operation input parameters",
+    "title": "An operation invoked with the wrong number of input parameters answers 400",
+    "status": "active",
+    "description": "A project operation whose input breaks its OperationDefinition's parameter cardinality is refused before it runs. The OperationOutcome's first issue is invariant, a child of invalid in the IssueType hierarchy, and the response is 400 Bad Request.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "op-params-greet",
+            "resourceType": "OperationDefinition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "operation-parameters-test"
+                    }
+                ]
+            },
+            "name": "op-params-greet",
+            "status": "draft",
+            "kind": "operation",
+            "code": "op-params-greet",
+            "system": true,
+            "type": false,
+            "instance": false,
+            "extension": [
+                {
+                    "url": "https://haste.health/Extension/custom-code",
+                    "valueString": "export default async function() {\n  return { resourceType: 'Parameters', parameter: [{ name: 'greeting', valueString: 'hello' }] };\n}\n",
+                    "extension": [
+                        {
+                            "url": "https://haste.health/Extension/custom-code-type",
+                            "valueString": "text/typescript"
+                        }
+                    ]
+                }
+            ],
+            "parameter": [
+                {
+                    "name": "name",
+                    "use": "in",
+                    "min": 1,
+                    "max": "1",
+                    "type": "string"
+                },
+                {
+                    "name": "greeting",
+                    "use": "out",
+                    "min": 0,
+                    "max": "1",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "id": "op-params-one-name",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "name",
+                    "valueString": "Ada"
+                }
+            ]
+        },
+        {
+            "id": "op-params-no-name",
+            "resourceType": "Parameters"
+        },
+        {
+            "id": "op-params-two-names",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "name",
+                    "valueString": "Ada"
+                },
+                {
+                    "name": "name",
+                    "valueString": "Grace"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-op-params-greet",
+            "resource": {
+                "reference": "#op-params-greet"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-op-params-one-name",
+            "resource": {
+                "reference": "#op-params-one-name"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-op-params-no-name",
+            "resource": {
+                "reference": "#op-params-no-name"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-op-params-two-names",
+            "resource": {
+                "reference": "#op-params-two-names"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "A system-level operation that takes exactly one 'name'.",
+                    "resource": "OperationDefinition",
+                    "targetId": "fixture-op-params-greet",
+                    "sourceId": "fixture-op-params-greet",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "search"
+                    },
+                    "description": "Waits for the OperationDefinition to be indexed.",
+                    "resource": "OperationDefinition",
+                    "params": "code=op-params-greet",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "assert": {
+                    "description": "The OperationDefinition is listed",
+                    "expression": "Bundle.entry.resource.where(id = 'op-params-greet').exists()",
+                    "value": "true",
+                    "warningOnly": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "01-required-parameter-supplied",
+            "name": "The operation runs when its required parameter is supplied",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "$op-params-greet with one 'name'.",
+                        "url": "op-params-greet",
+                        "sourceId": "fixture-op-params-one-name",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Supplied parameter is 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The operation's own output",
+                        "expression": "Parameters.parameter.where(name = 'greeting').value",
+                        "value": "hello",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-required-parameter-missing",
+            "name": "A missing required parameter is refused with 400",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "$op-params-greet without 'name', which has min 1.",
+                        "url": "op-params-greet",
+                        "sourceId": "fixture-op-params-no-name",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Missing parameter is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first issue is invariant",
+                        "expression": "OperationOutcome.issue[0].code",
+                        "value": "invariant",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-too-many-parameters",
+            "name": "A parameter supplied more often than its max is refused with 400",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "$op-params-greet with two 'name's, which has max 1.",
+                        "url": "op-params-greet",
+                        "sourceId": "fixture-op-params-two-names",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Too many parameters is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first issue is invariant",
+                        "expression": "OperationOutcome.issue[0].code",
+                        "value": "invariant",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "OperationDefinition",
+                    "params": "_tag=operation-parameters-test",
+                    "description": "Delete data created during test."
+                }
+            }
+        ]
+    }
+}

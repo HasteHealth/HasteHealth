@@ -1,4 +1,6 @@
+use crate::auth_n::error::AuthError;
 use axum::{
+    Form,
     extract::{OriginalUri, State},
     response::{IntoResponse as _, Response},
 };
@@ -22,6 +24,7 @@ use tower_sessions::Session;
 
 use crate::{
     auth_n::{
+        constant_time,
         mfa::{
             routes::activate::{activate_html, mfa_activation_post_route},
             utilities::{get_aes_encryptor, get_aes_key},
@@ -37,6 +40,11 @@ use crate::{
 #[typed_path("/create")]
 pub struct MFACreatePOST;
 
+#[derive(Deserialize)]
+pub struct MFACreatePOSTBody {
+    pub csrf_token: String,
+}
+
 // Creates User MFA credentials if user is allowed further MFA credentials.
 // If user has reached the maximum allowed MFA credentials, an error is returned.
 pub async fn create_post<
@@ -50,15 +58,15 @@ pub async fn create_post<
     Cached(context): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
+    Form(create_body): Form<MFACreatePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
+    if !constant_time::str_eq(&create_body.csrf_token, &csrf_token) {
+        return Err(AuthError::InvalidCsrfToken.into());
+    }
+
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
-        .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "User is not logged in.".to_string(),
-            )
-        })?;
+        .map_err(|_| AuthError::NotLoggedIn)?;
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
         state.repo.as_ref(),
@@ -82,14 +90,7 @@ pub async fn create_post<
         ));
     }
 
-    let secret = totp_rs::Secret::default().to_bytes().map_err(|e| {
-        tracing::error!(error = ?e);
-
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            "Could not generate secret for MFA".to_string(),
-        )
-    })?;
+    let secret = totp_rs::Secret::generate().as_bytes().to_vec();
 
     let aes_key_id = get_aes_key(&state.config)?;
     let aes_encryptor = get_aes_encryptor(state.secret_provider.as_ref(), &state.config).await?;

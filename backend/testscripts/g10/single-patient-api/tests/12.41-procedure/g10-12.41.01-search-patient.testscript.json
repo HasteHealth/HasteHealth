@@ -1,0 +1,159 @@
+{
+    "id": "g10-12.41.01-search-patient",
+    "url": "https://haste.health/fhir/TestScript/g10-12.41.01-search-patient",
+    "name": "g10-12.41.01-search-patient",
+    "title": "12.41.01 Server returns valid results for Procedure search by patient",
+    "status": "active",
+    "description": "g10 12.41.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.38). Server returns valid results for Procedure search by patient. US Core SHALL search. Every result must match every parameter, and the record's Procedure/g10-defib-implant must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-procedure-patient-g10-example",
+            "name": "GET Procedure?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Procedure/g10-defib-implant is returned",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).where(id = 'g10-defib-implant').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-reference-form-get-procedure-patient-patient-g10-example",
+            "name": "Reference form: GET Procedure?patient=Patient/g10-example",
+            "description": "patient=Patient/[id] returns what patient=[id] returns.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=Patient/g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Procedure/g10-defib-implant is returned",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).where(id = 'g10-defib-implant').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as patient=[id]",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-post-procedure-search-patient-g10-example",
+            "name": "POST Procedure/_search?patient=g10-example",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "Procedure/_search?patient=g10-example",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

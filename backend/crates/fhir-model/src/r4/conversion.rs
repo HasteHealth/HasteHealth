@@ -133,6 +133,8 @@ pub fn downcast_string(value: &dyn MetaValue) -> Result<String, DowncastError> {
 ///
 /// Returns [`DowncastError`] if `value` is not a supported numeric type or if
 /// the underlying value cannot be downcast to the expected concrete type.
+// FHIRPath compares numbers as `f64`; integers past 2^52 lose precision.
+#[allow(clippy::cast_precision_loss)]
 pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
     match value.fhir_type() {
         "integer" => {
@@ -155,7 +157,7 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
                 .downcast_ref::<FHIRPositiveInt>()
                 .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
-            downcast_number(fp_positive_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_positive_int.value.unwrap_or(0) as f64)
         }
         "unsignedInt" => {
             let fp_unsigned_int = value
@@ -163,14 +165,16 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
                 .downcast_ref::<FHIRUnsignedInt>()
                 .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
-            downcast_number(fp_unsigned_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_unsigned_int.value.unwrap_or(0) as f64)
         }
-        #[allow(clippy::cast_precision_loss)]
-        "http://hl7.org/fhirpath/System.Integer" => value
-            .as_any()
-            .downcast_ref::<i64>()
-            .map(|v| *v as f64)
-            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
+        // `integer` holds an i64, `positiveInt` and `unsignedInt` a u64.
+        "http://hl7.org/fhirpath/System.Integer" => {
+            let any = value.as_any();
+            any.downcast_ref::<i64>()
+                .map(|v| *v as f64)
+                .or_else(|| any.downcast_ref::<u64>().map(|v| *v as f64))
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))
+        }
 
         "http://hl7.org/fhirpath/System.Decimal" => value
             .as_any()

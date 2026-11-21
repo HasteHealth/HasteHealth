@@ -13,7 +13,7 @@
 
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    middleware::{Backend, operations::ServerOperationContext},
 };
 use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_fhir_client::{
@@ -32,10 +32,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
 use std::{
     collections::HashSet,
     sync::{Arc, LazyLock},
@@ -63,23 +60,13 @@ static PATIENT_COMPARTMENT: LazyLock<Option<&CompartmentDefinition>> = LazyLock:
     })
 });
 
-pub fn patient_everything<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
-    PatientEverything::Input,
-    PatientEverything::Output,
-> {
+pub fn patient_everything<B: Backend>()
+-> OperationExecutor<ServerOperationContext<B>, PatientEverything::Input, PatientEverything::Output>
+{
     OperationExecutor::new(
-        PatientEverything::CODE.to_string(),
+        &PatientEverything::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              _tenant: TenantId,
              _project: ProjectId,
              request: &InvocationRequest,
@@ -310,7 +297,7 @@ fn compartment_searches(
                 params
                     .iter()
                     .filter_map(|p| p.value.clone())
-                    .map(move |param| (resource_type.clone(), param))
+                    .map(move |param| (resource_type, param))
                     .collect::<Vec<_>>(),
             )
         })
@@ -341,7 +328,7 @@ fn search_parameters(
 
     // Record currency, so it applies to every type uniformly.
     if let Some(since) = input.since.as_ref().and_then(|s| s.value.as_ref()) {
-        parameters.push(plain("_lastUpdated", format!("ge{}", since.to_string())));
+        parameters.push(plain("_lastUpdated", format!("ge{since}")));
     }
 
     // Care dates. `date` is the clinical date on most compartment types; a type
@@ -349,10 +336,10 @@ fn search_parameters(
     // patient's allergies from their chart because they carry no date would
     // lose data the caller asked for.
     if let Some(start) = input.start.as_ref().and_then(|s| s.value.as_ref()) {
-        parameters.push(plain("date", format!("ge{}", start.to_string())));
+        parameters.push(plain("date", format!("ge{start}")));
     }
     if let Some(end) = input.end.as_ref().and_then(|e| e.value.as_ref()) {
-        parameters.push(plain("date", format!("le{}", end.to_string())));
+        parameters.push(plain("date", format!("le{end}")));
     }
 
     parameters

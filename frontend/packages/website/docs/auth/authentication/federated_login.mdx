@@ -141,7 +141,8 @@ providers only return an id token when the client is explicitly allowed it.
 **Solution**:
 1. Verify the JWKS URI is correct and accessible
 2. Check that the token hasn't expired
-3. Ensure the issuer and audience claims match expectations
+3. The id token's `aud` claim must contain the Client ID configured on the IdentityProvider. A provider issues the id token to the client that requested the sign-in, so a token issued to another client is rejected
+4. The id token must be signed with an asymmetric algorithm (RS256, PS256, ES256 or EdDSA among others) by a key published at the JWKS URI. A token signed with an HMAC algorithm is rejected before its key is looked up
 
 
 ## Best Practices

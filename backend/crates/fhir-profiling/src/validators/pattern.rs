@@ -1,7 +1,7 @@
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
 
-use crate::validators::utilities;
+use crate::{slicing::items, validators::utilities};
 
 pub fn validate_pattern(
     value: &dyn MetaValue,
@@ -22,19 +22,17 @@ pub fn validate_pattern(
                     return Ok(false);
                 };
 
-                let values = data_value.flatten();
-                let pattern_values = pattern_value.flatten();
-
-                if pattern_values.len() > values.len() {
+                if items(pattern_value).count() > items(data_value).count() {
                     return Ok(false);
                 }
 
-                for pattern_value in &pattern_values {
-                    let found = values
-                        .iter()
-                        .find(|v| validate_pattern(**v, *pattern_value).unwrap_or(false));
+                // Every value the pattern lists must be matched by some value
+                // of the data, in any order.
+                for pattern_value in items(pattern_value) {
+                    let found = items(data_value)
+                        .any(|v| validate_pattern(v, pattern_value).unwrap_or(false));
 
-                    if found.is_none() {
+                    if !found {
                         return Ok(false);
                     }
                 }

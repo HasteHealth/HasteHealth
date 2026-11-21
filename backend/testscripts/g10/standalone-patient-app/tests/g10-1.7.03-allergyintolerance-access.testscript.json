@@ -1,0 +1,50 @@
+{
+    "id": "g10-1.7.03-allergyintolerance-access",
+    "url": "https://haste.health/fhir/TestScript/g10-1.7.03-allergyintolerance-access",
+    "name": "g10-1.7.03-allergyintolerance-access",
+    "title": "1.7.03 Access to AllergyIntolerance resources granted",
+    "status": "active",
+    "description": "g10 1.7.03 (AUT-PAT-10, AUT-PAT-12, AUT-PAT-33, AUT-PAT-34). With every US Core type granted, the first US Core search for AllergyIntolerance (GET AllergyIntolerance?patient=g10-example) answers 200, and every result belongs to the launch patient.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.7.03 Access to AllergyIntolerance resources granted",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AllergyIntolerance",
+                        "params": "patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every AllergyIntolerance returned is the launch patient's",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).all(patient.reference = 'Patient/g10-example')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

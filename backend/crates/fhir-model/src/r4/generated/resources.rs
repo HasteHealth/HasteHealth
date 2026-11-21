@@ -266,6 +266,361 @@ impl AccessPolicyV2Assignment {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "The operation to retrieve the attribute."]
+pub struct AccessPolicyV3AttributeOperation {
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "The operation type."]
+    pub type_: terminology::BoundCode<terminology::AccessPolicyAttributeOperationTypes>,
+    #[primitive]
+    #[doc = "The resource type the operation targets."]
+    pub resourceType: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "Search string with %principal.* substitutions."]
+    pub parameters: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Policy information point entries referenced using %attributeId in expressions."]
+pub struct AccessPolicyV3Attribute {
+    #[primitive]
+    #[doc = "The id of the attribute referenced using %attributeId in expressions."]
+    pub attributeId: Box<FHIRId>,
+    #[primitive]
+    #[doc = "Whether the attribute is resolved once per principal or per request."]
+    pub scope: terminology::BoundCode<terminology::Accesspolicyv3attributescope>,
+    #[doc = "The operation to retrieve the attribute."]
+    pub operation: Option<AccessPolicyV3AttributeOperation>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "`FHIRPath` over %request and %principal; false or empty makes the rule not applicable."]
+pub struct AccessPolicyV3RuleTarget {
+    #[primitive]
+    #[doc = "Target expression."]
+    pub expression: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Decision rules only: `FHIRPath` over any attribute including %target."]
+pub struct AccessPolicyV3RuleCondition {
+    #[primitive]
+    #[doc = "Condition expression."]
+    pub expression: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Constraint rules only: the data the rule reaches."]
+pub struct AccessPolicyV3RuleData {
+    #[primitive]
+    #[doc = "The resource type constrained."]
+    pub resourceType: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Search string with %principal.* substitutions."]
+    pub search: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Permit rules only: per resource type element handling."]
+pub struct AccessPolicyV3RuleField {
+    #[primitive]
+    #[doc = "The resource type the field belongs to."]
+    pub resourceType: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Element path."]
+    pub path: Box<FHIRString>,
+    #[primitive]
+    #[doc = "How the element is handled."]
+    pub mode: terminology::BoundCode<terminology::Accesspolicyv3fieldmode>,
+    #[primitive]
+    #[doc = "Redaction applied when mode is mask."]
+    pub redaction: Option<terminology::BoundCode<terminology::Accesspolicyv3redaction>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Permit rules only: obligations the caller must satisfy."]
+pub struct AccessPolicyV3RuleObligation {
+    #[primitive]
+    #[doc = "The obligation."]
+    pub code: terminology::BoundCode<terminology::Accesspolicyv3obligation>,
+    #[primitive]
+    #[doc = "Obligation parameter, for example a rate or result limit."]
+    pub value: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Ordered rules that govern how the access policy is applied."]
+pub struct AccessPolicyV3Rule {
+    #[primitive]
+    #[doc = "Rule identifier."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Rule description."]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Whether the rule decides on the request or constrains the data it can reach."]
+    pub kind: terminology::BoundCode<terminology::Accesspolicyv3rulekind>,
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "Whether the rule permits or denies."]
+    pub type_: terminology::BoundCode<terminology::Accesspolicyv3ruletype>,
+    #[primitive]
+    #[doc = "How nested rule decisions are combined."]
+    pub combining: Option<terminology::BoundCode<terminology::Accesspolicyv3combining>>,
+    #[doc = "`FHIRPath` over %request and %principal; false or empty makes the rule not applicable."]
+    pub target: Option<AccessPolicyV3RuleTarget>,
+    #[doc = "Decision rules only: `FHIRPath` over any attribute including %target."]
+    pub condition: Option<AccessPolicyV3RuleCondition>,
+    #[doc = "Constraint rules only: the data the rule reaches."]
+    pub data: Option<Vec<AccessPolicyV3RuleData>>,
+    #[doc = "Permit rules only: per resource type element handling."]
+    pub field: Option<Vec<AccessPolicyV3RuleField>>,
+    #[doc = "Permit rules only: obligations the caller must satisfy."]
+    pub obligation: Option<Vec<AccessPolicyV3RuleObligation>>,
+    #[doc = "Nested rules; the parent carries its own combining."]
+    pub rule: Option<Vec<AccessPolicyV3Rule>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "An attribute the rule's target, condition or data references."]
+pub struct AccessPolicyV3ManifestAttribute {
+    #[primitive]
+    #[doc = "The attribute referenced."]
+    pub attributeId: Box<FHIRId>,
+    #[primitive]
+    #[doc = "The attribute's scope, principal or request."]
+    pub scope: terminology::BoundCode<terminology::Accesspolicyv3attributescope>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Server-maintained: the attributes each rule references, recomputed on every save."]
+pub struct AccessPolicyV3Manifest {
+    #[primitive]
+    #[doc = "Path of the rule, for example rule[`0`]`.rule`[`1`]."]
+    pub rule: Box<FHIRString>,
+    #[cardinality(min = 1u64)]
+    #[doc = "An attribute the rule's target, condition or data references."]
+    pub attribute: Vec<AccessPolicyV3ManifestAttribute>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "AccessPolicyV3"]
+#[fhir_serialize_type = "resource"]
+#[doc = "`AccessPolicyV3` resource."]
+pub struct AccessPolicyV3 {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never"]
+    #[doc = "changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes"]
+    #[doc = "to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The name of the access policy."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Description of the access policy."]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "How rule decisions are combined into one decision."]
+    pub combining: terminology::BoundCode<terminology::Accesspolicyv3combining>,
+    #[doc = "Policy information point entries referenced using %attributeId in expressions."]
+    pub attribute: Option<Vec<AccessPolicyV3Attribute>>,
+    #[doc = "Ordered rules that govern how the access policy is applied."]
+    pub rule: Option<Vec<AccessPolicyV3Rule>>,
+    #[doc = "Server-maintained: the attributes each rule references, recomputed on every save."]
+    pub manifest: Option<Vec<AccessPolicyV3Manifest>>,
+}
+impl AccessPolicyV3 {
+    const FILTER_FIELDS: &[&str] = &[
+        "id",
+        "meta",
+        "name",
+        "description",
+        "combining",
+        "attribute",
+        "rule",
+        "manifest",
+    ];
+    #[inline]
+    fn is_filter_field(field: &str) -> bool {
+        Self::FILTER_FIELDS.contains(&field)
+    }
+    #[inline]
+    fn filter_fields_0(mut value: Self, fields: &[&str]) -> Self {
+        value.name = filter_field(fields, "name", value.name);
+        value.description = filter_field(fields, "description", value.description);
+        value.attribute = filter_field(fields, "attribute", value.attribute);
+        value.rule = filter_field(fields, "rule", value.rule);
+        value.manifest = filter_field(fields, "manifest", value.manifest);
+        value
+    }
+    #[doc = r" Filters this resource to the requested top-level fields."]
+    #[doc = r""]
+    #[doc = r" # Errors"]
+    #[doc = r""]
+    #[doc = r" Returns `FilterFieldsError::UnknownField` if `fields` contains"]
+    #[doc = r" a field that is not supported for this resource."]
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !Self::is_filter_field(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV3".to_string(),
+                ));
+            }
+        }
+        let value = self;
+        let value = Self::filter_fields_0(value, fields);
+        Ok(value)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "AccessPolicyV3Assignment"]
+#[fhir_serialize_type = "resource"]
+#[doc = "`AccessPolicyV3Assignment` resource."]
+pub struct AccessPolicyV3Assignment {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never"]
+    #[doc = "changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes"]
+    #[doc = "to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    # [reference (targets = ["AccessPolicyV3"])]
+    #[doc = "The access policy that this assignment grants."]
+    pub accessPolicy: Box<Reference>,
+    # [reference (targets = ["ClientApplication" , "Membership" , "OperationDefinition"])]
+    #[doc = "The target reference the access policy applies to."]
+    pub link: Box<Reference>,
+    #[primitive]
+    #[doc = "Order of evaluation under first-applicable; lower first."]
+    pub priority: Option<Box<FHIRInteger>>,
+}
+impl AccessPolicyV3Assignment {
+    const FILTER_FIELDS: &[&str] = &["id", "meta", "accessPolicy", "link", "priority"];
+    #[inline]
+    fn is_filter_field(field: &str) -> bool {
+        Self::FILTER_FIELDS.contains(&field)
+    }
+    #[inline]
+    fn filter_fields_0(mut value: Self, fields: &[&str]) -> Self {
+        value.priority = filter_field(fields, "priority", value.priority);
+        value
+    }
+    #[doc = r" Filters this resource to the requested top-level fields."]
+    #[doc = r""]
+    #[doc = r" # Errors"]
+    #[doc = r""]
+    #[doc = r" Returns `FilterFieldsError::UnknownField` if `fields` contains"]
+    #[doc = r" a field that is not supported for this resource."]
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !Self::is_filter_field(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV3Assignment".to_string(),
+                ));
+            }
+        }
+        let value = self;
+        let value = Self::filter_fields_0(value, fields);
+        Ok(value)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "ClientApplication"]
 #[fhir_serialize_type = "resource"]
 #[doc = "`ClientApplication`"]
@@ -293,12 +648,27 @@ pub struct ClientApplication {
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,
     #[primitive]
+    #[doc = "The client's public signing keys as a JSON Web Key Set (RFC 7517) document, used to verify the JWT"]
+    #[doc = "client assertions of a confidential asymmetric client (SMART App Launch"]
+    #[doc = "client-confidential-asymmetric, SMART Backend Services). Each key carries a kid the assertion names."]
+    #[doc = "Register either jwks or jwksUri; jwks takes precedence when both are set."]
+    pub jwks: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The URL the client publishes its JSON Web Key Set at. The server fetches and caches it, and"]
+    #[doc = "refreshes it when an assertion names a kid it has not seen. It must be an https URL on a public"]
+    #[doc = "host."]
+    pub jwksUri: Option<Box<FHIRUri>>,
+    #[primitive]
     #[cardinality(max = 5u64)]
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and"]
     #[doc = "implicit flows. As required by Section 2 of `OAuth` `2.0` [`RFC6749`], clients using flows with"]
     #[doc = "redirection MUST register their redirection URI values. Authorization servers that support dynamic"]
     #[doc = "registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<FHIRString>>,
+    #[primitive]
+    #[doc = "URL an EHR opens to start the app in a SMART App Launch EHR launch. The iss (the FHIR base URL) and"]
+    #[doc = "launch (an opaque launch identifier) parameters are added to its query."]
+    pub launchUri: Option<Box<FHIRUri>>,
     #[primitive]
     #[doc = "`ClientApplication.uri`"]
     pub uri: Option<Box<FHIRUri>>,
@@ -326,7 +696,10 @@ impl ClientApplication {
         "grantType",
         "responseTypes",
         "secret",
+        "jwks",
+        "jwksUri",
         "redirectUri",
+        "launchUri",
         "uri",
         "logoUri",
         "scope",
@@ -342,7 +715,10 @@ impl ClientApplication {
     fn filter_fields_0(mut value: Self, fields: &[&str]) -> Self {
         value.description = filter_field(fields, "description", value.description);
         value.secret = filter_field(fields, "secret", value.secret);
+        value.jwks = filter_field(fields, "jwks", value.jwks);
+        value.jwksUri = filter_field(fields, "jwksUri", value.jwksUri);
         value.redirectUri = filter_field(fields, "redirectUri", value.redirectUri);
+        value.launchUri = filter_field(fields, "launchUri", value.launchUri);
         value.uri = filter_field(fields, "uri", value.uri);
         value.logoUri = filter_field(fields, "logoUri", value.logoUri);
         value.scope = filter_field(fields, "scope", value.scope);
@@ -363,6 +739,172 @@ impl ClientApplication {
                 return Err(FilterFieldsError::UnknownField(
                     field.to_string(),
                     "ClientApplication".to_string(),
+                ));
+            }
+        }
+        let value = self;
+        let value = Self::filter_fields_0(value, fields);
+        Ok(value)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "What the rule matches; exactly one of path, type and extension is set."]
+pub struct DeidentificationPolicyRuleTarget {
+    #[primitive]
+    #[doc = "Exact element path such as `Patient.birthDate.`"]
+    pub path: Option<Box<FHIRString>>,
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "A datatype or primitive; matches every element of that type anywhere."]
+    pub type_: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "Extension canonical URL; matches that extension wherever it appears."]
+    pub extension: Option<Box<FHIRUri>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Action-specific parameters, validated per action."]
+pub struct DeidentificationPolicyRuleParam {
+    #[primitive]
+    #[doc = "cryptoHash, pseudonymize: Identifier parts left unchanged."]
+    pub keep: Option<Vec<FHIRCode>>,
+    #[primitive]
+    #[doc = "generalize: target precision (year, month, zip3)."]
+    pub to: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "generalize: only values for ages over this are generalized."]
+    pub ageOver: Option<Box<FHIRUnsignedInt>>,
+    #[primitive]
+    #[doc = "dateShift: maximum shift in days."]
+    pub rangeDays: Option<Box<FHIRPositiveInt>>,
+    #[primitive]
+    #[doc = "substitute: the replacement value."]
+    pub value: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "perturb: maximum relative change in percent."]
+    pub percent: Option<Box<FHIRDecimal>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Rules, sorted on save. Resolution is path > extension > type > default."]
+pub struct DeidentificationPolicyRule {
+    #[doc = "What the rule matches; exactly one of path, type and extension is set."]
+    pub target: DeidentificationPolicyRuleTarget,
+    #[primitive]
+    #[doc = "The action applied to matching elements."]
+    pub action: terminology::BoundCode<terminology::Deidentificationpolicyaction>,
+    #[doc = "Action-specific parameters, validated per action."]
+    pub param: Option<DeidentificationPolicyRuleParam>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "DeidentificationPolicy"]
+#[fhir_serialize_type = "resource"]
+#[doc = "`AccessPolicyV3` resource."]
+pub struct DeidentificationPolicy {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never"]
+    #[doc = "changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes"]
+    #[doc = "to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "Canonical identity of the policy."]
+    pub url: Box<FHIRUri>,
+    #[primitive]
+    #[doc = "`SemVer` version; basedOn and obligations pin a version."]
+    pub version: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Computer-friendly name."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Human-friendly name."]
+    pub title: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "What the policy is for."]
+    pub description: Option<Box<FHIRMarkdown>>,
+    #[primitive]
+    #[doc = "Only an active policy resolves from an unversioned reference."]
+    pub status: terminology::BoundCode<terminology::Deidentificationpolicystatus>,
+    #[primitive]
+    #[doc = "Parent policy; this policy's rules override the parent's by target identity."]
+    pub basedOn: Option<Box<FHIRCanonical>>,
+    #[primitive]
+    #[doc = "Action for any element no rule matches."]
+    pub default: terminology::BoundCode<terminology::Deidentificationpolicydefault>,
+    #[doc = "Rules, sorted on save. Resolution is path > extension > type > default."]
+    pub rule: Option<Vec<DeidentificationPolicyRule>>,
+}
+impl DeidentificationPolicy {
+    const FILTER_FIELDS: &[&str] = &[
+        "id",
+        "meta",
+        "url",
+        "version",
+        "name",
+        "title",
+        "description",
+        "status",
+        "basedOn",
+        "default",
+        "rule",
+    ];
+    #[inline]
+    fn is_filter_field(field: &str) -> bool {
+        Self::FILTER_FIELDS.contains(&field)
+    }
+    #[inline]
+    fn filter_fields_0(mut value: Self, fields: &[&str]) -> Self {
+        value.name = filter_field(fields, "name", value.name);
+        value.title = filter_field(fields, "title", value.title);
+        value.description = filter_field(fields, "description", value.description);
+        value.basedOn = filter_field(fields, "basedOn", value.basedOn);
+        value.rule = filter_field(fields, "rule", value.rule);
+        value
+    }
+    #[doc = r" Filters this resource to the requested top-level fields."]
+    #[doc = r""]
+    #[doc = r" # Errors"]
+    #[doc = r""]
+    #[doc = r" Returns `FilterFieldsError::UnknownField` if `fields` contains"]
+    #[doc = r" a field that is not supported for this resource."]
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !Self::is_filter_field(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeidentificationPolicy".to_string(),
                 ));
             }
         }
@@ -53791,7 +54333,10 @@ impl ViewDefinition {
 pub enum Resource {
     AccessPolicyV2(AccessPolicyV2),
     AccessPolicyV2Assignment(AccessPolicyV2Assignment),
+    AccessPolicyV3(AccessPolicyV3),
+    AccessPolicyV3Assignment(AccessPolicyV3Assignment),
     ClientApplication(ClientApplication),
+    DeidentificationPolicy(DeidentificationPolicy),
     HL7V2(HL7V2),
     IdentityProvider(IdentityProvider),
     Membership(Membership),
@@ -53970,7 +54515,10 @@ impl Resource {
         match self {
             Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
             Resource::AccessPolicyV2Assignment(_) => ResourceType::AccessPolicyV2Assignment,
+            Resource::AccessPolicyV3(_) => ResourceType::AccessPolicyV3,
+            Resource::AccessPolicyV3Assignment(_) => ResourceType::AccessPolicyV3Assignment,
             Resource::ClientApplication(_) => ResourceType::ClientApplication,
+            Resource::DeidentificationPolicy(_) => ResourceType::DeidentificationPolicy,
             Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,
             Resource::Membership(_) => ResourceType::Membership,
@@ -54141,7 +54689,10 @@ impl Resource {
         match self {
             Resource::AccessPolicyV2(r) => &r.id,
             Resource::AccessPolicyV2Assignment(r) => &r.id,
+            Resource::AccessPolicyV3(r) => &r.id,
+            Resource::AccessPolicyV3Assignment(r) => &r.id,
             Resource::ClientApplication(r) => &r.id,
+            Resource::DeidentificationPolicy(r) => &r.id,
             Resource::HL7V2(r) => &r.id,
             Resource::IdentityProvider(r) => &r.id,
             Resource::Membership(r) => &r.id,
@@ -54318,7 +54869,10 @@ pub enum ResourceTypeError {
 pub enum ResourceType {
     AccessPolicyV2,
     AccessPolicyV2Assignment,
+    AccessPolicyV3,
+    AccessPolicyV3Assignment,
     ClientApplication,
+    DeidentificationPolicy,
     HL7V2,
     IdentityProvider,
     Membership,
@@ -54475,7 +55029,10 @@ pub enum ResourceType {
 const RESOURCE_TYPE_NAMES: &[&str] = &[
     "AccessPolicyV2",
     "AccessPolicyV2Assignment",
+    "AccessPolicyV3",
+    "AccessPolicyV3Assignment",
     "ClientApplication",
+    "DeidentificationPolicy",
     "HL7V2",
     "IdentityProvider",
     "Membership",
@@ -54634,7 +55191,10 @@ type ResourceDeserializer =
 const RESOURCE_DESERIALIZERS: &[ResourceDeserializer] = &[
     deserialize_accesspolicyv2,
     deserialize_accesspolicyv2assignment,
+    deserialize_accesspolicyv3,
+    deserialize_accesspolicyv3assignment,
     deserialize_clientapplication,
+    deserialize_deidentificationpolicy,
     deserialize_hl7v2,
     deserialize_identityprovider,
     deserialize_membership,
@@ -54792,7 +55352,10 @@ type ResourceFilter = fn(Resource, &[&str]) -> Result<Resource, FilterFieldsErro
 const RESOURCE_FILTERS: &[ResourceFilter] = &[
     filter_accesspolicyv2,
     filter_accesspolicyv2assignment,
+    filter_accesspolicyv3,
+    filter_accesspolicyv3assignment,
     filter_clientapplication,
+    filter_deidentificationpolicy,
     filter_hl7v2,
     filter_identityprovider,
     filter_membership,
@@ -54963,11 +55526,35 @@ fn deserialize_accesspolicyv2assignment(
     ))
 }
 #[inline]
+fn deserialize_accesspolicyv3(
+    data: &[u8],
+) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+    Ok(Resource::AccessPolicyV3(serde_json::from_slice::<
+        AccessPolicyV3,
+    >(data)?))
+}
+#[inline]
+fn deserialize_accesspolicyv3assignment(
+    data: &[u8],
+) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+    Ok(Resource::AccessPolicyV3Assignment(
+        serde_json::from_slice::<AccessPolicyV3Assignment>(data)?,
+    ))
+}
+#[inline]
 fn deserialize_clientapplication(
     data: &[u8],
 ) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
     Ok(Resource::ClientApplication(serde_json::from_slice::<
         ClientApplication,
+    >(data)?))
+}
+#[inline]
+fn deserialize_deidentificationpolicy(
+    data: &[u8],
+) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+    Ok(Resource::DeidentificationPolicy(serde_json::from_slice::<
+        DeidentificationPolicy,
     >(data)?))
 }
 #[inline]
@@ -56163,6 +56750,28 @@ fn filter_accesspolicyv2assignment(
     }
 }
 #[inline]
+fn filter_accesspolicyv3(
+    resource: Resource,
+    fields: &[&str],
+) -> Result<Resource, FilterFieldsError> {
+    match resource {
+        Resource::AccessPolicyV3(resource) => resource.filter(fields).map(Resource::AccessPolicyV3),
+        _ => Err(FilterFieldsError::ResourceTypeMismatch),
+    }
+}
+#[inline]
+fn filter_accesspolicyv3assignment(
+    resource: Resource,
+    fields: &[&str],
+) -> Result<Resource, FilterFieldsError> {
+    match resource {
+        Resource::AccessPolicyV3Assignment(resource) => resource
+            .filter(fields)
+            .map(Resource::AccessPolicyV3Assignment),
+        _ => Err(FilterFieldsError::ResourceTypeMismatch),
+    }
+}
+#[inline]
 fn filter_clientapplication(
     resource: Resource,
     fields: &[&str],
@@ -56171,6 +56780,18 @@ fn filter_clientapplication(
         Resource::ClientApplication(resource) => {
             resource.filter(fields).map(Resource::ClientApplication)
         }
+        _ => Err(FilterFieldsError::ResourceTypeMismatch),
+    }
+}
+#[inline]
+fn filter_deidentificationpolicy(
+    resource: Resource,
+    fields: &[&str],
+) -> Result<Resource, FilterFieldsError> {
+    match resource {
+        Resource::DeidentificationPolicy(resource) => resource
+            .filter(fields)
+            .map(Resource::DeidentificationPolicy),
         _ => Err(FilterFieldsError::ResourceTypeMismatch),
     }
 }
@@ -57654,11 +58275,15 @@ fn filter_viewdefinition(
     }
 }
 impl ResourceType {
+    #[doc = r" The FHIR name of every resource type, as `as_ref` returns it."]
+    pub const NAMES: &'static [&'static str] = RESOURCE_TYPE_NAMES;
     #[inline]
     fn resource_type_from_a(s: &str) -> Result<ResourceType, ResourceTypeError> {
         match s {
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
             "AccessPolicyV2Assignment" => Ok(ResourceType::AccessPolicyV2Assignment),
+            "AccessPolicyV3" => Ok(ResourceType::AccessPolicyV3),
+            "AccessPolicyV3Assignment" => Ok(ResourceType::AccessPolicyV3Assignment),
             "Account" => Ok(ResourceType::Account),
             "ActivityDefinition" => Ok(ResourceType::ActivityDefinition),
             "AdverseEvent" => Ok(ResourceType::AdverseEvent),
@@ -57711,6 +58336,7 @@ impl ResourceType {
     #[inline]
     fn resource_type_from_d(s: &str) -> Result<ResourceType, ResourceTypeError> {
         match s {
+            "DeidentificationPolicy" => Ok(ResourceType::DeidentificationPolicy),
             "DetectedIssue" => Ok(ResourceType::DetectedIssue),
             "Device" => Ok(ResourceType::Device),
             "DeviceDefinition" => Ok(ResourceType::DeviceDefinition),

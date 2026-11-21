@@ -27,6 +27,7 @@ import {
 import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../db/client";
+import { HISTORY_AUTHOR_SELECTOR } from "../utilities";
 
 const extensions = [basicSetup, json()];
 const HISTORY_PAGE_SIZE = 25;
@@ -130,8 +131,7 @@ function ResourceHistory() {
               {
                 id: "Author",
                 content: "Author",
-                selector:
-                  "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
+                selector: HISTORY_AUTHOR_SELECTOR,
                 selectorType: "fhirpath",
               },
               {

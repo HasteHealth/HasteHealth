@@ -509,6 +509,99 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "08-wildcard-follows-every-reference",
+            "name": "_include=* follows every reference parameter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=*",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both matches are returned",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The subject is included",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).where(id = 'include-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The encounter is included",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Encounter).where(id = 'include-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The shared Patient is included once",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No second hop without :iterate",
+                        "expression": "Bundle.entry.resource.ofType(Organization).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-wildcard-iterate",
+            "name": "_include:iterate=* follows references from included resources",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include:iterate=*",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Patient's Organization is reached on the second hop",
+                        "expression": "Bundle.entry.resource.ofType(Organization).where(id = 'include-org').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The shared Patient is included once",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
         }
     ]
 }

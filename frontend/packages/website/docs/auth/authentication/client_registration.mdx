@@ -25,7 +25,7 @@ A `ClientApplication` resource represents an OAuth 2.0 client and contains:
 
 - **Client Identity**: Unique identifier and human-readable name
 - **OAuth Configuration**: Grant types, response types, and redirect URIs
-- **Security Credentials**: Client secret for confidential clients
+- **Security Credentials**: A client secret or public keys (JWKS) for confidential clients
 - **Scopes**: Pre-approved scopes the client can request
 - **Additional Metadata**: Logo URI, description, and other client information
 
@@ -33,10 +33,14 @@ A `ClientApplication` resource represents an OAuth 2.0 client and contains:
 
 ### Confidential Clients
 
-Confidential clients can securely store credentials (client secret). They are typically:
+Confidential clients can securely store credentials. They are typically:
 
 - **Backend Services**: Server-to-server applications
 - **CLI Tools**: Command-line tools running in secure environments
+
+A confidential client authenticates with either:
+- a `secret`, sent as `client_secret` or in a Basic Authorization header; or
+- a private key, with its public keys registered as `jwks` or `jwksUri` ([signed JWT, `private_key_jwt`](/docs/auth/authentication/grant_types/client_credentials#authenticating-with-a-signed-jwt-private_key_jwt)).
 
 Confidential clients use grant types:
 - `client_credentials` - Machine-to-machine authentication
@@ -211,6 +215,34 @@ A mobile app with patient context:
 
 </TabItem>
 
+<TabItem value="smart-ehr-launch" label="SMART EHR Launch App">
+
+An app started from Haste Health with an [EHR launch](/docs/auth/authentication/smart_on_fhir#1-ehr-launch-contextual-launch):
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "smart-ehr-app",
+  "name": "SMART EHR Launch App",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "code",
+  "launchUri": "https://app.example.com/launch",
+  "redirectUri": [
+    "https://app.example.com/callback"
+  ],
+  "scope": "openid fhirUser launch launch/encounter patient/*.rs offline_access"
+}
+```
+**Use Case**: A SMART app opened for a patient a clinician has in view
+**Grant Flow**: `$launch` → app opened at `launchUri` → Authorization Code with PKCE and `launch` → Tokens with patient and encounter
+
+`launchUri` is the page the app is opened at; `redirectUri` is where authorization returns. The scope must include `launch`.
+
+</TabItem>
+
 <TabItem value="backend-service" label="Backend Service">
 A headless server-to-server integration:
 
@@ -229,6 +261,26 @@ A headless server-to-server integration:
 ```
 **Use Case**: Machine-to-machine integrations and automation with no human in the loop
 **Grant Flow**: Client Credentials
+
+</TabItem>
+<TabItem value="backend-service-jwt" label="SMART Backend Service">
+A [SMART Backend Services](https://hl7.org/fhir/smart-app-launch/STU2.2/backend-services.html) client, such as a Bulk Data client, that authenticates with a private key instead of a secret:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "bulk-data-client",
+  "name": "Bulk Data Client",
+  "grantType": [
+    "client_credentials"
+  ],
+  "responseTypes": "token",
+  "scope": "system/*.rs",
+  "jwksUri": "https://client.example.com/.well-known/jwks.json"
+}
+```
+**Use Case**: Backend services and bulk data export
+**Grant Flow**: Client Credentials with a `private_key_jwt` assertion (use `jwks` to register the keys inline instead)
 
 </TabItem>
 <TabItem value="cli-tool" label="CLI Tool">

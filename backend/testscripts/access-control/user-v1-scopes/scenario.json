@@ -1,0 +1,8 @@
+{
+    "description": "A member User, not linked to a patient, signing in to an app that requests SMART v1 scopes (openid offline_access user/Patient.read user/Observation.write). The approval keeps the v1 strings.",
+    "grantType": "authorization_code",
+    "userEmail": "acv1-user@example.org",
+    "clientId": "acv1-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid offline_access user/Patient.read user/Observation.write"
+}

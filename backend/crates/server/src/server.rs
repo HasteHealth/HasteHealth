@@ -1,12 +1,13 @@
 use crate::{
+    SERVER_VERSION,
     auth_n::{self, certificates::get_certification_provider, middleware::jwt::User},
     config::ServerConfig,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
-    mcp,
+    jobs, mcp,
     middleware::{
-        errors::{log_operationoutcome_errors, operation_outcome_error_handle},
-        security_headers::SecurityHeaderLayer,
+        errors::{REQUEST_ID_HEADER, log_operationoutcome_errors, operation_outcome_error_handle},
+        security_headers::security_headers,
     },
     openapi,
     services::{ConfigError, ServerState, create_services, get_pool},
@@ -14,10 +15,10 @@ use crate::{
 };
 use axum::{
     Extension, Router, ServiceExt,
-    body::{Body, Bytes},
+    body::{Body, Bytes, to_bytes},
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
-    http::{HeaderName, HeaderValue, Method, Uri},
+    http::{HeaderMap, HeaderName, HeaderValue, Method, Uri, header},
     middleware::from_fn,
     response::{IntoResponse, Response},
     routing::{any, get, post},
@@ -25,7 +26,7 @@ use axum::{
 use axum_client_ip::ClientIpSource;
 use haste_fhir_client::{
     FHIRClient,
-    request::{FHIRCapabilitiesResponse, FHIRResponse},
+    request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -40,9 +41,13 @@ use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
 use tower_http::{catch_panic::CatchPanicLayer, cors::AllowHeaders, normalize_path::NormalizePath};
 use tower_http::{
-    compression::CompressionLayer,
+    compression::{
+        CompressionLayer,
+        predicate::{DefaultPredicate, NotForContentType, Predicate},
+    },
     cors::{Any, CorsLayer},
     normalize_path::NormalizePathLayer,
+    request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer},
     set_header::SetResponseHeaderLayer,
     trace::TraceLayer,
 };
@@ -51,8 +56,6 @@ use tower_sessions::{
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_sqlx_store::PostgresStore;
-
-const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// The project a route addresses. The FHIR version is not part of it: it comes
 /// from the project, and the URL only optionally repeats it.
@@ -107,6 +110,47 @@ fn request_fhir_version(
     Ok(project_version)
 }
 
+/// Whether a search's `query` asks for `_pretty=true`. `_format` must name
+/// JSON, the only format served
+/// (<https://hl7.org/fhir/R4/http.html#parameters>); a raw `+` in
+/// `application/fhir+json` decodes to a space. A repeated parameter's last
+/// value counts.
+fn pretty_requested(query: &str) -> Result<bool, OperationOutcomeError> {
+    let (mut format, mut pretty) = (None, None);
+    for (name, value) in url::form_urlencoded::parse(query.as_bytes()) {
+        match name.as_ref() {
+            "_format" => format = Some(value),
+            "_pretty" => pretty = Some(value),
+            _ => {}
+        }
+    }
+    if let Some(format) = format.as_deref()
+        && !matches!(
+            format,
+            "json" | "application/json" | "application/fhir+json" | "application/fhir json"
+        )
+    {
+        return Err(OperationOutcomeError::error(
+            IssueType::not_supported(),
+            format!("_format '{format}' is not supported; only JSON is served."),
+        ));
+    }
+    Ok(pretty.as_deref() == Some("true"))
+}
+
+async fn pretty_print(response: Response) -> Result<Response, OperationOutcomeError> {
+    let (mut parts, body) = response.into_parts();
+    let bytes = to_bytes(body, usize::MAX)
+        .await
+        .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
+    // Not JSON (or unreadable): leave the body as it was.
+    let bytes = serde_json::from_slice::<serde_json::Value>(&bytes)
+        .and_then(|value| serde_json::to_vec_pretty(&value))
+        .map_or(bytes, Bytes::from);
+    parts.headers.remove(axum::http::header::CONTENT_LENGTH);
+    Ok(Response::from_parts(parts, Body::from(bytes)))
+}
+
 async fn fhir_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -118,28 +162,13 @@ async fn fhir_handler<
     OriginalUri(original_uri): OriginalUri,
     Path(path): Path<ProjectPath>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    headers: HeaderMap,
     body: Bytes,
 ) -> Result<Response, OperationOutcomeError> {
     // Nested under the FHIR root, so the request URI is what follows it: the
     // FHIR location, optionally preceded by the version.
     let (requested_version, fhir_location) = split_fhir_version(uri.path());
     let fhir_version = request_fhir_version(&user, &path, requested_version)?;
-
-    let http_req = HTTPRequest::new(
-        method,
-        fhir_location.to_string(),
-        HTTPBody::Bytes(body),
-        original_uri
-            .query()
-            .map(|q| {
-                url::form_urlencoded::parse(q.as_bytes())
-                    .into_owned()
-                    .collect()
-            })
-            .unwrap_or_default(),
-    );
-
-    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
 
     let ctx = Arc::new(
         ServerCTX::new(
@@ -150,12 +179,31 @@ async fn fhir_handler<
             state.fhir_client.clone(),
             state.rate_limit.clone(),
         )
-        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8))))),
+        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))))
+        .with_prefer_async(jobs::prefers_async(&headers)),
     );
+
+    let query = original_uri.query().unwrap_or_default();
+    let http_req = HTTPRequest::new(
+        method,
+        fhir_location.to_string(),
+        HTTPBody::Bytes(body),
+        query,
+    );
+    let fhir_request =
+        http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req, &ctx).await?;
+
+    // Searches only: `_format` is also an operation parameter.
+    let pretty = matches!(fhir_request, FHIRRequest::Search(_)) && pretty_requested(query)?;
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
 
-    Ok(response.into_response())
+    let response = response.into_response();
+    if pretty {
+        pretty_print(response).await
+    } else {
+        Ok(response)
+    }
 }
 
 async fn public_metadata_handler<
@@ -213,6 +261,11 @@ pub async fn server(
     let protected_resources_router = Router::new()
         .nest("/fhir", fhir_router)
         .route("/mcp", post(mcp::route::mcp_handler))
+        // The status URL of an asynchronous job: polled, or deleted to cancel.
+        .route(
+            "/jobs/{id}",
+            get(jobs::status_handler).delete(jobs::cancel_handler),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
@@ -273,6 +326,11 @@ pub async fn server(
     let tenant_router = Router::new()
         .route("/branding/logo", get(auth_n::tenant::routes::logo))
         .nest("/auth", auth_n::tenant::routes::create_router())
+        // OpenID Connect Discovery 1.0 §4: the document lives at `[iss]/.well-known/openid-configuration`.
+        .route(
+            "/{project}/.well-known/openid-configuration",
+            get(auth_n::oidc::routes::discovery::openid_configuration),
+        )
         .nest("/{project}/api/v1", project_router)
         .nest(
             "/mfa",
@@ -316,14 +374,27 @@ pub async fn server(
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                // Every request gets an id (a client's own is kept) that the
+                // error log and the response carry, so a support report can
+                // be matched to the log line.
+                .layer(SetRequestIdLayer::new(REQUEST_ID_HEADER, MakeRequestUuid))
+                .layer(PropagateRequestIdLayer::new(REQUEST_ID_HEADER))
                 .layer(CatchPanicLayer::new())
                 .layer(ip_source.into_extension())
                 .layer(NewSentryLayer::<Request<Body>>::new_from_top())
                 .layer(TraceLayer::new_for_http())
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(config.max_request_body_size))
-                .layer(CompressionLayer::new())
-                .layer(SecurityHeaderLayer::new())
+                // HTML pages carry the session's CSRF token next to text the
+                // caller chose (the query string echoed into form actions,
+                // the entered email). Compressing the two together lets the
+                // token be recovered byte by byte from response sizes
+                // (BREACH), so pages are sent uncompressed; JSON and FHIR
+                // responses, which is where size matters, still are.
+                .layer(CompressionLayer::new().compress_when(
+                    DefaultPredicate::new().and(NotForContentType::new("text/html")),
+                ))
+                .layer(security_headers(config.signup.turnstile.is_some()))
                 .layer(SetResponseHeaderLayer::overriding(
                     HeaderName::from_static("x-api-version"),
                     HeaderValue::from_static(SERVER_VERSION),
@@ -339,6 +410,13 @@ pub async fn server(
                         .allow_methods(Any)
                         .allow_origin(Any)
                         .allow_headers(AllowHeaders::mirror_request())
+                        // Asynchronous from browser need these headers.
+                        .expose_headers([
+                            header::CONTENT_LOCATION,
+                            header::ETAG,
+                            header::RETRY_AFTER,
+                            HeaderName::from_static("x-progress"),
+                        ])
                         // Set the max age for CORS preflight requests to 2 hours.
                         .max_age(std::time::Duration::from_secs(7200)),
                 ),
@@ -374,6 +452,22 @@ mod tests {
     use axum::body::{Body, to_bytes};
     use axum::http::{Request, StatusCode};
     use tower::ServiceExt;
+
+    #[test]
+    fn format_and_pretty_parameters() {
+        for format in [
+            "json",
+            "application/json",
+            "application/fhir%2Bjson",
+            "application/fhir+json",
+        ] {
+            assert!(!pretty_requested(&format!("_format={format}")).unwrap());
+        }
+        assert!(pretty_requested("name=x&_pretty=true").unwrap());
+        assert!(!pretty_requested("_pretty=false").unwrap());
+        assert!(!pretty_requested("_pretty=true&_pretty=false").unwrap());
+        assert!(pretty_requested("_format=xml").is_err());
+    }
 
     #[test]
     fn version_is_split_off_when_the_url_carries_one() {

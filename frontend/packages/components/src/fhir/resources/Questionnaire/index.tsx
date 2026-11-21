@@ -73,7 +73,7 @@ function getResponseItemAtPath(
 }
 
 const UnsupportedItemRenderer: QuestionnaireItemRenderer = ({ item }) => (
-  <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+  <div className="rounded-sm border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
     Unsupported Questionnaire item type: {item.type}
   </div>
 );

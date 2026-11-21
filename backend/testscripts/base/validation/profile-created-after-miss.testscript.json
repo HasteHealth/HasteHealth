@@ -1,0 +1,322 @@
+{
+  "resourceType": "TestScript",
+  "id": "profile-created-after-miss",
+  "url": "https://haste.health/fhir/TestScript/profile-created-after-miss",
+  "name": "Profile created after a miss",
+  "title": "Profile created after a miss",
+  "status": "active",
+  "description": "A write whose meta.profile names a profile the project does not have is stored unvalidated, and the resolver remembers the miss. Once the profile is created and indexed, the next write claiming it is validated: the miss is forgotten when the StructureDefinition is written, so the profile takes effect as soon as the search finds it rather than after the miss entry expires. The search for the profile by url is the step that waits for indexing. The first Patient carries an identifier so the script also passes when a previous run's profile is still cached as a hit.",
+  "contained": [
+    {
+      "resourceType": "StructureDefinition",
+      "id": "late-patient",
+      "meta": {
+        "tag": [
+          {
+            "code": "late-patient-test"
+          }
+        ]
+      },
+      "url": "http://example.org/fhir/StructureDefinition/late-patient",
+      "name": "LatePatient",
+      "status": "active",
+      "kind": "resource",
+      "abstract": false,
+      "type": "Patient",
+      "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+      "derivation": "constraint",
+      "snapshot": {
+        "element": [
+          {
+            "id": "Patient",
+            "path": "Patient",
+            "min": 0,
+            "max": "*"
+          },
+          {
+            "id": "Patient.identifier",
+            "path": "Patient.identifier",
+            "min": 1,
+            "max": "*",
+            "type": [
+              {
+                "code": "Identifier"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "Patient",
+      "id": "late-patient-before-profile",
+      "meta": {
+        "profile": [
+          "http://example.org/fhir/StructureDefinition/late-patient"
+        ],
+        "tag": [
+          {
+            "code": "late-patient-test"
+          }
+        ]
+      },
+      "name": [
+        {
+          "family": "Late"
+        }
+      ],
+      "identifier": [
+        {
+          "system": "urn:example:late-patient",
+          "value": "late-patient-before-profile"
+        }
+      ]
+    },
+    {
+      "resourceType": "Patient",
+      "id": "late-patient-without-identifier",
+      "meta": {
+        "profile": [
+          "http://example.org/fhir/StructureDefinition/late-patient"
+        ],
+        "tag": [
+          {
+            "code": "late-patient-test"
+          }
+        ]
+      },
+      "name": [
+        {
+          "family": "Late"
+        }
+      ]
+    },
+    {
+      "resourceType": "Patient",
+      "id": "late-patient-with-identifier",
+      "meta": {
+        "profile": [
+          "http://example.org/fhir/StructureDefinition/late-patient"
+        ],
+        "tag": [
+          {
+            "code": "late-patient-test"
+          }
+        ]
+      },
+      "name": [
+        {
+          "family": "Late"
+        }
+      ],
+      "identifier": [
+        {
+          "system": "urn:example:late-patient",
+          "value": "late-patient-with-identifier"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "fixture-late-patient",
+      "resource": {
+        "reference": "#late-patient"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-late-patient-before-profile",
+      "resource": {
+        "reference": "#late-patient-before-profile"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-late-patient-without-identifier",
+      "resource": {
+        "reference": "#late-patient-without-identifier"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-late-patient-with-identifier",
+      "resource": {
+        "reference": "#late-patient-with-identifier"
+      },
+      "autocreate": false,
+      "autodelete": false
+    }
+  ],
+  "test": [
+    {
+      "id": "late-profile",
+      "name": "A profile created after it was named validates later writes",
+      "description": "A Patient claiming the late-patient profile before it exists is created. The profile (Patient.identifier 1..*) is then created and found by url. A Patient without an identifier claiming it is refused as unprocessable with an OperationOutcome, and the same Patient with an identifier is created.",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Patient",
+            "sourceId": "fixture-late-patient-before-profile",
+            "responseId": "before-profile-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "Before the profile exists: the Patient is stored",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "created"
+          }
+        },
+        {
+          "assert": {
+            "label": "Before the profile exists: the response is the Patient",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "Patient"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "update"
+            },
+            "encodeRequestUrl": false,
+            "resource": "StructureDefinition",
+            "sourceId": "fixture-late-patient",
+            "targetId": "fixture-late-patient",
+            "responseId": "profile-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "The profile is created",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "StructureDefinition"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "search"
+            },
+            "encodeRequestUrl": false,
+            "resource": "StructureDefinition",
+            "params": "url=http://example.org/fhir/StructureDefinition/late-patient"
+          }
+        },
+        {
+          "assert": {
+            "label": "The profile is findable by url",
+            "warningOnly": false,
+            "expression": "Bundle.entry.count()",
+            "operator": "equals",
+            "value": "1"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Patient",
+            "sourceId": "fixture-late-patient-without-identifier"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: refused with an OperationOutcome",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "OperationOutcome"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: unprocessable",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "unprocessable"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: the issue names Patient.identifier",
+            "warningOnly": false,
+            "expression": "OperationOutcome.issue.where(diagnostics.contains('Patient.identifier')).exists()",
+            "operator": "equals",
+            "value": "true"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Patient",
+            "sourceId": "fixture-late-patient-with-identifier",
+            "responseId": "with-identifier-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "With identifier: stored",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "created"
+          }
+        },
+        {
+          "assert": {
+            "label": "With identifier: the response is the Patient",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "Patient"
+          }
+        }
+      ]
+    }
+  ],
+  "teardown": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "Patient",
+          "params": "_tag=late-patient-test"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "params": "_tag=late-patient-test"
+        }
+      }
+    ]
+  }
+}

@@ -3,7 +3,7 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use std::{collections::HashMap, time::Duration};
 
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
 use haste_config::{Config, ConfigType, get_config};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -17,11 +17,14 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use reqwest::Url;
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
+use tracing_subscriber::{
+    EnvFilter, Layer as _, filter::LevelFilter, layer::SubscriberExt, registry::Registry,
+};
 use tracing_tree::HierarchicalLayer;
 
 mod cli;
 mod commands;
+mod utilities;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
@@ -33,6 +36,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 enum CliCommand {
     /// Evaluate a FHIRPath expression against a FHIR resource read from stdin.
+    #[command(name = "fhirpath")]
     FHIRPath {
         /// FHIRPath expression to evaluate
         fhirpath: String,
@@ -63,13 +67,17 @@ enum CliCommand {
         command: commands::api::ApiCommands,
     },
     /// Manage named server connection profiles used by other commands.
-    Config {
+    Profile {
         #[command(subcommand)]
-        command: commands::config::ConfigCommands,
+        command: commands::profile::ProfileCommands,
     },
     /// Log in as a human user via the browser (authorization_code + PKCE flow).
-    Login,
-    /// Run background workers (search indexing, WAL processing).
+    Login {
+        /// Print the authorization URL instead of opening a browser.
+        #[arg(long)]
+        no_browser: bool,
+    },
+    /// Run the background workers (search indexing and async jobs), or only the one named.
     Worker {
         #[command(subcommand)]
         command: Option<commands::worker::WorkerCommands>,
@@ -89,6 +97,12 @@ enum CliCommand {
         #[command(subcommand)]
         command: commands::hl7v2::HL7v2Commands,
     },
+    /// Install FHIR packages (implementation guides) into the active
+    /// profile's project.
+    Package {
+        #[command(subcommand)]
+        command: commands::package::PackageCommands,
+    },
     /// Generate Markdown documentation for this CLI's commands.
     Doc {
         /// Output markdown file path
@@ -102,6 +116,8 @@ enum CliEnvironmentVariables {
     OTELEndpoint,
     OTELHeaders,
     LogType,
+    /// `true` captures a backtrace for every error that answers 5xx.
+    ErrorBacktraces,
 }
 
 impl From<CliEnvironmentVariables> for String {
@@ -111,6 +127,7 @@ impl From<CliEnvironmentVariables> for String {
             CliEnvironmentVariables::OTELEndpoint => "OTEL_ENDPOINT".to_string(),
             CliEnvironmentVariables::OTELHeaders => "OTEL_HEADERS".to_string(),
             CliEnvironmentVariables::LogType => "LOG_TYPE".to_string(),
+            CliEnvironmentVariables::ErrorBacktraces => "ERROR_BACKTRACES".to_string(),
         }
     }
 }
@@ -223,8 +240,15 @@ fn setup_tracing(
         .get(CliEnvironmentVariables::LogType)
         .unwrap_or("JSON".to_string());
 
+    // Error-level events (a failed request, see the server's error middleware)
+    // become Sentry events; nothing else is sent, so the layer costs nothing
+    // on the happy path.
+    let sentry_layer =
+        sentry::integrations::tracing::ErrorLayer::new().with_filter(LevelFilter::ERROR);
+
     let subscriber = Registry::default()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(sentry_layer);
 
     match log_type.as_str() {
         "TREE" => Ok(inject_otel_subscriber(
@@ -243,22 +267,30 @@ fn setup_tracing(
 }
 
 fn main() -> Result<(), OperationOutcomeError> {
+    // Answers the shell's completion request and exits when `COMPLETE` is set
+    // (`source <(COMPLETE=zsh haste-health)`); otherwise a no-op.
+    clap_complete::CompleteEnv::with_factory(Cli::command).complete();
+
     let config = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
     let cli_state = cli::state::CLI_STATE.clone();
 
+    OperationOutcomeError::capture_backtraces(
+        config
+            .get(CliEnvironmentVariables::ErrorBacktraces)
+            .is_ok_and(|value| matches!(value.as_str(), "true" | "1")),
+    );
+
     let sentry_location = config.get(CliEnvironmentVariables::SentryDSN);
 
     let _guard = sentry::init((
         sentry_location.unwrap_or_default(),
-        sentry::ClientOptions {
-            release: sentry::release_name!(),
+        sentry::ClientOptions::new()
+            .maybe_release(sentry::release_name!())
             // Capture user IPs and potentially sensitive headers when using HTTP server integrations
             // see https://docs.sentry.io/platforms/rust/data-management/data-collected for more info
-            send_default_pii: true,
-            ..Default::default()
-        },
+            .send_default_pii(true),
     ));
 
     tokio::runtime::Builder::new_multi_thread()

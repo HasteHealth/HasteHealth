@@ -1,0 +1,171 @@
+{
+    "id": "access-control-user-v1-scopes-enforcement",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-v1-scopes-enforcement",
+    "name": "Access Control User V1 Scopes Enforcement",
+    "title": "User v1 scopes: read and write grant what rs and cud grant",
+    "status": "active",
+    "description": "Run as the user-v1-scopes login (user/Patient.read user/Observation.write). Patient.read reads and searches; Observation.write creates but does not read.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acv1-patient",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Vee"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acv1-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acv1-patient"
+            }
+        },
+        {
+            "id": "new-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acv1-patient"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acv1-patient",
+            "resource": {
+                "reference": "#acv1-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acv1-observation",
+            "resource": {
+                "reference": "#acv1-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-new-observation",
+            "resource": {
+                "reference": "#new-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read",
+            "name": "Patient.read allows a read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acv1-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Patient is returned",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search",
+            "name": "Patient.read allows a search",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=acv1-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Patient is found",
+                        "expression": "Bundle.entry.resource.where(id = 'acv1-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-create",
+            "name": "Observation.write allows a create",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-new-observation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The created Observation is returned",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-write-is-not-read",
+            "name": "Observation.write does not allow a read",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acv1-observation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,170 @@
+{
+    "id": "g10-12.8.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.8.05-must-support",
+    "name": "g10-12.8.05-must-support",
+    "title": "12.8.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.8.05 (DAT-PAT-2; US Core 6.1.0: group 10.8). Every must support element of US Core Coverage Profile (including the USCDI ones) appears in at least one Coverage the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Coverage",
+                        "params": "_id=g10-coverage-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.beneficiary is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).beneficiary.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class:group is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/coverage-class' and code = 'group').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class:group.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/coverage-class' and code = 'group').exists()).value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class:plan is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/coverage-class' and code = 'plan').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class:plan.name is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/coverage-class' and code = 'plan').exists()).name.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.class:plan.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).class.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/coverage-class' and code = 'plan').exists()).value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.identifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.identifier:memberid is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).identifier.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0203' and code = 'MB').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.identifier:memberid.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).identifier.where(type.coding.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0203' and code = 'MB').exists()).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.payor is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).payor.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.period is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).period.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.relationship is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).relationship.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.status is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.subscriberId is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).subscriberId.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Coverage.type is present",
+                        "expression": "Bundle.entry.resource.ofType(Coverage).type.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

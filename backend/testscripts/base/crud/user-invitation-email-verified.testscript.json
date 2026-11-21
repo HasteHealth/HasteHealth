@@ -1,0 +1,334 @@
+{
+    "id": "user-invitation-email-verified",
+    "url": "https://haste.health/fhir/TestScript/user-invitation-email-verified",
+    "name": "User emailVerified is set by the server",
+    "title": "User emailVerified is server controlled",
+    "status": "active",
+    "description": "Clients cannot set User.emailVerified. It is false on create and keeps the stored value on update. Clients cannot change a stored User's email or sign-in method either, so a verified address never becomes another one and a federated user never becomes a verified password user.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "User",
+            "id": "invited-user",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "user-invitation-test"
+                    }
+                ]
+            },
+            "role": "admin",
+            "email": "invited-user@example.org",
+            "emailVerified": true
+        },
+        {
+            "resourceType": "User",
+            "id": "invited-user-posted",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "user-invitation-test"
+                    }
+                ]
+            },
+            "role": "admin",
+            "email": "invited-user-posted@example.org",
+            "emailVerified": true
+        },
+        {
+            "resourceType": "User",
+            "id": "invited-user-moved",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "user-invitation-test"
+                    }
+                ]
+            },
+            "role": "admin",
+            "email": "invited-user-moved@example.org"
+        },
+        {
+            "resourceType": "User",
+            "id": "invited-user-federated",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "user-invitation-test"
+                    }
+                ]
+            },
+            "role": "admin",
+            "email": "invited-user@example.org",
+            "federated": {
+                "reference": "IdentityProvider/user-invitation-test"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-invited",
+            "resource": {
+                "reference": "#invited-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-invited-posted",
+            "resource": {
+                "reference": "#invited-user-posted"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-invited-moved",
+            "resource": {
+                "reference": "#invited-user-moved"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-invited-federated",
+            "resource": {
+                "reference": "#invited-user-federated"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-put-create",
+            "name": "Create a User by PUT claiming emailVerified",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "fixture-invited",
+                        "sourceId": "fixture-invited",
+                        "responseId": "put-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "put-created",
+                        "warningOnly": false,
+                        "resource": "User",
+                        "direction": "response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "put-id-kept",
+                        "warningOnly": false,
+                        "expression": "User.id",
+                        "operator": "equals",
+                        "value": "invited-user"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "put-email-verified-cleared",
+                        "warningOnly": false,
+                        "expression": "User.emailVerified",
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-post-create",
+            "name": "Create a User by POST claiming emailVerified",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "sourceId": "fixture-invited-posted",
+                        "responseId": "post-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "post-created",
+                        "warningOnly": false,
+                        "resource": "User",
+                        "direction": "response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "post-email-verified-cleared",
+                        "warningOnly": false,
+                        "expression": "User.emailVerified",
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-update",
+            "name": "Update a User claiming emailVerified keeps the server's value",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "put-response",
+                        "sourceId": "fixture-invited",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "update-email-verified-kept",
+                        "warningOnly": false,
+                        "expression": "User.emailVerified",
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "read-email-verified-kept",
+                        "warningOnly": false,
+                        "expression": "User.emailVerified",
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-email-change",
+            "name": "Update a User to another email is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "put-response",
+                        "sourceId": "fixture-invited-moved"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "put-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "read-email-kept",
+                        "warningOnly": false,
+                        "expression": "User.email",
+                        "operator": "equals",
+                        "value": "invited-user@example.org"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-sign-in-method-change",
+            "name": "Update a User to another sign-in method is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "put-response",
+                        "sourceId": "fixture-invited-federated"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "User",
+                        "targetId": "put-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "read-not-federated",
+                        "warningOnly": false,
+                        "expression": "User.federated.exists()",
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "User",
+                    "targetId": "put-response"
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "User",
+                    "targetId": "post-response"
+                }
+            }
+        ]
+    }
+}

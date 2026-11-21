@@ -1,0 +1,6 @@
+{
+    "description": "g10 Single Patient API profile validation: a client signing in on its own with system/*.cruds, writing copies of the record's resources that claim their US Core profile.",
+    "grantType": "client_credentials",
+    "clientId": "g10-validation-client",
+    "scope": "system/*.cruds"
+}

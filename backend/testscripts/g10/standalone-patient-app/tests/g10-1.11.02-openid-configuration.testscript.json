@@ -1,0 +1,44 @@
+{
+    "id": "g10-1.11.02-openid-configuration",
+    "url": "https://haste.health/fhir/TestScript/g10-1.11.02-openid-configuration",
+    "name": "g10-1.11.02-openid-configuration",
+    "title": "1.11.02 OpenID configuration at the issuer",
+    "status": "active",
+    "description": "g10 1.11.02 / 1.10.02 / 3.10.02 / 3.9.02 (AUT-PAT-23). Inferno reads the id_token's issuer (the tenant and project, /w/[tenant]/[project]) and fetches [issuer]/.well-known/openid-configuration, which must answer 200 with JSON. Its fields (1.11.03) and the id_token checks (1.11.01, 1.11.05, 1.11.06) need the token response and are not checked here.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.11.02 OpenID configuration at the issuer",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "../../../../.well-known/openid-configuration",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The configuration is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is JSON",
+                        "contentType": "application/json",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

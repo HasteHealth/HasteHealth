@@ -450,4 +450,15 @@ pub enum FHIRResponse {
     Batch(FHIRBatchResponse),
     #[derivative(Debug = "transparent")]
     Transaction(FHIRTransactionResponse),
+    #[derivative(Debug = "transparent")]
+    Accepted(FHIRAcceptedResponse),
+}
+
+/// The request was taken on as an asynchronous job (the FHIR Asynchronous
+/// Request Pattern): `202 Accepted`, with the job's status URL in
+/// `Content-Location` for the client to poll, and no body.
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
+pub struct FHIRAcceptedResponse {
+    pub content_location: String,
 }

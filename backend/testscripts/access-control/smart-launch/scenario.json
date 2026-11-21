@@ -1,0 +1,8 @@
+{
+    "description": "A member User, not linked to a patient, signing in to an EHR app allowed user/Patient.rs user/Encounter.rs, and starting SMART EHR launches of other clients.",
+    "grantType": "authorization_code",
+    "userEmail": "sl-user@example.org",
+    "clientId": "sl-ehr",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid offline_access user/Patient.rs user/Encounter.rs"
+}

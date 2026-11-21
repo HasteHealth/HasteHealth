@@ -19,11 +19,13 @@ use crate::{
     IndexOutcome, IndexResource, SearchEngine, SearchOptions, SearchReturn,
     elastic_search::{
         ElasticSearchEngine, create_es_client,
-        search_parameter_resolver::ElasticSearchParameterResolver,
+        search_parameter_resolver::{ElasticIndexSearch, ElasticSearchParameterResolver},
     },
     pg_search::{
-        PgSearchEngine, create_pg_search_pool, search_parameter_resolver::PgSearchParameterResolver,
+        PgSearchEngine, create_pg_search_pool,
+        search_parameter_resolver::{PgIndexSearch, PgSearchParameterResolver},
     },
+    project_parameters::ProjectParameterResolver,
 };
 
 /// Where the FHIR server stores its search index.
@@ -200,7 +202,10 @@ pub async fn create_search_engine(
             )?;
 
             let engine = ElasticSearchEngine::new(
-                Arc::new(ElasticSearchParameterResolver::new(client.clone(), repo)),
+                Arc::new(ProjectParameterResolver::new(
+                    ElasticIndexSearch::new(client.clone()),
+                    repo,
+                )),
                 Arc::new(FPEngine::new()),
                 client,
                 migrations && es_config.prune_removed_search_parameters,
@@ -213,7 +218,10 @@ pub async fn create_search_engine(
                 create_pg_search_pool(&pg_config.database_url, pg_config.max_connections).await?;
 
             let engine = PgSearchEngine::new(
-                Arc::new(PgSearchParameterResolver::new(pool.clone(), repo)),
+                Arc::new(ProjectParameterResolver::new(
+                    PgIndexSearch::new(pool.clone()),
+                    repo,
+                )),
                 Arc::new(FPEngine::new()),
                 pool,
             );

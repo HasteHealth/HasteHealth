@@ -1,0 +1,106 @@
+name: <Release> Packages
+
+on:
+  push:
+    branches:
+      - main
+      - release-packages
+  # Called by release_version_bump.yml after it commits a release's versions to main.
+  workflow_call:
+    inputs:
+      ref:
+        description: Branch to publish.
+        required: true
+        type: string
+
+jobs:
+  # Release unpublished packages.
+  crate-io-release:
+    environment: production
+    name: Crates IO release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - &checkout
+        name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - &install-rust
+        name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: stable
+      - name: Run release-plz
+        uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+        with:
+          config: ./backend/release-plz.toml
+          manifest_path: ./backend/Cargo.toml
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+  # Create a PR with the new versions and changelog, preparing the next release.
+  # crate-version-pr:
+  #   environment: production
+  #   name: Crates Version PR
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   concurrency:
+  #     group: release-plz-${{ github.ref }}
+  #     cancel-in-progress: false
+  #   steps:
+  #     - *checkout
+  #     - *install-rust
+  #     - name: Run release-plz
+  #       uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+  #       with:
+  #         config: ./backend/release-plz.toml
+  #         manifest_path: ./backend/Cargo.toml
+  #         command: release-pr
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+  npm:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10
+
+      - name: Setup node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache-dependency-path: "./frontend/pnpm-lock.yaml"
+          node-version: 23
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./frontend
+
+      - name: Build dependencies
+        run: pnpm ci:build
+        working-directory: ./frontend
+
+      - name: Create and publish versions
+        run: pnpm ci:publish
+        working-directory: ./frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

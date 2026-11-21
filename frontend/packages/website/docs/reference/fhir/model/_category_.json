@@ -1,5 +1,6 @@
 {
     "label": "Model",
+    "position": 1,
     "key": "reference-fhir-model",
     "link": {
         "type": "generated-index",

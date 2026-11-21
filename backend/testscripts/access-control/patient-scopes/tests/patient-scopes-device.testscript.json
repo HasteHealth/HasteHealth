@@ -1,0 +1,292 @@
+{
+    "id": "access-control-patient-scopes-device",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scopes-device",
+    "name": "Access Control Patient Scopes Device",
+    "title": "Patient scopes: Device",
+    "status": "active",
+    "description": "Run as ac-patient-a with patient/*.rs. Device is patient data through Device.patient: the patient's own Device can be searched and read, and another patient's cannot be found by search, by read, or through $everything.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ac-patient-a",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-device-a",
+            "resourceType": "Device",
+            "status": "active",
+            "patient": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-device-b",
+            "resourceType": "Device",
+            "status": "active",
+            "patient": {
+                "reference": "Patient/ac-patient-b"
+            }
+        },
+        {
+            "id": "no-params",
+            "resourceType": "Parameters"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ac-patient-a",
+            "resource": {
+                "reference": "#ac-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-device-a",
+            "resource": {
+                "reference": "#ac-device-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-device-b",
+            "resource": {
+                "reference": "#ac-device-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-search",
+            "name": "A Device search returns only the patient's devices",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Device",
+                        "encodeRequestUrl": false,
+                        "params": "_count=100"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Device search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Device is returned",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(id = 'ac-device-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Device is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(id = 'ac-device-b').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Device returned names the patient",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(patient.reference != 'Patient/ac-patient-a').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-by-patient",
+            "name": "Searching by the patient's own reference works like the compartment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Device",
+                        "encodeRequestUrl": false,
+                        "params": "patient=ac-patient-a"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Device search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Device is returned",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(id = 'ac-device-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-search-for-other-patient",
+            "name": "Searching for another patient's devices finds nothing",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Device",
+                        "encodeRequestUrl": false,
+                        "params": "patient=ac-patient-b",
+                        "description": "The compartment restriction is added to the patient's own parameter."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Device search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Device is returned",
+                        "expression": "Bundle.entry.resource.ofType(Device).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-read-own",
+            "name": "The patient reads their own Device",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Device",
+                        "targetId": "fixture-ac-device-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Device is returned",
+                        "expression": "Device.id = 'ac-device-a'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-read-other",
+            "name": "Another patient's Device reads as not found",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Device",
+                        "targetId": "fixture-ac-device-b",
+                        "encodeRequestUrl": false,
+                        "description": "Out of compartment reads exactly like a missing resource."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Device is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-everything",
+            "name": "$everything includes the patient's Device",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "sourceId": "fixture-no-params",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$everything on the patient's own record is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Device is in the compartment",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(id = 'ac-device-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Device is not",
+                        "expression": "Bundle.entry.resource.ofType(Device).where(id = 'ac-device-b').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

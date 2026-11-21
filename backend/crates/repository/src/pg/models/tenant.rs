@@ -2,7 +2,7 @@ use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::tenant::{CreateTenant, Tenant, TenantSearchClaims},
-    utilities::{generate_id, validate_id},
+    utilities::validate_hostname_id,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{TenantId, claims::SubscriptionTier};
@@ -48,17 +48,24 @@ fn validate_tenant_customization(
     Ok(())
 }
 
-async fn create_tenant<'a, 'e, E>(
+async fn create_tenant<'e, E>(
     executor: E,
     tenant: CreateTenant,
 ) -> Result<Tenant, OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {
-    let id = tenant
-        .id
-        .unwrap_or_else(|| TenantId::new(generate_id(None)));
-    validate_id(id.as_ref())?;
+    let id = tenant.id.unwrap_or_else(|| TenantId::random(26));
+
+    // The system tenant only ever comes from a migration.
+    if id == TenantId::System {
+        return Err(OperationOutcomeError::error(
+            haste_fhir_model::r4::generated::terminology::IssueType::forbidden(),
+            "The system tenant cannot be created".to_string(),
+        ));
+    }
+
+    validate_hostname_id(id.as_ref())?;
 
     validate_tenant_customization(
         tenant.subscription_tier.as_deref().unwrap_or("free"),
@@ -123,10 +130,7 @@ where
     Ok(tenant)
 }
 
-async fn update_tenant<'a, 'e, E>(
-    executor: E,
-    tenant: Tenant,
-) -> Result<Tenant, OperationOutcomeError>
+async fn update_tenant<'e, E>(executor: E, tenant: Tenant) -> Result<Tenant, OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {

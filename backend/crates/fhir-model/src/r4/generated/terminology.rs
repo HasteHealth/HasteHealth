@@ -1541,6 +1541,8 @@ impl ValueSetDef for AllTypes {
     const CODES: &[&str] = &[
         "AccessPolicyV2",
         "AccessPolicyV2Assignment",
+        "AccessPolicyV3",
+        "AccessPolicyV3Assignment",
         "Account",
         "ActivityDefinition",
         "Address",
@@ -1588,6 +1590,7 @@ impl ValueSetDef for AllTypes {
         "CoverageEligibilityRequest",
         "CoverageEligibilityResponse",
         "DataRequirement",
+        "DeidentificationPolicy",
         "DetectedIssue",
         "Device",
         "DeviceDefinition",
@@ -1776,1325 +1779,1343 @@ impl AllTypes {
     pub fn access_policy_v2_assignment() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
+    #[doc = "`AccessPolicyV3`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "`AccessPolicyV3Assignment`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3_assignment() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
     #[doc = "Account"]
     #[inline]
     #[must_use]
     pub fn account() -> BoundCode<Self> {
-        BoundCode::from_index(2u16)
+        BoundCode::from_index(4u16)
     }
     #[doc = "`ActivityDefinition`"]
     #[inline]
     #[must_use]
     pub fn activity_definition() -> BoundCode<Self> {
-        BoundCode::from_index(3u16)
+        BoundCode::from_index(5u16)
     }
     #[doc = "Address"]
     #[inline]
     #[must_use]
     pub fn address() -> BoundCode<Self> {
-        BoundCode::from_index(4u16)
+        BoundCode::from_index(6u16)
     }
     #[doc = "`AdverseEvent`"]
     #[inline]
     #[must_use]
     pub fn adverse_event() -> BoundCode<Self> {
-        BoundCode::from_index(5u16)
+        BoundCode::from_index(7u16)
     }
     #[doc = "Age"]
     #[inline]
     #[must_use]
     pub fn age() -> BoundCode<Self> {
-        BoundCode::from_index(6u16)
+        BoundCode::from_index(8u16)
     }
     #[doc = "`AllergyIntolerance`"]
     #[inline]
     #[must_use]
     pub fn allergy_intolerance() -> BoundCode<Self> {
-        BoundCode::from_index(7u16)
+        BoundCode::from_index(9u16)
     }
     #[doc = "Annotation"]
     #[inline]
     #[must_use]
     pub fn annotation() -> BoundCode<Self> {
-        BoundCode::from_index(8u16)
+        BoundCode::from_index(10u16)
     }
     #[doc = "Any"]
     #[inline]
     #[must_use]
     pub fn any() -> BoundCode<Self> {
-        BoundCode::from_index(9u16)
+        BoundCode::from_index(11u16)
     }
     #[doc = "Appointment"]
     #[inline]
     #[must_use]
     pub fn appointment() -> BoundCode<Self> {
-        BoundCode::from_index(10u16)
+        BoundCode::from_index(12u16)
     }
     #[doc = "`AppointmentResponse`"]
     #[inline]
     #[must_use]
     pub fn appointment_response() -> BoundCode<Self> {
-        BoundCode::from_index(11u16)
+        BoundCode::from_index(13u16)
     }
     #[doc = "Attachment"]
     #[inline]
     #[must_use]
     pub fn attachment() -> BoundCode<Self> {
-        BoundCode::from_index(12u16)
+        BoundCode::from_index(14u16)
     }
     #[doc = "`AuditEvent`"]
     #[inline]
     #[must_use]
     pub fn audit_event() -> BoundCode<Self> {
-        BoundCode::from_index(13u16)
+        BoundCode::from_index(15u16)
     }
     #[doc = "`BackboneElement`"]
     #[inline]
     #[must_use]
     pub fn backbone_element() -> BoundCode<Self> {
-        BoundCode::from_index(14u16)
+        BoundCode::from_index(16u16)
     }
     #[doc = "Basic"]
     #[inline]
     #[must_use]
     pub fn basic() -> BoundCode<Self> {
-        BoundCode::from_index(15u16)
+        BoundCode::from_index(17u16)
     }
     #[doc = "Binary"]
     #[inline]
     #[must_use]
     pub fn binary() -> BoundCode<Self> {
-        BoundCode::from_index(16u16)
+        BoundCode::from_index(18u16)
     }
     #[doc = "`BiologicallyDerivedProduct`"]
     #[inline]
     #[must_use]
     pub fn biologically_derived_product() -> BoundCode<Self> {
-        BoundCode::from_index(17u16)
+        BoundCode::from_index(19u16)
     }
     #[doc = "`BodyStructure`"]
     #[inline]
     #[must_use]
     pub fn body_structure() -> BoundCode<Self> {
-        BoundCode::from_index(18u16)
+        BoundCode::from_index(20u16)
     }
     #[doc = "Bundle"]
     #[inline]
     #[must_use]
     pub fn bundle() -> BoundCode<Self> {
-        BoundCode::from_index(19u16)
+        BoundCode::from_index(21u16)
     }
     #[doc = "`CapabilityStatement`"]
     #[inline]
     #[must_use]
     pub fn capability_statement() -> BoundCode<Self> {
-        BoundCode::from_index(20u16)
+        BoundCode::from_index(22u16)
     }
     #[doc = "`CarePlan`"]
     #[inline]
     #[must_use]
     pub fn care_plan() -> BoundCode<Self> {
-        BoundCode::from_index(21u16)
+        BoundCode::from_index(23u16)
     }
     #[doc = "`CareTeam`"]
     #[inline]
     #[must_use]
     pub fn care_team() -> BoundCode<Self> {
-        BoundCode::from_index(22u16)
+        BoundCode::from_index(24u16)
     }
     #[doc = "`CatalogEntry`"]
     #[inline]
     #[must_use]
     pub fn catalog_entry() -> BoundCode<Self> {
-        BoundCode::from_index(23u16)
+        BoundCode::from_index(25u16)
     }
     #[doc = "`ChargeItem`"]
     #[inline]
     #[must_use]
     pub fn charge_item() -> BoundCode<Self> {
-        BoundCode::from_index(24u16)
+        BoundCode::from_index(26u16)
     }
     #[doc = "`ChargeItemDefinition`"]
     #[inline]
     #[must_use]
     pub fn charge_item_definition() -> BoundCode<Self> {
-        BoundCode::from_index(25u16)
+        BoundCode::from_index(27u16)
     }
     #[doc = "Claim"]
     #[inline]
     #[must_use]
     pub fn claim() -> BoundCode<Self> {
-        BoundCode::from_index(26u16)
+        BoundCode::from_index(28u16)
     }
     #[doc = "`ClaimResponse`"]
     #[inline]
     #[must_use]
     pub fn claim_response() -> BoundCode<Self> {
-        BoundCode::from_index(27u16)
+        BoundCode::from_index(29u16)
     }
     #[doc = "`ClientApplication`"]
     #[inline]
     #[must_use]
     pub fn client_application() -> BoundCode<Self> {
-        BoundCode::from_index(28u16)
+        BoundCode::from_index(30u16)
     }
     #[doc = "`ClinicalImpression`"]
     #[inline]
     #[must_use]
     pub fn clinical_impression() -> BoundCode<Self> {
-        BoundCode::from_index(29u16)
+        BoundCode::from_index(31u16)
     }
     #[doc = "`CodeSystem`"]
     #[inline]
     #[must_use]
     pub fn code_system() -> BoundCode<Self> {
-        BoundCode::from_index(30u16)
+        BoundCode::from_index(32u16)
     }
     #[doc = "`CodeableConcept`"]
     #[inline]
     #[must_use]
     pub fn codeable_concept() -> BoundCode<Self> {
-        BoundCode::from_index(31u16)
+        BoundCode::from_index(33u16)
     }
     #[doc = "Coding"]
     #[inline]
     #[must_use]
     pub fn coding() -> BoundCode<Self> {
-        BoundCode::from_index(32u16)
+        BoundCode::from_index(34u16)
     }
     #[doc = "Communication"]
     #[inline]
     #[must_use]
     pub fn communication() -> BoundCode<Self> {
-        BoundCode::from_index(33u16)
+        BoundCode::from_index(35u16)
     }
     #[doc = "`CommunicationRequest`"]
     #[inline]
     #[must_use]
     pub fn communication_request() -> BoundCode<Self> {
-        BoundCode::from_index(34u16)
+        BoundCode::from_index(36u16)
     }
     #[doc = "`CompartmentDefinition`"]
     #[inline]
     #[must_use]
     pub fn compartment_definition() -> BoundCode<Self> {
-        BoundCode::from_index(35u16)
+        BoundCode::from_index(37u16)
     }
     #[doc = "Composition"]
     #[inline]
     #[must_use]
     pub fn composition() -> BoundCode<Self> {
-        BoundCode::from_index(36u16)
+        BoundCode::from_index(38u16)
     }
     #[doc = "`ConceptMap`"]
     #[inline]
     #[must_use]
     pub fn concept_map() -> BoundCode<Self> {
-        BoundCode::from_index(37u16)
+        BoundCode::from_index(39u16)
     }
     #[doc = "Condition"]
     #[inline]
     #[must_use]
     pub fn condition() -> BoundCode<Self> {
-        BoundCode::from_index(38u16)
+        BoundCode::from_index(40u16)
     }
     #[doc = "Consent"]
     #[inline]
     #[must_use]
     pub fn consent() -> BoundCode<Self> {
-        BoundCode::from_index(39u16)
+        BoundCode::from_index(41u16)
     }
     #[doc = "`ContactDetail`"]
     #[inline]
     #[must_use]
     pub fn contact_detail() -> BoundCode<Self> {
-        BoundCode::from_index(40u16)
+        BoundCode::from_index(42u16)
     }
     #[doc = "`ContactPoint`"]
     #[inline]
     #[must_use]
     pub fn contact_point() -> BoundCode<Self> {
-        BoundCode::from_index(41u16)
+        BoundCode::from_index(43u16)
     }
     #[doc = "Contract"]
     #[inline]
     #[must_use]
     pub fn contract() -> BoundCode<Self> {
-        BoundCode::from_index(42u16)
+        BoundCode::from_index(44u16)
     }
     #[doc = "Contributor"]
     #[inline]
     #[must_use]
     pub fn contributor() -> BoundCode<Self> {
-        BoundCode::from_index(43u16)
+        BoundCode::from_index(45u16)
     }
     #[doc = "Count"]
     #[inline]
     #[must_use]
     pub fn count() -> BoundCode<Self> {
-        BoundCode::from_index(44u16)
+        BoundCode::from_index(46u16)
     }
     #[doc = "Coverage"]
     #[inline]
     #[must_use]
     pub fn coverage() -> BoundCode<Self> {
-        BoundCode::from_index(45u16)
+        BoundCode::from_index(47u16)
     }
     #[doc = "`CoverageEligibilityRequest`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_request() -> BoundCode<Self> {
-        BoundCode::from_index(46u16)
+        BoundCode::from_index(48u16)
     }
     #[doc = "`CoverageEligibilityResponse`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_response() -> BoundCode<Self> {
-        BoundCode::from_index(47u16)
+        BoundCode::from_index(49u16)
     }
     #[doc = "`DataRequirement`"]
     #[inline]
     #[must_use]
     pub fn data_requirement() -> BoundCode<Self> {
-        BoundCode::from_index(48u16)
+        BoundCode::from_index(50u16)
+    }
+    #[doc = "`DeidentificationPolicy`"]
+    #[inline]
+    #[must_use]
+    pub fn deidentification_policy() -> BoundCode<Self> {
+        BoundCode::from_index(51u16)
     }
     #[doc = "`DetectedIssue`"]
     #[inline]
     #[must_use]
     pub fn detected_issue() -> BoundCode<Self> {
-        BoundCode::from_index(49u16)
+        BoundCode::from_index(52u16)
     }
     #[doc = "Device"]
     #[inline]
     #[must_use]
     pub fn device() -> BoundCode<Self> {
-        BoundCode::from_index(50u16)
+        BoundCode::from_index(53u16)
     }
     #[doc = "`DeviceDefinition`"]
     #[inline]
     #[must_use]
     pub fn device_definition() -> BoundCode<Self> {
-        BoundCode::from_index(51u16)
+        BoundCode::from_index(54u16)
     }
     #[doc = "`DeviceMetric`"]
     #[inline]
     #[must_use]
     pub fn device_metric() -> BoundCode<Self> {
-        BoundCode::from_index(52u16)
+        BoundCode::from_index(55u16)
     }
     #[doc = "`DeviceRequest`"]
     #[inline]
     #[must_use]
     pub fn device_request() -> BoundCode<Self> {
-        BoundCode::from_index(53u16)
+        BoundCode::from_index(56u16)
     }
     #[doc = "`DeviceUseStatement`"]
     #[inline]
     #[must_use]
     pub fn device_use_statement() -> BoundCode<Self> {
-        BoundCode::from_index(54u16)
+        BoundCode::from_index(57u16)
     }
     #[doc = "`DiagnosticReport`"]
     #[inline]
     #[must_use]
     pub fn diagnostic_report() -> BoundCode<Self> {
-        BoundCode::from_index(55u16)
+        BoundCode::from_index(58u16)
     }
     #[doc = "Distance"]
     #[inline]
     #[must_use]
     pub fn distance() -> BoundCode<Self> {
-        BoundCode::from_index(56u16)
+        BoundCode::from_index(59u16)
     }
     #[doc = "`DocumentManifest`"]
     #[inline]
     #[must_use]
     pub fn document_manifest() -> BoundCode<Self> {
-        BoundCode::from_index(57u16)
+        BoundCode::from_index(60u16)
     }
     #[doc = "`DocumentReference`"]
     #[inline]
     #[must_use]
     pub fn document_reference() -> BoundCode<Self> {
-        BoundCode::from_index(58u16)
+        BoundCode::from_index(61u16)
     }
     #[doc = "`DomainResource`"]
     #[inline]
     #[must_use]
     pub fn domain_resource() -> BoundCode<Self> {
-        BoundCode::from_index(59u16)
+        BoundCode::from_index(62u16)
     }
     #[doc = "Dosage"]
     #[inline]
     #[must_use]
     pub fn dosage() -> BoundCode<Self> {
-        BoundCode::from_index(60u16)
+        BoundCode::from_index(63u16)
     }
     #[doc = "Duration"]
     #[inline]
     #[must_use]
     pub fn duration() -> BoundCode<Self> {
-        BoundCode::from_index(61u16)
+        BoundCode::from_index(64u16)
     }
     #[doc = "`EffectEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn effect_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(62u16)
+        BoundCode::from_index(65u16)
     }
     #[doc = "Element"]
     #[inline]
     #[must_use]
     pub fn element() -> BoundCode<Self> {
-        BoundCode::from_index(63u16)
+        BoundCode::from_index(66u16)
     }
     #[doc = "`ElementDefinition`"]
     #[inline]
     #[must_use]
     pub fn element_definition() -> BoundCode<Self> {
-        BoundCode::from_index(64u16)
+        BoundCode::from_index(67u16)
     }
     #[doc = "Encounter"]
     #[inline]
     #[must_use]
     pub fn encounter() -> BoundCode<Self> {
-        BoundCode::from_index(65u16)
+        BoundCode::from_index(68u16)
     }
     #[doc = "Endpoint"]
     #[inline]
     #[must_use]
     pub fn endpoint() -> BoundCode<Self> {
-        BoundCode::from_index(66u16)
+        BoundCode::from_index(69u16)
     }
     #[doc = "`EnrollmentRequest`"]
     #[inline]
     #[must_use]
     pub fn enrollment_request() -> BoundCode<Self> {
-        BoundCode::from_index(67u16)
+        BoundCode::from_index(70u16)
     }
     #[doc = "`EnrollmentResponse`"]
     #[inline]
     #[must_use]
     pub fn enrollment_response() -> BoundCode<Self> {
-        BoundCode::from_index(68u16)
+        BoundCode::from_index(71u16)
     }
     #[doc = "`EpisodeOfCare`"]
     #[inline]
     #[must_use]
     pub fn episode_of_care() -> BoundCode<Self> {
-        BoundCode::from_index(69u16)
+        BoundCode::from_index(72u16)
     }
     #[doc = "`EventDefinition`"]
     #[inline]
     #[must_use]
     pub fn event_definition() -> BoundCode<Self> {
-        BoundCode::from_index(70u16)
+        BoundCode::from_index(73u16)
     }
     #[doc = "Evidence"]
     #[inline]
     #[must_use]
     pub fn evidence() -> BoundCode<Self> {
-        BoundCode::from_index(71u16)
+        BoundCode::from_index(74u16)
     }
     #[doc = "`EvidenceVariable`"]
     #[inline]
     #[must_use]
     pub fn evidence_variable() -> BoundCode<Self> {
-        BoundCode::from_index(72u16)
+        BoundCode::from_index(75u16)
     }
     #[doc = "`ExampleScenario`"]
     #[inline]
     #[must_use]
     pub fn example_scenario() -> BoundCode<Self> {
-        BoundCode::from_index(73u16)
+        BoundCode::from_index(76u16)
     }
     #[doc = "`ExplanationOfBenefit`"]
     #[inline]
     #[must_use]
     pub fn explanation_of_benefit() -> BoundCode<Self> {
-        BoundCode::from_index(74u16)
+        BoundCode::from_index(77u16)
     }
     #[doc = "Expression"]
     #[inline]
     #[must_use]
     pub fn expression() -> BoundCode<Self> {
-        BoundCode::from_index(75u16)
+        BoundCode::from_index(78u16)
     }
     #[doc = "Extension"]
     #[inline]
     #[must_use]
     pub fn extension() -> BoundCode<Self> {
-        BoundCode::from_index(76u16)
+        BoundCode::from_index(79u16)
     }
     #[doc = "`FamilyMemberHistory`"]
     #[inline]
     #[must_use]
     pub fn family_member_history() -> BoundCode<Self> {
-        BoundCode::from_index(77u16)
+        BoundCode::from_index(80u16)
     }
     #[doc = "Flag"]
     #[inline]
     #[must_use]
     pub fn flag() -> BoundCode<Self> {
-        BoundCode::from_index(78u16)
+        BoundCode::from_index(81u16)
     }
     #[doc = "Goal"]
     #[inline]
     #[must_use]
     pub fn goal() -> BoundCode<Self> {
-        BoundCode::from_index(79u16)
+        BoundCode::from_index(82u16)
     }
     #[doc = "`GraphDefinition`"]
     #[inline]
     #[must_use]
     pub fn graph_definition() -> BoundCode<Self> {
-        BoundCode::from_index(80u16)
+        BoundCode::from_index(83u16)
     }
     #[doc = "Group"]
     #[inline]
     #[must_use]
     pub fn group() -> BoundCode<Self> {
-        BoundCode::from_index(81u16)
+        BoundCode::from_index(84u16)
     }
     #[doc = "`GuidanceResponse`"]
     #[inline]
     #[must_use]
     pub fn guidance_response() -> BoundCode<Self> {
-        BoundCode::from_index(82u16)
+        BoundCode::from_index(85u16)
     }
     #[doc = "HL7V2"]
     #[inline]
     #[must_use]
     pub fn h_l7_v2() -> BoundCode<Self> {
-        BoundCode::from_index(83u16)
+        BoundCode::from_index(86u16)
     }
     #[doc = "`HealthcareService`"]
     #[inline]
     #[must_use]
     pub fn healthcare_service() -> BoundCode<Self> {
-        BoundCode::from_index(84u16)
+        BoundCode::from_index(87u16)
     }
     #[doc = "`HumanName`"]
     #[inline]
     #[must_use]
     pub fn human_name() -> BoundCode<Self> {
-        BoundCode::from_index(85u16)
+        BoundCode::from_index(88u16)
     }
     #[doc = "Identifier"]
     #[inline]
     #[must_use]
     pub fn identifier_() -> BoundCode<Self> {
-        BoundCode::from_index(86u16)
+        BoundCode::from_index(89u16)
     }
     #[doc = "`IdentityProvider`"]
     #[inline]
     #[must_use]
     pub fn identity_provider() -> BoundCode<Self> {
-        BoundCode::from_index(87u16)
+        BoundCode::from_index(90u16)
     }
     #[doc = "`ImagingStudy`"]
     #[inline]
     #[must_use]
     pub fn imaging_study() -> BoundCode<Self> {
-        BoundCode::from_index(88u16)
+        BoundCode::from_index(91u16)
     }
     #[doc = "Immunization"]
     #[inline]
     #[must_use]
     pub fn immunization() -> BoundCode<Self> {
-        BoundCode::from_index(89u16)
+        BoundCode::from_index(92u16)
     }
     #[doc = "`ImmunizationEvaluation`"]
     #[inline]
     #[must_use]
     pub fn immunization_evaluation() -> BoundCode<Self> {
-        BoundCode::from_index(90u16)
+        BoundCode::from_index(93u16)
     }
     #[doc = "`ImmunizationRecommendation`"]
     #[inline]
     #[must_use]
     pub fn immunization_recommendation() -> BoundCode<Self> {
-        BoundCode::from_index(91u16)
+        BoundCode::from_index(94u16)
     }
     #[doc = "`ImplementationGuide`"]
     #[inline]
     #[must_use]
     pub fn implementation_guide() -> BoundCode<Self> {
-        BoundCode::from_index(92u16)
+        BoundCode::from_index(95u16)
     }
     #[doc = "`InsurancePlan`"]
     #[inline]
     #[must_use]
     pub fn insurance_plan() -> BoundCode<Self> {
-        BoundCode::from_index(93u16)
+        BoundCode::from_index(96u16)
     }
     #[doc = "Invoice"]
     #[inline]
     #[must_use]
     pub fn invoice() -> BoundCode<Self> {
-        BoundCode::from_index(94u16)
+        BoundCode::from_index(97u16)
     }
     #[doc = "Library"]
     #[inline]
     #[must_use]
     pub fn library() -> BoundCode<Self> {
-        BoundCode::from_index(95u16)
+        BoundCode::from_index(98u16)
     }
     #[doc = "Linkage"]
     #[inline]
     #[must_use]
     pub fn linkage() -> BoundCode<Self> {
-        BoundCode::from_index(96u16)
+        BoundCode::from_index(99u16)
     }
     #[doc = "List"]
     #[inline]
     #[must_use]
     pub fn list() -> BoundCode<Self> {
-        BoundCode::from_index(97u16)
+        BoundCode::from_index(100u16)
     }
     #[doc = "Location"]
     #[inline]
     #[must_use]
     pub fn location() -> BoundCode<Self> {
-        BoundCode::from_index(98u16)
+        BoundCode::from_index(101u16)
     }
     #[doc = "`MarketingStatus`"]
     #[inline]
     #[must_use]
     pub fn marketing_status() -> BoundCode<Self> {
-        BoundCode::from_index(99u16)
+        BoundCode::from_index(102u16)
     }
     #[doc = "Measure"]
     #[inline]
     #[must_use]
     pub fn measure() -> BoundCode<Self> {
-        BoundCode::from_index(100u16)
+        BoundCode::from_index(103u16)
     }
     #[doc = "`MeasureReport`"]
     #[inline]
     #[must_use]
     pub fn measure_report() -> BoundCode<Self> {
-        BoundCode::from_index(101u16)
+        BoundCode::from_index(104u16)
     }
     #[doc = "Media"]
     #[inline]
     #[must_use]
     pub fn media() -> BoundCode<Self> {
-        BoundCode::from_index(102u16)
+        BoundCode::from_index(105u16)
     }
     #[doc = "Medication"]
     #[inline]
     #[must_use]
     pub fn medication() -> BoundCode<Self> {
-        BoundCode::from_index(103u16)
+        BoundCode::from_index(106u16)
     }
     #[doc = "`MedicationAdministration`"]
     #[inline]
     #[must_use]
     pub fn medication_administration() -> BoundCode<Self> {
-        BoundCode::from_index(104u16)
+        BoundCode::from_index(107u16)
     }
     #[doc = "`MedicationDispense`"]
     #[inline]
     #[must_use]
     pub fn medication_dispense() -> BoundCode<Self> {
-        BoundCode::from_index(105u16)
+        BoundCode::from_index(108u16)
     }
     #[doc = "`MedicationKnowledge`"]
     #[inline]
     #[must_use]
     pub fn medication_knowledge() -> BoundCode<Self> {
-        BoundCode::from_index(106u16)
+        BoundCode::from_index(109u16)
     }
     #[doc = "`MedicationRequest`"]
     #[inline]
     #[must_use]
     pub fn medication_request() -> BoundCode<Self> {
-        BoundCode::from_index(107u16)
+        BoundCode::from_index(110u16)
     }
     #[doc = "`MedicationStatement`"]
     #[inline]
     #[must_use]
     pub fn medication_statement() -> BoundCode<Self> {
-        BoundCode::from_index(108u16)
+        BoundCode::from_index(111u16)
     }
     #[doc = "`MedicinalProduct`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product() -> BoundCode<Self> {
-        BoundCode::from_index(109u16)
+        BoundCode::from_index(112u16)
     }
     #[doc = "`MedicinalProductAuthorization`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_authorization() -> BoundCode<Self> {
-        BoundCode::from_index(110u16)
+        BoundCode::from_index(113u16)
     }
     #[doc = "`MedicinalProductContraindication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_contraindication() -> BoundCode<Self> {
-        BoundCode::from_index(111u16)
+        BoundCode::from_index(114u16)
     }
     #[doc = "`MedicinalProductIndication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_indication() -> BoundCode<Self> {
-        BoundCode::from_index(112u16)
+        BoundCode::from_index(115u16)
     }
     #[doc = "`MedicinalProductIngredient`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_ingredient() -> BoundCode<Self> {
-        BoundCode::from_index(113u16)
+        BoundCode::from_index(116u16)
     }
     #[doc = "`MedicinalProductInteraction`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_interaction() -> BoundCode<Self> {
-        BoundCode::from_index(114u16)
+        BoundCode::from_index(117u16)
     }
     #[doc = "`MedicinalProductManufactured`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_manufactured() -> BoundCode<Self> {
-        BoundCode::from_index(115u16)
+        BoundCode::from_index(118u16)
     }
     #[doc = "`MedicinalProductPackaged`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_packaged() -> BoundCode<Self> {
-        BoundCode::from_index(116u16)
+        BoundCode::from_index(119u16)
     }
     #[doc = "`MedicinalProductPharmaceutical`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_pharmaceutical() -> BoundCode<Self> {
-        BoundCode::from_index(117u16)
+        BoundCode::from_index(120u16)
     }
     #[doc = "`MedicinalProductUndesirableEffect`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_undesirable_effect() -> BoundCode<Self> {
-        BoundCode::from_index(118u16)
+        BoundCode::from_index(121u16)
     }
     #[doc = "Membership"]
     #[inline]
     #[must_use]
     pub fn membership() -> BoundCode<Self> {
-        BoundCode::from_index(119u16)
+        BoundCode::from_index(122u16)
     }
     #[doc = "`MessageDefinition`"]
     #[inline]
     #[must_use]
     pub fn message_definition() -> BoundCode<Self> {
-        BoundCode::from_index(120u16)
+        BoundCode::from_index(123u16)
     }
     #[doc = "`MessageHeader`"]
     #[inline]
     #[must_use]
     pub fn message_header() -> BoundCode<Self> {
-        BoundCode::from_index(121u16)
+        BoundCode::from_index(124u16)
     }
     #[doc = "Meta"]
     #[inline]
     #[must_use]
     pub fn meta() -> BoundCode<Self> {
-        BoundCode::from_index(122u16)
+        BoundCode::from_index(125u16)
     }
     #[doc = "`MolecularSequence`"]
     #[inline]
     #[must_use]
     pub fn molecular_sequence() -> BoundCode<Self> {
-        BoundCode::from_index(123u16)
+        BoundCode::from_index(126u16)
     }
     #[doc = "Money"]
     #[inline]
     #[must_use]
     pub fn money() -> BoundCode<Self> {
-        BoundCode::from_index(124u16)
+        BoundCode::from_index(127u16)
     }
     #[doc = "`MoneyQuantity`"]
     #[inline]
     #[must_use]
     pub fn money_quantity() -> BoundCode<Self> {
-        BoundCode::from_index(125u16)
+        BoundCode::from_index(128u16)
     }
     #[doc = "`NamingSystem`"]
     #[inline]
     #[must_use]
     pub fn naming_system() -> BoundCode<Self> {
-        BoundCode::from_index(126u16)
+        BoundCode::from_index(129u16)
     }
     #[doc = "Narrative"]
     #[inline]
     #[must_use]
     pub fn narrative() -> BoundCode<Self> {
-        BoundCode::from_index(127u16)
+        BoundCode::from_index(130u16)
     }
     #[doc = "`NutritionOrder`"]
     #[inline]
     #[must_use]
     pub fn nutrition_order() -> BoundCode<Self> {
-        BoundCode::from_index(128u16)
+        BoundCode::from_index(131u16)
     }
     #[doc = "Observation"]
     #[inline]
     #[must_use]
     pub fn observation() -> BoundCode<Self> {
-        BoundCode::from_index(129u16)
+        BoundCode::from_index(132u16)
     }
     #[doc = "`ObservationDefinition`"]
     #[inline]
     #[must_use]
     pub fn observation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(130u16)
+        BoundCode::from_index(133u16)
     }
     #[doc = "`OperationDefinition`"]
     #[inline]
     #[must_use]
     pub fn operation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(131u16)
+        BoundCode::from_index(134u16)
     }
     #[doc = "`OperationOutcome`"]
     #[inline]
     #[must_use]
     pub fn operation_outcome() -> BoundCode<Self> {
-        BoundCode::from_index(132u16)
+        BoundCode::from_index(135u16)
     }
     #[doc = "Organization"]
     #[inline]
     #[must_use]
     pub fn organization() -> BoundCode<Self> {
-        BoundCode::from_index(133u16)
+        BoundCode::from_index(136u16)
     }
     #[doc = "`OrganizationAffiliation`"]
     #[inline]
     #[must_use]
     pub fn organization_affiliation() -> BoundCode<Self> {
-        BoundCode::from_index(134u16)
+        BoundCode::from_index(137u16)
     }
     #[doc = "`ParameterDefinition`"]
     #[inline]
     #[must_use]
     pub fn parameter_definition() -> BoundCode<Self> {
-        BoundCode::from_index(135u16)
+        BoundCode::from_index(138u16)
     }
     #[doc = "Parameters"]
     #[inline]
     #[must_use]
     pub fn parameters() -> BoundCode<Self> {
-        BoundCode::from_index(136u16)
+        BoundCode::from_index(139u16)
     }
     #[doc = "Patient"]
     #[inline]
     #[must_use]
     pub fn patient() -> BoundCode<Self> {
-        BoundCode::from_index(137u16)
+        BoundCode::from_index(140u16)
     }
     #[doc = "`PaymentNotice`"]
     #[inline]
     #[must_use]
     pub fn payment_notice() -> BoundCode<Self> {
-        BoundCode::from_index(138u16)
+        BoundCode::from_index(141u16)
     }
     #[doc = "`PaymentReconciliation`"]
     #[inline]
     #[must_use]
     pub fn payment_reconciliation() -> BoundCode<Self> {
-        BoundCode::from_index(139u16)
+        BoundCode::from_index(142u16)
     }
     #[doc = "Period"]
     #[inline]
     #[must_use]
     pub fn period() -> BoundCode<Self> {
-        BoundCode::from_index(140u16)
+        BoundCode::from_index(143u16)
     }
     #[doc = "Person"]
     #[inline]
     #[must_use]
     pub fn person() -> BoundCode<Self> {
-        BoundCode::from_index(141u16)
+        BoundCode::from_index(144u16)
     }
     #[doc = "`PlanDefinition`"]
     #[inline]
     #[must_use]
     pub fn plan_definition() -> BoundCode<Self> {
-        BoundCode::from_index(142u16)
+        BoundCode::from_index(145u16)
     }
     #[doc = "Population"]
     #[inline]
     #[must_use]
     pub fn population() -> BoundCode<Self> {
-        BoundCode::from_index(143u16)
+        BoundCode::from_index(146u16)
     }
     #[doc = "Practitioner"]
     #[inline]
     #[must_use]
     pub fn practitioner() -> BoundCode<Self> {
-        BoundCode::from_index(144u16)
+        BoundCode::from_index(147u16)
     }
     #[doc = "`PractitionerRole`"]
     #[inline]
     #[must_use]
     pub fn practitioner_role() -> BoundCode<Self> {
-        BoundCode::from_index(145u16)
+        BoundCode::from_index(148u16)
     }
     #[doc = "Procedure"]
     #[inline]
     #[must_use]
     pub fn procedure() -> BoundCode<Self> {
-        BoundCode::from_index(146u16)
+        BoundCode::from_index(149u16)
     }
     #[doc = "`ProdCharacteristic`"]
     #[inline]
     #[must_use]
     pub fn prod_characteristic() -> BoundCode<Self> {
-        BoundCode::from_index(147u16)
+        BoundCode::from_index(150u16)
     }
     #[doc = "`ProductShelfLife`"]
     #[inline]
     #[must_use]
     pub fn product_shelf_life() -> BoundCode<Self> {
-        BoundCode::from_index(148u16)
+        BoundCode::from_index(151u16)
     }
     #[doc = "Project"]
     #[inline]
     #[must_use]
     pub fn project() -> BoundCode<Self> {
-        BoundCode::from_index(149u16)
+        BoundCode::from_index(152u16)
     }
     #[doc = "Provenance"]
     #[inline]
     #[must_use]
     pub fn provenance() -> BoundCode<Self> {
-        BoundCode::from_index(150u16)
+        BoundCode::from_index(153u16)
     }
     #[doc = "Quantity"]
     #[inline]
     #[must_use]
     pub fn quantity() -> BoundCode<Self> {
-        BoundCode::from_index(151u16)
+        BoundCode::from_index(154u16)
     }
     #[doc = "Questionnaire"]
     #[inline]
     #[must_use]
     pub fn questionnaire() -> BoundCode<Self> {
-        BoundCode::from_index(152u16)
+        BoundCode::from_index(155u16)
     }
     #[doc = "`QuestionnaireResponse`"]
     #[inline]
     #[must_use]
     pub fn questionnaire_response() -> BoundCode<Self> {
-        BoundCode::from_index(153u16)
+        BoundCode::from_index(156u16)
     }
     #[doc = "Range"]
     #[inline]
     #[must_use]
     pub fn range() -> BoundCode<Self> {
-        BoundCode::from_index(154u16)
+        BoundCode::from_index(157u16)
     }
     #[doc = "Ratio"]
     #[inline]
     #[must_use]
     pub fn ratio() -> BoundCode<Self> {
-        BoundCode::from_index(155u16)
+        BoundCode::from_index(158u16)
     }
     #[doc = "Reference"]
     #[inline]
     #[must_use]
     pub fn reference() -> BoundCode<Self> {
-        BoundCode::from_index(156u16)
+        BoundCode::from_index(159u16)
     }
     #[doc = "`RelatedArtifact`"]
     #[inline]
     #[must_use]
     pub fn related_artifact() -> BoundCode<Self> {
-        BoundCode::from_index(157u16)
+        BoundCode::from_index(160u16)
     }
     #[doc = "`RelatedPerson`"]
     #[inline]
     #[must_use]
     pub fn related_person() -> BoundCode<Self> {
-        BoundCode::from_index(158u16)
+        BoundCode::from_index(161u16)
     }
     #[doc = "`RequestGroup`"]
     #[inline]
     #[must_use]
     pub fn request_group() -> BoundCode<Self> {
-        BoundCode::from_index(159u16)
+        BoundCode::from_index(162u16)
     }
     #[doc = "`ResearchDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_definition() -> BoundCode<Self> {
-        BoundCode::from_index(160u16)
+        BoundCode::from_index(163u16)
     }
     #[doc = "`ResearchElementDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_element_definition() -> BoundCode<Self> {
-        BoundCode::from_index(161u16)
+        BoundCode::from_index(164u16)
     }
     #[doc = "`ResearchStudy`"]
     #[inline]
     #[must_use]
     pub fn research_study() -> BoundCode<Self> {
-        BoundCode::from_index(162u16)
+        BoundCode::from_index(165u16)
     }
     #[doc = "`ResearchSubject`"]
     #[inline]
     #[must_use]
     pub fn research_subject() -> BoundCode<Self> {
-        BoundCode::from_index(163u16)
+        BoundCode::from_index(166u16)
     }
     #[doc = "Resource"]
     #[inline]
     #[must_use]
     pub fn resource() -> BoundCode<Self> {
-        BoundCode::from_index(164u16)
+        BoundCode::from_index(167u16)
     }
     #[doc = "`RiskAssessment`"]
     #[inline]
     #[must_use]
     pub fn risk_assessment() -> BoundCode<Self> {
-        BoundCode::from_index(165u16)
+        BoundCode::from_index(168u16)
     }
     #[doc = "`RiskEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn risk_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(166u16)
+        BoundCode::from_index(169u16)
     }
     #[doc = "`SampledData`"]
     #[inline]
     #[must_use]
     pub fn sampled_data() -> BoundCode<Self> {
-        BoundCode::from_index(167u16)
+        BoundCode::from_index(170u16)
     }
     #[doc = "Schedule"]
     #[inline]
     #[must_use]
     pub fn schedule() -> BoundCode<Self> {
-        BoundCode::from_index(168u16)
+        BoundCode::from_index(171u16)
     }
     #[doc = "`SearchParameter`"]
     #[inline]
     #[must_use]
     pub fn search_parameter() -> BoundCode<Self> {
-        BoundCode::from_index(169u16)
+        BoundCode::from_index(172u16)
     }
     #[doc = "`ServiceRequest`"]
     #[inline]
     #[must_use]
     pub fn service_request() -> BoundCode<Self> {
-        BoundCode::from_index(170u16)
+        BoundCode::from_index(173u16)
     }
     #[doc = "Signature"]
     #[inline]
     #[must_use]
     pub fn signature() -> BoundCode<Self> {
-        BoundCode::from_index(171u16)
+        BoundCode::from_index(174u16)
     }
     #[doc = "`SimpleQuantity`"]
     #[inline]
     #[must_use]
     pub fn simple_quantity() -> BoundCode<Self> {
-        BoundCode::from_index(172u16)
+        BoundCode::from_index(175u16)
     }
     #[doc = "Slot"]
     #[inline]
     #[must_use]
     pub fn slot() -> BoundCode<Self> {
-        BoundCode::from_index(173u16)
+        BoundCode::from_index(176u16)
     }
     #[doc = "Specimen"]
     #[inline]
     #[must_use]
     pub fn specimen() -> BoundCode<Self> {
-        BoundCode::from_index(174u16)
+        BoundCode::from_index(177u16)
     }
     #[doc = "`SpecimenDefinition`"]
     #[inline]
     #[must_use]
     pub fn specimen_definition() -> BoundCode<Self> {
-        BoundCode::from_index(175u16)
+        BoundCode::from_index(178u16)
     }
     #[doc = "`StructureDefinition`"]
     #[inline]
     #[must_use]
     pub fn structure_definition() -> BoundCode<Self> {
-        BoundCode::from_index(176u16)
+        BoundCode::from_index(179u16)
     }
     #[doc = "`StructureMap`"]
     #[inline]
     #[must_use]
     pub fn structure_map() -> BoundCode<Self> {
-        BoundCode::from_index(177u16)
+        BoundCode::from_index(180u16)
     }
     #[doc = "Subscription"]
     #[inline]
     #[must_use]
     pub fn subscription() -> BoundCode<Self> {
-        BoundCode::from_index(178u16)
+        BoundCode::from_index(181u16)
     }
     #[doc = "Substance"]
     #[inline]
     #[must_use]
     pub fn substance() -> BoundCode<Self> {
-        BoundCode::from_index(179u16)
+        BoundCode::from_index(182u16)
     }
     #[doc = "`SubstanceAmount`"]
     #[inline]
     #[must_use]
     pub fn substance_amount() -> BoundCode<Self> {
-        BoundCode::from_index(180u16)
+        BoundCode::from_index(183u16)
     }
     #[doc = "`SubstanceNucleicAcid`"]
     #[inline]
     #[must_use]
     pub fn substance_nucleic_acid() -> BoundCode<Self> {
-        BoundCode::from_index(181u16)
+        BoundCode::from_index(184u16)
     }
     #[doc = "`SubstancePolymer`"]
     #[inline]
     #[must_use]
     pub fn substance_polymer() -> BoundCode<Self> {
-        BoundCode::from_index(182u16)
+        BoundCode::from_index(185u16)
     }
     #[doc = "`SubstanceProtein`"]
     #[inline]
     #[must_use]
     pub fn substance_protein() -> BoundCode<Self> {
-        BoundCode::from_index(183u16)
+        BoundCode::from_index(186u16)
     }
     #[doc = "`SubstanceReferenceInformation`"]
     #[inline]
     #[must_use]
     pub fn substance_reference_information() -> BoundCode<Self> {
-        BoundCode::from_index(184u16)
+        BoundCode::from_index(187u16)
     }
     #[doc = "`SubstanceSourceMaterial`"]
     #[inline]
     #[must_use]
     pub fn substance_source_material() -> BoundCode<Self> {
-        BoundCode::from_index(185u16)
+        BoundCode::from_index(188u16)
     }
     #[doc = "`SubstanceSpecification`"]
     #[inline]
     #[must_use]
     pub fn substance_specification() -> BoundCode<Self> {
-        BoundCode::from_index(186u16)
+        BoundCode::from_index(189u16)
     }
     #[doc = "`SupplyDelivery`"]
     #[inline]
     #[must_use]
     pub fn supply_delivery() -> BoundCode<Self> {
-        BoundCode::from_index(187u16)
+        BoundCode::from_index(190u16)
     }
     #[doc = "`SupplyRequest`"]
     #[inline]
     #[must_use]
     pub fn supply_request() -> BoundCode<Self> {
-        BoundCode::from_index(188u16)
+        BoundCode::from_index(191u16)
     }
     #[doc = "Task"]
     #[inline]
     #[must_use]
     pub fn task() -> BoundCode<Self> {
-        BoundCode::from_index(189u16)
+        BoundCode::from_index(192u16)
     }
     #[doc = "`TerminologyCapabilities`"]
     #[inline]
     #[must_use]
     pub fn terminology_capabilities() -> BoundCode<Self> {
-        BoundCode::from_index(190u16)
+        BoundCode::from_index(193u16)
     }
     #[doc = "`TestReport`"]
     #[inline]
     #[must_use]
     pub fn test_report() -> BoundCode<Self> {
-        BoundCode::from_index(191u16)
+        BoundCode::from_index(194u16)
     }
     #[doc = "`TestScript`"]
     #[inline]
     #[must_use]
     pub fn test_script() -> BoundCode<Self> {
-        BoundCode::from_index(192u16)
+        BoundCode::from_index(195u16)
     }
     #[doc = "Timing"]
     #[inline]
     #[must_use]
     pub fn timing() -> BoundCode<Self> {
-        BoundCode::from_index(193u16)
+        BoundCode::from_index(196u16)
     }
     #[doc = "`TriggerDefinition`"]
     #[inline]
     #[must_use]
     pub fn trigger_definition() -> BoundCode<Self> {
-        BoundCode::from_index(194u16)
+        BoundCode::from_index(197u16)
     }
     #[doc = "Type"]
     #[inline]
     #[must_use]
     pub fn type_() -> BoundCode<Self> {
-        BoundCode::from_index(195u16)
+        BoundCode::from_index(198u16)
     }
     #[doc = "`UsageContext`"]
     #[inline]
     #[must_use]
     pub fn usage_context() -> BoundCode<Self> {
-        BoundCode::from_index(196u16)
+        BoundCode::from_index(199u16)
     }
     #[doc = "User"]
     #[inline]
     #[must_use]
     pub fn user() -> BoundCode<Self> {
-        BoundCode::from_index(197u16)
+        BoundCode::from_index(200u16)
     }
     #[doc = "`ValueSet`"]
     #[inline]
     #[must_use]
     pub fn value_set() -> BoundCode<Self> {
-        BoundCode::from_index(198u16)
+        BoundCode::from_index(201u16)
     }
     #[doc = "`VerificationResult`"]
     #[inline]
     #[must_use]
     pub fn verification_result() -> BoundCode<Self> {
-        BoundCode::from_index(199u16)
+        BoundCode::from_index(202u16)
     }
     #[doc = "`ViewDefinition`"]
     #[inline]
     #[must_use]
     pub fn view_definition() -> BoundCode<Self> {
-        BoundCode::from_index(200u16)
+        BoundCode::from_index(203u16)
     }
     #[doc = "`VisionPrescription`"]
     #[inline]
     #[must_use]
     pub fn vision_prescription() -> BoundCode<Self> {
-        BoundCode::from_index(201u16)
+        BoundCode::from_index(204u16)
     }
     #[doc = "base64Binary"]
     #[inline]
     #[must_use]
     pub fn base64_binary() -> BoundCode<Self> {
-        BoundCode::from_index(202u16)
+        BoundCode::from_index(205u16)
     }
     #[doc = "boolean"]
     #[inline]
     #[must_use]
     pub fn boolean() -> BoundCode<Self> {
-        BoundCode::from_index(203u16)
+        BoundCode::from_index(206u16)
     }
     #[doc = "canonical"]
     #[inline]
     #[must_use]
     pub fn canonical() -> BoundCode<Self> {
-        BoundCode::from_index(204u16)
+        BoundCode::from_index(207u16)
     }
     #[doc = "code"]
     #[inline]
     #[must_use]
     pub fn code() -> BoundCode<Self> {
-        BoundCode::from_index(205u16)
+        BoundCode::from_index(208u16)
     }
     #[doc = "date"]
     #[inline]
     #[must_use]
     pub fn date() -> BoundCode<Self> {
-        BoundCode::from_index(206u16)
+        BoundCode::from_index(209u16)
     }
     #[doc = "dateTime"]
     #[inline]
     #[must_use]
     pub fn date_time() -> BoundCode<Self> {
-        BoundCode::from_index(207u16)
+        BoundCode::from_index(210u16)
     }
     #[doc = "decimal"]
     #[inline]
     #[must_use]
     pub fn decimal() -> BoundCode<Self> {
-        BoundCode::from_index(208u16)
+        BoundCode::from_index(211u16)
     }
     #[doc = "id"]
     #[inline]
     #[must_use]
     pub fn id() -> BoundCode<Self> {
-        BoundCode::from_index(209u16)
+        BoundCode::from_index(212u16)
     }
     #[doc = "instant"]
     #[inline]
     #[must_use]
     pub fn instant() -> BoundCode<Self> {
-        BoundCode::from_index(210u16)
+        BoundCode::from_index(213u16)
     }
     #[doc = "integer"]
     #[inline]
     #[must_use]
     pub fn integer() -> BoundCode<Self> {
-        BoundCode::from_index(211u16)
+        BoundCode::from_index(214u16)
     }
     #[doc = "markdown"]
     #[inline]
     #[must_use]
     pub fn markdown() -> BoundCode<Self> {
-        BoundCode::from_index(212u16)
+        BoundCode::from_index(215u16)
     }
     #[doc = "oid"]
     #[inline]
     #[must_use]
     pub fn oid() -> BoundCode<Self> {
-        BoundCode::from_index(213u16)
+        BoundCode::from_index(216u16)
     }
     #[doc = "positiveInt"]
     #[inline]
     #[must_use]
     pub fn positive_int() -> BoundCode<Self> {
-        BoundCode::from_index(214u16)
+        BoundCode::from_index(217u16)
     }
     #[doc = "string"]
     #[inline]
     #[must_use]
     pub fn string() -> BoundCode<Self> {
-        BoundCode::from_index(215u16)
+        BoundCode::from_index(218u16)
     }
     #[doc = "time"]
     #[inline]
     #[must_use]
     pub fn time() -> BoundCode<Self> {
-        BoundCode::from_index(216u16)
+        BoundCode::from_index(219u16)
     }
     #[doc = "unsignedInt"]
     #[inline]
     #[must_use]
     pub fn unsigned_int() -> BoundCode<Self> {
-        BoundCode::from_index(217u16)
+        BoundCode::from_index(220u16)
     }
     #[doc = "uri"]
     #[inline]
     #[must_use]
     pub fn uri() -> BoundCode<Self> {
-        BoundCode::from_index(218u16)
+        BoundCode::from_index(221u16)
     }
     #[doc = "url"]
     #[inline]
     #[must_use]
     pub fn url() -> BoundCode<Self> {
-        BoundCode::from_index(219u16)
+        BoundCode::from_index(222u16)
     }
     #[doc = "uuid"]
     #[inline]
     #[must_use]
     pub fn uuid() -> BoundCode<Self> {
-        BoundCode::from_index(220u16)
+        BoundCode::from_index(223u16)
     }
     #[doc = "XHTML"]
     #[inline]
     #[must_use]
     pub fn xhtml() -> BoundCode<Self> {
-        BoundCode::from_index(221u16)
+        BoundCode::from_index(224u16)
     }
     #[inline]
     #[must_use]
@@ -12659,6 +12680,8 @@ impl ValueSetDef for DefinedTypes {
     const CODES: &[&str] = &[
         "AccessPolicyV2",
         "AccessPolicyV2Assignment",
+        "AccessPolicyV3",
+        "AccessPolicyV3Assignment",
         "Account",
         "ActivityDefinition",
         "Address",
@@ -12705,6 +12728,7 @@ impl ValueSetDef for DefinedTypes {
         "CoverageEligibilityRequest",
         "CoverageEligibilityResponse",
         "DataRequirement",
+        "DeidentificationPolicy",
         "DetectedIssue",
         "Device",
         "DeviceDefinition",
@@ -12892,1313 +12916,1331 @@ impl DefinedTypes {
     pub fn access_policy_v2_assignment() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
+    #[doc = "`AccessPolicyV3`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "`AccessPolicyV3Assignment`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3_assignment() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
     #[doc = "Account"]
     #[inline]
     #[must_use]
     pub fn account() -> BoundCode<Self> {
-        BoundCode::from_index(2u16)
+        BoundCode::from_index(4u16)
     }
     #[doc = "`ActivityDefinition`"]
     #[inline]
     #[must_use]
     pub fn activity_definition() -> BoundCode<Self> {
-        BoundCode::from_index(3u16)
+        BoundCode::from_index(5u16)
     }
     #[doc = "Address"]
     #[inline]
     #[must_use]
     pub fn address() -> BoundCode<Self> {
-        BoundCode::from_index(4u16)
+        BoundCode::from_index(6u16)
     }
     #[doc = "`AdverseEvent`"]
     #[inline]
     #[must_use]
     pub fn adverse_event() -> BoundCode<Self> {
-        BoundCode::from_index(5u16)
+        BoundCode::from_index(7u16)
     }
     #[doc = "Age"]
     #[inline]
     #[must_use]
     pub fn age() -> BoundCode<Self> {
-        BoundCode::from_index(6u16)
+        BoundCode::from_index(8u16)
     }
     #[doc = "`AllergyIntolerance`"]
     #[inline]
     #[must_use]
     pub fn allergy_intolerance() -> BoundCode<Self> {
-        BoundCode::from_index(7u16)
+        BoundCode::from_index(9u16)
     }
     #[doc = "Annotation"]
     #[inline]
     #[must_use]
     pub fn annotation() -> BoundCode<Self> {
-        BoundCode::from_index(8u16)
+        BoundCode::from_index(10u16)
     }
     #[doc = "Appointment"]
     #[inline]
     #[must_use]
     pub fn appointment() -> BoundCode<Self> {
-        BoundCode::from_index(9u16)
+        BoundCode::from_index(11u16)
     }
     #[doc = "`AppointmentResponse`"]
     #[inline]
     #[must_use]
     pub fn appointment_response() -> BoundCode<Self> {
-        BoundCode::from_index(10u16)
+        BoundCode::from_index(12u16)
     }
     #[doc = "Attachment"]
     #[inline]
     #[must_use]
     pub fn attachment() -> BoundCode<Self> {
-        BoundCode::from_index(11u16)
+        BoundCode::from_index(13u16)
     }
     #[doc = "`AuditEvent`"]
     #[inline]
     #[must_use]
     pub fn audit_event() -> BoundCode<Self> {
-        BoundCode::from_index(12u16)
+        BoundCode::from_index(14u16)
     }
     #[doc = "`BackboneElement`"]
     #[inline]
     #[must_use]
     pub fn backbone_element() -> BoundCode<Self> {
-        BoundCode::from_index(13u16)
+        BoundCode::from_index(15u16)
     }
     #[doc = "Basic"]
     #[inline]
     #[must_use]
     pub fn basic() -> BoundCode<Self> {
-        BoundCode::from_index(14u16)
+        BoundCode::from_index(16u16)
     }
     #[doc = "Binary"]
     #[inline]
     #[must_use]
     pub fn binary() -> BoundCode<Self> {
-        BoundCode::from_index(15u16)
+        BoundCode::from_index(17u16)
     }
     #[doc = "`BiologicallyDerivedProduct`"]
     #[inline]
     #[must_use]
     pub fn biologically_derived_product() -> BoundCode<Self> {
-        BoundCode::from_index(16u16)
+        BoundCode::from_index(18u16)
     }
     #[doc = "`BodyStructure`"]
     #[inline]
     #[must_use]
     pub fn body_structure() -> BoundCode<Self> {
-        BoundCode::from_index(17u16)
+        BoundCode::from_index(19u16)
     }
     #[doc = "Bundle"]
     #[inline]
     #[must_use]
     pub fn bundle() -> BoundCode<Self> {
-        BoundCode::from_index(18u16)
+        BoundCode::from_index(20u16)
     }
     #[doc = "`CapabilityStatement`"]
     #[inline]
     #[must_use]
     pub fn capability_statement() -> BoundCode<Self> {
-        BoundCode::from_index(19u16)
+        BoundCode::from_index(21u16)
     }
     #[doc = "`CarePlan`"]
     #[inline]
     #[must_use]
     pub fn care_plan() -> BoundCode<Self> {
-        BoundCode::from_index(20u16)
+        BoundCode::from_index(22u16)
     }
     #[doc = "`CareTeam`"]
     #[inline]
     #[must_use]
     pub fn care_team() -> BoundCode<Self> {
-        BoundCode::from_index(21u16)
+        BoundCode::from_index(23u16)
     }
     #[doc = "`CatalogEntry`"]
     #[inline]
     #[must_use]
     pub fn catalog_entry() -> BoundCode<Self> {
-        BoundCode::from_index(22u16)
+        BoundCode::from_index(24u16)
     }
     #[doc = "`ChargeItem`"]
     #[inline]
     #[must_use]
     pub fn charge_item() -> BoundCode<Self> {
-        BoundCode::from_index(23u16)
+        BoundCode::from_index(25u16)
     }
     #[doc = "`ChargeItemDefinition`"]
     #[inline]
     #[must_use]
     pub fn charge_item_definition() -> BoundCode<Self> {
-        BoundCode::from_index(24u16)
+        BoundCode::from_index(26u16)
     }
     #[doc = "Claim"]
     #[inline]
     #[must_use]
     pub fn claim() -> BoundCode<Self> {
-        BoundCode::from_index(25u16)
+        BoundCode::from_index(27u16)
     }
     #[doc = "`ClaimResponse`"]
     #[inline]
     #[must_use]
     pub fn claim_response() -> BoundCode<Self> {
-        BoundCode::from_index(26u16)
+        BoundCode::from_index(28u16)
     }
     #[doc = "`ClientApplication`"]
     #[inline]
     #[must_use]
     pub fn client_application() -> BoundCode<Self> {
-        BoundCode::from_index(27u16)
+        BoundCode::from_index(29u16)
     }
     #[doc = "`ClinicalImpression`"]
     #[inline]
     #[must_use]
     pub fn clinical_impression() -> BoundCode<Self> {
-        BoundCode::from_index(28u16)
+        BoundCode::from_index(30u16)
     }
     #[doc = "`CodeSystem`"]
     #[inline]
     #[must_use]
     pub fn code_system() -> BoundCode<Self> {
-        BoundCode::from_index(29u16)
+        BoundCode::from_index(31u16)
     }
     #[doc = "`CodeableConcept`"]
     #[inline]
     #[must_use]
     pub fn codeable_concept() -> BoundCode<Self> {
-        BoundCode::from_index(30u16)
+        BoundCode::from_index(32u16)
     }
     #[doc = "Coding"]
     #[inline]
     #[must_use]
     pub fn coding() -> BoundCode<Self> {
-        BoundCode::from_index(31u16)
+        BoundCode::from_index(33u16)
     }
     #[doc = "Communication"]
     #[inline]
     #[must_use]
     pub fn communication() -> BoundCode<Self> {
-        BoundCode::from_index(32u16)
+        BoundCode::from_index(34u16)
     }
     #[doc = "`CommunicationRequest`"]
     #[inline]
     #[must_use]
     pub fn communication_request() -> BoundCode<Self> {
-        BoundCode::from_index(33u16)
+        BoundCode::from_index(35u16)
     }
     #[doc = "`CompartmentDefinition`"]
     #[inline]
     #[must_use]
     pub fn compartment_definition() -> BoundCode<Self> {
-        BoundCode::from_index(34u16)
+        BoundCode::from_index(36u16)
     }
     #[doc = "Composition"]
     #[inline]
     #[must_use]
     pub fn composition() -> BoundCode<Self> {
-        BoundCode::from_index(35u16)
+        BoundCode::from_index(37u16)
     }
     #[doc = "`ConceptMap`"]
     #[inline]
     #[must_use]
     pub fn concept_map() -> BoundCode<Self> {
-        BoundCode::from_index(36u16)
+        BoundCode::from_index(38u16)
     }
     #[doc = "Condition"]
     #[inline]
     #[must_use]
     pub fn condition() -> BoundCode<Self> {
-        BoundCode::from_index(37u16)
+        BoundCode::from_index(39u16)
     }
     #[doc = "Consent"]
     #[inline]
     #[must_use]
     pub fn consent() -> BoundCode<Self> {
-        BoundCode::from_index(38u16)
+        BoundCode::from_index(40u16)
     }
     #[doc = "`ContactDetail`"]
     #[inline]
     #[must_use]
     pub fn contact_detail() -> BoundCode<Self> {
-        BoundCode::from_index(39u16)
+        BoundCode::from_index(41u16)
     }
     #[doc = "`ContactPoint`"]
     #[inline]
     #[must_use]
     pub fn contact_point() -> BoundCode<Self> {
-        BoundCode::from_index(40u16)
+        BoundCode::from_index(42u16)
     }
     #[doc = "Contract"]
     #[inline]
     #[must_use]
     pub fn contract() -> BoundCode<Self> {
-        BoundCode::from_index(41u16)
+        BoundCode::from_index(43u16)
     }
     #[doc = "Contributor"]
     #[inline]
     #[must_use]
     pub fn contributor() -> BoundCode<Self> {
-        BoundCode::from_index(42u16)
+        BoundCode::from_index(44u16)
     }
     #[doc = "Count"]
     #[inline]
     #[must_use]
     pub fn count() -> BoundCode<Self> {
-        BoundCode::from_index(43u16)
+        BoundCode::from_index(45u16)
     }
     #[doc = "Coverage"]
     #[inline]
     #[must_use]
     pub fn coverage() -> BoundCode<Self> {
-        BoundCode::from_index(44u16)
+        BoundCode::from_index(46u16)
     }
     #[doc = "`CoverageEligibilityRequest`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_request() -> BoundCode<Self> {
-        BoundCode::from_index(45u16)
+        BoundCode::from_index(47u16)
     }
     #[doc = "`CoverageEligibilityResponse`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_response() -> BoundCode<Self> {
-        BoundCode::from_index(46u16)
+        BoundCode::from_index(48u16)
     }
     #[doc = "`DataRequirement`"]
     #[inline]
     #[must_use]
     pub fn data_requirement() -> BoundCode<Self> {
-        BoundCode::from_index(47u16)
+        BoundCode::from_index(49u16)
+    }
+    #[doc = "`DeidentificationPolicy`"]
+    #[inline]
+    #[must_use]
+    pub fn deidentification_policy() -> BoundCode<Self> {
+        BoundCode::from_index(50u16)
     }
     #[doc = "`DetectedIssue`"]
     #[inline]
     #[must_use]
     pub fn detected_issue() -> BoundCode<Self> {
-        BoundCode::from_index(48u16)
+        BoundCode::from_index(51u16)
     }
     #[doc = "Device"]
     #[inline]
     #[must_use]
     pub fn device() -> BoundCode<Self> {
-        BoundCode::from_index(49u16)
+        BoundCode::from_index(52u16)
     }
     #[doc = "`DeviceDefinition`"]
     #[inline]
     #[must_use]
     pub fn device_definition() -> BoundCode<Self> {
-        BoundCode::from_index(50u16)
+        BoundCode::from_index(53u16)
     }
     #[doc = "`DeviceMetric`"]
     #[inline]
     #[must_use]
     pub fn device_metric() -> BoundCode<Self> {
-        BoundCode::from_index(51u16)
+        BoundCode::from_index(54u16)
     }
     #[doc = "`DeviceRequest`"]
     #[inline]
     #[must_use]
     pub fn device_request() -> BoundCode<Self> {
-        BoundCode::from_index(52u16)
+        BoundCode::from_index(55u16)
     }
     #[doc = "`DeviceUseStatement`"]
     #[inline]
     #[must_use]
     pub fn device_use_statement() -> BoundCode<Self> {
-        BoundCode::from_index(53u16)
+        BoundCode::from_index(56u16)
     }
     #[doc = "`DiagnosticReport`"]
     #[inline]
     #[must_use]
     pub fn diagnostic_report() -> BoundCode<Self> {
-        BoundCode::from_index(54u16)
+        BoundCode::from_index(57u16)
     }
     #[doc = "Distance"]
     #[inline]
     #[must_use]
     pub fn distance() -> BoundCode<Self> {
-        BoundCode::from_index(55u16)
+        BoundCode::from_index(58u16)
     }
     #[doc = "`DocumentManifest`"]
     #[inline]
     #[must_use]
     pub fn document_manifest() -> BoundCode<Self> {
-        BoundCode::from_index(56u16)
+        BoundCode::from_index(59u16)
     }
     #[doc = "`DocumentReference`"]
     #[inline]
     #[must_use]
     pub fn document_reference() -> BoundCode<Self> {
-        BoundCode::from_index(57u16)
+        BoundCode::from_index(60u16)
     }
     #[doc = "`DomainResource`"]
     #[inline]
     #[must_use]
     pub fn domain_resource() -> BoundCode<Self> {
-        BoundCode::from_index(58u16)
+        BoundCode::from_index(61u16)
     }
     #[doc = "Dosage"]
     #[inline]
     #[must_use]
     pub fn dosage() -> BoundCode<Self> {
-        BoundCode::from_index(59u16)
+        BoundCode::from_index(62u16)
     }
     #[doc = "Duration"]
     #[inline]
     #[must_use]
     pub fn duration() -> BoundCode<Self> {
-        BoundCode::from_index(60u16)
+        BoundCode::from_index(63u16)
     }
     #[doc = "`EffectEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn effect_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(61u16)
+        BoundCode::from_index(64u16)
     }
     #[doc = "Element"]
     #[inline]
     #[must_use]
     pub fn element() -> BoundCode<Self> {
-        BoundCode::from_index(62u16)
+        BoundCode::from_index(65u16)
     }
     #[doc = "`ElementDefinition`"]
     #[inline]
     #[must_use]
     pub fn element_definition() -> BoundCode<Self> {
-        BoundCode::from_index(63u16)
+        BoundCode::from_index(66u16)
     }
     #[doc = "Encounter"]
     #[inline]
     #[must_use]
     pub fn encounter() -> BoundCode<Self> {
-        BoundCode::from_index(64u16)
+        BoundCode::from_index(67u16)
     }
     #[doc = "Endpoint"]
     #[inline]
     #[must_use]
     pub fn endpoint() -> BoundCode<Self> {
-        BoundCode::from_index(65u16)
+        BoundCode::from_index(68u16)
     }
     #[doc = "`EnrollmentRequest`"]
     #[inline]
     #[must_use]
     pub fn enrollment_request() -> BoundCode<Self> {
-        BoundCode::from_index(66u16)
+        BoundCode::from_index(69u16)
     }
     #[doc = "`EnrollmentResponse`"]
     #[inline]
     #[must_use]
     pub fn enrollment_response() -> BoundCode<Self> {
-        BoundCode::from_index(67u16)
+        BoundCode::from_index(70u16)
     }
     #[doc = "`EpisodeOfCare`"]
     #[inline]
     #[must_use]
     pub fn episode_of_care() -> BoundCode<Self> {
-        BoundCode::from_index(68u16)
+        BoundCode::from_index(71u16)
     }
     #[doc = "`EventDefinition`"]
     #[inline]
     #[must_use]
     pub fn event_definition() -> BoundCode<Self> {
-        BoundCode::from_index(69u16)
+        BoundCode::from_index(72u16)
     }
     #[doc = "Evidence"]
     #[inline]
     #[must_use]
     pub fn evidence() -> BoundCode<Self> {
-        BoundCode::from_index(70u16)
+        BoundCode::from_index(73u16)
     }
     #[doc = "`EvidenceVariable`"]
     #[inline]
     #[must_use]
     pub fn evidence_variable() -> BoundCode<Self> {
-        BoundCode::from_index(71u16)
+        BoundCode::from_index(74u16)
     }
     #[doc = "`ExampleScenario`"]
     #[inline]
     #[must_use]
     pub fn example_scenario() -> BoundCode<Self> {
-        BoundCode::from_index(72u16)
+        BoundCode::from_index(75u16)
     }
     #[doc = "`ExplanationOfBenefit`"]
     #[inline]
     #[must_use]
     pub fn explanation_of_benefit() -> BoundCode<Self> {
-        BoundCode::from_index(73u16)
+        BoundCode::from_index(76u16)
     }
     #[doc = "Expression"]
     #[inline]
     #[must_use]
     pub fn expression() -> BoundCode<Self> {
-        BoundCode::from_index(74u16)
+        BoundCode::from_index(77u16)
     }
     #[doc = "Extension"]
     #[inline]
     #[must_use]
     pub fn extension() -> BoundCode<Self> {
-        BoundCode::from_index(75u16)
+        BoundCode::from_index(78u16)
     }
     #[doc = "`FamilyMemberHistory`"]
     #[inline]
     #[must_use]
     pub fn family_member_history() -> BoundCode<Self> {
-        BoundCode::from_index(76u16)
+        BoundCode::from_index(79u16)
     }
     #[doc = "Flag"]
     #[inline]
     #[must_use]
     pub fn flag() -> BoundCode<Self> {
-        BoundCode::from_index(77u16)
+        BoundCode::from_index(80u16)
     }
     #[doc = "Goal"]
     #[inline]
     #[must_use]
     pub fn goal() -> BoundCode<Self> {
-        BoundCode::from_index(78u16)
+        BoundCode::from_index(81u16)
     }
     #[doc = "`GraphDefinition`"]
     #[inline]
     #[must_use]
     pub fn graph_definition() -> BoundCode<Self> {
-        BoundCode::from_index(79u16)
+        BoundCode::from_index(82u16)
     }
     #[doc = "Group"]
     #[inline]
     #[must_use]
     pub fn group() -> BoundCode<Self> {
-        BoundCode::from_index(80u16)
+        BoundCode::from_index(83u16)
     }
     #[doc = "`GuidanceResponse`"]
     #[inline]
     #[must_use]
     pub fn guidance_response() -> BoundCode<Self> {
-        BoundCode::from_index(81u16)
+        BoundCode::from_index(84u16)
     }
     #[doc = "HL7V2"]
     #[inline]
     #[must_use]
     pub fn h_l7_v2() -> BoundCode<Self> {
-        BoundCode::from_index(82u16)
+        BoundCode::from_index(85u16)
     }
     #[doc = "`HealthcareService`"]
     #[inline]
     #[must_use]
     pub fn healthcare_service() -> BoundCode<Self> {
-        BoundCode::from_index(83u16)
+        BoundCode::from_index(86u16)
     }
     #[doc = "`HumanName`"]
     #[inline]
     #[must_use]
     pub fn human_name() -> BoundCode<Self> {
-        BoundCode::from_index(84u16)
+        BoundCode::from_index(87u16)
     }
     #[doc = "Identifier"]
     #[inline]
     #[must_use]
     pub fn identifier_() -> BoundCode<Self> {
-        BoundCode::from_index(85u16)
+        BoundCode::from_index(88u16)
     }
     #[doc = "`IdentityProvider`"]
     #[inline]
     #[must_use]
     pub fn identity_provider() -> BoundCode<Self> {
-        BoundCode::from_index(86u16)
+        BoundCode::from_index(89u16)
     }
     #[doc = "`ImagingStudy`"]
     #[inline]
     #[must_use]
     pub fn imaging_study() -> BoundCode<Self> {
-        BoundCode::from_index(87u16)
+        BoundCode::from_index(90u16)
     }
     #[doc = "Immunization"]
     #[inline]
     #[must_use]
     pub fn immunization() -> BoundCode<Self> {
-        BoundCode::from_index(88u16)
+        BoundCode::from_index(91u16)
     }
     #[doc = "`ImmunizationEvaluation`"]
     #[inline]
     #[must_use]
     pub fn immunization_evaluation() -> BoundCode<Self> {
-        BoundCode::from_index(89u16)
+        BoundCode::from_index(92u16)
     }
     #[doc = "`ImmunizationRecommendation`"]
     #[inline]
     #[must_use]
     pub fn immunization_recommendation() -> BoundCode<Self> {
-        BoundCode::from_index(90u16)
+        BoundCode::from_index(93u16)
     }
     #[doc = "`ImplementationGuide`"]
     #[inline]
     #[must_use]
     pub fn implementation_guide() -> BoundCode<Self> {
-        BoundCode::from_index(91u16)
+        BoundCode::from_index(94u16)
     }
     #[doc = "`InsurancePlan`"]
     #[inline]
     #[must_use]
     pub fn insurance_plan() -> BoundCode<Self> {
-        BoundCode::from_index(92u16)
+        BoundCode::from_index(95u16)
     }
     #[doc = "Invoice"]
     #[inline]
     #[must_use]
     pub fn invoice() -> BoundCode<Self> {
-        BoundCode::from_index(93u16)
+        BoundCode::from_index(96u16)
     }
     #[doc = "Library"]
     #[inline]
     #[must_use]
     pub fn library() -> BoundCode<Self> {
-        BoundCode::from_index(94u16)
+        BoundCode::from_index(97u16)
     }
     #[doc = "Linkage"]
     #[inline]
     #[must_use]
     pub fn linkage() -> BoundCode<Self> {
-        BoundCode::from_index(95u16)
+        BoundCode::from_index(98u16)
     }
     #[doc = "List"]
     #[inline]
     #[must_use]
     pub fn list() -> BoundCode<Self> {
-        BoundCode::from_index(96u16)
+        BoundCode::from_index(99u16)
     }
     #[doc = "Location"]
     #[inline]
     #[must_use]
     pub fn location() -> BoundCode<Self> {
-        BoundCode::from_index(97u16)
+        BoundCode::from_index(100u16)
     }
     #[doc = "`MarketingStatus`"]
     #[inline]
     #[must_use]
     pub fn marketing_status() -> BoundCode<Self> {
-        BoundCode::from_index(98u16)
+        BoundCode::from_index(101u16)
     }
     #[doc = "Measure"]
     #[inline]
     #[must_use]
     pub fn measure() -> BoundCode<Self> {
-        BoundCode::from_index(99u16)
+        BoundCode::from_index(102u16)
     }
     #[doc = "`MeasureReport`"]
     #[inline]
     #[must_use]
     pub fn measure_report() -> BoundCode<Self> {
-        BoundCode::from_index(100u16)
+        BoundCode::from_index(103u16)
     }
     #[doc = "Media"]
     #[inline]
     #[must_use]
     pub fn media() -> BoundCode<Self> {
-        BoundCode::from_index(101u16)
+        BoundCode::from_index(104u16)
     }
     #[doc = "Medication"]
     #[inline]
     #[must_use]
     pub fn medication() -> BoundCode<Self> {
-        BoundCode::from_index(102u16)
+        BoundCode::from_index(105u16)
     }
     #[doc = "`MedicationAdministration`"]
     #[inline]
     #[must_use]
     pub fn medication_administration() -> BoundCode<Self> {
-        BoundCode::from_index(103u16)
+        BoundCode::from_index(106u16)
     }
     #[doc = "`MedicationDispense`"]
     #[inline]
     #[must_use]
     pub fn medication_dispense() -> BoundCode<Self> {
-        BoundCode::from_index(104u16)
+        BoundCode::from_index(107u16)
     }
     #[doc = "`MedicationKnowledge`"]
     #[inline]
     #[must_use]
     pub fn medication_knowledge() -> BoundCode<Self> {
-        BoundCode::from_index(105u16)
+        BoundCode::from_index(108u16)
     }
     #[doc = "`MedicationRequest`"]
     #[inline]
     #[must_use]
     pub fn medication_request() -> BoundCode<Self> {
-        BoundCode::from_index(106u16)
+        BoundCode::from_index(109u16)
     }
     #[doc = "`MedicationStatement`"]
     #[inline]
     #[must_use]
     pub fn medication_statement() -> BoundCode<Self> {
-        BoundCode::from_index(107u16)
+        BoundCode::from_index(110u16)
     }
     #[doc = "`MedicinalProduct`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product() -> BoundCode<Self> {
-        BoundCode::from_index(108u16)
+        BoundCode::from_index(111u16)
     }
     #[doc = "`MedicinalProductAuthorization`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_authorization() -> BoundCode<Self> {
-        BoundCode::from_index(109u16)
+        BoundCode::from_index(112u16)
     }
     #[doc = "`MedicinalProductContraindication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_contraindication() -> BoundCode<Self> {
-        BoundCode::from_index(110u16)
+        BoundCode::from_index(113u16)
     }
     #[doc = "`MedicinalProductIndication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_indication() -> BoundCode<Self> {
-        BoundCode::from_index(111u16)
+        BoundCode::from_index(114u16)
     }
     #[doc = "`MedicinalProductIngredient`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_ingredient() -> BoundCode<Self> {
-        BoundCode::from_index(112u16)
+        BoundCode::from_index(115u16)
     }
     #[doc = "`MedicinalProductInteraction`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_interaction() -> BoundCode<Self> {
-        BoundCode::from_index(113u16)
+        BoundCode::from_index(116u16)
     }
     #[doc = "`MedicinalProductManufactured`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_manufactured() -> BoundCode<Self> {
-        BoundCode::from_index(114u16)
+        BoundCode::from_index(117u16)
     }
     #[doc = "`MedicinalProductPackaged`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_packaged() -> BoundCode<Self> {
-        BoundCode::from_index(115u16)
+        BoundCode::from_index(118u16)
     }
     #[doc = "`MedicinalProductPharmaceutical`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_pharmaceutical() -> BoundCode<Self> {
-        BoundCode::from_index(116u16)
+        BoundCode::from_index(119u16)
     }
     #[doc = "`MedicinalProductUndesirableEffect`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_undesirable_effect() -> BoundCode<Self> {
-        BoundCode::from_index(117u16)
+        BoundCode::from_index(120u16)
     }
     #[doc = "Membership"]
     #[inline]
     #[must_use]
     pub fn membership() -> BoundCode<Self> {
-        BoundCode::from_index(118u16)
+        BoundCode::from_index(121u16)
     }
     #[doc = "`MessageDefinition`"]
     #[inline]
     #[must_use]
     pub fn message_definition() -> BoundCode<Self> {
-        BoundCode::from_index(119u16)
+        BoundCode::from_index(122u16)
     }
     #[doc = "`MessageHeader`"]
     #[inline]
     #[must_use]
     pub fn message_header() -> BoundCode<Self> {
-        BoundCode::from_index(120u16)
+        BoundCode::from_index(123u16)
     }
     #[doc = "Meta"]
     #[inline]
     #[must_use]
     pub fn meta() -> BoundCode<Self> {
-        BoundCode::from_index(121u16)
+        BoundCode::from_index(124u16)
     }
     #[doc = "`MolecularSequence`"]
     #[inline]
     #[must_use]
     pub fn molecular_sequence() -> BoundCode<Self> {
-        BoundCode::from_index(122u16)
+        BoundCode::from_index(125u16)
     }
     #[doc = "Money"]
     #[inline]
     #[must_use]
     pub fn money() -> BoundCode<Self> {
-        BoundCode::from_index(123u16)
+        BoundCode::from_index(126u16)
     }
     #[doc = "`MoneyQuantity`"]
     #[inline]
     #[must_use]
     pub fn money_quantity() -> BoundCode<Self> {
-        BoundCode::from_index(124u16)
+        BoundCode::from_index(127u16)
     }
     #[doc = "`NamingSystem`"]
     #[inline]
     #[must_use]
     pub fn naming_system() -> BoundCode<Self> {
-        BoundCode::from_index(125u16)
+        BoundCode::from_index(128u16)
     }
     #[doc = "Narrative"]
     #[inline]
     #[must_use]
     pub fn narrative() -> BoundCode<Self> {
-        BoundCode::from_index(126u16)
+        BoundCode::from_index(129u16)
     }
     #[doc = "`NutritionOrder`"]
     #[inline]
     #[must_use]
     pub fn nutrition_order() -> BoundCode<Self> {
-        BoundCode::from_index(127u16)
+        BoundCode::from_index(130u16)
     }
     #[doc = "Observation"]
     #[inline]
     #[must_use]
     pub fn observation() -> BoundCode<Self> {
-        BoundCode::from_index(128u16)
+        BoundCode::from_index(131u16)
     }
     #[doc = "`ObservationDefinition`"]
     #[inline]
     #[must_use]
     pub fn observation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(129u16)
+        BoundCode::from_index(132u16)
     }
     #[doc = "`OperationDefinition`"]
     #[inline]
     #[must_use]
     pub fn operation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(130u16)
+        BoundCode::from_index(133u16)
     }
     #[doc = "`OperationOutcome`"]
     #[inline]
     #[must_use]
     pub fn operation_outcome() -> BoundCode<Self> {
-        BoundCode::from_index(131u16)
+        BoundCode::from_index(134u16)
     }
     #[doc = "Organization"]
     #[inline]
     #[must_use]
     pub fn organization() -> BoundCode<Self> {
-        BoundCode::from_index(132u16)
+        BoundCode::from_index(135u16)
     }
     #[doc = "`OrganizationAffiliation`"]
     #[inline]
     #[must_use]
     pub fn organization_affiliation() -> BoundCode<Self> {
-        BoundCode::from_index(133u16)
+        BoundCode::from_index(136u16)
     }
     #[doc = "`ParameterDefinition`"]
     #[inline]
     #[must_use]
     pub fn parameter_definition() -> BoundCode<Self> {
-        BoundCode::from_index(134u16)
+        BoundCode::from_index(137u16)
     }
     #[doc = "Parameters"]
     #[inline]
     #[must_use]
     pub fn parameters() -> BoundCode<Self> {
-        BoundCode::from_index(135u16)
+        BoundCode::from_index(138u16)
     }
     #[doc = "Patient"]
     #[inline]
     #[must_use]
     pub fn patient() -> BoundCode<Self> {
-        BoundCode::from_index(136u16)
+        BoundCode::from_index(139u16)
     }
     #[doc = "`PaymentNotice`"]
     #[inline]
     #[must_use]
     pub fn payment_notice() -> BoundCode<Self> {
-        BoundCode::from_index(137u16)
+        BoundCode::from_index(140u16)
     }
     #[doc = "`PaymentReconciliation`"]
     #[inline]
     #[must_use]
     pub fn payment_reconciliation() -> BoundCode<Self> {
-        BoundCode::from_index(138u16)
+        BoundCode::from_index(141u16)
     }
     #[doc = "Period"]
     #[inline]
     #[must_use]
     pub fn period() -> BoundCode<Self> {
-        BoundCode::from_index(139u16)
+        BoundCode::from_index(142u16)
     }
     #[doc = "Person"]
     #[inline]
     #[must_use]
     pub fn person() -> BoundCode<Self> {
-        BoundCode::from_index(140u16)
+        BoundCode::from_index(143u16)
     }
     #[doc = "`PlanDefinition`"]
     #[inline]
     #[must_use]
     pub fn plan_definition() -> BoundCode<Self> {
-        BoundCode::from_index(141u16)
+        BoundCode::from_index(144u16)
     }
     #[doc = "Population"]
     #[inline]
     #[must_use]
     pub fn population() -> BoundCode<Self> {
-        BoundCode::from_index(142u16)
+        BoundCode::from_index(145u16)
     }
     #[doc = "Practitioner"]
     #[inline]
     #[must_use]
     pub fn practitioner() -> BoundCode<Self> {
-        BoundCode::from_index(143u16)
+        BoundCode::from_index(146u16)
     }
     #[doc = "`PractitionerRole`"]
     #[inline]
     #[must_use]
     pub fn practitioner_role() -> BoundCode<Self> {
-        BoundCode::from_index(144u16)
+        BoundCode::from_index(147u16)
     }
     #[doc = "Procedure"]
     #[inline]
     #[must_use]
     pub fn procedure() -> BoundCode<Self> {
-        BoundCode::from_index(145u16)
+        BoundCode::from_index(148u16)
     }
     #[doc = "`ProdCharacteristic`"]
     #[inline]
     #[must_use]
     pub fn prod_characteristic() -> BoundCode<Self> {
-        BoundCode::from_index(146u16)
+        BoundCode::from_index(149u16)
     }
     #[doc = "`ProductShelfLife`"]
     #[inline]
     #[must_use]
     pub fn product_shelf_life() -> BoundCode<Self> {
-        BoundCode::from_index(147u16)
+        BoundCode::from_index(150u16)
     }
     #[doc = "Project"]
     #[inline]
     #[must_use]
     pub fn project() -> BoundCode<Self> {
-        BoundCode::from_index(148u16)
+        BoundCode::from_index(151u16)
     }
     #[doc = "Provenance"]
     #[inline]
     #[must_use]
     pub fn provenance() -> BoundCode<Self> {
-        BoundCode::from_index(149u16)
+        BoundCode::from_index(152u16)
     }
     #[doc = "Quantity"]
     #[inline]
     #[must_use]
     pub fn quantity() -> BoundCode<Self> {
-        BoundCode::from_index(150u16)
+        BoundCode::from_index(153u16)
     }
     #[doc = "Questionnaire"]
     #[inline]
     #[must_use]
     pub fn questionnaire() -> BoundCode<Self> {
-        BoundCode::from_index(151u16)
+        BoundCode::from_index(154u16)
     }
     #[doc = "`QuestionnaireResponse`"]
     #[inline]
     #[must_use]
     pub fn questionnaire_response() -> BoundCode<Self> {
-        BoundCode::from_index(152u16)
+        BoundCode::from_index(155u16)
     }
     #[doc = "Range"]
     #[inline]
     #[must_use]
     pub fn range() -> BoundCode<Self> {
-        BoundCode::from_index(153u16)
+        BoundCode::from_index(156u16)
     }
     #[doc = "Ratio"]
     #[inline]
     #[must_use]
     pub fn ratio() -> BoundCode<Self> {
-        BoundCode::from_index(154u16)
+        BoundCode::from_index(157u16)
     }
     #[doc = "Reference"]
     #[inline]
     #[must_use]
     pub fn reference() -> BoundCode<Self> {
-        BoundCode::from_index(155u16)
+        BoundCode::from_index(158u16)
     }
     #[doc = "`RelatedArtifact`"]
     #[inline]
     #[must_use]
     pub fn related_artifact() -> BoundCode<Self> {
-        BoundCode::from_index(156u16)
+        BoundCode::from_index(159u16)
     }
     #[doc = "`RelatedPerson`"]
     #[inline]
     #[must_use]
     pub fn related_person() -> BoundCode<Self> {
-        BoundCode::from_index(157u16)
+        BoundCode::from_index(160u16)
     }
     #[doc = "`RequestGroup`"]
     #[inline]
     #[must_use]
     pub fn request_group() -> BoundCode<Self> {
-        BoundCode::from_index(158u16)
+        BoundCode::from_index(161u16)
     }
     #[doc = "`ResearchDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_definition() -> BoundCode<Self> {
-        BoundCode::from_index(159u16)
+        BoundCode::from_index(162u16)
     }
     #[doc = "`ResearchElementDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_element_definition() -> BoundCode<Self> {
-        BoundCode::from_index(160u16)
+        BoundCode::from_index(163u16)
     }
     #[doc = "`ResearchStudy`"]
     #[inline]
     #[must_use]
     pub fn research_study() -> BoundCode<Self> {
-        BoundCode::from_index(161u16)
+        BoundCode::from_index(164u16)
     }
     #[doc = "`ResearchSubject`"]
     #[inline]
     #[must_use]
     pub fn research_subject() -> BoundCode<Self> {
-        BoundCode::from_index(162u16)
+        BoundCode::from_index(165u16)
     }
     #[doc = "Resource"]
     #[inline]
     #[must_use]
     pub fn resource() -> BoundCode<Self> {
-        BoundCode::from_index(163u16)
+        BoundCode::from_index(166u16)
     }
     #[doc = "`RiskAssessment`"]
     #[inline]
     #[must_use]
     pub fn risk_assessment() -> BoundCode<Self> {
-        BoundCode::from_index(164u16)
+        BoundCode::from_index(167u16)
     }
     #[doc = "`RiskEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn risk_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(165u16)
+        BoundCode::from_index(168u16)
     }
     #[doc = "`SampledData`"]
     #[inline]
     #[must_use]
     pub fn sampled_data() -> BoundCode<Self> {
-        BoundCode::from_index(166u16)
+        BoundCode::from_index(169u16)
     }
     #[doc = "Schedule"]
     #[inline]
     #[must_use]
     pub fn schedule() -> BoundCode<Self> {
-        BoundCode::from_index(167u16)
+        BoundCode::from_index(170u16)
     }
     #[doc = "`SearchParameter`"]
     #[inline]
     #[must_use]
     pub fn search_parameter() -> BoundCode<Self> {
-        BoundCode::from_index(168u16)
+        BoundCode::from_index(171u16)
     }
     #[doc = "`ServiceRequest`"]
     #[inline]
     #[must_use]
     pub fn service_request() -> BoundCode<Self> {
-        BoundCode::from_index(169u16)
+        BoundCode::from_index(172u16)
     }
     #[doc = "Signature"]
     #[inline]
     #[must_use]
     pub fn signature() -> BoundCode<Self> {
-        BoundCode::from_index(170u16)
+        BoundCode::from_index(173u16)
     }
     #[doc = "`SimpleQuantity`"]
     #[inline]
     #[must_use]
     pub fn simple_quantity() -> BoundCode<Self> {
-        BoundCode::from_index(171u16)
+        BoundCode::from_index(174u16)
     }
     #[doc = "Slot"]
     #[inline]
     #[must_use]
     pub fn slot() -> BoundCode<Self> {
-        BoundCode::from_index(172u16)
+        BoundCode::from_index(175u16)
     }
     #[doc = "Specimen"]
     #[inline]
     #[must_use]
     pub fn specimen() -> BoundCode<Self> {
-        BoundCode::from_index(173u16)
+        BoundCode::from_index(176u16)
     }
     #[doc = "`SpecimenDefinition`"]
     #[inline]
     #[must_use]
     pub fn specimen_definition() -> BoundCode<Self> {
-        BoundCode::from_index(174u16)
+        BoundCode::from_index(177u16)
     }
     #[doc = "`StructureDefinition`"]
     #[inline]
     #[must_use]
     pub fn structure_definition() -> BoundCode<Self> {
-        BoundCode::from_index(175u16)
+        BoundCode::from_index(178u16)
     }
     #[doc = "`StructureMap`"]
     #[inline]
     #[must_use]
     pub fn structure_map() -> BoundCode<Self> {
-        BoundCode::from_index(176u16)
+        BoundCode::from_index(179u16)
     }
     #[doc = "Subscription"]
     #[inline]
     #[must_use]
     pub fn subscription() -> BoundCode<Self> {
-        BoundCode::from_index(177u16)
+        BoundCode::from_index(180u16)
     }
     #[doc = "Substance"]
     #[inline]
     #[must_use]
     pub fn substance() -> BoundCode<Self> {
-        BoundCode::from_index(178u16)
+        BoundCode::from_index(181u16)
     }
     #[doc = "`SubstanceAmount`"]
     #[inline]
     #[must_use]
     pub fn substance_amount() -> BoundCode<Self> {
-        BoundCode::from_index(179u16)
+        BoundCode::from_index(182u16)
     }
     #[doc = "`SubstanceNucleicAcid`"]
     #[inline]
     #[must_use]
     pub fn substance_nucleic_acid() -> BoundCode<Self> {
-        BoundCode::from_index(180u16)
+        BoundCode::from_index(183u16)
     }
     #[doc = "`SubstancePolymer`"]
     #[inline]
     #[must_use]
     pub fn substance_polymer() -> BoundCode<Self> {
-        BoundCode::from_index(181u16)
+        BoundCode::from_index(184u16)
     }
     #[doc = "`SubstanceProtein`"]
     #[inline]
     #[must_use]
     pub fn substance_protein() -> BoundCode<Self> {
-        BoundCode::from_index(182u16)
+        BoundCode::from_index(185u16)
     }
     #[doc = "`SubstanceReferenceInformation`"]
     #[inline]
     #[must_use]
     pub fn substance_reference_information() -> BoundCode<Self> {
-        BoundCode::from_index(183u16)
+        BoundCode::from_index(186u16)
     }
     #[doc = "`SubstanceSourceMaterial`"]
     #[inline]
     #[must_use]
     pub fn substance_source_material() -> BoundCode<Self> {
-        BoundCode::from_index(184u16)
+        BoundCode::from_index(187u16)
     }
     #[doc = "`SubstanceSpecification`"]
     #[inline]
     #[must_use]
     pub fn substance_specification() -> BoundCode<Self> {
-        BoundCode::from_index(185u16)
+        BoundCode::from_index(188u16)
     }
     #[doc = "`SupplyDelivery`"]
     #[inline]
     #[must_use]
     pub fn supply_delivery() -> BoundCode<Self> {
-        BoundCode::from_index(186u16)
+        BoundCode::from_index(189u16)
     }
     #[doc = "`SupplyRequest`"]
     #[inline]
     #[must_use]
     pub fn supply_request() -> BoundCode<Self> {
-        BoundCode::from_index(187u16)
+        BoundCode::from_index(190u16)
     }
     #[doc = "Task"]
     #[inline]
     #[must_use]
     pub fn task() -> BoundCode<Self> {
-        BoundCode::from_index(188u16)
+        BoundCode::from_index(191u16)
     }
     #[doc = "`TerminologyCapabilities`"]
     #[inline]
     #[must_use]
     pub fn terminology_capabilities() -> BoundCode<Self> {
-        BoundCode::from_index(189u16)
+        BoundCode::from_index(192u16)
     }
     #[doc = "`TestReport`"]
     #[inline]
     #[must_use]
     pub fn test_report() -> BoundCode<Self> {
-        BoundCode::from_index(190u16)
+        BoundCode::from_index(193u16)
     }
     #[doc = "`TestScript`"]
     #[inline]
     #[must_use]
     pub fn test_script() -> BoundCode<Self> {
-        BoundCode::from_index(191u16)
+        BoundCode::from_index(194u16)
     }
     #[doc = "Timing"]
     #[inline]
     #[must_use]
     pub fn timing() -> BoundCode<Self> {
-        BoundCode::from_index(192u16)
+        BoundCode::from_index(195u16)
     }
     #[doc = "`TriggerDefinition`"]
     #[inline]
     #[must_use]
     pub fn trigger_definition() -> BoundCode<Self> {
-        BoundCode::from_index(193u16)
+        BoundCode::from_index(196u16)
     }
     #[doc = "`UsageContext`"]
     #[inline]
     #[must_use]
     pub fn usage_context() -> BoundCode<Self> {
-        BoundCode::from_index(194u16)
+        BoundCode::from_index(197u16)
     }
     #[doc = "User"]
     #[inline]
     #[must_use]
     pub fn user() -> BoundCode<Self> {
-        BoundCode::from_index(195u16)
+        BoundCode::from_index(198u16)
     }
     #[doc = "`ValueSet`"]
     #[inline]
     #[must_use]
     pub fn value_set() -> BoundCode<Self> {
-        BoundCode::from_index(196u16)
+        BoundCode::from_index(199u16)
     }
     #[doc = "`VerificationResult`"]
     #[inline]
     #[must_use]
     pub fn verification_result() -> BoundCode<Self> {
-        BoundCode::from_index(197u16)
+        BoundCode::from_index(200u16)
     }
     #[doc = "`ViewDefinition`"]
     #[inline]
     #[must_use]
     pub fn view_definition() -> BoundCode<Self> {
-        BoundCode::from_index(198u16)
+        BoundCode::from_index(201u16)
     }
     #[doc = "`VisionPrescription`"]
     #[inline]
     #[must_use]
     pub fn vision_prescription() -> BoundCode<Self> {
-        BoundCode::from_index(199u16)
+        BoundCode::from_index(202u16)
     }
     #[doc = "base64Binary"]
     #[inline]
     #[must_use]
     pub fn base64_binary() -> BoundCode<Self> {
-        BoundCode::from_index(200u16)
+        BoundCode::from_index(203u16)
     }
     #[doc = "boolean"]
     #[inline]
     #[must_use]
     pub fn boolean() -> BoundCode<Self> {
-        BoundCode::from_index(201u16)
+        BoundCode::from_index(204u16)
     }
     #[doc = "canonical"]
     #[inline]
     #[must_use]
     pub fn canonical() -> BoundCode<Self> {
-        BoundCode::from_index(202u16)
+        BoundCode::from_index(205u16)
     }
     #[doc = "code"]
     #[inline]
     #[must_use]
     pub fn code() -> BoundCode<Self> {
-        BoundCode::from_index(203u16)
+        BoundCode::from_index(206u16)
     }
     #[doc = "date"]
     #[inline]
     #[must_use]
     pub fn date() -> BoundCode<Self> {
-        BoundCode::from_index(204u16)
+        BoundCode::from_index(207u16)
     }
     #[doc = "dateTime"]
     #[inline]
     #[must_use]
     pub fn date_time() -> BoundCode<Self> {
-        BoundCode::from_index(205u16)
+        BoundCode::from_index(208u16)
     }
     #[doc = "decimal"]
     #[inline]
     #[must_use]
     pub fn decimal() -> BoundCode<Self> {
-        BoundCode::from_index(206u16)
+        BoundCode::from_index(209u16)
     }
     #[doc = "id"]
     #[inline]
     #[must_use]
     pub fn id() -> BoundCode<Self> {
-        BoundCode::from_index(207u16)
+        BoundCode::from_index(210u16)
     }
     #[doc = "instant"]
     #[inline]
     #[must_use]
     pub fn instant() -> BoundCode<Self> {
-        BoundCode::from_index(208u16)
+        BoundCode::from_index(211u16)
     }
     #[doc = "integer"]
     #[inline]
     #[must_use]
     pub fn integer() -> BoundCode<Self> {
-        BoundCode::from_index(209u16)
+        BoundCode::from_index(212u16)
     }
     #[doc = "markdown"]
     #[inline]
     #[must_use]
     pub fn markdown() -> BoundCode<Self> {
-        BoundCode::from_index(210u16)
+        BoundCode::from_index(213u16)
     }
     #[doc = "oid"]
     #[inline]
     #[must_use]
     pub fn oid() -> BoundCode<Self> {
-        BoundCode::from_index(211u16)
+        BoundCode::from_index(214u16)
     }
     #[doc = "positiveInt"]
     #[inline]
     #[must_use]
     pub fn positive_int() -> BoundCode<Self> {
-        BoundCode::from_index(212u16)
+        BoundCode::from_index(215u16)
     }
     #[doc = "string"]
     #[inline]
     #[must_use]
     pub fn string() -> BoundCode<Self> {
-        BoundCode::from_index(213u16)
+        BoundCode::from_index(216u16)
     }
     #[doc = "time"]
     #[inline]
     #[must_use]
     pub fn time() -> BoundCode<Self> {
-        BoundCode::from_index(214u16)
+        BoundCode::from_index(217u16)
     }
     #[doc = "unsignedInt"]
     #[inline]
     #[must_use]
     pub fn unsigned_int() -> BoundCode<Self> {
-        BoundCode::from_index(215u16)
+        BoundCode::from_index(218u16)
     }
     #[doc = "uri"]
     #[inline]
     #[must_use]
     pub fn uri() -> BoundCode<Self> {
-        BoundCode::from_index(216u16)
+        BoundCode::from_index(219u16)
     }
     #[doc = "url"]
     #[inline]
     #[must_use]
     pub fn url() -> BoundCode<Self> {
-        BoundCode::from_index(217u16)
+        BoundCode::from_index(220u16)
     }
     #[doc = "uuid"]
     #[inline]
     #[must_use]
     pub fn uuid() -> BoundCode<Self> {
-        BoundCode::from_index(218u16)
+        BoundCode::from_index(221u16)
     }
     #[doc = "XHTML"]
     #[inline]
     #[must_use]
     pub fn xhtml() -> BoundCode<Self> {
-        BoundCode::from_index(219u16)
+        BoundCode::from_index(222u16)
     }
     #[inline]
     #[must_use]
@@ -38682,6 +38724,8 @@ impl ValueSetDef for ResourceTypes {
     const CODES: &[&str] = &[
         "AccessPolicyV2",
         "AccessPolicyV2Assignment",
+        "AccessPolicyV3",
+        "AccessPolicyV3Assignment",
         "Account",
         "ActivityDefinition",
         "AdverseEvent",
@@ -38716,6 +38760,7 @@ impl ValueSetDef for ResourceTypes {
         "Coverage",
         "CoverageEligibilityRequest",
         "CoverageEligibilityResponse",
+        "DeidentificationPolicy",
         "DetectedIssue",
         "Device",
         "DeviceDefinition",
@@ -38852,935 +38897,953 @@ impl ResourceTypes {
     pub fn access_policy_v2_assignment() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
+    #[doc = "`AccessPolicyV3`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "`AccessPolicyV3Assignment`"]
+    #[inline]
+    #[must_use]
+    pub fn access_policy_v3_assignment() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
     #[doc = "Account"]
     #[inline]
     #[must_use]
     pub fn account() -> BoundCode<Self> {
-        BoundCode::from_index(2u16)
+        BoundCode::from_index(4u16)
     }
     #[doc = "`ActivityDefinition`"]
     #[inline]
     #[must_use]
     pub fn activity_definition() -> BoundCode<Self> {
-        BoundCode::from_index(3u16)
+        BoundCode::from_index(5u16)
     }
     #[doc = "`AdverseEvent`"]
     #[inline]
     #[must_use]
     pub fn adverse_event() -> BoundCode<Self> {
-        BoundCode::from_index(4u16)
+        BoundCode::from_index(6u16)
     }
     #[doc = "`AllergyIntolerance`"]
     #[inline]
     #[must_use]
     pub fn allergy_intolerance() -> BoundCode<Self> {
-        BoundCode::from_index(5u16)
+        BoundCode::from_index(7u16)
     }
     #[doc = "Appointment"]
     #[inline]
     #[must_use]
     pub fn appointment() -> BoundCode<Self> {
-        BoundCode::from_index(6u16)
+        BoundCode::from_index(8u16)
     }
     #[doc = "`AppointmentResponse`"]
     #[inline]
     #[must_use]
     pub fn appointment_response() -> BoundCode<Self> {
-        BoundCode::from_index(7u16)
+        BoundCode::from_index(9u16)
     }
     #[doc = "`AuditEvent`"]
     #[inline]
     #[must_use]
     pub fn audit_event() -> BoundCode<Self> {
-        BoundCode::from_index(8u16)
+        BoundCode::from_index(10u16)
     }
     #[doc = "Basic"]
     #[inline]
     #[must_use]
     pub fn basic() -> BoundCode<Self> {
-        BoundCode::from_index(9u16)
+        BoundCode::from_index(11u16)
     }
     #[doc = "Binary"]
     #[inline]
     #[must_use]
     pub fn binary() -> BoundCode<Self> {
-        BoundCode::from_index(10u16)
+        BoundCode::from_index(12u16)
     }
     #[doc = "`BiologicallyDerivedProduct`"]
     #[inline]
     #[must_use]
     pub fn biologically_derived_product() -> BoundCode<Self> {
-        BoundCode::from_index(11u16)
+        BoundCode::from_index(13u16)
     }
     #[doc = "`BodyStructure`"]
     #[inline]
     #[must_use]
     pub fn body_structure() -> BoundCode<Self> {
-        BoundCode::from_index(12u16)
+        BoundCode::from_index(14u16)
     }
     #[doc = "Bundle"]
     #[inline]
     #[must_use]
     pub fn bundle() -> BoundCode<Self> {
-        BoundCode::from_index(13u16)
+        BoundCode::from_index(15u16)
     }
     #[doc = "`CapabilityStatement`"]
     #[inline]
     #[must_use]
     pub fn capability_statement() -> BoundCode<Self> {
-        BoundCode::from_index(14u16)
+        BoundCode::from_index(16u16)
     }
     #[doc = "`CarePlan`"]
     #[inline]
     #[must_use]
     pub fn care_plan() -> BoundCode<Self> {
-        BoundCode::from_index(15u16)
+        BoundCode::from_index(17u16)
     }
     #[doc = "`CareTeam`"]
     #[inline]
     #[must_use]
     pub fn care_team() -> BoundCode<Self> {
-        BoundCode::from_index(16u16)
+        BoundCode::from_index(18u16)
     }
     #[doc = "`CatalogEntry`"]
     #[inline]
     #[must_use]
     pub fn catalog_entry() -> BoundCode<Self> {
-        BoundCode::from_index(17u16)
+        BoundCode::from_index(19u16)
     }
     #[doc = "`ChargeItem`"]
     #[inline]
     #[must_use]
     pub fn charge_item() -> BoundCode<Self> {
-        BoundCode::from_index(18u16)
+        BoundCode::from_index(20u16)
     }
     #[doc = "`ChargeItemDefinition`"]
     #[inline]
     #[must_use]
     pub fn charge_item_definition() -> BoundCode<Self> {
-        BoundCode::from_index(19u16)
+        BoundCode::from_index(21u16)
     }
     #[doc = "Claim"]
     #[inline]
     #[must_use]
     pub fn claim() -> BoundCode<Self> {
-        BoundCode::from_index(20u16)
+        BoundCode::from_index(22u16)
     }
     #[doc = "`ClaimResponse`"]
     #[inline]
     #[must_use]
     pub fn claim_response() -> BoundCode<Self> {
-        BoundCode::from_index(21u16)
+        BoundCode::from_index(23u16)
     }
     #[doc = "`ClientApplication`"]
     #[inline]
     #[must_use]
     pub fn client_application() -> BoundCode<Self> {
-        BoundCode::from_index(22u16)
+        BoundCode::from_index(24u16)
     }
     #[doc = "`ClinicalImpression`"]
     #[inline]
     #[must_use]
     pub fn clinical_impression() -> BoundCode<Self> {
-        BoundCode::from_index(23u16)
+        BoundCode::from_index(25u16)
     }
     #[doc = "`CodeSystem`"]
     #[inline]
     #[must_use]
     pub fn code_system() -> BoundCode<Self> {
-        BoundCode::from_index(24u16)
+        BoundCode::from_index(26u16)
     }
     #[doc = "Communication"]
     #[inline]
     #[must_use]
     pub fn communication() -> BoundCode<Self> {
-        BoundCode::from_index(25u16)
+        BoundCode::from_index(27u16)
     }
     #[doc = "`CommunicationRequest`"]
     #[inline]
     #[must_use]
     pub fn communication_request() -> BoundCode<Self> {
-        BoundCode::from_index(26u16)
+        BoundCode::from_index(28u16)
     }
     #[doc = "`CompartmentDefinition`"]
     #[inline]
     #[must_use]
     pub fn compartment_definition() -> BoundCode<Self> {
-        BoundCode::from_index(27u16)
+        BoundCode::from_index(29u16)
     }
     #[doc = "Composition"]
     #[inline]
     #[must_use]
     pub fn composition() -> BoundCode<Self> {
-        BoundCode::from_index(28u16)
+        BoundCode::from_index(30u16)
     }
     #[doc = "`ConceptMap`"]
     #[inline]
     #[must_use]
     pub fn concept_map() -> BoundCode<Self> {
-        BoundCode::from_index(29u16)
+        BoundCode::from_index(31u16)
     }
     #[doc = "Condition"]
     #[inline]
     #[must_use]
     pub fn condition() -> BoundCode<Self> {
-        BoundCode::from_index(30u16)
+        BoundCode::from_index(32u16)
     }
     #[doc = "Consent"]
     #[inline]
     #[must_use]
     pub fn consent() -> BoundCode<Self> {
-        BoundCode::from_index(31u16)
+        BoundCode::from_index(33u16)
     }
     #[doc = "Contract"]
     #[inline]
     #[must_use]
     pub fn contract() -> BoundCode<Self> {
-        BoundCode::from_index(32u16)
+        BoundCode::from_index(34u16)
     }
     #[doc = "Coverage"]
     #[inline]
     #[must_use]
     pub fn coverage() -> BoundCode<Self> {
-        BoundCode::from_index(33u16)
+        BoundCode::from_index(35u16)
     }
     #[doc = "`CoverageEligibilityRequest`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_request() -> BoundCode<Self> {
-        BoundCode::from_index(34u16)
+        BoundCode::from_index(36u16)
     }
     #[doc = "`CoverageEligibilityResponse`"]
     #[inline]
     #[must_use]
     pub fn coverage_eligibility_response() -> BoundCode<Self> {
-        BoundCode::from_index(35u16)
+        BoundCode::from_index(37u16)
+    }
+    #[doc = "`DeidentificationPolicy`"]
+    #[inline]
+    #[must_use]
+    pub fn deidentification_policy() -> BoundCode<Self> {
+        BoundCode::from_index(38u16)
     }
     #[doc = "`DetectedIssue`"]
     #[inline]
     #[must_use]
     pub fn detected_issue() -> BoundCode<Self> {
-        BoundCode::from_index(36u16)
+        BoundCode::from_index(39u16)
     }
     #[doc = "Device"]
     #[inline]
     #[must_use]
     pub fn device() -> BoundCode<Self> {
-        BoundCode::from_index(37u16)
+        BoundCode::from_index(40u16)
     }
     #[doc = "`DeviceDefinition`"]
     #[inline]
     #[must_use]
     pub fn device_definition() -> BoundCode<Self> {
-        BoundCode::from_index(38u16)
+        BoundCode::from_index(41u16)
     }
     #[doc = "`DeviceMetric`"]
     #[inline]
     #[must_use]
     pub fn device_metric() -> BoundCode<Self> {
-        BoundCode::from_index(39u16)
+        BoundCode::from_index(42u16)
     }
     #[doc = "`DeviceRequest`"]
     #[inline]
     #[must_use]
     pub fn device_request() -> BoundCode<Self> {
-        BoundCode::from_index(40u16)
+        BoundCode::from_index(43u16)
     }
     #[doc = "`DeviceUseStatement`"]
     #[inline]
     #[must_use]
     pub fn device_use_statement() -> BoundCode<Self> {
-        BoundCode::from_index(41u16)
+        BoundCode::from_index(44u16)
     }
     #[doc = "`DiagnosticReport`"]
     #[inline]
     #[must_use]
     pub fn diagnostic_report() -> BoundCode<Self> {
-        BoundCode::from_index(42u16)
+        BoundCode::from_index(45u16)
     }
     #[doc = "`DocumentManifest`"]
     #[inline]
     #[must_use]
     pub fn document_manifest() -> BoundCode<Self> {
-        BoundCode::from_index(43u16)
+        BoundCode::from_index(46u16)
     }
     #[doc = "`DocumentReference`"]
     #[inline]
     #[must_use]
     pub fn document_reference() -> BoundCode<Self> {
-        BoundCode::from_index(44u16)
+        BoundCode::from_index(47u16)
     }
     #[doc = "`DomainResource`"]
     #[inline]
     #[must_use]
     pub fn domain_resource() -> BoundCode<Self> {
-        BoundCode::from_index(45u16)
+        BoundCode::from_index(48u16)
     }
     #[doc = "`EffectEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn effect_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(46u16)
+        BoundCode::from_index(49u16)
     }
     #[doc = "Encounter"]
     #[inline]
     #[must_use]
     pub fn encounter() -> BoundCode<Self> {
-        BoundCode::from_index(47u16)
+        BoundCode::from_index(50u16)
     }
     #[doc = "Endpoint"]
     #[inline]
     #[must_use]
     pub fn endpoint() -> BoundCode<Self> {
-        BoundCode::from_index(48u16)
+        BoundCode::from_index(51u16)
     }
     #[doc = "`EnrollmentRequest`"]
     #[inline]
     #[must_use]
     pub fn enrollment_request() -> BoundCode<Self> {
-        BoundCode::from_index(49u16)
+        BoundCode::from_index(52u16)
     }
     #[doc = "`EnrollmentResponse`"]
     #[inline]
     #[must_use]
     pub fn enrollment_response() -> BoundCode<Self> {
-        BoundCode::from_index(50u16)
+        BoundCode::from_index(53u16)
     }
     #[doc = "`EpisodeOfCare`"]
     #[inline]
     #[must_use]
     pub fn episode_of_care() -> BoundCode<Self> {
-        BoundCode::from_index(51u16)
+        BoundCode::from_index(54u16)
     }
     #[doc = "`EventDefinition`"]
     #[inline]
     #[must_use]
     pub fn event_definition() -> BoundCode<Self> {
-        BoundCode::from_index(52u16)
+        BoundCode::from_index(55u16)
     }
     #[doc = "Evidence"]
     #[inline]
     #[must_use]
     pub fn evidence() -> BoundCode<Self> {
-        BoundCode::from_index(53u16)
+        BoundCode::from_index(56u16)
     }
     #[doc = "`EvidenceVariable`"]
     #[inline]
     #[must_use]
     pub fn evidence_variable() -> BoundCode<Self> {
-        BoundCode::from_index(54u16)
+        BoundCode::from_index(57u16)
     }
     #[doc = "`ExampleScenario`"]
     #[inline]
     #[must_use]
     pub fn example_scenario() -> BoundCode<Self> {
-        BoundCode::from_index(55u16)
+        BoundCode::from_index(58u16)
     }
     #[doc = "`ExplanationOfBenefit`"]
     #[inline]
     #[must_use]
     pub fn explanation_of_benefit() -> BoundCode<Self> {
-        BoundCode::from_index(56u16)
+        BoundCode::from_index(59u16)
     }
     #[doc = "`FamilyMemberHistory`"]
     #[inline]
     #[must_use]
     pub fn family_member_history() -> BoundCode<Self> {
-        BoundCode::from_index(57u16)
+        BoundCode::from_index(60u16)
     }
     #[doc = "Flag"]
     #[inline]
     #[must_use]
     pub fn flag() -> BoundCode<Self> {
-        BoundCode::from_index(58u16)
+        BoundCode::from_index(61u16)
     }
     #[doc = "Goal"]
     #[inline]
     #[must_use]
     pub fn goal() -> BoundCode<Self> {
-        BoundCode::from_index(59u16)
+        BoundCode::from_index(62u16)
     }
     #[doc = "`GraphDefinition`"]
     #[inline]
     #[must_use]
     pub fn graph_definition() -> BoundCode<Self> {
-        BoundCode::from_index(60u16)
+        BoundCode::from_index(63u16)
     }
     #[doc = "Group"]
     #[inline]
     #[must_use]
     pub fn group() -> BoundCode<Self> {
-        BoundCode::from_index(61u16)
+        BoundCode::from_index(64u16)
     }
     #[doc = "`GuidanceResponse`"]
     #[inline]
     #[must_use]
     pub fn guidance_response() -> BoundCode<Self> {
-        BoundCode::from_index(62u16)
+        BoundCode::from_index(65u16)
     }
     #[doc = "HL7V2"]
     #[inline]
     #[must_use]
     pub fn h_l7_v2() -> BoundCode<Self> {
-        BoundCode::from_index(63u16)
+        BoundCode::from_index(66u16)
     }
     #[doc = "`HealthcareService`"]
     #[inline]
     #[must_use]
     pub fn healthcare_service() -> BoundCode<Self> {
-        BoundCode::from_index(64u16)
+        BoundCode::from_index(67u16)
     }
     #[doc = "`IdentityProvider`"]
     #[inline]
     #[must_use]
     pub fn identity_provider() -> BoundCode<Self> {
-        BoundCode::from_index(65u16)
+        BoundCode::from_index(68u16)
     }
     #[doc = "`ImagingStudy`"]
     #[inline]
     #[must_use]
     pub fn imaging_study() -> BoundCode<Self> {
-        BoundCode::from_index(66u16)
+        BoundCode::from_index(69u16)
     }
     #[doc = "Immunization"]
     #[inline]
     #[must_use]
     pub fn immunization() -> BoundCode<Self> {
-        BoundCode::from_index(67u16)
+        BoundCode::from_index(70u16)
     }
     #[doc = "`ImmunizationEvaluation`"]
     #[inline]
     #[must_use]
     pub fn immunization_evaluation() -> BoundCode<Self> {
-        BoundCode::from_index(68u16)
+        BoundCode::from_index(71u16)
     }
     #[doc = "`ImmunizationRecommendation`"]
     #[inline]
     #[must_use]
     pub fn immunization_recommendation() -> BoundCode<Self> {
-        BoundCode::from_index(69u16)
+        BoundCode::from_index(72u16)
     }
     #[doc = "`ImplementationGuide`"]
     #[inline]
     #[must_use]
     pub fn implementation_guide() -> BoundCode<Self> {
-        BoundCode::from_index(70u16)
+        BoundCode::from_index(73u16)
     }
     #[doc = "`InsurancePlan`"]
     #[inline]
     #[must_use]
     pub fn insurance_plan() -> BoundCode<Self> {
-        BoundCode::from_index(71u16)
+        BoundCode::from_index(74u16)
     }
     #[doc = "Invoice"]
     #[inline]
     #[must_use]
     pub fn invoice() -> BoundCode<Self> {
-        BoundCode::from_index(72u16)
+        BoundCode::from_index(75u16)
     }
     #[doc = "Library"]
     #[inline]
     #[must_use]
     pub fn library() -> BoundCode<Self> {
-        BoundCode::from_index(73u16)
+        BoundCode::from_index(76u16)
     }
     #[doc = "Linkage"]
     #[inline]
     #[must_use]
     pub fn linkage() -> BoundCode<Self> {
-        BoundCode::from_index(74u16)
+        BoundCode::from_index(77u16)
     }
     #[doc = "List"]
     #[inline]
     #[must_use]
     pub fn list() -> BoundCode<Self> {
-        BoundCode::from_index(75u16)
+        BoundCode::from_index(78u16)
     }
     #[doc = "Location"]
     #[inline]
     #[must_use]
     pub fn location() -> BoundCode<Self> {
-        BoundCode::from_index(76u16)
+        BoundCode::from_index(79u16)
     }
     #[doc = "Measure"]
     #[inline]
     #[must_use]
     pub fn measure() -> BoundCode<Self> {
-        BoundCode::from_index(77u16)
+        BoundCode::from_index(80u16)
     }
     #[doc = "`MeasureReport`"]
     #[inline]
     #[must_use]
     pub fn measure_report() -> BoundCode<Self> {
-        BoundCode::from_index(78u16)
+        BoundCode::from_index(81u16)
     }
     #[doc = "Media"]
     #[inline]
     #[must_use]
     pub fn media() -> BoundCode<Self> {
-        BoundCode::from_index(79u16)
+        BoundCode::from_index(82u16)
     }
     #[doc = "Medication"]
     #[inline]
     #[must_use]
     pub fn medication() -> BoundCode<Self> {
-        BoundCode::from_index(80u16)
+        BoundCode::from_index(83u16)
     }
     #[doc = "`MedicationAdministration`"]
     #[inline]
     #[must_use]
     pub fn medication_administration() -> BoundCode<Self> {
-        BoundCode::from_index(81u16)
+        BoundCode::from_index(84u16)
     }
     #[doc = "`MedicationDispense`"]
     #[inline]
     #[must_use]
     pub fn medication_dispense() -> BoundCode<Self> {
-        BoundCode::from_index(82u16)
+        BoundCode::from_index(85u16)
     }
     #[doc = "`MedicationKnowledge`"]
     #[inline]
     #[must_use]
     pub fn medication_knowledge() -> BoundCode<Self> {
-        BoundCode::from_index(83u16)
+        BoundCode::from_index(86u16)
     }
     #[doc = "`MedicationRequest`"]
     #[inline]
     #[must_use]
     pub fn medication_request() -> BoundCode<Self> {
-        BoundCode::from_index(84u16)
+        BoundCode::from_index(87u16)
     }
     #[doc = "`MedicationStatement`"]
     #[inline]
     #[must_use]
     pub fn medication_statement() -> BoundCode<Self> {
-        BoundCode::from_index(85u16)
+        BoundCode::from_index(88u16)
     }
     #[doc = "`MedicinalProduct`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product() -> BoundCode<Self> {
-        BoundCode::from_index(86u16)
+        BoundCode::from_index(89u16)
     }
     #[doc = "`MedicinalProductAuthorization`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_authorization() -> BoundCode<Self> {
-        BoundCode::from_index(87u16)
+        BoundCode::from_index(90u16)
     }
     #[doc = "`MedicinalProductContraindication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_contraindication() -> BoundCode<Self> {
-        BoundCode::from_index(88u16)
+        BoundCode::from_index(91u16)
     }
     #[doc = "`MedicinalProductIndication`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_indication() -> BoundCode<Self> {
-        BoundCode::from_index(89u16)
+        BoundCode::from_index(92u16)
     }
     #[doc = "`MedicinalProductIngredient`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_ingredient() -> BoundCode<Self> {
-        BoundCode::from_index(90u16)
+        BoundCode::from_index(93u16)
     }
     #[doc = "`MedicinalProductInteraction`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_interaction() -> BoundCode<Self> {
-        BoundCode::from_index(91u16)
+        BoundCode::from_index(94u16)
     }
     #[doc = "`MedicinalProductManufactured`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_manufactured() -> BoundCode<Self> {
-        BoundCode::from_index(92u16)
+        BoundCode::from_index(95u16)
     }
     #[doc = "`MedicinalProductPackaged`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_packaged() -> BoundCode<Self> {
-        BoundCode::from_index(93u16)
+        BoundCode::from_index(96u16)
     }
     #[doc = "`MedicinalProductPharmaceutical`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_pharmaceutical() -> BoundCode<Self> {
-        BoundCode::from_index(94u16)
+        BoundCode::from_index(97u16)
     }
     #[doc = "`MedicinalProductUndesirableEffect`"]
     #[inline]
     #[must_use]
     pub fn medicinal_product_undesirable_effect() -> BoundCode<Self> {
-        BoundCode::from_index(95u16)
+        BoundCode::from_index(98u16)
     }
     #[doc = "Membership"]
     #[inline]
     #[must_use]
     pub fn membership() -> BoundCode<Self> {
-        BoundCode::from_index(96u16)
+        BoundCode::from_index(99u16)
     }
     #[doc = "`MessageDefinition`"]
     #[inline]
     #[must_use]
     pub fn message_definition() -> BoundCode<Self> {
-        BoundCode::from_index(97u16)
+        BoundCode::from_index(100u16)
     }
     #[doc = "`MessageHeader`"]
     #[inline]
     #[must_use]
     pub fn message_header() -> BoundCode<Self> {
-        BoundCode::from_index(98u16)
+        BoundCode::from_index(101u16)
     }
     #[doc = "`MolecularSequence`"]
     #[inline]
     #[must_use]
     pub fn molecular_sequence() -> BoundCode<Self> {
-        BoundCode::from_index(99u16)
+        BoundCode::from_index(102u16)
     }
     #[doc = "`NamingSystem`"]
     #[inline]
     #[must_use]
     pub fn naming_system() -> BoundCode<Self> {
-        BoundCode::from_index(100u16)
+        BoundCode::from_index(103u16)
     }
     #[doc = "`NutritionOrder`"]
     #[inline]
     #[must_use]
     pub fn nutrition_order() -> BoundCode<Self> {
-        BoundCode::from_index(101u16)
+        BoundCode::from_index(104u16)
     }
     #[doc = "Observation"]
     #[inline]
     #[must_use]
     pub fn observation() -> BoundCode<Self> {
-        BoundCode::from_index(102u16)
+        BoundCode::from_index(105u16)
     }
     #[doc = "`ObservationDefinition`"]
     #[inline]
     #[must_use]
     pub fn observation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(103u16)
+        BoundCode::from_index(106u16)
     }
     #[doc = "`OperationDefinition`"]
     #[inline]
     #[must_use]
     pub fn operation_definition() -> BoundCode<Self> {
-        BoundCode::from_index(104u16)
+        BoundCode::from_index(107u16)
     }
     #[doc = "`OperationOutcome`"]
     #[inline]
     #[must_use]
     pub fn operation_outcome() -> BoundCode<Self> {
-        BoundCode::from_index(105u16)
+        BoundCode::from_index(108u16)
     }
     #[doc = "Organization"]
     #[inline]
     #[must_use]
     pub fn organization() -> BoundCode<Self> {
-        BoundCode::from_index(106u16)
+        BoundCode::from_index(109u16)
     }
     #[doc = "`OrganizationAffiliation`"]
     #[inline]
     #[must_use]
     pub fn organization_affiliation() -> BoundCode<Self> {
-        BoundCode::from_index(107u16)
+        BoundCode::from_index(110u16)
     }
     #[doc = "Parameters"]
     #[inline]
     #[must_use]
     pub fn parameters() -> BoundCode<Self> {
-        BoundCode::from_index(108u16)
+        BoundCode::from_index(111u16)
     }
     #[doc = "Patient"]
     #[inline]
     #[must_use]
     pub fn patient() -> BoundCode<Self> {
-        BoundCode::from_index(109u16)
+        BoundCode::from_index(112u16)
     }
     #[doc = "`PaymentNotice`"]
     #[inline]
     #[must_use]
     pub fn payment_notice() -> BoundCode<Self> {
-        BoundCode::from_index(110u16)
+        BoundCode::from_index(113u16)
     }
     #[doc = "`PaymentReconciliation`"]
     #[inline]
     #[must_use]
     pub fn payment_reconciliation() -> BoundCode<Self> {
-        BoundCode::from_index(111u16)
+        BoundCode::from_index(114u16)
     }
     #[doc = "Person"]
     #[inline]
     #[must_use]
     pub fn person() -> BoundCode<Self> {
-        BoundCode::from_index(112u16)
+        BoundCode::from_index(115u16)
     }
     #[doc = "`PlanDefinition`"]
     #[inline]
     #[must_use]
     pub fn plan_definition() -> BoundCode<Self> {
-        BoundCode::from_index(113u16)
+        BoundCode::from_index(116u16)
     }
     #[doc = "Practitioner"]
     #[inline]
     #[must_use]
     pub fn practitioner() -> BoundCode<Self> {
-        BoundCode::from_index(114u16)
+        BoundCode::from_index(117u16)
     }
     #[doc = "`PractitionerRole`"]
     #[inline]
     #[must_use]
     pub fn practitioner_role() -> BoundCode<Self> {
-        BoundCode::from_index(115u16)
+        BoundCode::from_index(118u16)
     }
     #[doc = "Procedure"]
     #[inline]
     #[must_use]
     pub fn procedure() -> BoundCode<Self> {
-        BoundCode::from_index(116u16)
+        BoundCode::from_index(119u16)
     }
     #[doc = "Project"]
     #[inline]
     #[must_use]
     pub fn project() -> BoundCode<Self> {
-        BoundCode::from_index(117u16)
+        BoundCode::from_index(120u16)
     }
     #[doc = "Provenance"]
     #[inline]
     #[must_use]
     pub fn provenance() -> BoundCode<Self> {
-        BoundCode::from_index(118u16)
+        BoundCode::from_index(121u16)
     }
     #[doc = "Questionnaire"]
     #[inline]
     #[must_use]
     pub fn questionnaire() -> BoundCode<Self> {
-        BoundCode::from_index(119u16)
+        BoundCode::from_index(122u16)
     }
     #[doc = "`QuestionnaireResponse`"]
     #[inline]
     #[must_use]
     pub fn questionnaire_response() -> BoundCode<Self> {
-        BoundCode::from_index(120u16)
+        BoundCode::from_index(123u16)
     }
     #[doc = "`RelatedPerson`"]
     #[inline]
     #[must_use]
     pub fn related_person() -> BoundCode<Self> {
-        BoundCode::from_index(121u16)
+        BoundCode::from_index(124u16)
     }
     #[doc = "`RequestGroup`"]
     #[inline]
     #[must_use]
     pub fn request_group() -> BoundCode<Self> {
-        BoundCode::from_index(122u16)
+        BoundCode::from_index(125u16)
     }
     #[doc = "`ResearchDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_definition() -> BoundCode<Self> {
-        BoundCode::from_index(123u16)
+        BoundCode::from_index(126u16)
     }
     #[doc = "`ResearchElementDefinition`"]
     #[inline]
     #[must_use]
     pub fn research_element_definition() -> BoundCode<Self> {
-        BoundCode::from_index(124u16)
+        BoundCode::from_index(127u16)
     }
     #[doc = "`ResearchStudy`"]
     #[inline]
     #[must_use]
     pub fn research_study() -> BoundCode<Self> {
-        BoundCode::from_index(125u16)
+        BoundCode::from_index(128u16)
     }
     #[doc = "`ResearchSubject`"]
     #[inline]
     #[must_use]
     pub fn research_subject() -> BoundCode<Self> {
-        BoundCode::from_index(126u16)
+        BoundCode::from_index(129u16)
     }
     #[doc = "Resource"]
     #[inline]
     #[must_use]
     pub fn resource() -> BoundCode<Self> {
-        BoundCode::from_index(127u16)
+        BoundCode::from_index(130u16)
     }
     #[doc = "`RiskAssessment`"]
     #[inline]
     #[must_use]
     pub fn risk_assessment() -> BoundCode<Self> {
-        BoundCode::from_index(128u16)
+        BoundCode::from_index(131u16)
     }
     #[doc = "`RiskEvidenceSynthesis`"]
     #[inline]
     #[must_use]
     pub fn risk_evidence_synthesis() -> BoundCode<Self> {
-        BoundCode::from_index(129u16)
+        BoundCode::from_index(132u16)
     }
     #[doc = "Schedule"]
     #[inline]
     #[must_use]
     pub fn schedule() -> BoundCode<Self> {
-        BoundCode::from_index(130u16)
+        BoundCode::from_index(133u16)
     }
     #[doc = "`SearchParameter`"]
     #[inline]
     #[must_use]
     pub fn search_parameter() -> BoundCode<Self> {
-        BoundCode::from_index(131u16)
+        BoundCode::from_index(134u16)
     }
     #[doc = "`ServiceRequest`"]
     #[inline]
     #[must_use]
     pub fn service_request() -> BoundCode<Self> {
-        BoundCode::from_index(132u16)
+        BoundCode::from_index(135u16)
     }
     #[doc = "Slot"]
     #[inline]
     #[must_use]
     pub fn slot() -> BoundCode<Self> {
-        BoundCode::from_index(133u16)
+        BoundCode::from_index(136u16)
     }
     #[doc = "Specimen"]
     #[inline]
     #[must_use]
     pub fn specimen() -> BoundCode<Self> {
-        BoundCode::from_index(134u16)
+        BoundCode::from_index(137u16)
     }
     #[doc = "`SpecimenDefinition`"]
     #[inline]
     #[must_use]
     pub fn specimen_definition() -> BoundCode<Self> {
-        BoundCode::from_index(135u16)
+        BoundCode::from_index(138u16)
     }
     #[doc = "`StructureDefinition`"]
     #[inline]
     #[must_use]
     pub fn structure_definition() -> BoundCode<Self> {
-        BoundCode::from_index(136u16)
+        BoundCode::from_index(139u16)
     }
     #[doc = "`StructureMap`"]
     #[inline]
     #[must_use]
     pub fn structure_map() -> BoundCode<Self> {
-        BoundCode::from_index(137u16)
+        BoundCode::from_index(140u16)
     }
     #[doc = "Subscription"]
     #[inline]
     #[must_use]
     pub fn subscription() -> BoundCode<Self> {
-        BoundCode::from_index(138u16)
+        BoundCode::from_index(141u16)
     }
     #[doc = "Substance"]
     #[inline]
     #[must_use]
     pub fn substance() -> BoundCode<Self> {
-        BoundCode::from_index(139u16)
+        BoundCode::from_index(142u16)
     }
     #[doc = "`SubstanceNucleicAcid`"]
     #[inline]
     #[must_use]
     pub fn substance_nucleic_acid() -> BoundCode<Self> {
-        BoundCode::from_index(140u16)
+        BoundCode::from_index(143u16)
     }
     #[doc = "`SubstancePolymer`"]
     #[inline]
     #[must_use]
     pub fn substance_polymer() -> BoundCode<Self> {
-        BoundCode::from_index(141u16)
+        BoundCode::from_index(144u16)
     }
     #[doc = "`SubstanceProtein`"]
     #[inline]
     #[must_use]
     pub fn substance_protein() -> BoundCode<Self> {
-        BoundCode::from_index(142u16)
+        BoundCode::from_index(145u16)
     }
     #[doc = "`SubstanceReferenceInformation`"]
     #[inline]
     #[must_use]
     pub fn substance_reference_information() -> BoundCode<Self> {
-        BoundCode::from_index(143u16)
+        BoundCode::from_index(146u16)
     }
     #[doc = "`SubstanceSourceMaterial`"]
     #[inline]
     #[must_use]
     pub fn substance_source_material() -> BoundCode<Self> {
-        BoundCode::from_index(144u16)
+        BoundCode::from_index(147u16)
     }
     #[doc = "`SubstanceSpecification`"]
     #[inline]
     #[must_use]
     pub fn substance_specification() -> BoundCode<Self> {
-        BoundCode::from_index(145u16)
+        BoundCode::from_index(148u16)
     }
     #[doc = "`SupplyDelivery`"]
     #[inline]
     #[must_use]
     pub fn supply_delivery() -> BoundCode<Self> {
-        BoundCode::from_index(146u16)
+        BoundCode::from_index(149u16)
     }
     #[doc = "`SupplyRequest`"]
     #[inline]
     #[must_use]
     pub fn supply_request() -> BoundCode<Self> {
-        BoundCode::from_index(147u16)
+        BoundCode::from_index(150u16)
     }
     #[doc = "Task"]
     #[inline]
     #[must_use]
     pub fn task() -> BoundCode<Self> {
-        BoundCode::from_index(148u16)
+        BoundCode::from_index(151u16)
     }
     #[doc = "`TerminologyCapabilities`"]
     #[inline]
     #[must_use]
     pub fn terminology_capabilities() -> BoundCode<Self> {
-        BoundCode::from_index(149u16)
+        BoundCode::from_index(152u16)
     }
     #[doc = "`TestReport`"]
     #[inline]
     #[must_use]
     pub fn test_report() -> BoundCode<Self> {
-        BoundCode::from_index(150u16)
+        BoundCode::from_index(153u16)
     }
     #[doc = "`TestScript`"]
     #[inline]
     #[must_use]
     pub fn test_script() -> BoundCode<Self> {
-        BoundCode::from_index(151u16)
+        BoundCode::from_index(154u16)
     }
     #[doc = "User"]
     #[inline]
     #[must_use]
     pub fn user() -> BoundCode<Self> {
-        BoundCode::from_index(152u16)
+        BoundCode::from_index(155u16)
     }
     #[doc = "`ValueSet`"]
     #[inline]
     #[must_use]
     pub fn value_set() -> BoundCode<Self> {
-        BoundCode::from_index(153u16)
+        BoundCode::from_index(156u16)
     }
     #[doc = "`VerificationResult`"]
     #[inline]
     #[must_use]
     pub fn verification_result() -> BoundCode<Self> {
-        BoundCode::from_index(154u16)
+        BoundCode::from_index(157u16)
     }
     #[doc = "`ViewDefinition`"]
     #[inline]
     #[must_use]
     pub fn view_definition() -> BoundCode<Self> {
-        BoundCode::from_index(155u16)
+        BoundCode::from_index(158u16)
     }
     #[doc = "`VisionPrescription`"]
     #[inline]
     #[must_use]
     pub fn vision_prescription() -> BoundCode<Self> {
-        BoundCode::from_index(156u16)
+        BoundCode::from_index(159u16)
     }
     #[inline]
     #[must_use]
@@ -131452,6 +131515,241 @@ impl AccessPolicyRuleEffect {
         BoundCode::null()
     }
 }
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope`"]
+pub struct Accesspolicyv3attributescope;
+impl ValueSetDef for Accesspolicyv3attributescope {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope";
+    const CODES: &[&str] = &["principal", "request"];
+}
+impl Accesspolicyv3attributescope {
+    #[doc = "principal"]
+    #[inline]
+    #[must_use]
+    pub fn principal() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "request"]
+    #[inline]
+    #[must_use]
+    pub fn request() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3Combining`"]
+pub struct Accesspolicyv3combining;
+impl ValueSetDef for Accesspolicyv3combining {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3Combining";
+    const CODES: &[&str] = &[
+        "deny-overrides",
+        "deny-unless-permit",
+        "first-applicable",
+        "permit-overrides",
+        "permit-unless-deny",
+    ];
+}
+impl Accesspolicyv3combining {
+    #[doc = "deny-overrides"]
+    #[inline]
+    #[must_use]
+    pub fn deny_overrides() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "deny-unless-permit"]
+    #[inline]
+    #[must_use]
+    pub fn deny_unless_permit() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "first-applicable"]
+    #[inline]
+    #[must_use]
+    pub fn first_applicable() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "permit-overrides"]
+    #[inline]
+    #[must_use]
+    pub fn permit_overrides() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
+    #[doc = "permit-unless-deny"]
+    #[inline]
+    #[must_use]
+    pub fn permit_unless_deny() -> BoundCode<Self> {
+        BoundCode::from_index(4u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode`"]
+pub struct Accesspolicyv3fieldmode;
+impl ValueSetDef for Accesspolicyv3fieldmode {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3FieldMode";
+    const CODES: &[&str] = &["hidden", "mask", "readonly"];
+}
+impl Accesspolicyv3fieldmode {
+    #[doc = "hidden"]
+    #[inline]
+    #[must_use]
+    pub fn hidden() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "mask"]
+    #[inline]
+    #[must_use]
+    pub fn mask() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "readonly"]
+    #[inline]
+    #[must_use]
+    pub fn readonly() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation`"]
+pub struct Accesspolicyv3obligation;
+impl ValueSetDef for Accesspolicyv3obligation {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3Obligation";
+    const CODES: &[&str] = &[
+        "audit-purpose",
+        "max-results",
+        "rate-limit",
+        "require-approval",
+        "step-up",
+    ];
+}
+impl Accesspolicyv3obligation {
+    #[doc = "audit-purpose"]
+    #[inline]
+    #[must_use]
+    pub fn audit_purpose() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "max-results"]
+    #[inline]
+    #[must_use]
+    pub fn max_results() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "rate-limit"]
+    #[inline]
+    #[must_use]
+    pub fn rate_limit() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "require-approval"]
+    #[inline]
+    #[must_use]
+    pub fn require_approval() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
+    #[doc = "step-up"]
+    #[inline]
+    #[must_use]
+    pub fn step_up() -> BoundCode<Self> {
+        BoundCode::from_index(4u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction`"]
+pub struct Accesspolicyv3redaction;
+impl ValueSetDef for Accesspolicyv3redaction {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction";
+    const CODES: &[&str] = &["initials", "masked-identifier", "year-only"];
+}
+impl Accesspolicyv3redaction {
+    #[doc = "initials"]
+    #[inline]
+    #[must_use]
+    pub fn initials() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "masked-identifier"]
+    #[inline]
+    #[must_use]
+    pub fn masked_identifier() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "year-only"]
+    #[inline]
+    #[must_use]
+    pub fn year_only() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind`"]
+pub struct Accesspolicyv3rulekind;
+impl ValueSetDef for Accesspolicyv3rulekind {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind";
+    const CODES: &[&str] = &["constraint", "decision"];
+}
+impl Accesspolicyv3rulekind {
+    #[doc = "constraint"]
+    #[inline]
+    #[must_use]
+    pub fn constraint() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "decision"]
+    #[inline]
+    #[must_use]
+    pub fn decision() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/AccessPolicyV3RuleType`"]
+pub struct Accesspolicyv3ruletype;
+impl ValueSetDef for Accesspolicyv3ruletype {
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleType";
+    const CODES: &[&str] = &["deny", "permit"];
+}
+impl Accesspolicyv3ruletype {
+    #[doc = "deny"]
+    #[inline]
+    #[must_use]
+    pub fn deny() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "permit"]
+    #[inline]
+    #[must_use]
+    pub fn permit() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
 #[doc = "`https://haste.health/fhir/ValueSet/CanonicalResourceTypes`"]
 pub struct CanonicalResourceTypes;
 impl ValueSetDef for CanonicalResourceTypes {
@@ -131729,6 +132027,139 @@ impl ClientapplicationResponseTypes {
     #[must_use]
     pub fn token() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/DeidentificationPolicyAction`"]
+pub struct Deidentificationpolicyaction;
+impl ValueSetDef for Deidentificationpolicyaction {
+    const URL: &str = "https://haste.health/fhir/ValueSet/DeidentificationPolicyAction";
+    const CODES: &[&str] = &[
+        "cryptoHash",
+        "dateShift",
+        "encrypt",
+        "generalize",
+        "keep",
+        "perturb",
+        "pseudonymize",
+        "redact",
+        "substitute",
+    ];
+}
+impl Deidentificationpolicyaction {
+    #[doc = "cryptoHash"]
+    #[inline]
+    #[must_use]
+    pub fn crypto_hash() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "dateShift"]
+    #[inline]
+    #[must_use]
+    pub fn date_shift() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "encrypt"]
+    #[inline]
+    #[must_use]
+    pub fn encrypt() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
+    }
+    #[doc = "generalize"]
+    #[inline]
+    #[must_use]
+    pub fn generalize() -> BoundCode<Self> {
+        BoundCode::from_index(3u16)
+    }
+    #[doc = "keep"]
+    #[inline]
+    #[must_use]
+    pub fn keep() -> BoundCode<Self> {
+        BoundCode::from_index(4u16)
+    }
+    #[doc = "perturb"]
+    #[inline]
+    #[must_use]
+    pub fn perturb() -> BoundCode<Self> {
+        BoundCode::from_index(5u16)
+    }
+    #[doc = "pseudonymize"]
+    #[inline]
+    #[must_use]
+    pub fn pseudonymize() -> BoundCode<Self> {
+        BoundCode::from_index(6u16)
+    }
+    #[doc = "redact"]
+    #[inline]
+    #[must_use]
+    pub fn redact() -> BoundCode<Self> {
+        BoundCode::from_index(7u16)
+    }
+    #[doc = "substitute"]
+    #[inline]
+    #[must_use]
+    pub fn substitute() -> BoundCode<Self> {
+        BoundCode::from_index(8u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault`"]
+pub struct Deidentificationpolicydefault;
+impl ValueSetDef for Deidentificationpolicydefault {
+    const URL: &str = "https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault";
+    const CODES: &[&str] = &["keep", "redact"];
+}
+impl Deidentificationpolicydefault {
+    #[doc = "keep"]
+    #[inline]
+    #[must_use]
+    pub fn keep() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "redact"]
+    #[inline]
+    #[must_use]
+    pub fn redact() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[inline]
+    #[must_use]
+    pub fn null() -> BoundCode<Self> {
+        BoundCode::null()
+    }
+}
+#[doc = "`https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus`"]
+pub struct Deidentificationpolicystatus;
+impl ValueSetDef for Deidentificationpolicystatus {
+    const URL: &str = "https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus";
+    const CODES: &[&str] = &["active", "draft", "retired"];
+}
+impl Deidentificationpolicystatus {
+    #[doc = "active"]
+    #[inline]
+    #[must_use]
+    pub fn active() -> BoundCode<Self> {
+        BoundCode::from_index(0u16)
+    }
+    #[doc = "draft"]
+    #[inline]
+    #[must_use]
+    pub fn draft() -> BoundCode<Self> {
+        BoundCode::from_index(1u16)
+    }
+    #[doc = "retired"]
+    #[inline]
+    #[must_use]
+    pub fn retired() -> BoundCode<Self> {
+        BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]

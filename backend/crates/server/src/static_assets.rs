@@ -8,6 +8,8 @@ use axum::{
 };
 use rust_embed::Embed;
 
+use crate::SERVER_VERSION;
+
 pub fn root_asset_route() -> PathBuf {
     ["/assets", SERVER_VERSION].iter().collect()
 }
@@ -16,8 +18,6 @@ pub fn asset_route(asset: &str) -> String {
     let path = root_asset_route();
     path.join(asset).to_str().unwrap().to_string()
 }
-
-static SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[derive(Embed)]
 #[folder = "public/"]

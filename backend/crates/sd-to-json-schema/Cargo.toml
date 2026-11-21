@@ -18,4 +18,4 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 [dev-dependencies]
-jsonschema = { version = "0.40.2", default-features = false }
+jsonschema = { version = "^0.61.2", default-features = false }

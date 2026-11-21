@@ -1,0 +1,183 @@
+{
+    "id": "author-search",
+    "resourceType": "TestScript",
+    "url": "https://haste.health/fhir/TestScript/author-search",
+    "title": "Author extension and search",
+    "name": "AuthorSearch",
+    "status": "active",
+    "description": "The server sets the author extension to a canonical naming the author, replacing any author the client sent, and _haste-health-author finds the resource by that canonical.",
+    "contained": [
+        {
+            "id": "patient-1",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "author-search-test"
+                    }
+                ],
+                "extension": [
+                    {
+                        "url": "https://haste.health/author",
+                        "valueReference": {
+                            "reference": "Membership/spoofed-author"
+                        }
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Author"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-1",
+            "resource": {
+                "reference": "#patient-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "variable": [
+        {
+            "name": "PatientId",
+            "sourceId": "create-response",
+            "expression": "Patient.id"
+        },
+        {
+            "name": "Author",
+            "sourceId": "create-response",
+            "expression": "Patient.meta.extension.where(url='https://haste.health/author').value"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-author-is-canonical",
+            "name": "Author extension holds a canonical",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-1",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.extension.where(url='https://haste.health/author').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.extension.where(url='https://haste.health/author').value.ofType(canonical).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.extension.where(url='https://haste.health/author').value.startsWith('https://haste.health/fhir/')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.extension.where(url='https://haste.health/author').value.ofType(Reference).exists()",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-by-author",
+            "name": "_haste-health-author matches the author canonical",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=${PatientId}&_haste-health-author=${Author}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=${PatientId}&_haste-health-author=Membership/spoofed-author",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=${PatientId}&_haste-health-author=https://haste.health/fhir/Membership/spoofed-author",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=author-search-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -994,6 +994,9 @@ fn generate_resource_type_impl(resource_types: &[ResourceTypeInfo]) -> TokenStre
 
     quote! {
         impl ResourceType {
+            /// The FHIR name of every resource type, as `as_ref` returns it.
+            pub const NAMES: &'static [&'static str] = RESOURCE_TYPE_NAMES;
+
             #letter_helpers
 
             /// Deserializes a resource using the deserializer associated with

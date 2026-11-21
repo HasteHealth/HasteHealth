@@ -1,5 +1,9 @@
 {
     "label": "Conformance",
     "position": 1,
-    "key": "reference-conformance"
+    "key": "reference-conformance",
+    "link": {
+        "type": "doc",
+        "id": "reference/conformance/overview"
+    }
 }

@@ -10,16 +10,16 @@ use haste_jwt::{ProjectId, TenantId};
 use sqlx::{AssertSqlSafe, Pool, Postgres, Row, postgres::PgRow};
 
 use crate::{
-    ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
-    SearchReturn,
+    AnyOf, MAX_COUNT, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions,
+    SearchParameterResolve, SearchReturn,
     pg_search::{
         keys,
         schema::{
-            ParamColumns, ResourceTypeSchema, SchemaRegistry, SharedTable, resource_table_name,
+            ParamColumns, ResourceTypeSchema, SchemaRegistry, resource_table_name,
             shared_table_for, shared_table_name,
         },
     },
-    query::{Modifier, QueryBuildError, parse_modifier},
+    query::{QueryBuildError, max_count, parse_u64, type_filter, value::Values},
 };
 
 use clauses::{
@@ -30,16 +30,35 @@ use clauses::{
 mod chained;
 pub(crate) mod clauses;
 
-static ABSOLUTE_MAX: u64 = 10_000;
-static DEFAULT_MAX_COUNT: u64 = 50;
+/// Postgres' `query_canceled`, raised by `statement_timeout`.
+const QUERY_CANCELED: &str = "57014";
+
+/// How far a total is counted exactly before the planner's estimate answers.
+#[derive(Clone, Copy)]
+struct CountLimit {
+    max_rows: u64,
+    timeout_ms: u64,
+}
+
+/// `_total=estimate`: exact for small results, where the planner is least
+/// reliable.
+const ESTIMATE_COUNT: CountLimit = CountLimit {
+    max_rows: 10_000,
+    timeout_ms: 100,
+};
+
+/// `_total=accurate`.
+const ACCURATE_COUNT: CountLimit = CountLimit {
+    max_rows: 50_000,
+    timeout_ms: 500,
+};
 
 /// Paging, total and sort settings from the result parameters.
 struct QueryState {
     max_count: u64,
     offset: u64,
-    /// Return a total. Always the planner's estimate refined by the page (see
-    /// [`refine_estimate`]); an exact count would scan every match.
-    estimate_total: bool,
+    /// `None` when `_total` is absent or `none`.
+    total: Option<CountLimit>,
     sort: Vec<SortEntry>,
 }
 
@@ -64,13 +83,25 @@ struct SearchScope<'a, ParameterResolver> {
 struct FinalQuery {
     /// The ordered, limited page.
     page_sql: String,
-    /// `EXPLAIN` of the same filter, unordered and unlimited; its top row
-    /// estimate answers `_total`.
-    estimate_sql: String,
-    /// The page's binds. The estimate uses only the first
-    /// `estimate_param_count`, so sort and limit binds must come last.
+    /// `FROM ... WHERE ...`: the page unordered and unlimited, for totals.
+    filter_sql: String,
+    /// Totals bind only the first `filter_param_count`, so sort and limit
+    /// binds come last.
     params: Vec<SqlParam>,
-    estimate_param_count: usize,
+    filter_param_count: usize,
+}
+
+impl FinalQuery {
+    fn filter_params(&self) -> &[SqlParam] {
+        &self.params[..self.filter_param_count]
+    }
+}
+
+/// What a bounded count proved.
+enum Count {
+    Exact(i64),
+    /// Stopped at the limit or timeout.
+    AtLeast(i64),
 }
 
 type PgQuery<'q> = sqlx::query::Query<'q, Postgres, sqlx::postgres::PgArguments>;
@@ -101,7 +132,7 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
     let mut state = QueryState {
         max_count: max_count(options)?,
         offset: 0,
-        estimate_total: false,
+        total: None,
         sort: Vec::new(),
     };
     for parameter in parameters.parameters() {
@@ -115,6 +146,24 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         }
     }
 
+    if let Some(types) = type_filter(search_request)? {
+        where_clauses.push(type_clause(&types));
+    }
+
+    // `ANDed` with the client's parameters like any other clause, so nothing in
+    // the URL can widen them.
+    for any_of in options
+        .map(|options| options.filters.as_slice())
+        .unwrap_or_default()
+    {
+        where_clauses.push(any_of_clause(&scope, any_of).await?);
+    }
+
+    // `_count=0` asks only for the total.
+    if state.max_count == 0 {
+        state.total = state.total.or(Some(ACCURATE_COUNT));
+    }
+
     let query = build_final_query(
         &where_clauses,
         schema_registry,
@@ -125,24 +174,45 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         &state,
     );
 
-    let page = fetch_page(pool, &query.page_sql, &query.params);
-    let (rows, estimate) = if state.estimate_total {
-        // The estimate only plans, so run it concurrently with the page.
-        let estimate_params = &query.params[..query.estimate_param_count];
-        let (rows, estimate) = tokio::try_join!(
-            page,
-            estimate_rows(pool, &query.estimate_sql, estimate_params)
-        )?;
-        (rows, Some(estimate))
-    } else {
-        (page.await?, None)
+    let rows = fetch_page(pool, &query.page_sql, &query.params).await?;
+    let total = match state.total {
+        Some(count_limit) => {
+            Some(search_total(pool, &query, count_limit, rows.len(), &state).await?)
+        }
+        None => None,
     };
 
     Ok(SearchReturn {
-        total: estimate
-            .map(|estimate| refine_estimate(estimate, rows.len(), state.offset, state.max_count)),
+        total,
         entries: rows.iter().map(search_entry).collect(),
     })
+}
+
+/// The page's total if the page proves it, else a bounded count, else the
+/// planner's estimate.
+async fn search_total(
+    pool: &Pool<Postgres>,
+    query: &FinalQuery,
+    count_limit: CountLimit,
+    returned: usize,
+    state: &QueryState,
+) -> Result<i64, OperationOutcomeError> {
+    if let Some(total) = page_total(returned, state.offset, state.max_count) {
+        return Ok(total);
+    }
+
+    match count_rows(pool, query, count_limit).await? {
+        Count::Exact(count) => Ok(count),
+        Count::AtLeast(seen) => {
+            let estimate = estimate_rows(pool, query).await?;
+            Ok(refine_estimate(
+                estimate.max(seen),
+                returned,
+                state.offset,
+                state.max_count,
+            ))
+        }
+    }
 }
 
 fn request_parts(request: &SearchRequest) -> (Option<&ResourceType>, &ParsedParameters) {
@@ -152,33 +222,28 @@ fn request_parts(request: &SearchRequest) -> (Option<&ResourceType>, &ParsedPara
     }
 }
 
-/// Corrects the planner's estimate with what the page proves: a short page is
-/// exact, a full page is a lower bound, and an empty page past the start caps
-/// the total at the offset.
-fn refine_estimate(estimate: i64, returned: usize, offset: u64, limit: u64) -> i64 {
-    let offset = offset.cast_signed();
+/// A short page that is not past the end stops at the last match.
+fn page_total(returned: usize, offset: u64, limit: u64) -> Option<i64> {
     let returned = i64::try_from(returned).unwrap_or(i64::MAX);
+    let offset = offset.cast_signed();
 
-    if returned == 0 && offset > 0 {
-        return estimate.min(offset);
-    }
-
-    let seen = offset.saturating_add(returned);
-    if returned < limit.cast_signed() {
-        seen
-    } else {
-        estimate.max(seen)
-    }
+    (returned < limit.cast_signed() && (returned > 0 || offset == 0))
+        .then(|| offset.saturating_add(returned))
 }
 
-fn max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
-    match options.and_then(|o| o.count_limit) {
-        Some(limit) if limit > ABSOLUTE_MAX => Err(OperationOutcomeError::fatal(
-            IssueType::too_costly(),
-            "Count limit exceeds maximum allowed.".to_string(),
-        )),
-        Some(limit) => Ok(limit),
-        None => Ok(DEFAULT_MAX_COUNT),
+/// Corrects an estimate with the page: a short page is exact, a full page is a
+/// lower bound, an empty page past the start is an upper bound.
+fn refine_estimate(estimate: i64, returned: usize, offset: u64, limit: u64) -> i64 {
+    if let Some(total) = page_total(returned, offset, limit) {
+        return total;
+    }
+
+    let offset = offset.cast_signed();
+    let returned = i64::try_from(returned).unwrap_or(i64::MAX);
+    if returned == 0 && offset > 0 {
+        estimate.min(offset)
+    } else {
+        estimate.max(offset.saturating_add(returned))
     }
 }
 
@@ -201,10 +266,142 @@ async fn resource_clause<ParameterResolver: SearchParameterResolve>(
     if param.is_chained() {
         return chained::chained_clause(scope, param).await;
     }
+    if param.name == "_list" {
+        return list_clause(scope, param).await;
+    }
 
     let parameter = resolve_parameter(scope, scope.resource_type, &param.name).await?;
     let target = clause_target(scope, &scope.root_row(), &parameter);
     Ok(parameter_to_sql_clause(&parameter, &target, param)?)
+}
+
+/// `_list=id[,id]`: rows named by an `entry.item` of one of the `List`s, as
+/// `EXISTS (SELECT 1 FROM anchor l WHERE l.id IN (...) AND <item is this row>)`.
+async fn list_clause<ParameterResolver: SearchParameterResolve>(
+    scope: &SearchScope<'_, ParameterResolver>,
+    param: &Parameter,
+) -> Result<SqlClause, OperationOutcomeError> {
+    if param.modifier.is_some() {
+        return Err(QueryBuildError::unsupported_modifier(
+            param.modifier.as_deref().unwrap_or_default(),
+        )
+        .into());
+    }
+    // Functional lists (`$current-allergies`, ...) are not supported.
+    let ids = param
+        .values()
+        .iter()
+        .filter(|id| !id.is_empty())
+        .map(|id| {
+            if id.starts_with('$') {
+                Err(QueryBuildError::UnsupportedParameterValue(format!(
+                    "_list={id}"
+                )))
+            } else {
+                Ok(SqlParam::Text(id.clone()))
+            }
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    if ids.is_empty() {
+        return Ok(SqlClause {
+            sql: "FALSE".to_string(),
+            params: Vec::new(),
+        });
+    }
+
+    let item = resolve_parameter(scope, Some(&ResourceType::List), "item").await?;
+    let list_row = ClauseRow {
+        anchor: Cow::Borrowed("l"),
+        type_table: None,
+    };
+    let target = clause_target(scope, &list_row, &item);
+    let (type_column, id_column) = clauses::reference_exprs(&target)?;
+    let is_item = clauses::wrap_predicate(
+        &target,
+        false,
+        &format!(
+            "{id_column} = {ANCHOR_TABLE_ALIAS}.resource_id \
+             AND {type_column} = {ANCHOR_TABLE_ALIAS}.resource_type"
+        ),
+        clauses::target_params(&target),
+    );
+
+    let placeholders = (1..=ids.len())
+        .map(|i| format!("${i}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let is_item_sql = rebase_placeholders(&is_item.sql, is_item.params.len(), ids.len());
+    let mut params = ids;
+    params.extend(is_item.params);
+
+    let anchor_table = resource_table_name(&scope.registry.version);
+    Ok(SqlClause {
+        sql: format!(
+            "EXISTS (SELECT 1 FROM {anchor_table} l \
+             WHERE l.tenant = {ANCHOR_TABLE_ALIAS}.tenant \
+             AND l.project = {ANCHOR_TABLE_ALIAS}.project \
+             AND l.resource_type = 'List' AND l.resource_id IN ({placeholders}) \
+             AND {is_item_sql})"
+        ),
+        params,
+    })
+}
+
+/// `sr.resource_type IN (...)`; empty (`_type=`) is `FALSE`.
+fn type_clause(types: &[ResourceType]) -> SqlClause {
+    if types.is_empty() {
+        return SqlClause {
+            sql: "FALSE".to_string(),
+            params: Vec::new(),
+        };
+    }
+
+    let placeholders = (1..=types.len())
+        .map(|i| format!("${i}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    SqlClause {
+        sql: format!("sr.resource_type IN ({placeholders})"),
+        params: types
+            .iter()
+            .map(|t| SqlParam::Text(t.as_ref().to_string()))
+            .collect(),
+    }
+}
+
+/// `(a AND b) OR (c) OR ...` over `any_of`'s branches, each parameter built
+/// as it would be on its own. Empty is `FALSE`: a filter with no branch must
+/// fail closed. A branch with no parameter is `TRUE`: nothing to match.
+async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
+    scope: &SearchScope<'_, ParameterResolver>,
+    any_of: &AnyOf,
+) -> Result<SqlClause, OperationOutcomeError> {
+    let mut branches = Vec::with_capacity(any_of.0.len());
+    let mut params = Vec::new();
+    for branch in &any_of.0 {
+        let mut conjuncts = Vec::with_capacity(branch.0.len());
+        for param in &branch.0 {
+            let clause = resource_clause(scope, param).await?;
+            conjuncts.push(rebase_placeholders(
+                &clause.sql,
+                clause.params.len(),
+                params.len(),
+            ));
+            params.extend(clause.params);
+        }
+        branches.push(match conjuncts.as_slice() {
+            [] => "TRUE".to_string(),
+            [only] => only.clone(),
+            _ => format!("({})", conjuncts.join(" AND ")),
+        });
+    }
+
+    let sql = if branches.is_empty() {
+        "FALSE".to_string()
+    } else {
+        format!("({})", branches.join(" OR "))
+    };
+    Ok(SqlClause { sql, params })
 }
 
 /// A resource row clauses are read against: its anchor row, and its type
@@ -279,26 +476,17 @@ fn parameter_to_sql_clause(
     target: &ClauseTarget,
     param: &Parameter,
 ) -> Result<SqlClause, QueryBuildError> {
-    let search_param = parameter.search_parameter.as_ref();
-    let modifier = parse_modifier(param, &search_param.type_)?;
-
-    // `:missing` works the same for every stored type.
-    if let Modifier::Missing(missing) = modifier {
-        return Ok(clauses::missing_clause(target, missing));
-    }
-
-    // The same mapping that chose where values are written.
-    match shared_table_for(&search_param.type_) {
-        Some(SharedTable::String) => clauses::string_clause(param, target, modifier),
-        Some(SharedTable::Token) => clauses::token_clause(param, target, modifier == Modifier::Not),
-        Some(SharedTable::Date) => clauses::date_clause(param, target),
-        Some(SharedTable::Number) => clauses::number_clause(param, target),
-        Some(SharedTable::Quantity) => clauses::quantity_clause(param, target),
-        Some(SharedTable::Reference) => clauses::reference_clause(param, target),
-        Some(SharedTable::Uri) => clauses::uri_clause(param, target),
-        None => Err(QueryBuildError::UnsupportedParameter(
-            search_param.name.value.clone().unwrap_or_default(),
-        )),
+    // Parsed as every backend parses them; the type chooses the clause.
+    match &Values::parse(param, &parameter.search_parameter.type_)? {
+        // `:missing` works the same for every stored type.
+        Values::Missing(missing) => Ok(clauses::missing_clause(target, *missing)),
+        Values::String(values) => clauses::string_clause(values, target),
+        Values::Token(values) => clauses::token_clause(values, target),
+        Values::Uri(values) => clauses::uri_clause(values, target),
+        Values::Reference(values) => clauses::reference_clause(values, target),
+        Values::Date(values) => clauses::date_clause(values, target),
+        Values::Number(values) => clauses::number_clause(values, target),
+        Values::Quantity(values) => clauses::quantity_clause(values, target),
     }
 }
 
@@ -310,18 +498,20 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
 ) -> Result<QueryState, OperationOutcomeError> {
     Ok(match param.name.as_str() {
         "_count" => QueryState {
-            max_count: parse_u64(param)?,
+            max_count: parse_u64(param)?.min(MAX_COUNT),
             ..state
         },
+        // Bound to what Postgres accepts as an OFFSET: a value past i64::MAX
+        // wrapped negative on the way to the bind and failed the query.
         "_offset" => QueryState {
-            offset: parse_u64(param)?,
+            offset: parse_u64(param)?.min(i64::MAX.cast_unsigned()),
             ..state
         },
-        // `accurate` also gets the estimate; an exact count scans every match.
         "_total" => QueryState {
-            estimate_total: match param.value.iter().map(String::as_str).collect::<Vec<_>>()[..] {
-                ["none"] => false,
-                ["estimate" | "accurate"] => true,
+            total: match param.value.iter().map(String::as_str).collect::<Vec<_>>()[..] {
+                ["none"] => None,
+                ["estimate"] => Some(ESTIMATE_COUNT),
+                ["accurate"] => Some(ACCURATE_COUNT),
                 _ => return Err(QueryBuildError::InvalidParameterValue(param.name.clone()).into()),
             },
             ..state
@@ -333,26 +523,14 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
             }
             QueryState { sort, ..state }
         }
-        // Handled in middleware. `_include` adds entries to the Bundle from
-        // the references on this page of matches; it does not filter, sort or
-        // page, so there is nothing for the query to do with it.
-        "_summary" | "_elements" | "_include" => state,
+        // Handled in middleware. `_include` and `_revinclude` add entries to
+        // the Bundle beside this page of matches; neither filters, sorts or
+        // pages, so there is nothing for the query to do with them.
+        // `_type` is applied as a filter in `execute_search`.
+        "_summary" | "_elements" | "_include" | "_revinclude" | "_type" | "_format" | "_pretty" => {
+            state
+        }
         _ => return Err(QueryBuildError::UnsupportedParameter(param.name.clone()).into()),
-    })
-}
-
-fn parse_u64(param: &Parameter) -> Result<u64, OperationOutcomeError> {
-    let value = param.value.first().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::required(),
-            format!("Missing parameter value: {}", param.name),
-        )
-    })?;
-    value.parse().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!("Invalid {} value: '{value}'.", param.name),
-        )
     })
 }
 
@@ -375,7 +553,10 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
         .to_string();
 
     // Same sortable types as Elasticsearch.
-    if !matches!(param_type.as_str(), "date" | "string" | "token") {
+    if !matches!(
+        param_type.as_str(),
+        "date" | "string" | "token" | "number" | "quantity" | "uri"
+    ) {
         return Err(QueryBuildError::UnsupportedSortParameter(name.to_string()).into());
     }
 
@@ -386,8 +567,8 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
     })
 }
 
-/// Combines the scope filter and parameter clauses into the page and estimate
-/// statements.
+/// Combines the scope filter and parameter clauses into the page statement and
+/// the filter totals reuse.
 fn build_final_query(
     where_clauses: &[SqlClause],
     registry: &SchemaRegistry,
@@ -462,8 +643,8 @@ fn build_final_query(
         _ => (String::new(), params),
     };
 
-    // Everything the estimate reads is bound by now.
-    let estimate_param_count = params.len();
+    // Everything the filter reads is bound by now.
+    let filter_param_count = params.len();
 
     let (order_by, params) = build_order_by(&state.sort, params);
     let (params, limit_idx) = bind(
@@ -476,21 +657,17 @@ fn build_final_query(
     let offset_idx = limit_idx + 1;
 
     let resource_table = resource_table_name(&registry.version);
+    let filter_sql = format!("FROM {resource_table} sr {join_sql}WHERE {where_sql}");
 
     FinalQuery {
         page_sql: format!(
             "SELECT sr.resource_id, sr.resource_type, sr.version_id, sr.project \
-             FROM {resource_table} sr \
-             {join_sql}\
-             WHERE {where_sql}\
-             {order_by} \
+             {filter_sql}{order_by} \
              LIMIT ${limit_idx} OFFSET ${offset_idx}",
         ),
-        estimate_sql: format!(
-            "EXPLAIN SELECT 1 FROM {resource_table} sr {join_sql}WHERE {where_sql}"
-        ),
+        filter_sql,
         params,
-        estimate_param_count,
+        filter_param_count,
     }
 }
 
@@ -521,11 +698,13 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
     match &entry.target {
         ClauseTarget::DirectColumn { alias, columns } => {
             let column = match (entry.param_type.as_str(), columns) {
-                // Ascending reads the period's start, descending its end.
-                ("date", ParamColumns::Date { start, end }) => {
+                // Ascending reads the range's start, descending its end.
+                ("date", ParamColumns::Date { start, end })
+                | ("quantity", ParamColumns::Quantity { start, end, .. }) => {
                     Some(if ascending { start } else { end })
                 }
-                ("string", ParamColumns::String { value } | ParamColumns::Uri { value })
+                ("string", ParamColumns::String { value })
+                | ("uri", ParamColumns::Uri { value })
                 | ("number", ParamColumns::Number { value }) => Some(value),
                 (
                     "token",
@@ -543,7 +722,9 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
             let column = match entry.param_type.as_str() {
                 "date" if ascending => "start_ms",
                 "date" => "end_ms",
-                "string" => "value",
+                "string" | "uri" | "number" => "value",
+                "quantity" if ascending => "start_value",
+                "quantity" => "end_value",
                 "token" => "code",
                 _ => return (None, params),
             };
@@ -575,26 +756,26 @@ async fn fetch_page(
     params: &[SqlParam],
 ) -> Result<Vec<PgRow>, OperationOutcomeError> {
     bind_params(sql, params).fetch_all(pool).await.map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("PG search query failed: {e}"),
-        )
+        tracing::error!(error = %e, "PG search query failed");
+        OperationOutcomeError::fatal(IssueType::exception(), "Search query failed.".to_string())
     })
 }
 
-/// Row estimate from the top line of an `EXPLAIN`.
+/// The planner's row estimate for the filter. Plans only, so it costs the same
+/// at any size.
 async fn estimate_rows(
     pool: &Pool<Postgres>,
-    sql: &str,
-    params: &[SqlParam],
+    query: &FinalQuery,
 ) -> Result<i64, OperationOutcomeError> {
-    let top: String = bind_params(sql, params)
+    let sql = format!("EXPLAIN SELECT 1 {}", query.filter_sql);
+    let top: String = bind_params(&sql, query.filter_params())
         .fetch_one(pool)
         .await
         .map_err(|e| {
+            tracing::error!(error = %e, "PG search estimate failed");
             OperationOutcomeError::fatal(
                 IssueType::exception(),
-                format!("PG search estimate failed: {e}"),
+                "Search estimate failed.".to_string(),
             )
         })?
         .get(0);
@@ -605,6 +786,49 @@ async fn estimate_rows(
             format!("PG search estimate has no row count: '{top}'"),
         )
     })
+}
+
+/// Counts matches up to one past `limit.max_rows`; the `LIMIT` stops the scan
+/// there. The transaction only scopes the timeout and rolls back on drop.
+async fn count_rows(
+    pool: &Pool<Postgres>,
+    query: &FinalQuery,
+    limit: CountLimit,
+) -> Result<Count, OperationOutcomeError> {
+    let count_failed = |e: sqlx::Error| {
+        tracing::error!(error = %e, "PG search count failed");
+        OperationOutcomeError::fatal(IssueType::exception(), "Search count failed.".to_string())
+    };
+
+    let mut tx = pool.begin().await.map_err(count_failed)?;
+    let timeout = format!("SET LOCAL statement_timeout = {}", limit.timeout_ms);
+    sqlx::query(AssertSqlSafe(timeout))
+        .execute(&mut *tx)
+        .await
+        .map_err(count_failed)?;
+
+    let sql = format!(
+        "SELECT count(*) FROM (SELECT 1 {} LIMIT {}) matches",
+        query.filter_sql,
+        limit.max_rows + 1
+    );
+    match bind_params(&sql, query.filter_params())
+        .fetch_one(&mut *tx)
+        .await
+    {
+        Ok(row) => {
+            let count: i64 = row.get(0);
+            Ok(if count > limit.max_rows.cast_signed() {
+                Count::AtLeast(count)
+            } else {
+                Count::Exact(count)
+            })
+        }
+        Err(sqlx::Error::Database(e)) if e.code().as_deref() == Some(QUERY_CANCELED) => {
+            Ok(Count::AtLeast(0))
+        }
+        Err(e) => Err(count_failed(e)),
+    }
 }
 
 /// Reads `rows=N` from a plan line like
@@ -627,14 +851,14 @@ fn search_entry(row: &PgRow) -> SearchEntry {
             .try_into()
             .expect("Invalid resource type in search index"),
         version_id: haste_jwt::VersionId::new(row.get("version_id")),
-        project: ProjectId::new(row.get("project")),
+        project: ProjectId::new(row.get("project")).expect("Invalid project id in search index"),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pg_search::schema::generate_schemas;
+    use crate::pg_search::schema::{SharedTable, generate_schemas};
     use haste_repository::types::SupportedFHIRVersions;
 
     /// The highest `$n` in `sql`: how many binds Postgres expects.
@@ -665,7 +889,7 @@ mod tests {
         }
     }
 
-    /// The estimate drops ORDER BY and LIMIT, so it must bind exactly its own
+    /// Totals drop ORDER BY and LIMIT, so the filter must bind exactly its own
     /// placeholders or Postgres rejects it.
     #[tokio::test]
     async fn each_statement_binds_exactly_its_placeholders() {
@@ -716,7 +940,7 @@ mod tests {
             let state = QueryState {
                 max_count: 20,
                 offset: 0,
-                estimate_total: true,
+                total: Some(ACCURATE_COUNT),
                 sort: sorts,
             };
             let query = build_final_query(
@@ -725,8 +949,8 @@ mod tests {
                     params: vec![SqlParam::Text("a".to_string())],
                 }],
                 &registry,
-                &TenantId::new("t".to_string()),
-                &ProjectId::new("p".to_string()),
+                &TenantId::new("t".to_string()).unwrap(),
+                &ProjectId::new("p".to_string()).unwrap(),
                 Some(&ResourceType::Patient),
                 Some(patient),
                 &state,
@@ -739,12 +963,20 @@ mod tests {
                 query.page_sql
             );
             assert_eq!(
-                highest_placeholder(&query.estimate_sql),
-                query.estimate_param_count,
+                highest_placeholder(&query.filter_sql),
+                query.filter_param_count,
                 "{}",
-                query.estimate_sql
+                query.filter_sql
             );
         }
+    }
+
+    #[test]
+    fn type_clause_binds_each_type() {
+        let clause = type_clause(&[ResourceType::Patient, ResourceType::Observation]);
+        assert_eq!(clause.sql, "sr.resource_type IN ($1, $2)");
+        assert_eq!(clause.params.len(), 2);
+        assert_eq!(type_clause(&[]).sql, "FALSE");
     }
 
     #[test]

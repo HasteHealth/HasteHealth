@@ -59,7 +59,7 @@ const AccessPolicyInvoke = ({
             title: "Input",
             content: (
               <div className="flex flex-col h-56 w-full">
-                <div className="flex flex-col flex-1 overflow-auto flex-grow space-y-2 px-1">
+                <div className="flex flex-col flex-1 overflow-auto grow space-y-2 px-1">
                   <div>
                     <FHIRReferenceEditable
                       label="User"

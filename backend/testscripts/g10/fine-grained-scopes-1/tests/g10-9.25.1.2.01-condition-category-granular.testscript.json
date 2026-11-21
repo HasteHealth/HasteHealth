@@ -1,0 +1,156 @@
+{
+    "id": "g10-9.25.1.2.01-condition-category-granular",
+    "url": "https://haste.health/fhir/TestScript/g10-9.25.1.2.01-condition-category-granular",
+    "name": "g10-9.25.1.2.01-condition-category-granular",
+    "title": "9.25.1.2.01 Condition search by patient and category is filtered by granular scopes",
+    "status": "active",
+    "description": "g10 9.25.1.2.01 / 9.14.1.2.01 / 9.23.1.2.01 / 9.24.1.2.01 (AUT-PAT-28). Granted patient/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis, patient/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern: a category search the scope covers returns exactly the matching Conditions; one it does not cover returns none of them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "9.25.1.2.01 Condition search by patient and category is filtered by granular scopes",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-granular-patient&category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "category encounter-diagnosis answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only g10-cond-encdx returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all(id = 'g10-cond-encdx')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-cond-encdx is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-cond-encdx').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-granular-patient&category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-cond-problem is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-cond-problem').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-granular-patient&category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "category health-concern answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only g10-cond-concern returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all(id = 'g10-cond-concern')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-cond-concern is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-cond-concern').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-granular-patient&category=encounter-diagnosis",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "category=encounter-diagnosis answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-cond-problem is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-cond-problem').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-granular-patient&category=health-concern",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "category=health-concern answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-cond-problem is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-cond-problem').exists().not()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

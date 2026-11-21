@@ -1,0 +1,74 @@
+/*
+ * Styles the marketing pages share (home, pricing, contact): the few
+ * animations Tailwind utilities cannot express. Everything that moves is
+ * switched off under `prefers-reduced-motion` at the bottom of this file.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Load-in
+ *
+ * Pure CSS, so it needs no hydration and cannot leave a hero blank: the
+ * content fades up once, as one piece, after `--rise-delay`.
+ * ------------------------------------------------------------------------- */
+
+.rise {
+  animation: rise 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.625rem, 0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Cards
+ * ------------------------------------------------------------------------- */
+
+.card {
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.card:hover {
+  transform: translate3d(0, -0.125rem, 0);
+  border-color: var(--color-brand-300);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 16px 40px -24px rgb(15 23 42 / 0.2);
+}
+
+/* The arrow on a card or text link leans forward when its link is hovered. */
+.arrow {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+a:hover .arrow,
+.card:hover .arrow {
+  transform: translate3d(0.1875rem, 0, 0);
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion: everything holds still, fully drawn.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+
+  .card,
+  .arrow {
+    transition: none;
+  }
+
+  .card:hover,
+  a:hover .arrow,
+  .card:hover .arrow {
+    transform: none;
+  }
+}

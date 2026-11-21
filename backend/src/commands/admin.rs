@@ -18,9 +18,18 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
-use haste_repository::admin::Migrate;
+use haste_repository::{
+    admin::{Migrate, TenantModelAdmin},
+    pg::PGConnection,
+    types::user::{AuthMethod, CreateUser, UserSearchClauses},
+};
 use haste_server::{
+    auth_n::{
+        invitations,
+        oidc::utilities::{revoke_refresh_tokens, set_user_password},
+    },
     config::ServerConfig,
+    document_storage,
     fhir_client::ServerCTX,
     load_artifacts::{self, reset_artifacts},
     services,
@@ -115,6 +124,29 @@ pub(crate) enum AdminCommands {
         #[command(subcommand)]
         command: MigrationCommands,
     },
+
+    /// Maintain the document storage that holds large Binary content.
+    DocumentStorage {
+        #[command(subcommand)]
+        command: DocumentStorageCommands,
+    },
+}
+
+/// Maintain the document storage that holds large Binary content.
+#[derive(Subcommand, Debug)]
+pub(crate) enum DocumentStorageCommands {
+    /// Remove stored Binary content that no resource version refers to: left
+    /// behind by a rolled back transaction or a write that failed after the
+    /// upload. Prints a JSON report.
+    Sweep {
+        /// Keep documents younger than this many hours, which may belong to a
+        /// write still in progress.
+        #[arg(long, default_value_t = 24)]
+        older_than_hours: u64,
+        /// Count what would be removed without removing anything.
+        #[arg(long)]
+        dry_run: bool,
+    },
 }
 
 /// Run database/search/artifact migrations.
@@ -124,7 +156,7 @@ pub(crate) enum MigrationCommands {
     Artifacts {},
     /// Reload the built-in FHIR artifacts from scratch, discarding local edits to them.
     ResetArtifacts {},
-    /// Run pending repository (Postgres) migrations.
+    /// Run pending repository (Postgres) migrations, including the document storage table.
     Repo {},
     /// Run pending search index (Postgres or Elasticsearch) migrations.
     Search {},
@@ -167,11 +199,24 @@ pub(crate) enum UserCommands {
         #[arg(short, long)]
         tenant: String,
     },
+    /// Set a user's password, accept their invitation and revoke their refresh tokens.
+    SetPassword {
+        /// Email address of the user.
+        #[arg(short, long)]
+        email: String,
+        /// New password for the user.
+        #[arg(short, long)]
+        password: String,
+        /// Tenant the user belongs to.
+        #[arg(short, long)]
+        tenant: String,
+    },
 }
 
 async fn migrate_repo(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
-    let services = services::create_services(config).await?;
+    let services = services::create_services(config.clone()).await?;
     services.repo.migrate().await?;
+    document_storage::migrate(&config).await?;
     Ok(())
 }
 
@@ -227,7 +272,6 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 let result = create_tenant(
                     services.as_ref(),
                     Some(id.clone()),
-                    id,
                     &SubscriptionTier::from(
                         subscription_tier
                             .clone()
@@ -271,7 +315,7 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     .transaction()
                     .await?;
 
-                let tenant = TenantId::new(tenant.clone());
+                let tenant = TenantId::new(tenant.clone())?;
 
                 create_user(
                     &services,
@@ -289,6 +333,49 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     Some(password),
                 )
                 .await?;
+
+                services.commit().await?;
+
+                Ok(())
+            }
+            UserCommands::SetPassword {
+                email,
+                password,
+                tenant,
+            } => {
+                let services = services::create_services(config)
+                    .await?
+                    .transaction()
+                    .await?;
+
+                let tenant = TenantId::new(tenant.clone())?;
+
+                let Some(user) = TenantModelAdmin::<CreateUser, _, _, _, String>::search(
+                    services.repo.as_ref(),
+                    &tenant,
+                    &UserSearchClauses {
+                        email: Some(email.clone()),
+                        role: None,
+                        method: Some(AuthMethod::EmailPassword),
+                    },
+                )
+                .await?
+                .into_iter()
+                .next() else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::not_found(),
+                        format!(
+                            "No email/password user with email '{}' in tenant '{}'.",
+                            email, tenant
+                        ),
+                    ));
+                };
+
+                set_user_password(services.repo.as_ref(), &tenant, email, &user.id, password)
+                    .await?;
+                revoke_refresh_tokens(services.repo.as_ref(), &tenant, &user.id).await?;
+                // Sign-in requires an accepted (email-verified) user.
+                invitations::accept(&services, user).await?;
 
                 services.commit().await?;
 
@@ -380,8 +467,8 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 let services = services::create_services(config).await?;
 
                 let ctx = Arc::new(ServerCTX::system(
-                    TenantId::new(tenant.clone()),
-                    ProjectId::new(project.clone()),
+                    TenantId::new(tenant.clone())?,
+                    ProjectId::new(project.clone())?,
                     services.fhir_client.clone(),
                     services.rate_limit.clone(),
                 ));
@@ -478,5 +565,39 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 Ok(())
             }
         },
+        AdminCommands::DocumentStorage { command } => match command {
+            DocumentStorageCommands::Sweep {
+                older_than_hours,
+                dry_run,
+            } => sweep_document_storage(&config, *older_than_hours, *dry_run).await,
+        },
     }
+}
+
+async fn sweep_document_storage(
+    config: &ServerConfig,
+    older_than_hours: u64,
+    dry_run: bool,
+) -> Result<(), OperationOutcomeError> {
+    let Some(storage) = document_storage::connect(config).await? else {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Document storage is off ([document_storage] backend = \"none\").".to_string(),
+        ));
+    };
+    let repo = PGConnection::pool(services::get_pool(config).await.clone());
+
+    let report = document_storage::sweep(
+        &repo,
+        storage.as_ref(),
+        std::time::Duration::from_secs(older_than_hours.saturating_mul(60 * 60)),
+        dry_run,
+    )
+    .await?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report)
+            .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?
+    );
+    Ok(())
 }

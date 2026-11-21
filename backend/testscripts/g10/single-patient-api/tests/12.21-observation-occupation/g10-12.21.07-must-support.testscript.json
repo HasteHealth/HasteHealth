@@ -1,0 +1,130 @@
+{
+    "id": "g10-12.21.07-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.21.07-must-support",
+    "name": "g10-12.21.07-must-support",
+    "title": "12.21.07 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.21.07 (DAT-PAT-2; US Core 6.1.0: group 10.21). Every must support element of US Core Observation Occupation Profile (including the USCDI ones) appears in at least one Observation the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=g10-observation-occupation,g10-observation-occupation-industry-unknown,g10-observation-occupation-unknown",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.category is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).category.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.category:socialhistory is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).category.where(coding.where(system = 'http://terminology.hl7.org/CodeSystem/observation-category' and code = 'social-history').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.code.coding.code is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).code.coding.code.where($this = '11341-5').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.component is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).component.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.component:industry is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).component.where(code.coding.where(system = 'http://loinc.org' and code = '86188-0').exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.component:industry.code is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).component.where(code.coding.where(system = 'http://loinc.org' and code = '86188-0').exists()).code.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.component:industry.value[x] is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).component.where(code.coding.where(system = 'http://loinc.org' and code = '86188-0').exists()).value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.effective[x]:effectivePeriod is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).effective.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.status is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation.value[x]:valueCodeableConcept is present",
+                        "expression": "Bundle.entry.resource.ofType(Observation).value.ofType(CodeableConcept).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

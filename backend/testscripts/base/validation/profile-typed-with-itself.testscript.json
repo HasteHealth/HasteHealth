@@ -1,0 +1,269 @@
+{
+  "resourceType": "TestScript",
+  "id": "profile-typed-with-itself",
+  "url": "https://haste.health/fhir/TestScript/profile-typed-with-itself",
+  "name": "Profile typed with itself",
+  "title": "Profile typed with itself",
+  "status": "active",
+  "description": "A profile whose root element is typed with the profile itself (as a Patient profile that constrains Patient.link.other to itself is, in the simplest form) applies to a resource once. The profile (Patient.identifier 1..*) is created and found by url, which is the step that waits for indexing. A Patient without an identifier claiming it is refused as unprocessable with an OperationOutcome naming Patient.identifier once, and the same Patient with an identifier is created.",
+  "contained": [
+    {
+      "resourceType": "StructureDefinition",
+      "id": "linked-patient",
+      "meta": {
+        "tag": [
+          {
+            "code": "linked-patient-test"
+          }
+        ]
+      },
+      "url": "http://example.org/fhir/StructureDefinition/linked-patient",
+      "name": "LinkedPatient",
+      "status": "active",
+      "kind": "resource",
+      "abstract": false,
+      "type": "Patient",
+      "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+      "derivation": "constraint",
+      "snapshot": {
+        "element": [
+          {
+            "id": "Patient",
+            "path": "Patient",
+            "min": 0,
+            "max": "*",
+            "type": [
+              {
+                "code": "Patient",
+                "profile": [
+                  "http://example.org/fhir/StructureDefinition/linked-patient"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Patient.identifier",
+            "path": "Patient.identifier",
+            "min": 1,
+            "max": "*",
+            "type": [
+              {
+                "code": "Identifier"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "Patient",
+      "id": "linked-patient-without-identifier",
+      "meta": {
+        "profile": [
+          "http://example.org/fhir/StructureDefinition/linked-patient"
+        ],
+        "tag": [
+          {
+            "code": "linked-patient-test"
+          }
+        ]
+      },
+      "name": [
+        {
+          "family": "Linked"
+        }
+      ]
+    },
+    {
+      "resourceType": "Patient",
+      "id": "linked-patient-with-identifier",
+      "meta": {
+        "profile": [
+          "http://example.org/fhir/StructureDefinition/linked-patient"
+        ],
+        "tag": [
+          {
+            "code": "linked-patient-test"
+          }
+        ]
+      },
+      "name": [
+        {
+          "family": "Linked"
+        }
+      ],
+      "identifier": [
+        {
+          "system": "urn:example:linked-patient",
+          "value": "linked-patient-with-identifier"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "fixture-linked-patient",
+      "resource": {
+        "reference": "#linked-patient"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-linked-patient-without-identifier",
+      "resource": {
+        "reference": "#linked-patient-without-identifier"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-linked-patient-with-identifier",
+      "resource": {
+        "reference": "#linked-patient-with-identifier"
+      },
+      "autocreate": false,
+      "autodelete": false
+    }
+  ],
+  "test": [
+    {
+      "id": "self-typed-profile",
+      "name": "A profile typed with itself is applied once",
+      "description": "The profile is created and found by url. A Patient without an identifier is refused with a single issue naming Patient.identifier; with an identifier it is created.",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "update"
+            },
+            "encodeRequestUrl": false,
+            "resource": "StructureDefinition",
+            "sourceId": "fixture-linked-patient",
+            "targetId": "fixture-linked-patient",
+            "responseId": "profile-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "The profile is created",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "StructureDefinition"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "search"
+            },
+            "encodeRequestUrl": false,
+            "resource": "StructureDefinition",
+            "params": "url=http://example.org/fhir/StructureDefinition/linked-patient"
+          }
+        },
+        {
+          "assert": {
+            "label": "The profile is findable by url",
+            "warningOnly": false,
+            "expression": "Bundle.entry.count()",
+            "operator": "equals",
+            "value": "1"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Patient",
+            "sourceId": "fixture-linked-patient-without-identifier"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: refused with an OperationOutcome",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "OperationOutcome"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: unprocessable",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "unprocessable"
+          }
+        },
+        {
+          "assert": {
+            "label": "Missing identifier: one issue names Patient.identifier",
+            "warningOnly": false,
+            "expression": "OperationOutcome.issue.where(diagnostics.contains('Patient.identifier')).count()",
+            "operator": "equals",
+            "value": "1"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Patient",
+            "sourceId": "fixture-linked-patient-with-identifier",
+            "responseId": "with-identifier-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "With identifier: stored",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "created"
+          }
+        },
+        {
+          "assert": {
+            "label": "With identifier: the response is the Patient",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "Patient"
+          }
+        }
+      ]
+    }
+  ],
+  "teardown": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "Patient",
+          "params": "_tag=linked-patient-test"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "params": "_tag=linked-patient-test"
+        }
+      }
+    ]
+  }
+}

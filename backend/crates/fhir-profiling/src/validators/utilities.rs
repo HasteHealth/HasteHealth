@@ -1,6 +1,8 @@
+use std::borrow::Cow;
+
 use haste_fhir_model::r4::{
     conversion::{
-        BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, PRIMITIVE_TYPES, STRING_TYPES, downcast_bool,
+        BOOLEAN_TYPES, DATE_TIME_TYPES, DowncastError, NUMBER_TYPES, STRING_TYPES, downcast_bool,
         downcast_number, downcast_string,
     },
     datetime::{Date, DateTime, Time},
@@ -26,59 +28,78 @@ fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Result<&T, Operatio
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Primitive {
+pub enum Primitive<'a> {
     Boolean(bool),
     Number(f64),
-    String(String),
+    String(Cow<'a, str>),
 }
 
+fn string_downcast_error(type_name: &str) -> OperationOutcomeError {
+    OperationOutcomeError::fatal(
+        IssueType::invalid(),
+        format!(
+            "Failed to downcast value to string: {}",
+            DowncastError::FailedDowncast(type_name.to_string())
+        ),
+    )
+}
+
+/// A `System.String`'s text, borrowed.
+fn system_string(value: &dyn MetaValue) -> Result<&str, OperationOutcomeError> {
+    if value.fhir_type() == "http://hl7.org/fhirpath/System.String"
+        && let Some(text) = value.as_any().downcast_ref::<String>()
+    {
+        Ok(text)
+    } else {
+        Err(string_downcast_error(value.fhir_type()))
+    }
+}
+
+/// A system string itself, or a FHIR string primitive's `value` (empty when unset):
+/// what `downcast_string` reads, borrowed instead of copied.
+fn string_value(value: &dyn MetaValue) -> Result<&str, OperationOutcomeError> {
+    if value.fhir_type() == "http://hl7.org/fhirpath/System.String" {
+        system_string(value)
+    } else {
+        value.get_field("value").map_or(Ok(""), system_string)
+    }
+}
+
+/// Classifies a value as a primitive with a single lookup per type set.
+/// String primitives borrow their text from `value`.
 pub fn primitive_conversion(
     value: &dyn MetaValue,
-) -> Result<Option<Primitive>, OperationOutcomeError> {
+) -> Result<Option<Primitive<'_>>, OperationOutcomeError> {
     let type_name = value.fhir_type();
-    if PRIMITIVE_TYPES.contains(type_name) {
-        if STRING_TYPES.contains(type_name) {
-            Ok(Some(Primitive::String(downcast_string(value).map_err(
-                |e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::invalid(),
-                        format!("Failed to downcast value to string: {e}"),
-                    )
-                },
-            )?)))
-        } else if NUMBER_TYPES.contains(type_name) {
-            Ok(Some(Primitive::Number(downcast_number(value).map_err(
-                |e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::invalid(),
-                        format!("Failed to downcast value to number: {e}"),
-                    )
-                },
-            )?)))
-        } else if BOOLEAN_TYPES.contains(type_name) {
-            Ok(Some(Primitive::Boolean(downcast_bool(value).map_err(
-                |e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::invalid(),
-                        format!("Failed to downcast value to boolean: {e}"),
-                    )
-                },
-            )?)))
-        } else if DATE_TIME_TYPES.contains(type_name) {
-            Ok(Some(Primitive::String(downcast_string(value).map_err(
-                |e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::invalid(),
-                        format!("Failed to downcast value to string: {e}"),
-                    )
-                },
-            )?)))
-        } else {
-            Err(OperationOutcomeError::fatal(
-                IssueType::invalid(),
-                format!("Unsupported primitive type: {type_name}"),
-            ))
-        }
+    if STRING_TYPES.contains(type_name) {
+        Ok(Some(Primitive::String(Cow::Borrowed(string_value(value)?))))
+    } else if NUMBER_TYPES.contains(type_name) {
+        Ok(Some(Primitive::Number(downcast_number(value).map_err(
+            |e| {
+                OperationOutcomeError::fatal(
+                    IssueType::invalid(),
+                    format!("Failed to downcast value to number: {e}"),
+                )
+            },
+        )?)))
+    } else if BOOLEAN_TYPES.contains(type_name) {
+        Ok(Some(Primitive::Boolean(downcast_bool(value).map_err(
+            |e| {
+                OperationOutcomeError::fatal(
+                    IssueType::invalid(),
+                    format!("Failed to downcast value to boolean: {e}"),
+                )
+            },
+        )?)))
+    } else if DATE_TIME_TYPES.contains(type_name) {
+        Ok(Some(Primitive::String(Cow::Owned(
+            downcast_string(value).map_err(|e| {
+                OperationOutcomeError::fatal(
+                    IssueType::invalid(),
+                    format!("Failed to downcast value to string: {e}"),
+                )
+            })?,
+        ))))
     } else {
         Ok(None)
     }

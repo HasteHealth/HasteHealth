@@ -14,6 +14,7 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_reflect::MetaValue;
+use haste_repository::utilities::parse_haste_canonical;
 use serde::{Deserialize, Serialize};
 
 use crate::ResolvedParameter;
@@ -573,15 +574,22 @@ fn index_token_id(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIn
     }])
 }
 
-fn get_decimal_precision(value: &str) -> u32 {
-    let value = value.to_string();
-    let decimal_characters = value.split('.').nth(1);
-    let mut digits = 0;
-    if let Some(decimal_part) = decimal_characters {
-        decimal_part.chars().for_each(|_| digits += 1);
-    }
-
-    digits
+/// How many decimal places `value` is written to, which sets the width of
+/// its implicit range (<https://hl7.org/fhir/R4/search.html#number>): `45`
+/// has 0 and covers `[44.5, 45.5)`, `45.0` has 1. An exponent shifts it:
+/// `1e2` has -2 and covers `[50, 150)`, `1.5e2` has -1. A malformed
+/// exponent is left for the `f64` parse to reject.
+fn get_decimal_precision(value: &str) -> i32 {
+    let (mantissa, exponent) = match value.split_once(['e', 'E']) {
+        Some((mantissa, exponent)) => (mantissa, exponent.parse::<i32>().unwrap_or(0)),
+        None => (value, 0),
+    };
+    let fraction_digits = mantissa
+        .split_once('.')
+        .map_or(0, |(_, fraction)| fraction.len());
+    i32::try_from(fraction_digits)
+        .unwrap_or(i32::MAX)
+        .saturating_sub(exponent)
 }
 
 #[derive(Debug)]
@@ -603,9 +611,10 @@ pub fn get_decimal_range(value: &str) -> Result<DecimalRange, InsertableIndexErr
         .parse::<f64>()
         .map_err(|_e| InsertableIndexError::FailedDowncast(value.to_string()))?;
 
+    let half_step = 0.5 * 10f64.powi(-decimal_precision);
     Ok(DecimalRange {
-        start: parsed_v - 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
-        end: parsed_v + 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
+        start: parsed_v - half_step,
+        end: parsed_v + half_step,
     })
 }
 
@@ -998,9 +1007,17 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             if let Some(canonical) = &fp_canonical.value {
+                // A Haste Health canonical names its target by type and id, so
+                // it also matches a `Type/id` search (the resource author).
+                let (resource_type, id) = parse_haste_canonical(canonical)
+                    .and_then(|(resource_type, id)| {
+                        let resource_type = ResourceType::try_from(resource_type).ok()?;
+                        Some((resource_type.as_ref().to_string(), id.to_string()))
+                    })
+                    .unzip();
                 return Ok(vec![ReferenceIndex {
-                    id: None,
-                    resource_type: None,
+                    id,
+                    resource_type,
                     uri: Some(canonical.clone()),
                 }]);
             }
@@ -1019,9 +1036,23 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
             }
             Ok(vec![])
         }
-        _ => Err(InsertableIndexError::FailedDowncast(
-            value.fhir_type().to_string(),
-        )),
+        // An embedded resource, as Bundle `composition` and `message` select
+        // (`Bundle.entry[0].resource`), is indexed as its own type and id.
+        fhir_type => {
+            let resource_type = ResourceType::try_from(fhir_type)
+                .map_err(|_| InsertableIndexError::FailedDowncast(fhir_type.to_string()))?;
+            let id = value
+                .get_field("id")
+                .and_then(|id| id.as_any().downcast_ref::<String>());
+            Ok(id
+                .map(|id| ReferenceIndex {
+                    resource_type: Some(resource_type.as_ref().to_string()),
+                    id: Some(id.clone()),
+                    uri: None,
+                })
+                .into_iter()
+                .collect())
+        }
     }
 }
 

@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
-import { Extension, id, instant } from "@haste-health/fhir-types/r4/types";
+import {
+  Extension,
+  canonical,
+  id,
+  instant,
+} from "@haste-health/fhir-types/r4/types";
 import { R4 } from "@haste-health/fhir-types/versions";
 
 import { createStorybookClient } from "../stories.client";
@@ -32,7 +37,8 @@ export const Primary: Story = {
       extension: [
         {
           url: "https://haste.health/author",
-          valueReference: { reference: "Patient/123" },
+          valueCanonical:
+            "https://haste.health/fhir/Membership/123" as canonical,
         },
       ] as Extension[],
     },

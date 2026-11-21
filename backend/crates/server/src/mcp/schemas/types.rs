@@ -379,6 +379,33 @@ pub struct ToolAnnotations {
     pub title: Option<String>,
 }
 
+impl ToolAnnotations {
+    /// A tool that only reads this server: safe to repeat, and nothing outside
+    /// the server is reached.
+    pub fn read_only() -> Self {
+        Self {
+            read_only_hint: Some(true),
+            destructive_hint: Some(false),
+            idempotent_hint: Some(true),
+            open_world_hint: Some(false),
+            title: None,
+        }
+    }
+
+    /// A tool that writes to this server. `destructive` is false for a purely
+    /// additive write (create); `idempotent` is true when repeating the same
+    /// call changes nothing further (update, delete).
+    pub fn write(destructive: bool, idempotent: bool) -> Self {
+        Self {
+            read_only_hint: Some(false),
+            destructive_hint: Some(destructive),
+            idempotent_hint: Some(idempotent),
+            open_world_hint: Some(false),
+            title: None,
+        }
+    }
+}
+
 // ===========================================================================
 // Tool Call (tools/call)
 // ===========================================================================

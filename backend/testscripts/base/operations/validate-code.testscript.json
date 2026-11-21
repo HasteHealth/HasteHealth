@@ -34,6 +34,31 @@
                     "valueCode": "invalid"
                 }
             ]
+        },
+        {
+            "id": "valueset-validate-code-instance-success",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "code",
+                    "valueCode": "female"
+                }
+            ]
+        },
+        {
+            "id": "valueset-validate-code-instance-failure",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "code",
+                    "valueCode": "femail"
+                }
+            ]
+        },
+        {
+            "id": "administrative-gender",
+            "resourceType": "ValueSet",
+            "status": "active"
         }
     ],
     "fixture": [
@@ -49,6 +74,30 @@
             "id": "fixture-validate-code-failure",
             "resource": {
                 "reference": "#valueset-validate-code-parameters-failure"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-validate-code-instance-success",
+            "resource": {
+                "reference": "#valueset-validate-code-instance-success"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-validate-code-instance-failure",
+            "resource": {
+                "reference": "#valueset-validate-code-instance-failure"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-administrative-gender",
+            "resource": {
+                "reference": "#administrative-gender"
             },
             "autocreate": false,
             "autodelete": false
@@ -93,6 +142,66 @@
                 {
                     "assert": {
                         "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='message').value.contains('invalid') and Parameters.parameter.where(name='message').value.contains('is not in the ValueSet')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "validate-code-instance",
+            "name": "Validate a code against a ValueSet at the instance level",
+            "action": [
+                {
+                    "operation": {
+                        "url": "validate-code",
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-validate-code-instance-success",
+                        "targetId": "fixture-administrative-gender",
+                        "responseId": "validate-code-instance-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "url": "validate-code",
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-validate-code-instance-failure",
+                        "targetId": "fixture-administrative-gender",
+                        "responseId": "validate-code-instance-response-failure",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='message').value.contains('femail') and Parameters.parameter.where(name='message').value.contains('is not in the ValueSet')",
                         "value": "true",
                         "warningOnly": false
                     }

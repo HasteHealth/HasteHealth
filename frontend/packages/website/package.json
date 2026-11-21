@@ -1,6 +1,6 @@
 {
 	"name": "@haste-health/website",
-	"version": "0.1.0",
+	"version": "0.130.13",
 	"private": true,
 	"scripts": {
 		"docusaurus": "docusaurus",
@@ -13,13 +13,8 @@
 		"write-translations": "docusaurus write-translations",
 		"write-heading-ids": "docusaurus write-heading-ids",
 		"typecheck": "tsc",
-		"generate-fhir": "node scripts/generate-fhir-model.mjs",
-		"generate-social-card": "node scripts/social-card.mjs",
-		"check-social-card": "node scripts/social-card.mjs --check",
-		"generate-mcp": "NODE_ENV=development pnpm node --env-file-if-exists=.env generate.mjs mcp",
-		"generate-test-support": "node scripts/generate-test-support.mjs --testscripts ../../../backend/testscripts/core --postgres ../../../backend/testreports/postgres.json --elasticsearch ../../../backend/testreports/elasticsearch.json --output static/test-reports/support.json",
-		"generate-pricing": "cd ../../../backend && cargo run --quiet subscription export --output ../frontend/packages/website/static/pricing/tiers.json",
-		"check-pricing": "cd ../../../backend && cargo run --quiet subscription export --check --output ../frontend/packages/website/static/pricing/tiers.json"
+		"generate": "node scripts/generate.mjs",
+		"check-generated": "node scripts/generate.mjs --check"
 	},
 	"dependencies": {
 		"@docusaurus/core": "3.10.2",
@@ -29,8 +24,8 @@
 		"@mdx-js/react": "^3.1.1",
 		"clsx": "^2.1.1",
 		"prism-react-renderer": "^2.4.1",
-		"react": "^19.2.7",
-		"react-dom": "^19.2.7"
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1"
 	},
 	"devDependencies": {
 		"@docusaurus/faster": "^3.10.2",
@@ -39,12 +34,12 @@
 		"@docusaurus/types": "3.10.2",
 		"@haste-health/codegen": "workspace:^",
 		"@haste-health/fhir-types": "workspace:^",
-		"@tailwindcss/postcss": "^4.3.2",
-		"autoprefixer": "^10.5.2",
-		"postcss": "^8.5.23",
-		"tailwindcss": "^4.3.2",
+		"@tailwindcss/postcss": "^4.3.5",
+		"autoprefixer": "^10.6.2",
+		"postcss": "^8.5.32",
+		"tailwindcss": "^4.3.5",
 		"typescript": "~6.0.3",
-		"wrangler": "^4.130.0"
+		"wrangler": "^4.161.0"
 	},
 	"browserslist": {
 		"production": [

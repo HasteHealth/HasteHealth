@@ -237,7 +237,7 @@ mod tests {
 
         assert_eq!(
             get_total_rate_limit_for_tier(&config, &SubscriptionTier::Free),
-            250_000
+            500_000
         );
         assert_eq!(
             get_total_rate_limit_for_tier(&config, &SubscriptionTier::Professional),

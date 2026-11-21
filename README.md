@@ -17,7 +17,7 @@ curl -O https://raw.githubusercontent.com/HasteHealth/HasteHealth/main/docker-co
 docker compose up
 ```
 
-Once the containers are healthy, open `http://my-health_system.localhost:3001` and log in with:
+Once the containers are healthy, open `http://my-health--system.localhost:3001` and log in with:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -82,7 +82,7 @@ cd <repo-root>/frontend/packages/admin-app
 pnpm dev
 ```
 
-Then go to `http://my-health_system.localhost:3001` and fill in the following credentials:
+Then go to `http://my-health--system.localhost:3001` and fill in the following credentials:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -91,8 +91,20 @@ This tenant and user are created automatically when you run the migration in the
 
 ## Binaries
 
-- [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
-- [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
+One `haste-health` binary runs the server, the worker and the CLI. Install it with npm:
+
+```bash
+npm install -g haste-health
+haste-health --help
+```
+
+Or try it without installing:
+
+```bash
+npx haste-health --help
+```
+
+Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon. The Linux builds are static and run on any distribution. On Windows, use it inside WSL. Each [GitHub release](https://github.com/HasteHealth/HasteHealth/releases/latest) also has the binaries attached, for machines without Node.js.
 
 Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md).
 

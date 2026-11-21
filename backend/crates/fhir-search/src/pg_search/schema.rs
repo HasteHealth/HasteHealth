@@ -42,9 +42,27 @@ pub enum IndexKind {
     /// B-tree stored `DESC NULLS LAST`, so a descending sort can stop at the
     /// page size. (A plain B-tree read backwards is `DESC NULLS FIRST`.)
     BTreeDescending,
-    /// B-tree over `LOWER(column) text_pattern_ops`, for case-insensitive
-    /// prefix matches.
+    /// B-tree over [`string_prefix_expr`] with `text_pattern_ops`, for
+    /// case-insensitive prefix matches, plus a trigram GIN over
+    /// `LOWER(column)` for `:contains`.
     LoweredPrefix,
+}
+
+/// How many leading characters of a string value its prefix B-tree covers.
+///
+/// A B-tree entry must fit in a third of a page (2704 bytes), and a long
+/// narrative such as a `ValueSet.description` does not. Indexing only the
+/// first characters keeps every value indexable: at most four UTF-8 bytes a
+/// character, this many fit with room for the scope columns. A prefix term is
+/// never this long, so a search loses nothing; the full value is still stored
+/// and the trigram index still covers all of it.
+pub const STRING_PREFIX_CHARS: usize = 512;
+
+/// The indexed expression over a string column. Prefix and exact searches
+/// compare it, so the planner can match them to the index.
+#[must_use]
+pub fn string_prefix_expr(column: &str) -> String {
+    format!("LOWER(LEFT({column}, {STRING_PREFIX_CHARS}))")
 }
 
 /// One generated column.
@@ -628,7 +646,7 @@ mod tests {
         }
     }
 
-    /// Case-insensitive prefix search needs an index over `LOWER(column)`.
+    /// Case-insensitive prefix search needs an index over the lowered prefix.
     #[tokio::test]
     async fn string_columns_index_the_lowered_value() {
         let registry = registry().await;

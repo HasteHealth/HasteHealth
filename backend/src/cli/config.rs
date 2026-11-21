@@ -1,6 +1,6 @@
 //! Schema and on-disk persistence for named server connection profiles
-//! (`~/.haste_health/config.toml`). The `config` *command* (create/delete/list profiles)
-//! lives in [`crate::commands::config`]; this module only owns the data.
+//! (`~/.haste_health/config.toml`). The `profile` *command* (create/delete/list profiles)
+//! lives in [`crate::commands::profile`]; this module only owns the data.
 //!
 //! Secret material (client secrets, cached OAuth tokens) is never stored here — see
 //! [`crate::cli::secrets`] — so this file is safe to inspect, back up, or share.
@@ -9,6 +9,9 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+/// Scope a client-credentials profile requests when it doesn't store one.
+pub(crate) const DEFAULT_CLIENT_CREDENTIALS_SCOPE: &str = "openid system/*.*";
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub(crate) struct CliConfiguration {
@@ -23,6 +26,17 @@ impl CliConfiguration {
         } else {
             None
         }
+    }
+
+    /// The active profile, or an error saying how to pick or create one.
+    pub(crate) fn require_current_profile(&self) -> Result<&Profile, OperationOutcomeError> {
+        self.current_profile().ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::invalid(),
+                "No active profile. Pick one with `haste-health profile use`, or create one with `haste-health profile create`."
+                    .to_string(),
+            )
+        })
     }
 }
 
@@ -42,6 +56,9 @@ pub(crate) enum ProfileAuth {
     /// A confidential (server-to-server) client authenticated with a client secret.
     ClientCredentails {
         client_id: String,
+        /// Scope to request; `None` requests `openid system/*.*`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        scope: Option<String>,
     },
     /// A public (no secret) OIDC client authenticated by a human via the browser-based
     /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
@@ -57,7 +74,9 @@ pub(crate) enum ProfileAuth {
     Public {},
 }
 
-fn read_existing_config(location: &PathBuf) -> Result<CliConfiguration, OperationOutcomeError> {
+pub(crate) fn read_existing_config(
+    location: &PathBuf,
+) -> Result<CliConfiguration, OperationOutcomeError> {
     let config_str = std::fs::read_to_string(location).map_err(|_| {
         OperationOutcomeError::error(
             IssueType::exception(),

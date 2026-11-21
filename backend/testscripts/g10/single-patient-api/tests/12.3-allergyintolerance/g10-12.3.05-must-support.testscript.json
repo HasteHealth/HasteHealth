@@ -1,0 +1,90 @@
+{
+    "id": "g10-12.3.05-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.3.05-must-support",
+    "name": "g10-12.3.05-must-support",
+    "title": "12.3.05 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.3.05 (DAT-PAT-2; US Core 6.1.0: group 10.3). Every must support element of US Core AllergyIntolerance Profile (including the USCDI ones) appears in at least one AllergyIntolerance the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AllergyIntolerance",
+                        "params": "_id=g10-79613,g10-example,g10-non-pharmacologic-agent-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.clinicalStatus is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).clinicalStatus.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.code is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).code.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.patient is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).patient.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.reaction is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).reaction.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.reaction.manifestation is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).reaction.manifestation.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AllergyIntolerance.verificationStatus is present",
+                        "expression": "Bundle.entry.resource.ofType(AllergyIntolerance).verificationStatus.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,219 @@
+{
+    "id": "g10-12.41.02-search-patient-date",
+    "url": "https://haste.health/fhir/TestScript/g10-12.41.02-search-patient-date",
+    "name": "g10-12.41.02-search-patient-date",
+    "title": "12.41.02 Server returns valid results for Procedure search by patient + date",
+    "status": "active",
+    "description": "g10 12.41.02 (SH-PAT-2; US Core 6.1.0: group 10.38). Server returns valid results for Procedure search by patient + date. US Core SHALL search. Every result must match every parameter, and the record's Procedure/g10-defib-implant must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-procedure-patient-g10-example-date-gt2019-03-25t19-55-26z",
+            "name": "GET Procedure?patient=g10-example&date=gt2019-03-25T19:55:26Z",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example&date=gt2019-03-25T19:55:26Z",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Procedure/g10-defib-implant is returned",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).where(id = 'g10-defib-implant').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-comparator-gt-get-procedure-patient-g10-example-date-gt2019-03-25t19-55-26z",
+            "name": "Comparator gt: GET Procedure?patient=g10-example&date=gt2019-03-25T19:55:26Z",
+            "description": "Every result's date satisfies gt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example&date=gt2019-03-25T19:55:26Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')) and (performed.ofType(dateTime).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(instant).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(date).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2019-03-25').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-comparator-ge-get-procedure-patient-g10-example-date-ge2019-03-25t19-55-26z",
+            "name": "Comparator ge: GET Procedure?patient=g10-example&date=ge2019-03-25T19:55:26Z",
+            "description": "Every result's date satisfies ge (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example&date=ge2019-03-25T19:55:26Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')) and (performed.ofType(dateTime).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(instant).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(date).where($this.toString().substring(0, 10) >= '2019-03-25').exists() or performed.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2019-03-25').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-comparator-lt-get-procedure-patient-g10-example-date-lt2019-03-27t19-55-26z",
+            "name": "Comparator lt: GET Procedure?patient=g10-example&date=lt2019-03-27T19:55:26Z",
+            "description": "Every result's date satisfies lt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example&date=lt2019-03-27T19:55:26Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')) and (performed.ofType(dateTime).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(instant).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(date).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2019-03-27').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-comparator-le-get-procedure-patient-g10-example-date-le2019-03-27t19-55-26z",
+            "name": "Comparator le: GET Procedure?patient=g10-example&date=le2019-03-27T19:55:26Z",
+            "description": "Every result's date satisfies le (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Procedure",
+                        "params": "patient=g10-example&date=le2019-03-27T19:55:26Z",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Procedure returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Procedure).all((subject.reference.endsWith('Patient/g10-example')) and (performed.ofType(dateTime).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(instant).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(date).where($this.toString().substring(0, 10) <= '2019-03-27').exists() or performed.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2019-03-27').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

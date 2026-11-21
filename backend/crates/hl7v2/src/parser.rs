@@ -9,18 +9,85 @@ use haste_fhir_operation_error::OperationOutcomeError;
 #[derive(Debug, Clone)]
 pub struct ParsedHL7V2Message(pub HL7V2);
 
+/// Marks an element that holds an empty value. JSON drops an empty string, so
+/// without the marker an empty field, component or subcomponent would vanish
+/// and shift the positions after it. A value that is not empty needs none.
+const EMPTY_VALUE_MARKER: &str = "_non_empty";
+
 fn parse_empty_string(v: String) -> FHIRString {
+    let empty = v.is_empty();
     let mut fhir_string: FHIRString = v.into();
 
-    fhir_string.id = Some("_non_empty".to_string());
+    if empty {
+        fhir_string.id = Some(EMPTY_VALUE_MARKER.to_string());
+    }
     fhir_string
 }
 
 fn parse_empty_id(v: String) -> FHIRId {
+    let empty = v.is_empty();
     let mut fhir_id: FHIRId = v.into();
 
-    fhir_id.id = Some("_non_empty".to_string());
+    if empty {
+        fhir_id.id = Some(EMPTY_VALUE_MARKER.to_string());
+    }
     fhir_id
+}
+
+/// Splits one field on the repetition, component and subcomponent
+/// separators, in that order.
+fn parse_field(field: &str, encoding_characters: &str) -> HL7V2SegmentsFields {
+    let fields = field
+        .split(encoding_characters.chars().nth(1).unwrap_or('~'))
+        .map(|field| {
+            let components = field
+                .split(encoding_characters.chars().next().unwrap_or('^'))
+                .map(|component| {
+                    let subcomponent = component
+                        .split(encoding_characters.chars().nth(3).unwrap_or('&'))
+                        .collect::<Vec<_>>();
+                    if subcomponent.len() > 1 {
+                        HL7V2SegmentsFieldsValueValue {
+                            value: None,
+                            subcomponents: Some(
+                                subcomponent
+                                    .iter()
+                                    .map(|s| parse_empty_string(s.to_string()))
+                                    .collect(),
+                            ),
+                        }
+                    } else {
+                        HL7V2SegmentsFieldsValueValue {
+                            value: Some(Box::new(parse_empty_string(component.to_string()))),
+                            subcomponents: None,
+                        }
+                    }
+                })
+                .collect::<Vec<_>>();
+            if components.len() > 1 {
+                HL7V2SegmentsFieldsValue {
+                    value: None,
+                    components: Some(components),
+                }
+            } else {
+                HL7V2SegmentsFieldsValue {
+                    value: components.into_iter().next(),
+                    components: None,
+                }
+            }
+        })
+        .collect::<Vec<_>>();
+    if fields.len() > 1 {
+        HL7V2SegmentsFields {
+            value: None,
+            repetitions: Some(fields),
+        }
+    } else {
+        HL7V2SegmentsFields {
+            value: Some(fields.into_iter().next().unwrap()),
+            repetitions: None,
+        }
+    }
 }
 
 impl TryFrom<&str> for ParsedHL7V2Message {
@@ -31,92 +98,58 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
         let segment_lines = value.split(['\r', '\n']).filter(|s| !s.is_empty());
 
-        let header = value[..3].to_string();
-
-        if header != "MSH" {
+        // A malformed message is a caller error, so every rejection is
+        // `invalid` (HTTP 400).
+        if !value.starts_with("MSH") {
             return Err(OperationOutcomeError::error(
-                IssueType::exception(),
+                IssueType::invalid(),
                 "Message does not start with MSH segment".to_string(),
             ));
         }
 
-        let field_seperator = value.chars().nth(3).ok_or_else(|| {
+        // `MSH|^~\&|...`: the 4th character is the field separator, and the
+        // encoding characters run up to the next one.
+        let mut header_chars = value.chars();
+        let field_seperator = header_chars.nth(3).ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::exception(),
+                IssueType::invalid(),
                 "Missing field separator".to_string(),
             )
         })?;
 
-        let encoding_characters = value[4..].split(field_seperator).next().ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::exception(),
+        let encoding_characters: String =
+            header_chars.take_while(|&c| c != field_seperator).collect();
+        if encoding_characters.is_empty() {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
                 "Missing encoding characters".to_string(),
-            )
-        })?;
+            ));
+        }
 
         for segment in segment_lines {
             let mut segment = segment.split(field_seperator);
             let segment_id = segment.next().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    "Missing segment ID".to_string(),
-                )
+                OperationOutcomeError::error(IssueType::invalid(), "Missing segment ID".to_string())
             })?;
+            let is_header = segment_id == "MSH";
 
-            let segment_fields = segment.map(|field| {
-                let fields = field
-                    .split(encoding_characters.chars().nth(1).unwrap_or('~'))
-                    .map(|field| {
-                        let components = field
-                            .split(encoding_characters.chars().nth(0).unwrap_or('^'))
-                            .map(|component| {
-                                let subcomponent = component
-                                    .split(encoding_characters.chars().nth(3).unwrap_or('&'))
-                                    .collect::<Vec<_>>();
-                                if subcomponent.len() > 1 {
-                                    HL7V2SegmentsFieldsValueValue {
-                                        value: None,
-                                        subcomponents: Some(
-                                            subcomponent
-                                                .iter()
-                                                .map(|s| parse_empty_string(s.to_string()))
-                                                .collect(),
-                                        ),
-                                    }
-                                } else {
-                                    HL7V2SegmentsFieldsValueValue {
-                                        value: Some(Box::new(parse_empty_string(
-                                            component.to_string(),
-                                        ))),
-                                        subcomponents: None,
-                                    }
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        if components.len() > 1 {
-                            HL7V2SegmentsFieldsValue {
-                                value: None,
-                                components: Some(components),
-                            }
-                        } else {
-                            HL7V2SegmentsFieldsValue {
-                                value: components.into_iter().next(),
-                                components: None,
-                            }
-                        }
-                    })
-                    .collect::<Vec<_>>();
-                if fields.len() > 1 {
-                    HL7V2SegmentsFields {
-                        value: None,
-                        repetitions: Some(fields),
-                    }
-                } else {
-                    HL7V2SegmentsFields {
-                        value: Some(fields.into_iter().next().unwrap()),
+            let segment_fields = segment.enumerate().map(|(index, field)| {
+                // MSH-2 holds the encoding characters themselves, so it is
+                // kept as one value rather than split on them.
+                if is_header && index == 0 {
+                    return HL7V2SegmentsFields {
+                        value: Some(HL7V2SegmentsFieldsValue {
+                            value: Some(HL7V2SegmentsFieldsValueValue {
+                                value: Some(Box::new(parse_empty_string(field.to_string()))),
+                                subcomponents: None,
+                            }),
+                            components: None,
+                        }),
                         repetitions: None,
-                    }
+                    };
                 }
+
+                parse_field(field, &encoding_characters)
             });
 
             segments.push(HL7V2Segments {

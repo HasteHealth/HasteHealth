@@ -1,0 +1,58 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3attributescope",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3AttributeScope",
+            "resource": {
+                "id": "accesspolicyv3attributescope-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3AttributeScope",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3AttributeScope",
+                "title": "AccessPolicyV3AttributeScope",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 attribute scopes.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "principal",
+                        "display": "principal"
+                    },
+                    {
+                        "code": "request",
+                        "display": "request"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3attributescope",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3AttributeScope",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3AttributeScope",
+                "title": "AccessPolicyV3AttributeScope",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 attribute scopes.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3AttributeScope"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

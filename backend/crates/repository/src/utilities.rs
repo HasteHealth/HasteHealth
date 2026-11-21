@@ -5,11 +5,11 @@ use haste_fhir_model::r4::{
     generated::{
         resources::Resource,
         terminology::IssueType,
-        types::{Extension, ExtensionValueTypeChoice, FHIRId, Meta, Reference},
+        types::{Extension, ExtensionValueTypeChoice, FHIRId, Meta},
     },
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_jwt::{AuthorId, AuthorKind};
+use haste_jwt::{AuthorId, AuthorKind, hostname_id_problem};
 use haste_reflect::MetaValue;
 
 static ID_CHARACTERS: &[char] = &[
@@ -45,6 +45,64 @@ pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
             format!("ID contains invalid characters: {id}"),
         ))
     }
+}
+
+/// Joins a tenant id and a project id into one subdomain label:
+/// `{tenant}--{project}`.
+pub const HOSTNAME_ID_SEPARATOR: &str = "--";
+
+/// A DNS label holds 63 characters. 8 stay unused, as room for a later
+/// prefix or suffix such as `-staging`.
+const HOSTNAME_LABEL_MAX_LEN: usize = 63 - 8;
+
+/// The shortest tenant or project id a user may choose.
+pub const HOSTNAME_ID_MIN_LEN: usize = 3;
+
+/// Validates an id chosen for a new tenant or project: at least
+/// [`HOSTNAME_ID_MIN_LEN`] characters, matching
+/// [`haste_jwt::HOSTNAME_ID_PATTERN`]. The pattern is what a `TenantId` or
+/// `ProjectId` holds by construction; the minimum length is policy for new
+/// ids only.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] naming the rule `id` breaks.
+pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
+    let invalid =
+        |message: String| Err(OperationOutcomeError::error(IssueType::invalid(), message));
+
+    if id.len() < HOSTNAME_ID_MIN_LEN {
+        return invalid(format!(
+            "An id must be at least {HOSTNAME_ID_MIN_LEN} characters long."
+        ));
+    }
+
+    if let Some(problem) = hostname_id_problem(id) {
+        return invalid(format!("An id {problem}."));
+    }
+
+    Ok(())
+}
+
+/// Validates a project id, and that `{tenant}--{id}` is at most 55 characters:
+/// a DNS label, less the spare room.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if `id` breaks
+/// [`validate_hostname_id`] or is too long for `tenant`.
+pub fn validate_project_id(tenant: &str, id: &str) -> Result<(), OperationOutcomeError> {
+    validate_hostname_id(id)?;
+
+    let max_len = HOSTNAME_LABEL_MAX_LEN.saturating_sub(tenant.len() + HOSTNAME_ID_SEPARATOR.len());
+    if id.len() > max_len {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("A project id in tenant '{tenant}' can be at most {max_len} characters long."),
+        ));
+    }
+
+    Ok(())
 }
 
 #[derive(OperationOutcomeError)]
@@ -111,13 +169,37 @@ static HASTE_AUTHOR_ING_EXTENSION_URL: &str = "https://haste.health/author";
 
 static HASTE_EXTENSIONS: &[&str] = &[HASTE_AUTHOR_ING_EXTENSION_URL];
 
+/// Base of Haste Health's canonical URLs. A canonical under it names a
+/// resource by type and id, as in `https://haste.health/fhir/Membership/<id>`.
+static HASTE_CANONICAL_BASE: &str = "https://haste.health/fhir/";
+
+/// The Haste Health canonical URL naming `resource_type/id`.
+#[must_use]
+pub fn haste_canonical(resource_type: &str, id: &str) -> String {
+    format!("{HASTE_CANONICAL_BASE}{resource_type}/{id}")
+}
+
+/// The `(resource type, id)` a Haste Health canonical URL names, ignoring any
+/// `|version`. `None` for a canonical outside Haste Health's namespace or not
+/// shaped `type/id`.
+#[must_use]
+pub fn parse_haste_canonical(canonical: &str) -> Option<(&str, &str)> {
+    let path = canonical.strip_prefix(HASTE_CANONICAL_BASE)?;
+    let path = path.split_once('|').map_or(path, |(path, _version)| path);
+    let (resource_type, id) = path.split_once('/')?;
+    (!resource_type.is_empty() && !id.is_empty() && !id.contains('/'))
+        .then_some((resource_type, id))
+}
+
+// The author is a canonical rather than a Reference: authors can be Haste Health
+// types (Membership, ClientApplication) that other FHIR systems reject as
+// reference targets.
 fn create_haste_extensions(author_type: &AuthorKind, author_id: &AuthorId) -> Vec<Extension> {
     vec![Extension {
         url: HASTE_AUTHOR_ING_EXTENSION_URL.to_string(),
-        value: Some(ExtensionValueTypeChoice::Reference(Box::new(Reference {
-            reference: Some(Box::new(format!("{author_type}/{author_id}").into())),
-            ..Default::default()
-        }))),
+        value: Some(ExtensionValueTypeChoice::Canonical(Box::new(
+            haste_canonical(author_type.as_ref(), author_id.as_ref()).into(),
+        ))),
         ..Default::default()
     }]
 }

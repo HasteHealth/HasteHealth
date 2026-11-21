@@ -62,6 +62,30 @@ pub struct UserTokenClaims {
     #[derivative(Debug = "ignore")]
     #[serde(rename = "fhirUser")]
     pub fhir_user: Option<FHIRUrl>,
+    /// The Patient (an id in the token's project) that `patient/` scopes are
+    /// bound to. Issued only when the user is that patient.
+    #[serde(
+        rename = "https://haste.health/patient",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[derivative(Debug = "ignore")]
+    pub patient: Option<String>,
+    /// The Encounter of the SMART EHR launch the token was issued for, when
+    /// the token response returned one.
+    #[serde(
+        rename = "https://haste.health/encounter",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[derivative(Debug = "ignore")]
+    pub encounter: Option<String>,
+    /// The client the token was issued to (RFC 9068 §2.2). Tokens issued
+    /// before the claim existed, and the server's own system context, have
+    /// none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[derivative(Debug = "ignore")]
+    pub client_id: Option<String>,
 
     // Haste Health claims.
     #[serde(rename = "https://haste.health/tenant")]
@@ -95,4 +119,33 @@ pub struct UserTokenClaims {
     #[serde(rename = "https://haste.health/fhir_version")]
     #[derivative(Debug = "ignore")]
     pub fhir_version: SupportedFHIRVersions,
+}
+
+/// The id token issued with an access token when `openid` is granted (`OpenID
+/// Connect Core`). It tells the client that requested the sign-in who signed
+/// in, so unlike the access token its audience is that client and not the FHIR
+/// server. A Haste Health server using this one as an identity provider
+/// verifies it on federated login.
+#[derive(Serialize, Deserialize, Clone)]
+pub struct IdTokenClaims {
+    pub iss: String,
+    pub sub: String,
+    pub aud: String,
+    pub exp: usize,
+    pub iat: usize,
+    /// Issued with the `email` scope.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub email_verified: Option<bool>,
+    /// Issued with the `fhirUser` scope (SMART App Launch).
+    #[serde(rename = "fhirUser", default, skip_serializing_if = "Option::is_none")]
+    pub fhir_user: Option<FHIRUrl>,
+    // Where the user signed in, for clients that show it.
+    #[serde(rename = "https://haste.health/tenant")]
+    pub tenant: TenantId,
+    #[serde(rename = "https://haste.health/project")]
+    pub project: ProjectId,
+    #[serde(rename = "https://haste.health/user_role")]
+    pub user_role: UserRole,
 }

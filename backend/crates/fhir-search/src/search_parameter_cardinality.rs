@@ -16,7 +16,7 @@
 
 /// (canonical URL, base) pairs of the single-valued parameters, sorted for
 /// binary search.
-static SINGLE_VALUED: [(&str, &str); 802] = [
+static SINGLE_VALUED: [(&str, &str); 810] = [
     (
         "http://hl7.org/fhir/SearchParameter/Account-name",
         "Account",
@@ -3048,8 +3048,40 @@ static SINGLE_VALUED: [(&str, &str); 802] = [
         "AccessPolicyV2Assignment",
     ),
     (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining",
+        "AccessPolicyV3",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name",
+        "AccessPolicyV3",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3Assignment-access-policy",
+        "AccessPolicyV3Assignment",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/AccessPolicyV3Assignment-link",
+        "AccessPolicyV3Assignment",
+    ),
+    (
         "https://haste.health/fhir/SearchParameter/ClientApplication-name",
         "ClientApplication",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-name",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-status",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-url",
+        "DeidentificationPolicy",
+    ),
+    (
+        "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-version",
+        "DeidentificationPolicy",
     ),
     (
         "https://haste.health/fhir/SearchParameter/IdentityProvider-accessType",

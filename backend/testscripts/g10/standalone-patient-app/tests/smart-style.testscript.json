@@ -1,0 +1,57 @@
+{
+    "id": "smart-style",
+    "url": "https://haste.health/fhir/TestScript/smart-style",
+    "name": "smart-style",
+    "title": "SMART style document is served",
+    "status": "active",
+    "description": "SMART context-style: the style document behind smart_style_url answers 200 JSON with CORS, without a token. The token response itself is not readable from a TestScript.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "SMART style document is served",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "../../oidc/smart-style.json",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "field": "Origin",
+                                "value": "https://inferno.healthit.gov"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The style document is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is JSON",
+                        "contentType": "application/json",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CORS allows the origin",
+                        "headerField": "Access-Control-Allow-Origin",
+                        "operator": "in",
+                        "value": "*,https://inferno.healthit.gov",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

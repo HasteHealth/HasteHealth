@@ -35,6 +35,7 @@ import { useTenantBranding } from "./hooks/useTenantBranding";
 import BundleImport from "./views/Project/BundleImport";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
 import IndexingErrors from "./views/Project/IndexingErrors";
+import Packages from "./views/Project/Packages";
 import ResourceEditor from "./views/ResourceEditor/index";
 import Console from "./views/Console";
 import { ConsoleSidebar } from "./views/Console/ConsoleSidebar";
@@ -44,7 +45,13 @@ import { ShortcutHelp } from "./components/ShortcutHelp";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 // import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
-import { deriveProjectId, deriveTenantId } from "./utilities";
+import {
+  deriveProjectId,
+  deriveTenantId,
+  isResourceId,
+  isResourceTypeName,
+  legacyHostnameRedirectUrl,
+} from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
@@ -162,6 +169,16 @@ const APP_HEADER_OFFSET = "4rem";
 
 function SystemBar() {
   const params = useParams();
+
+  // The resource type and id below are joined into request URLs, so a link
+  // with anything else in them is sent to the default view instead.
+  if (
+    (params.resourceType !== undefined &&
+      !isResourceTypeName(params.resourceType)) ||
+    (params.id !== undefined && !isResourceId(params.id))
+  ) {
+    return <Navigate to="/r/Project" replace />;
+  }
 
   return (
     <div className="flex w-full flex-col overflow-y-auto z-10">
@@ -307,6 +324,11 @@ const router =
                           id: "indexing-errors",
                           path: "indexing-errors",
                           element: <IndexingErrors />,
+                        },
+                        {
+                          id: "packages",
+                          path: "packages",
+                          element: <Packages />,
                         },
                       ],
                     },
@@ -579,7 +601,7 @@ function ProjectRoot() {
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-3">
         {/* Below `lg` the sidebar is a drawer rather than a column. */}
         <button
-          className="rounded p-1 text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="rounded-sm p-1 text-slate-500 hover:bg-slate-100 lg:hidden"
           onClick={() => setSidebarOpen((open) => !open)}
           title="Toggle navigation"
           type="button"
@@ -680,15 +702,23 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
+const legacyUrl = legacyHostnameRedirectUrl();
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+if (legacyUrl) {
+  // Not rendered first: sign-in would start on the old origin, and its
+  // redirect could replace this one.
+  window.location.replace(legacyUrl);
+} else {
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

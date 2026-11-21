@@ -1,0 +1,44 @@
+{
+    "id": "g10-1.11.04-jwks",
+    "url": "https://haste.health/fhir/TestScript/g10-1.11.04-jwks",
+    "name": "g10-1.11.04-jwks",
+    "title": "1.11.04 JWKS is served",
+    "status": "active",
+    "description": "g10 1.11.04 / 1.10.04 / 3.10.04 / 3.9.04 (AUT-PAT-23). The JWKS that signs id_tokens (the jwks_uri of the OpenID and SMART configuration) answers 200 with JSON. Matching its keys to an id_token header is not checked here.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.11.04 JWKS is served",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "../../oidc/certs/jwks",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The JWKS is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is JSON",
+                        "contentType": "application/json",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

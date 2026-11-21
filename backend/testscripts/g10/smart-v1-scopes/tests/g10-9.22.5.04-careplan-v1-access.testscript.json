@@ -1,0 +1,50 @@
+{
+    "id": "g10-9.22.5.04-careplan-v1-access",
+    "url": "https://haste.health/fhir/TestScript/g10-9.22.5.04-careplan-v1-access",
+    "name": "g10-9.22.5.04-careplan-v1-access",
+    "title": "9.22.5.04 Access to CarePlan resources granted by a v1 scope",
+    "status": "active",
+    "description": "g10 9.22.5.04 / 9.13.3.04 (AUT-PAT-28). With patient/CarePlan.read (SMART v1), GET CarePlan?patient=g10-example&category=assess-plan answers 200 and returns only the launch patient's data.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "9.22.5.04 Access to CarePlan resources granted by a v1 scope",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "CarePlan",
+                        "params": "patient=g10-example&category=assess-plan",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "CarePlan search is allowed",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every CarePlan returned is the launch patient's",
+                        "expression": "Bundle.entry.resource.ofType(CarePlan).all(subject.reference = 'Patient/g10-example')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

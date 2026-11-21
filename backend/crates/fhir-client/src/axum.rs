@@ -1,5 +1,6 @@
 use crate::request::{
-    DeleteResponse, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse,
+    DeleteResponse, FHIRAcceptedResponse, FHIRResponse, HistoryResponse, InvokeResponse,
+    SearchResponse,
 };
 use axum::response::IntoResponse;
 use haste_fhir_model::r4::generated::{
@@ -20,12 +21,12 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) {
 
     let last_modified = meta
         .and_then(|meta| meta.get_field("lastUpdated"))
-        .and_then(|lu| lu.as_any().downcast_ref::<Box<FHIRInstant>>())
+        .and_then(|lu| lu.as_any().downcast_ref::<FHIRInstant>())
         .and_then(|lu| lu.value.as_ref());
 
     let version_id = meta
         .and_then(|meta| meta.get_field("versionId"))
-        .and_then(|vid| vid.as_any().downcast_ref::<Box<FHIRId>>())
+        .and_then(|vid| vid.as_any().downcast_ref::<FHIRId>())
         .and_then(|vid| vid.value.as_ref());
 
     if let Some(last_modified) = last_modified {
@@ -50,6 +51,13 @@ fn add_headers(response: &FHIRResponse) -> HeaderMap {
     header.insert(
         axum::http::header::CONTENT_TYPE,
         "application/fhir+json; charset=utf-8".parse().unwrap(),
+    );
+    // Without this, browsers use Last-Modified to guess a freshness lifetime
+    // and serve reads from their cache for hours after the resource changes.
+    // no-store also keeps responses, which can hold patient data, off disk.
+    header.insert(
+        axum::http::header::CACHE_CONTROL,
+        "no-store".parse().unwrap(),
     );
 
     match response {
@@ -123,6 +131,8 @@ impl IntoResponse for FHIRResponse {
             FHIRResponse::Transaction(response) => {
                 FHIRResponse::ok_json(header, &response.resource)
             }
+
+            FHIRResponse::Accepted(response) => FHIRResponse::accepted(header, &response),
         }
     }
 }
@@ -152,6 +162,25 @@ impl FHIRResponse {
 
     fn no_content(header: HeaderMap) -> axum::response::Response {
         (StatusCode::NO_CONTENT, header, "").into_response()
+    }
+
+    /// No body, so no content type either: only the status URL to poll.
+    fn accepted(
+        mut header: HeaderMap,
+        response: &FHIRAcceptedResponse,
+    ) -> axum::response::Response {
+        header.remove(axum::http::header::CONTENT_TYPE);
+        match response.content_location.parse() {
+            Ok(location) => {
+                header.insert(axum::http::header::CONTENT_LOCATION, location);
+                (StatusCode::ACCEPTED, header).into_response()
+            }
+            Err(_) => OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "The job's status URL is not a valid header value.".to_string(),
+            )
+            .into_response(),
+        }
     }
 
     fn not_found() -> axum::response::Response {

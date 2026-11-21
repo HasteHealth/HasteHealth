@@ -1,9 +1,23 @@
 
-| Context | Invocation                     |
-| ------- | ------------------------------ |
-| Source  | `cargo run <command>`          |
-| Binary  | `./haste-health <command>`     |
-| Docker  | `docker run <image> <command>` |
+| Context | Invocation                                                   |
+| ------- | ------------------------------------------------------------ |
+| npm     | `npm install -g haste-health`, then `haste-health <command>` |
+| npx     | `npx haste-health <command>`                                 |
+| Source  | `cargo run <command>`                                        |
+| Binary  | `./haste-health <command>`                                   |
+| Docker  | `docker run <image> <command>`                               |
+
+## Shell completion
+
+With `haste-health` on your `PATH`, add the line for your shell to its startup file.
+Tab then completes commands, options, FHIR resource types and saved profile names.
+See the [CLI setup guide](https://haste.health/docs/tutorials/cli#shell-completion).
+
+| Shell | Startup file                  | Line                                     |
+| ----- | ----------------------------- | ---------------------------------------- |
+| zsh   | `~/.zshrc`, after `compinit`  | `source <(COMPLETE=zsh haste-health)`    |
+| bash  | `~/.bashrc`                   | `eval "$(COMPLETE=bash haste-health)"` |
+| fish  | `~/.config/fish/config.fish`  | `COMPLETE=fish haste-health \| source`  |
 
 
 # Command-Line Help for `haste-health`
@@ -13,15 +27,19 @@ This document contains the help content for the `haste-health` command-line prog
 **Command Overview:**
 
 * [`haste-health`↴](#haste-health)
-* [`haste-health fhir-path`↴](#haste-health-fhir-path)
+* [`haste-health fhirpath`↴](#haste-health-fhirpath)
 * [`haste-health generate`↴](#haste-health-generate)
 * [`haste-health generate types`↴](#haste-health-generate-types)
 * [`haste-health generate operations`↴](#haste-health-generate-operations)
 * [`haste-health generate search-param-cardinality`↴](#haste-health-generate-search-param-cardinality)
+* [`haste-health generate search-migration`↴](#haste-health-generate-search-migration)
 * [`haste-health generate test-scripts`↴](#haste-health-generate-test-scripts)
 * [`haste-health artifacts`↴](#haste-health-artifacts)
 * [`haste-health artifacts build`↴](#haste-health-artifacts-build)
 * [`haste-health artifacts diff`↴](#haste-health-artifacts-diff)
+* [`haste-health subscription`↴](#haste-health-subscription)
+* [`haste-health subscription export`↴](#haste-health-subscription-export)
+* [`haste-health subscription show`↴](#haste-health-subscription-show)
 * [`haste-health server`↴](#haste-health-server)
 * [`haste-health server start`↴](#haste-health-server-start)
 * [`haste-health api`↴](#haste-health-api)
@@ -44,15 +62,16 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health api delete-type`↴](#haste-health-api-delete-type)
 * [`haste-health api delete-system`↴](#haste-health-api-delete-system)
 * [`haste-health api invoke-instance`↴](#haste-health-api-invoke-instance)
-* [`haste-health config`↴](#haste-health-config)
-* [`haste-health config show-profile`↴](#haste-health-config-show-profile)
-* [`haste-health config create-profile`↴](#haste-health-config-create-profile)
-* [`haste-health config delete-profile`↴](#haste-health-config-delete-profile)
-* [`haste-health config set-active-profile`↴](#haste-health-config-set-active-profile)
+* [`haste-health profile`↴](#haste-health-profile)
+* [`haste-health profile list`↴](#haste-health-profile-list)
+* [`haste-health profile show`↴](#haste-health-profile-show)
+* [`haste-health profile create`↴](#haste-health-profile-create)
+* [`haste-health profile use`↴](#haste-health-profile-use)
+* [`haste-health profile delete`↴](#haste-health-profile-delete)
 * [`haste-health login`↴](#haste-health-login)
 * [`haste-health worker`↴](#haste-health-worker)
-* [`haste-health worker worker`↴](#haste-health-worker-worker)
-* [`haste-health worker wal-worker`↴](#haste-health-worker-wal-worker)
+* [`haste-health worker indexing`↴](#haste-health-worker-indexing)
+* [`haste-health worker async-jobs`↴](#haste-health-worker-async-jobs)
 * [`haste-health testscript`↴](#haste-health-testscript)
 * [`haste-health testscript run`↴](#haste-health-testscript-run)
 * [`haste-health admin`↴](#haste-health-admin)
@@ -60,6 +79,7 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health admin tenant create`↴](#haste-health-admin-tenant-create)
 * [`haste-health admin user`↴](#haste-health-admin-user)
 * [`haste-health admin user create`↴](#haste-health-admin-user-create)
+* [`haste-health admin user set-password`↴](#haste-health-admin-user-set-password)
 * [`haste-health admin client`↴](#haste-health-admin-client)
 * [`haste-health admin client create`↴](#haste-health-admin-client-create)
 * [`haste-health admin migrate`↴](#haste-health-admin-migrate)
@@ -68,9 +88,15 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health admin migrate repo`↴](#haste-health-admin-migrate-repo)
 * [`haste-health admin migrate search`↴](#haste-health-admin-migrate-search)
 * [`haste-health admin migrate all`↴](#haste-health-admin-migrate-all)
+* [`haste-health admin document-storage`↴](#haste-health-admin-document-storage)
+* [`haste-health admin document-storage sweep`↴](#haste-health-admin-document-storage-sweep)
 * [`haste-health hl7v2`↴](#haste-health-hl7v2)
 * [`haste-health hl7v2 receiver`↴](#haste-health-hl7v2-receiver)
 * [`haste-health hl7v2 sender`↴](#haste-health-hl7v2-sender)
+* [`haste-health package`↴](#haste-health-package)
+* [`haste-health package install`↴](#haste-health-package-install)
+* [`haste-health package uninstall`↴](#haste-health-package-uninstall)
+* [`haste-health package list`↴](#haste-health-package-list)
 * [`haste-health doc`↴](#haste-health-doc)
 
 ## `haste-health`
@@ -81,26 +107,28 @@ Haste Health binary.
 
 ###### **Subcommands:**
 
-* `fhir-path` — Evaluate a FHIRPath expression against a FHIR resource read from stdin
+* `fhirpath` — Evaluate a FHIRPath expression against a FHIR resource read from stdin
 * `generate` — Code generators (Rust FHIR types, operations, TestScripts) used to build this crate
 * `artifacts` — Patch externally provided (HL7) artifacts without editing the upstream files
+* `subscription` — Publish what each subscription tier allows
 * `server` — Run the FHIR server
 * `api` — Make FHIR REST API calls against the active profile's server
-* `config` — Manage named server connection profiles used by other commands
+* `profile` — Manage named server connection profiles used by other commands
 * `login` — Log in as a human user via the browser (authorization_code + PKCE flow)
-* `worker` — Run background workers (search indexing, WAL processing)
+* `worker` — Run the background workers (search indexing and async jobs), or only the one named
 * `testscript` — Run FHIR TestScript resources against the active profile's server
 * `admin` — Server-side administrative operations (tenants, users, clients, migrations)
 * `hl7v2` — Bridge HL7v2 messages to and from the FHIR server
+* `package` — Install FHIR packages (implementation guides) into the active profile's project
 * `doc` — Generate Markdown documentation for this CLI's commands
 
 
 
-## `haste-health fhir-path`
+## `haste-health fhirpath`
 
 Evaluate a FHIRPath expression against a FHIR resource read from stdin
 
-**Usage:** `haste-health fhir-path <FHIRPATH>`
+**Usage:** `haste-health fhirpath <FHIRPATH>`
 
 ###### **Arguments:**
 
@@ -119,6 +147,7 @@ Code generators (Rust FHIR types, operations, TestScripts) used to build this cr
 * `types` — Generate Rust structs for FHIR resources/types/terminology from StructureDefinitions
 * `operations` — Generate Rust bindings for FHIR OperationDefinitions
 * `search-param-cardinality` — Generate the compiled table of single-valued search parameters
+* `search-migration` — Migrate the configured PG search database, then write a migration creating what the search schema still lacks, if anything
 * `test-scripts` — Generate FHIR TestScript resources
 
 
@@ -164,6 +193,21 @@ Generate the compiled table of single-valued search parameters
 * `-d`, `--definitions <DEFINITIONS>` — StructureDefinition file(s) or directories (JSON) to resolve paths against. Repeatable
 * `-p`, `--parameters <PARAMETERS>` — SearchParameter file(s) or directories (JSON) to classify. Repeatable
 * `-o`, `--output <OUTPUT>` — Output Rust file path. Prints to stdout if omitted
+
+
+
+## `haste-health generate search-migration`
+
+Migrate the configured PG search database, then write a migration creating what the search schema still lacks, if anything
+
+**Usage:** `haste-health generate search-migration [OPTIONS] --directory <DIRECTORY>`
+
+###### **Options:**
+
+* `-d`, `--directory <DIRECTORY>` — The PG search migrations directory
+* `-n`, `--name <NAME>` — The new migration's description, after its version in the file name
+
+  Default value: `search_schema`
 
 
 
@@ -224,6 +268,42 @@ List every change the patches and rules make to the upstream resources
 * `-r`, `--resource <RESOURCE>` — Only show resources whose `ResourceType/id` contains this text
 * `-o`, `--origin <ORIGIN>` — Only show changes whose origin (`patch <file>` or `rule <name>`) contains this text
 * `--summary` — Print a count of changes per origin instead of the changes
+
+
+
+## `haste-health subscription`
+
+Publish what each subscription tier allows
+
+**Usage:** `haste-health subscription <COMMAND>`
+
+###### **Subcommands:**
+
+* `export` — Write the subscription tiers to JSON for the website's pricing page
+* `show` — Print what each tier allows, as a table
+
+
+
+## `haste-health subscription export`
+
+Write the subscription tiers to JSON for the website's pricing page
+
+**Usage:** `haste-health subscription export [OPTIONS]`
+
+###### **Options:**
+
+* `-o`, `--output <OUTPUT>` — Where to write the tiers
+
+  Default value: `../frontend/packages/website/static/pricing/tiers.json`
+* `--check` — Fail if the output is out of date instead of writing it
+
+
+
+## `haste-health subscription show`
+
+Print what each tier allows, as a table
+
+**Usage:** `haste-health subscription show`
 
 
 
@@ -556,82 +636,102 @@ Invoke an instance-level operation (`POST [base]/[type]/[id]/$[operation_name]`)
 
 
 
-## `haste-health config`
+## `haste-health profile`
 
 Manage named server connection profiles used by other commands
 
-**Usage:** `haste-health config <COMMAND>`
+**Usage:** `haste-health profile <COMMAND>`
 
 ###### **Subcommands:**
 
-* `show-profile` — Print the currently active profile (never includes secrets or tokens)
-* `create-profile` — Create a new profile and set it as active. Prompts interactively for any option not passed on the command line
-* `delete-profile` — Delete a profile and its stored secrets
-* `set-active-profile` — Change which profile is used by default
+* `list` — List all profiles. `*` marks the active one
+* `show` — Show a profile's settings (never secrets or tokens). Defaults to the active profile
+* `create` — Create a profile and make it active. Prompts for anything not passed as an option
+* `use` — Switch the active profile that other commands use. Without NAME, pick from a list
+* `delete` — Delete a profile and its stored secrets. Without NAME, pick from a list
 
 
 
-## `haste-health config show-profile`
+## `haste-health profile list`
 
-Print the currently active profile (never includes secrets or tokens)
+List all profiles. `*` marks the active one
 
-**Usage:** `haste-health config show-profile`
+**Usage:** `haste-health profile list`
 
 
 
-## `haste-health config create-profile`
+## `haste-health profile show`
 
-Create a new profile and set it as active. Prompts interactively for any option not passed on the command line
+Show a profile's settings (never secrets or tokens). Defaults to the active profile
 
-**Usage:** `haste-health config create-profile [OPTIONS]`
+**Usage:** `haste-health profile show [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
+
+
+
+## `haste-health profile create`
+
+Create a profile and make it active. Prompts for anything not passed as an option
+
+**Usage:** `haste-health profile create [OPTIONS] [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
 
 ###### **Options:**
 
-* `-n`, `--name <NAME>` — Name to identify this profile by
 * `-r`, `--r4-url <R4_URL>` — Base URL of the FHIR R4 server
-* `-d`, `--discovery-uri <DISCOVERY_URI>` — OIDC discovery (`.well-known/openid-configuration`) URI
-* `--auth-mode <AUTH_MODE>` — How the CLI should authenticate as this profile
+* `--auth-mode <AUTH_MODE>` — How the CLI authenticates for this profile
 
   Possible values:
+  - `authorization-code`:
+    A human logs in through the browser (authorization_code + PKCE) with a public client. Run `haste-health login` afterwards to sign in
   - `client-credentials`:
     A confidential (server-to-server) client authenticated with a client secret
-  - `authorization-code`:
-    A public client a human logs into via the browser (authorization_code + PKCE). Use `haste-health login` afterwards to obtain tokens
   - `basic-auth`:
-    Basic authentication with a username and password
+    HTTP basic authentication with a username and password
+  - `none`:
+    No authentication: requests are sent anonymously
 
-* `-i`, `--id <ID>` — OIDC client ID
-* `-s`, `--secret <SECRET>` — Client secret. Required for --auth-mode client-credentials, ignored otherwise. Stored in the secrets file, not the profile itself
-* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client)
-* `--scope <SCOPE>` — OAuth scope to request for --auth-mode authorization-code
+* `-d`, `--discovery-uri <DISCOVERY_URI>` — OIDC discovery (`.well-known/openid-configuration`) URI. Used by authorization-code and client-credentials
+* `--client-id <CLIENT_ID>` — OAuth client ID. Used by authorization-code and client-credentials
+* `--client-secret <CLIENT_SECRET>` — OAuth client secret, for client-credentials. Stored in the secrets file, not the profile
+* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for authorization-code (must be registered on the client). Defaults to `http://127.0.0.1:8976/callback`
+* `--scope <SCOPE>` — OAuth scope to request. Defaults to `openid profile fhirUser offline_access user/*.*` for authorization-code and `openid system/*.*` for client-credentials
+* `--username <USERNAME>` — Username, for basic-auth
+* `--password <PASSWORD>` — Password, for basic-auth. Stored in the secrets file, not the profile
 
 
 
-## `haste-health config delete-profile`
+## `haste-health profile use`
 
-Delete a profile and its stored secrets
+Switch the active profile that other commands use. Without NAME, pick from a list
 
-**Usage:** `haste-health config delete-profile [OPTIONS]`
+**Usage:** `haste-health profile use [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
+
+
+
+## `haste-health profile delete`
+
+Delete a profile and its stored secrets. Without NAME, pick from a list
+
+**Usage:** `haste-health profile delete [OPTIONS] [NAME]`
+
+###### **Arguments:**
+
+* `<NAME>` — Profile name
 
 ###### **Options:**
 
-* `-n`, `--name <NAME>` — Name of the profile to delete
-* `-c`, `--confirm <CONFIRM>` — Skip the interactive confirmation prompt
-
-  Possible values: `true`, `false`
-
-
-
-
-## `haste-health config set-active-profile`
-
-Change which profile is used by default
-
-**Usage:** `haste-health config set-active-profile [OPTIONS]`
-
-###### **Options:**
-
-* `-n`, `--name <NAME>` — Name of the profile to activate
+* `-y`, `--yes` — Delete without asking for confirmation
 
 
 
@@ -639,36 +739,40 @@ Change which profile is used by default
 
 Log in as a human user via the browser (authorization_code + PKCE flow)
 
-**Usage:** `haste-health login`
+**Usage:** `haste-health login [OPTIONS]`
+
+###### **Options:**
+
+* `--no-browser` — Print the authorization URL instead of opening a browser
 
 
 
 ## `haste-health worker`
 
-Run background workers (search indexing, WAL processing)
+Run the background workers (search indexing and async jobs), or only the one named
 
 **Usage:** `haste-health worker [COMMAND]`
 
 ###### **Subcommands:**
 
-* `worker` — Run the search-indexing worker. Default when no subcommand is given
-* `wal-worker` — Run the Postgres WAL (write-ahead log) worker. Not yet implemented
+* `indexing` — Run only the search-indexing worker
+* `async-jobs` — Run only the async-job worker
 
 
 
-## `haste-health worker worker`
+## `haste-health worker indexing`
 
-Run the search-indexing worker. Default when no subcommand is given
+Run only the search-indexing worker
 
-**Usage:** `haste-health worker worker`
+**Usage:** `haste-health worker indexing`
 
 
 
-## `haste-health worker wal-worker`
+## `haste-health worker async-jobs`
 
-Run the Postgres WAL (write-ahead log) worker. Not yet implemented
+Run only the async-job worker
 
-**Usage:** `haste-health worker wal-worker`
+**Usage:** `haste-health worker async-jobs`
 
 
 
@@ -695,6 +799,8 @@ Run every TestScript resource found under the given input path(s), in parallel, 
 * `-i`, `--input <INPUT>` — File or directory to search for TestScript resources (JSON). Repeatable
 * `-o`, `--output <OUTPUT>` — Write the resulting TestReport bundle to this file instead of stdout
 * `-w`, `--wait-between-operations-ms <WAIT_BETWEEN_OPERATIONS_MS>` — Delay between operations within a TestScript, in milliseconds
+* `--index-wait-ms <INDEX_WAIT_MS>` — Before a search, an operation or a conditional delete/update, wait up to this many milliseconds for the TestScript's latest writes to be indexed. Search indexing is asynchronous; this waits only as long as it takes
+* `--allow-failure <TESTSCRIPT_ID>` — A TestScript id whose failure is known and shouldn't fail the run. Its TestReport is still recorded as `fail`. Repeatable
 
 
 
@@ -710,6 +816,7 @@ Server-side administrative operations (tenants, users, clients, migrations)
 * `user` — Manage users
 * `client` — Manage OIDC ClientApplication resources
 * `migrate` — Run database/search/artifact migrations
+* `document-storage` — Maintain the document storage that holds large Binary content
 
 
 
@@ -752,6 +859,7 @@ Manage users
 ###### **Subcommands:**
 
 * `create` — Create an admin user within a tenant
+* `set-password` — Set a user's password, accept their invitation and revoke their refresh tokens
 
 
 
@@ -766,6 +874,20 @@ Create an admin user within a tenant
 * `-e`, `--email <EMAIL>` — Email address for the new user
 * `-p`, `--password <PASSWORD>` — Password for the new user
 * `-t`, `--tenant <TENANT>` — Tenant to create the user in
+
+
+
+## `haste-health admin user set-password`
+
+Set a user's password, accept their invitation and revoke their refresh tokens
+
+**Usage:** `haste-health admin user set-password --email <EMAIL> --password <PASSWORD> --tenant <TENANT>`
+
+###### **Options:**
+
+* `-e`, `--email <EMAIL>` — Email address of the user
+* `-p`, `--password <PASSWORD>` — New password for the user
+* `-t`, `--tenant <TENANT>` — Tenant the user belongs to
 
 
 
@@ -818,7 +940,7 @@ Run database/search/artifact migrations
 
 * `artifacts` — Load the built-in FHIR artifacts (StructureDefinitions, ValueSets, etc)
 * `reset-artifacts` — Reload the built-in FHIR artifacts from scratch, discarding local edits to them
-* `repo` — Run pending repository (Postgres) migrations
+* `repo` — Run pending repository (Postgres) migrations, including the document storage table
 * `search` — Run pending search index (Postgres or Elasticsearch) migrations
 * `all` — Run all of the above: repo, then search, then artifacts
 
@@ -842,7 +964,7 @@ Reload the built-in FHIR artifacts from scratch, discarding local edits to them
 
 ## `haste-health admin migrate repo`
 
-Run pending repository (Postgres) migrations
+Run pending repository (Postgres) migrations, including the document storage table
 
 **Usage:** `haste-health admin migrate repo`
 
@@ -864,6 +986,33 @@ Run all of the above: repo, then search, then artifacts
 
 
 
+## `haste-health admin document-storage`
+
+Maintain the document storage that holds large Binary content
+
+**Usage:** `haste-health admin document-storage <COMMAND>`
+
+###### **Subcommands:**
+
+* `sweep` — Remove stored Binary content that no resource version refers to: left behind by a rolled back transaction or a write that failed after the upload. Prints a JSON report
+
+
+
+## `haste-health admin document-storage sweep`
+
+Remove stored Binary content that no resource version refers to: left behind by a rolled back transaction or a write that failed after the upload. Prints a JSON report
+
+**Usage:** `haste-health admin document-storage sweep [OPTIONS]`
+
+###### **Options:**
+
+* `--older-than-hours <OLDER_THAN_HOURS>` — Keep documents younger than this many hours, which may belong to a write still in progress
+
+  Default value: `24`
+* `--dry-run` — Count what would be removed without removing anything
+
+
+
 ## `haste-health hl7v2`
 
 Bridge HL7v2 messages to and from the FHIR server
@@ -873,7 +1022,7 @@ Bridge HL7v2 messages to and from the FHIR server
 ###### **Subcommands:**
 
 * `receiver` — Listen for MLLP-framed HL7v2 messages, convert them to FHIR, and submit them
-* `sender` — Send HL7v2 messages over MLLP. Not yet implemented
+* `sender` — Send HL7v2 messages over MLLP
 
 
 
@@ -881,27 +1030,98 @@ Bridge HL7v2 messages to and from the FHIR server
 
 Listen for MLLP-framed HL7v2 messages, convert them to FHIR, and submit them
 
-**Usage:** `haste-health hl7v2 receiver --address <ADDRESS> --port <PORT> --main <MAIN> --template-dir <TEMPLATE_DIR>`
+**Usage:** `haste-health hl7v2 receiver [OPTIONS] --port <PORT> --main <MAIN> --template-dir <TEMPLATE_DIR>`
 
 ###### **Options:**
 
 * `-a`, `--address <ADDRESS>` — Address to bind the MLLP listener to
+
+  Default value: `0.0.0.0`
 * `-p`, `--port <PORT>` — Port to bind the MLLP listener to
 * `-m`, `--main <MAIN>` — Entry template file name (resolved within --template-dir) used to convert incoming HL7v2 messages to FHIR
 * `-t`, `--template-dir <TEMPLATE_DIR>` — Directory containing the conversion templates
+* `--max-connections <MAX_CONNECTIONS>` — Maximum connections served at once. Further senders wait rather than being refused, since a refused connection looks like an outage
+
+  Default value: `64`
+* `--idle-timeout-secs <IDLE_TIMEOUT_SECS>` — Close a connection that sends nothing for this long, in seconds. Bounds half-open sockets, which TCP alone will not detect
+
+  Default value: `300`
+* `--read-timeout-secs <READ_TIMEOUT_SECS>` — Give up on a partially received message after this long, in seconds
+
+  Default value: `30`
 
 
 
 ## `haste-health hl7v2 sender`
 
-Send HL7v2 messages over MLLP. Not yet implemented
+Send HL7v2 messages over MLLP
 
-**Usage:** `haste-health hl7v2 sender --address <ADDRESS> --port <PORT>`
+**Usage:** `haste-health hl7v2 sender [OPTIONS] --address <ADDRESS> --port <PORT>`
 
 ###### **Options:**
 
 * `-a`, `--address <ADDRESS>` — Address of the MLLP receiver to send to
 * `-p`, `--port <PORT>` — Port of the MLLP receiver to send to
+* `-f`, `--file <FILE>` — File containing the HL7v2 message to send. Reads stdin when absent
+* `--timeout-secs <TIMEOUT_SECS>` — How long to wait for the ACK, in seconds
+
+  Default value: `30`
+
+
+
+## `haste-health package`
+
+Install FHIR packages (implementation guides) into the active profile's project
+
+**Usage:** `haste-health package <COMMAND>`
+
+###### **Subcommands:**
+
+* `install` — Install packages, with the packages they depend on
+* `uninstall` — Uninstall a package: delete what it installed. Packages it depends on stay installed
+* `list` — List the installed packages
+
+
+
+## `haste-health package install`
+
+Install packages, with the packages they depend on
+
+**Usage:** `haste-health package install [OPTIONS] <PACKAGES>...`
+
+###### **Arguments:**
+
+* `<PACKAGES>` — What to install: `name@version` from the package registry (for example `hl7.fhir.us.core@6.1.0`, `hl7.fhir.us.core@6.1.x`, or a name alone for the latest), a package tarball (`.tgz`), or a package folder (one holding `package.json`)
+
+###### **Options:**
+
+* `--no-dependencies` — Install only the packages given, not the packages they depend on
+* `--examples` — Also install the example resources of the packages given
+* `--json` — Print the server's response (a Parameters resource) instead of a summary
+
+
+
+## `haste-health package uninstall`
+
+Uninstall a package: delete what it installed. Packages it depends on stay installed
+
+**Usage:** `haste-health package uninstall <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The package name, for example `hl7.fhir.us.core`
+
+###### **Options:**
+
+* `--version <VERSION>` — Only uninstall if this version is the one installed
+
+
+
+## `haste-health package list`
+
+List the installed packages
+
+**Usage:** `haste-health package list`
 
 
 

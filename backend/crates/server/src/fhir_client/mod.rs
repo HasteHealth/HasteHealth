@@ -2,24 +2,23 @@ use crate::{
     auth_n::middleware::jwt::User,
     config::ServerConfig,
     fhir_client::{
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+        middleware::{Handler, Output, Pipeline},
         utilities::request_to_resource_type,
     },
 };
 use derivative::Derivative;
+use haste_document_storage::DocumentStorage;
 use haste_fhir_client::{
     FHIRClient,
-    middleware::{Middleware, MiddlewareChain},
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
         FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
         FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
-        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
-        HistoryResponse, SearchRequest, SearchResponse, UpdateRequest,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
+        FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
+        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
+        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -39,10 +38,31 @@ use haste_jwt::{
 };
 use haste_operation_executor::providers::deno_embedded::pool::DenoPool;
 use haste_repository::{Repository, types::SupportedFHIRVersions};
-use std::{
-    fmt::Debug,
-    sync::{Arc, LazyLock},
+use middleware::{
+    auditing::Auditing,
+    auth_z::{access_control::AccessControl, scope_check::SmartScopeAccess},
+    binary_content::BinaryContent,
+    canonical_cache::CanonicalCacheInvalidation,
+    capabilities::Capabilities,
+    check_project::{CheckProject, SetProjectReadOnly},
+    custom_models::{
+        access_policy_v3::AccessPolicyV3Validation,
+        client_application::ClientApplicationValidation,
+        deidentification_policy::DeidentificationPolicyValidation, membership::MembershipSync,
+        project::ProjectSync, user::UserSync,
+    },
+    element_filtering::ElementFiltering,
+    operation_definitions::{Builtins, OperationDefinitions},
+    operations::Operations,
+    patch_as_update::PatchAsUpdate,
+    rate_limit::RateLimit,
+    set_artifact_tenant::SetArtifactTenant,
+    storage::Storage,
+    tenant_tier_limits::TenantTierLimits,
+    transaction::Transaction,
+    validation::Validation,
 };
+use std::{fmt::Debug, sync::Arc};
 
 mod batch_transaction_processing;
 mod compartment;
@@ -50,6 +70,8 @@ mod middleware;
 mod resolver;
 mod subscription_limits;
 mod utilities;
+
+pub use middleware::{Backend, operations::operation_definition};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
@@ -60,9 +82,9 @@ pub enum StorageError {
     NotSupported,
     #[error(
         code = "exception",
-        diagnostic = "No response was returned from the request."
+        diagnostic = "The request returned a response of another kind."
     )]
-    NoResponse,
+    UnexpectedResponse,
     #[error(
         code = "not-found",
         diagnostic = "Resource '{arg0:?}' with id '{arg1}' not found."
@@ -70,6 +92,11 @@ pub enum StorageError {
     NotFound(ResourceType, String),
     #[error(code = "invalid", diagnostic = "Invalid resource type.")]
     InvalidType,
+    #[error(
+        code = "invalid",
+        diagnostic = "The resource's type '{arg0}' does not match the requested type '{arg1}'."
+    )]
+    TypeMismatch(String, String),
 }
 
 #[derive(Derivative)]
@@ -84,6 +111,14 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     #[derivative(Debug = "ignore")]
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub tracing_id: Option<String>,
+    /// The Patient whose compartment the caller is confined to, set by the
+    /// scope middleware when a `patient/` scope grants the request. Storage
+    /// filters every search by it.
+    pub compartment: Option<String>,
+    /// The request asked for `Prefer: respond-async`: an operation it invokes
+    /// is queued as a job and answered with `202 Accepted` instead of run in
+    /// the request. Other interactions ignore it, as the pattern allows.
+    pub prefer_async: bool,
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
@@ -99,6 +134,24 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client: new_client,
             rate_limit: self.rate_limit.clone(),
             tracing_id: self.tracing_id.clone(),
+            compartment: self.compartment.clone(),
+            prefer_async: self.prefer_async,
+        }
+    }
+
+    /// This context confined to `patient_id`'s compartment.
+    #[must_use]
+    pub fn with_compartment(&self, patient_id: String) -> Self {
+        ServerCTX {
+            tenant: self.tenant.clone(),
+            project: self.project.clone(),
+            fhir_version: self.fhir_version.clone(),
+            user: self.user.clone(),
+            client: self.client.clone(),
+            rate_limit: self.rate_limit.clone(),
+            tracing_id: self.tracing_id.clone(),
+            compartment: Some(patient_id),
+            prefer_async: self.prefer_async,
         }
     }
 
@@ -118,6 +171,8 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client,
             rate_limit,
             tracing_id: None,
+            compartment: None,
+            prefer_async: false,
         }
     }
 
@@ -152,9 +207,13 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
                                 SmartResourceScopePermission::Delete,
                                 SmartResourceScopePermission::Search,
                             ]),
+                            constraints: vec![],
                         },
                     ))]),
                     fhir_user: None,
+                    patient: None,
+                    encounter: None,
+                    client_id: None,
                     user_id: AuthorId::System,
                     resource_type: AuthorKind::System,
                     access_policy_version_ids: vec![],
@@ -165,6 +224,8 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client,
             rate_limit,
             tracing_id: None,
+            compartment: None,
+            prefer_async: false,
         }
     }
 
@@ -172,30 +233,196 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
         self.tracing_id = tracing_id;
         self
     }
+
+    #[must_use]
+    pub fn with_prefer_async(mut self, prefer_async: bool) -> Self {
+        self.prefer_async = prefer_async;
+        self
+    }
 }
 
-struct ClientState<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
-> {
-    repo: Arc<Repo>,
-    search: Arc<Search>,
-    terminology: Arc<Terminology>,
-    audit_repo: Option<Arc<Repo>>,
+/// What every layer runs on. The transaction middleware swaps the repository
+/// for a transaction's; the rest is fixed for the client's lifetime.
+pub struct ClientState<B: Backend> {
+    repo: Arc<B::Repo>,
+    search: Arc<B::Search>,
+    terminology: Arc<B::Terminology>,
+    audit_repo: Option<Arc<B::Repo>>,
     config: Arc<ServerConfig>,
     deno_pool: Arc<DenoPool>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
-pub struct Route<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> {
-    filter: Box<dyn Fn(&FHIRRequest) -> bool + Send + Sync>,
-    middleware: Middleware<
-        Arc<State>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    >,
+impl<B: Backend> ClientState<B> {
+    /// This state reading and writing through `repo`.
+    fn with_repo(&self, repo: Arc<B::Repo>) -> Self {
+        ClientState {
+            repo,
+            search: self.search.clone(),
+            terminology: self.terminology.clone(),
+            audit_repo: self.audit_repo.clone(),
+            config: self.config.clone(),
+            deno_pool: self.deno_pool.clone(),
+            binary_storage: self.binary_storage.clone(),
+        }
+    }
+}
+
+impl<B: Backend> Clone for ClientState<B> {
+    fn clone(&self) -> Self {
+        self.with_repo(self.repo.clone())
+    }
+}
+
+/// The pipelines a request is dispatched to after the cross-cutting chain.
+/// Each ends in storage, the operation executor or the capability statement.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Lane {
+    Clinical,
+    Artifact,
+    OperationDefinition,
+    ProjectAuth,
+    TenantAuth,
+    AccessPolicy,
+    DeidentificationPolicy,
+    Operation,
+    Capabilities,
+}
+
+impl Lane {
+    /// The lane that stores `resource_type`.
+    fn of(resource_type: &ResourceType) -> Lane {
+        match resource_type {
+            ResourceType::ValueSet
+            | ResourceType::CodeSystem
+            | ResourceType::StructureDefinition
+            | ResourceType::SearchParameter => Lane::Artifact,
+            ResourceType::OperationDefinition => Lane::OperationDefinition,
+            ResourceType::Membership => Lane::ProjectAuth,
+            ResourceType::AccessPolicyV3 => Lane::AccessPolicy,
+            ResourceType::DeidentificationPolicy => Lane::DeidentificationPolicy,
+            ResourceType::User | ResourceType::Project | ResourceType::IdentityProvider => {
+                Lane::TenantAuth
+            }
+            _ => Lane::Clinical,
+        }
+    }
+
+    /// Whether this lane serves `request`. Artifacts are read from the system
+    /// tenant beside the project's, which only these interactions do.
+    fn allows(self, request: &FHIRRequest) -> bool {
+        match self {
+            Lane::Artifact => matches!(
+                request,
+                FHIRRequest::Create(_)
+                    | FHIRRequest::Read(_)
+                    | FHIRRequest::Update(_)
+                    | FHIRRequest::Patch(_)
+                    | FHIRRequest::Delete(_)
+                    | FHIRRequest::Search(SearchRequest::Type(_))
+            ),
+            _ => true,
+        }
+    }
+}
+
+/// Rejects a create or update whose body is another type than the request
+/// names. Access control, the lane and storage all go by the requested type,
+/// so a body of another type would be checked as one type and stored as
+/// another.
+fn check_body_type(request: &FHIRRequest) -> Result<(), StorageError> {
+    let (requested, resource) = match request {
+        FHIRRequest::Create(create) => (&create.resource_type, &create.resource),
+        FHIRRequest::Update(UpdateRequest::Instance(update)) => {
+            (&update.resource_type, &update.resource)
+        }
+        FHIRRequest::Update(UpdateRequest::Conditional(update)) => {
+            (&update.resource_type, &update.resource)
+        }
+        _ => return Ok(()),
+    };
+
+    let actual = resource.resource_type();
+    if &actual == requested {
+        Ok(())
+    } else {
+        Err(StorageError::TypeMismatch(
+            actual.as_ref().to_string(),
+            requested.as_ref().to_string(),
+        ))
+    }
+}
+
+/// The lane for `request`, or `NotSupported` when its lane does not serve
+/// the interaction. Every variant is matched: a new one fails to compile here.
+fn route(request: &FHIRRequest) -> Result<Lane, StorageError> {
+    match request {
+        FHIRRequest::Capabilities => Ok(Lane::Capabilities),
+        FHIRRequest::Invocation(_) => Ok(Lane::Operation),
+        // Bundle entries and compartment searches are re-dispatched through
+        // `ctx.client`, so each is routed on its own. System-level requests
+        // have no type to route by.
+        FHIRRequest::Batch(_)
+        | FHIRRequest::Transaction(_)
+        | FHIRRequest::Compartment(_)
+        | FHIRRequest::Search(SearchRequest::System(_))
+        | FHIRRequest::History(HistoryRequest::System(_))
+        | FHIRRequest::Delete(DeleteRequest::System(_)) => Ok(Lane::Clinical),
+        FHIRRequest::Create(_)
+        | FHIRRequest::Read(_)
+        | FHIRRequest::VersionRead(_)
+        | FHIRRequest::Update(_)
+        | FHIRRequest::Patch(_)
+        | FHIRRequest::Delete(DeleteRequest::Instance(_) | DeleteRequest::Type(_))
+        | FHIRRequest::History(HistoryRequest::Instance(_) | HistoryRequest::Type(_))
+        | FHIRRequest::Search(SearchRequest::Type(_)) => {
+            let resource_type =
+                request_to_resource_type(request).ok_or(StorageError::InvalidType)?;
+            let lane = Lane::of(resource_type);
+            if lane.allows(request) {
+                Ok(lane)
+            } else {
+                Err(StorageError::NotSupported)
+            }
+        }
+    }
+}
+
+/// Ends the cross-cutting pipeline: runs the request's lane.
+struct Router<B: Backend> {
+    clinical: Pipeline<B>,
+    artifact: Pipeline<B>,
+    operation_definition: Pipeline<B>,
+    project_auth: Pipeline<B>,
+    tenant_auth: Pipeline<B>,
+    access_policy: Pipeline<B>,
+    deidentification_policy: Pipeline<B>,
+    operation: Pipeline<B>,
+    capabilities: Pipeline<B>,
+}
+
+impl<B: Backend> Handler<B> for Router<B> {
+    fn handle<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+    ) -> Output<'a> {
+        match route(&request) {
+            Ok(Lane::Clinical) => &self.clinical,
+            Ok(Lane::Artifact) => &self.artifact,
+            Ok(Lane::OperationDefinition) => &self.operation_definition,
+            Ok(Lane::ProjectAuth) => &self.project_auth,
+            Ok(Lane::TenantAuth) => &self.tenant_auth,
+            Ok(Lane::AccessPolicy) => &self.access_policy,
+            Ok(Lane::DeidentificationPolicy) => &self.deidentification_policy,
+            Ok(Lane::Operation) => &self.operation,
+            Ok(Lane::Capabilities) => &self.capabilities,
+            Err(error) => return Box::pin(std::future::ready(Err(error.into()))),
+        }
+        .run(state, ctx, request)
+    }
 }
 
 pub struct FHIRServerClient<
@@ -203,97 +430,25 @@ pub struct FHIRServerClient<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
-    state: Arc<ClientState<Repo, Search, Terminology>>,
-    middleware: Middleware<
-        Arc<ClientState<Repo, Search, Terminology>>,
-        Arc<ServerCTX<Self>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    >,
-}
-
-pub struct RouterMiddleware<
-    State,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
-> {
-    routes: Arc<Vec<Route<State, Client>>>,
-}
-
-impl<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>
-    RouterMiddleware<State, Client>
-{
-    pub fn new(routes: Arc<Vec<Route<State, Client>>>) -> Self {
-        RouterMiddleware { routes }
-    }
+    state: ClientState<Self>,
+    pipeline: Pipeline<Self>,
+    builtin_operations: Builtins,
 }
 
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for RouterMiddleware<ClientState<Repo, Search, Terminology>, Client>
+> Backend for FHIRServerClient<Repo, Search, Terminology>
 {
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
-        let routes = self.routes.clone();
-        Box::pin(async move {
-            let route = routes.iter().find(|r| (r.filter)(&context.request));
+    type Repo = Repo;
+    type Search = Search;
+    type Terminology = Terminology;
 
-            match route {
-                Some(route) => {
-                    let context = route
-                        .middleware
-                        .call(state.clone(), context.ctx, context.request)
-                        .await?;
-                    if let Some(next) = next {
-                        next(state, context).await
-                    } else {
-                        Ok(context)
-                    }
-                }
-                None => {
-                    if let Some(next) = next {
-                        next(state, context).await
-                    } else {
-                        Ok(context)
-                    }
-                }
-            }
-        })
+    fn builtin_operations(&self) -> &Builtins {
+        &self.builtin_operations
     }
 }
-
-static ARTIFACT_TYPES: &[ResourceType] = &[
-    ResourceType::ValueSet,
-    ResourceType::CodeSystem,
-    ResourceType::StructureDefinition,
-    ResourceType::SearchParameter,
-];
-
-static TENANT_AUTH_TYPES: &[ResourceType] = &[
-    ResourceType::User,
-    ResourceType::Project,
-    ResourceType::IdentityProvider,
-];
-static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
-
-static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> =
-    LazyLock::new(|| [TENANT_AUTH_TYPES, PROJECT_AUTH_TYPES, ARTIFACT_TYPES].concat());
 
 pub struct ServerClientConfig<
     Repo: Repository + Send + Sync + 'static,
@@ -307,6 +462,8 @@ pub struct ServerClientConfig<
     pub mutate_artifacts: bool,
     pub config: Arc<ServerConfig>,
     pub deno_pool: Arc<DenoPool>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    pub binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<
@@ -330,6 +487,7 @@ impl<
             mutate_artifacts: false,
             config,
             deno_pool,
+            binary_storage: None,
         }
     }
 
@@ -342,6 +500,12 @@ impl<
         self.audit_repo = audit_repo;
         self
     }
+
+    #[must_use]
+    pub fn with_binary_storage(mut self, binary_storage: Option<Arc<dyn DocumentStorage>>) -> Self {
+        self.binary_storage = binary_storage;
+        self
+    }
 }
 
 impl<
@@ -351,117 +515,99 @@ impl<
 > FHIRServerClient<Repo, Search, Terminology>
 {
     pub fn new(config: ServerClientConfig<Repo, Search, Terminology>) -> Self {
-        let route_middleware = RouterMiddleware::new(Arc::new(vec![
-            // Clinical resources.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
-                    _ => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            !SPECIAL_TYPES.contains(resource_type)
-                        } else {
-                            true
-                        }
-                    }
-                }),
-                middleware: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
-            },
-            // Artifact routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Create(_)
-                    | FHIRRequest::Update(_)
-                    | FHIRRequest::Patch(_)
-                    | FHIRRequest::Delete(_)
-                    | FHIRRequest::Read(_)
-                    | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            ARTIFACT_TYPES.contains(resource_type)
-                        } else {
-                            false
-                        }
-                    }
-                    _ => false,
-                }),
+        let operations = Operations::new(config.deno_pool.clone());
+        let builtin_operations = operations.operation_definitions();
 
-                middleware: Middleware::new(vec![
-                    Box::new(middleware::set_artifact_tenant::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-            // Operation routes
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => true,
-                    _ => false,
-                }),
-                middleware: Middleware::new(vec![Box::new(
-                    middleware::operations::Middleware::new(config.deno_pool.clone()),
-                )]),
-            },
-            // Authentication routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => false,
-                    _ => request_to_resource_type(req)
-                        .is_some_and(|rt| PROJECT_AUTH_TYPES.contains(rt)),
-                }),
-                middleware: Middleware::new(vec![
-                    Box::new(middleware::transaction::Middleware::new()),
+        let router = Router {
+            clinical: Pipeline::new(
+                vec![
+                    Box::new(ClientApplicationValidation),
+                    Box::new(BinaryContent),
+                ],
+                Storage,
+            ),
+            artifact: Pipeline::new(
+                vec![
+                    Box::new(CanonicalCacheInvalidation),
+                    Box::new(SetArtifactTenant),
+                ],
+                Storage,
+            ),
+            // OperationDefinitions, served beside the built-in operations' own.
+            operation_definition: Pipeline::new(
+                vec![
+                    // A PATCH runs as an update, so the patched resource gets
+                    // the built-in collision checks.
+                    Box::new(PatchAsUpdate),
+                    Box::new(OperationDefinitions::new(builtin_operations.clone())),
+                ],
+                Storage,
+            ),
+            project_auth: Pipeline::new(
+                vec![
+                    Box::new(Transaction),
                     // A PATCH runs as an update, so the membership row stays in sync.
-                    Box::new(middleware::patch_as_update::Middleware::new()),
-                    Box::new(middleware::custom_models::membership::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-            // Tenant auth routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => false,
-                    _ => request_to_resource_type(req)
-                        .is_some_and(|rt| TENANT_AUTH_TYPES.contains(rt)),
-                }),
-                middleware: Middleware::new(vec![
-                    Box::new(
-                        middleware::check_project::SetProjectReadOnlyMiddleware::new(
-                            ProjectId::System,
-                        ),
-                    ),
+                    Box::new(PatchAsUpdate),
+                    Box::new(MembershipSync),
+                ],
+                Storage,
+            ),
+            tenant_auth: Pipeline::new(
+                vec![
+                    Box::new(SetProjectReadOnly::new(ProjectId::System)),
                     // Confirm in system project as above will only set to system if readonly.
-                    Box::new(middleware::check_project::Middleware::new(
-                        ProjectId::System,
-                    )),
-                    Box::new(middleware::transaction::Middleware::new()),
+                    Box::new(CheckProject::new(ProjectId::System)),
+                    Box::new(Transaction),
                     // A PATCH runs as an update, so it gets the Project update
                     // checks and the users table stays in sync.
-                    Box::new(middleware::patch_as_update::Middleware::new()),
-                    Box::new(middleware::custom_models::project::Middleware::new()),
-                    Box::new(middleware::custom_models::user::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-        ]));
+                    Box::new(PatchAsUpdate),
+                    Box::new(ProjectSync),
+                    Box::new(UserSync),
+                ],
+                Storage,
+            ),
+            access_policy: Pipeline::new(
+                vec![
+                    // A PATCH runs as an update, so the patched policy is checked too.
+                    Box::new(PatchAsUpdate),
+                    Box::new(AccessPolicyV3Validation),
+                ],
+                Storage,
+            ),
+            deidentification_policy: Pipeline::new(
+                vec![
+                    Box::new(PatchAsUpdate),
+                    Box::new(DeidentificationPolicyValidation),
+                ],
+                Storage,
+            ),
+            operation: Pipeline::new(vec![], operations),
+            capabilities: Pipeline::new(vec![], Capabilities),
+        };
 
         FHIRServerClient {
-            state: Arc::new(ClientState {
+            state: ClientState {
                 repo: config.repo,
                 audit_repo: config.audit_repo,
                 search: config.search,
                 terminology: config.terminology,
                 config: config.config,
                 deno_pool: config.deno_pool,
-            }),
-            middleware: Middleware::new(vec![
-                Box::new(middleware::auditing::Middleware::new()),
-                Box::new(middleware::tenant_tier_limits::Middleware::new()),
-                Box::new(middleware::rate_limit::Middleware::new()),
-                Box::new(middleware::element_filtering::Middleware::new()),
-                Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
-                Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
-                Box::new(middleware::validation::Middleware::new()),
-                Box::new(route_middleware),
-                Box::new(middleware::capabilities::Middleware::new()),
-            ]),
+                binary_storage: config.binary_storage,
+            },
+            pipeline: Pipeline::new(
+                vec![
+                    Box::new(Auditing),
+                    Box::new(TenantTierLimits),
+                    Box::new(RateLimit),
+                    Box::new(ElementFiltering),
+                    Box::new(SmartScopeAccess),
+                    Box::new(AccessControl),
+                    Box::new(Validation),
+                ],
+                router,
+            ),
+            builtin_operations,
         }
     }
 
@@ -472,6 +618,14 @@ impl<
     /// worker threads.
     pub fn deno_pool(&self) -> Arc<DenoPool> {
         self.state.deno_pool.clone()
+    }
+
+    /// Runs `request` through the pipeline.
+    fn run(&self, ctx: Arc<ServerCTX<Self>>, request: FHIRRequest) -> Output<'_> {
+        if let Err(error) = check_body_type(&request) {
+            return Box::pin(async move { Err(error.into()) });
+        }
+        self.pipeline.run(&self.state, ctx, request)
     }
 }
 
@@ -489,39 +643,31 @@ impl<
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
         tracing::info!("Processing request");
-        let response = self
-            .middleware
-            .call(self.state.clone(), _ctx, request)
-            .await?;
-
-        response
-            .response
-            .ok_or_else(|| StorageError::NoResponse.into())
+        self.run(_ctx, request).await
     }
 
     async fn capabilities(
         &self,
         _ctx: Arc<ServerCTX<Self>>,
     ) -> Result<CapabilityStatement, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(self.state.clone(), _ctx, FHIRRequest::Capabilities)
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Capabilities(capabilities_response)) => {
-                Ok(capabilities_response.capabilities)
-            }
-            _ => panic!("Unexpected response type"),
+        match self.run(_ctx, FHIRRequest::Capabilities).await? {
+            FHIRResponse::Capabilities(response) => Ok(response.capabilities),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
     async fn search_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Search(SearchRequest::System(FHIRSearchSystemRequest {
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Search(SearchResponse::System(response)) => Ok(response.bundle),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn search_type(
@@ -530,23 +676,13 @@ impl<
         resource_type: ResourceType,
         parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Search(SearchResponse::Type(search_response))) => {
-                Ok(search_response.bundle)
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Search(SearchResponse::Type(response)) => Ok(response.bundle),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -556,21 +692,13 @@ impl<
         resource_type: ResourceType,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Create(FHIRCreateRequest {
-                    resource_type,
-                    resource,
-                }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Create(FHIRCreateRequest {
+            resource_type,
+            resource,
+        });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Create(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -581,23 +709,15 @@ impl<
         id: String,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
-                    resource_type,
-                    id,
-                    resource,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
-            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => panic!("Unexpected response type {:?}", res.response),
+        let request = FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
+            resource_type,
+            id,
+            resource,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Create(response) => Ok(response.resource),
+            FHIRResponse::Update(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -608,34 +728,35 @@ impl<
         parameters: ParsedParameters,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Update(UpdateRequest::Conditional(FHIRConditionalUpdateRequest {
-                    resource_type,
-                    parameters,
-                    resource,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
-            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => panic!("Unexpected response type {:?}", res.response),
+        let request =
+            FHIRRequest::Update(UpdateRequest::Conditional(FHIRConditionalUpdateRequest {
+                resource_type,
+                parameters,
+                resource,
+            }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Create(response) => Ok(response.resource),
+            FHIRResponse::Update(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
     async fn patch(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _patches: json_patch::Patch,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        patches: json_patch::Patch,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Patch(FHIRPatchRequest {
+            resource_type,
+            id,
+            patch: patches,
+        });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Patch(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn read(
@@ -644,18 +765,10 @@ impl<
         resource_type: ResourceType,
         id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Read(FHIRReadRequest { resource_type, id }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Read(read_response)) => Ok(read_response.resource),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Read(FHIRReadRequest { resource_type, id });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Read(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -666,24 +779,14 @@ impl<
         id: String,
         version_id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::VersionRead(FHIRVersionReadRequest {
-                    resource_type,
-                    id,
-                    version_id: VersionId::new(version_id),
-                }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::VersionRead(version_read_response)) => {
-                Ok(Some(version_read_response.resource))
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::VersionRead(FHIRVersionReadRequest {
+            resource_type,
+            id,
+            version_id: VersionId::new(version_id),
+        });
+        match self.run(ctx, request).await? {
+            FHIRResponse::VersionRead(response) => Ok(Some(response.resource)),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -693,21 +796,13 @@ impl<
         resource_type: ResourceType,
         id: String,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::Instance(FHIRDeleteInstanceRequest {
-                    resource_type,
-                    id,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Delete(DeleteResponse::Instance(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Delete(DeleteRequest::Instance(FHIRDeleteInstanceRequest {
+            resource_type,
+            id,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Delete(DeleteResponse::Instance(_)) => Ok(()),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -717,21 +812,13 @@ impl<
         resource_type: ResourceType,
         parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::Type(FHIRDeleteTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Delete(DeleteResponse::Type(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Delete(DeleteRequest::Type(FHIRDeleteTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Delete(DeleteResponse::Type(_)) => Ok(()),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -740,20 +827,12 @@ impl<
         ctx: Arc<ServerCTX<Self>>,
         parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::System(FHIRDeleteSystemRequest {
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Delete(DeleteResponse::System(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Delete(DeleteRequest::System(FHIRDeleteSystemRequest {
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Delete(DeleteResponse::System(_)) => Ok(()),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -762,21 +841,12 @@ impl<
         ctx: Arc<ServerCTX<Self>>,
         parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::System(FHIRHistorySystemRequest {
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::System(history_response))) => {
-                Ok(history_response.bundle)
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::History(HistoryRequest::System(FHIRHistorySystemRequest {
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::System(response)) => Ok(response.bundle),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -786,22 +856,13 @@ impl<
         resource_type: ResourceType,
         parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::Type(FHIRHistoryTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::Type(history_response))) => {
-                Ok(history_response.bundle)
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::History(HistoryRequest::Type(FHIRHistoryTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::Type(response)) => Ok(response.bundle),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -812,54 +873,70 @@ impl<
         id: String,
         parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::Instance(FHIRHistoryInstanceRequest {
-                    resource_type,
-                    id,
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::Instance(history_response))) => {
-                Ok(history_response.bundle)
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::History(HistoryRequest::Instance(FHIRHistoryInstanceRequest {
+            resource_type,
+            id,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::Instance(response)) => Ok(response.bundle),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
     async fn invoke_instance(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request =
+            FHIRRequest::Invocation(InvocationRequest::Instance(FHIRInvokeInstanceRequest {
+                operation: Operation::new(&operation),
+                resource_type,
+                id,
+                parameters,
+            }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Instance(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn invoke_type(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Invocation(InvocationRequest::Type(FHIRInvokeTypeRequest {
+            operation: Operation::new(&operation),
+            resource_type,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Type(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn invoke_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Invocation(InvocationRequest::System(FHIRInvokeSystemRequest {
+            operation: Operation::new(&operation),
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::System(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn transaction(
@@ -867,20 +944,10 @@ impl<
         ctx: Arc<ServerCTX<Self>>,
         bundle: Bundle,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Transaction(FHIRTransactionRequest { resource: bundle }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Transaction(transaction_response)) => {
-                Ok(transaction_response.resource)
-            }
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Transaction(FHIRTransactionRequest { resource: bundle });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Transaction(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -889,18 +956,10 @@ impl<
         ctx: Arc<ServerCTX<Self>>,
         bundle: Bundle,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Batch(batch_response)) => Ok(batch_response.resource),
-            _ => panic!("Unexpected response type"),
+        let request = FHIRRequest::Batch(FHIRBatchRequest { resource: bundle });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Batch(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 }

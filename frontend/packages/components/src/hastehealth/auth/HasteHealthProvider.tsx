@@ -17,6 +17,46 @@ const state_key = (client_id: string) => `haste-health_state_${client_id}`;
 const pkce_code_verifier_key = (client_id: string) =>
   `haste-health_pkce_code_${client_id}`;
 
+function sessionStorageError(
+  action: "read" | "write" | "remove",
+  key: string,
+  error: unknown,
+): Error {
+  const detail =
+    error instanceof Error && error.message ? ` (${error.message})` : "";
+  return new Error(
+    `Unable to ${action} ${key} in sessionStorage; authentication cannot continue${detail}`,
+  );
+}
+
+function readSession(key: string): string | null {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch (error) {
+    throw sessionStorageError("read", key, error);
+  }
+}
+
+function writeSession(key: string, value: string) {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch (error) {
+    throw sessionStorageError("write", key, error);
+  }
+}
+
+function removeSession(key: string) {
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch (error) {
+    throw sessionStorageError("remove", key, error);
+  }
+}
+
+function messageFromError(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 function getParsedParameters(): Record<string, string> {
   const parameters = window.location.search
     .slice(1)
@@ -46,22 +86,23 @@ async function exchangeAuthCodeForToken({
   parameters: Record<string, string>;
   clientId: string;
 }): Promise<AccessTokenResponse | TokenErrorResponse> {
-  const code_verifier = window.sessionStorage.getItem(
-    pkce_code_verifier_key(clientId),
-  );
-  const localStateParameter = window.sessionStorage.getItem(
-    state_key(clientId),
-  );
+  const code_verifier = readSession(pkce_code_verifier_key(clientId));
+  const localStateParameter = readSession(state_key(clientId));
 
-  if (!parameters.state) throw new Error();
-  if (!parameters.code) throw new Error();
-  if (parameters.state !== localStateParameter)
-    throw new Error("Invalid State");
+  if (!parameters.state || !parameters.code) {
+    throw new Error("Missing authorization code or state in callback parameters");
+  }
 
-  window.sessionStorage.removeItem(state_key(clientId));
-  window.sessionStorage.removeItem(pkce_code_verifier_key(clientId));
+  if (!localStateParameter || parameters.state !== localStateParameter) {
+    throw new Error("Invalid State: authorization response state does not match stored state");
+  }
 
-  if (!code_verifier) throw new Error("Invalid Code Verifier");
+  if (!code_verifier) {
+    throw new Error("Invalid Code Verifier: PKCE code verifier not found in storage");
+  }
+
+  removeSession(state_key(clientId));
+  removeSession(pkce_code_verifier_key(clientId));
 
   window.history.replaceState(null, "", location.pathname);
 
@@ -103,11 +144,8 @@ export async function authorize({
   const code_verifier = generateRandomString(43);
   const state = generateRandomString(30);
   const code_challenge = await sha256(code_verifier);
-  window.sessionStorage.setItem(
-    pkce_code_verifier_key(clientId),
-    code_verifier,
-  );
-  window.sessionStorage.setItem(state_key(clientId), state);
+  writeSession(pkce_code_verifier_key(clientId), code_verifier);
+  writeSession(state_key(clientId), state);
 
   const parameters: Record<string, string> = {
     client_id: clientId,
@@ -255,7 +293,7 @@ export function HasteHealthProvider({
     }
     isInitialized.current = true;
 
-    (async (): Promise<void> => {
+    void (async (): Promise<void> => {
       dispatch({ type: "SET_LOADING", loading: true });
       try {
         const well_known_uri = new URL(
@@ -275,20 +313,58 @@ export function HasteHealthProvider({
             dispatch({
               type: "ON_ERROR",
               error: parameters.error,
-              error_description: parameters.error_description,
+              error_description:
+                parameters.error_description ?? "Authentication failed",
               error_uri: parameters.error_uri,
               state: parameters.state,
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate:", parameters.error);
             return;
           }
 
-          const payload = await exchangeAuthCodeForToken({
-            parameters,
-            token_endpoint: well_known.token_endpoint,
-            redirect_uri: redirectUrl,
-            clientId,
-          });
+          const codeVerifier = readSession(
+            pkce_code_verifier_key(clientId),
+          );
+          const storedState = readSession(state_key(clientId));
+          if (!codeVerifier || !storedState) {
+            // Storage was lost or stale query params remained in the address
+            // bar. Do not re-initiate automatically: if sessionStorage cannot
+            // be written, re-authorizing would loop forever. Surface the
+            // problem and let the user start a fresh sign-in instead.
+            window.history.replaceState(null, "", location.pathname);
+            console.error(
+              "Missing PKCE verifier or OAuth state in sessionStorage; cannot complete sign-in.",
+            );
+            dispatch({
+              type: "ON_ERROR",
+              error: "missing_code_verifier",
+              error_description:
+                "The sign-in session expired or browser storage is unavailable. Reload the page to sign in again.",
+            });
+            return;
+          }
+
+          let payload: AccessTokenResponse | TokenErrorResponse;
+          try {
+            payload = await exchangeAuthCodeForToken({
+              parameters,
+              token_endpoint: well_known.token_endpoint,
+              redirect_uri: redirectUrl,
+              clientId,
+            });
+          } catch (exchangeErr: unknown) {
+            window.history.replaceState(null, "", location.pathname);
+            console.error("Token exchange failed:", exchangeErr);
+            dispatch({
+              type: "ON_ERROR",
+              error: "token_exchange_error",
+              error_description: messageFromError(
+                exchangeErr,
+                "Failed to exchange authorization code for token.",
+              ),
+            });
+            return;
+          }
 
           if ("error" in payload) {
             window.history.replaceState(null, "", location.pathname);
@@ -299,7 +375,7 @@ export function HasteHealthProvider({
                 payload.error_description ??
                 "The token endpoint rejected the authorization code.",
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate:", payload.error);
             return;
           }
 
@@ -311,7 +387,7 @@ export function HasteHealthProvider({
               error_description:
                 "The token response contained no id token. Check that 'openid' is one of the scopes this application requests and is allowed by its client application.",
             });
-            console.error("Failed to authenticate");
+            console.error("Failed to authenticate: missing id_token");
             return;
           }
 
@@ -373,10 +449,12 @@ export function HasteHealthProvider({
 
           // Allows for SPA to redirect back.
           if (onRedirectCallback) {
-            onRedirectCallback(window.sessionStorage.getItem("path") ?? "/");
+            const redirectPath = readSession("path") ?? "/";
+            removeSession("path");
+            onRedirectCallback(redirectPath);
           }
         } else {
-          window.sessionStorage.setItem(
+          writeSession(
             "path",
             window.location.href.replace(window.location.origin, ""),
           );
@@ -389,10 +467,19 @@ export function HasteHealthProvider({
             redirectUrl,
           });
         }
-      } catch (error) {
-        // Nothing can catch a rejection from this effect, so log and stop
-        // here rather than rethrowing into an unhandled rejection.
-        console.error(error);
+      } catch (error: unknown) {
+        if (hasAuthQueryParams()) {
+          window.history.replaceState(null, "", location.pathname);
+        }
+        console.error("Authentication initialization failed:", error);
+        dispatch({
+          type: "ON_ERROR",
+          error: "initialization_error",
+          error_description: messageFromError(
+            error,
+            "An unexpected error occurred during authentication setup.",
+          ),
+        });
       } finally {
         dispatch({ type: "SET_LOADING", loading: false });
       }

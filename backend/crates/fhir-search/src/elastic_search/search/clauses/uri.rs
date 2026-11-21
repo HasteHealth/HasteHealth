@@ -1,33 +1,24 @@
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
+use crate::{
+    elastic_search::search::clauses::any_of,
+    query::value::{UriValues, uri_ancestors},
+};
 use serde_json::json;
 
-use crate::elastic_search::search::clauses::namespace_parameter;
-
-pub fn uri(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_parameter: &SearchParameter,
-) -> serde_json::Value {
-    let column_name = namespace_parameter(namespace, search_parameter);
-
-    let uri_params = parsed_parameter
-        .value
-        .iter()
-        .map(|value| {
-            json!({
-                "match":{
-                    &column_name: {
-                        "query": value
-                    }
-                }
-            })
-        })
-        .collect::<Vec<serde_json::Value>>();
-
-    json!({
-        "bool": {
-            "should": uri_params
-        }
+/// Matches any supplied URI: exactly, or by hierarchy for `:above`/`:below`.
+pub fn uri(field: &str, values: &UriValues<'_>) -> serde_json::Value {
+    any_of(match values {
+        UriValues::Uris(uris) => uris
+            .iter()
+            .map(|value| json!({ "match": { field: { "query": value } } }))
+            .collect(),
+        // A `prefix` query on a keyword field is literal; nothing to escape.
+        UriValues::Below(uris) => uris
+            .iter()
+            .map(|value| json!({ "prefix": { field: { "value": value } } }))
+            .collect(),
+        UriValues::Above(uris) => uris
+            .iter()
+            .map(|value| json!({ "terms": { field: uri_ancestors(value) } }))
+            .collect(),
     })
 }

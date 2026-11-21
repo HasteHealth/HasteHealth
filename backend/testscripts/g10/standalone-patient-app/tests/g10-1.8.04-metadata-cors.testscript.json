@@ -1,0 +1,59 @@
+{
+    "id": "g10-1.8.04-metadata-cors",
+    "url": "https://haste.health/fhir/TestScript/g10-1.8.04-metadata-cors",
+    "name": "g10-1.8.04-metadata-cors",
+    "title": "1.8.04 CapabilityStatement allows CORS",
+    "status": "active",
+    "description": "g10 1.8.04 / 3.7.04 (SEC-CNN-1). A cross-origin request for the CapabilityStatement, without a valid token, answers 200 and allows the origin.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.8.04 CapabilityStatement allows CORS",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "capabilities"
+                        },
+                        "encodeRequestUrl": false,
+                        "requestHeader": [
+                            {
+                                "field": "Origin",
+                                "value": "https://inferno.healthit.gov"
+                            },
+                            {
+                                "field": "Authorization",
+                                "value": "Bearer g10-invalid-token"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The CapabilityStatement is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The body is a CapabilityStatement",
+                        "resource": "CapabilityStatement",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The origin is allowed",
+                        "headerField": "Access-Control-Allow-Origin",
+                        "operator": "in",
+                        "value": "*,https://inferno.healthit.gov",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

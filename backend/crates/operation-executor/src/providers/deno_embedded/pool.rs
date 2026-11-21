@@ -330,6 +330,14 @@ fn spawn_worker(
             let mut warm_pool: VecDeque<deno_core::JsRuntime> =
                 VecDeque::with_capacity(WARM_RUNTIME_BUFFER_SIZE);
 
+            // Enter the runtime for the whole worker loop. Warm isolates are
+            // built outside `block_on` (after a job, to keep it off the hot
+            // path), and `deno_core` calls `std::process::abort()` if V8 later
+            // posts a delayed task on an isolate created with no tokio runtime
+            // handle in scope. Entering here keeps `Handle::try_current()`
+            // returning this worker's runtime for every build.
+            let _runtime_guard = runtime.enter();
+
             while let Ok(command) = command_rx.recv() {
                 match command {
                     WorkerCommand::Run(task) => task.run(&runtime, &mut warm_pool),
