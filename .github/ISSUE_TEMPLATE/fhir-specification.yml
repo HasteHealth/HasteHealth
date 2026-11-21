@@ -1,0 +1,16 @@
+name: FHIR specification support
+description: Support for a FHIR implementation guide or specification
+title: "FHIR Specification [SPECIFICATION] Support"
+labels: ["fhir-api"]
+body:
+  - type: input
+    id: link
+    attributes:
+      label: Link to specification
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What it covers
+      description: A short description and which parts matter to you.

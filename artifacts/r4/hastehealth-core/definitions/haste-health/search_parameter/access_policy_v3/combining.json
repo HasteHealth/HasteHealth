@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "AccessPolicyV3-combining",
+    "url": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining",
+    "version": "4.0.1",
+    "name": "combining",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "The combining algorithm of an access policy.",
+    "code": "combining",
+    "base": [
+        "AccessPolicyV3"
+    ],
+    "type": "token",
+    "expression": "AccessPolicyV3.combining"
+}

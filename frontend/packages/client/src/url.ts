@@ -5,28 +5,51 @@ type SPECIAL_CHARACTER = "\\" | "|" | "$" | ",";
 const SPECIAL_CHARACTERS: SPECIAL_CHARACTER[] = ["\\", "|", "$", ","];
 
 /**
- * Returns string with split pieces and unescapes special characters from the split piece.
+ * Splits on each separator not escaped by a backslash, leaving the pieces' escapes in place.
+ * A value without a backslash takes the plain split.
  * @param parameter Parameter to be split
+ * @param separator One of special characters that get escaped on parameter.
+ */
+export function splitUnescaped(
+  parameter: string,
+  separator: SPECIAL_CHARACTER,
+): string[] {
+  if (!parameter.includes("\\")) return parameter.split(separator);
+  const pieces: string[] = [];
+  let start = 0;
+  for (let i = 0; i < parameter.length; i++) {
+    if (parameter[i] === "\\") i++;
+    else if (parameter[i] === separator) {
+      pieces.push(parameter.substring(start, i));
+      start = i + 1;
+    }
+  }
+  pieces.push(parameter.substring(start));
+  return pieces;
+}
+
+/**
+ * A value's segments between unescaped separators, each with its escapes resolved:
+ * `system|code` of a token. The counterpart of `Parameter::segmented` in the Rust client.
+ * @param parameter Parameter value as written in the URL
  * @param specialCharacter One of special characters that get escaped on parameter.
  */
 export function splitParameter(
   parameter: string,
-  specialCharacter: SPECIAL_CHARACTER
+  specialCharacter: SPECIAL_CHARACTER,
 ): string[] {
-  const specialCharEg = new RegExp(`\\${specialCharacter}`, "g");
-  let prevIndex = -1;
-  const pieces = [];
-  let match;
+  return splitUnescaped(parameter, specialCharacter).map((piece) =>
+    unescapeParameter(piece),
+  );
+}
 
-  while ((match = specialCharEg.exec(parameter))) {
-    if (match.index === 0 || parameter[match.index - 1] !== "\\") {
-      pieces.push(parameter.substring(prevIndex + 1, match.index));
-      prevIndex = match.index;
-    }
-  }
-  pieces.push(parameter.substring(prevIndex + 1));
-
-  return pieces.map(unescapeParameter);
+/**
+ * A parameter's values with their escapes resolved. The counterpart of
+ * `Parameter::values` in the Rust client.
+ * @param parameter A parsed parameter, whose values are as written in the URL.
+ */
+export function parameterValues(parameter: ParsedParameter<string>): string[] {
+  return parameter.value.map((value) => unescapeParameter(value));
 }
 
 /**
@@ -40,7 +63,7 @@ export function escapeParameter(parameter: string): string {
     (parameter: string, character: string): string => {
       return parameter.replaceAll(character, `\\${character}`);
     },
-    parameter
+    parameter,
   );
 }
 
@@ -51,16 +74,22 @@ export function escapeParameter(parameter: string): string {
  * @returns Unescaped Parameter
  */
 export function unescapeParameter(parameter: string): string {
-  return SPECIAL_CHARACTERS.reduce(
-    (parameter: string, character: string): string => {
-      return parameter.replaceAll(`\\${character}`, character);
-    },
-    parameter
+  if (!parameter.includes("\\")) return parameter;
+  // Escapes are read left to right so `\\,` is a backslash then a separator.
+  return parameter.replace(/\\([\s\S])/g, (escape, character) =>
+    (SPECIAL_CHARACTERS as readonly string[]).includes(character)
+      ? character
+      : escape,
   );
 }
 
 export interface ParsedParameter<T> {
   name: string;
+  /**
+   * The values as written after `=`, one per unescaped comma, with their escapes
+   * (`\,` `\|` `\$` `\\`) still in place: which of `|` and `$` separate is only known
+   * with the parameter's type. Read them through `parameterValues` or `splitParameter`.
+   */
   value: T[];
   modifier?: string;
   chains?: string[];
@@ -92,7 +121,7 @@ export type Parameters<Version extends FHIR_VERSION> =
  * @returns Record of parsed parameters with name modifier and value.
  */
 export function parseQuery(
-  queryParams: string | undefined
+  queryParams: string | undefined,
 ): ParsedParameter<string>[] {
   const parameters = !queryParams
     ? []
@@ -102,7 +131,7 @@ export function parseQuery(
         .reduce(
           (
             parameters,
-            [key, value]
+            [key, value],
           ): Record<string, ParsedParameter<string>> => {
             const chains = key.split(".");
 
@@ -111,7 +140,10 @@ export function parseQuery(
             const searchParam: ParsedParameter<string> = {
               name,
               modifier,
-              value: value.split(",").map((v) => decodeURIComponent(v)),
+              // The pieces keep their escapes; see ParsedParameter.value.
+              value: splitUnescaped(value, ",").map((v) =>
+                decodeURIComponent(v),
+              ),
             };
 
             if (chains.length > 1) searchParam.chains = chains.slice(1);
@@ -119,7 +151,7 @@ export function parseQuery(
 
             return { ...parameters, [searchParam.name]: searchParam };
           },
-          {}
+          {},
         );
 
   return Object.values(parameters);
@@ -131,7 +163,7 @@ export function parseQuery(
  * @returns Record of parsed parameters with name modifier and value.
  */
 export default function parseUrl(
-  url: string
+  url: string,
 ): ParsedParameter<string | number>[] {
   const chunks = url.split("?");
   if (chunks.length > 2)

@@ -9,6 +9,11 @@ type Context<CTX, Request, Response> = {
   response?: Response;
 };
 
+type MiddlewareOptions = { logging?: boolean };
+
+/** Shared default so each call does not allocate a fresh options object. */
+const DEFAULT_OPTIONS: MiddlewareOptions = Object.freeze({ logging: false });
+
 export type MiddlewareAsyncChain<
   State,
   CTX,
@@ -45,7 +50,7 @@ function createNext<
   Response = FHIRResponse<FHIR_VERSION, AllInteractions | "error">
 >(
   middlewareChain: MiddlewareAsyncChain<State, CTX, Request, Response>[],
-  options: { logging?: boolean } = { logging: false }
+  options: MiddlewareOptions = DEFAULT_OPTIONS
 ): Next<State, CTX, Request, Response> {
   const [first, ...rest] = middlewareChain;
 
@@ -72,7 +77,7 @@ export function createMiddlewareAsync<
 >(
   _state: State,
   middlewareChain: MiddlewareAsyncChain<State, CTX, Request, Response>[],
-  options: { logging?: boolean } = { logging: false }
+  options: MiddlewareOptions = DEFAULT_OPTIONS
 ): MiddlewareAsync<CTX, Request, Response> {
   let state = _state;
 

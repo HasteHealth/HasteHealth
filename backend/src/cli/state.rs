@@ -26,7 +26,7 @@ pub(crate) static CONFIG_LOCATION: LazyLock<PathBuf> =
     LazyLock::new(|| CONFIG_DIR.join("config.toml"));
 
 /// Client secrets and cached OAuth tokens, kept out of `CONFIG_LOCATION` so they never
-/// show up via `config show-profile` or similar.
+/// show up via `profile show` or similar.
 pub(crate) static SECRETS_LOCATION: LazyLock<PathBuf> =
     LazyLock::new(|| CONFIG_DIR.join(".secrets.toml"));
 
@@ -34,6 +34,8 @@ pub(crate) struct CliState {
     pub(crate) config: CliConfiguration,
     pub(crate) secrets: CliSecrets,
     pub(crate) access_token: Option<String>,
+    /// Unix seconds at which `access_token` stops being usable.
+    pub(crate) access_token_expires_at: Option<i64>,
     pub(crate) well_known_document: Option<WellKnownDiscoveryDocument>,
 }
 
@@ -43,6 +45,7 @@ impl CliState {
             config,
             secrets,
             access_token: None,
+            access_token_expires_at: None,
             well_known_document: None,
         }
     }

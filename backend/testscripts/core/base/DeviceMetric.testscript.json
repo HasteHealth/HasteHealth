@@ -1,0 +1,2804 @@
+{
+    "id": "core-devicemetric",
+    "url": "https://haste.health/fhir/TestScript/core-devicemetric",
+    "title": "Core DeviceMetric TestScript",
+    "name": "Core DeviceMetric TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the DeviceMetric resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "crud-create-1",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9jYXRlZ29yeSIsICJ2YWx1ZSI6ICJjYWxjdWxhdGlvbiJ9XQ=="
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "setting",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-category-match-2",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-category"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "calculation",
+            "id": "devicemetric-category-other-3",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-category"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "identifier": [
+                {
+                    "system": "http://example.org/device-metric-id",
+                    "value": "metric-12345"
+                }
+            ],
+            "id": "devicemetric-identifier-match-4",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "identifier": [
+                {
+                    "system": "http://example.org/device-metric-id",
+                    "value": "metric-99999"
+                }
+            ],
+            "id": "devicemetric-identifier-other-5",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-identifier-missing-6",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-devicemetric-parent-target",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    }
+                ]
+            },
+            "type": {
+                "text": "Target metric"
+            },
+            "category": "measurement"
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "parent": {
+                "reference": "DeviceMetric/core-devicemetric-parent-target"
+            },
+            "id": "devicemetric-parent-match-7",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-parent"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-parent-missing-8",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-parent"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-devicemetric-source-target",
+            "resourceType": "Device",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    }
+                ]
+            },
+            "status": "active"
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "source": {
+                "reference": "Device/core-devicemetric-source-target"
+            },
+            "id": "devicemetric-source-match-9",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-source"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-source-missing-10",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-source"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "heart-rate"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-type-match-11",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-type"
+                    }
+                ]
+            }
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://example.org/metric-type",
+                        "code": "respiration"
+                    }
+                ]
+            },
+            "category": "measurement",
+            "id": "devicemetric-type-other-12",
+            "resourceType": "DeviceMetric",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-devicemetric-test"
+                    },
+                    {
+                        "code": "scope-type"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-category-match-2",
+            "resource": {
+                "reference": "#devicemetric-category-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-category-other-3",
+            "resource": {
+                "reference": "#devicemetric-category-other-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-identifier-match-4",
+            "resource": {
+                "reference": "#devicemetric-identifier-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-identifier-other-5",
+            "resource": {
+                "reference": "#devicemetric-identifier-other-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-identifier-missing-6",
+            "resource": {
+                "reference": "#devicemetric-identifier-missing-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-devicemetric-parent-target",
+            "resource": {
+                "reference": "#core-devicemetric-parent-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-parent-match-7",
+            "resource": {
+                "reference": "#devicemetric-parent-match-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-parent-missing-8",
+            "resource": {
+                "reference": "#devicemetric-parent-missing-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-devicemetric-source-target",
+            "resource": {
+                "reference": "#core-devicemetric-source-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-source-match-9",
+            "resource": {
+                "reference": "#devicemetric-source-match-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-source-missing-10",
+            "resource": {
+                "reference": "#devicemetric-source-missing-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-type-match-11",
+            "resource": {
+                "reference": "#devicemetric-type-match-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-devicemetric-type-other-12",
+            "resource": {
+                "reference": "#devicemetric-type-other-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create DeviceMetric",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "DeviceMetric",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read DeviceMetric",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DeviceMetric.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "DeviceMetric.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DeviceMetric.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch DeviceMetric",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DeviceMetric.category",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "calculation",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update DeviceMetric",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DeviceMetric.category",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "setting",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "DeviceMetric.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "DeviceMetric.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete DeviceMetric",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-category",
+            "name": "Search DeviceMetric by category (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-category-match-2",
+                        "responseId": "category-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-category-other-3",
+                        "responseId": "category-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-category"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "category"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "category=measurement&_tag=core-devicemetric-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-category"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "category"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-category"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "category"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "category:not=measurement&_tag=core-devicemetric-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-category"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "category"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-identifier",
+            "name": "Search DeviceMetric by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-identifier-match-4",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-identifier-other-5",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier=metric-12345&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier=http://example.org/device-metric-id|metric-12345&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier=|metric-12345&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier=http://example.org/device-metric-id|&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier=|&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier:not=metric-12345&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-identifier-missing-6",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier:missing=true&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "identifier:missing=false&_tag=core-devicemetric-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-parent",
+            "name": "Search DeviceMetric by parent (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-core-devicemetric-parent-target",
+                        "responseId": "parent-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "DeviceMetric",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "parent-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-parent-match-7",
+                        "responseId": "parent-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "parent=core-devicemetric-parent-target&_tag=core-devicemetric-test&_tag=scope-parent"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "parent-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "parent=DeviceMetric/core-devicemetric-parent-target&_tag=core-devicemetric-test&_tag=scope-parent"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "parent-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-parent-missing-8",
+                        "responseId": "parent-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "parent:missing=true&_tag=core-devicemetric-test&_tag=scope-parent"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "parent-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "parent:missing=false&_tag=core-devicemetric-test&_tag=scope-parent"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "parent-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-parent"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "parent"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-source",
+            "name": "Search DeviceMetric by source (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Device",
+                        "sourceId": "fixture-core-devicemetric-source-target",
+                        "responseId": "source-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Device",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "source-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-source-match-9",
+                        "responseId": "source-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "source=core-devicemetric-source-target&_tag=core-devicemetric-test&_tag=scope-source"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "source-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "source=Device/core-devicemetric-source-target&_tag=core-devicemetric-test&_tag=scope-source"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "source-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-source-missing-10",
+                        "responseId": "source-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "source:missing=true&_tag=core-devicemetric-test&_tag=scope-source"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "source-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "source:missing=false&_tag=core-devicemetric-test&_tag=scope-source"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "source-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-source"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "source"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-type",
+            "name": "Search DeviceMetric by type (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-type-match-11",
+                        "responseId": "type-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "sourceId": "fixture-devicemetric-type-other-12",
+                        "responseId": "type-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type=heart-rate&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type=http://example.org/metric-type|heart-rate&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type=|heart-rate&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type=http://example.org/metric-type|&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type=|&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "DeviceMetric",
+                        "params": "type:not=heart-rate&_tag=core-devicemetric-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/DeviceMetric-type"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "type"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "DeviceMetric",
+                    "params": "_tag=core-devicemetric-test",
+                    "description": "Delete DeviceMetric resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

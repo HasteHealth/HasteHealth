@@ -1,0 +1,58 @@
+{
+    "resourceType": "Bundle",
+    "id": "deidentificationpolicydefault",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyDefault",
+            "resource": {
+                "id": "deidentificationpolicydefault-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyDefault",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyDefault",
+                "title": "DeidentificationPolicyDefault",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification default actions.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "redact",
+                        "display": "redact"
+                    },
+                    {
+                        "code": "keep",
+                        "display": "keep"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "deidentificationpolicydefault",
+                "url": "https://haste.health/fhir/ValueSet/DeidentificationPolicyDefault",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyDefault",
+                "title": "DeidentificationPolicyDefault",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification default actions.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyDefault"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "id": "g10-bulk-capability-statement",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-capability-statement",
+    "name": "g10 Bulk Group Export Capability",
+    "title": "8.2.02 Group export is declared in the CapabilityStatement",
+    "status": "active",
+    "description": "g10 8.2.02 / 7.2.02 (SH-PAT-4). The CapabilityStatement declares the Group-level export operation and instantiates the Bulk Data server CapabilityStatement. Inferno fails without a Group operation and warns about the rest; here every check is required.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-group-export-declared",
+            "name": "Group $export in the CapabilityStatement",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "capabilities"
+                        },
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The CapabilityStatement is returned",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The body is a CapabilityStatement",
+                        "resource": "CapabilityStatement",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Group declares at least one operation",
+                        "expression": "CapabilityStatement.rest.resource.where(type = 'Group').operation.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Group declares the export operation",
+                        "expression": "CapabilityStatement.rest.resource.where(type = 'Group').operation.where(name = 'export').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export operation is the Bulk Data group-export",
+                        "expression": "CapabilityStatement.rest.resource.where(type = 'Group').operation.where(name = 'export').definition.first().startsWith('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/group-export')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The server instantiates the Bulk Data CapabilityStatement",
+                        "expression": "CapabilityStatement.instantiates.where($this.startsWith('http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

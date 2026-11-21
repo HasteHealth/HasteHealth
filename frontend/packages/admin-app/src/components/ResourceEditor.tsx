@@ -7,11 +7,13 @@ import { useParams } from "react-router";
 
 import {
   Button,
-  CodeMirror,
   DropDownMenu,
   FHIRGenerativeForm,
+  JSONResourceEditor,
+  Loading,
   MergeViewer,
   Modal,
+  Setter,
   Table,
   Tabs,
 } from "@haste-health/components";
@@ -25,35 +27,10 @@ import {
 import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../db/client";
+import { HISTORY_AUTHOR_SELECTOR } from "../utilities";
 
 const extensions = [basicSetup, json()];
 const HISTORY_PAGE_SIZE = 25;
-
-function JSONEditor({
-  value,
-  setValue,
-}: {
-  value: string;
-  setValue: (value: string) => void;
-}) {
-  return (
-    <div className="flex flex-1 border overflow-auto">
-      <CodeMirror
-        extensions={extensions}
-        value={value}
-        theme={{
-          "&": {
-            height: "100%",
-            width: "100%",
-          },
-        }}
-        onChange={(value) => {
-          setValue(value);
-        }}
-      />
-    </div>
-  );
-}
 
 function ResourceHistory() {
   const client = useAtomValue(getClient);
@@ -154,8 +131,7 @@ function ResourceHistory() {
               {
                 id: "Author",
                 content: "Author",
-                selector:
-                  "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
+                selector: HISTORY_AUTHOR_SELECTOR,
                 selectorType: "fhirpath",
               },
               {
@@ -205,20 +181,18 @@ export default function ResourceEditorComponent({
   rightTabs: rightSide = [],
 }: AdditionalContent) {
   const client = useAtomValue(getClient);
+
+  /**
+   * Applies a change from the generated form, which hands back a function of
+   * the current resource. An empty editor starts from the bare resourceType.
+   */
   const setValue = useMemo(
-    () => (getResource: (r: Resource) => Resource) => {
-      if (onChange) {
-        onChange((resource) => {
-          const newResource = getResource(
-            resource
-              ? resource
-              : ({
-                  resourceType: structureDefinition?.type,
-                } as Resource),
-          );
-          return newResource;
-        });
-      }
+    () => (getResource: Setter) => {
+      onChange?.((resource) =>
+        getResource(
+          resource ?? ({ resourceType: structureDefinition?.type } as Resource),
+        ),
+      );
     },
     [structureDefinition, onChange],
   );
@@ -226,40 +200,42 @@ export default function ResourceEditorComponent({
   return (
     <Tabs
       tabs={[
+        // First, so a type with a purpose-built editor opens on it rather
+        // than on the generic form.
         ...leftSide,
-        ...[
-          {
-            id: "editor",
-            title: "Editor",
-            content: structureDefinition && (
-              <FHIRGenerativeForm
-                fhirVersion={R4}
-                value={resource}
-                structureDefinition={structureDefinition}
-                setValue={setValue}
-                client={client}
-              />
-            ),
-          },
-          {
-            id: "json",
-            title: "JSON",
-            content: (
-              <JSONEditor
-                value={JSON.stringify(resource, null, 2)}
-                setValue={(v) => {
-                  try {
-                    const resource = JSON.parse(v);
-                    if (onChange) onChange(resource);
-                  } catch (e) {
-                    console.error(e);
-                    return;
-                  }
-                }}
-              />
-            ),
-          },
-        ],
+        // Otherwise the generated form leads, showing what the type allows.
+        // It is always listed, even while its definition loads: `Tabs` is
+        // uncontrolled, so adding a tab in front later would move the
+        // selection out from under the reader.
+        {
+          // Not `form`: Questionnaire contributes a tab of its own, and two
+          // tabs sharing a key render both.
+          id: "generated-form",
+          title: "Form",
+          content: structureDefinition ? (
+            <FHIRGenerativeForm
+              client={client}
+              fhirVersion={R4}
+              setValue={setValue}
+              structureDefinition={structureDefinition}
+              value={resource}
+            />
+          ) : (
+            <div className="flex flex-1 items-center justify-center py-8">
+              <Loading />
+            </div>
+          ),
+        },
+        {
+          id: "json",
+          title: "JSON",
+          content: (
+            <JSONResourceEditor
+              resource={resource}
+              onChange={(next: Resource) => onChange?.(next)}
+            />
+          ),
+        },
         ...(id !== "new"
           ? [
               {

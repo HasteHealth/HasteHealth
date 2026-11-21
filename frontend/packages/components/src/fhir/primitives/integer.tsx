@@ -21,8 +21,8 @@ export const FHIRIntegerEditable = ({
       value={value ? Math.round(value) : value}
       step="0.1"
       onChange={(e) => {
-        const value = parseInt(e.target.value);
-        if (onChange && !isNaN(value)) {
+        const value = Number.parseInt(e.target.value);
+        if (onChange && !Number.isNaN(value)) {
           onChange(value as integer);
         }
       }}

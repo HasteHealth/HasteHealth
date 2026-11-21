@@ -1,0 +1,884 @@
+{
+    "id": "core-accesspolicyv3",
+    "url": "https://haste.health/fhir/TestScript/core-accesspolicyv3",
+    "title": "Core AccessPolicyV3 TestScript",
+    "name": "Core AccessPolicyV3 TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the AccessPolicyV3 resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "name": "example",
+            "combining": "deny-overrides",
+            "id": "crud-create-1",
+            "resourceType": "AccessPolicyV3",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv3-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9uYW1lIiwgInZhbHVlIjogIlBhdGNoZWQifV0="
+        },
+        {
+            "name": "Updated",
+            "combining": "deny-overrides",
+            "resourceType": "AccessPolicyV3",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv3-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "name": "example",
+            "combining": "deny-overrides",
+            "id": "accesspolicyv3-combining-match-2",
+            "resourceType": "AccessPolicyV3",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv3-test"
+                    },
+                    {
+                        "code": "scope-combining"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "example",
+            "combining": "first-applicable",
+            "id": "accesspolicyv3-combining-other-3",
+            "resourceType": "AccessPolicyV3",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv3-test"
+                    },
+                    {
+                        "code": "scope-combining"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Uniquenamevalue",
+            "combining": "deny-overrides",
+            "id": "accesspolicyv3-name-match-6",
+            "resourceType": "AccessPolicyV3",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv3-test"
+                    },
+                    {
+                        "code": "scope-name"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-accesspolicyv3-combining-match-2",
+            "resource": {
+                "reference": "#accesspolicyv3-combining-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-accesspolicyv3-combining-other-3",
+            "resource": {
+                "reference": "#accesspolicyv3-combining-other-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-accesspolicyv3-name-match-6",
+            "resource": {
+                "reference": "#accesspolicyv3-name-match-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create AccessPolicyV3",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "AccessPolicyV3",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read AccessPolicyV3",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV3.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AccessPolicyV3.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV3.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch AccessPolicyV3",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV3.name",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "Patched",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update AccessPolicyV3",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV3.name",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "Updated",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV3.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AccessPolicyV3.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete AccessPolicyV3",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-combining",
+            "name": "Search AccessPolicyV3 by combining (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-accesspolicyv3-combining-match-2",
+                        "responseId": "combining-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-accesspolicyv3-combining-other-3",
+                        "responseId": "combining-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "combining"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "params": "combining=deny-overrides&_tag=core-accesspolicyv3-test&_tag=scope-combining"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combining-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "combining"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "combining"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "params": "combining:not=deny-overrides&_tag=core-accesspolicyv3-test&_tag=scope-combining"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combining-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-combining"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "combining"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-name",
+            "name": "Search AccessPolicyV3 by name (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "sourceId": "fixture-accesspolicyv3-name-match-6",
+                        "responseId": "name-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "prefix"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "params": "name=Uniquen&_tag=core-accesspolicyv3-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-prefix-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "prefix"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "exact"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "params": "name:exact=Uniquenamevalue&_tag=core-accesspolicyv3-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-exact-match",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "exact"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "contains"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV3",
+                        "params": "name:contains=niquenamevalu&_tag=core-accesspolicyv3-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-contains",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "contains"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "AccessPolicyV3",
+                    "params": "_tag=core-accesspolicyv3-test",
+                    "description": "Delete AccessPolicyV3 resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "ClientApplication",
+                    "params": "_tag=core-accesspolicyv3-test",
+                    "description": "Delete ClientApplication resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

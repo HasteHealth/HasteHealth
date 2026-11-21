@@ -32,3 +32,4 @@ export {
   Tag,
   MergeViewer,
 };
+export { JSONTextEditor } from "./JSONTextEditor";

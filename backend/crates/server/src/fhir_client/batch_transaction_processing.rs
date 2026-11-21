@@ -1,23 +1,35 @@
 use crate::{
-    fhir_client::{ServerCTX, utilities::request_to_resource_type},
+    fhir_client::{
+        ClientState, ServerCTX,
+        middleware::{
+            Backend,
+            auth_z::{access_control::RequestPolicy, scope_check},
+        },
+        utilities::request_to_resource_type,
+    },
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
+use futures_util::{StreamExt as _, TryStreamExt as _, stream};
 use haste_fhir_client::{
-    FHIRClient,
-    request::{FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse},
+    request::{
+        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, HistoryResponse, InvokeResponse,
+        SearchRequest, SearchResponse,
+    },
+    url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
+    resources::{Bundle, BundleEntry, BundleEntryResponse, Resource, ResourceType},
     terminology::{BundleType, IssueType},
-    types::Reference,
+    types::{FHIRString, FHIRUri, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_reflect::MetaValue;
 use haste_repository::types::SupportedFHIRVersions;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::{algo::toposort, visit::EdgeRef};
-use std::{pin::Pin, str::FromStr, sync::Arc};
+use std::{collections::HashMap, pin::Pin, str::FromStr, sync::Arc};
 
 fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeError>) -> BundleEntry {
     match fhir_response {
@@ -119,6 +131,16 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             resource: Some(Box::new(Resource::Bundle(res.resource))),
             ..Default::default()
         },
+        // An entry queued as an asynchronous job: no resource yet, only the
+        // status URL to poll, as the entry's `location`.
+        Ok(FHIRResponse::Accepted(res)) => BundleEntry {
+            response: Some(BundleEntryResponse {
+                status: Box::new(FHIRString::from("202 Accepted".to_string())),
+                location: Some(Box::new(FHIRUri::from(res.content_location))),
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
         Err(operation_error) => {
             let operation_outcome = operation_error.outcome().clone();
 
@@ -133,8 +155,9 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
     }
 }
 
-pub fn bundle_entry_to_fhir_request(
+pub async fn bundle_entry_to_fhir_request<B: Backend>(
     entry: BundleEntry,
+    ctx: &Arc<ServerCTX<B>>,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     if let Some(request) = entry.request.as_ref() {
         let url = request.url.value.as_deref().unwrap_or_default();
@@ -154,17 +177,12 @@ pub fn bundle_entry_to_fhir_request(
             if let Some(body) = entry.resource {
                 fhir_http::HTTPBody::Resource(*body)
             } else {
-                fhir_http::HTTPBody::String("".to_string())
+                fhir_http::HTTPBody::Bytes(axum::body::Bytes::new())
             },
-            url::form_urlencoded::parse(query.as_bytes())
-                .into_owned()
-                .collect(),
+            query,
         );
 
-        let fhir_request =
-            fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)?;
-
-        Ok(fhir_request)
+        fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request, ctx).await
     } else {
         Err(OperationOutcomeError::error(
             IssueType::invalid(),
@@ -173,16 +191,14 @@ pub fn bundle_entry_to_fhir_request(
     }
 }
 
-pub async fn process_batch_bundle<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
->(
+pub async fn process_batch_bundle<Client: Backend>(
     fhir_client: &Client,
     ctx: Arc<ServerCTX<Client>>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<Bundle, OperationOutcomeError> {
     let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
     for e in request_bundle_entries.into_iter() {
-        let fhir_request = bundle_entry_to_fhir_request(e)?;
+        let fhir_request = bundle_entry_to_fhir_request(e, &ctx).await?;
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
         bundle_response_entries.push(convert_bundle_entry(fhir_response));
@@ -211,23 +227,254 @@ struct SortedTransactionEntry {
     idx: usize,
 }
 
+fn collect_references<'a>(value: &'a dyn MetaValue, out: &mut Vec<&'a Reference>) {
+    for field in value.fields() {
+        let Some(child_field) = value.get_field(field) else {
+            continue;
+        };
+
+        for child in child_field.flatten() {
+            if let Some(reference) = child.as_any().downcast_ref::<Reference>() {
+                out.push(reference);
+            }
+
+            collect_references(child, out);
+        }
+    }
+}
+
+/// The resource type a conditional reference (`Practitioner?identifier=...`)
+/// searches, or `None` when `reference` is not one. Per
+/// [https://hl7.org/fhir/R4/http.html#trules] it is relative to the server's
+/// base and starts with a resource type.
+fn conditional_reference_type(reference: &str) -> Option<ResourceType> {
+    let (resource_type, _) = reference.split_once('?')?;
+    ResourceType::try_from(resource_type).ok()
+}
+
+/// The search a conditional reference describes.
+///
+/// # Errors
+///
+/// Invalid when `reference` is not a conditional reference, or its query does
+/// not parse or holds anything but filtering parameters (none of `_count`,
+/// `_sort` and the like apply), or none at all.
+fn conditional_reference_search(
+    reference: &str,
+) -> Result<FHIRSearchTypeRequest, OperationOutcomeError> {
+    let invalid = |reason: &str| {
+        OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("Conditional reference '{reference}' {reason}."),
+        )
+    };
+    let (Some(resource_type), Some((_, query))) = (
+        conditional_reference_type(reference),
+        reference.split_once('?'),
+    ) else {
+        return Err(invalid("is not a resource type followed by a search"));
+    };
+    let pairs: Vec<(String, String)> = url::form_urlencoded::parse(query.as_bytes())
+        .into_owned()
+        .collect();
+    let parameters = ParsedParameters::try_from(pairs.as_slice())
+        .map_err(|_| invalid("has a query that does not parse"))?;
+    if parameters.parameters().is_empty() {
+        return Err(invalid("has no search parameters"));
+    }
+    if parameters
+        .parameters()
+        .iter()
+        .any(|parameter| matches!(parameter, ParsedParameter::Result(_)))
+    {
+        return Err(invalid("may only use filtering parameters"));
+    }
+
+    Ok(FHIRSearchTypeRequest {
+        resource_type,
+        parameters,
+    })
+}
+
+/// A mutable handle on a reference inside a bundle entry the graph owns.
+///
+/// # Safety
+///
+/// The entry must outlive the handle and stay put: each reference sits in a
+/// resource boxed on the heap, so moving the graph's nodes does not move it.
+/// No two handles may point at the same reference.
+unsafe fn mutable_reference<'a>(reference: &Reference) -> Pin<&'a mut Reference> {
+    let mut_ptr = reference as *const Reference as *mut Reference;
+    Pin::new(unsafe { mut_ptr.as_mut().unwrap() })
+}
+
 pub struct SortedTransaction<'a> {
     graph: DiGraph<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>,
     topo_sort_ordering: Vec<NodeIndex>,
 }
 
-pub async fn build_sorted_transaction_graph<'a>(
+/// Every conditional reference in a bundle, by its search URI, so each
+/// distinct one is looked up once however many entries use it.
+type ConditionalReferences<'a> = HashMap<String, Vec<Pin<&'a mut Reference>>>;
+
+/// Points each of `references` at `literal` (`Type/id`), keeping any
+/// extensions on the element.
+fn point_at(references: Vec<Pin<&mut Reference>>, literal: &str) {
+    for reference in references {
+        if let Some(value) = Pin::into_inner(reference).reference.as_mut() {
+            value.value = Some(literal.to_string());
+        }
+    }
+}
+
+/// A search the engine could not build, naming a parameter the type does not
+/// define ([`IssueType::not_found`]) or a modifier it does not support
+/// ([`IssueType::not_supported`]), makes the conditional reference invalid:
+/// the transaction is refused as a bad request, not as not found or not
+/// implemented. Any other failure is the server's and passes through.
+fn invalid_search(search_uri: &str, error: OperationOutcomeError) -> OperationOutcomeError {
+    let issues = &error.outcome().issue;
+    if !issues.iter().any(|issue| {
+        issue.code == IssueType::not_found() || issue.code == IssueType::not_supported()
+    }) {
+        return error;
+    }
+
+    let reason = issues
+        .iter()
+        .filter_map(|issue| issue.diagnostics.as_ref()?.value.clone())
+        .collect::<Vec<_>>()
+        .join(" ");
+    OperationOutcomeError::error(
+        IssueType::invalid(),
+        format!("Conditional reference '{search_uri}' is not a valid search: {reason}"),
+    )
+    .with_source(error)
+}
+
+/// Past `fhir.max_conditional_references`: well formed but past a server limit,
+/// so 422 like other limit refusals.
+fn too_many_conditional_references(count: usize, limit: usize) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!(
+            "This transaction has {count} distinct conditional references, more than the \
+             {limit} one transaction may resolve. Split it into smaller transactions."
+        ),
+    );
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
+async fn resolve_conditional_references<B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
+    conditional_references: ConditionalReferences<'_>,
+) -> Result<(), OperationOutcomeError> {
+    if conditional_references.is_empty() {
+        return Ok(());
+    }
+    let limit = state.config.fhir.max_conditional_references;
+    if conditional_references.len() > limit {
+        return Err(too_many_conditional_references(
+            conditional_references.len(),
+            limit,
+        ));
+    }
+    // 0 would stall `buffer_unordered`; floor at 1.
+    let concurrency = state.config.fhir.conditional_reference_concurrency.max(1);
+
+    let policy = RequestPolicy::of_caller(state, ctx).await?;
+    let lookups = conditional_references
+        .into_iter()
+        .map(|(search_uri, references)| {
+            resolve_one_conditional_reference(state, ctx, policy.as_ref(), search_uri, references)
+        })
+        .collect::<Vec<_>>();
+
+    stream::iter(lookups)
+        .buffer_unordered(concurrency)
+        .try_collect::<()>()
+        .await
+}
+
+/// Runs one conditional reference's search and points every reference sharing
+/// its URI at the single resource it matches. Named (not an inline `async`
+/// block) so the lookups have a concrete future type `buffer_unordered` can hold.
+async fn resolve_one_conditional_reference<B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
+    policy: Option<&RequestPolicy<B>>,
+    search_uri: String,
+    references: Vec<Pin<&mut Reference>>,
+) -> Result<(), OperationOutcomeError> {
+    let search = conditional_reference_search(&search_uri)?;
+    let filters = scope_check::search_filters(&ctx.user.claims, &search)?;
+    let search = SearchRequest::Type(search);
+    if let Some(policy) = policy {
+        policy.check(&FHIRRequest::Search(search.clone())).await?;
+    }
+
+    let found = state
+        .search
+        .search(
+            &ctx.fhir_version,
+            &ctx.tenant,
+            &ctx.project,
+            &search,
+            Some(SearchOptions {
+                // Two tell one match from several.
+                count_limit: Some(2),
+                filters,
+            }),
+        )
+        .await
+        .map_err(|error| invalid_search(&search_uri, error))?;
+
+    let mut entries = found.entries.into_iter();
+    match (entries.next(), entries.next()) {
+        (Some(entry), None) => {
+            let literal = format!("{}/{}", entry.resource_type.as_ref(), entry.id.as_ref());
+            point_at(references, &literal);
+            Ok(())
+        }
+        (None, _) => Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("Conditional reference '{search_uri}' matched no resources."),
+        )),
+        (Some(_), Some(_)) => Err(OperationOutcomeError::error(
+            IssueType::conflict(),
+            format!("Conditional reference '{search_uri}' matched multiple resources."),
+        )),
+    }
+}
+
+/// Prepares a transaction bundle before its transaction opens, to keep that
+/// short: orders the entries so each comes after those it references by
+/// `fullUrl`, and points its conditional references (`Type?search`) at the
+/// resources they match.
+pub async fn build_sorted_transaction_graph<'a, B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
-    let fp_engine = haste_fhirpath::FPEngine::new();
+    let (sorted_transaction, conditional_references) = sort_entries(request_bundle_entries)?;
+    resolve_conditional_references(state, ctx, conditional_references).await?;
 
+    Ok(sorted_transaction)
+}
+
+/// The entries in dependency order, and the conditional references among them.
+fn sort_entries<'a>(
+    request_bundle_entries: Vec<BundleEntry>,
+) -> Result<(SortedTransaction<'a>, ConditionalReferences<'a>), OperationOutcomeError> {
     let mut graph =
         DiGraph::<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
     let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
 
     // Instantiate the nodes. See [https://hl7.org/fhir/R4/bundle.html#references] for handling of refernces in bundle.
-    // Currently we will resolve only internal references (i.e. those that reference other entries in the bundle via fullUrl).
+    // References to other entries (by fullUrl) become edges. Conditional references
+    // (`Type?search`) are collected to be resolved against the server.
     request_bundle_entries
         .into_iter()
         .enumerate()
@@ -244,39 +491,37 @@ pub async fn build_sorted_transaction_graph<'a>(
         });
 
     let mut edges = vec![];
+    let mut conditional_references = ConditionalReferences::new();
     for cur_index in graph.node_indices() {
         if let Some(sorted_transaction_entry) = &graph[cur_index] {
-            let fp_result = fp_engine
-                .evaluate(
-                    "$this.descendants().ofType(Reference)",
-                    vec![&sorted_transaction_entry.entry as &dyn MetaValue],
-                )
-                .await
-                .unwrap();
+            let mut references = Vec::new();
+            collect_references(
+                &sorted_transaction_entry.entry as &dyn MetaValue,
+                &mut references,
+            );
 
-            let edge_refs = fp_result
-                .iter()
-                .filter_map(|mv| mv.as_any().downcast_ref::<Reference>())
-                .filter_map(|reference| {
-                    if let Some(reference_string) =
-                        reference.reference.as_ref().and_then(|r| r.value.as_ref())
-                        && let Some(reference_index) = indices_map.get(reference_string.as_str())
-                    {
-                        // Convert because need to mutate it.
-                        let r = reference as *const Reference;
-                        let mut_ptr = r as *mut Reference;
-                        let mutable_reference = unsafe { mut_ptr.as_mut().unwrap() };
-                        Some((
-                            *reference_index,
-                            cur_index,
-                            Some(Pin::new(mutable_reference)),
-                        ))
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>();
-            edges.extend(edge_refs);
+            for reference in references {
+                let Some(reference_string) =
+                    reference.reference.as_ref().and_then(|r| r.value.as_ref())
+                else {
+                    continue;
+                };
+                // Converted because they need to be mutated. Each reference is
+                // either an edge or conditional, never both, and the entries
+                // live in the graph for as long as the transaction does.
+                if let Some(reference_index) = indices_map.get(reference_string.as_str()) {
+                    edges.push((
+                        *reference_index,
+                        cur_index,
+                        Some(unsafe { mutable_reference(reference) }),
+                    ));
+                } else if conditional_reference_type(reference_string).is_some() {
+                    conditional_references
+                        .entry(reference_string.clone())
+                        .or_default()
+                        .push(unsafe { mutable_reference(reference) });
+                }
+            }
         }
     }
 
@@ -294,18 +539,18 @@ pub async fn build_sorted_transaction_graph<'a>(
         )
     })?;
 
-    Ok(SortedTransaction {
-        graph,
-        topo_sort_ordering,
-    })
+    Ok((
+        SortedTransaction {
+            graph,
+            topo_sort_ordering,
+        },
+        conditional_references,
+    ))
 }
 
 /// Process a transaction bundle, ensuring that references between entries are resolved correctly.
 /// Sorts transactions using topological sort to ensure that dependencies are processed first.
-pub async fn process_transaction_bundle<
-    'a,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
->(
+pub async fn process_transaction_bundle<'a, Client: Backend>(
     fhir_client: &Client,
     ctx: Arc<ServerCTX<Client>>,
     mut sorted_transaction: SortedTransaction<'a>,
@@ -347,8 +592,9 @@ pub async fn process_transaction_bundle<
             )
         })?;
 
-        let fhir_request = bundle_entry_to_fhir_request(sorted_transaction_entry.entry)?;
-        let resource_type = request_to_resource_type(&fhir_request).cloned();
+        let fhir_request =
+            bundle_entry_to_fhir_request(sorted_transaction_entry.entry, &ctx).await?;
+        let resource_type = request_to_resource_type(&fhir_request).copied();
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
         let resource = get_resource_from_response(&fhir_response);
@@ -395,4 +641,237 @@ pub async fn process_transaction_bundle<
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::{
+        resources::{Patient, PatientContact},
+        types::FHIRString,
+    };
+
+    #[test]
+    fn collect_references_finds_direct_and_nested_references() {
+        let entry = BundleEntry {
+            resource: Some(Box::new(Resource::Patient(Patient {
+                generalPractitioner: Some(vec![Reference {
+                    reference: Some(Box::new(FHIRString {
+                        value: Some("Practitioner/123".to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }]),
+                contact: Some(vec![PatientContact {
+                    organization: Some(Box::new(Reference {
+                        reference: Some(Box::new(FHIRString {
+                            value: Some("Organization/456".to_string()),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let mut references = Vec::new();
+        collect_references(&entry as &dyn MetaValue, &mut references);
+
+        let mut found = references
+            .iter()
+            .filter_map(|r| r.reference.as_ref().and_then(|s| s.value.clone()))
+            .collect::<Vec<_>>();
+        found.sort();
+
+        assert_eq!(found, vec!["Organization/456", "Practitioner/123"]);
+    }
+
+    fn reference(value: &str) -> Reference {
+        Reference {
+            reference: Some(Box::new(FHIRString {
+                value: Some(value.to_string()),
+                ..Default::default()
+            })),
+            ..Default::default()
+        }
+    }
+
+    fn patient_entry(full_url: Option<&str>, practitioners: &[&str]) -> BundleEntry {
+        BundleEntry {
+            fullUrl: full_url.map(|url| Box::new(FHIRUri::from(url.to_string()))),
+            resource: Some(Box::new(Resource::Patient(Patient {
+                generalPractitioner: Some(practitioners.iter().map(|p| reference(p)).collect()),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        }
+    }
+
+    fn general_practitioners(entry: &BundleEntry) -> Vec<String> {
+        match entry.resource.as_deref() {
+            Some(Resource::Patient(patient)) => patient
+                .generalPractitioner
+                .iter()
+                .flatten()
+                .filter_map(|r| r.reference.as_ref().and_then(|s| s.value.clone()))
+                .collect(),
+            _ => vec![],
+        }
+    }
+
+    #[test]
+    fn conditional_reference_type_needs_a_resource_type_before_the_query() {
+        assert_eq!(
+            conditional_reference_type("Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|1"),
+            Some(ResourceType::Practitioner)
+        );
+        assert_eq!(conditional_reference_type("Practitioner/123"), None);
+        assert_eq!(conditional_reference_type("Practitioner/123?x=y"), None);
+        assert_eq!(conditional_reference_type("NotAType?identifier=1"), None);
+        assert_eq!(
+            conditional_reference_type("https://example.com/fhir/Practitioner?identifier=1"),
+            None
+        );
+    }
+
+    #[test]
+    fn conditional_reference_search_parses_the_filter() {
+        let search = conditional_reference_search(
+            "Organization?identifier=https://github.com/synthetichealth/synthea|be96eec8",
+        )
+        .unwrap();
+
+        assert_eq!(search.resource_type, ResourceType::Organization);
+        let parameters = search.parameters.parameters();
+        assert_eq!(parameters.len(), 1);
+        let ParsedParameter::Resource(parameter) = &parameters[0] else {
+            panic!("expected a filtering parameter");
+        };
+        assert_eq!(parameter.name, "identifier");
+        assert_eq!(
+            parameter.value,
+            vec!["https://github.com/synthetichealth/synthea|be96eec8".to_string()]
+        );
+    }
+
+    #[test]
+    fn conditional_reference_search_rejects_result_parameters_and_empty_queries() {
+        assert!(conditional_reference_search("Practitioner?identifier=1&_count=1").is_err());
+        assert!(conditional_reference_search("Practitioner?").is_err());
+        assert!(conditional_reference_search("Practitioner/123").is_err());
+    }
+
+    #[test]
+    fn conditional_references_are_collected_once_and_pointed_at_the_match() {
+        let npi = "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999499";
+        let entries = vec![
+            patient_entry(None, &[npi, "Practitioner/existing"]),
+            patient_entry(None, &[npi]),
+        ];
+
+        let (sorted, mut conditional_references) = sort_entries(entries).unwrap();
+        assert_eq!(
+            conditional_references.keys().collect::<Vec<_>>(),
+            vec![&npi.to_string()]
+        );
+        assert_eq!(conditional_references[npi].len(), 2);
+
+        point_at(
+            conditional_references.remove(npi).unwrap(),
+            "Practitioner/abc",
+        );
+
+        let mut found = sorted
+            .graph
+            .node_weights()
+            .flatten()
+            .map(|node| general_practitioners(&node.entry))
+            .collect::<Vec<_>>();
+        found.sort();
+        assert_eq!(
+            found,
+            vec![
+                vec!["Practitioner/abc".to_string()],
+                vec![
+                    "Practitioner/abc".to_string(),
+                    "Practitioner/existing".to_string()
+                ],
+            ]
+        );
+    }
+
+    #[test]
+    fn a_search_the_engine_cannot_build_makes_the_reference_invalid() {
+        let unknown_parameter = OperationOutcomeError::error(
+            IssueType::not_found(),
+            "Search parameter with name 'not-a-parameter' not found.".to_string(),
+        );
+        let invalid = invalid_search("Practitioner?not-a-parameter=1", unknown_parameter);
+        assert_eq!(invalid.http_status(), 400);
+        assert!(
+            invalid.to_string().contains(
+                "Conditional reference 'Practitioner?not-a-parameter=1' is not a valid search: \
+                 Search parameter with name 'not-a-parameter' not found."
+            ),
+            "{invalid}"
+        );
+
+        let unsupported_modifier = OperationOutcomeError::error(
+            IssueType::not_supported(),
+            "Unsupported modifier parameter: 'above'".to_string(),
+        );
+        assert_eq!(
+            invalid_search("Practitioner?identifier:above=1", unsupported_modifier).http_status(),
+            400
+        );
+
+        let server_failure =
+            OperationOutcomeError::fatal(IssueType::exception(), "Database error".to_string());
+        assert_eq!(
+            invalid_search("Practitioner?identifier=1", server_failure).http_status(),
+            500
+        );
+    }
+
+    #[test]
+    fn too_many_conditional_references_is_refused_as_too_costly() {
+        let error = too_many_conditional_references(101, 100);
+
+        // Well formed but past the server's limits: 422, not 400.
+        assert_eq!(error.http_status(), 422);
+        let diagnostics = error.outcome().issue[0]
+            .diagnostics
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .expect("the refusal has diagnostics");
+        // Both the actual count and the configured limit are named.
+        assert!(diagnostics.contains("101"), "{diagnostics}");
+        assert!(diagnostics.contains("100"), "{diagnostics}");
+    }
+
+    #[test]
+    fn full_url_references_are_edges_not_conditional() {
+        let entries = vec![
+            patient_entry(Some("urn:uuid:1"), &[]),
+            patient_entry(None, &["urn:uuid:1"]),
+        ];
+
+        let (sorted, conditional_references) = sort_entries(entries).unwrap();
+
+        assert!(conditional_references.is_empty());
+        assert_eq!(sorted.graph.edge_count(), 1);
+    }
+
+    #[test]
+    fn collect_references_returns_empty_when_no_references_present() {
+        let entry = BundleEntry {
+            resource: Some(Box::new(Resource::Patient(Patient::default()))),
+            ..Default::default()
+        };
+
+        let mut references = Vec::new();
+        collect_references(&entry as &dyn MetaValue, &mut references);
+
+        assert!(references.is_empty());
+    }
+}

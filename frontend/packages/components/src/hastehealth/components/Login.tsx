@@ -101,7 +101,7 @@ export const Login = ({
               id="remember"
               aria-describedby="remember"
               type="checkbox"
-              className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-brand-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-brand-600 dark:ring-offset-gray-800"
+              className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-brand-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-brand-600 dark:ring-offset-gray-800"
               defaultChecked={true}
               required={true}
             />
@@ -126,7 +126,7 @@ export const Login = ({
       </div>
       <button
         type="submit"
-        className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
+        className="w-full text-white bg-brand-500 hover:bg-brand-500 focus:ring-4 focus:outline-hidden focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800"
       >
         Sign in
       </button>
@@ -148,7 +148,7 @@ export const Login = ({
           <a
             key={provider.title}
             href={provider.url}
-            className="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+            className="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-hidden focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
           >
             {provider.logo && (
               <div className="flex flex-col justify-center">

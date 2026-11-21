@@ -3,12 +3,13 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import tailwind from "@tailwindcss/postcss";
 import autoprefixer from "autoprefixer";
+import homepageFacts from "./plugins/homepage-facts";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
   title: "Haste Health",
-  tagline: "Documentation Site",
+  tagline: "The open-source FHIR server for AI-native health apps",
   favicon: "/img/favicon.ico",
   trailingSlash: false,
 
@@ -20,13 +21,36 @@ const config: Config = {
         content: "2EFDB046F281A382",
       },
     },
+    // Site-wide Organization structured data (schema.org). Individual pages
+    // should NOT repeat this block; the generated FHIR reference pages carry
+    // their own per-resource structured data (scripts/generate/fhir.mjs).
+    {
+      tagName: "script",
+      attributes: { type: "application/ld+json" },
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "Haste Health",
+        url: "https://haste.health",
+        logo: "https://haste.health/img/logo.svg",
+        description:
+          "Haste Health is an open-source, self-hosted FHIR R4 server and clinical data repository that normalizes Epic, Oracle Health, HL7v2, and any FHIR R4 API into one API for apps and AI agents.",
+        sameAs: ["https://github.com/hastehealth/hastehealth"],
+      }),
+    },
   ],
 
   onBrokenLinks: "throw",
 
+  clientModules: ["./src/clientModules/navbarDropdowns.ts"],
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    // Disabled: the eager Git VCS strategy (enabled by v4's faster defaults)
+    // throws a hard error when the site isn't built inside a Git worktree
+    // (e.g. a Docker image that only copies the frontend/ subtree, with no .git).
+    experimental_vcs: false,
   },
 
   // Set the production url of your site here
@@ -54,7 +78,7 @@ const config: Config = {
   themes: ["@docusaurus/theme-mermaid"],
 
   plugins: [
-    async function myPlugin(context, options) {
+    function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -65,6 +89,9 @@ const config: Config = {
         },
       };
     },
+    // Conformance and MCP totals for the homepage, read from the generated
+    // reports at build time.
+    homepageFacts,
   ],
 
   presets: [
@@ -79,10 +106,8 @@ const config: Config = {
         },
         docs: {
           sidebarPath: "./sidebars.ts",
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+            "https://github.com/hastehealth/hastehealth/tree/main/frontend/packages/website/",
         },
         gtag: {
           trackingID: "G-HH00J38YZ5",
@@ -110,6 +135,31 @@ const config: Config = {
   ],
 
   themeConfig: {
+    // Default social card (og:image / twitter:image), 1200x630, for any page
+    // that doesn't set its own `image` in Layout/frontmatter.
+    //
+    // Generated, not hand-made: `pnpm generate social-card` builds
+    // static/img/social-card.svg and rasterizes it. Its headline has to match
+    // the homepage H1 in src/pages/index.tsx, and its proof figures come from
+    // the same conformance report the site renders. Edit
+    // scripts/generate/social-card.mjs and regenerate; a PNG edited by hand is
+    // overwritten and will drift from the site's copy again.
+    image: "img/social-card.png",
+    // Global <meta> tags injected on every page. Per-page title/description
+    // (set via Layout props or frontmatter) always take precedence over
+    // these defaults, but keywords/robots/twitter card have no per-page
+    // equivalent in Docusaurus, so they're set once here.
+    metadata: [
+      {
+        name: "keywords",
+        content:
+          "FHIR server, open source FHIR server, FHIR clinical data repository, FHIR CDR, HL7 FHIR R4 API, HL7v2 to FHIR, SMART on FHIR, OAuth2 provider, healthcare interoperability, MCP AI agents, self-hosted FHIR server, Medplum alternative, Aidbox alternative, headless EHR",
+      },
+      { name: "robots", content: "index, follow" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "Haste Health" },
+      { property: "og:type", content: "website" },
+    ],
     colorMode: {
       defaultMode: "light",
       disableSwitch: true,
@@ -124,19 +174,62 @@ const config: Config = {
           width: "128px",
         },
       },
+      // Buyer-first: what the platform does, proof it works (Conformance),
+      // then Docs; everything else sits under Resources. One primary CTA.
       items: [
         {
-          type: "docSidebar",
-          sidebarId: "documentationSidebar",
+          type: "dropdown",
+          label: "Platform",
           position: "left",
-          label: "Documentation",
+          items: [
+            { label: "Overview", to: "/docs/overview/what_is_haste_health" },
+            {
+              label: "Architecture",
+              to: "/docs/core_concepts/platform_architecture",
+            },
+            {
+              label: "AI agents & MCP",
+              to: "/docs/api/rest_api/model_context_protocol/endpoint",
+            },
+            { label: "SQL on FHIR analytics", to: "/docs/guides/sql_on_fhir" },
+            {
+              label: "Identity & access control",
+              to: "/docs/core_concepts/identity_access_control",
+            },
+          ],
         },
-        { to: "/blog", label: "Blog", position: "left" },
         {
-          to: "https://calendly.com/rp-haste/book-a-demo",
-          position: "right",
-          label: "Book a Demo",
-          className: "signup-link",
+          to: "/docs/reference/conformance/overview",
+          label: "Conformance",
+          position: "left",
+          activeBaseRegex: "^/docs/reference/conformance/",
+        },
+        {
+          to: "/docs/getting_started/quick_start",
+          label: "Docs",
+          position: "left",
+          // Every other /docs page, not the reference sections under Resources.
+          activeBaseRegex: "^/docs/(?!reference/(fhir|conformance)/)",
+        },
+        {
+          to: "/pricing",
+          label: "Pricing",
+          position: "left",
+        },
+        {
+          type: "dropdown",
+          label: "Resources",
+          position: "left",
+          items: [
+            {
+              label: "FHIR R4 reference",
+              to: "/docs/reference/fhir/model/resources/",
+            },
+            { label: "REST API", to: "/docs/api/rest_api/fhir/intro" },
+            { label: "SDKs", to: "/docs/category/sdks" },
+            { label: "Blog", to: "/blog" },
+            { label: "Contact", to: "/contact" },
+          ],
         },
         {
           type: "search",
@@ -152,14 +245,18 @@ const config: Config = {
           to: "https://api.haste.health/auth/login",
           label: "Log in",
           position: "right",
-          className: "signup-link",
+        },
+        {
+          to: "https://calendly.com/rp-haste/book-a-demo",
+          label: "Book a demo",
+          position: "right",
+          className: "navbar-button navbar-button--secondary",
         },
         {
           to: "https://api.haste.health/auth/signup",
           label: "Start for free",
           position: "right",
-          className:
-            "text-white bg-brand-800 hover:bg-brand-900 rounded-4xl px-4 py-2",
+          className: "navbar-button navbar-button--primary",
         },
       ],
     },
@@ -186,6 +283,10 @@ const config: Config = {
         {
           title: "Community",
           items: [
+            {
+              label: "Pricing",
+              to: "/pricing",
+            },
             {
               label: "Contact",
               to: "/contact",
@@ -227,11 +328,32 @@ const config: Config = {
         },
       ],
 
-      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+    },
+    // Diagrams in the docs take the site's palette (src/css/custom.css)
+    // instead of Mermaid's default lilac. Mermaid derives its shades from
+    // these, and only understands hex.
+    mermaid: {
+      theme: { light: "base", dark: "base" },
+      options: {
+        themeVariables: {
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          primaryColor: "#f0fdfa", // brand-50
+          primaryBorderColor: "#00786f", // brand-800
+          primaryTextColor: "#011315", // ink-950
+          lineColor: "#62748e", // slate-500
+          secondaryColor: "#f8fafc", // slate-50
+          tertiaryColor: "#ffffff",
+          edgeLabelBackground: "#ffffff",
+          noteBkgColor: "#f8fafc",
+          noteBorderColor: "#cad5e2", // slate-300
+          noteTextColor: "#314158", // slate-700
+        },
+      },
     },
     algolia: {
       // The application ID provided by Algolia

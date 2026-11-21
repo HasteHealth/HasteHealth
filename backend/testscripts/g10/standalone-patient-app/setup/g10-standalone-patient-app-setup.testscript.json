@@ -1,0 +1,243 @@
+{
+    "id": "g10-standalone-patient-app-setup",
+    "url": "https://haste.health/fhir/TestScript/g10-standalone-patient-app-setup",
+    "name": "g10 standalone-patient-app setup",
+    "title": "g10 standalone-patient-app: login",
+    "status": "active",
+    "description": "Run as admin. The login for g10 scenario 1: a member User linked to Patient/g10-example, a full-access policy, and a public client allowed the scopes g10 requests for a standalone patient launch (SMART v2).",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "g10-patient-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "g10-patient@example.org"
+        },
+        {
+            "id": "g10-patient-user-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/g10-patient-user"
+            },
+            "link": {
+                "reference": "Patient/g10-example"
+            }
+        },
+        {
+            "id": "g10-patient-user-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: standalone-patient-app",
+            "description": "Full access, so only the SMART scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "g10-patient-user-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/g10-patient-user-policy"
+            },
+            "link": {
+                "reference": "Membership/g10-patient-user-membership"
+            }
+        },
+        {
+            "id": "g10-standalone-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: standalone patient app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "launch/patient openid fhirUser offline_access patient/Medication.rs patient/AllergyIntolerance.rs patient/CarePlan.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Device.rs patient/DiagnosticReport.rs patient/DocumentReference.rs patient/Encounter.rs patient/Goal.rs patient/Immunization.rs patient/Location.rs patient/MedicationDispense.rs patient/MedicationRequest.rs patient/Observation.rs patient/Organization.rs patient/Patient.rs patient/Practitioner.rs patient/PractitionerRole.rs patient/Procedure.rs patient/Provenance.rs patient/QuestionnaireResponse.rs patient/RelatedPerson.rs patient/ServiceRequest.rs patient/Specimen.rs"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-patient-user",
+            "resource": {
+                "reference": "#g10-patient-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-patient-user-membership",
+            "resource": {
+                "reference": "#g10-patient-user-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-patient-user-policy",
+            "resource": {
+                "reference": "#g10-patient-user-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-patient-user-policy-assignment",
+            "resource": {
+                "reference": "#g10-patient-user-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-standalone-app",
+            "resource": {
+                "reference": "#g10-standalone-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-login",
+            "name": "The user, its membership and policy, and the app",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-g10-patient-user",
+                        "sourceId": "fixture-g10-patient-user",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/g10-patient-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-g10-patient-user-membership",
+                        "sourceId": "fixture-g10-patient-user-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/g10-patient-user-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-g10-patient-user-policy",
+                        "sourceId": "fixture-g10-patient-user-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/g10-patient-user-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-g10-patient-user-policy-assignment",
+                        "sourceId": "fixture-g10-patient-user-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/g10-patient-user-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-g10-standalone-app",
+                        "sourceId": "fixture-g10-standalone-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/g10-standalone-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

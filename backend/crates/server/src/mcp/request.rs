@@ -7,7 +7,9 @@ pub struct InitializeRequest {
     pub params: InitializeRequestParams,
 }
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct PingRequest {}
+pub struct PingRequest {
+    pub id: Option<RequestId>,
+}
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct ListToolsRequest {
     pub id: Option<RequestId>,
@@ -38,4 +40,17 @@ pub enum MCPRequest {
     ListTools(ListToolsRequest),
     #[serde(rename = "tools/call")]
     ToolsCall(CallToolRequest),
+}
+
+impl MCPRequest {
+    /// The JSON-RPC id the response must carry. Notifications have none.
+    pub fn id(&self) -> Option<RequestId> {
+        match self {
+            MCPRequest::Ping(request) => request.id.clone(),
+            MCPRequest::Initialize(request) => request.id.clone(),
+            MCPRequest::InitializedNotification(_) => None,
+            MCPRequest::ListTools(request) => request.id.clone(),
+            MCPRequest::ToolsCall(request) => request.id.clone(),
+        }
+    }
 }

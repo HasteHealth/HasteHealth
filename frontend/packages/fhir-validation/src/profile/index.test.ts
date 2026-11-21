@@ -154,11 +154,11 @@ const bloodProfile: StructureDefinition = memDatabase[
 ) as StructureDefinition;
 test("Test BP profile", async () => {
   await validateProfile(CTX, bloodProfile, bloodPressureObservation);
-  expect(
+  await expect(
     validateProfile(CTX, bloodProfile, bloodPressureObservation)
   ).resolves.toEqual([]);
 
-  expect(
+  await expect(
     validateProfile(CTX, bloodProfile, {
       ...bloodPressureObservation,
       component: [],
@@ -180,7 +180,7 @@ test("Test BP profile", async () => {
     },
   ]);
 
-  expect(
+  await expect(
     validateProfile(CTX, bloodProfile, {
       ...bloodPressureObservation,
       component: [
@@ -270,7 +270,7 @@ test("Invalid type constraint systolic.value", async () => {
       },
     ],
   });
-  expect(
+  await expect(
     validateProfile(CTX, bloodProfile, {
       ...bloodPressureObservation,
       component: [

@@ -1,7 +1,16 @@
 use clap::{Subcommand, ValueEnum};
-use haste_codegen::{testscript_gen, type_gen};
+use figment::{
+    Figment,
+    providers::{Env, Format, Toml},
+};
+use haste_codegen::{search_param_cardinality, testscript_gen, type_gen};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{
+    config::SearchConfig,
+    pg_search::{create_pg_search_pool, migration::pending_migration},
+};
+use haste_server::config::ServerConfig;
 use quote::quote;
 use std::{io::Write, path::Path, process::Stdio};
 
@@ -37,6 +46,30 @@ pub(crate) enum CodeGen {
         #[arg(short, long)]
         output: Option<String>,
     },
+    /// Generate the compiled table of single-valued search parameters.
+    SearchParamCardinality {
+        /// StructureDefinition file(s) or directories (JSON) to resolve paths
+        /// against. Repeatable.
+        #[arg(short, long)]
+        definitions: Vec<String>,
+        /// SearchParameter file(s) or directories (JSON) to classify.
+        /// Repeatable.
+        #[arg(short, long)]
+        parameters: Vec<String>,
+        /// Output Rust file path. Prints to stdout if omitted.
+        #[arg(short, long)]
+        output: Option<String>,
+    },
+    /// Migrate the configured PG search database, then write a migration
+    /// creating what the search schema still lacks, if anything.
+    SearchMigration {
+        /// The PG search migrations directory.
+        #[arg(short, long)]
+        directory: String,
+        /// The new migration's description, after its version in the file name.
+        #[arg(short, long, default_value = "search_schema")]
+        name: String,
+    },
     /// Generate FHIR TestScript resources.
     TestScripts {
         /// Input file(s) or directories describing the TestScripts to generate. Repeatable.
@@ -71,6 +104,38 @@ fn format_code(rust_code: String) -> String {
     formatted_code.to_string()
 }
 
+/// Migrates the configured PG search database, then writes
+/// `<timestamp>_<name>.sql` into `directory` creating what the search schema
+/// still lacks, if anything.
+async fn search_migration(directory: &Path, name: &str) -> Result<(), OperationOutcomeError> {
+    let error = |message: String| OperationOutcomeError::error(IssueType::exception(), message);
+
+    let config: ServerConfig = Figment::new()
+        .merge(Toml::file("haste.toml"))
+        .merge(Env::prefixed("HASTE_"))
+        .extract()
+        .map_err(|e| error(e.to_string()))?;
+    let SearchConfig::Postgres(search) = &config.search else {
+        return Err(error(
+            "The configured search backend is not PostgreSQL (HASTE_SEARCH.backend).".to_string(),
+        ));
+    };
+    let pool = create_pg_search_pool(&search.database_url, 1).await?;
+
+    match pending_migration(&pool).await? {
+        None => println!("PG search migrations are up to date."),
+        Some(sql) => {
+            let version = chrono::Utc::now().format("%Y%m%d%H%M%S");
+            let path = directory.join(format!("{version}_{name}.sql"));
+            tokio::fs::write(&path, sql)
+                .await
+                .map_err(|e| error(format!("{}: {e}", path.display())))?;
+            println!("PG search migration written to: {}", path.display());
+        }
+    }
+    Ok(())
+}
+
 /// Runs the `generate` command group.
 pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> {
     match command {
@@ -83,9 +148,11 @@ pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> 
 
             match output {
                 Some(output_path) => {
-                    std::fs::write(output_path, formatted_code.to_string()).map_err(|e| {
-                        OperationOutcomeError::error(IssueType::exception(), e.to_string())
-                    })?;
+                    tokio::fs::write(output_path, formatted_code.to_string())
+                        .await
+                        .map_err(|e| {
+                            OperationOutcomeError::error(IssueType::exception(), e.to_string())
+                        })?;
                     println!("Generated FHIR types written to: {}", output_path);
                 }
                 None => {
@@ -113,42 +180,68 @@ pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> 
 
             let output_path = Path::new(output);
             let resource_path = output_path.join("resources.rs");
-            std::fs::write(resource_path, format_code(rust_code.resources.to_string()))
+            tokio::fs::write(resource_path, format_code(rust_code.resources.to_string()))
+                .await
                 .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let type_path = output_path.join("types.rs");
-            std::fs::write(type_path, format_code(rust_code.types.to_string()))
+            tokio::fs::write(type_path, format_code(rust_code.types.to_string()))
+                .await
                 .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let terminology_path = output_path.join("terminology.rs");
-            std::fs::write(
+            tokio::fs::write(
                 terminology_path,
                 format_code(rust_code.terminology.to_string()),
             )
+            .await
             .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let mod_path = output_path.join("mod.rs");
             let module_code = quote! {
-                /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
+                #![doc = " @generated by `bash scripts/types_build.sh` - do not edit."]
                pub mod resources;
                pub mod types;
                pub mod terminology;
             };
-            std::fs::write(mod_path, module_code.to_string())
-                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
-
-            let mod_path = output_path.join("mod.rs");
-            let module_code = quote! {
-                /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
-               pub mod resources;
-               pub mod types;
-               pub mod terminology;
-            };
-            std::fs::write(mod_path, format_code(module_code.to_string()))
+            tokio::fs::write(mod_path, format_code(module_code.to_string()))
+                .await
                 .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             println!("Generated FHIR types written to: {}", output_path.display());
             Ok(())
+        }
+        CodeGen::SearchParamCardinality {
+            definitions,
+            parameters,
+            output,
+        } => {
+            let definitions = search_param_cardinality::load_definitions(definitions)
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e))?;
+            let parameters = search_param_cardinality::load_search_parameters(parameters)
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e))?;
+
+            let generated = format_code(search_param_cardinality::generate_lookup(
+                &definitions,
+                &parameters,
+            ));
+
+            match output {
+                Some(output_path) => {
+                    tokio::fs::write(output_path, &generated)
+                        .await
+                        .map_err(|e| {
+                            OperationOutcomeError::error(IssueType::exception(), e.to_string())
+                        })?;
+                    println!("Search parameter cardinality table written to: {output_path}");
+                }
+                None => println!("{generated}"),
+            }
+
+            Ok(())
+        }
+        CodeGen::SearchMigration { directory, name } => {
+            search_migration(Path::new(directory), name).await
         }
         CodeGen::TestScripts { input, output } => {
             let output_path = Path::new(output);
@@ -162,11 +255,12 @@ pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> 
 
                 println!("Writing TestScript to: {}", testscript_path.display());
 
-                std::fs::write(
+                tokio::fs::write(
                     testscript_path,
                     serde_json::to_string_pretty(testscript)
                         .expect("Failed to serialize TestScript to JSON"),
                 )
+                .await
                 .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
             }
 

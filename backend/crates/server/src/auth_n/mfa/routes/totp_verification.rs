@@ -1,3 +1,5 @@
+use crate::auth_n::constant_time;
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
         mfa::utilities::user_mfa_to_totp,
@@ -10,7 +12,7 @@ use crate::{
 };
 use axum::{
     Form,
-    extract::{OriginalUri, Query, State},
+    extract::{FromRequestParts, OriginalUri, Query, State},
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
@@ -31,10 +33,27 @@ use haste_repository::{
 use serde::Deserialize;
 use std::sync::Arc;
 use tower_sessions::Session;
-use url::form_urlencoded;
+use url::{Url, form_urlencoded};
 
+/// Whether `path` stays on this origin when a browser follows it.
+///
+/// Browsers parse a `Location` with the WHATWG URL algorithm, which treats a
+/// backslash like a slash for http(s), so `/\evil.example` is navigated to
+/// as `//evil.example`: a second origin, which the plain `//` check missed.
+/// The path is therefore resolved against a stand-in origin the way a browser
+/// would, and accepted only when it still points at that origin.
 fn is_safe_local_redirect_path(path: &str) -> bool {
-    path.starts_with('/') && !path.starts_with("//")
+    if !path.starts_with('/') || path.chars().any(|c| c.is_control() || c == '\\') {
+        return false;
+    }
+
+    let Ok(base) = Url::parse("http://redirect.invalid") else {
+        return false;
+    };
+
+    base.join(path).is_ok_and(|resolved| {
+        resolved.scheme() == "http" && resolved.host_str() == Some("redirect.invalid")
+    })
 }
 
 pub fn totp_verification_route(tenant: &TenantId, redirect_to: &str) -> String {
@@ -103,6 +122,15 @@ pub struct TOTPVerificationQuery {
     pub redirect_to: String,
 }
 
+/// Where a verification request sits in the login flow: the URI it was made
+/// to, which the form posts back to, and where to go once the code is verified.
+#[derive(FromRequestParts)]
+pub struct TOTPVerificationLocation {
+    #[from_request(via(Query))]
+    query: TOTPVerificationQuery,
+    uri: OriginalUri,
+}
+
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/totp-verification")]
 pub struct TOTPVerificationGET;
@@ -117,18 +145,14 @@ pub async fn totp_verification_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TOTPVerificationGET,
-    Query(query): Query<TOTPVerificationQuery>,
-    uri: OriginalUri,
+    TOTPVerificationLocation { query, uri }: TOTPVerificationLocation,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
     if !is_safe_local_redirect_path(&query.redirect_to) {
-        return Err(OperationOutcomeError::error(
-            IssueType::security(),
-            "Invalid MFA redirect target.".to_string(),
-        ));
+        return Err(AuthError::InvalidMfaRedirectTarget.into());
     }
 
     let (_, credentials) =
@@ -151,26 +175,19 @@ pub async fn totp_verification_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TOTPVerificationPOST,
-    Query(query): Query<TOTPVerificationQuery>,
-    uri: OriginalUri,
+    TOTPVerificationLocation { query, uri }: TOTPVerificationLocation,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(form_data): Form<TOTPVerificationPOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    if form_data.csrf_token != csrf_token {
-        return Err(OperationOutcomeError::error(
-            IssueType::security(),
-            "Invalid CSRF token.".to_string(),
-        ));
+    if !constant_time::str_eq(&form_data.csrf_token, &csrf_token) {
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     if !is_safe_local_redirect_path(&query.redirect_to) {
-        return Err(OperationOutcomeError::error(
-            IssueType::security(),
-            "Invalid MFA redirect target.".to_string(),
-        ));
+        return Err(AuthError::InvalidMfaRedirectTarget.into());
     }
 
     let (user, credentials) =
@@ -188,12 +205,7 @@ pub async fn totp_verification_post<
         )
         .await?;
 
-        if totp.check_current(&form_data.otp_code).map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::security(),
-                "Invalid verification code.".to_string(),
-            )
-        })? {
+        if totp.check_current(&form_data.otp_code).is_some() {
             is_otp_valid = true;
             break;
         }
@@ -213,6 +225,7 @@ pub async fn totp_verification_post<
         .into_response());
     }
 
+    session::user::rotate_session_id(&current_session).await?;
     session::user::set_completed_authorization_state(&current_session, user).await?;
 
     Ok(Redirect::to(&query.redirect_to).into_response())

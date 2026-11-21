@@ -19,6 +19,8 @@ pub enum OperationError {
     InvalidIndex,
     #[error("Index is out of bounds for the target pointer width")]
     IndexOutOfBounds,
+    #[error("'{0}' is not a time unit of fixed length for date/time arithmetic")]
+    InvalidTimeUnit(String),
 }
 
 #[derive(Debug, Error)]
@@ -35,10 +37,14 @@ pub enum FHIRPathError {
     ParseError(#[from] peg::error::ParseError<LineCol>),
     #[error("Invalid literal: {0:?}")]
     InvalidLiteral(Literal),
+    #[error("Undefined constant: %{0}")]
+    UndefinedConstant(String),
     #[error("Not implemented: {0}")]
     NotImplemented(String),
     #[error("Internal error: {0}")]
     InternalError(String),
+    #[error("Too costly: {0}")]
+    TooCostly(String),
     #[error("Operation error: {0}")]
     OperationError(OperationError),
     #[error("Failed to downcast value to type '{0}'")]

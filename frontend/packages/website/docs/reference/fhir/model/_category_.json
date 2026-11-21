@@ -1,4 +1,9 @@
 {
     "label": "Model",
-    "key": "reference-fhir-model"
+    "position": 1,
+    "key": "reference-fhir-model",
+    "link": {
+        "type": "generated-index",
+        "description": "Reference documentation for Haste Health's FHIR R4 data model, including standard resources and primitive types."
+    }
 }

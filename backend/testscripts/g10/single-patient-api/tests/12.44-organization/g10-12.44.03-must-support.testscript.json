@@ -1,0 +1,162 @@
+{
+    "id": "g10-12.44.03-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.44.03-must-support",
+    "name": "g10-12.44.03-must-support",
+    "title": "12.44.03 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.44.03 (DAT-PAT-2; US Core 6.1.0: group 10.40). Every must support element of US Core Organization Profile (including the USCDI ones) appears in at least one Organization the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Organization",
+                        "params": "_id=g10-acme-lab,g10-acme-payer,g10-example-organization-2,g10-holy-healthcare,g10-saint-luke-w-endpoint",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.active is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).active.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address.city is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.city.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address.country is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.country.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address.line is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.line.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address.postalCode is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.postalCode.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.address.state is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).address.state.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.identifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.identifier.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).identifier.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.identifier.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).identifier.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.identifier:NPI is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.name is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).name.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.telecom is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).telecom.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.telecom.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).telecom.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Organization.telecom.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Organization).telecom.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import {
   Button,
   CodeMirror,
-  Modal,
+  OperationInvocationPanel,
   Table,
   Tabs,
   Toaster,
@@ -22,7 +22,6 @@ import {
 } from "@haste-health/fhir-types/r4/types";
 import { R4 } from "@haste-health/fhir-types/versions";
 import { HasteHealthDeployOperation } from "@haste-health/generated-ops/lib/r4/ops";
-import { Operation } from "@haste-health/operation-execution";
 
 import ResourceEditorComponent, {
   AdditionalContent,
@@ -178,71 +177,57 @@ const DeployModal = ({
 
 function OperationCodeEditor({
   operation,
+  saved,
   value,
   setValue,
 }: {
   operation: OperationDefinition | undefined;
+  /** False while the operation is still being created. */
+  saved: boolean;
   value: string;
   setValue: (value: string) => void;
 }) {
+  const client = useAtomValue(getClient);
+
   return (
-    <div className="flex flex-1 flex-col overflow-auto">
+    <div className="flex flex-1 flex-col overflow-hidden">
       <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-        Edit the operation source code, then deploy and invoke it directly from
-        this panel.
+        Edit the operation source code, then run it from the panel on the right:
+        choose where it runs, fill in its input parameters and read its output.
       </div>
-      <div className="flex flex-1 rounded-md border border-slate-200">
-        <CodeMirror
-          extensions={extensions}
-          value={value}
-          theme={{
-            "&": {
-              height: "100%",
-              width: "100%",
-            },
-          }}
-          onChange={(value) => {
-            setValue(value);
-          }}
-        />
-      </div>
-      <div className="flex justify-start space-x-4 py-2 px-1">
-        {/* <Modal
-          modalTitle={`Deploy ${operation?.code}`}
-          ModalContent={(setOpen) => (
-            <DeployModal operation={operation} setOpen={setOpen} />
-          )}
-        >
-          {(setOpen) => (
-            <Button
-              buttonType="primary"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(true);
-              }}
-            >
-              Deploy
-            </Button>
-          )}
-        </Modal> */}
-        <Modal
-          modalTitle={`Invoke ${operation?.code}`}
-          ModalContent={(setOpen) => (
-            <InvocationModal operation={operation} setOpen={setOpen} />
-          )}
-        >
-          {(setOpen) => (
-            <Button
-              buttonType="primary"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(true);
-              }}
-            >
-              Invoke
-            </Button>
-          )}
-        </Modal>
+      {/* A fixed height, so the code scrolls inside its editor and the run
+          panel keeps its size however long the code is. */}
+      <div className="flex h-[calc(100vh-10rem)] min-h-[36rem] gap-3">
+        <div className="flex min-w-0 flex-1 overflow-hidden rounded-md border border-slate-200">
+          <CodeMirror
+            extensions={extensions}
+            value={value}
+            theme={{
+              "&": {
+                height: "100%",
+                width: "100%",
+              },
+            }}
+            onChange={(value) => {
+              setValue(value);
+            }}
+          />
+        </div>
+        {operation && (
+          <div className="flex w-[28rem] shrink-0 flex-col overflow-hidden rounded-md border border-slate-200">
+            <OperationInvocationPanel
+              client={client}
+              fhirVersion={R4}
+              operationDefinition={operation}
+              // The server runs the stored operation, so there is nothing
+              // to run until it has been created.
+              disabledReason={
+                saved ? undefined : "Create the operation to run it."
+              }
+              runHint="Runs the saved operation: save first so your latest code and parameters are used."
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -303,114 +288,6 @@ interface OperationEditorProps extends AdditionalContent {
   resource: OperationDefinition | undefined;
   onChange: NonNullable<AdditionalContent["onChange"]>;
 }
-
-const InvocationModal = ({
-  operation,
-  setOpen,
-}: {
-  operation: OperationDefinition | undefined;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
-  const client = useAtomValue(getClient);
-  const [parameters, setParameters] = useState("{}");
-  const [output, setOutput] = useState<unknown | undefined>(undefined);
-
-  return (
-    <div>
-      <Tabs
-        tabs={[
-          {
-            id: "input",
-            title: "Input",
-            content: (
-              <div className="flex flex-col h-56 w-full">
-                <div className="flex flex-1 border overflow-auto">
-                  <CodeMirror
-                    extensions={[basicSetup, json()]}
-                    value={parameters}
-                    theme={{
-                      "&": {
-                        height: "100%",
-                        width: "100%",
-                      },
-                    }}
-                    onChange={(value) => {
-                      setParameters(value);
-                    }}
-                  />
-                </div>
-              </div>
-            ),
-          },
-          {
-            id: "output",
-            title: "Output",
-            content: (
-              <div className="flex flex-col h-56 w-full">
-                <div className="flex flex-1 border  overflow-auto">
-                  <CodeMirror
-                    readOnly
-                    extensions={[basicSetup, json()]}
-                    value={JSON.stringify(output, null, 2)}
-                    theme={{
-                      "&": {
-                        height: "100%",
-                        width: "100%",
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-            ),
-          },
-        ]}
-      />
-      <div className="mt-1 flex justify-end px-2">
-        <Button
-          className="mr-1"
-          buttonType="primary"
-          onClick={(e) => {
-            e.preventDefault();
-            try {
-              if (!operation) {
-                throw new Error("Must have operation to trigger invocation");
-              }
-              const invocation = client.invoke_system(
-                new Operation(operation),
-                {},
-                R4,
-                JSON.parse(parameters),
-              );
-              Toaster.promise(invocation, {
-                loading: "Invocation",
-                success: (success) => {
-                  setOutput(success);
-                  return `Invocation succeeded`;
-                },
-                error: (error) => {
-                  return getErrorMessage(error);
-                },
-              });
-            } catch (e) {
-              Toaster.error(`${e}`);
-            }
-          }}
-        >
-          Send
-        </Button>
-        <Button
-          buttonType="secondary"
-          onClick={(e) => {
-            e.preventDefault();
-            setOpen(false);
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
-  );
-};
 
 const DEFAULT_CODE = `
 interface Context {
@@ -512,6 +389,7 @@ export default function OperationDefinitionView({
             <OperationCodeEditor
               value={code}
               operation={resource}
+              saved={id !== "new"}
               setValue={(v: string) =>
                 onChange({
                   ...resource,

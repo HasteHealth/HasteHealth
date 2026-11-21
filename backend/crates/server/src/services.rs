@@ -1,15 +1,12 @@
-use crate::config::{SearchConfig, SecretProviderConfig, ServerConfig};
+use crate::config::{SecretProviderConfig, ServerConfig};
+use crate::document_storage;
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
+use haste_document_storage::DocumentStorage;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::elastic_search::SearchConfigError;
-use haste_fhir_search::elastic_search::search_parameter_resolver::ElasticSearchParameterResolver;
-use haste_fhir_search::{
-    SearchEngine,
-    elastic_search::{ElasticSearchEngine, create_es_client},
-};
+use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::{FHIRTerminology, client::FHIRCanonicalTerminology};
-use haste_fhirpath::FPEngine;
+use haste_repository::config::RepoConfig;
 use haste_repository::{Repository, pg::PGConnection};
 use sqlx::{Pool, Postgres};
 use sqlx_postgres::PgPoolOptions;
@@ -21,7 +18,7 @@ use tracing::info;
 static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
 pub async fn get_pool(config: &ServerConfig) -> &'static Pool<Postgres> {
     match &config.repo {
-        crate::config::RepoConfig::Postgres(pg_config) => {
+        RepoConfig::Postgres(pg_config) => {
             POOL.get_or_init(async || {
                 info!("Connecting to postgres database");
 
@@ -60,6 +57,13 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
+#[derive(OperationOutcomeError, Debug)]
+pub enum TransactionError {
+    /// `Arc::try_unwrap` on the transaction's repository found another holder.
+    #[fatal(code = "exception", diagnostic = "Transaction client is still in use.")]
+    ClientStillShared,
+}
+
 pub struct ServerState<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -72,6 +76,8 @@ pub struct ServerState<
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub secret_provider: Arc<dyn haste_encryption::SecretsProvider + Send + Sync>,
     pub config: Arc<crate::config::ServerConfig>,
+    /// Document storage for large `Binary.data`; `None` when it is off.
+    pub binary_storage: Option<Arc<dyn DocumentStorage>>,
 }
 
 impl<
@@ -89,13 +95,18 @@ impl<
                 repo: tx_repo.clone(),
                 rate_limit: self.rate_limit.clone(),
                 secret_provider: self.secret_provider.clone(),
-                fhir_client: Arc::new(FHIRServerClient::new(ServerClientConfig::new(
-                    tx_repo,
-                    self.search.clone(),
-                    self.terminology.clone(),
-                    self.config.clone(),
-                ))),
+                fhir_client: Arc::new(FHIRServerClient::new(
+                    ServerClientConfig::new(
+                        tx_repo,
+                        self.search.clone(),
+                        self.terminology.clone(),
+                        self.config.clone(),
+                        self.fhir_client.deno_pool(),
+                    )
+                    .with_binary_storage(self.binary_storage.clone()),
+                )),
                 config: self.config.clone(),
+                binary_storage: self.binary_storage.clone(),
             }
         })
     }
@@ -105,12 +116,7 @@ impl<
         drop(self);
 
         Arc::try_unwrap(repo)
-            .map_err(|_e| {
-                OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "Failed to unwrap transaction client".to_string(),
-                )
-            })?
+            .map_err(|_| TransactionError::ClientStillShared)?
             .commit()
             .await?;
 
@@ -118,49 +124,62 @@ impl<
     }
 }
 
-fn create_search_engine<Repo: Repository + Send + Sync + 'static>(
-    config: &crate::config::ServerConfig,
-    parameter_resolver: Arc<Repo>,
-) -> Result<Arc<ElasticSearchEngine<ElasticSearchParameterResolver<Repo>>>, SearchConfigError> {
-    match &config.search {
-        SearchConfig::Elasticsearch(elasticsearch_config) => {
-            let es_client = create_es_client(
-                &elasticsearch_config.url,
-                elasticsearch_config.username.clone(),
-                elasticsearch_config.password.clone(),
-            )?;
-            let k = Arc::new(haste_fhir_search::elastic_search::ElasticSearchEngine::new(
-                Arc::new(ElasticSearchParameterResolver::new(
-                    es_client.clone(),
-                    parameter_resolver,
-                )),
-                Arc::new(FPEngine::new()),
-                es_client,
-                elasticsearch_config.prune_removed_search_parameters,
-            ));
+pub use haste_fhir_search::config::SearchEngineBackend;
 
-            Ok(k)
-        }
-    }
-}
-
+/// The services of the HTTP server. Owns the search index's shape: this is the
+/// one place that may migrate it.
 pub async fn create_services(
     config: Arc<crate::config::ServerConfig>,
 ) -> Result<
-    Arc<
-        ServerState<
-            PGConnection,
-            ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>,
-            FHIRCanonicalTerminology,
-        >,
-    >,
+    Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
+    OperationOutcomeError,
+> {
+    build_services(config, true).await
+}
+
+/// The same services for a worker process (one that runs asynchronous jobs):
+/// everything a request has, so a job can go through the FHIR client exactly
+/// as the request that queued it would have, but never a change to the index's
+/// shape under the running server.
+pub async fn create_worker_services(
+    config: Arc<crate::config::ServerConfig>,
+) -> Result<
+    Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
+    OperationOutcomeError,
+> {
+    build_services(config, false).await
+}
+
+async fn build_services(
+    config: Arc<crate::config::ServerConfig>,
+    migrate_search: bool,
+) -> Result<
+    Arc<ServerState<PGConnection, SearchEngineBackend, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
     let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
+    let binary_storage = document_storage::connect(config.as_ref()).await?;
 
-    let terminology = Arc::new(FHIRCanonicalTerminology::new());
+    let terminology = Arc::new(FHIRCanonicalTerminology::with_limits(
+        config.terminology.expansion_limits(),
+    ));
 
-    let search_engine = create_search_engine(config.as_ref(), pool.clone())?;
+    let search_engine = haste_fhir_search::config::create_search_engine(
+        &config.search,
+        pool.clone(),
+        migrate_search,
+    )
+    .await?;
+
+    // [TODO] refactor later into generic operation executor.
+    // Cannot just rebuild in each request because it would create multiple DenoPools,
+    // which is expensive and can exhaust system resources.
+    let deno_pool = Arc::new(
+        haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(
+            config.operations.deno_pool_threads,
+        )
+        .expect("Failed to create DenoPool"),
+    );
 
     let fhir_client = Arc::new(FHIRServerClient::new(
         ServerClientConfig::new(
@@ -168,17 +187,20 @@ pub async fn create_services(
             search_engine.clone(),
             terminology.clone(),
             config.clone(),
+            deno_pool,
         )
         .with_mutate_artifacts(config.allow_artifact_mutations)
         .with_audit_repo(if config.monitoring.audit_enabled {
             Some(pool.clone())
         } else {
             None
-        }),
+        })
+        .with_binary_storage(binary_storage.clone()),
     ));
 
     let shared_state = Arc::new(ServerState {
         config: config.clone(),
+        binary_storage,
         rate_limit: pool.clone(),
         repo: pool,
         terminology,

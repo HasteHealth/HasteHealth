@@ -1,0 +1,3381 @@
+{
+    "id": "core-researchsubject",
+    "url": "https://haste.health/fhir/TestScript/core-researchsubject",
+    "title": "Core ResearchSubject TestScript",
+    "name": "Core ResearchSubject TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the ResearchSubject resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "crud-create-1",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9zdGF0dXMiLCAidmFsdWUiOiAiZWxpZ2libGUifV0="
+        },
+        {
+            "status": "follow-up",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "period": {
+                "start": "2022-05-01",
+                "end": "2022-05-01"
+            },
+            "id": "researchsubject-date-match-2",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-date"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "researchsubject-date-missing-3",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-date"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-a"
+                }
+            ],
+            "id": "researchsubject-identifier-match-4",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-b"
+                }
+            ],
+            "id": "researchsubject-identifier-other-5",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "researchsubject-identifier-missing-6",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-researchsubject-individual-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/core-researchsubject-individual-target"
+            },
+            "id": "researchsubject-individual-match-7",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-individual"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-researchsubject-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/core-researchsubject-patient-target"
+            },
+            "id": "researchsubject-patient-match-8",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "researchsubject-status-match-9",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "eligible",
+            "study": {
+                "reference": "ResearchStudy/example"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "researchsubject-status-other-10",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-researchsubject-study-target",
+            "resourceType": "ResearchStudy",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    }
+                ]
+            },
+            "status": "active"
+        },
+        {
+            "status": "candidate",
+            "study": {
+                "reference": "ResearchStudy/core-researchsubject-study-target"
+            },
+            "individual": {
+                "reference": "Patient/example"
+            },
+            "id": "researchsubject-study-match-11",
+            "resourceType": "ResearchSubject",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-researchsubject-test"
+                    },
+                    {
+                        "code": "scope-study"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-date-match-2",
+            "resource": {
+                "reference": "#researchsubject-date-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-date-missing-3",
+            "resource": {
+                "reference": "#researchsubject-date-missing-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-identifier-match-4",
+            "resource": {
+                "reference": "#researchsubject-identifier-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-identifier-other-5",
+            "resource": {
+                "reference": "#researchsubject-identifier-other-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-identifier-missing-6",
+            "resource": {
+                "reference": "#researchsubject-identifier-missing-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-researchsubject-individual-target",
+            "resource": {
+                "reference": "#core-researchsubject-individual-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-individual-match-7",
+            "resource": {
+                "reference": "#researchsubject-individual-match-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-researchsubject-patient-target",
+            "resource": {
+                "reference": "#core-researchsubject-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-patient-match-8",
+            "resource": {
+                "reference": "#researchsubject-patient-match-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-status-match-9",
+            "resource": {
+                "reference": "#researchsubject-status-match-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-status-other-10",
+            "resource": {
+                "reference": "#researchsubject-status-other-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-researchsubject-study-target",
+            "resource": {
+                "reference": "#core-researchsubject-study-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-researchsubject-study-match-11",
+            "resource": {
+                "reference": "#researchsubject-study-match-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create ResearchSubject",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ResearchSubject",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read ResearchSubject",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ResearchSubject.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "ResearchSubject.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ResearchSubject.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch ResearchSubject",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ResearchSubject.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "eligible",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update ResearchSubject",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ResearchSubject.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "follow-up",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ResearchSubject.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "ResearchSubject.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete ResearchSubject",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-date",
+            "name": "Search ResearchSubject by date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-date-match-2",
+                        "responseId": "date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=ne2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ne",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=gt2022-04-30&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=gt2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=lt2022-05-02&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=lt2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=ge2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=ge2022-05-02&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-above",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=le2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=le2022-04-30&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-below",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=sa2022-04-30&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-sa-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=sa2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-sa-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=eb2022-05-02&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eb-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=eb2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eb-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date=ap2022-05-01&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ap-smoke",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-date-missing-3",
+                        "responseId": "date-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date:missing=true&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "date:missing=false&_tag=core-researchsubject-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-identifier",
+            "name": "Search ResearchSubject by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-identifier-match-4",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-identifier-other-5",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier=identifier-a&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier=http://example.org/identifier|identifier-a&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier=|identifier-a&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier=http://example.org/identifier|&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier=|&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier:not=identifier-a&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-identifier-missing-6",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier:missing=true&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "identifier:missing=false&_tag=core-researchsubject-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-individual",
+            "name": "Search ResearchSubject by individual (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-researchsubject-individual-target",
+                        "responseId": "individual-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "individual-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-individual-match-7",
+                        "responseId": "individual-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "individual=core-researchsubject-individual-target&_tag=core-researchsubject-test&_tag=scope-individual"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "individual-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "individual=Patient/core-researchsubject-individual-target&_tag=core-researchsubject-test&_tag=scope-individual"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "individual-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-individual"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "individual"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-patient",
+            "name": "Search ResearchSubject by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-researchsubject-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-patient-match-8",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "patient=core-researchsubject-patient-target&_tag=core-researchsubject-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "patient=Patient/core-researchsubject-patient-target&_tag=core-researchsubject-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-status",
+            "name": "Search ResearchSubject by status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-status-match-9",
+                        "responseId": "status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-status-other-10",
+                        "responseId": "status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "status=candidate&_tag=core-researchsubject-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "status:not=candidate&_tag=core-researchsubject-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-study",
+            "name": "Search ResearchSubject by study (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchStudy",
+                        "sourceId": "fixture-core-researchsubject-study-target",
+                        "responseId": "study-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ResearchStudy",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "study-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "sourceId": "fixture-researchsubject-study-match-11",
+                        "responseId": "study-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "study=core-researchsubject-study-target&_tag=core-researchsubject-test&_tag=scope-study"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "study-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ResearchSubject",
+                        "params": "study=ResearchStudy/core-researchsubject-study-target&_tag=core-researchsubject-test&_tag=scope-study"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "study-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ResearchSubject-study"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "study"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "ResearchSubject",
+                    "params": "_tag=core-researchsubject-test",
+                    "description": "Delete ResearchSubject resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

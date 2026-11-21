@@ -1,0 +1,223 @@
+{
+    "id": "hl7v2-adt-a01-ingest",
+    "url": "https://haste.health/fhir/TestScript/hl7v2-adt-a01-ingest",
+    "name": "HL7v2 ADT A01 Ingest",
+    "title": "HL7v2 ADT^A01 ingest via MLLP",
+    "status": "active",
+    "description": "Confirms that an ADT^A01 message delivered over MLLP was converted to FHIR and stored. The message is sent before this TestScript runs (see the hl7v2 CI job), so these tests read the resulting resources rather than creating any. Every asserted value comes from a named HL7 field, so a field-offset regression fails here rather than passing quietly.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-the-pid-segment-became-a-patient",
+            "name": "The PID segment became a Patient with the right fields",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "PID-3.1 is the MRN the template writes as the Patient identifier.",
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Patient came from the message",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-5.1 became the family name",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.family = 'PRESLEY'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-5.2 became the given name",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.given.first() = 'ELVIS'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-8 became the gender. Reading one field too far here would find PID-7, the birth date, and produce 'unknown'.",
+                        "expression": "Bundle.entry.resource.ofType(Patient).gender = 'male'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-11.3 became the city, which only resolves if component addressing is right",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.city = 'MEMPHIS'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-11.4 became the state",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.state = 'TN'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PID-11.5 became the postal code",
+                        "expression": "Bundle.entry.resource.ofType(Patient).address.postalCode = '38116'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-the-birth-date-converted-and-indexed",
+            "name": "PID-7 became a searchable birth date",
+            "description": "Asserted through search rather than FHIRPath: a FHIR date is not a string and cannot be compared to one, and searching proves the value was both converted and indexed.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001&birthdate=1935-01-08",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Patient is found by the birth date from PID-7",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "The wrong date must not match, or the assertion above would pass for any stored date.",
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001&birthdate=1935-08-01",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A transposed day and month does not match",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-the-pv1-segment-became-an-encounter",
+            "name": "The PV1 segment became an Encounter linked to the Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "MSH-10 is the message control id the template writes as the Encounter identifier.",
+                        "resource": "Encounter",
+                        "params": "identifier=HL7V2CI0001",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter was created, identified by MSH-10",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "PV1-3.1 became the location",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).location.location.display = 'WARD7'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Encounter class is inpatient, as an A01 admit implies",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).class.code = 'IMP'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-the-encounter-resolves-to-the-ingested-patient",
+            "name": "The Encounter's subject is the Patient from the same message",
+            "description": "A reference search proves the intra-Bundle urn:uuid resolved to the patient this message created, not merely to some patient.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001",
+                        "responseId": "ingested-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "description": "Searching Encounters by that patient reaches the one this message created.",
+                        "resource": "Encounter",
+                        "params": "subject=Patient/${PatientId}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The ingested Encounter is reachable from the ingested Patient",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(identifier.value = 'HL7V2CI0001').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "name": "PatientId",
+            "sourceId": "ingested-patient",
+            "expression": "Bundle.entry.resource.ofType(Patient).id"
+        }
+    ]
+}

@@ -12,3 +12,5 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-fhir-ops = { path = "../fhir-ops", version = "0.*", features = [
     "derive",
 ] }
+
+serde_json = { workspace = true }

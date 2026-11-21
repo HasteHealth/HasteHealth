@@ -1,0 +1,8 @@
+{
+    "description": "A patient (member User linked to Patient/acps-patient) signing in to an app allowed openid fhirUser offline_access launch/patient patient/*.rs, requesting the narrower patient/Medication.rs patient/Patient.r patient/Observation.s: a type under the wildcard and two permission subsets.",
+    "grantType": "authorization_code",
+    "userEmail": "acps-patient@example.org",
+    "clientId": "acps-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid fhirUser offline_access launch/patient patient/Medication.rs patient/Patient.r patient/Observation.s"
+}

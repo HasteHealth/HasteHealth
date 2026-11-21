@@ -57,7 +57,10 @@ pub async fn project_get<
     // If there is only one project, skip the project select page and go directly to the login page for that project
     if tenant_projects.len() == 1
         && let Some(project) = tenant_projects.first()
-        && let Some(project_id) = project.id.as_ref().map(|id| ProjectId::new(id.clone()))
+        && let Some(project_id) = project
+            .id
+            .as_ref()
+            .and_then(|id| ProjectId::new(id.clone()).ok())
         && let Some(admin_app_url) =
             admin_app::redirect_url(state.config.as_ref(), &tenant, &project_id)
     {

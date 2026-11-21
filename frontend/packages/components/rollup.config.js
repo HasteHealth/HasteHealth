@@ -31,6 +31,9 @@ export default [
       typescript({
         tsconfig: "./tsconfig.json",
         exclude: ["**/__tests__", "**/*.test.ts"],
+        // Types are bundled into dist/types.d.ts by rollup-plugin-dts below.
+        outDir: "dist",
+        declaration: false,
       }),
       terser(),
       json(),

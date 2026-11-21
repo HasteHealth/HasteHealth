@@ -2,11 +2,14 @@
 //! (`api`, `testscript`, `hl7v2`), based on the active profile's auth mode.
 
 use crate::cli::{
-    config::ProfileAuth,
+    config::{DEFAULT_CLIENT_CREDENTIALS_SCOPE, ProfileAuth},
     secrets::StoredTokens,
     state::{CliState, SECRETS_LOCATION},
 };
-use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
+use haste_fhir_client::http::{
+    BasicCredentials, FHIRHttpAuthenticationMethod, FHIRHttpClient, FHIRHttpState,
+    HttpRequestHeaders,
+};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
@@ -27,6 +30,28 @@ pub(crate) struct TokenResponseBody {
     pub(crate) expires_in: i64,
 }
 
+/// How long before expiry a cached token stops being handed out.
+///
+/// A token refreshed at the instant it expires still races the request it was
+/// fetched for: the round trip takes time, and the server's clock need not
+/// agree with ours to the second. Renewing a minute early costs one extra
+/// token request per lifetime and removes both problems.
+const TOKEN_EXPIRY_MARGIN_SECS: i64 = 60;
+
+/// The cached access token, if it is still good.
+///
+/// Returns `None` once the token is within [`TOKEN_EXPIRY_MARGIN_SECS`] of
+/// expiring, or when its lifetime is unknown, so the caller fetches a new one.
+/// Without this the first cached token was reused for the life of the process,
+/// which a one-shot CLI command never notices and a long-running one -- the
+/// MLLP listener -- fails on for every request after expiry.
+pub(crate) fn cached_access_token(state: &CliState) -> Option<String> {
+    let token = state.access_token.as_ref()?;
+    let expires_at = state.access_token_expires_at?;
+
+    (unix_now() + TOKEN_EXPIRY_MARGIN_SECS < expires_at).then(|| token.clone())
+}
+
 pub(crate) fn unix_now() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -44,13 +69,7 @@ pub(crate) async fn fetch_discovery_document(
         return Ok(well_known_doc.clone());
     }
 
-    let Some(active_profile) = current_state.config.current_profile().cloned() else {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "No active profile set. Please set an active profile using the config command."
-                .to_string(),
-        ));
-    };
+    let active_profile = current_state.config.require_current_profile()?.clone();
 
     let res = reqwest::get(&active_profile.oidc_discovery_uri)
         .await
@@ -124,8 +143,13 @@ pub(crate) async fn refresh_access_token(
         )
     })?;
 
+    let expires_at = unix_now() + token_response.expires_in;
+
     let mut current_state = state.lock().await;
     current_state.access_token = Some(token_response.access_token.clone());
+    // Kept with the token, so a process that outlives this lifetime refreshes
+    // again rather than reusing it.
+    current_state.access_token_expires_at = Some(expires_at);
 
     current_state.secrets.profile_mut(profile_name).tokens = Some(StoredTokens {
         access_token: token_response.access_token.clone(),
@@ -133,7 +157,7 @@ pub(crate) async fn refresh_access_token(
             .refresh_token
             .or(Some(refresh_token.to_string())),
         id_token: token_response.id_token,
-        expires_at: unix_now() + token_response.expires_in,
+        expires_at,
     });
 
     crate::cli::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
@@ -145,13 +169,7 @@ async fn config_to_fhir_http_state(
     state: Arc<Mutex<CliState>>,
 ) -> Result<FHIRHttpState, OperationOutcomeError> {
     let current_state = state.lock().await;
-    let Some(active_profile) = current_state.config.current_profile().cloned() else {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "No active profile set. Please set an active profile using the config command."
-                .to_string(),
-        ));
-    };
+    let active_profile = current_state.config.require_current_profile()?.clone();
 
     let profile_name = active_profile.name.clone();
     let client_secret = current_state
@@ -165,129 +183,178 @@ async fn config_to_fhir_http_state(
         &active_profile.r4_url.clone(),
         match active_profile.auth {
             ProfileAuth::Public {} => None,
-            ProfileAuth::ClientCredentails { client_id } => {
+            ProfileAuth::ClientCredentails { client_id, scope } => {
                 let Some(client_secret) = client_secret else {
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
                         format!(
-                            "No client secret stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            "No client secret stored for profile '{}'. Recreate it with `haste-health profile create`.",
                             profile_name
                         ),
                     ));
                 };
 
-                Some(Arc::new(move || {
-                    let state = state.clone();
-                    let client_id = client_id.clone();
-                    let client_secret = client_secret.clone();
-                    Box::pin(async move {
-                        {
-                            let current_state = state.lock().await;
-                            if let Some(token) = current_state.access_token.clone() {
-                                return Ok(token);
+                Some(FHIRHttpAuthenticationMethod::BearerToken(Arc::new(
+                    move || {
+                        let state = state.clone();
+                        let client_id = client_id.clone();
+                        let client_secret = client_secret.clone();
+                        let scope = scope
+                            .clone()
+                            .unwrap_or_else(|| DEFAULT_CLIENT_CREDENTIALS_SCOPE.to_string());
+                        Box::pin(async move {
+                            {
+                                let current_state = state.lock().await;
+                                if let Some(token) = cached_access_token(&current_state) {
+                                    return Ok(token);
+                                }
                             }
-                        }
 
-                        let well_known_document = fetch_discovery_document(&state).await?;
+                            let well_known_document = fetch_discovery_document(&state).await?;
 
-                        // Post for JWT Token
-                        let params = [
-                            ("grant_type", "client_credentials"),
-                            ("client_id", &client_id),
-                            ("client_secret", &client_secret),
-                            ("scope", "openid system/*.*"),
-                        ];
+                            // Post for JWT Token
+                            let params = [
+                                ("grant_type", "client_credentials"),
+                                ("client_id", &client_id),
+                                ("client_secret", &client_secret),
+                                ("scope", &scope),
+                            ];
 
-                        let res: reqwest::Response = reqwest::Client::new()
-                            .post(&well_known_document.token_endpoint)
-                            .form(&params)
-                            .send()
-                            .await
-                            .map_err(|e| {
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    format!("Failed to fetch access token: {}", e),
-                                )
-                            })?;
+                            let res: reqwest::Response = reqwest::Client::new()
+                                .post(&well_known_document.token_endpoint)
+                                .form(&params)
+                                .send()
+                                .await
+                                .map_err(|e| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        format!("Failed to fetch access token: {}", e),
+                                    )
+                                })?;
 
-                        if !res.status().is_success() {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                format!("Failed to fetch access token: HTTP '{}'", res.status(),),
-                            ));
-                        }
+                            if !res.status().is_success() {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    format!(
+                                        "Failed to fetch access token: HTTP '{}'",
+                                        res.status(),
+                                    ),
+                                ));
+                            }
 
-                        let token_response: serde_json::Value = res.json().await.map_err(|e| {
-                            OperationOutcomeError::error(
-                                IssueType::exception(),
-                                format!("Failed to parse access token response: {}", e),
-                            )
-                        })?;
+                            let token_response: serde_json::Value =
+                                res.json().await.map_err(|e| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        format!("Failed to parse access token response: {}", e),
+                                    )
+                                })?;
 
-                        let access_token = token_response
-                            .get("access_token")
-                            .and_then(|v| v.as_str())
-                            .ok_or_else(|| {
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    "No access_token field in token response".to_string(),
-                                )
-                            })?
-                            .to_string();
+                            let access_token = token_response
+                                .get("access_token")
+                                .and_then(|v| v.as_str())
+                                .ok_or_else(|| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        "No access_token field in token response".to_string(),
+                                    )
+                                })?
+                                .to_string();
 
-                        state.lock().await.access_token = Some(access_token.clone());
+                            // `expires_in` is seconds from now. A server that
+                            // omits it leaves the lifetime unknown, which is
+                            // recorded as `None` so the next request fetches
+                            // again rather than reusing a token of unknown age.
+                            let expires_at = token_response
+                                .get("expires_in")
+                                .and_then(serde_json::Value::as_i64)
+                                .map(|expires_in| unix_now() + expires_in);
 
-                        Ok(access_token)
-                    })
-                }))
+                            {
+                                let mut current_state = state.lock().await;
+                                current_state.access_token = Some(access_token.clone());
+                                current_state.access_token_expires_at = expires_at;
+                            }
+
+                            Ok(access_token)
+                        })
+                    },
+                )))
             }
             ProfileAuth::AuthorizationCode {
                 client_id,
                 redirect_uri: _,
                 scope: _,
             } => {
-                Some(Arc::new(move || {
-                    let state = state.clone();
-                    let client_id = client_id.clone();
-                    let profile_name = profile_name.clone();
-                    Box::pin(async move {
-                        if let Some(token) = state.lock().await.access_token.clone() {
-                            return Ok(token);
-                        }
+                Some(FHIRHttpAuthenticationMethod::BearerToken(Arc::new(
+                    move || {
+                        let state = state.clone();
+                        let client_id = client_id.clone();
+                        let profile_name = profile_name.clone();
+                        Box::pin(async move {
+                            // Expiry-aware: returning the in-memory token
+                            // unconditionally skipped the stored-token expiry
+                            // check below, so a refresh never happened once a
+                            // token had been cached once.
+                            if let Some(token) = cached_access_token(&*state.lock().await) {
+                                return Ok(token);
+                            }
 
-                        let stored_tokens = {
-                            let current_state = state.lock().await;
-                            current_state
-                                .secrets
-                                .profile(&profile_name)
-                                .and_then(|s| s.tokens.clone())
-                        };
+                            let stored_tokens = {
+                                let current_state = state.lock().await;
+                                current_state
+                                    .secrets
+                                    .profile(&profile_name)
+                                    .and_then(|s| s.tokens.clone())
+                            };
 
-                        let Some(tokens) = stored_tokens else {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                "Not logged in. Run `haste-health login` first.".to_string(),
-                            ));
-                        };
+                            let Some(tokens) = stored_tokens else {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    "Not logged in. Run `haste-health login` first.".to_string(),
+                                ));
+                            };
 
-                        // Small buffer so a token doesn't expire mid-request.
-                        if tokens.expires_at > unix_now() + 30 {
-                            state.lock().await.access_token = Some(tokens.access_token.clone());
-                            return Ok(tokens.access_token);
-                        }
+                            if tokens.expires_at > unix_now() + TOKEN_EXPIRY_MARGIN_SECS {
+                                let mut current_state = state.lock().await;
+                                current_state.access_token = Some(tokens.access_token.clone());
+                                // Cached with its expiry, so the check above
+                                // applies on the next request too.
+                                current_state.access_token_expires_at = Some(tokens.expires_at);
+                                return Ok(tokens.access_token);
+                            }
 
-                        let Some(refresh_token) = tokens.refresh_token else {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                "Login session expired. Run `haste-health login` again."
-                                    .to_string(),
-                            ));
-                        };
+                            let Some(refresh_token) = tokens.refresh_token else {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    "Login session expired. Run `haste-health login` again."
+                                        .to_string(),
+                                ));
+                            };
 
-                        refresh_access_token(&state, &client_id, &profile_name, &refresh_token)
-                            .await
-                    })
-                }))
+                            refresh_access_token(&state, &client_id, &profile_name, &refresh_token)
+                                .await
+                        })
+                    },
+                )))
+            }
+            ProfileAuth::Basic { username } => {
+                let Some(password) = client_secret else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        format!(
+                            "No password stored for profile '{}'. Recreate it with `haste-health profile create`.",
+                            profile_name
+                        ),
+                    ));
+                };
+
+                Some(FHIRHttpAuthenticationMethod::Basic(Arc::new(move || {
+                    let username = username.clone();
+                    let password = password.clone();
+
+                    Box::pin(async move { Ok(BasicCredentials { username, password }) })
+                })))
             }
         },
     )?;
@@ -295,11 +362,14 @@ async fn config_to_fhir_http_state(
     Ok(http_state)
 }
 
-pub(crate) async fn fhir_client(
+pub(crate) async fn fhir_client<CTX>(
     state: Arc<Mutex<CliState>>,
-) -> Result<Arc<FHIRHttpClient<()>>, OperationOutcomeError> {
+) -> Result<Arc<FHIRHttpClient<CTX>>, OperationOutcomeError>
+where
+    CTX: 'static + Send + Sync + std::fmt::Debug + HttpRequestHeaders,
+{
     let http_state = config_to_fhir_http_state(state).await?;
-    let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
+    let fhir_client = Arc::new(FHIRHttpClient::<CTX>::new(http_state));
 
     Ok(fhir_client)
 }

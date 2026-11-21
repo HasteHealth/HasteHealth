@@ -1,0 +1,208 @@
+{
+    "id": "g10-12.17.02-search-patient-intent-status",
+    "url": "https://haste.health/fhir/TestScript/g10-12.17.02-search-patient-intent-status",
+    "name": "g10-12.17.02-search-patient-intent-status",
+    "title": "12.17.02 Server returns valid results for MedicationRequest search by patient + intent + status",
+    "status": "active",
+    "description": "g10 12.17.02 (SH-PAT-2; US Core 6.1.0: group 10.17). Server returns valid results for MedicationRequest search by patient + intent + status. US Core SHALL search. Every result must match every parameter, and the record's MedicationRequest/g10-medicationrequest-coded-oral-axid must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-medicationrequest-patient-g10-example-intent-order-status-active",
+            "name": "GET MedicationRequest?patient=g10-example&intent=order&status=active",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MedicationRequest",
+                        "params": "patient=g10-example&intent=order&status=active",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "MedicationRequest/g10-medicationrequest-coded-oral-axid is returned",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).where(id = 'g10-medicationrequest-coded-oral-axid').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every MedicationRequest returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).all((subject.reference.endsWith('Patient/g10-example')) and (intent = 'order') and (status = 'active'))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-multiple-or-get-medicationrequest-patient-g10-example-intent-proposal-plan-order-original-order-reflex-order-filler-order-instance-order-option-status-active",
+            "name": "Multiple-or: GET MedicationRequest?patient=g10-example&intent=proposal,plan,order,original-order,reflex-order,filler-order,instance-order,option&status=active",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MedicationRequest",
+                        "params": "patient=g10-example&intent=proposal,plan,order,original-order,reflex-order,filler-order,instance-order,option&status=active",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every MedicationRequest returned has one of the values",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).all(intent = 'proposal' or intent = 'plan' or intent = 'order' or intent = 'original-order' or intent = 'reflex-order' or intent = 'filler-order' or intent = 'instance-order' or intent = 'option')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest with intent order is returned",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).where(intent = 'order').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest with intent plan is returned",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).where(intent = 'plan').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-multiple-or-get-medicationrequest-patient-g10-example-intent-order-status-active-on-hold-cancelled-completed-entered-in-error-stopped-draft-unknown",
+            "name": "Multiple-or: GET MedicationRequest?patient=g10-example&intent=order&status=active,on-hold,cancelled,completed,entered-in-error,stopped,draft,unknown",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MedicationRequest",
+                        "params": "patient=g10-example&intent=order&status=active,on-hold,cancelled,completed,entered-in-error,stopped,draft,unknown",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every MedicationRequest returned has one of the values",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).all(status = 'active' or status = 'on-hold' or status = 'cancelled' or status = 'completed' or status = 'entered-in-error' or status = 'stopped' or status = 'draft' or status = 'unknown')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A MedicationRequest with status active is returned",
+                        "expression": "Bundle.entry.resource.ofType(MedicationRequest).where(status = 'active').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-include-get-medicationrequest-patient-g10-example-intent-order-status-active-include-medicationrequest-medication",
+            "name": "_include: GET MedicationRequest?patient=g10-example&intent=order&status=active&_include=MedicationRequest:medication",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MedicationRequest",
+                        "params": "patient=g10-example&intent=order&status=active&_include=MedicationRequest:medication",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Medication/g10-uscore-med2 is included",
+                        "expression": "Bundle.entry.resource.ofType(Medication).where(id = 'g10-uscore-med2').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every included Medication is one the results reference",
+                        "expression": "Bundle.entry.resource.ofType(Medication).all(id = 'g10-uscore-med2')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

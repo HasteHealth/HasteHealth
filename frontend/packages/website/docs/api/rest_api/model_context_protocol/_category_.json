@@ -1,4 +1,8 @@
 {
     "label": "Model Context Protocol",
-    "key": "api-rest-api-model-context-protocol"
+    "key": "api-rest-api-model-context-protocol",
+    "link": {
+        "type": "generated-index",
+        "description": "Reference for connecting AI agents to Haste Health's FHIR data via the Model Context Protocol."
+    }
 }

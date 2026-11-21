@@ -1,3 +1,5 @@
+pub mod search;
+
 use crate::{ParameterLevel, ResolvedParameter, SearchParameterResolve};
 use haste_artifacts::R4_SEARCH_PARAMETERS;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
@@ -17,6 +19,35 @@ pub enum ArtifactError {
 pub struct SearchParametersIndex {
     by_url: HashMap<String, ResolvedParameter>,
     by_resource_type: HashMap<String, HashMap<String, ResolvedParameter>>,
+}
+
+impl SearchParametersIndex {
+    /// Every indexed parameter, resolved synchronously.
+    ///
+    /// `SearchParameterResolve::all` is async only to accommodate resolvers
+    /// that hit a database; this index is pure in-memory, so callers that run
+    /// outside a runtime (a `LazyLock` initializer, for instance) can read it
+    /// directly.
+    #[must_use]
+    pub fn all_parameters(&self) -> Vec<ResolvedParameter> {
+        self.by_url.values().cloned().collect()
+    }
+
+    /// The parameter named `name` on `resource_type`, or failing that on
+    /// `Resource` or `DomainResource`, which every type inherits. Resolved
+    /// synchronously, like [`Self::all_parameters`].
+    #[must_use]
+    pub fn get(
+        &self,
+        resource_type: Option<&ResourceType>,
+        name: &str,
+    ) -> Option<&ResolvedParameter> {
+        resource_type
+            .map(AsRef::as_ref)
+            .into_iter()
+            .chain(["Resource", "DomainResource"])
+            .find_map(|resource_type| self.by_resource_type.get(resource_type)?.get(name))
+    }
 }
 
 impl SearchParameterResolve for SearchParametersIndex {
@@ -58,20 +89,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         resource_type: Option<&ResourceType>,
         name: &str,
     ) -> impl Future<Output = Result<Option<ResolvedParameter>, OperationOutcomeError>> {
-        std::future::ready(Ok(resource_type
-            .and_then(|resource_type| self.by_resource_type.get(resource_type.as_ref()))
-            .and_then(|params| params.get(name))
-            .or_else(|| {
-                self.by_resource_type
-                    .get("Resource")
-                    .and_then(|params| params.get(name))
-            })
-            .or_else(|| {
-                self.by_resource_type
-                    .get("DomainResource")
-                    .and_then(|params| params.get(name))
-            })
-            .cloned()))
+        std::future::ready(Ok(self.get(resource_type, name).cloned()))
     }
 
     fn all(
@@ -79,7 +97,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         _tenant: &TenantId,
         _project: &ProjectId,
     ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> {
-        std::future::ready(Ok(self.by_url.values().cloned().collect::<Vec<_>>()))
+        std::future::ready(Ok(self.all_parameters()))
     }
 }
 

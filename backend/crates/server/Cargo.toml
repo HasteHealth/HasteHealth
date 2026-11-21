@@ -11,6 +11,11 @@ homepage = { workspace = true }
 haste-access-control = { path = "../access-control", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-encryption = { path = "../encryption", version = "0.*" }
+haste-document-storage = { path = "../document-storage", version = "0.*", default-features = false, features = [
+    "filesystem",
+    "gcs",
+    "postgres",
+] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
     "http",
     "axum",
@@ -24,6 +29,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
     "axum",
 ] }
 haste-fhir-ops = { path = "../fhir-ops", version = "0.*" }
+haste-fhir-package = { path = "../fhir-package", version = "0.*" }
 haste-fhir-profiling = { path = "../fhir-profiling", version = "0.*" }
 haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
@@ -40,66 +46,80 @@ haste-repository = { path = "../repository", version = "0.*", features = [
 ] }
 haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
 haste-sql-on-fhir = { path = "../sql-on-fhir", version = "0.*" }
+haste-subscription = { path = "../subscription", version = "0.*" }
+haste-worker = { path = "../worker", version = "0.*" }
 
 axum = { workspace = true, features = ["form", "json", "macros", "query"] }
 axum-client-ip = { version = "1.3.1", default-features = false, features = [
     "connect-info",
 ] }
 axum-extra = { version = "0.12.6", default-features = false, features = [
+    "form",
     "typed-routing",
     "typed-header",
     "cached",
 ] }
-base64 = { workspace = true }
+base64 = { workspace = true, features = ["alloc"] }
 chrono = { workspace = true }
 derivative = { workspace = true }
 dotenvy = { workspace = true }
 email_address = { version = "0.2.9", default-features = false, features = [
     "serde_support",
 ] }
-image = { version = "0.25.10", default-features = false, features = [
-    "png",
+futures-util = { version = "0.3.34", default-features = false, features = [
+    "alloc",
 ] }
+image = { version = "0.25.10", default-features = false, features = ["png"] }
 json-patch = { workspace = true }
 jsonwebtoken = { workspace = true }
 maud = { version = "0.27.0", default-features = false, features = ["axum"] }
 mime_guess = { version = "2.0.5", default-features = false }
 moka = { workspace = true, features = ["future"] }
 petgraph = { version = "0.8.3", default-features = false }
-rand = { version = "0.8", default-features = false }
-regex = { workspace = true }
+rand = { version = "0.10", default-features = false, features = ["thread_rng"] }
 reqwest = { workspace = true, features = ["form", "default-tls", "http2"] }
-rsa = { version = "0.9.10", default-features = false, features = ["pem"] }
+rsa = { version = "0.10.0", default-features = false, features = ["encoding"] }
 rust-embed = { workspace = true, features = ["axum-ex"] }
-sendgrid = { version = "0.26.0", default-features = false }
+sendgrid = { version = "0.27.2", default-features = false }
 sentry = { workspace = true, features = [
     "tower-axum-matched-path",
-    "transport",
+    "reqwest",
+    "rustls",
     "panic",
     "backtrace",
 ] }
 serde = { workspace = true }
-serde_html_form = { version = "0.4.0", default-features = false, features = [
+serde_html_form = { version = "0.4.1", default-features = false, features = [
     "de",
     "std",
 ] }
 serde_json = { workspace = true }
-sha1 = { version = "0.10.6", default-features = false }
-sha2 = { version = "0.10.9", default-features = false }
+serde_path_to_error = { workspace = true }
+sha1 = { version = "0.11.0", default-features = false }
+sha2 = { version = "0.11.1", default-features = false }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
-    "tls-native-tls",
+    "tls-rustls-ring-native-roots",
     "postgres",
     "time",
 ] }
 sqlx-postgres = { workspace = true }
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
-totp-rs = { version = "5.7.2", default-features = false, features = [
+subtle = { version = "2.6.1", default-features = false }
+tokio = { workspace = true, features = [
+    "macros",
+    "net",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
+totp-rs = { version = "6.0.0", default-features = false, features = [
     "qr",
     "gen_secret",
+    "std",
 ] }
-tower = { version = "0.5.3", default-features = false }
-tower-http = { version = "0.6.11", default-features = false, features = [
+tower = { version = "0.5.3", default-features = false, features = ["util"] }
+tower-http = { version = "0.7.1", default-features = false, features = [
     "fs",
     "cors",
     "normalize-path",
@@ -107,15 +127,18 @@ tower-http = { version = "0.6.11", default-features = false, features = [
     "trace",
     "set-header",
     "catch-panic",
+    "request-id",
 ] }
-tower-sessions = { version = "0.14.0", default-features = false, features = [
+tower-sessions = { version = "0.15.0", default-features = false, features = [
     "axum-core",
 ] }
-tower-sessions-sqlx-store = { version = "0.15.0", default-features = false, features = [
+# Head of upstream main: the published 0.15.0 still requires sqlx 0.8 and
+# tower-sessions-core 0.14. Drop the git pin once a release supports sqlx 0.9.
+tower-sessions-sqlx-store = { git = "https://github.com/maxcountryman/tower-sessions-stores", rev = "d18c9bf76f1d4fb73130dbe5aa643197f14b5d2d", default-features = false, features = [
     "postgres",
 ] }
 tracing = { workspace = true }
-typify = { version = "0.5.0", default-features = false, features = ["macro"] }
+typify = { version = "0.8.0", default-features = false, features = ["macro"] }
 url = { version = "2.5.8", default-features = false }
 walkdir = { workspace = true }
 zxcvbn = { version = "3.1.1", default-features = false }

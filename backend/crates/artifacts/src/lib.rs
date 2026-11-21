@@ -47,19 +47,27 @@ fn load_resources() -> Vec<Resource> {
 }
 
 #[derive(Embed)]
-#[folder = "./artifacts"]
-#[include = "r4/haste_health/**/*.json"]
-#[include = "r4/hl7/minified/**/*.json"]
-#[include = "universal/**/*.json"]
-#[include = "r4/r4-to-r5-subscription-backport/**/*.json"]
+#[folder = "../../../artifacts/r4"]
+#[include = "hastehealth-core/definitions/**/*.json"]
+#[include = "hl7-core/definitions/hl7/*.min.json"]
+#[include = "r5-subscription-backport/**/*.json"]
+// Consumed by the TypeScript packages only; the server implements none of these.
+#[exclude = "hastehealth-core/definitions/haste-health/operation-frontend-only/**"]
+// The artifact folders are also pnpm workspace packages; none of the npm
+// metadata, nor anything pnpm links into them, is a FHIR resource.
+#[exclude = "*/node_modules/**"]
+#[exclude = "**/package.json"]
+#[exclude = "**/typedoc.json"]
+#[exclude = "**/.index.json"]
 struct EmbededResourceAssets;
 
 pub static ARTIFACT_RESOURCES: LazyLock<Vec<Resource>> = LazyLock::new(load_resources);
 
 #[derive(Embed)]
-#[folder = "./artifacts/r4"]
-#[include = "haste_health/search_parameter/*.json"]
-#[include = "hl7/minified/search-parameters.min.json"]
+#[folder = "../../../artifacts/r4"]
+#[include = "hastehealth-core/definitions/haste-health/search_parameter/*.json"]
+#[include = "hl7-core/definitions/hl7/search-parameters.min.json"]
+#[exclude = "*/node_modules/**"]
 struct EmbededSearchParameterAssets;
 
 /// System level Search Parameters. These are used for all tenants and projects and are loaded from embedded assets at startup.

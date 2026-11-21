@@ -3,6 +3,7 @@ use crate::{
     pg::{PGConnection, StoreError},
     types::membership::{CreateMembership, Membership, MembershipSearchClaims},
 };
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use sqlx::{PgExecutor, QueryBuilder};
@@ -78,11 +79,29 @@ async fn update_membership<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
+    // Rows are keyed by user, so pointing a Membership at another user would
+    // otherwise insert a row for the new user and leave the old user's row,
+    // and its access to the project, behind. Remove it in the same statement.
     let mut query_builder = QueryBuilder::new(
         r"
+            WITH replaced AS (
+                DELETE FROM memberships
+                WHERE tenant = ",
+    );
+    query_builder
+        .push_bind(tenant.as_ref())
+        .push(" AND project = ")
+        .push_bind(project.as_ref())
+        .push(" AND resource_id = ")
+        .push_bind(&model.resource_id)
+        .push(" AND user_id <> ")
+        .push_bind(&model.user_id)
+        .push(
+            r"
+            )
             INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
         ",
-    );
+        );
 
     let mut seperator = query_builder.separated(", ");
 
@@ -105,16 +124,27 @@ where
         .push(" resource_id = ")
         .push_bind_unseparated(&model.resource_id);
 
+    // A user has one membership per project. If the user already belongs to
+    // it through another Membership resource, leave that row alone: no row
+    // comes back and the update is refused.
+    query_builder.push(" WHERE memberships.resource_id = EXCLUDED.resource_id");
     query_builder.push(r" RETURNING tenant, project, user_id, role, resource_id");
 
     let query = query_builder.build_query_as::<Membership>();
 
-    let membership = query
-        .fetch_one(executor)
+    query
+        .fetch_optional(executor)
         .await
-        .map_err(StoreError::SQLXError)?;
-
-    Ok(membership)
+        .map_err(StoreError::SQLXError)?
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::conflict(),
+                format!(
+                    "User '{}' already has a membership in this project.",
+                    model.user_id
+                ),
+            )
+        })
 }
 
 async fn delete_membership<'a, 'e, E>(

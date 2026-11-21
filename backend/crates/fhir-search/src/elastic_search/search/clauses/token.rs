@@ -1,82 +1,56 @@
-use crate::elastic_search::search::{QueryBuildError, clauses::namespace_parameter};
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
+use crate::{
+    elastic_search::search::clauses::{all_of, any_of, match_query, nested},
+    query::{
+        QueryBuildError,
+        value::{TokenSystem, TokenValue, TokenValues},
+    },
+};
 use serde_json::json;
 
-fn matching_modifier(modifier: Option<&str>) -> Result<String, QueryBuildError> {
-    match modifier {
-        Some("not") => Ok("must_not".to_string()),
-        Some(modifier) => Err(QueryBuildError::ModifierNotSupported(modifier.into())),
-        None => Ok("must".to_string()),
-    }
+/// Matches any of the tokens, and whether `:not` negates the match. The
+/// caller applies the negation outside the nested query.
+pub fn token(
+    field: &str,
+    values: &TokenValues<'_>,
+) -> Result<(serde_json::Value, bool), QueryBuildError> {
+    let (tokens, negate) = match values {
+        TokenValues::Codes(tokens) => (tokens, false),
+        TokenValues::Not(tokens) => (tokens, true),
+        // Subsumption and value set membership need the terminology service;
+        // text and identifier types aren't indexed.
+        TokenValues::Above(_)
+        | TokenValues::Below(_)
+        | TokenValues::Text(_)
+        | TokenValues::In(_)
+        | TokenValues::NotIn(_)
+        | TokenValues::OfType(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
+        }
+    };
+
+    let query = any_of(
+        tokens
+            .iter()
+            .map(|token| nested(field, token_query(field, token)))
+            .collect(),
+    );
+    Ok((query, negate))
 }
 
-pub fn token(
-    namespace: Option<&str>,
-    parameter: &Parameter,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    let matching_type = matching_modifier(parameter.modifier.as_deref())?;
-    let column_name = namespace_parameter(namespace, search_param);
-
-    let params = parameter
-        .value
-        .iter()
-        .map(|value| {
-            let pieces = value.split('|').collect::<Vec<&str>>();
-            match pieces.len() {
-                1 => Ok(json!({
-                    "nested": {
-                        "path": &column_name,
-                        "query": {
-                            "bool": {
-                                &matching_type: [{
-                                    "match": {
-                                        format!("{}.code", column_name): {
-                                        "query": pieces.first()
-                                    }
-                                }}]
-                            }
-                        }
-                    }
-                })),
-                2 => Ok(json!({
-                    "nested": {
-                        "path": &column_name,
-                        "query": {
-                            "bool": {
-                                &matching_type: [{
-                                    "bool": {
-                                        "filter": [
-                                            {
-                                                "match": {
-                                                    format!("{}.code", column_name): {
-                                                        "query": pieces.get(1)
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "match": {
-                                                    format!("{}.system", column_name): {
-                                                        "query": pieces.first()
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }]
-                            }
-                        }
-                    }
-                })),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
-            }
-        })
-        .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": params
+/// What the token says of the system and of the code, both required; `|`
+/// says nothing of either and matches any token.
+fn token_query(field: &str, token: &TokenValue<'_>) -> serde_json::Value {
+    let mut filter = Vec::new();
+    let mut must_not = Vec::new();
+    match &token.system {
+        TokenSystem::Any => {}
+        TokenSystem::Absent => {
+            must_not.push(json!({ "exists": { "field": format!("{field}.system") } }));
         }
-    }))
+        TokenSystem::Is(system) => filter.push(match_query(field, "system", system)),
+    }
+    if let Some(code) = token.code.as_deref() {
+        filter.push(match_query(field, "code", code));
+    }
+    all_of(filter, must_not)
 }

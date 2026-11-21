@@ -1,0 +1,20 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "AccessPolicyV3Assignment-access-policy",
+    "url": "https://haste.health/fhir/SearchParameter/AccessPolicyV3Assignment-access-policy",
+    "version": "4.0.1",
+    "name": "access-policy",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "The access policy an assignment grants.",
+    "code": "access-policy",
+    "base": [
+        "AccessPolicyV3Assignment"
+    ],
+    "type": "reference",
+    "expression": "AccessPolicyV3Assignment.accessPolicy",
+    "target": [
+        "AccessPolicyV3"
+    ]
+}

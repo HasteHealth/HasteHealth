@@ -1,0 +1,260 @@
+{
+    "id": "access-control-patient-scopes-read",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scopes-read",
+    "name": "Access Control Patient Scopes Read",
+    "title": "Patient scopes: reads",
+    "status": "active",
+    "description": "Run as ac-patient-a with patient/*.rs. Own records and shared reference data are readable; another patient's read as not found.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ac-patient-a",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-patient-b",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-observation-a",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-observation-b",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-b"
+            }
+        },
+        {
+            "id": "ac-practitioner",
+            "resourceType": "Practitioner",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ac-patient-a",
+            "resource": {
+                "reference": "#ac-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-b",
+            "resource": {
+                "reference": "#ac-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-a",
+            "resource": {
+                "reference": "#ac-observation-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-b",
+            "resource": {
+                "reference": "#ac-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-practitioner",
+            "resource": {
+                "reference": "#ac-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-own-patient",
+            "name": "The patient reads their own record",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read returns a Patient",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the patient's own record",
+                        "expression": "Patient.id = 'ac-patient-a'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-other-patient",
+            "name": "Another patient's record reads as not found",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-b",
+                        "encodeRequestUrl": false,
+                        "description": "Out of compartment reads exactly like a missing resource."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-own-observation",
+            "name": "An Observation in the patient's compartment is readable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read returns an Observation",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the patient's Observation",
+                        "expression": "Observation.id = 'ac-observation-a'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-other-observation",
+            "name": "Another patient's Observation reads as not found",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Observation is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-shared-type",
+            "name": "Shared reference data outside any compartment is readable",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-ac-practitioner",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The read returns a Practitioner",
+                        "resource": "Practitioner",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the practitioner",
+                        "expression": "Practitioner.id = 'ac-practitioner'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

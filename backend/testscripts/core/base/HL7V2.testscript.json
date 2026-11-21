@@ -1,0 +1,387 @@
+{
+    "id": "core-hl7v2",
+    "url": "https://haste.health/fhir/TestScript/core-hl7v2",
+    "title": "Core HL7V2 TestScript",
+    "name": "Core HL7V2 TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the HL7V2 resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "fieldSeparator": "example",
+            "id": "crud-create-1",
+            "resourceType": "HL7V2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-hl7v2-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9maWVsZFNlcGFyYXRvciIsICJ2YWx1ZSI6ICJQYXRjaGVkIn1d"
+        },
+        {
+            "fieldSeparator": "Updated",
+            "resourceType": "HL7V2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-hl7v2-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create HL7V2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "HL7V2",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "HL7V2",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read HL7V2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "HL7V2.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "HL7V2.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "HL7V2.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch HL7V2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "HL7V2",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "HL7V2.fieldSeparator",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "Patched",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update HL7V2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "HL7V2",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "HL7V2.fieldSeparator",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "Updated",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "HL7V2.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "HL7V2.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete HL7V2",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "HL7V2",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "HL7V2",
+                    "params": "_tag=core-hl7v2-test",
+                    "description": "Delete HL7V2 resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

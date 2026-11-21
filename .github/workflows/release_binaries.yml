@@ -1,0 +1,150 @@
+name: <Release> Binaries
+
+# Builds haste-health for each platform, attaches the binaries to the release
+# and publishes them to npm. Run by hand to test the builds from any branch
+# (artifacts only, no release or npm).
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Match docker/haste-health.dockerfile.
+  RUST_VERSION: "1.98.1"
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds are static (musl), so they run on any distribution.
+          # Each target builds on a runner of its own architecture: the V8
+          # snapshot made at build time is architecture specific.
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-24.04-arm
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: "./backend -> target"
+          key: ${{ matrix.target }}
+
+      # The tag still has the previous release's versions.
+      - name: Stamp release version
+        if: github.event_name == 'release'
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
+
+      # musl-gcc compiles the C dependencies (aws-lc, mimalloc, zstd) for musl.
+      - name: Install musl tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      # Run from backend/: cargo only reads backend/.cargo/config.toml (the
+      # arm64 musl link flag) when started there.
+      - name: Build
+        working-directory: backend
+        run: cargo build --locked --release --target ${{ matrix.target }}
+
+      - name: Name binary for its target
+        run: cp "backend/target/${{ matrix.target }}/release/haste-health" "haste-health-${{ matrix.target }}"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: haste-health-${{ matrix.target }}
+          path: haste-health-${{ matrix.target }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Attach to release
+    needs: build
+    if: github.event_name == 'release'
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: haste-health-*
+          merge-multiple: true
+
+      # Keep the old asset names so existing download links still work.
+      - name: Add legacy names
+        run: |
+          cp haste-health-x86_64-unknown-linux-musl haste-health_linux
+          cp haste-health-aarch64-apple-darwin haste-health_macos
+
+      - name: Release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          files: |
+            haste-health-*
+            haste-health_linux
+            haste-health_macos
+
+  npm:
+    name: Publish to npm
+    needs: build
+    # Prereleases stay off npm, like the other registries.
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # npm provenance: links each package to this workflow run.
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: haste-health-*
+          merge-multiple: true
+          path: binaries
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build packages
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node npm/build.mjs "${VERSION#v}" binaries npm-dist
+
+      # Platform packages first, since haste-health depends on them. Versions
+      # already on npm are skipped, so a failed run can be re-run.
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for dir in ./npm-dist/cli-* ./npm-dist/haste-health; do
+            spec=$(node -p "const p = require('$dir/package.json'); p.name + '@' + p.version")
+            if npm view "$spec" version >/dev/null 2>&1; then
+              echo "$spec is already published"
+            else
+              npm publish --provenance "$dir"
+            fi
+          done

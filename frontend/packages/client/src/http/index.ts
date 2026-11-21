@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bundle, id } from "@haste-health/fhir-types/r4/types";
 import * as r4b from "@haste-health/fhir-types/r4b/types";
-import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 import { OperationError, outcomeError } from "@haste-health/operation-outcomes";
 
 import { AsynchronousClient } from "../index.js";
@@ -19,6 +19,13 @@ export type HTTPClientState = {
   authenticate?: () => void;
   getAccessToken?: () => Promise<string>;
   url: string | DeriveFHIRURL;
+  /**
+   * How searches are sent. Defaults to `"GET"` (parameters in the query
+   * string). `"POST"` form-encodes them into a `_search` body, keeping
+   * identifiers out of URLs and lifting the URL length limit.
+   * Allows users to send PHI without worrying about it appearing in URLs.
+   */
+  searchMethod?: "GET" | "POST";
 };
 
 export type HTTPContext = {
@@ -26,52 +33,65 @@ export type HTTPContext = {
 };
 
 function parametersToQueryString(
-  parameters: ParsedParameter<string | number>[]
+  parameters: ParsedParameter<string | number>[],
 ): string {
   return parameters
     .map((p) => {
       const name = p.chains ? [p.name, ...p.chains].join(".") : p.name;
-      return `${name}${p.modifier ? `:${p.modifier}` : ""}=${p.value
-        .map((v) => encodeURIComponent(v))
-        .join(",")}`;
+      const modifier = p.modifier ? `:${p.modifier}` : "";
+      const value = p.value.map((v) => encodeURIComponent(v)).join(",");
+      return `${name}${modifier}=${value}`;
     })
     .join("&");
 }
 
-const pathJoin = (parts: string[], sep = "/") =>
-  parts.join(sep).replace(new RegExp(sep + "{1,}", "g"), sep);
-
-function fhirUrlChunk(version: string) {
-  switch (version) {
-    case R4:
-      return "r4";
-    case R4B:
-      return "r4b";
-    default:
-      return version;
-  }
+/** Renders a query string as a URL suffix, empty when there is none. */
+function querySuffix(queryString: string): string {
+  return queryString ? `?${queryString}` : "";
 }
 
 /**
- * Used as default and for display purposes in admin app.
- * @param domain HasteHealth Domain
- * @param fhirVersion FHIRVersion
- * @returns HasteHealth VersionedURL.
+ * The FHIR root a request is resolved against, always ending in `/`.
+ *
+ * A string base URL is the FHIR root and is used as given. The FHIR version
+ * belongs to the project, so it is not appended to the path; pass a function
+ * if a deployment needs the URL to vary by version.
  */
-export const deriveHasteHealthVersionedURL = (
-  domain: string,
-  fhirVersion: FHIR_VERSION
-) => {
-  return new URL(
-    pathJoin([new URL(domain).pathname, `/${fhirUrlChunk(fhirVersion)}`]),
-    domain
-  ).toString();
-};
+function fhirBaseUrl(state: HTTPClientState, fhirVersion: FHIR_VERSION) {
+  const FHIRUrl =
+    typeof state.url === "string" ? state.url : state.url(fhirVersion);
+  return FHIRUrl.endsWith("/") ? FHIRUrl : FHIRUrl + "/";
+}
+
+/**
+ * Refuses a request URL that resolves outside the FHIR root.
+ *
+ * Resource types and ids are joined into the URL as given, and callers often
+ * take them from a browser route that has already been percent-decoded. A
+ * value such as `//other.example/x` would make `new URL` resolve to another
+ * origin, and `../` (or `%2e%2e`) segments would climb out of the FHIR path,
+ * either way sending the bearer token somewhere it was not issued for.
+ */
+function assertWithinBase(url: string, base: string) {
+  const target = new URL(url);
+  const root = new URL(base);
+  if (
+    target.origin !== root.origin ||
+    !target.pathname.startsWith(root.pathname)
+  ) {
+    throw new OperationError(
+      outcomeError(
+        "security",
+        "Refused a request whose URL is outside the FHIR server's base URL",
+      ),
+    );
+  }
+}
 
 async function toHTTPRequest(
   state: HTTPClientState,
   context: HTTPContext,
-  request: FHIRRequest<FHIR_VERSION, AllInteractions>
+  request: FHIRRequest<FHIR_VERSION, AllInteractions>,
 ): Promise<{
   url: string;
   headers?: Record<string, string>;
@@ -83,13 +103,7 @@ async function toHTTPRequest(
     ...context.headers,
   };
 
-  let FHIRUrl =
-    typeof state.url === "string"
-      ? deriveHasteHealthVersionedURL(state.url, request.fhirVersion)
-      : state.url(request.fhirVersion);
-  if (!FHIRUrl.endsWith("/")) {
-    FHIRUrl = FHIRUrl + "/";
-  }
+  const FHIRUrl = fhirBaseUrl(state, request.fhirVersion);
 
   if (state.getAccessToken) {
     const token = await state.getAccessToken();
@@ -122,8 +136,8 @@ async function toHTTPRequest(
           const queryString = parametersToQueryString(request.parameters);
           return {
             url: new URL(
-              `${request.resource}${queryString ? `?${queryString}` : ""}`,
-              FHIRUrl
+              `${request.resource}${querySuffix(queryString)}`,
+              FHIRUrl,
             ).href,
             method: "PUT",
             body: JSON.stringify(request.body),
@@ -154,7 +168,7 @@ async function toHTTPRequest(
       return {
         url: new URL(
           `${request.resource}/${request.id}/_history/${request.versionId}`,
-          FHIRUrl
+          FHIRUrl,
         ).href,
         method: "GET",
         headers,
@@ -173,8 +187,8 @@ async function toHTTPRequest(
           const queryString = parametersToQueryString(request.parameters);
           return {
             url: new URL(
-              `${request.resource}${queryString ? `?${queryString}` : ""}`,
-              FHIRUrl
+              `${request.resource}${querySuffix(queryString)}`,
+              FHIRUrl,
             ).href,
             method: "DELETE",
             headers,
@@ -183,8 +197,7 @@ async function toHTTPRequest(
         case "system": {
           const queryString = parametersToQueryString(request.parameters);
           return {
-            url: new URL(`${queryString ? `?${queryString}` : ""}`, FHIRUrl)
-              .href,
+            url: new URL(querySuffix(queryString), FHIRUrl).href,
             method: "DELETE",
             headers,
           };
@@ -199,7 +212,7 @@ async function toHTTPRequest(
         case "instance": {
           historyUrl = new URL(
             `${request.resource}/${request.id}/_history`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         }
@@ -214,8 +227,7 @@ async function toHTTPRequest(
       }
 
       return {
-        url: new URL(`${queryString ? `?${queryString}` : ""}`, historyUrl)
-          .href,
+        url: new URL(querySuffix(queryString), historyUrl).href,
         method: "GET",
         headers,
       };
@@ -231,28 +243,49 @@ async function toHTTPRequest(
       };
     }
     case "search-request": {
-      const queryString = parametersToQueryString(request.parameters);
-      let searchURL;
-      switch (request.level) {
-        case "type":
-          searchURL = new URL(
-            `${request.resource}${queryString ? `?${queryString}` : ""}`,
-            FHIRUrl
-          ).href;
-          break;
-        case "system":
-          searchURL = new URL(
-            `${queryString ? `?${queryString}` : ""}`,
-            FHIRUrl
-          ).href;
-          break;
-      }
+      // Percent-encoded, so this works as a query string or a form body.
+      const parameters = parametersToQueryString(request.parameters);
 
-      return {
-        url: searchURL,
-        method: "GET",
-        headers,
-      };
+      if (state.searchMethod === "POST") {
+        let searchURL;
+        switch (request.level) {
+          case "type":
+            searchURL = new URL(`${request.resource}/_search`, FHIRUrl).href;
+            break;
+          case "system":
+            searchURL = new URL("_search", FHIRUrl).href;
+            break;
+        }
+
+        return {
+          url: searchURL,
+          method: "POST",
+          body: parameters,
+          headers: {
+            ...headers,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        };
+      } else {
+        const queryString = querySuffix(parameters);
+
+        let searchURL;
+        switch (request.level) {
+          case "type":
+            searchURL = new URL(`${request.resource}${queryString}`, FHIRUrl)
+              .href;
+            break;
+          case "system":
+            searchURL = new URL(queryString, FHIRUrl).href;
+            break;
+        }
+
+        return {
+          url: searchURL,
+          method: "GET",
+          headers,
+        };
+      }
     }
 
     case "invoke-request": {
@@ -261,13 +294,13 @@ async function toHTTPRequest(
         case "instance":
           invokeURL = new URL(
             `${request.resource}/${request.id}/$${request.operation}`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         case "type":
           invokeURL = new URL(
             `${request.resource}/$${request.operation}`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         case "system":
@@ -289,7 +322,7 @@ export class ResponseError<Version extends FHIR_VERSION> extends Error {
   private readonly _response: FHIRResponse<Version, "error">;
   constructor(
     request: FHIRRequest<Version, AllInteractions>,
-    response: FHIRErrorResponse<Version>
+    response: FHIRErrorResponse<Version>,
   ) {
     super();
     this._request = request;
@@ -309,7 +342,7 @@ export function isResponseError(e: unknown): e is ResponseError<FHIR_VERSION> {
 
 async function httpResponseToFHIRResponse<Version extends FHIR_VERSION>(
   request: FHIRRequest<Version, AllInteractions>,
-  response: Response
+  response: Response,
 ): Promise<FHIRResponse<Version, AllInteractions>> {
   if (response.status >= 400) {
     switch (response.status) {
@@ -627,7 +660,11 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
         const httpRequest = await toHTTPRequest(
           state,
           context.ctx,
-          context.request
+          context.request,
+        );
+        assertWithinBase(
+          httpRequest.url,
+          fhirBaseUrl(state, context.request.fhirVersion),
         );
         const response = await fetch(httpRequest.url, {
           method: httpRequest.method,
@@ -636,7 +673,7 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
         });
         const fhirResponse = await httpResponseToFHIRResponse(
           context.request,
-          response
+          response,
         );
         fhirResponse.http = {
           status: response.status,
@@ -665,7 +702,7 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
 }
 
 export default function createHTTPClient(
-  initialState: HTTPClientState
+  initialState: HTTPClientState,
 ): AsynchronousClient<HTTPContext> {
   // Removing trailing slash
   const middleware = httpMiddleware(initialState);

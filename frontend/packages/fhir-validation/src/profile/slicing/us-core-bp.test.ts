@@ -223,7 +223,7 @@ test("Slice Validation", async () => {
     elementLoc as unknown as ElementLoc
   );
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -233,7 +233,7 @@ test("Slice Validation", async () => {
     )
   ).resolves.toEqual([]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -243,7 +243,7 @@ test("Slice Validation", async () => {
     )
   ).resolves.toEqual([]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -293,7 +293,7 @@ test("Slice Validation", async () => {
     },
   ]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -363,7 +363,7 @@ test("Blood Pressure Category", async () => {
     elementLoc as unknown as ElementLoc
   );
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -394,7 +394,7 @@ test("Blood Pressure Category", async () => {
     },
   ]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -414,7 +414,7 @@ test("Blood Pressure Category", async () => {
     },
   ]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,
@@ -445,7 +445,7 @@ test("Blood Pressure Category", async () => {
     },
   ]);
 
-  expect(
+  await expect(
     validateSliceDescriptor(
       CTX,
       bloodProfile,

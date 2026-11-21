@@ -17,7 +17,12 @@ function isArray(element: ElementDefinition): boolean {
   const base = element.base?.max ?? "1";
   const max = element.max ?? "1";
 
-  return base === "*" || max === "*" || parseInt(base) > 1 || parseInt(max) > 1;
+  return (
+    base === "*" ||
+    max === "*" ||
+    Number.parseInt(base) > 1 ||
+    Number.parseInt(max) > 1
+  );
 }
 
 function getMin(elementDefinition: ElementDefinition) {
@@ -63,7 +68,7 @@ export function validateCardinality(
         ),
       ];
     }
-    if (max !== "*" && value > parseInt(max))
+    if (max !== "*" && value > Number.parseInt(max))
       return [
         issueError(
           "structure",

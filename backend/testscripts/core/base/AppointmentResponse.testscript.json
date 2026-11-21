@@ -1,0 +1,3440 @@
+{
+    "id": "core-appointmentresponse",
+    "url": "https://haste.health/fhir/TestScript/core-appointmentresponse",
+    "title": "Core AppointmentResponse TestScript",
+    "name": "Core AppointmentResponse TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the AppointmentResponse resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-crud-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "crud-create-1",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9wYXJ0aWNpcGFudFN0YXR1cyIsICJ2YWx1ZSI6ICJ0ZW50YXRpdmUifV0="
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-crud-appt"
+            },
+            "participantStatus": "declined",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "id": "core-appointmentresponse-actor-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "actor": {
+                "reference": "Patient/core-appointmentresponse-actor-target"
+            },
+            "id": "appointmentresponse-actor-match-2",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-actor"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-actor-missing-3",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-actor"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-appointmentresponse-appointment-target",
+            "resourceType": "Appointment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "status": "booked",
+            "participant": [
+                {
+                    "status": "accepted"
+                }
+            ]
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-appointment-target"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-appointment-match-4",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-appointment"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "identifier": [
+                {
+                    "system": "http://example.org/appt-resp-id",
+                    "value": "ar-12345"
+                }
+            ],
+            "id": "appointmentresponse-identifier-match-5",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "identifier": [
+                {
+                    "system": "http://example.org/appt-resp-id",
+                    "value": "ar-99999"
+                }
+            ],
+            "id": "appointmentresponse-identifier-other-6",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-identifier-missing-7",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-appointmentresponse-location-target",
+            "resourceType": "Location",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "name": "Target"
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "actor": {
+                "reference": "Location/core-appointmentresponse-location-target"
+            },
+            "id": "appointmentresponse-location-match-8",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-location"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-location-missing-9",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-location"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-part-status-match-10",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-part-status"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "declined",
+            "id": "appointmentresponse-part-status-other-11",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-part-status"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-appointmentresponse-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "actor": {
+                "reference": "Patient/core-appointmentresponse-patient-target"
+            },
+            "id": "appointmentresponse-patient-match-12",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-patient-missing-13",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-appointmentresponse-practitioner-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "actor": {
+                "reference": "Practitioner/core-appointmentresponse-practitioner-target"
+            },
+            "id": "appointmentresponse-practitioner-match-14",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-practitioner"
+                    }
+                ]
+            }
+        },
+        {
+            "appointment": {
+                "reference": "Appointment/core-appointmentresponse-base-appt"
+            },
+            "participantStatus": "accepted",
+            "id": "appointmentresponse-practitioner-missing-15",
+            "resourceType": "AppointmentResponse",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-appointmentresponse-test"
+                    },
+                    {
+                        "code": "scope-practitioner"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-appointmentresponse-actor-target",
+            "resource": {
+                "reference": "#core-appointmentresponse-actor-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-actor-match-2",
+            "resource": {
+                "reference": "#appointmentresponse-actor-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-actor-missing-3",
+            "resource": {
+                "reference": "#appointmentresponse-actor-missing-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-appointmentresponse-appointment-target",
+            "resource": {
+                "reference": "#core-appointmentresponse-appointment-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-appointment-match-4",
+            "resource": {
+                "reference": "#appointmentresponse-appointment-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-identifier-match-5",
+            "resource": {
+                "reference": "#appointmentresponse-identifier-match-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-identifier-other-6",
+            "resource": {
+                "reference": "#appointmentresponse-identifier-other-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-identifier-missing-7",
+            "resource": {
+                "reference": "#appointmentresponse-identifier-missing-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-appointmentresponse-location-target",
+            "resource": {
+                "reference": "#core-appointmentresponse-location-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-location-match-8",
+            "resource": {
+                "reference": "#appointmentresponse-location-match-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-location-missing-9",
+            "resource": {
+                "reference": "#appointmentresponse-location-missing-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-part-status-match-10",
+            "resource": {
+                "reference": "#appointmentresponse-part-status-match-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-part-status-other-11",
+            "resource": {
+                "reference": "#appointmentresponse-part-status-other-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-appointmentresponse-patient-target",
+            "resource": {
+                "reference": "#core-appointmentresponse-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-patient-match-12",
+            "resource": {
+                "reference": "#appointmentresponse-patient-match-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-patient-missing-13",
+            "resource": {
+                "reference": "#appointmentresponse-patient-missing-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-appointmentresponse-practitioner-target",
+            "resource": {
+                "reference": "#core-appointmentresponse-practitioner-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-practitioner-match-14",
+            "resource": {
+                "reference": "#appointmentresponse-practitioner-match-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-appointmentresponse-practitioner-missing-15",
+            "resource": {
+                "reference": "#appointmentresponse-practitioner-missing-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create AppointmentResponse",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "AppointmentResponse",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read AppointmentResponse",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AppointmentResponse.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AppointmentResponse.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AppointmentResponse.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch AppointmentResponse",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AppointmentResponse.participantStatus",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "tentative",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update AppointmentResponse",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AppointmentResponse.participantStatus",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "declined",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AppointmentResponse.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AppointmentResponse.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete AppointmentResponse",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-actor",
+            "name": "Search AppointmentResponse by actor (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-appointmentresponse-actor-target",
+                        "responseId": "actor-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "actor-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-actor-match-2",
+                        "responseId": "actor-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "actor=core-appointmentresponse-actor-target&_tag=core-appointmentresponse-test&_tag=scope-actor"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "actor-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "actor=Patient/core-appointmentresponse-actor-target&_tag=core-appointmentresponse-test&_tag=scope-actor"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "actor-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-actor-missing-3",
+                        "responseId": "actor-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "actor:missing=true&_tag=core-appointmentresponse-test&_tag=scope-actor"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "actor-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "actor:missing=false&_tag=core-appointmentresponse-test&_tag=scope-actor"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "actor-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-actor"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "actor"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-appointment",
+            "name": "Search AppointmentResponse by appointment (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Appointment",
+                        "sourceId": "fixture-core-appointmentresponse-appointment-target",
+                        "responseId": "appointment-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Appointment",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "appointment-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-appointment-match-4",
+                        "responseId": "appointment-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "appointment=core-appointmentresponse-appointment-target&_tag=core-appointmentresponse-test&_tag=scope-appointment"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "appointment-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "appointment=Appointment/core-appointmentresponse-appointment-target&_tag=core-appointmentresponse-test&_tag=scope-appointment"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "appointment-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-appointment"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "appointment"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-identifier",
+            "name": "Search AppointmentResponse by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-identifier-match-5",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-identifier-other-6",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier=ar-12345&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier=http://example.org/appt-resp-id|ar-12345&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier=|ar-12345&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier=http://example.org/appt-resp-id|&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier=|&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier:not=ar-12345&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-identifier-missing-7",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier:missing=true&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "identifier:missing=false&_tag=core-appointmentresponse-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-location",
+            "name": "Search AppointmentResponse by location (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Location",
+                        "sourceId": "fixture-core-appointmentresponse-location-target",
+                        "responseId": "location-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Location",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "location-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-location-match-8",
+                        "responseId": "location-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "location=core-appointmentresponse-location-target&_tag=core-appointmentresponse-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "location=Location/core-appointmentresponse-location-target&_tag=core-appointmentresponse-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-location-missing-9",
+                        "responseId": "location-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "location:missing=true&_tag=core-appointmentresponse-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "location:missing=false&_tag=core-appointmentresponse-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-location"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "location"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-part-status",
+            "name": "Search AppointmentResponse by part-status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-part-status-match-10",
+                        "responseId": "part-status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-part-status-other-11",
+                        "responseId": "part-status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-part-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "part-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "part-status=accepted&_tag=core-appointmentresponse-test&_tag=scope-part-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-status-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-part-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "part-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-part-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "part-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "part-status:not=accepted&_tag=core-appointmentresponse-test&_tag=scope-part-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-status-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-part-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "part-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-patient",
+            "name": "Search AppointmentResponse by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-appointmentresponse-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-patient-match-12",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "patient=core-appointmentresponse-patient-target&_tag=core-appointmentresponse-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "patient=Patient/core-appointmentresponse-patient-target&_tag=core-appointmentresponse-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-patient-missing-13",
+                        "responseId": "patient-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "patient:missing=true&_tag=core-appointmentresponse-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "patient:missing=false&_tag=core-appointmentresponse-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-practitioner",
+            "name": "Search AppointmentResponse by practitioner (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-appointmentresponse-practitioner-target",
+                        "responseId": "practitioner-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "practitioner-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-practitioner-match-14",
+                        "responseId": "practitioner-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "practitioner=core-appointmentresponse-practitioner-target&_tag=core-appointmentresponse-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "practitioner=Practitioner/core-appointmentresponse-practitioner-target&_tag=core-appointmentresponse-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "sourceId": "fixture-appointmentresponse-practitioner-missing-15",
+                        "responseId": "practitioner-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "practitioner:missing=true&_tag=core-appointmentresponse-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AppointmentResponse",
+                        "params": "practitioner:missing=false&_tag=core-appointmentresponse-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/AppointmentResponse-practitioner"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "practitioner"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "AppointmentResponse",
+                    "params": "_tag=core-appointmentresponse-test",
+                    "description": "Delete AppointmentResponse resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

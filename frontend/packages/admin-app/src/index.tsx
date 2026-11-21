@@ -1,25 +1,7 @@
-import {
-  ArrowLeftOnRectangleIcon,
-  ArrowUpTrayIcon,
-  BeakerIcon,
-  BellIcon,
-  CalendarDaysIcon,
-  ChartBarIcon,
-  CircleStackIcon,
-  ClipboardDocumentCheckIcon,
-  ClipboardDocumentListIcon,
-  ClockIcon,
-  Cog6ToothIcon,
-  DocumentMagnifyingGlassIcon,
-  ExclamationTriangleIcon,
-  LockClosedIcon,
-  PuzzlePieceIcon,
-  UserGroupIcon,
-  UsersIcon,
-  WrenchScrewdriverIcon,
-} from "@heroicons/react/24/outline";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { EditorView } from "@codemirror/view";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import {
@@ -29,7 +11,7 @@ import {
   RouterProvider,
   createBrowserRouter,
   generatePath,
-  useMatches,
+  useLocation,
   useNavigate,
   useParams,
 } from "react-router";
@@ -38,7 +20,6 @@ import {
   HasteHealthProvider,
   Loading,
   ProfileDropdown,
-  SideBar,
   Toaster,
   useHasteHealth,
 } from "@haste-health/components";
@@ -48,22 +29,29 @@ import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
 import { VITE_CLIENT_ID, VITE_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
+import { StructureCache, getStructures } from "./db/structures";
 import { useTenantBranding } from "./hooks/useTenantBranding";
 
 import BundleImport from "./views/Project/BundleImport";
-import Dashboard from "./views/Project/Dashboard";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
 import IndexingErrors from "./views/Project/IndexingErrors";
+import Packages from "./views/Project/Packages";
 import ResourceEditor from "./views/ResourceEditor/index";
-import SystemHistory from "./views/Project/SystemHistory";
-import ResourceType from "./views/Project/ResourceType";
-import TypeHistory from "./views/Project/TypeHistory";
-import Resources from "./views/Project/Resources";
-import VersionView from "./views/Project/Version";
+import Console from "./views/Console";
+import { ConsoleSidebar } from "./views/Console/ConsoleSidebar";
+import { getCapabilities } from "./db/capabilities";
+import { Shortcut, useShortcuts } from "./hooks/useShortcuts";
+import { ShortcutHelp } from "./components/ShortcutHelp";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 // import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
-import { deriveProjectId, deriveTenantId } from "./utilities";
+import {
+  deriveProjectId,
+  deriveTenantId,
+  isResourceId,
+  isResourceTypeName,
+  legacyHostnameRedirectUrl,
+} from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
@@ -76,7 +64,7 @@ import "./index.css";
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function LoginWrapper() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
 
   return (
     <>
@@ -106,15 +94,24 @@ function LoginWrapper() {
 }
 
 function ServiceSetup() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const client = hasteHealth.isAuthenticated ? hasteHealth.client : undefined;
   const [c, setClient] = useAtom(getClient);
+  const [, setStructures] = useAtom(getStructures);
 
   React.useEffect(() => {
     if (client) {
-      setClient(createAdminAppClient(client));
+      const adminClient = createAdminAppClient(client);
+      setClient(adminClient);
+      // The inspector reads element definitions through this cache.
+      setStructures(new StructureCache(adminClient));
     }
-  }, [setClient, hasteHealth.isAuthenticated, hasteHealth.client]);
+  }, [
+    setClient,
+    setStructures,
+    hasteHealth.isAuthenticated,
+    hasteHealth.client,
+  ]);
 
   return (
     <>
@@ -149,11 +146,23 @@ function HasteHealthWrapper() {
   );
 }
 
-const SYSTEM_TYPES: r4Types.ResourceType[] = [
-  "Project",
-  "User",
-  "IdentityProvider",
+/**
+ * The system console's tabs. Projects leads: opening one is what a new user
+ * is here to do, while the other two administer access to it.
+ */
+const SYSTEM_TABS: {
+  type: r4Types.ResourceType;
+  label: string;
+}[] = [
+  { type: "Project", label: "Projects" },
+  { type: "User", label: "Users" },
+  { type: "IdentityProvider", label: "Identity providers" },
 ];
+
+/** The types this console manages, which is also what its search covers. */
+const SYSTEM_TYPES: r4Types.ResourceType[] = SYSTEM_TABS.map(
+  ({ type }) => type,
+);
 
 const APP_HEADER_HEIGHT_CLASS = "h-16";
 const APP_HEADER_OFFSET = "4rem";
@@ -161,25 +170,35 @@ const APP_HEADER_OFFSET = "4rem";
 function SystemBar() {
   const params = useParams();
 
+  // The resource type and id below are joined into request URLs, so a link
+  // with anything else in them is sent to the default view instead.
+  if (
+    (params.resourceType !== undefined &&
+      !isResourceTypeName(params.resourceType)) ||
+    (params.id !== undefined && !isResourceId(params.id))
+  ) {
+    return <Navigate to="/r/Project" replace />;
+  }
+
   return (
-    <div className="flex flex-col w-full z-10">
-      {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
-      <nav className="flex space-x-4 pb-4">
-        {SYSTEM_TYPES.map((type) => (
+    <div className="flex w-full flex-col overflow-y-auto z-10">
+      {/* Quiet, so it does not compete with the create call to action. */}
+      <nav className="mb-6 flex shrink-0 gap-6 border-b border-slate-200">
+        {SYSTEM_TABS.map(({ type, label }) => (
           <Link
             key={type}
-            to={`/resources/${type}`}
+            to={`/r/${type}`}
             className={classNames(
-              "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
+              "-mb-px border-b-2 px-1 pb-3 text-sm transition-colors",
               {
-                ["bg-brand-600 hover:bg-brand-600 text-white"]:
+                ["border-brand-600 font-semibold text-brand-700"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-brand-600 hover:text-white p-2"]:
+                ["border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"]:
                   params.resourceType !== type,
               },
             )}
           >
-            {type}s
+            {label}
           </Link>
         ))}
       </nav>
@@ -224,12 +243,12 @@ const router =
                           children: [
                             {
                               id: "Resources",
-                              path: "/resources/:resourceType",
+                              path: "/r/:resourceType",
                               element: <SystemResources />,
                             },
                             {
                               id: "Editor",
-                              path: "/resources/:resourceType/:id",
+                              path: "/r/:resourceType/:id",
                               element: <ResourceEditor />,
                             },
                             {
@@ -240,9 +259,7 @@ const router =
                             {
                               id: "redirect",
                               path: "/",
-                              element: (
-                                <Navigate to="/resources/Project" replace />
-                              ),
+                              element: <Navigate to="/r/Project" replace />,
                             },
                           ],
                         },
@@ -288,49 +305,30 @@ const router =
                           element: <Settings />,
                         },
                         {
-                          id: "dashboard",
+                          id: "console",
                           path: "",
-                          element: <Dashboard />,
+                          element: <Console />,
                         },
                         {
-                          id: "resources",
-                          path: "resources",
-                          element: <Resources />,
-                        },
-                        {
-                          id: "types",
-                          path: "resources/:resourceType",
-                          element: <ResourceType />,
-                        },
-                        {
-                          id: "type-history",
-                          path: "resources/:resourceType/history",
-                          element: <TypeHistory />,
-                        },
-                        {
-                          id: "version",
-                          path: "resources/:resourceType/:id/_history/:versionId",
-                          element: <VersionView />,
-                        },
-                        {
-                          id: "instance",
-                          path: "resources/:resourceType/:id",
-                          element: <ResourceEditor />,
-                        },
-                        {
-                          id: "system-history",
-                          path: "history/system",
-                          element: <SystemHistory />,
+                          // Everything addressable is a FHIR path under /r/.
+                          id: "console-command",
+                          path: "r/*",
+                          element: <Console />,
                         },
                         {
                           id: "bundle-import",
-                          path: "bundle-import",
+                          path: "import",
                           element: <BundleImport />,
                         },
                         {
                           id: "indexing-errors",
                           path: "indexing-errors",
                           element: <IndexingErrors />,
+                        },
+                        {
+                          id: "packages",
+                          path: "packages",
+                          element: <Packages />,
                         },
                       ],
                     },
@@ -343,7 +341,7 @@ const router =
       ]);
 
 function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const navigate = useNavigate();
 
   return (
@@ -378,24 +376,24 @@ function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
           >
             <div>
               <div className="mt-2">
-                <a
-                  className={classNames(
-                    "cursor-pointer block px-4 py-2 text-sm hover:text-brand-800 hover:bg-brand-200",
-                  )}
+                <button
+                  className="block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-brand-200 hover:text-brand-800"
                   onClick={() => {
                     navigate(generatePath("/settings", {}));
                   }}
+                  type="button"
                 >
                   Settings
-                </a>
-                <a
-                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-brand-800 hover:bg-brand-200"
+                </button>
+                <button
+                  className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-slate-800 hover:bg-brand-200 hover:text-brand-800"
                   onClick={() => {
                     hasteHealth.logout(window.location.origin);
                   }}
+                  type="button"
                 >
                   Sign out
-                </a>
+                </button>
               </div>
             </div>
           </ProfileDropdown>
@@ -427,333 +425,276 @@ function Page(props: PageProps) {
 }
 
 function ProjectRoot() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const navigate = useNavigate();
-  const matches = useMatches();
+  const location = useLocation();
   const [project, setProject] = React.useState<r4Types.Project | null>(null);
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+  const capabilities = useAtomValue(getCapabilities);
   const branding = useTenantBranding();
   const tenantDisplayName = branding.name || hasteHealth.tenant;
 
   useEffect(() => {
     hasteHealth.client
       .invoke_system(ProjectInformation.Op, {}, R4, {})
-      .then((res) => {
-        setProject(res.project);
-      });
+      .then((res) => setProject(res.project))
+      .catch(() => setProject(null));
   }, []);
 
+  const resourceTypes = React.useMemo(
+    () =>
+      (capabilities?.rest?.[0]?.resource ?? [])
+        .map((entry) => entry.type as string)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b)),
+    [capabilities],
+  );
+
+  // The type in view, so the sidebar can mark it.
+  const activeType = React.useMemo(() => {
+    const match = /^\/r\/([A-Z][A-Za-z0-9]*)/.exec(location.pathname);
+    return match?.[1];
+  }, [location.pathname]);
+
+  const go = React.useCallback(
+    (path: string) => {
+      navigate(path);
+      setSidebarOpen(false);
+    },
+    [navigate],
+  );
+
+  /** Moves focus to the first element matching `selector`. */
+  const focusFirst = React.useCallback((selector: string) => {
+    const target = document.querySelector<HTMLElement>(selector);
+    target?.focus();
+  }, []);
+
+  /**
+   * Focuses the command bar and selects what is in it, so the next keystroke
+   * replaces the query the way a browser's address bar does.
+   *
+   * The bar is a CodeMirror editor, which owns its selection, so this goes
+   * through the view rather than the DOM.
+   */
+  const focusCommandBar = React.useCallback(() => {
+    const dom = document.querySelector<HTMLElement>("[data-command-input]");
+    if (!dom) return;
+    const view = EditorView.findFromDOM(dom);
+    if (!view) {
+      dom.querySelector<HTMLElement>(".cm-content")?.focus();
+      return;
+    }
+    view.focus();
+    view.dispatch({
+      selection: { anchor: 0, head: view.state.doc.length },
+    });
+  }, []);
+
+  const shortcuts = React.useMemo(
+    (): Shortcut[] => [
+      {
+        key: "k",
+        mod: true,
+        description: "Focus the command bar",
+        whileTyping: true,
+        run: focusCommandBar,
+      },
+      {
+        key: "r",
+        mod: true,
+        shift: true,
+        description: "Jump to the results",
+        whileTyping: true,
+        run: () => focusFirst("[data-table-row]"),
+      },
+      {
+        key: "b",
+        mod: true,
+        description: "Jump to the sidebar",
+        whileTyping: true,
+        run: () => focusFirst("[data-sidebar] button"),
+      },
+      // These carry the modifier because the command bar holds focus for
+      // most of a session, and a bare letter would be typed into it.
+      {
+        key: "g",
+        mod: true,
+        shift: true,
+        description: "Go to the console",
+        run: () => go("/"),
+      },
+      {
+        key: "h",
+        mod: true,
+        shift: true,
+        description: "Go to event history",
+        run: () => go("/r/_history"),
+      },
+      {
+        key: "i",
+        mod: true,
+        shift: true,
+        description: "Go to import bundle",
+        run: () => go("/import"),
+      },
+      {
+        key: "e",
+        mod: true,
+        shift: true,
+        description: "Go to indexing errors",
+        run: () => go("/indexing-errors"),
+      },
+      {
+        key: "p",
+        mod: true,
+        shift: true,
+        description: "Go to projections",
+        run: () => go("/r/ViewDefinition"),
+      },
+      {
+        key: ",",
+        mod: true,
+        description: "Go to settings",
+        run: () => go("/settings"),
+      },
+      {
+        // Not `?`: that is the separator before a search, so the bar has to
+        // keep it. `/` with the modifier is the usual binding for help and
+        // is never typed alone in a FHIR path.
+        key: "/",
+        mod: true,
+        description: "Show this help",
+        run: () => setShortcutsOpen((open) => !open),
+      },
+      {
+        key: "escape",
+        description: "Close help or the sidebar drawer",
+        whileTyping: true,
+        run: () => {
+          setShortcutsOpen(false);
+          setSidebarOpen(false);
+        },
+      },
+    ],
+    [focusFirst, go],
+  );
+
+  useShortcuts(shortcuts);
+
+  const sidebar = (
+    <ConsoleSidebar
+      resourceTypes={resourceTypes}
+      activeType={activeType}
+      activePath={location.pathname}
+      onNavigate={go}
+      onShowShortcuts={() => setShortcutsOpen(true)}
+    />
+  );
+
   return (
-    <SideBar.SidebarLayout
-      navbar={<Navbar showLogo={false} />}
-      sidebar={
-        <SideBar.SideBar
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen((open) => !open)}
-          top={
-            <div
-              className={classNames("flex items-center gap-2 mb-4", {
-                "justify-start": sidebarOpen,
-                "justify-center": !sidebarOpen,
-              })}
-            >
-              <AppLogo
-                className="h-9 w-9 shrink-0 cursor-pointer text-brand-500"
-                onClick={() => navigate(generatePath("/", {}))}
-              />
-              {sidebarOpen && (
-                <div
-                  onClick={() => navigate(generatePath("/", {}))}
-                  className="group font-semibold cursor-pointer min-w-0"
-                >
-                  <div className="truncate">
-                    <span
-                      className={classNames(
-                        "font-bold group-hover:text-brand-900 group-hover:underline",
-                        {
-                          "text-brand-900 underline":
-                            matches[matches.length - 1].id === "dashboard",
-                        },
-                      )}
-                    >
-                      {tenantDisplayName}
-                    </span>
-                  </div>
-                  <div className="truncate">
-                    <span className="text-slate-400">{project?.name}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          }
+    // `w-full` and `min-w-0` because the shell is a flex item inside the
+    // login wrapper: without them it is sized by its content and leaves the
+    // right of the screen empty.
+    <div className="flex h-screen w-full min-w-0 flex-col overflow-hidden bg-slate-100">
+      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-3">
+        {/* Below `lg` the sidebar is a drawer rather than a column. */}
+        <button
+          className="rounded-sm p-1 text-slate-500 hover:bg-slate-100 lg:hidden"
+          onClick={() => setSidebarOpen((open) => !open)}
+          title="Toggle navigation"
+          type="button"
         >
-          <SideBar.SideBarItemGroup label="Clinical">
-            <SideBar.SideBarItem
-              logo={<UsersIcon />}
-              active={matches[0].params.resourceType === "Patient"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Patient",
-                  }),
-                );
-              }}
-            >
-              Patients
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<CalendarDaysIcon />}
-              active={matches[0].params.resourceType === "Encounter"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Encounter",
-                  }),
-                );
-              }}
-            >
-              Encounters
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<BeakerIcon />}
-              active={matches[0].params.resourceType === "Observation"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Observation",
-                  }),
-                );
-              }}
-            >
-              Observations
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="UI">
-            <SideBar.SideBarItem
-              logo={<ClipboardDocumentListIcon />}
-              active={matches[0].params.resourceType === "Questionnaire"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Questionnaire",
-                  }),
-                );
-              }}
-            >
-              Questionnaires
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<ClipboardDocumentCheckIcon />}
-              active={
-                matches[0].params.resourceType === "QuestionnaireResponse"
-              }
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "QuestionnaireResponse",
-                  }),
-                );
-              }}
-            >
-              Questionnaire Responses
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Monitoring">
-            <SideBar.SideBarItem
-              logo={<DocumentMagnifyingGlassIcon />}
-              active={matches[0].params.resourceType === "AuditEvent"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "AuditEvent",
-                  }),
-                );
-              }}
-            >
-              Audit Events
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<ClockIcon />}
-              active={
-                matches.find((match) => match.id === "system-history") !==
-                undefined
-              }
-              onClick={() => {
-                navigate(generatePath("/history/system", {}));
-              }}
-            >
-              Event History
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<ExclamationTriangleIcon />}
-              active={
-                matches.find((match) => match.id === "indexing-errors") !==
-                undefined
-              }
-              onClick={() => {
-                navigate(generatePath("/indexing-errors", {}));
-              }}
-            >
-              Indexing Errors
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
+          <Bars3Icon className="h-5 w-5" />
+        </button>
 
-          <SideBar.SideBarItemGroup label="Security">
-            <SideBar.SideBarItem
-              logo={<UserGroupIcon />}
-              active={matches[0].params.resourceType === "Membership"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Membership",
-                  }),
-                );
-              }}
-            >
-              Membership
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<LockClosedIcon />}
-              active={matches[0].params.resourceType === "AccessPolicyV2"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "AccessPolicyV2",
-                  }),
-                );
-              }}
-            >
-              Access Policies
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<PuzzlePieceIcon />}
-              active={matches[0].params.resourceType === "ClientApplication"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "ClientApplication",
-                  }),
-                );
-              }}
-            >
-              Client Applications
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Import">
-            <SideBar.SideBarItem
-              logo={<ArrowUpTrayIcon />}
-              active={
-                matches.find((match) => match.id === "bundle-import") !==
-                undefined
-              }
-              onClick={() => {
-                navigate(generatePath("/bundle-import", {}));
-              }}
-            >
-              Bundles
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Configuration">
-            <SideBar.SideBarItem
-              logo={<WrenchScrewdriverIcon />}
-              active={matches[0].params.resourceType === "OperationDefinition"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "OperationDefinition",
-                  }),
-                );
-              }}
-            >
-              Custom Operations
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<BellIcon />}
-              active={matches[0].params.resourceType === "Subscription"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Subscription",
-                  }),
-                );
-              }}
-            >
-              Subscriptions
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
+        <AppLogo
+          className="h-7 w-7 shrink-0 cursor-pointer text-brand-500"
+          onClick={() => go("/")}
+        />
+        <button
+          className="min-w-0 truncate text-left text-sm font-semibold text-slate-800 hover:underline"
+          onClick={() => go("/")}
+          type="button"
+        >
+          {tenantDisplayName}
+          {project?.name && (
+            <span className="ml-1 font-normal text-slate-400">
+              / {project.name}
+            </span>
+          )}
+        </button>
 
-          <SideBar.SideBarItemGroup label="Analytics">
-            <SideBar.SideBarItem
-              logo={<ChartBarIcon />}
-              active={matches[0].params.resourceType === "ViewDefinition"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "ViewDefinition",
-                  }),
-                );
-              }}
-            >
-              Projection
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Data">
-            <SideBar.SideBarItem
-              logo={<CircleStackIcon />}
-              active={
-                matches.find((match) => match.id === "resources") !==
-                  undefined ||
-                matches.find(
-                  (match) =>
-                    match.id === "types" &&
-                    match.params.resourceType !== "ViewDefinition" &&
-                    match.params.resourceType !== "OperationDefinition" &&
-                    match.params.resourceType !== "Subscription" &&
-                    match.params.resourceType !== "Questionnaire" &&
-                    match.params.resourceType !== "QuestionnaireResponse" &&
-                    match.params.resourceType !== "AuditEvent" &&
-                    match.params.resourceType !== "Membership" &&
-                    match.params.resourceType !== "AccessPolicyV2" &&
-                    match.params.resourceType !== "ClientApplication" &&
-                    match.params.resourceType !== "IdentityProvider" &&
-                    match.params.resourceType !== "Patient" &&
-                    match.params.resourceType !== "Encounter" &&
-                    match.params.resourceType !== "Observation",
-                ) !== undefined
-              }
-              onClick={() => {
-                navigate(generatePath("/resources", {}));
-              }}
-            >
-              All Resources
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          {/* Used because want to maintain a margin of at least 8 when shrinking. */}
-          <div />
-          <SideBar.SideBarItemGroup className="mt-auto" label="User">
-            <SideBar.SideBarItem
-              logo={<Cog6ToothIcon />}
-              active={
-                matches.find((match) => match.id === "settings") !== undefined
-              }
-              onClick={() => navigate(generatePath("/settings", {}))}
-            >
-              Settings
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              logo={<ArrowLeftOnRectangleIcon />}
-              onClick={() => {
-                hasteHealth.logout(window.location.origin);
-              }}
-            >
-              Sign out
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-        </SideBar.SideBar>
-      }
-    >
-      <Page />
-    </SideBar.SidebarLayout>
+        <div className="flex flex-1 justify-end items-center gap-4">
+          <a
+            className="hidden text-xs text-slate-500 hover:text-slate-700 hover:underline sm:block"
+            href="https://haste.health"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Docs
+          </a>
+          <ProfileDropdown
+            user={{
+              email: hasteHealth.user?.email,
+              name: hasteHealth.user?.given_name || hasteHealth.user?.email,
+            }}
+          >
+            <div className="mt-2">
+              <button
+                className="block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-brand-200 hover:text-brand-800"
+                onClick={() => go("/settings")}
+                type="button"
+              >
+                Settings
+              </button>
+              <button
+                className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-slate-800 hover:bg-brand-200 hover:text-brand-800"
+                onClick={() => hasteHealth.logout(window.location.origin)}
+                type="button"
+              >
+                Sign out
+              </button>
+            </div>
+          </ProfileDropdown>
+        </div>
+      </header>
+
+      <div className="flex min-h-0 flex-1">
+        <div className="hidden lg:flex">{sidebar}</div>
+
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 flex lg:hidden">
+            <div
+              className="absolute inset-0 bg-slate-900/30"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <div className="relative h-full">{sidebar}</div>
+          </div>
+        )}
+
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col p-3">
+          <Toaster.Toaster />
+          <React.Suspense
+            fallback={
+              <div className="flex flex-1 items-center justify-center">
+                <Loading />
+              </div>
+            }
+          >
+            <Outlet />
+          </React.Suspense>
+        </main>
+      </div>
+
+      {shortcutsOpen && (
+        <ShortcutHelp
+          shortcuts={shortcuts}
+          onClose={() => setShortcutsOpen(false)}
+        />
+      )}
+    </div>
   );
 }
 
@@ -761,15 +702,23 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
+const legacyUrl = legacyHostnameRedirectUrl();
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+if (legacyUrl) {
+  // Not rendered first: sign-in would start on the old origin, and its
+  // redirect could replace this one.
+  window.location.replace(legacyUrl);
+} else {
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

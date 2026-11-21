@@ -17,7 +17,7 @@ function base64URIEncode(string: string) {
   return btoa(string)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
-    .replace(/=+$/, "");
+    .replace(/={1,2}$/, "");
 }
 
 export function conditionalAddTenant(path: string, tenant?: string) {

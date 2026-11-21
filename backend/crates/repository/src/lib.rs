@@ -1,5 +1,7 @@
 use crate::{
     admin::{Login, Migrate, ProjectModelAdmin, SystemAdmin, TenantModelAdmin},
+    async_job::AsyncJobProvider,
+    client_assertion::ClientAssertionReplayProvider,
     failed_indexing::FailedIndexingProvider,
     fhir::FHIRRepository,
     sequence::ResourceSequential,
@@ -20,6 +22,9 @@ use crate::{
 };
 
 pub mod admin;
+pub mod async_job;
+pub mod client_assertion;
+pub mod config;
 pub mod failed_indexing;
 pub mod fhir;
 pub mod pg;
@@ -55,6 +60,8 @@ pub trait Repository:
     > + ProjectModelAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
     + ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + FailedIndexingProvider
+    + AsyncJobProvider
+    + ClientAssertionReplayProvider
     + Login
     + ResourceSequential
     + Migrate

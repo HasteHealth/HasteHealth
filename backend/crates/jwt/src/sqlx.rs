@@ -10,7 +10,7 @@ where
         value: <DB as Database>::ValueRef<'r>,
     ) -> Result<TenantId, Box<dyn Error + 'static + Send + Sync>> {
         let value = <&str as Decode<DB>>::decode(value)?;
-        Ok(TenantId::new(value.to_string()))
+        Ok(TenantId::new(value.to_string())?)
     }
 }
 
@@ -38,7 +38,7 @@ where
         value: <DB as Database>::ValueRef<'r>,
     ) -> Result<ProjectId, Box<dyn Error + 'static + Send + Sync>> {
         let value = <&str as Decode<DB>>::decode(value)?;
-        Ok(ProjectId::new(value.to_string()))
+        Ok(ProjectId::new(value.to_string())?)
     }
 }
 impl Encode<'_, Postgres> for ProjectId {

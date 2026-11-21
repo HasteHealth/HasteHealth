@@ -1,85 +1,73 @@
-use crate::elastic_search::search::{
-    QueryBuildError, clauses::namespace_parameter, simple_missing_modifier,
+use crate::{
+    elastic_search::search::clauses::any_of,
+    query::{QueryBuildError, value::StringValues},
 };
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
+/// Matches any of the strings, compared as their modifier says.
 pub fn string(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
+    field: &str,
+    values: &StringValues<'_>,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    let column_name = namespace_parameter(namespace, search_param);
+    let queries = values
+        .values()
+        .iter()
+        .map(|value| string_query(field, values, value))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(any_of(queries))
+}
 
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => simple_missing_modifier(search_param, parsed_parameter),
-        Some("exact") => {
-            let string_params = parsed_parameter
-                .value
-                .iter()
-                .map(|value| {
-                    Ok(json!({
-                        "match_phrase":{
-                            &column_name: {
-                                "query": value,
-                                "analyzer": "keyword"
-                            }
-                        }
-                    }))
-                })
-                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-            Ok(json!({
-                "bool": {
-                    "should": string_params
+fn string_query(
+    field: &str,
+    values: &StringValues<'_>,
+    value: &str,
+) -> Result<serde_json::Value, QueryBuildError> {
+    Ok(match values {
+        // Case-insensitive prefix.
+        StringValues::Prefix(_) => json!({
+            "prefix": {
+                field: {
+                    "value": value,
+                    "case_insensitive": true
                 }
-            }))
-        }
-        Some("contains") => {
-            let string_params = parsed_parameter
-                .value
-                .iter()
-                .map(|value| {
-                    Ok(json!({
-                        "wildcard":{
-                            &column_name: {
-                                "value": format!("*{}*", value),
-                                "case_insensitive": true
-                            }
-                        }
-                    }))
-                })
-                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-            Ok(json!({
-                "bool": {
-                    "should": string_params
+            }
+        }),
+        // Case-sensitive equality.
+        StringValues::Exact(_) => json!({
+            "match_phrase": {
+                field: {
+                    "query": value,
+                    "analyzer": "keyword"
                 }
-            }))
-        }
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => {
-            let string_params = parsed_parameter
-                .value
-                .iter()
-                .map(|value| {
-                    Ok(json!({
-                        "prefix":{
-                            &column_name: {
-                                "value": value,
-                                "case_insensitive": true
-                            }
-                        }
-                    }))
-                })
-                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-            Ok(json!({
-                "bool": {
-                    "should": string_params
+            }
+        }),
+        // Case-insensitive substring. The value is escaped so that `*` and
+        // `?` typed by the caller match themselves instead of acting as
+        // further wildcards.
+        StringValues::Contains(_) => json!({
+            "wildcard": {
+                field: {
+                    "value": format!("*{}*", escape_wildcard(value)),
+                    "case_insensitive": true
                 }
-            }))
+            }
+        }),
+        // Needs an analysed text field.
+        StringValues::Text(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
         }
+    })
+}
+
+/// Escapes the characters Elasticsearch's `wildcard` query treats specially
+/// (`\`, `*`, `?`), so a search value is matched literally.
+fn escape_wildcard(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        if matches!(character, '\\' | '*' | '?') {
+            escaped.push('\\');
+        }
+        escaped.push(character);
     }
+    escaped
 }

@@ -30,9 +30,9 @@ export const FHIRPositiveIntegerEditable = ({
       value={value ? Math.round(value) : value}
       step="0.1"
       onChange={(e) => {
-        const value = parseInt(e.target.value);
+        const value = Number.parseInt(e.target.value);
         if (value <= 0 && onChange) onChange(1);
-        if (onChange && !isNaN(value)) {
+        if (onChange && !Number.isNaN(value)) {
           onChange(value);
         }
       }}

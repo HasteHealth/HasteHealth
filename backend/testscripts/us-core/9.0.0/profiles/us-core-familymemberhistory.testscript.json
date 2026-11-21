@@ -1,0 +1,257 @@
+{
+    "id": "us-core-9.0.0-familymemberhistory",
+    "url": "https://haste.health/fhir/TestScript/us-core-9.0.0-familymemberhistory",
+    "title": "US Core 9.0.0 FamilyMemberHistory Profile",
+    "name": "US Core 9.0.0 us-core-familymemberhistory",
+    "status": "active",
+    "description": "Profile conformance for http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory|9.0.0.",
+    "metadata": {
+        "link": [
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9",
+                "description": "US Core 9.0.0"
+            },
+            {
+                "url": "http://hl7.org/fhir/us/core/STU9/StructureDefinition-us-core-familymemberhistory.html",
+                "description": "US Core FamilyMemberHistory Profile (US Core 9.0.0)"
+            }
+        ],
+        "capability": [
+            {
+                "required": true,
+                "validated": false,
+                "description": "US Core 9.0.0 server: US Core FamilyMemberHistory Profile",
+                "capabilities": "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server|9.0.0"
+            }
+        ]
+    },
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "partial",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "relationship": {
+                "text": "example"
+            },
+            "condition": [
+                {
+                    "code": {
+                        "text": "example"
+                    }
+                }
+            ],
+            "meta": {
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory"
+                ],
+                "tag": [
+                    {
+                        "code": "us-core-9.0.0-familymemberhistory-test"
+                    }
+                ]
+            },
+            "id": "uscore-create-1",
+            "resourceType": "FamilyMemberHistory"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-uscore-create-1",
+            "resource": {
+                "reference": "#uscore-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-conformance",
+            "name": "FamilyMemberHistory satisfies profile",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "FamilyMemberHistory",
+                        "sourceId": "fixture-uscore-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "FamilyMemberHistory",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "create-ok",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "FamilyMemberHistory.status.exists()",
+                        "warningOnly": false,
+                        "label": "has-status",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "FamilyMemberHistory.patient.exists()",
+                        "warningOnly": false,
+                        "label": "has-patient",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "FamilyMemberHistory.relationship.exists()",
+                        "warningOnly": false,
+                        "label": "has-relationship",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "FamilyMemberHistory.condition.code.exists()",
+                        "warningOnly": false,
+                        "label": "has-condition-code",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "FamilyMemberHistory.meta.profile.exists($this = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-familymemberhistory')",
+                        "warningOnly": false,
+                        "label": "has-profile",
+                        "operator": "equals",
+                        "value": "true",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "FamilyMemberHistory",
+                    "params": "_tag=us-core-9.0.0-familymemberhistory-test",
+                    "description": "Delete FamilyMemberHistory resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -1,7 +1,8 @@
 use elasticsearch::{
     Elasticsearch,
     indices::{
-        IndicesCreateParts, IndicesDeleteParts, IndicesGetMappingParts, IndicesPutMappingParts,
+        IndicesCreateParts, IndicesDeleteParts, IndicesGetMappingParts, IndicesGetSettingsParts,
+        IndicesPutMappingParts, IndicesPutSettingsParts,
     },
     params::Slices,
 };
@@ -112,14 +113,9 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
                 param_type if param_type == &SearchParamType::quantity() => {
                     property_mapping.insert(field_name, quantity_index_mapping());
                 }
-                // Not Supported yet
-                param_type
-                    if param_type == &SearchParamType::composite()
-                        || param_type == &SearchParamType::special()
-                        || param_type == &SearchParamType::null() =>
-                {
-                    tracing::warn!("Unsupported search parameter type");
-                }
+                // `is_mapped_search_parameter_type` is what
+                // keeps `resource_to_elastic_index` from ever writing one of
+                // these fields, so it must stay in sync with the arms above.
                 _ => {
                     tracing::warn!("Unsupported search parameter type");
                 }
@@ -187,8 +183,15 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
         }),
     );
 
+    // Safe because every document field name comes from one of two sources:
+    // System-level parameters, flattened into their own top-level field below
+    // (and enumerated here via `ParameterLevel::System`, which only
+    // `R4_SEARCH_PARAMETERS_INDEX` ever produces), or Project-level (tenant
+    // custom) parameters, which always route through the single
+    // `dynamic_parameters` nested field mapped below rather than getting a
+    // field name of their own. No write can introduce an unmapped key.
     json!({
-        "dynamic": true,
+        "dynamic": "strict",
         "properties" : property_mapping
     })
 }
@@ -217,29 +220,42 @@ fn diff_property_keys(
     (added, removed)
 }
 
-fn index_creation_body(mapping_body: &Value) -> Value {
+/// Constructs the body for creating an Elasticsearch index, including settings
+/// for nested and total fields limits, and optionally the number of replicas.
+fn index_creation_body(mapping_body: &Value, number_of_replicas: Option<u32>) -> Value {
+    let mut index_settings = json!({
+        "mapping": {
+            "nested_fields": {
+                "limit": 2000
+            },
+            "total_fields": {
+                "limit": 10000
+            }
+        }
+    });
+
+    if let Some(replicas) = number_of_replicas {
+        index_settings["number_of_replicas"] = json!(replicas);
+    }
+
     json!({
        "settings": {
-           "index": {
-                "mapping": {
-                    "nested_fields": {
-                        "limit": 2000
-                    },
-                    "total_fields": {
-                        "limit": 10000
-                    }
-                }
-           }
+           "index": index_settings
        },
        "mappings": mapping_body
     })
 }
 
-async fn create_index(elastic_search: &Elasticsearch, index: &str, mapping_body: &Value) {
+async fn create_index(
+    elastic_search: &Elasticsearch,
+    index: &str,
+    mapping_body: &Value,
+    number_of_replicas: Option<u32>,
+) {
     let res = elastic_search
         .indices()
         .create(IndicesCreateParts::Index(index))
-        .body(index_creation_body(mapping_body))
+        .body(index_creation_body(mapping_body, number_of_replicas))
         .send()
         .await
         .unwrap();
@@ -324,10 +340,70 @@ async fn reindex(
     }
 }
 
-async fn fetch_mapping_properties(
-    elastic_search: &Elasticsearch,
-    index: &str,
-) -> Map<String, Value> {
+/// Reads the index's current `number_of_replicas` so a bulk rebuild can
+/// restore it afterward instead of leaving the index under-replicated.
+/// Falls back to `1` (Elasticsearch's own default) if the setting can't be
+/// read, since that's a safer failure mode than leaving replicas at 0.
+async fn fetch_replica_count(elastic_search: &Elasticsearch, index: &str) -> u32 {
+    let res = elastic_search
+        .indices()
+        .get_settings(IndicesGetSettingsParts::Index(&[index]))
+        .send()
+        .await
+        .unwrap();
+
+    if !res.status_code().is_success() {
+        tracing::error!(
+            "Failed to fetch Elasticsearch settings for index '{}': {:?}",
+            index,
+            res
+        );
+        return 1;
+    }
+
+    let body: Value = res.json().await.unwrap();
+
+    body.get(index)
+        .and_then(|v| v.get("settings"))
+        .and_then(|v| v.get("index"))
+        .and_then(|v| v.get("number_of_replicas"))
+        .and_then(Value::as_str)
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(1)
+}
+
+async fn set_replica_count(elastic_search: &Elasticsearch, index: &str, number_of_replicas: u32) {
+    let res = elastic_search
+        .indices()
+        .put_settings(IndicesPutSettingsParts::Index(&[index]))
+        .body(json!({ "index": { "number_of_replicas": number_of_replicas } }))
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!(
+            "Restored 'number_of_replicas' to {} on index '{}'.",
+            number_of_replicas,
+            index
+        );
+    } else {
+        tracing::error!(
+            "Failed to restore 'number_of_replicas' on index '{}': {:?}",
+            index,
+            res
+        );
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+struct CurrentMapping {
+    properties: Map<String, Value>,
+    dynamic_is_strict: bool,
+}
+
+async fn fetch_current_mapping(elastic_search: &Elasticsearch, index: &str) -> CurrentMapping {
     let res = elastic_search
         .indices()
         .get_mapping(IndicesGetMappingParts::Index(&[index]))
@@ -345,13 +421,23 @@ async fn fetch_mapping_properties(
     }
 
     let body: Value = res.json().await.unwrap();
+    let mappings = body.get(index).and_then(|v| v.get("mappings"));
 
-    body.get(index)
-        .and_then(|v| v.get("mappings"))
+    let properties = mappings
         .and_then(|v| v.get("properties"))
         .and_then(Value::as_object)
         .cloned()
-        .unwrap_or_default()
+        .unwrap_or_default();
+
+    let dynamic_is_strict = mappings
+        .and_then(|v| v.get("dynamic"))
+        .and_then(Value::as_str)
+        == Some("strict");
+
+    CurrentMapping {
+        properties,
+        dynamic_is_strict,
+    }
 }
 
 /// Merges newly-added search parameter columns into an existing index's
@@ -408,7 +494,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let index_exists = exists_res.status_code().is_success();
 
     if !index_exists {
-        create_index(elastic_search, index, &expected_mapping_body).await;
+        create_index(elastic_search, index, &expected_mapping_body, None).await;
         return Ok(());
     }
 
@@ -418,11 +504,20 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
         .cloned()
         .unwrap_or_default();
 
-    let current_properties = fetch_mapping_properties(elastic_search, index).await;
+    let current_mapping = fetch_current_mapping(elastic_search, index).await;
 
-    let (added, removed) = diff_property_keys(&expected_properties, &current_properties);
+    let (added, removed) = diff_property_keys(&expected_properties, &current_mapping.properties);
 
     if added.is_empty() && removed.is_empty() {
+        if !current_mapping.dynamic_is_strict {
+            tracing::info!(
+                "Elasticsearch mapping for index '{}' has matching columns but is not yet 'dynamic: strict' -- updating.",
+                index
+            );
+            apply_additive_mapping(elastic_search, index, &expected_mapping_body).await;
+            return Ok(());
+        }
+
         tracing::info!(
             "Elasticsearch mapping for index '{}' already in sync with search parameters.",
             index
@@ -474,13 +569,28 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let expected_keys: Vec<String> = expected_properties.keys().cloned().collect();
     let staging_index = format!("{}_migrate_{}", index, chrono::Utc::now().timestamp());
 
-    create_index(elastic_search, &staging_index, &expected_mapping_body).await;
+    // Replicas are dropped to 0 for both rebuild copies neither is
+    // read-facing until the final swap below and restored on the
+    // rebuilt `index` afterward so it doesn't stay under-replicated.
+    let original_replicas = fetch_replica_count(elastic_search, index).await;
+
+    // create Staging Index
+    create_index(
+        elastic_search,
+        &staging_index,
+        &expected_mapping_body,
+        Some(0),
+    )
+    .await;
     reindex(elastic_search, index, &staging_index, Some(&expected_keys)).await;
 
+    // Remove old index and create new one with updated mapping, then reindex from staging
     delete_index(elastic_search, index).await;
-    create_index(elastic_search, index, &expected_mapping_body).await;
+    create_index(elastic_search, index, &expected_mapping_body, Some(0)).await;
     reindex(elastic_search, &staging_index, index, None).await;
 
+    // Restore the original replica count and delete the staging index
+    set_replica_count(elastic_search, index, original_replicas).await;
     delete_index(elastic_search, &staging_index).await;
 
     tracing::info!(

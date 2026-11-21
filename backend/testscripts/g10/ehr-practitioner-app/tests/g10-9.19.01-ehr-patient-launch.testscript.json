@@ -1,0 +1,115 @@
+{
+    "id": "g10-9.19.01-ehr-patient-launch",
+    "url": "https://haste.health/fhir/TestScript/g10-9.19.01-ehr-patient-launch",
+    "name": "g10-9.19.01-ehr-patient-launch",
+    "title": "9.19.01 The EHR launches a patient-scoped app",
+    "status": "active",
+    "description": "g10 9.19.01 / 9.19.02 / 9.9.01 / 9.9.02 (AUT-PAT-2). The server side of an EHR launch of an app holding patient scopes: ClientApplication/[id]/$launch for a patient returns the launch value, iss and the app's launch URL. The browser hop and the app's patient-scoped token (9.19.10, 9.19.11) need an EHR launch sign-in the harness does not have.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "g10-ehr-patient-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://haste.health/fhir/testscript",
+                        "code": "g10"
+                    }
+                ]
+            },
+            "name": "g10: EHR-launched patient app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8977/callback"
+            ],
+            "launchUri": "http://127.0.0.1:8977/launch",
+            "scope": "launch openid fhirUser offline_access patient/Patient.rs"
+        },
+        {
+            "id": "g10-patient-launch-parameters",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/g10-example"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-g10-ehr-patient-app",
+            "resource": {
+                "reference": "#g10-ehr-patient-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-g10-patient-launch-parameters",
+            "resource": {
+                "reference": "#g10-patient-launch-parameters"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01",
+            "name": "9.19.01 The EHR launches a patient-scoped app",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "resource": "ClientApplication",
+                        "url": "launch",
+                        "targetId": "fixture-g10-ehr-patient-app",
+                        "sourceId": "fixture-g10-patient-launch-parameters",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The launch succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A launch value is returned",
+                        "expression": "Parameters.parameter.where(name = 'launch').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The FHIR base is returned as iss",
+                        "expression": "Parameters.parameter.where(name = 'iss').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The launch URL carries launch and iss",
+                        "expression": "Parameters.parameter.where(name = 'url').value.select(contains('launch=') and contains('iss=')) = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

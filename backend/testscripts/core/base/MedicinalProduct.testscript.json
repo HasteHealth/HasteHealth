@@ -1,0 +1,2060 @@
+{
+    "id": "core-medicinalproduct",
+    "url": "https://haste.health/fhir/TestScript/core-medicinalproduct",
+    "title": "Core MedicinalProduct TestScript",
+    "name": "Core MedicinalProduct TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the MedicinalProduct resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "id": "crud-create-1",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAiYWRkIiwgInBhdGgiOiAiL2xhbmd1YWdlIiwgInZhbHVlIjogImVuIn1d"
+        },
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "language": "fr",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-a"
+                }
+            ],
+            "id": "medicinalproduct-identifier-match-2",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-b"
+                }
+            ],
+            "id": "medicinalproduct-identifier-other-3",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "id": "medicinalproduct-identifier-missing-4",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "Uniquenamevalue"
+                }
+            ],
+            "id": "medicinalproduct-name-match-5",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-name"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "example",
+                    "countryLanguage": [
+                        {
+                            "country": {
+                                "text": "example"
+                            },
+                            "language": {
+                                "coding": [
+                                    {
+                                        "system": "http://example.org/namelanguage",
+                                        "code": "namelanguage-a"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "id": "medicinalproduct-name-language-match-6",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-name-language"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "example",
+                    "countryLanguage": [
+                        {
+                            "country": {
+                                "text": "example"
+                            },
+                            "language": {
+                                "coding": [
+                                    {
+                                        "system": "http://example.org/namelanguage",
+                                        "code": "namelanguage-b"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "id": "medicinalproduct-name-language-other-7",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-name-language"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "productName": "example"
+                }
+            ],
+            "id": "medicinalproduct-name-language-missing-8",
+            "resourceType": "MedicinalProduct",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-medicinalproduct-test"
+                    },
+                    {
+                        "code": "scope-name-language"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-identifier-match-2",
+            "resource": {
+                "reference": "#medicinalproduct-identifier-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-identifier-other-3",
+            "resource": {
+                "reference": "#medicinalproduct-identifier-other-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-identifier-missing-4",
+            "resource": {
+                "reference": "#medicinalproduct-identifier-missing-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-name-match-5",
+            "resource": {
+                "reference": "#medicinalproduct-name-match-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-name-language-match-6",
+            "resource": {
+                "reference": "#medicinalproduct-name-language-match-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-name-language-other-7",
+            "resource": {
+                "reference": "#medicinalproduct-name-language-other-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-medicinalproduct-name-language-missing-8",
+            "resource": {
+                "reference": "#medicinalproduct-name-language-missing-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create MedicinalProduct",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "MedicinalProduct",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read MedicinalProduct",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicinalProduct.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "MedicinalProduct.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicinalProduct.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch MedicinalProduct",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicinalProduct.language",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "en",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update MedicinalProduct",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicinalProduct.language",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "fr",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "MedicinalProduct.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "MedicinalProduct.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete MedicinalProduct",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-identifier",
+            "name": "Search MedicinalProduct by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-identifier-match-2",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-identifier-other-3",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier=identifier-a&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier=http://example.org/identifier|identifier-a&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier=|identifier-a&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier=http://example.org/identifier|&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier=|&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier:not=identifier-a&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-identifier-missing-4",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier:missing=true&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "identifier:missing=false&_tag=core-medicinalproduct-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-name",
+            "name": "Search MedicinalProduct by name (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-name-match-5",
+                        "responseId": "name-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "prefix"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name=Uniquen&_tag=core-medicinalproduct-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-prefix-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "prefix"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "exact"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name:exact=Uniquenamevalue&_tag=core-medicinalproduct-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-exact-match",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "exact"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "contains"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name:contains=niquenamevalu&_tag=core-medicinalproduct-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-contains",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "contains"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-name-language",
+            "name": "Search MedicinalProduct by name-language (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-name-language-match-6",
+                        "responseId": "name-language-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-name-language-other-7",
+                        "responseId": "name-language-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language=namelanguage-a&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language=http://example.org/namelanguage|namelanguage-a&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language=|namelanguage-a&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language=http://example.org/namelanguage|&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language=|&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language:not=namelanguage-a&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "sourceId": "fixture-medicinalproduct-name-language-missing-8",
+                        "responseId": "name-language-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language:missing=true&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "MedicinalProduct",
+                        "params": "name-language:missing=false&_tag=core-medicinalproduct-test&_tag=scope-name-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-language-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/MedicinalProduct-name-language"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "name-language"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "MedicinalProduct",
+                    "params": "_tag=core-medicinalproduct-test",
+                    "description": "Delete MedicinalProduct resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

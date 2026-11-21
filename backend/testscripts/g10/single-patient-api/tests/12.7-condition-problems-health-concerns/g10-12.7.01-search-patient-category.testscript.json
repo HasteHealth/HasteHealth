@@ -1,0 +1,253 @@
+{
+    "id": "g10-12.7.01-search-patient-category",
+    "url": "https://haste.health/fhir/TestScript/g10-12.7.01-search-patient-category",
+    "name": "g10-12.7.01-search-patient-category",
+    "title": "12.7.01 Server returns valid results for Condition search by patient + category",
+    "status": "active",
+    "description": "g10 12.7.01 (SH-PAT-2, DAT-PAT-7; US Core 6.1.0: group 10.7). Server returns valid results for Condition search by patient + category. US Core SHALL search. Every result must match every parameter, and the record's Condition/g10-condition-SDOH-example must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-condition-patient-g10-example-category-problem-list-item",
+            "name": "GET Condition?patient=g10-example&category=problem-list-item",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example&category=problem-list-item",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-condition-SDOH-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-condition-SDOH-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Condition returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'problem-list-item').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-get-condition-patient-g10-example-category-health-concern",
+            "name": "GET Condition?patient=g10-example&category=health-concern",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example&category=health-concern",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-health-concern-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-health-concern-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Condition returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'health-concern').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-reference-form-get-condition-patient-patient-g10-example-category-problem-list-item",
+            "name": "Reference form: GET Condition?patient=Patient/g10-example&category=problem-list-item",
+            "description": "patient=Patient/[id] returns what patient=[id] returns.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=Patient/g10-example&category=problem-list-item",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-condition-SDOH-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-condition-SDOH-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Condition returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(code = 'problem-list-item').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as patient=[id]",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-token-system-code-form-get-condition-patient-g10-example-category-http-terminology-hl7-org-codesystem-condition-category-problem-list-item",
+            "name": "Token system|code form: GET Condition?patient=g10-example&category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example&category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-condition-SDOH-example is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-condition-SDOH-example').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Condition returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all((subject.reference.endsWith('Patient/g10-example')) and (category.coding.where(system = 'http://terminology.hl7.org/CodeSystem/condition-category' and code = 'problem-list-item').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-post-condition-search-patient-g10-example-category-problem-list-item",
+            "name": "POST Condition/_search?patient=g10-example&category=problem-list-item",
+            "description": "Inferno posts the parameters as a form body, which a TestScript cannot send; this sends them in the query string of a POST with no body, which the server reads the same way.",
+            "action": [
+                {
+                    "operation": {
+                        "method": "post",
+                        "url": "Condition/_search?patient=g10-example&category=problem-list-item",
+                        "requestHeader": [
+                            {
+                                "field": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It returns as many entries as the GET",
+                        "expression": "Bundle.entry.count()",
+                        "compareToSourceId": "main",
+                        "compareToSourceExpression": "Bundle.entry.count()",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

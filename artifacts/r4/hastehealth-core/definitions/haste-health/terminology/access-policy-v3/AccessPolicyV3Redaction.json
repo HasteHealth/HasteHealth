@@ -1,0 +1,62 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3redaction",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Redaction",
+            "resource": {
+                "id": "accesspolicyv3redaction-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Redaction",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Redaction",
+                "title": "AccessPolicyV3Redaction",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 redaction codes.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "initials",
+                        "display": "initials"
+                    },
+                    {
+                        "code": "year-only",
+                        "display": "year-only"
+                    },
+                    {
+                        "code": "masked-identifier",
+                        "display": "masked-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3redaction",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3Redaction",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3Redaction",
+                "title": "AccessPolicyV3Redaction",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 redaction codes.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3Redaction"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

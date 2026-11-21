@@ -61,10 +61,10 @@ export function toFHIRPath<
 
   for (const piece of pieces) {
     const unescapedField = unescapeField(piece);
-    const parsedNumber = parseInt(unescapedField);
+    const parsedNumber = Number.parseInt(unescapedField);
     let field = unescapedField;
 
-    if (isNaN(parsedNumber)) {
+    if (Number.isNaN(parsedNumber)) {
       if (meta?.cardinality !== "single") {
         throw new OperationError(
           outcomeFatal("invalid", "Cannot convert path to FHIRPath", [

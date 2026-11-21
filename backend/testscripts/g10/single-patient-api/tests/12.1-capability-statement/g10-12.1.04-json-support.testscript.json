@@ -1,0 +1,41 @@
+{
+    "id": "g10-12.1.04-json-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.1.04-json-support",
+    "name": "g10-12.1.04-json-support",
+    "title": "12.1.04 The CapabilityStatement states JSON support",
+    "status": "active",
+    "description": "g10 12.1.04 (SH-PAT-1). format lists json, application/json or application/fhir+json.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-format",
+            "name": "format",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "capabilities"
+                        },
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The CapabilityStatement is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "JSON is a supported format",
+                        "expression": "CapabilityStatement.format.where($this = 'json' or $this = 'application/json' or $this = 'application/fhir+json').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

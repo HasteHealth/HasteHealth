@@ -3,7 +3,7 @@ import React from "react";
 import { Button, useHasteHealth } from "@haste-health/components";
 
 export default function EmptyWorkspace() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
 
   return (
     <div className="h-screen w-screen flex  flex-col items-center">

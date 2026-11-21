@@ -34,3 +34,5 @@ pnpm-debug.log*
 lerna-debug.log*
 .wrangler
 frontend/docs
+backend/testreports
+CLAUDE.local.md

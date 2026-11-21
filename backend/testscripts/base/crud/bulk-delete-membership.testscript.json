@@ -1,0 +1,188 @@
+{
+    "id": "bulk-delete-membership",
+    "name": "Bulk delete Membership",
+    "title": "Bulk delete Membership",
+    "status": "active",
+    "url": "https://haste.health/fhir/TestScript/bulk-delete-membership",
+    "description": "A type-level delete of Memberships releases each user's membership row, so a Membership for the same user can be created again.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "bulk-delete-membership-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "bulk-delete-membership-test"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "bulk-delete-membership@example.org"
+        },
+        {
+            "id": "bulk-delete-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "bulk-delete-membership-test"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/bulk-delete-membership-user"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-user",
+            "resource": {
+                "reference": "#bulk-delete-membership-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-membership",
+            "resource": {
+                "reference": "#bulk-delete-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "User",
+                    "targetId": "fixture-user",
+                    "sourceId": "fixture-user",
+                    "responseId": "user-response"
+                }
+            },
+            {
+                "assert": {
+                    "label": "user created",
+                    "direction": "response",
+                    "resource": "User",
+                    "warningOnly": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "bulk-delete-releases-user",
+            "name": "Bulk delete releases the user",
+            "description": "Create a Membership, delete it by its user, then create one for the same user again. The second create fails if the first delete left the membership row behind.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Membership",
+                        "sourceId": "fixture-membership",
+                        "responseId": "membership-1"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "membership created",
+                        "direction": "response",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "deleteCondMultiple"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Membership",
+                        "params": "user=User/bulk-delete-membership-user"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "membership-1",
+                        "responseId": "membership-1-read"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "membership deleted",
+                        "direction": "response",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Membership",
+                        "sourceId": "fixture-membership",
+                        "responseId": "membership-2"
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "membership created again",
+                        "direction": "response",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "Membership",
+                    "params": "_tag=bulk-delete-membership-test",
+                    "description": "Delete Membership resources created in test."
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "User",
+                    "targetId": "fixture-user",
+                    "description": "Delete the User created in setup."
+                }
+            }
+        ]
+    }
+}

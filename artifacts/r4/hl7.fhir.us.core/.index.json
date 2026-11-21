@@ -1,0 +1,849 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "Basic-us-core-certifying-system.json",
+      "resourceType": "Basic"
+    },
+    {
+      "filename": "Basic-us-core-client.json",
+      "resourceType": "Basic"
+    },
+    {
+      "filename": "Basic-us-core-server.json",
+      "resourceType": "Basic"
+    },
+    {
+      "filename": "CapabilityStatement-us-core-client.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "CapabilityStatement-us-core-server.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "CodeSystem-careplan-category.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "CodeSystem-condition-category.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "CodeSystem-us-core-category.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "CodeSystem-us-core-documentreference-category.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "OperationDefinition-docref.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "SearchParameter-us-core-allergyintolerance-clinical-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-allergyintolerance-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careplan-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careplan-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careplan-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careplan-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careteam-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careteam-role.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-careteam-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-abatement-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-asserted-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-clinical-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-encounter.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-lastupdated.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-onset-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-condition-recorded-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-coverage-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-device-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-device-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-device-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-lastupdated.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-diagnosticreport-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-period.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-documentreference-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-class.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-discharge-disposition.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-identifier.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-lastupdated.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-location.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-encounter-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-ethnicity.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-familymemberhistory-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-familymemberhistory-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-goal-description.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-goal-lifecycle-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-goal-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-goal-target-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-immunization-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-immunization-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-immunization-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-location-address-city.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-location-address-postalcode.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-location-address-state.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-location-address.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-location-name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationdispense-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationdispense-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationdispense-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationrequest-authoredon.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationrequest-encounter.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationrequest-intent.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationrequest-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-medicationrequest-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-lastupdated.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-observation-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-organization-address.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-organization-name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-birthdate.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-death-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-family.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-given.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-identifier.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-patient-name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-practitioner-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-practitioner-identifier.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-practitioner-name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-practitionerrole-practitioner.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-practitionerrole-specialty.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-procedure-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-procedure-date.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-procedure-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-procedure-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-questionnaireresponse-authored.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-questionnaireresponse-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-questionnaireresponse-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-questionnaireresponse-questionnaire.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-questionnaireresponse-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-race.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-relatedperson-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-relatedperson-name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-relatedperson-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-authored.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-category.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-code.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-servicerequest-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-specimen-id.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-us-core-specimen-patient.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "StructureDefinition-head-occipital-frontal-circumference-percentile.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-pediatric-bmi-for-age.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-pediatric-weight-for-height.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-adi-documentreference.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-allergyintolerance.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-authentication-time.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-average-blood-pressure.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-birthsex.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-blood-pressure.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-bmi.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-body-height.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-body-temperature.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-body-weight.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-care-experience-preference.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-careplan.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-careteam.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-condition-encounter-diagnosis.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-condition-problems-health-concerns.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-coverage.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-device.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-diagnosticreport-lab.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-diagnosticreport-note.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-direct.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-documentreference.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-encounter.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-ethnicity.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-extension-questionnaire-uri.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-familymemberhistory-recorder.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-familymemberhistory.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-genderIdentity.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-goal.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-head-circumference.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-heart-rate.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-immunization.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-individual-sex.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-interpreter-needed.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-jurisdiction.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-location.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-medication-adherence.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-medication.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-medicationdispense.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-medicationrequest.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-adi-documentation.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-clinical-result.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-lab.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-occupation.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-pregnancyintent.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-pregnancystatus.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-screening-assessment.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-observation-sexual-orientation.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-organization.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-patient.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-practitioner.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-practitionerrole.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-procedure.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-provenance.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-pulse-oximetry.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-questionnaireresponse.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-race.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-relatedperson.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-respiratory-rate.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-servicerequest.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-sex.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-simple-observation.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-smokingstatus.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-specimen.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-treatment-intervention-preference.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-tribal-affiliation.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-us-core-vital-signs.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-uscdi-requirement.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "ValueSet-us-core-clinical-note-type.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-clinical-result-observation-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-condition-code.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-diagnosticreport-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-diagnosticreport-report-and-note-codes.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-documentreference-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-documentreference-type.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-goal-description.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-laboratory-test-codes.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-location-type.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-narrative-status.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-observation-smoking-status-status.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-practitionerrole-specialty.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-problem-or-health-concern.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-procedure-code.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-screening-assessment-condition-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-screening-assessment-observation-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-screening-assessment-observation-maximum-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-servicerequest-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-simple-observation-category.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "ValueSet-us-core-specimen-condition.json",
+      "resourceType": "ValueSet"
+    }
+  ]
+}

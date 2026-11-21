@@ -1,0 +1,50 @@
+{
+    "id": "g10-1.8.03-smart-configuration-cors",
+    "url": "https://haste.health/fhir/TestScript/g10-1.8.03-smart-configuration-cors",
+    "name": "g10-1.8.03-smart-configuration-cors",
+    "title": "1.8.03 SMART configuration allows CORS",
+    "status": "active",
+    "description": "g10 1.8.03 / 3.7.03 (SEC-CNN-1). A cross-origin request for the SMART configuration is allowed: Access-Control-Allow-Origin is * or the requesting origin.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01",
+            "name": "1.8.03 SMART configuration allows CORS",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": ".well-known/smart-configuration",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "field": "Origin",
+                                "value": "https://inferno.healthit.gov"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The configuration is served",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The origin is allowed",
+                        "headerField": "Access-Control-Allow-Origin",
+                        "operator": "in",
+                        "value": "*,https://inferno.healthit.gov",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

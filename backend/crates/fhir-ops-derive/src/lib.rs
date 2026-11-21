@@ -200,14 +200,22 @@ fn generate_parameter_code(field: &Field) -> syn::Result<proc_macro2::TokenStrea
     Ok(tokens)
 }
 
+fn fhir_string() -> TokenStream {
+    quote! {
+        haste_fhir_model::r4::generated::types::FHIRString
+    }
+}
+
 fn generate_parameter_push(field: &Field, value: &Ident) -> proc_macro2::TokenStream {
     let value_type = field_inner_type(field);
     let parameter_name = get_parameter_name(field);
 
+    let fhir_string = fhir_string();
+
     if is_nested_parameter(&field.attrs) {
         quote! {
             parameters.push(ParametersParameter {
-                name: Box::new(FHIRString {
+                name: Box::new(#fhir_string {
                     value: Some(#parameter_name.to_string()),
                     ..Default::default()
                 }),
@@ -218,7 +226,7 @@ fn generate_parameter_push(field: &Field, value: &Ident) -> proc_macro2::TokenSt
     } else if value_type.ident == format_ident!("Resource") {
         quote! {
             parameters.push(ParametersParameter {
-                name: Box::new(FHIRString {
+                name: Box::new(#fhir_string {
                     value: Some(#parameter_name.to_string()),
                     ..Default::default()
                 }),
@@ -229,7 +237,7 @@ fn generate_parameter_push(field: &Field, value: &Ident) -> proc_macro2::TokenSt
     } else if value_type.ident == format_ident!("ParametersParameterValueTypeChoice") {
         quote! {
             parameters.push(ParametersParameter {
-                name: Box::new(FHIRString {
+                name: Box::new(#fhir_string {
                     value: Some(#parameter_name.to_string()),
                     ..Default::default()
                 }),
@@ -240,7 +248,7 @@ fn generate_parameter_push(field: &Field, value: &Ident) -> proc_macro2::TokenSt
     } else if is_resource_type(field) {
         quote! {
             parameters.push(ParametersParameter {
-                name: Box::new(FHIRString {
+                name: Box::new(#fhir_string {
                     value: Some(#parameter_name.to_string()),
                     ..Default::default()
                 }),
@@ -254,7 +262,7 @@ fn generate_parameter_push(field: &Field, value: &Ident) -> proc_macro2::TokenSt
 
         quote! {
             parameters.push(ParametersParameter {
-                name: Box::new(FHIRString {
+                name: Box::new(#fhir_string {
                     value: Some(#parameter_name.to_string()),
                     ..Default::default()
                 }),

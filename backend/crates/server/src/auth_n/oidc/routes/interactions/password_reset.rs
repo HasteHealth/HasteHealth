@@ -1,6 +1,9 @@
+use crate::auth_n::constant_time;
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::{
-        email::{Message, send_password_reset_email},
+        email::{Message, invitation_subject, send_password_reset_email},
+        invitations,
         oidc::{hardcoded_clients::admin_app, utilities::set_user_password},
     },
     extract::{
@@ -26,13 +29,15 @@ use haste_repository::{
     Repository,
     admin::{ProjectModelAdmin, TenantModelAdmin},
     types::{
-        authorization_code::CreateAuthorizationCode,
+        authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         user::{AuthMethod, CreateUser, UserSearchClauses},
     },
 };
 use maud::{Markup, html};
 use serde::Deserialize;
 use std::sync::Arc;
+
+use crate::auth_n::oidc::utilities::revoke_refresh_tokens;
 
 #[derive(TypedPath)]
 #[typed_path("/password-reset")]
@@ -66,9 +71,9 @@ pub struct PasswordResetFormInitiate {
 }
 
 pub async fn password_reset_initiate_post<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     _: PasswordResetInitiate,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
@@ -78,11 +83,8 @@ pub async fn password_reset_initiate_post<
     CSRFToken(csrf_token): CSRFToken,
     form: axum::extract::Form<PasswordResetFormInitiate>,
 ) -> Result<Markup, OperationOutcomeError> {
-    if form.csrf_token != csrf_token {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
+    if !constant_time::str_eq(&form.csrf_token, &csrf_token) {
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     let user_search_results = TenantModelAdmin::search(
@@ -96,22 +98,46 @@ pub async fn password_reset_initiate_post<
     )
     .await?;
 
+    // The answer is the same whether or not the address belongs to a user, so
+    // this form cannot be used to find out which addresses have accounts. The
+    // email is sent off the request for the same reason: waiting for it would
+    // make a known address answer measurably slower than an unknown one.
     if let Some(user) = user_search_results.into_iter().next() {
-        send_password_reset_email(state.as_ref(), &tenant, &project, &user, Message::default())
-            .await?;
+        // Tell an invited user that setting a password accepts the invitation.
+        let message = if user.email_verified {
+            Message::default()
+        } else {
+            let tenant_name = branding.0.as_deref().unwrap_or(tenant.as_ref());
+            Message {
+                subject: Some(invitation_subject(tenant_name)),
+                body: Some(html! {
+                    span class="font-semibold" { (tenant_name) }
+                    " created an account for this address. Setting a password accepts the invitation. If you don't know this workspace, ignore this email and nothing will happen."
+                }),
+            }
+        };
 
-        Ok(message_html(
-            Some(&tenant),
-            Some(&project_resource.0),
-            html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
-            Some(&branding),
-        ))
+        let state = state.clone();
+        let tenant = tenant.clone();
+        let project = project.clone();
+
+        tokio::spawn(async move {
+            if let Err(error) =
+                send_password_reset_email(state.as_ref(), &tenant, &project, &user, message).await
+            {
+                tracing::error!(?error, "Failed to send password reset email");
+            }
+        });
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "No user found with provided email address.".to_string(),
-        ))?
+        tracing::info!("Password reset requested for an unknown email address");
     }
+
+    Ok(message_html(
+        Some(&tenant),
+        Some(&project_resource.0),
+        &html! {"If an account exists for that email address, a message will arrive in the next few minutes with the next steps to reset your password."},
+        Some(&branding),
+    ))
 }
 
 #[derive(TypedPath)]
@@ -145,16 +171,16 @@ pub async fn password_reset_verify_get<
     )
     .await?
     {
+        if code.kind != AuthorizationCodeKind::PasswordReset {
+            return Err(AuthError::InvalidPasswordResetCode.into());
+        }
         if code.is_expired.unwrap_or(true) {
-            return Err(OperationOutcomeError::fatal(
-                IssueType::invalid(),
-                "Password reset code has expired.".to_string(),
-            ));
+            return Err(AuthError::ExpiredPasswordResetCode.into());
         }
         Ok(message_html(
             Some(&tenant),
             Some(&project_resource),
-            html! {
+            &html! {
                 div {}
                 h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl "{
                     "Set your password"}
@@ -171,10 +197,7 @@ pub async fn password_reset_verify_get<
             Some(&branding),
         ))
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "Invalid Password reset code.".to_string(),
-        ))?
+        Err(AuthError::InvalidPasswordResetCode)?
     }
 }
 
@@ -199,11 +222,8 @@ pub async fn password_reset_verify_post<
     CSRFToken(csrf_token): CSRFToken,
     Form(body): Form<PasswordVerifyPOSTBODY>,
 ) -> Result<Markup, OperationOutcomeError> {
-    if body.csrf_token != csrf_token {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
+    if !constant_time::str_eq(&body.csrf_token, &csrf_token) {
+        return Err(AuthError::InvalidCsrfToken.into());
     }
 
     if body.password != body.password_confirm {
@@ -221,6 +241,9 @@ pub async fn password_reset_verify_post<
     )
     .await?
     {
+        if code.kind != AuthorizationCodeKind::PasswordReset {
+            return Err(AuthError::InvalidPasswordResetCode.into());
+        }
         ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
             &*state.repo,
             &tenant,
@@ -229,10 +252,7 @@ pub async fn password_reset_verify_post<
         )
         .await?;
         if code.is_expired.unwrap_or(true) {
-            return Err(OperationOutcomeError::fatal(
-                IssueType::invalid(),
-                "Password reset code has expired.".to_string(),
-            ));
+            return Err(AuthError::ExpiredPasswordResetCode.into());
         }
 
         let Some(user) =
@@ -245,21 +265,21 @@ pub async fn password_reset_verify_post<
             ));
         };
 
-        let email = user.email.as_ref().ok_or_else(|| {
-            OperationOutcomeError::fatal(
-                IssueType::invalid(),
-                "User does not have an email associated.".to_string(),
-            )
-        })?;
+        let email = user.email.as_ref().ok_or(AuthError::UserWithoutEmail)?;
 
         set_user_password(&*state.repo, &tenant, email, &user.id, &body.password).await?;
+        // Whoever held a refresh token before the reset must not keep access.
+        revoke_refresh_tokens(&*state.repo, &tenant, &user.id).await?;
+
+        // The emailed link proves the address, so this accepts an invitation.
+        invitations::accept(state.as_ref(), user).await?;
 
         let admin_app_url = admin_app::redirect_url(state.config.as_ref(), &tenant, &project);
 
         Ok(message_html(
             Some(&tenant),
             Some(&project_resource),
-            html! { span {
+            &html! { span {
                     "Password has been reset successfully. "
                     @if let Some(admin_app_url) = admin_app_url {
                         "Go to the Admin App "
@@ -271,9 +291,6 @@ pub async fn password_reset_verify_post<
             Some(&branding),
         ))
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "Invalid Password reset code.".to_string(),
-        ))?
+        Err(AuthError::InvalidPasswordResetCode)?
     }
 }

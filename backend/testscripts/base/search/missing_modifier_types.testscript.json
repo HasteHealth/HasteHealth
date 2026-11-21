@@ -1,0 +1,460 @@
+{
+    "id": "missing-modifier-types",
+    "url": "https://haste.health/fhir/TestScript/missing-modifier-types",
+    "title": "Missing modifier on token, date, reference and quantity",
+    "name": "Missing modifier types tests",
+    "status": "active",
+    "description": "`:missing=true|false` returns exactly the resources without/with a token, date, reference (including canonical-only) and quantity value.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "obs-full",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "missing-modifier-types-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "full"
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs"
+                        }
+                    ]
+                }
+            ],
+            "effectiveDateTime": "2020-01-01",
+            "subject": {
+                "reference": "Patient/missing-modifier-types-patient"
+            },
+            "valueQuantity": {
+                "value": 5,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "obs-empty",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "missing-modifier-types-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "empty"
+            }
+        },
+        {
+            "id": "qr-canonical",
+            "resourceType": "QuestionnaireResponse",
+            "status": "completed",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "missing-modifier-types-test"
+                    }
+                ]
+            },
+            "questionnaire": "http://example.org/Questionnaire/missing-modifier-types"
+        },
+        {
+            "id": "qr-empty",
+            "resourceType": "QuestionnaireResponse",
+            "status": "completed",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "missing-modifier-types-test"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-obs-full",
+            "resource": {
+                "reference": "#obs-full"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-empty",
+            "resource": {
+                "reference": "#obs-empty"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-qr-canonical",
+            "resource": {
+                "reference": "#qr-canonical"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-qr-empty",
+            "resource": {
+                "reference": "#qr-empty"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-missing-modifier-types",
+            "name": "Missing modifier by type.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-obs-full",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-obs-empty",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "QuestionnaireResponse",
+                        "sourceId": "fixture-qr-canonical",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "QuestionnaireResponse",
+                        "sourceId": "fixture-qr-empty",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "category:missing=true&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "empty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "category:missing=false&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "full",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "date:missing=true&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "empty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "date:missing=false&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "full",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "subject:missing=true&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "empty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "subject:missing=false&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "full",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "value-quantity:missing=true&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "empty",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "value-quantity:missing=false&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.code.text",
+                        "operator": "equals",
+                        "value": "full",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "QuestionnaireResponse",
+                        "params": "questionnaire:missing=true&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.questionnaire.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "QuestionnaireResponse",
+                        "params": "questionnaire:missing=false&_tag=missing-modifier-types-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.questionnaire.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=missing-modifier-types-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,46 @@
+{
+    "id": "g10-bulk-kickoff-unauthorized",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-kickoff-unauthorized",
+    "name": "g10 Bulk Kick-off Without Authorization",
+    "title": "8.2.03 An export kick-off without authorization is rejected",
+    "status": "active",
+    "description": "g10 8.2.03 / 7.2.03 (AUT-SYS-10, DAT-PAT-11). A Group export kick-off without a valid access token is rejected with 400 or 401. Inferno sends no Authorization header; the runner cannot drop the header, so this sends an invalid bearer token instead.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-invalid-token",
+            "name": "Kick-off with an invalid token",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            },
+                            {
+                                "field": "Authorization",
+                                "value": "Bearer g10-invalid-token"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is rejected",
+                        "responseCode": "400,401",
+                        "operator": "in",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

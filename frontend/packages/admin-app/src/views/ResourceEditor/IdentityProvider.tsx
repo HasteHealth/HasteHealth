@@ -50,7 +50,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
           following{" "}
           <a
             className="cursor-pointer text-brand-600 hover:text-brand-700"
-            href="https://haste.health/documentation/Getting%20Started/Local_Development"
+            href="https://haste.health/docs/category/identity-providers"
             rel="noreferrer"
             target="_blank"
           >

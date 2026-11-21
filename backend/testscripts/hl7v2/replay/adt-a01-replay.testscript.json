@@ -1,0 +1,98 @@
+{
+    "id": "hl7v2-adt-a01-replay",
+    "url": "https://haste.health/fhir/TestScript/hl7v2-adt-a01-replay",
+    "name": "HL7v2 ADT A01 Replay",
+    "title": "HL7v2 ADT^A01 replay is idempotent",
+    "status": "active",
+    "description": "Confirms that delivering the same ADT^A01 message more than once does not duplicate what it created. An interface engine retries anything it does not see an ACK for, so a non-idempotent ingest produces duplicate patients and encounters under entirely normal operation. The CI job sends the fixture three times before running this; both resources are written with conditional PUTs keyed on a natural identifier (the MRN for the Patient, MSH-10 for the Encounter).",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-the-patient-was-not-duplicated",
+            "name": "Replaying the message leaves one Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One Patient, however many times the message arrived",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-the-encounter-was-not-duplicated",
+            "name": "Replaying the message leaves one Encounter",
+            "description": "MSH-10 is unique per message, so it is the natural key for what a given message produced. Writing the Encounter with POST instead would create one per delivery.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "identifier=HL7V2CI0001",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One Encounter, however many times the message arrived",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-the-surviving-resources-are-still-correct",
+            "name": "The replay left the data intact rather than blanking it",
+            "description": "A conditional update that overwrote the resource with an empty body would also leave exactly one of each, so the fields are checked again here.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=HL7V2-CI-MRN-001",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The name from PID-5 survived the replay",
+                        "expression": "Bundle.entry.resource.ofType(Patient).name.family = 'PRESLEY'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The gender from PID-8 survived the replay",
+                        "expression": "Bundle.entry.resource.ofType(Patient).gender = 'male'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

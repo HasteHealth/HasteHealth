@@ -31,6 +31,7 @@ import {
 } from "@haste-health/fhir-types/versions";
 
 import { Button, Modal, Select, Tag, Toaster } from "../../base";
+import { contentKeys, useRowKeys } from "../../base/keys";
 import { Pagination } from "../../base/pagination";
 import { Table, TableProps } from "../../base/table";
 import {
@@ -53,7 +54,8 @@ import {
 import { ClientProps } from "../types";
 
 interface FHIRGenerativeSearchTableProps<Version extends FHIR_VERSION>
-  extends Partial<TableProps>, ClientProps {
+  extends Partial<TableProps>,
+    ClientProps {
   fhirVersion: Version;
   resourceType: ResourceType<Version>;
   refresh?: (refreshFunc: () => void) => void;
@@ -94,7 +96,9 @@ function SearchColumnModalBodyInput({
     case "number": {
       return (
         <FHIRDecimalEditable
-          value={parseFloat(value.value[index]?.toString() ?? "") as decimal}
+          value={
+            Number.parseFloat(value.value[index]?.toString() ?? "") as decimal
+          }
           onChange={onChange}
         />
       );
@@ -102,19 +106,7 @@ function SearchColumnModalBodyInput({
     case "date":
     case "string":
     case "token":
-      return (
-        <FHIRStringEditable
-          value={(value.value[index]?.toString() ?? "") as string}
-          onChange={onChange}
-        />
-      );
     case "reference":
-      return (
-        <FHIRStringEditable
-          value={(value.value[index]?.toString() ?? "") as string}
-          onChange={onChange}
-        />
-      );
     case "quantity":
       return (
         <FHIRStringEditable
@@ -141,12 +133,16 @@ function SearchColumnModalBody({
   value,
   ...props
 }: Readonly<SearchColumnModalBodyProps>) {
+  const {
+    keys: rowKeys,
+    onAdd: onRowAdd,
+    onRemove: onRowRemove,
+  } = useRowKeys(value.value.length);
+
   return (
     <div className="space-y-4 text-slate-600">
-      <div className="text-sm">
-        <div className="mb-1">
-          <label>Modifiers</label>
-        </div>
+      <fieldset className="text-sm">
+        <legend className="mb-1">Modifiers</legend>
         <div>
           <Select
             value={value.modifier}
@@ -163,16 +159,14 @@ function SearchColumnModalBody({
             }}
           />
         </div>
-      </div>
+      </fieldset>
 
-      <div className=" text-sm">
-        <div className="mb-1">
-          <label>Values</label>
-        </div>
+      <fieldset className=" text-sm">
+        <legend className="mb-1">Values</legend>
         <div className="space-y-1">
           {value.value.map((v, i) => {
             return (
-              <div className="flex items-center">
+              <div key={rowKeys[i]} className="flex items-center">
                 <div>
                   <SearchColumnModalBodyInput
                     value={value}
@@ -180,9 +174,11 @@ function SearchColumnModalBody({
                     {...props}
                   />
                 </div>
-                <XMarkIcon
-                  className="cursor-pointer hover:text-red-400 ml-2 w-4 h-4"
+                <button
+                  type="button"
+                  aria-label={`Remove value ${i + 1}`}
                   onClick={() => {
+                    onRowRemove(i);
                     props.onChange({
                       ...value,
                       value: value.value
@@ -190,13 +186,17 @@ function SearchColumnModalBody({
                         .concat(value.value?.slice(i + 1)),
                     });
                   }}
-                />
+                >
+                  <XMarkIcon className="cursor-pointer hover:text-red-400 ml-2 w-4 h-4" />
+                </button>
               </div>
             );
           })}
-          <div
+          <button
+            type="button"
             className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
             onClick={() => {
+              onRowAdd();
               props.onChange({
                 ...value,
                 value: [...value.value, undefined],
@@ -204,9 +204,9 @@ function SearchColumnModalBody({
             }}
           >
             Add Value
-          </div>
+          </button>
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 }
@@ -398,12 +398,13 @@ function describePeriod(value: Period): string {
  * @param searchType The Search Parameter Type
  * @param value Some Value
  */
-function DataDisplay(searchType: string, value: unknown[]) {
+export function DataDisplay(searchType: string, value: unknown[]) {
+  const keys = contentKeys(value);
   switch (searchType) {
     case "number": {
       return (value as number[]).map((v, i) => {
         return (
-          <TruncatedCell key={i} title={`${v}`}>
+          <TruncatedCell key={keys[i]} title={`${v}`}>
             {v}
           </TruncatedCell>
         );
@@ -414,19 +415,21 @@ function DataDisplay(searchType: string, value: unknown[]) {
         if (typeof v === "object") {
           if (Object.hasOwnProperty.call(v, "start")) {
             return (
-              <TruncatedCell key={i} title={describePeriod(v as Period)}>
+              <TruncatedCell key={keys[i]} title={describePeriod(v as Period)}>
                 <FHIRPeriodReadOnly value={v as Period} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i}>
+              <TruncatedCell key={keys[i]}>
                 <FHIRTimingReadOnly value={v as Timing} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "string": {
@@ -437,19 +440,27 @@ function DataDisplay(searchType: string, value: unknown[]) {
             Object.hasOwnProperty.call(v, "given")
           ) {
             return (
-              <TruncatedCell key={i} title={describeHumanName(v as HumanName)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeHumanName(v as HumanName)}
+              >
                 <FHIRHumanNameReadOnly value={v as HumanName} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i} title={describeAddress(v as Address)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeAddress(v as Address)}
+              >
                 <FHIRAddressReadOnly value={v as Address} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "token": {
@@ -458,7 +469,7 @@ function DataDisplay(searchType: string, value: unknown[]) {
           if (Object.hasOwnProperty.call(v, "coding")) {
             return (
               <TruncatedCell
-                key={i}
+                key={keys[i]}
                 title={describeCodeableConcept(v as CodeableConcept)}
               >
                 <FHIRCodeableConceptReadOnly value={v as CodeableConcept} />
@@ -466,14 +477,14 @@ function DataDisplay(searchType: string, value: unknown[]) {
             );
           } else if (Object.hasOwnProperty.call(v, "code")) {
             return (
-              <TruncatedCell key={i} title={describeCoding(v as Coding)}>
+              <TruncatedCell key={keys[i]} title={describeCoding(v as Coding)}>
                 <FHIRCodingReadOnly value={v as Coding} />
               </TruncatedCell>
             );
           } else {
             return (
               <TruncatedCell
-                key={i}
+                key={keys[i]}
                 title={describeIdentifier(v as Identifier)}
               >
                 <FHIRIdentifierReadOnly value={v as Identifier} />
@@ -481,19 +492,26 @@ function DataDisplay(searchType: string, value: unknown[]) {
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "reference": {
       return value.map((v, i) => {
         if (typeof v === "object") {
           return (
-            <TruncatedCell key={i} title={describeReference(v as Reference)}>
+            <TruncatedCell
+              key={keys[i]}
+              title={describeReference(v as Reference)}
+            >
               <FHIRReferenceReadOnly value={v as Reference} />
             </TruncatedCell>
           );
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "quantity": {
@@ -501,24 +519,31 @@ function DataDisplay(searchType: string, value: unknown[]) {
         if (typeof v === "object") {
           if (Object.hasOwnProperty.call(v, "value")) {
             return (
-              <TruncatedCell key={i} title={describeQuantity(v as Quantity)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeQuantity(v as Quantity)}
+              >
                 <FHIRQuantityReadOnly value={v as Quantity} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i} title={describeRange(v as Range)}>
+              <TruncatedCell key={keys[i]} title={describeRange(v as Range)}>
                 <FHIRRangeReadOnly value={v as Range} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "uri": {
       return value.map((v, i) => {
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     default: {
@@ -620,7 +645,7 @@ export interface FHIRGenerativeSearchTableDisplayProps<
   data: { total?: number; resources: Resource<Version, AllResourceTypes>[] };
   loading?: boolean;
   columns?: TableProps["columns"];
-  onRowClick?: TableProps["onRowClick"];
+  onRowClick?: NonNullable<TableProps["onRowClick"]>;
   pagination?: number;
 }
 
@@ -663,6 +688,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                   );
                   return (
                     <Tag
+                      key={`${p.name}:${p.modifier ?? ""}`}
                       color={searchParameterTypeToColor(
                         searchParameters?.[paramIndex ?? 0]?.type,
                       )}
@@ -698,7 +724,9 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                     id: searchParameter.id,
                     content: (
                       <div className="space-x-2 flex items-center">
-                        <div
+                        <button
+                          type="button"
+                          aria-label={`Filter by ${searchParameter.code}`}
                           className="flex flex-1"
                           onClick={() => {
                             setSelectedSearchParameter(i);
@@ -707,7 +735,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                         >
                           <div className="mr-2">{searchParameter.code}</div>
                           <FunnelIcon className="hover:text-brand-400 cursor-pointer w-4 h-4" />
-                        </div>
+                        </button>
                         <div className="flex justify-end">
                           <SearchParameterSortControl
                             sortParam={sortParam}
@@ -738,15 +766,15 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
           <div className="mt-1 flex flex-col">
             <div className="flex items-center">
               <div className="flex flex-1 ">
-                <span className="text-xs text-slate-500 mr-2 overflow-ellipsis">
-                  {parseInt(
+                <span className="text-xs text-slate-500 mr-2 text-ellipsis">
+                  {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
                       0
                     ).toString(),
                   )}{" "}
                   to{" "}
-                  {parseInt(
+                  {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
                       0
@@ -759,7 +787,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                 <Pagination
                   currentPage={
                     Math.floor(
-                      parseInt(
+                      Number.parseInt(
                         (
                           parameters.find((p) => p.name === "_offset")
                             ?.value[0] ?? 0
@@ -781,7 +809,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
               </div>
             </div>
             <div className="flex items-center justify-end">
-              <span className="text-xs text-slate-500 overflow-ellipsis">
+              <span className="text-xs text-slate-500 text-ellipsis">
                 {data.total ?? 0} total rows
               </span>
             </div>

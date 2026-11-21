@@ -1,49 +1,33 @@
 use crate::OperationOutcomeError;
-use axum::response::IntoResponse;
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use axum::{
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Response},
+};
 use std::sync::Arc;
 
 impl OperationOutcomeError {
+    /// [`http_status`](Self::http_status) as a `StatusCode`.
     #[must_use]
-    pub fn status(&self) -> axum::http::StatusCode {
-        match self.outcome.issue.first() {
-            Some(issue) => {
-                if issue.code == IssueType::invalid() {
-                    axum::http::StatusCode::BAD_REQUEST
-                } else if issue.code == IssueType::not_found() {
-                    axum::http::StatusCode::NOT_FOUND
-                } else if issue.code == IssueType::forbidden() {
-                    axum::http::StatusCode::FORBIDDEN
-                } else if issue.code == IssueType::conflict() {
-                    axum::http::StatusCode::CONFLICT
-                } else if issue.code == IssueType::throttled() {
-                    axum::http::StatusCode::TOO_MANY_REQUESTS
-                } else {
-                    axum::http::StatusCode::INTERNAL_SERVER_ERROR
-                }
-            }
-            None => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-        }
+    pub fn status(&self) -> StatusCode {
+        StatusCode::from_u16(self.http_status()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
 impl IntoResponse for OperationOutcomeError {
-    fn into_response(self) -> axum::response::Response {
-        let status_code = self.status();
-        let error = Arc::new(self);
-        let outcome = &error.outcome;
-        let mut headers = axum::http::HeaderMap::new();
-        headers.insert(
-            axum::http::header::CONTENT_TYPE,
-            "application/fhir+json".parse().unwrap(),
-        );
-        let response =
-            serde_json::to_string(outcome).expect("Failed to serialize OperationOutcome");
-
-        // Attach the original error to the response extensions for logging middleware to access and content-type handling.
-        let mut response = (status_code, headers, response).into_response();
-        response.extensions_mut().insert(error);
-
+    fn into_response(self) -> Response {
+        let status = self.status();
+        let body = serde_json::to_string(self.outcome()).expect("an OperationOutcome serializes");
+        let mut response = (
+            status,
+            [(
+                header::CONTENT_TYPE,
+                HeaderValue::from_static("application/fhir+json"),
+            )],
+            body,
+        )
+            .into_response();
+        // The logging and content negotiation middleware read the error back from here.
+        response.extensions_mut().insert(Arc::new(self));
         response
     }
 }

@@ -259,11 +259,11 @@ test("execution", async () => {
     return output;
   };
 
-  expect(invoke(operation, ctx, { test: "asdf" })).resolves.toEqual({
+  await expect(invoke(operation, ctx, { test: "asdf" })).resolves.toEqual({
     testOut: "asdf",
   });
 
-  expect(
+  await expect(
     invoke(
       operation,
       ctx,
@@ -284,7 +284,9 @@ test("execution", async () => {
     return output;
   };
 
-  expect(invokeBadOutput(operation, ctx, { test: "asdf" })).rejects.toThrow();
+  await expect(
+    invokeBadOutput(operation, ctx, { test: "asdf" })
+  ).rejects.toThrow();
 });
 
 test("paramValidation", async () => {
@@ -324,7 +326,7 @@ test("paramValidation", async () => {
     return output;
   };
 
-  expect(
+  await expect(
     invoke(operation, ctx, { test: "asdf", name: { given: "Bob" } }).catch(
       (e) => {
         throw e.operationOutcome;
@@ -342,11 +344,11 @@ test("paramValidation", async () => {
     resourceType: "OperationOutcome",
   });
 
-  expect(
+  await expect(
     invoke(operation, ctx, { test: "test", name: { given: ["Bob"] } })
   ).resolves.toEqual({ testOut: "test" });
 
-  expect(
+  await expect(
     invoke(operation, ctx, {
       test: "test",
       name: { given: ["Bob"] },
@@ -354,7 +356,7 @@ test("paramValidation", async () => {
     })
   ).rejects.toThrow();
 
-  expect(
+  await expect(
     invoke(operation, ctx, {
       test: "test",
       name: { given: ["Bob"] },
@@ -362,7 +364,7 @@ test("paramValidation", async () => {
     })
   ).resolves.toEqual({ testOut: "test" });
 
-  expect(
+  await expect(
     invoke(operation, ctx, {
       test: "test",
       name: { given: ["Bob"] },
@@ -404,7 +406,7 @@ test("paramValidation", async () => {
     console.log(JSON.stringify(e));
   }
 
-  expect(
+  await expect(
     invoke(operation, ctx, {
       test: "test",
       name: { given: ["Bob"] },
@@ -424,7 +426,7 @@ test("paramValidation", async () => {
     })
   ).resolves.toEqual({ testOut: "test" });
 
-  expect(
+  await expect(
     invoke(operation, ctx, {
       test: "test",
       name: { given: ["Bob"] },
@@ -553,7 +555,7 @@ test("Test invalid resource validation", async () => {
     return output;
   };
 
-  expect(
+  await expect(
     invoke(operation, ctx, { payload: "asdf" } as unknown)
   ).rejects.toThrow(
     new OperationError(

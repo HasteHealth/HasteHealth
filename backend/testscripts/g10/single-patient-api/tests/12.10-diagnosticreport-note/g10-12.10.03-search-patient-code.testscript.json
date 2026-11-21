@@ -1,0 +1,106 @@
+{
+    "id": "g10-12.10.03-search-patient-code",
+    "url": "https://haste.health/fhir/TestScript/g10-12.10.03-search-patient-code",
+    "name": "g10-12.10.03-search-patient-code",
+    "title": "12.10.03 Server returns valid results for DiagnosticReport search by patient + code",
+    "status": "active",
+    "description": "g10 12.10.03 (SH-PAT-2; US Core 6.1.0: group 10.10). Server returns valid results for DiagnosticReport search by patient + code. US Core SHALL search. Every result must match every parameter, and the record's DiagnosticReport/g10-bone-density-report must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-diagnosticreport-patient-g10-example-code-83311-1",
+            "name": "GET DiagnosticReport?patient=g10-example&code=83311-1",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&code=83311-1",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (code.coding.where(code = '83311-1').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-token-system-code-form-get-diagnosticreport-patient-g10-example-code-http-loinc-org-83311-1",
+            "name": "Token system|code form: GET DiagnosticReport?patient=g10-example&code=http://loinc.org|83311-1",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "DiagnosticReport",
+                        "params": "patient=g10-example&code=http://loinc.org|83311-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "DiagnosticReport/g10-bone-density-report is returned",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).where(id = 'g10-bone-density-report').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every DiagnosticReport returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(DiagnosticReport).all((subject.reference.endsWith('Patient/g10-example')) and (code.coding.where(system = 'http://loinc.org' and code = '83311-1').exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

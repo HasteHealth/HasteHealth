@@ -9,13 +9,27 @@ database_url = "postgresql://postgres:postgres@localhost:5432/haste_health"
 max_connections = 20
 
 [search]
-backend = "elasticsearch"
-url = "http://localhost:9200"
-username = "elastic"
-password = "elastic"
+backend = "postgres"
+database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
+max_connections = 20
 
 [monitoring]
 audit_enabled = false
+
+# Sign-up and login codes are written to the server log instead of emailed.
+# Set `backend = "sendgrid"` with `api_key` and `from_address` to send them.
+[email]
+backend = "log"
+
+# Set to false to stop visitors creating tenants for themselves at
+# /auth/signup. Tenants then come only from `admin tenant create`.
+[signup]
+enabled = true
+
+# Optional Cloudflare Turnstile bot check on the sign-up and login forms.
+# [signup.turnstile]
+# site_key = "..."
+# secret_key = "..."
 
 [security]
 publicize_fhir_metadata = true

@@ -17,18 +17,15 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum PrimitiveValue {
     Boolean(bool),
-    Number(f64),
+    U64(u64),
+    I64(i64),
+    F64(f64),
     String(String),
 }
 
 #[allow(dead_code)]
 fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
-    value.as_any().downcast_ref::<T>().or_else(|| {
-        value
-            .as_any()
-            .downcast_ref::<Box<T>>()
-            .map(std::convert::AsRef::as_ref)
-    })
+    value.as_any().downcast_ref::<T>()
 }
 
 fn convert_with<T, R, F>(
@@ -60,14 +57,44 @@ fn unsupported_type_error(type_name: &str) -> OperationOutcomeError {
     )
 }
 
+/// The `FHIRPath` System types whose values a FHIR primitive type's values can be, as FHIR maps
+/// them (<https://hl7.org/fhir/R4/fhirpath.html#types>). `url` and `canonical` specialize
+/// `uri`; `date` and `instant` values can also be the engine's `System.Date` and
+/// `System.Instant`.
+fn system_types_of(fhir_type: &str) -> &'static [&'static str] {
+    const STRING: &[&str] = &["http://hl7.org/fhirpath/System.String"];
+    const INTEGER: &[&str] = &["http://hl7.org/fhirpath/System.Integer"];
+    const TEMPORAL: &[&str] = &[
+        "http://hl7.org/fhirpath/System.DateTime",
+        "http://hl7.org/fhirpath/System.Date",
+        "http://hl7.org/fhirpath/System.Instant",
+    ];
+    match fhir_type {
+        "boolean" => &["http://hl7.org/fhirpath/System.Boolean"],
+        "string" | "uri" | "url" | "canonical" | "code" | "oid" | "id" | "uuid" | "markdown"
+        | "base64Binary" => STRING,
+        "integer" | "unsignedInt" | "positiveInt" => INTEGER,
+        "decimal" => &["http://hl7.org/fhirpath/System.Decimal"],
+        "date" | "dateTime" | "instant" => TEMPORAL,
+        "time" => &["http://hl7.org/fhirpath/System.Time"],
+        _ => &[],
+    }
+}
+
 pub fn convert_meta_value(
     type_: &str,
     value: &dyn MetaValue,
 ) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
-    if value.fhir_type() != type_ {
+    let value_type = value.fhir_type();
+    if value_type != type_ {
+        // A FHIRPath System value (a resource's `id`, a literal, `%rowIndex`) stands for the
+        // FHIR primitive types that map to its System type.
+        if system_types_of(type_).contains(&value_type) {
+            return convert_fhirpath_system_type(value_type, value);
+        }
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Expected type '{type_}' but got '{}'", value.fhir_type()),
+            format!("Expected type '{type_}' but got '{value_type}'"),
         ));
     }
 
@@ -119,16 +146,13 @@ fn convert_fhir_primitive(
                 .map(|date_time| PrimitiveValue::String(date_time.to_string()))
         }),
         "decimal" => convert_with::<FHIRDecimal, _, _>(value, "decimal", |primitive| {
-            primitive.value.map(PrimitiveValue::Number)
+            primitive.value.map(PrimitiveValue::F64)
         }),
         "boolean" => convert_with::<FHIRBoolean, _, _>(value, "boolean", |primitive| {
             primitive.value.map(PrimitiveValue::Boolean)
         }),
         "integer" => convert_with::<FHIRInteger, _, _>(value, "integer", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::I64)
         }),
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
@@ -152,16 +176,10 @@ fn convert_fhir_primitive(
             primitive.value.clone().map(PrimitiveValue::String)
         }),
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::U64)
         }),
         "positiveInt" => convert_with::<FHIRPositiveInt, _, _>(value, "positiveInt", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::U64)
         }),
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
@@ -187,12 +205,6 @@ fn convert_fhirpath_system_type(
         "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
             .downcast_ref::<String>()
-            .or_else(|| {
-                value
-                    .as_any()
-                    .downcast_ref::<Box<String>>()
-                    .map(std::convert::AsRef::as_ref)
-            })
             .cloned()
             .map(PrimitiveValue::String)),
         "http://hl7.org/fhirpath/System.Boolean" => Ok(value
@@ -204,13 +216,12 @@ fn convert_fhirpath_system_type(
             .as_any()
             .downcast_ref::<i64>()
             .copied()
-            // FIXME: Do not convert to f64.
-            .map(|number| PrimitiveValue::Number(number as f64))),
+            .map(PrimitiveValue::I64)),
         "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
             .downcast_ref::<f64>()
             .copied()
-            .map(PrimitiveValue::Number)),
+            .map(PrimitiveValue::F64)),
         "http://hl7.org/fhirpath/System.Date" => Ok(value
             .as_any()
             .downcast_ref::<Date>()

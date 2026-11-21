@@ -1,19 +1,20 @@
 use crate::{
     FHIRClient,
-    middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{
-        self, CompartmentRequest, DeleteRequest, DeleteResponse, FHIRBatchRequest,
-        FHIRBatchResponse, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRCreateResponse,
-        FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
-        FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
-        FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest,
-        FHIRPatchRequest, FHIRPatchResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
-        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
-        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
+        self, CompartmentRequest, DeleteRequest, DeleteResponse, FHIRAcceptedResponse,
+        FHIRBatchRequest, FHIRBatchResponse, FHIRConditionalUpdateRequest, FHIRCreateRequest,
+        FHIRCreateResponse, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
+        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRPatchResponse, FHIRReadRequest,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchSystemRequest,
+        FHIRSearchTypeRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
+        FHIRVersionReadRequest, HistoryRequest, HistoryResponse, InvocationRequest, InvokeResponse,
+        Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use derivative::Derivative;
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -23,14 +24,51 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::VersionId;
-use http::HeaderValue;
+pub use http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header};
 use reqwest::{Request, RequestBuilder, Url};
 use std::future::Future;
-use std::{fmt::Debug, pin::Pin, sync::Arc};
+use std::{fmt::Debug, marker::PhantomData, pin::Pin, sync::Arc};
 
 type AccessToken = dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, OperationOutcomeError>> + Send + Sync>>
     + Sync
     + Send;
+
+pub struct BasicCredentials {
+    pub username: String,
+    pub password: String,
+}
+
+type GetBasicCredentials = dyn Fn() -> Pin<
+        Box<dyn Future<Output = Result<BasicCredentials, OperationOutcomeError>> + Send + Sync>,
+    > + Sync
+    + Send;
+
+#[derive(Clone)]
+pub enum FHIRHttpAuthenticationMethod {
+    BearerToken(Arc<AccessToken>),
+    Basic(Arc<GetBasicCredentials>),
+}
+
+/// Supplies additional HTTP headers to apply to an outgoing request.
+///
+/// Implemented on the client's context type rather than on [`FHIRHttpState`] so
+/// that headers may vary per call instead of being fixed for the lifetime of the
+/// client.
+pub trait HttpRequestHeaders {
+    /// Headers to apply to the request, or `None` to send it unchanged.
+    fn request_headers(&self) -> Option<&HeaderMap>;
+}
+
+pub trait WithRequestHeaders: HttpRequestHeaders + Sized {
+    #[must_use]
+    fn with_request_headers(self, headers: HeaderMap) -> Self;
+}
+
+impl HttpRequestHeaders for () {
+    fn request_headers(&self) -> Option<&HeaderMap> {
+        None
+    }
+}
 
 #[derive(Derivative)]
 #[derivative(Debug)]
@@ -39,7 +77,7 @@ pub struct FHIRHttpState {
     client: reqwest::Client,
     api_url: Url,
     #[derivative(Debug = "ignore")]
-    get_access_token: Option<Arc<AccessToken>>,
+    http_authentication_method: Option<FHIRHttpAuthenticationMethod>,
 }
 
 impl FHIRHttpState {
@@ -51,7 +89,7 @@ impl FHIRHttpState {
     /// or if the client cannot be initialized.
     pub fn new(
         api_url: &str,
-        get_access_token: Option<Arc<AccessToken>>,
+        http_authentication_method: Option<FHIRHttpAuthenticationMethod>,
     ) -> Result<Self, OperationOutcomeError> {
         let mut url =
             Url::parse(api_url).map_err(|_| FHIRHTTPError::UrlParseError(api_url.to_string()))?;
@@ -63,15 +101,14 @@ impl FHIRHttpState {
         Ok(FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
-            get_access_token,
+            http_authentication_method,
         })
     }
 }
 
 pub struct FHIRHttpClient<CTX: Debug> {
-    state: Arc<FHIRHttpState>,
-    middleware:
-        Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
+    state: FHIRHttpState,
+    _ctx: PhantomData<CTX>,
 }
 
 #[derive(Debug, OperationOutcomeError)]
@@ -80,8 +117,11 @@ pub enum FHIRHTTPError {
     ReqwestError(#[from] reqwest::Error),
     #[error(code = "not-supported", diagnostic = "Operation not supported.")]
     NotSupported,
-    #[fatal(code = "exception", diagnostic = "No response received.")]
-    NoResponse,
+    #[fatal(
+        code = "exception",
+        diagnostic = "The request returned a response of another kind."
+    )]
+    UnexpectedResponse,
     #[fatal(
         code = "exception",
         diagnostic = "Invalid url that could not be parsed {arg0}"
@@ -100,17 +140,7 @@ fn fhir_parameter_to_query_parameters(http_url: &mut reqwest::Url, parameters: &
             ParsedParameter::Result(parameter) | ParsedParameter::Resource(parameter) => parameter,
         };
 
-        let mut query_param_name = parameter.name.clone();
-
-        if let Some(chains) = parameter.chains.as_ref() {
-            query_param_name = format!("{query_param_name}.{}", chains.join("."));
-        }
-
-        if let Some(modifier) = parameter.modifier.as_ref() {
-            query_param_name = format!("{query_param_name}:{modifier}");
-        }
-
-        query_parameters.append_pair(&query_param_name, parameter.value.join(",").as_str());
+        query_parameters.append_pair(&parameter.key(), &parameter.value_string());
     }
 }
 
@@ -164,6 +194,48 @@ fn serialize_json<T: serde::Serialize>(value: &T) -> Result<String, OperationOut
         .map_err(Into::into)
 }
 
+/// Adds the configured authentication, if any, to `request`.
+async fn authenticate(
+    state: &FHIRHttpState,
+    request: &mut Request,
+) -> Result<(), OperationOutcomeError> {
+    if let Some(http_authentication_method) = state.http_authentication_method.as_ref() {
+        match http_authentication_method {
+            FHIRHttpAuthenticationMethod::BearerToken(get_access_token) => {
+                let token = get_access_token().await?;
+
+                request.headers_mut().insert(
+                    "Authorization",
+                    HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
+                        OperationOutcomeError::error(
+                            IssueType::invalid(),
+                            "Failed to create Authorization header.".to_string(),
+                        )
+                    })?,
+                );
+            }
+            FHIRHttpAuthenticationMethod::Basic(get_basic_credentials) => {
+                let credentials = get_basic_credentials().await?;
+
+                let basic_credentials =
+                    STANDARD.encode(format!("{}:{}", credentials.username, credentials.password));
+
+                request.headers_mut().insert(
+                    "Authorization",
+                    HeaderValue::from_str(&format!("Basic {basic_credentials}")).map_err(|_| {
+                        OperationOutcomeError::error(
+                            IssueType::invalid(),
+                            "Failed to create Authorization header.".to_string(),
+                        )
+                    })?,
+                );
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn fhir_request_to_http_request<'a>(
     state: &'a FHIRHttpState,
     request: &'a FHIRRequest,
@@ -186,20 +258,7 @@ fn fhir_request_to_http_request<'a>(
         };
 
         let mut request = request?;
-
-        if let Some(get_access_token) = state.get_access_token.as_ref() {
-            let token = get_access_token().await?;
-
-            request.headers_mut().insert(
-                "Authorization",
-                HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
-                    OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Failed to create Authorization header.".to_string(),
-                    )
-                })?,
-            );
-        }
+        authenticate(state, &mut request).await?;
 
         Ok(request)
     })
@@ -238,7 +297,7 @@ fn request_from_compartment<'a>(
         let compartment_state = FHIRHttpState {
             api_url: compartment_url,
             client: state.client.clone(),
-            get_access_token: state.get_access_token.clone(),
+            http_authentication_method: state.http_authentication_method.clone(),
         };
 
         fhir_request_to_http_request(&compartment_state, &compartment_request.request).await
@@ -568,7 +627,7 @@ fn request_from_invocation_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let request_url = state
         .api_url
-        .join(invocation_request.operation.name())
+        .join(&format!("${}", invocation_request.operation.name()))
         .map_err(|_| FHIRHTTPError::UrlParseError("InvokeSystem request".to_string()))?;
 
     let body = serialize_json(&invocation_request.parameters)?;
@@ -617,6 +676,19 @@ fn http_response_to_fhir_response<'a>(
     response: reqwest::Response,
 ) -> Pin<Box<dyn Future<Output = Result<FHIRResponse, OperationOutcomeError>> + Send + 'a>> {
     Box::pin(async move {
+        // Any request may be taken on asynchronously (the FHIR Asynchronous
+        // Request Pattern): `202 Accepted` and the status URL to poll.
+        if response.status() == StatusCode::ACCEPTED
+            && let Some(content_location) = response
+                .headers()
+                .get(header::CONTENT_LOCATION)
+                .and_then(|value| value.to_str().ok())
+        {
+            return Ok(FHIRResponse::Accepted(FHIRAcceptedResponse {
+                content_location: content_location.to_string(),
+            }));
+        }
+
         let response_request = FHIRResponseRequest::response_request(fhir_request);
         let body = read_response(response).await?;
 
@@ -814,94 +886,172 @@ fn build_invocation_response(
     }
 }
 
-struct HTTPMiddleware {}
-impl HTTPMiddleware {
-    fn new() -> Self {
-        HTTPMiddleware {}
-    }
-}
-impl<CTX: Send + 'static + Debug>
-    MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>
-    for HTTPMiddleware
-{
-    fn call(
-        &self,
-        state: Arc<FHIRHttpState>,
-        context: Context<CTX, FHIRRequest, FHIRResponse>,
-        _next: Option<
-            Arc<
-                Next<
-                    Arc<FHIRHttpState>,
-                    Context<CTX, FHIRRequest, FHIRResponse>,
-                    OperationOutcomeError,
-                >,
-            >,
-        >,
-    ) -> Pin<
-        Box<
-            dyn Future<
-                    Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, OperationOutcomeError>,
-                > + Send,
-        >,
-    > {
-        Box::pin(async move {
-            let http_request = fhir_request_to_http_request(&state, &context.request).await?;
-            let response = state
-                .client
-                .execute(http_request)
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
-
-            let mut next_context = context;
-            let fhir_response =
-                http_response_to_fhir_response(&next_context.request, response).await?;
-            next_context.response = Some(fhir_response);
-
-            Ok(next_context)
-        })
-    }
-}
-
-impl<CTX: 'static + Send + Sync + Debug> FHIRHttpClient<CTX> {
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpClient<CTX> {
     #[must_use]
     pub fn new(state: FHIRHttpState) -> Self {
-        let middleware = Middleware::new(vec![Box::new(HTTPMiddleware::new())]);
         FHIRHttpClient {
-            state: Arc::new(state),
-            middleware,
+            state,
+            _ctx: PhantomData,
+        }
+    }
+
+    /// Builds and sends a FHIR interaction, returning the raw response.
+    async fn execute(
+        &self,
+        ctx: &CTX,
+        request: &FHIRRequest,
+    ) -> Result<reqwest::Response, OperationOutcomeError> {
+        let mut http_request = fhir_request_to_http_request(&self.state, request).await?;
+        apply_request_headers(ctx, &mut http_request);
+
+        Ok(self
+            .state
+            .client
+            .execute(http_request)
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?)
+    }
+}
+
+/// Applies the caller's headers to a built request. Applied last so a
+/// caller-supplied header takes precedence over the configured authentication
+/// and the default `Accept`/`Content-Type`. `insert` replaces rather than
+/// appends, so a repeated name overwrites instead of stacking values.
+fn apply_request_headers<CTX: HttpRequestHeaders>(ctx: &CTX, request: &mut Request) {
+    if let Some(headers) = ctx.request_headers() {
+        let request_headers = request.headers_mut();
+        for (name, value) in headers {
+            request_headers.insert(name, value.clone());
         }
     }
 }
 
-impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
+/// The status and headers of an HTTP response.
+#[derive(Debug, Clone)]
+pub struct HttpResponseMetadata {
+    pub status: StatusCode,
+    pub headers: HeaderMap,
+}
+
+impl HttpResponseMetadata {
+    fn of(response: &reqwest::Response) -> Self {
+        HttpResponseMetadata {
+            status: response.status(),
+            headers: response.headers().clone(),
+        }
+    }
+}
+
+/// What a FHIR client over HTTP offers beyond [`FHIRClient`]: the status and
+/// headers of a response, and requests outside the FHIR interactions.
+pub trait FHIRHttpExchange<CTX>: FHIRClient<CTX, OperationOutcomeError> {
+    /// Sends a FHIR interaction as [`FHIRClient::request`] does, also
+    /// returning the status and headers of its response, or `None` when no
+    /// response arrived.
+    fn request_with_metadata(
+        &self,
+        ctx: CTX,
+        request: FHIRRequest,
+    ) -> impl Future<
+        Output = (
+            Option<HttpResponseMetadata>,
+            Result<FHIRResponse, OperationOutcomeError>,
+        ),
+    > + Send;
+
+    /// Sends a request that is not a FHIR interaction, such as a poll of an
+    /// asynchronous request's status URL, to `url`: absolute, or relative to
+    /// the FHIR base URL. A non-success status is a response like any other,
+    /// not an error. The configured authentication is sent only to the FHIR
+    /// base URL's origin, so a URL taken from a response cannot carry the
+    /// credentials elsewhere.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the URL is invalid or no
+    /// response arrived.
+    fn send(
+        &self,
+        ctx: CTX,
+        method: Method,
+        url: &str,
+    ) -> impl Future<Output = Result<(HttpResponseMetadata, bytes::Bytes), OperationOutcomeError>> + Send;
+}
+
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpExchange<CTX>
+    for FHIRHttpClient<CTX>
+{
+    async fn request_with_metadata(
+        &self,
+        ctx: CTX,
+        request: FHIRRequest,
+    ) -> (
+        Option<HttpResponseMetadata>,
+        Result<FHIRResponse, OperationOutcomeError>,
+    ) {
+        match self.execute(&ctx, &request).await {
+            Ok(response) => (
+                Some(HttpResponseMetadata::of(&response)),
+                http_response_to_fhir_response(&request, response).await,
+            ),
+            Err(error) => (None, Err(error)),
+        }
+    }
+
+    async fn send(
+        &self,
+        ctx: CTX,
+        method: Method,
+        url: &str,
+    ) -> Result<(HttpResponseMetadata, bytes::Bytes), OperationOutcomeError> {
+        // `join` resolves a relative URL against the base, and returns an
+        // absolute one as it is.
+        let url = self
+            .state
+            .api_url
+            .join(url)
+            .map_err(|_| FHIRHTTPError::UrlParseError(url.to_string()))?;
+        let same_origin = url.origin() == self.state.api_url.origin();
+
+        let mut http_request = build_request(self.state.client.request(method, url))?;
+        if same_origin {
+            authenticate(&self.state, &mut http_request).await?;
+        }
+        apply_request_headers(&ctx, &mut http_request);
+
+        let response = self
+            .state
+            .client
+            .execute(http_request)
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?;
+        let metadata = HttpResponseMetadata::of(&response);
+        let body = response
+            .bytes()
+            .await
+            .map_err(FHIRHTTPError::ReqwestError)?;
+
+        Ok((metadata, body))
+    }
+}
+
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRClient<CTX, OperationOutcomeError>
     for FHIRHttpClient<CTX>
 {
     async fn request(
         &self,
         ctx: CTX,
-        request: crate::request::FHIRRequest,
-    ) -> Result<crate::request::FHIRResponse, OperationOutcomeError> {
-        let response = self
-            .middleware
-            .call(self.state.clone(), ctx, request)
-            .await?;
+        request: FHIRRequest,
+    ) -> Result<FHIRResponse, OperationOutcomeError> {
+        let response = self.execute(&ctx, &request).await?;
 
-        response
-            .response
-            .ok_or_else(|| FHIRHTTPError::NoResponse.into())
+        http_response_to_fhir_response(&request, response).await
     }
 
     async fn capabilities(&self, ctx: CTX) -> Result<CapabilityStatement, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(self.state.clone(), ctx, FHIRRequest::Capabilities)
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Capabilities(capabilities_response)) => {
-                Ok(capabilities_response.capabilities)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        match self.request(ctx, FHIRRequest::Capabilities).await? {
+            FHIRResponse::Capabilities(response) => Ok(response.capabilities),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -910,21 +1060,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         ctx: CTX,
         parameters: crate::ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Search(SearchRequest::System(request::FHIRSearchSystemRequest {
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Search(SearchResponse::System(search_system_response))) => {
-                Ok(search_system_response.bundle)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request =
+            FHIRRequest::Search(SearchRequest::System(request::FHIRSearchSystemRequest {
+                parameters,
+            }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Search(SearchResponse::System(response)) => Ok(response.bundle),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -934,22 +1076,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         parameters: crate::ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Search(SearchRequest::Type(request::FHIRSearchTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Search(SearchResponse::Type(search_type_response))) => {
-                Ok(search_type_response.bundle)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Search(SearchRequest::Type(request::FHIRSearchTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Search(SearchResponse::Type(response)) => Ok(response.bundle),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -959,21 +1092,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Create(request::FHIRCreateRequest {
-                    resource_type,
-                    resource,
-                }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Create(request::FHIRCreateRequest {
+            resource_type,
+            resource,
+        });
+        match self.request(ctx, request).await? {
+            FHIRResponse::Create(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -984,23 +1109,16 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         id: String,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Update(UpdateRequest::Instance(
-                    request::FHIRUpdateInstanceRequest {
-                        resource_type,
-                        id,
-                        resource,
-                    },
-                )),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Update(UpdateRequest::Instance(
+            request::FHIRUpdateInstanceRequest {
+                resource_type,
+                id,
+                resource,
+            },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Update(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1011,23 +1129,16 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         parameters: crate::ParsedParameters,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Update(UpdateRequest::Conditional(
-                    request::FHIRConditionalUpdateRequest {
-                        resource_type,
-                        parameters,
-                        resource,
-                    },
-                )),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Update(UpdateRequest::Conditional(
+            request::FHIRConditionalUpdateRequest {
+                resource_type,
+                parameters,
+                resource,
+            },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Update(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1038,22 +1149,14 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         id: String,
         patch: json_patch::Patch,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Patch(request::FHIRPatchRequest {
-                    resource_type,
-                    id,
-                    patch,
-                }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Patch(patch_response)) => Ok(patch_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Patch(request::FHIRPatchRequest {
+            resource_type,
+            id,
+            patch,
+        });
+        match self.request(ctx, request).await? {
+            FHIRResponse::Patch(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1063,18 +1166,10 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Read(request::FHIRReadRequest { resource_type, id }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Read(read_response)) => Ok(read_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Read(request::FHIRReadRequest { resource_type, id });
+        match self.request(ctx, request).await? {
+            FHIRResponse::Read(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1085,24 +1180,14 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         id: String,
         version_id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::VersionRead(request::FHIRVersionReadRequest {
-                    resource_type,
-                    id,
-                    version_id: VersionId::new(version_id),
-                }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::VersionRead(version_read_response)) => {
-                Ok(Some(version_read_response.resource))
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::VersionRead(request::FHIRVersionReadRequest {
+            resource_type,
+            id,
+            version_id: VersionId::new(version_id),
+        });
+        match self.request(ctx, request).await? {
+            FHIRResponse::VersionRead(response) => Ok(Some(response.resource)),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1112,20 +1197,12 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         id: String,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::Instance(
-                    request::FHIRDeleteInstanceRequest { resource_type, id },
-                )),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Delete(_delete_instance_response)) => Ok(()),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Delete(DeleteRequest::Instance(
+            request::FHIRDeleteInstanceRequest { resource_type, id },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Delete(_) => Ok(()),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1135,20 +1212,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         parameters: crate::ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::Type(request::FHIRDeleteTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Delete(_delete_type_response)) => Ok(()),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Delete(DeleteRequest::Type(request::FHIRDeleteTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Delete(_) => Ok(()),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1157,19 +1227,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         ctx: CTX,
         parameters: crate::ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Delete(DeleteRequest::System(request::FHIRDeleteSystemRequest {
-                    parameters,
-                })),
-            )
-            .await?;
-        match res.response {
-            Some(FHIRResponse::Delete(_delete_system_response)) => Ok(()),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request =
+            FHIRRequest::Delete(DeleteRequest::System(request::FHIRDeleteSystemRequest {
+                parameters,
+            }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Delete(_) => Ok(()),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1178,22 +1242,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         ctx: CTX,
         parameters: crate::ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::System(request::FHIRHistorySystemRequest {
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::System(history_system_response))) => {
-                Ok(history_system_response.bundle)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request =
+            FHIRRequest::History(HistoryRequest::System(request::FHIRHistorySystemRequest {
+                parameters,
+            }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::System(response)) => Ok(response.bundle),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1203,23 +1258,13 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         resource_type: ResourceType,
         parameters: crate::ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::Type(request::FHIRHistoryTypeRequest {
-                    resource_type,
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::Type(history_type_response))) => {
-                Ok(history_type_response.bundle)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::History(HistoryRequest::Type(request::FHIRHistoryTypeRequest {
+            resource_type,
+            parameters,
+        }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::Type(response)) => Ok(response.bundle),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1230,26 +1275,16 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         id: String,
         parameters: crate::ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::History(HistoryRequest::Instance(
-                    request::FHIRHistoryInstanceRequest {
-                        resource_type,
-                        id,
-                        parameters,
-                    },
-                )),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::History(HistoryResponse::Instance(history_instance_response))) => {
-                Ok(history_instance_response.bundle)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::History(HistoryRequest::Instance(
+            request::FHIRHistoryInstanceRequest {
+                resource_type,
+                id,
+                parameters,
+            },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::History(HistoryResponse::Instance(response)) => Ok(response.bundle),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1261,27 +1296,17 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         operation: String,
         parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Invocation(InvocationRequest::Instance(
-                    request::FHIRInvokeInstanceRequest {
-                        resource_type,
-                        id,
-                        operation: Operation::new(&operation),
-                        parameters,
-                    },
-                )),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Invoke(InvokeResponse::Instance(invoke_instance_response))) => {
-                Ok(invoke_instance_response.resource)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Invocation(InvocationRequest::Instance(
+            request::FHIRInvokeInstanceRequest {
+                resource_type,
+                id,
+                operation: Operation::new(&operation),
+                parameters,
+            },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Instance(response)) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1292,24 +1317,15 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         operation: String,
         parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Invocation(InvocationRequest::Type(request::FHIRInvokeTypeRequest {
-                    resource_type,
-                    operation: Operation::new(&operation),
-                    parameters,
-                })),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Invoke(InvokeResponse::Type(invoke_type_response))) => {
-                Ok(invoke_type_response.resource)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request =
+            FHIRRequest::Invocation(InvocationRequest::Type(request::FHIRInvokeTypeRequest {
+                resource_type,
+                operation: Operation::new(&operation),
+                parameters,
+            }));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Type(response)) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
@@ -1319,59 +1335,32 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
         operation: String,
         parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Invocation(InvocationRequest::System(
-                    request::FHIRInvokeSystemRequest {
-                        operation: Operation::new(&operation),
-                        parameters,
-                    },
-                )),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Invoke(InvokeResponse::System(invoke_system_response))) => {
-                Ok(invoke_system_response.resource)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Invocation(InvocationRequest::System(
+            request::FHIRInvokeSystemRequest {
+                operation: Operation::new(&operation),
+                parameters,
+            },
+        ));
+        match self.request(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::System(response)) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
     async fn transaction(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Transaction(request::FHIRTransactionRequest { resource: bundle }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Transaction(transaction_response)) => {
-                Ok(transaction_response.resource)
-            }
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request =
+            FHIRRequest::Transaction(request::FHIRTransactionRequest { resource: bundle });
+        match self.request(ctx, request).await? {
+            FHIRResponse::Transaction(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 
     async fn batch(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
-        let res = self
-            .middleware
-            .call(
-                self.state.clone(),
-                ctx,
-                FHIRRequest::Batch(request::FHIRBatchRequest { resource: bundle }),
-            )
-            .await?;
-
-        match res.response {
-            Some(FHIRResponse::Batch(batch_response)) => Ok(batch_response.resource),
-            _ => Err(FHIRHTTPError::NoResponse.into()),
+        let request = FHIRRequest::Batch(request::FHIRBatchRequest { resource: bundle });
+        match self.request(ctx, request).await? {
+            FHIRResponse::Batch(response) => Ok(response.resource),
+            _ => Err(FHIRHTTPError::UnexpectedResponse.into()),
         }
     }
 }

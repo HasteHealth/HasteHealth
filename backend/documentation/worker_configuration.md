@@ -1,5 +1,20 @@
 # Haste Health Worker
 
+## Commands
+
+| Command                          | Runs                                    |
+| -------------------------------- | --------------------------------------- |
+| `haste-health worker`            | Search indexing and async jobs together |
+| `haste-health worker indexing`   | Search indexing only                    |
+| `haste-health worker async-jobs` | Async jobs only                         |
+
+Run the two separately to scale them on their own. Every deployment needs both
+running somewhere. The settings below are the indexing worker's. The async-job
+worker reads the [server configuration](./server_configuration.md) instead: its
+lease, polling and concurrency come from the `jobs` section (`HASTE_JOBS.*`).
+It also removes orphaned Binary documents from document storage every
+`document_storage.sweep_interval_seconds` (a day by default).
+
 ## Configuration
 
 Worker configuration is loaded with [Figment](https://docs.rs/figment), merging two sources in order (`backend/src/commands/worker.rs`):
@@ -33,6 +48,7 @@ This is the same `HASTE_` prefix and TOML file used by the [server](./server_con
 | Key                    | Env var                      | Default | Notes                                                                                 |
 | ---------------------- | ---------------------------- | ------- | ------------------------------------------------------------------------------------- |
 | `max_concurrent_limit` | `HASTE_MAX_CONCURRENT_LIMIT` | `1000`  | Max number of resources fetched/indexed per tenant on each pass of the indexing loop. |
+| `poll_interval_ms`     | `HASTE_POLL_INTERVAL_MS`     | `100`   | How long the loop sleeps after a pass in which no project had anything new to index. Passes that found rows run back to back. |
 
 #### `[repo]` — resource storage backend
 
@@ -46,7 +62,24 @@ Tagged by `backend`; only `postgres` exists today.
 
 #### `[search]` — search index backend
 
-Tagged by `backend`; only `elasticsearch` exists today.
+Tagged by `backend`: either `postgres` or `elasticsearch`. Defaults to
+`postgres`, which indexes into its own database and so needs no extra service;
+the shipped `haste.toml` and the Docker Compose files set it explicitly. Pick
+`elasticsearch` to index into an Elasticsearch cluster instead.
+
+With `backend = "postgres"`:
+
+| Key                      | Env var                        | Default                                                        |
+| ------------------------ | ------------------------------ | -------------------------------------------------------------- |
+| `search.backend`         | `HASTE_SEARCH.backend`         | `postgres`                                                     |
+| `search.database_url`    | `HASTE_SEARCH.database_url`    | `postgresql://postgres:postgres@127.0.0.1/haste_health_search` |
+| `search.max_connections` | `HASTE_SEARCH.max_connections` | `20`                                                           |
+
+The search index is kept in its own database, separate from `repo.database_url`,
+so the two never share tables. Point the worker at the same `search` settings as
+the server, so it indexes where the server reads.
+
+With `backend = "elasticsearch"`:
 
 | Key               | Env var                 | Default                 |
 | ----------------- | ----------------------- | ----------------------- |
@@ -59,6 +92,7 @@ Tagged by `backend`; only `elasticsearch` exists today.
 
 ```toml
 max_concurrent_limit = 1000
+poll_interval_ms = 100
 
 [repo]
 backend = "postgres"
@@ -66,10 +100,9 @@ database_url = "postgresql://postgres:postgres@localhost:5432/haste_health"
 max_connections = 10
 
 [search]
-backend = "elasticsearch"
-url = "http://localhost:9200"
-username = "elastic"
-password = "elastic"
+backend = "postgres"
+database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
+max_connections = 20
 ```
 
 ### Example environment variables (container deployment)
@@ -81,8 +114,7 @@ HASTE_REPO.backend=postgres
 HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
 HASTE_REPO.max_connections=10
 
-HASTE_SEARCH.backend=elasticsearch
-HASTE_SEARCH.url=http://elasticsearch:9200
-HASTE_SEARCH.username=elastic
-HASTE_SEARCH.password=elastic
+HASTE_SEARCH.backend=postgres
+HASTE_SEARCH.database_url=postgresql://postgres:postgres@postgres:5432/haste_health_search
+HASTE_SEARCH.max_connections=20
 ```

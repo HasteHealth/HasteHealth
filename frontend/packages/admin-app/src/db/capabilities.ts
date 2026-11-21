@@ -16,7 +16,7 @@ export const getCapabilities = atom(async (get) => {
     if (isResponseError(e)) {
       Toaster.error(
         e.response.body.issue?.[0]?.diagnostics ??
-          "Failed to fetch server capabilities."
+          "Failed to fetch server capabilities.",
       );
     } else {
       Toaster.error("Failed to fetch server capabilities.");

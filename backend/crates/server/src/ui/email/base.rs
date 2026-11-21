@@ -3,7 +3,7 @@ use maud::{Markup, html};
 
 use crate::static_assets::asset_route;
 
-pub fn base(uri: &Uri, children: Markup) -> Markup {
+pub fn base(uri: &Uri, children: &Markup) -> Markup {
     let img_url = Uri::builder()
         .scheme(uri.scheme().unwrap().clone())
         .authority(uri.authority().unwrap().clone())

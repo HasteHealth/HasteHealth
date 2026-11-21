@@ -293,7 +293,7 @@ pub fn isolated_schema(
     }
 }
 
-// Creates a type schema for a bundle of resources
+// Creates a type schema for a bundle of resources.
 #[must_use]
 pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Value {
     json!({
@@ -313,13 +313,12 @@ pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Va
                     "properties": {
                         "resource": resource_schema
                     },
-                    "required": ["resource"],
                     "additionalProperties": true
                 }
             }
         },
-        "required": ["resourceType", "type", "entry"],
-        "additionalProperties": false
+        "required": ["resourceType", "type"],
+        "additionalProperties": true
     })
 }
 
@@ -336,8 +335,9 @@ mod test {
     use super::*;
 
     static RESOURCE_SDS: LazyLock<Vec<StructureDefinition>> = LazyLock::new(|| {
-        let sd_str =
-            include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json");
+        let sd_str = include_str!(
+            "../../../../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.min.json"
+        );
 
         let bundle: Bundle =
             serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");
@@ -369,8 +369,9 @@ mod test {
     /// can resolve them the same way production does - via `$ref`, not `$defs`.
     pub static FHIR_COMPLEX_TYPE_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> =
         LazyLock::new(|| {
-            let sd_str =
-                include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
+            let sd_str = include_str!(
+                "../../../../artifacts/r4/hl7-core/definitions/hl7/profiles-types.min.json"
+            );
 
             let bundle: Bundle =
                 serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");

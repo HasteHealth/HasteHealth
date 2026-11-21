@@ -1,0 +1,62 @@
+{
+    "resourceType": "Bundle",
+    "id": "deidentificationpolicystatus",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyStatus",
+            "resource": {
+                "id": "deidentificationpolicystatus-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyStatus",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyStatus",
+                "title": "DeidentificationPolicyStatus",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification policy status codes.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "draft",
+                        "display": "draft"
+                    },
+                    {
+                        "code": "active",
+                        "display": "active"
+                    },
+                    {
+                        "code": "retired",
+                        "display": "retired"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "deidentificationpolicystatus",
+                "url": "https://haste.health/fhir/ValueSet/DeidentificationPolicyStatus",
+                "version": "4.0.1",
+                "name": "DeidentificationPolicyStatus",
+                "title": "DeidentificationPolicyStatus",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "De-identification policy status codes.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/DeidentificationPolicyStatus"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -20,9 +20,9 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     breadcrumbs: [
-      <span>Home</span>,
-      <span>Resources</span>,
-      <span>Users</span>,
+      <span key="home">Home</span>,
+      <span key="resources">Resources</span>,
+      <span key="users">Users</span>,
     ],
   },
 };

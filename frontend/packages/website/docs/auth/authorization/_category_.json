@@ -1,4 +1,8 @@
 {
     "label": "Authorization",
-    "key": "api-authorization"
+    "key": "api-authorization",
+    "link": {
+        "type": "generated-index",
+        "description": "Documentation on Haste Health's scopes, memberships, and attribute-based access control for FHIR resources."
+    }
 }

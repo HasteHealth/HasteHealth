@@ -1,0 +1,8 @@
+{
+    "description": "g10 Standalone Patient App, full patient access: a patient (a member User linked to Patient/g10-example) signing in to an app granted every US Core type with SMART v2 patient scopes.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-patient@example.org",
+    "clientId": "g10-standalone-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "launch/patient openid fhirUser offline_access patient/Medication.rs patient/AllergyIntolerance.rs patient/CarePlan.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Device.rs patient/DiagnosticReport.rs patient/DocumentReference.rs patient/Encounter.rs patient/Goal.rs patient/Immunization.rs patient/Location.rs patient/MedicationDispense.rs patient/MedicationRequest.rs patient/Observation.rs patient/Organization.rs patient/Patient.rs patient/Practitioner.rs patient/PractitionerRole.rs patient/Procedure.rs patient/Provenance.rs patient/QuestionnaireResponse.rs patient/RelatedPerson.rs patient/ServiceRequest.rs patient/Specimen.rs"
+}

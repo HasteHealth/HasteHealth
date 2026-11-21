@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.6.02-search-patient",
+    "url": "https://haste.health/fhir/TestScript/g10-12.6.02-search-patient",
+    "name": "g10-12.6.02-search-patient",
+    "title": "12.6.02 Server returns valid results for Condition search by patient",
+    "status": "active",
+    "description": "g10 12.6.02 (SH-PAT-2; US Core 6.1.0: group 10.6). Server returns valid results for Condition search by patient. US Core SHALL search. Every result must match every parameter, and the record's Condition/g10-encounter-diagnosis-example1 must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-condition-patient-g10-example",
+            "name": "GET Condition?patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "patient=g10-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/g10-encounter-diagnosis-example1 is returned",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'g10-encounter-diagnosis-example1').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Condition returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Condition).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

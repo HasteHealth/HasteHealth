@@ -9,8 +9,9 @@ use std::sync::Arc;
 
 pub mod context;
 mod engine;
-mod request_reflection;
+pub mod request_reflection;
 mod utilities;
+pub mod v3;
 
 /// Evaluates an access policy using the configured policy engine.
 ///

@@ -12,12 +12,8 @@ use haste_server::{config::ServerConfig, server};
 /// Run the FHIR server.
 #[derive(Subcommand, Debug)]
 pub(crate) enum ServerCommands {
-    /// Start the HTTP server. Configuration is read from `haste.toml` and `HASTE_*` env vars.
-    Start {
-        /// Port to listen on. Defaults to 3000.
-        #[arg(short, long)]
-        port: Option<u16>,
-    },
+    /// Start the HTTP server. Configuration is read from `haste.toml` and `HASTE_*` env vars
+    Start,
 }
 
 /// Runs the `server` command group.
@@ -28,9 +24,9 @@ pub(crate) async fn run(command: &ServerCommands) -> Result<(), OperationOutcome
         .extract()
         .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
+    let port = config.port;
+
     match &command {
-        ServerCommands::Start { port } => {
-            server::serve(Arc::new(config), port.unwrap_or(3000)).await
-        }
+        ServerCommands::Start => server::serve(Arc::new(config), port).await,
     }
 }

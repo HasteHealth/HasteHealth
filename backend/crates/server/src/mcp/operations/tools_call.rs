@@ -1,13 +1,15 @@
+use crate::error::ServerError;
 use crate::{
     fhir_client::ServerCTX,
     mcp::{
-        error::{MCPError, MCPErrorDetail},
+        error::{MCPError, MCPErrorDetail, issue_line},
         operations::{
-            GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, R4_BATCH_TOOL_NAME,
-            R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME, R4_DELETE_TOOL_NAME,
-            R4_HISTORY_INSTANCE_TOOL_NAME, R4_HISTORY_TYPE_TOOL_NAME, R4_PATCH_TOOL_NAME,
-            R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME, R4_TRANSACTION_TOOL_NAME, R4_UPDATE_TOOL_NAME,
-            R4_VREAD_TOOL_NAME, schema_base_url, search_tool_parameters,
+            GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, OPERATION_TOOL_PREFIX,
+            R4_BATCH_TOOL_NAME, R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME,
+            R4_DELETE_TOOL_NAME, R4_HISTORY_INSTANCE_TOOL_NAME, R4_HISTORY_TYPE_TOOL_NAME,
+            R4_PATCH_TOOL_NAME, R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME, R4_TRANSACTION_TOOL_NAME,
+            R4_UPDATE_TOOL_NAME, R4_VREAD_TOOL_NAME, discover_operations, invoke_operation,
+            schema_base_url, search_tool_parameters,
         },
         request::CallToolRequest,
         schemas::types::{CallToolResult, ContentBlock, TextContent},
@@ -15,22 +17,56 @@ use crate::{
 };
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, Resource, ResourceType},
+    resources::{Bundle, OperationOutcome, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use json_patch::Patch;
 use std::{collections::HashMap, sync::Arc};
 
+/// A search parameter value as a model sends it: one value, or several that
+/// each become their own `name=value` pair, as repeating the parameter in a
+/// URL does. Numbers and booleans are taken as their text.
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(untagged)]
+enum SearchValue {
+    Text(String),
+    Number(serde_json::Number),
+    Bool(bool),
+    Many(Vec<SearchValue>),
+}
+
+impl SearchValue {
+    /// Appends the `name=value` pairs this value stands for.
+    fn push_pairs(self, name: &str, pairs: &mut Vec<(String, String)>) {
+        match self {
+            SearchValue::Text(text) => pairs.push((name.to_string(), text)),
+            SearchValue::Number(number) => pairs.push((name.to_string(), number.to_string())),
+            SearchValue::Bool(flag) => pairs.push((name.to_string(), flag.to_string())),
+            SearchValue::Many(values) => {
+                for value in values {
+                    value.push_pairs(name, pairs);
+                }
+            }
+        }
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 struct FHIRSearchArguments {
     #[serde(rename = "resourceType")]
     resource_type: String,
-    search_parameters: Option<HashMap<String, String>>,
+    search_parameters: Option<HashMap<String, SearchValue>>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 struct FHIRGetResourceSchemaArguments {
+    #[serde(rename = "resourceType")]
+    resource_type: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+struct FHIRGetSearchParametersArguments {
     #[serde(rename = "resourceType")]
     resource_type: String,
 }
@@ -107,45 +143,192 @@ struct FHIRBundleArguments {
     bundle: serde_json::Value,
 }
 
-/// Helper: parse resource type string into `ResourceType`, returning MCP error on failure.
-fn parse_resource_type(
+/// Why a tool call failed.
+///
+/// Per the MCP spec, naming a tool the server does not have, or a fault inside
+/// the server, is a protocol error. A tool that runs and fails (bad arguments,
+/// a FHIR error) is a tool execution error, returned as a result with `isError`
+/// set, which clients pass to the model so it can correct the call.
+enum CallError {
+    UnknownTool(MCPError<serde_json::Value>),
+    Failed(MCPError<serde_json::Value>),
+    Fhir(OperationOutcomeError),
+}
+
+impl From<MCPError<serde_json::Value>> for CallError {
+    fn from(error: MCPError<serde_json::Value>) -> Self {
+        // An MCPError made from a FHIR error carries its OperationOutcome as
+        // `data`. Kept a FHIR error, it is reported like any other.
+        if let Some(outcome) = error
+            .error
+            .data
+            .as_ref()
+            .and_then(serde_json::Value::as_str)
+            .and_then(|outcome| serde_json::from_str::<OperationOutcome>(outcome).ok())
+        {
+            return CallError::Fhir(OperationOutcomeError::new(None, outcome));
+        }
+
+        CallError::Failed(error)
+    }
+}
+
+impl From<ServerError> for CallError {
+    fn from(error: ServerError) -> Self {
+        CallError::Fhir(error.into())
+    }
+}
+
+impl From<OperationOutcomeError> for CallError {
+    fn from(error: OperationOutcomeError) -> Self {
+        CallError::Fhir(error)
+    }
+}
+
+/// Resource types this project serves, from its CapabilityStatement. Empty
+/// when it cannot be read, which only costs the suggestion.
+async fn supported_resource_types<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: &Arc<ServerCTX<Client>>,
+) -> Vec<String> {
+    let Ok(capabilities) = ctx.client.capabilities(ctx.clone()).await else {
+        return Vec::new();
+    };
+
+    capabilities
+        .rest
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|rest| rest.resource)
+        .flatten()
+        .filter_map(|resource| resource.type_.as_str().map(str::to_string))
+        .collect()
+}
+
+/// Levenshtein distance between two names.
+fn edit_distance(a: &str, b: &str) -> usize {
+    let b: Vec<char> = b.chars().collect();
+    let mut previous: Vec<usize> = (0..=b.len()).collect();
+
+    for (i, ca) in a.chars().enumerate() {
+        let mut current = vec![i + 1];
+        for (j, cb) in b.iter().enumerate() {
+            let substitution = previous[j] + usize::from(ca != *cb);
+            current.push(substitution.min(previous[j + 1] + 1).min(current[j] + 1));
+        }
+        previous = current;
+    }
+
+    previous[b.len()]
+}
+
+/// The supported type a mistyped name most likely meant: the same name in
+/// another case, else the nearest within a few edits.
+fn closest_resource_type<'a>(requested: &str, candidates: &'a [String]) -> Option<&'a str> {
+    if let Some(same) = candidates
+        .iter()
+        .find(|candidate| candidate.eq_ignore_ascii_case(requested))
+    {
+        return Some(same.as_str());
+    }
+
+    let lower = requested.to_ascii_lowercase();
+    let threshold = (requested.len() / 3).clamp(1, 3);
+    candidates
+        .iter()
+        .map(|candidate| {
+            (
+                edit_distance(&lower, &candidate.to_ascii_lowercase()),
+                candidate,
+            )
+        })
+        .filter(|(distance, _)| *distance <= threshold)
+        .min_by_key(|(distance, _)| *distance)
+        .map(|(_, candidate)| candidate.as_str())
+}
+
+/// Helper: parse resource type string into `ResourceType`. A miss names the
+/// closest supported type, since the argument schema no longer lists them.
+async fn parse_resource_type<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: &Arc<ServerCTX<Client>>,
     resource_type: &str,
     request_id: &Option<crate::mcp::schemas::types::RequestId>,
-) -> Result<ResourceType, MCPError<serde_json::Value>> {
-    ResourceType::try_from(resource_type).map_err(|_| MCPError {
+) -> Result<ResourceType, CallError> {
+    if let Ok(parsed) = ResourceType::try_from(resource_type) {
+        return Ok(parsed);
+    }
+
+    let supported = supported_resource_types(ctx).await;
+    let message = match closest_resource_type(resource_type, &supported) {
+        Some(suggestion) => format!(
+            "Invalid resource type '{resource_type}'. Did you mean '{suggestion}'? \
+             Resource types are case-sensitive."
+        ),
+        None => format!(
+            "Invalid resource type '{resource_type}'. Use a FHIR R4 type such as Patient; \
+             the '{R4_CAPABILITIES_TOOL_NAME}' tool lists every type this project supports."
+        ),
+    };
+
+    Err(CallError::Failed(MCPError {
         id: request_id.clone(),
         jsonrpc: "2.0".to_string(),
         error: MCPErrorDetail {
             code: 400,
-            message: format!("Invalid resource type: '{}'", resource_type),
+            message,
             data: None,
         },
-    })
+    }))
 }
 
 /// Helper: parse tool arguments from JSON value.
+///
+/// A failure names the tool, the field serde rejected and the shape the tool
+/// expects, so a model can correct the call rather than guess at it.
 fn parse_arguments<T: serde::de::DeserializeOwned>(
+    tool_name: &str,
     arguments: Option<serde_json::Value>,
-) -> Result<T, MCPError<serde_json::Value>> {
-    serde_json::from_value::<T>(arguments.unwrap_or_default()).map_err(|e| {
+    example: serde_json::Value,
+) -> Result<T, CallError> {
+    // Absent arguments read as an empty object, so the error names the first
+    // missing field instead of saying a struct was expected.
+    let arguments = match arguments {
+        Some(serde_json::Value::Null) | None => serde_json::json!({}),
+        Some(arguments) => arguments,
+    };
+
+    serde_path_to_error::deserialize::<_, T>(arguments).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to parse tool arguments: '{}'", e),
+            format!(
+                "Invalid arguments for '{tool_name}': {}. Expected an object like {example}",
+                describe_json_error(e)
+            ),
         )
         .into()
     })
 }
 
+/// A deserialization error with the path of the element it happened at, so
+/// "invalid FHIR date" says which date (`birthDate`, `name[0].period.start`).
+fn describe_json_error(error: serde_path_to_error::Error<serde_json::Error>) -> String {
+    let path = error.path().to_string();
+    let inner = error.into_inner();
+
+    // "." is the root: the message already names the field or the type.
+    if path == "." {
+        inner.to_string()
+    } else {
+        format!("{inner} at {path}")
+    }
+}
+
 /// Helper: build a successful CallToolResult with text + structured content.
-fn success_result(
-    value: &serde_json::Value,
-) -> Result<CallToolResult, MCPError<serde_json::Value>> {
-    let text = serde_json::to_string(value).map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::processing(),
-            format!("Failed to serialize result: '{}'", e),
-        )
-    })?;
+fn success_result(value: &serde_json::Value) -> Result<CallToolResult, CallError> {
+    let text = serde_json::to_string(value).map_err(ServerError::from)?;
 
     Ok(CallToolResult {
         structured_content: Some(value.clone()),
@@ -156,22 +339,20 @@ fn success_result(
 }
 
 /// Helper: serialize a Resource to JSON value.
-fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, MCPError<serde_json::Value>> {
-    serde_json::to_value(resource).map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::processing(),
-            format!("Failed to serialize resource: '{}'", e),
-        )
-        .into()
-    })
+fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, CallError> {
+    serde_json::to_value(resource).map_err(|e| CallError::Fhir(ServerError::Serialize(e).into()))
 }
 
 /// Helper: deserialize a JSON value into a FHIR Resource.
-fn json_to_resource(value: serde_json::Value) -> Result<Resource, MCPError<serde_json::Value>> {
-    serde_json::from_value::<Resource>(value).map_err(|e| {
+fn json_to_resource(value: serde_json::Value) -> Result<Resource, CallError> {
+    serde_path_to_error::deserialize::<_, Resource>(value).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to parse FHIR resource: '{}'", e),
+            format!(
+                "Invalid 'resource': {}. The '{GET_RESOURCE_SCHEMA_TOOL_NAME}' tool gives the \
+                 exact schema of a resource type",
+                describe_json_error(e)
+            ),
         )
         .into()
     })
@@ -181,7 +362,7 @@ fn json_to_resource(value: serde_json::Value) -> Result<Resource, MCPError<serde
 fn history_params(
     count: Option<String>,
     since: Option<String>,
-) -> Result<ParsedParameters, MCPError<serde_json::Value>> {
+) -> Result<ParsedParameters, CallError> {
     let mut params = HashMap::new();
     if let Some(c) = count {
         params.insert("_count".to_string(), c);
@@ -189,55 +370,69 @@ fn history_params(
     if let Some(s) = since {
         params.insert("_since".to_string(), s);
     }
-    ParsedParameters::try_from(&params).map_err(|_| {
+    ParsedParameters::try_from(&params).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            "Failed to parse history parameters".to_string(),
+            format!(
+                "Invalid history parameters: {e}. _count is a positive integer and _since an \
+                 instant such as 2024-01-01T00:00:00Z"
+            ),
         )
         .into()
     })
 }
 
-pub async fn tools_call<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->(
+async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>(
     ctx: Arc<ServerCTX<Client>>,
     request: CallToolRequest,
     api_uri: &str,
-) -> Result<CallToolResult, MCPError<serde_json::Value>> {
+) -> Result<CallToolResult, CallError> {
     match request.params.name.as_str() {
         R4_SEARCH_TOOL_NAME => {
-            let args: FHIRSearchArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRSearchArguments = parse_arguments(
+                R4_SEARCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Observation", "search_parameters": {"code": "http://loinc.org|8867-4", "_count": "20"}}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
-            let parsed_parameters = ParsedParameters::try_from(
-                &args.search_parameters.unwrap_or_default(),
-            )
-            .map_err(|_| MCPError {
-                id: request.id.clone(),
-                jsonrpc: "2.0".to_string(),
-                error: MCPErrorDetail {
-                    code: 400,
-                    message: "Failed to parse search parameters".to_string(),
-                    data: None,
-                },
-            })?;
+            let mut pairs: Vec<(String, String)> = Vec::new();
+            for (name, value) in args.search_parameters.unwrap_or_default() {
+                value.push_pairs(&name, &mut pairs);
+            }
+
+            let parsed_parameters =
+                ParsedParameters::try_from(pairs.as_slice()).map_err(|e| MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 400,
+                        message: format!(
+                            "Invalid search_parameters: {e}. Keys are search parameter names, \
+                             optionally with a :modifier or .chain; values are strings, or \
+                             arrays of strings to repeat a parameter"
+                        ),
+                        data: None,
+                    },
+                })?;
 
             let result = ctx
                 .client
                 .search_type(ctx.clone(), resource_type, parsed_parameters)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize search result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         GET_SEARCH_PARAMETERS_TOOL_NAME => {
+            let args: FHIRGetSearchParametersArguments = parse_arguments(
+                GET_SEARCH_PARAMETERS_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient"}),
+            )?;
+            parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
+
             let capabilities = ctx.client.capabilities(ctx.clone()).await?;
             let resource_capability_statement = capabilities
                 .rest
@@ -245,41 +440,38 @@ pub async fn tools_call<
                 .into_iter()
                 .filter_map(|rest| rest.resource)
                 .flatten()
-                .find(|r| {
-                    let rc_type = r.type_.as_str();
-                    rc_type.unwrap_or_default()
-                        == request
-                            .params
-                            .arguments
-                            .as_ref()
-                            .and_then(|args| args.get("resourceType"))
-                            .and_then(|v| v.as_str())
-                            .unwrap_or_default()
-                });
+                .find(|r| r.type_.as_str() == Some(args.resource_type.as_str()));
 
             let Some(resource_capability_statement_params) = resource_capability_statement
                 .as_ref()
                 .and_then(|rc| rc.searchParam.as_ref())
             else {
-                return Err(MCPError {
+                return Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
                         code: 400,
-                        message: "Invalid resourceType could not find search parameters"
-                            .to_string(),
+                        message: format!(
+                            "Resource type '{}' is not served by this project; the '{}' tool \
+                             lists the supported types",
+                            args.resource_type, R4_CAPABILITIES_TOOL_NAME
+                        ),
                         data: None,
                     },
-                });
+                }));
             };
 
             let parameters = search_tool_parameters(resource_capability_statement_params);
             success_result(&parameters)
         }
         GET_RESOURCE_SCHEMA_TOOL_NAME => {
-            let args: FHIRGetResourceSchemaArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRGetResourceSchemaArguments = parse_arguments(
+                GET_RESOURCE_SCHEMA_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient"}),
+            )?;
             // Validate it's a real resource type before fetching.
-            parse_resource_type(&args.resource_type, &request.id)?;
+            parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
             let url = format!("{}/{}", schema_base_url(api_uri), args.resource_type);
 
@@ -294,7 +486,7 @@ pub async fn tools_call<
             })?;
 
             if !response.status().is_success() {
-                return Err(MCPError {
+                return Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -306,7 +498,7 @@ pub async fn tools_call<
                         ),
                         data: None,
                     },
-                });
+                }));
             }
 
             let schema: serde_json::Value = response.json().await.map_err(|e| MCPError {
@@ -325,8 +517,12 @@ pub async fn tools_call<
             success_result(&schema)
         }
         R4_READ_TOOL_NAME => {
-            let args: FHIRReadArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRReadArguments = parse_arguments(
+                R4_READ_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123"}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
             let result = ctx
                 .client
@@ -338,7 +534,7 @@ pub async fn tools_call<
                     let json_value = resource_to_json(&resource)?;
                     success_result(&json_value)
                 }
-                None => Err(MCPError {
+                None => Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -346,12 +542,16 @@ pub async fn tools_call<
                         message: format!("Resource {}/{} not found", args.resource_type, args.id),
                         data: None,
                     },
-                }),
+                })),
             }
         }
         R4_VREAD_TOOL_NAME => {
-            let args: FHIRVReadArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRVReadArguments = parse_arguments(
+                R4_VREAD_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "versionId": "2"}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
             let result = ctx
                 .client
@@ -368,7 +568,7 @@ pub async fn tools_call<
                     let json_value = resource_to_json(&resource)?;
                     success_result(&json_value)
                 }
-                None => Err(MCPError {
+                None => Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -379,12 +579,16 @@ pub async fn tools_call<
                         ),
                         data: None,
                     },
-                }),
+                })),
             }
         }
         R4_CREATE_TOOL_NAME => {
-            let args: FHIRCreateArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRCreateArguments = parse_arguments(
+                R4_CREATE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "resource": {"resourceType": "Patient", "name": [{"family": "Smith"}]}}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
             let resource = json_to_resource(args.resource)?;
 
             let result = ctx
@@ -396,8 +600,12 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_UPDATE_TOOL_NAME => {
-            let args: FHIRUpdateArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRUpdateArguments = parse_arguments(
+                R4_UPDATE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "resource": {"resourceType": "Patient", "id": "123", "active": true}}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
             let resource = json_to_resource(args.resource)?;
 
             let result = ctx
@@ -409,15 +617,22 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_PATCH_TOOL_NAME => {
-            let args: FHIRPatchArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRPatchArguments = parse_arguments(
+                R4_PATCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "patches": [{"op": "replace", "path": "/active", "value": false}]}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
             let patches: Patch = serde_json::from_value(args.patches).map_err(|e| MCPError {
                 id: request.id.clone(),
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid JSON Patch document: '{}'", e),
+                    message: format!(
+                        "Invalid 'patches': {e}. Expected an array of RFC 6902 operations such as \
+                         [{{\"op\": \"replace\", \"path\": \"/active\", \"value\": false}}]"
+                    ),
                     data: None,
                 },
             })?;
@@ -431,8 +646,12 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_DELETE_TOOL_NAME => {
-            let args: FHIRDeleteArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRDeleteArguments = parse_arguments(
+                R4_DELETE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123"}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
             ctx.client
                 .delete_instance(ctx.clone(), resource_type, args.id.clone())
@@ -444,8 +663,12 @@ pub async fn tools_call<
             }))
         }
         R4_HISTORY_INSTANCE_TOOL_NAME => {
-            let args: FHIRHistoryInstanceArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRHistoryInstanceArguments = parse_arguments(
+                R4_HISTORY_INSTANCE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "_count": "10"}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
             let params = history_params(args.count, args.since)?;
 
             let result = ctx
@@ -453,18 +676,17 @@ pub async fn tools_call<
                 .history_instance(ctx.clone(), resource_type, args.id, params)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize history result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         R4_HISTORY_TYPE_TOOL_NAME => {
-            let args: FHIRHistoryTypeArguments = parse_arguments(request.params.arguments)?;
-            let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
+            let args: FHIRHistoryTypeArguments = parse_arguments(
+                R4_HISTORY_TYPE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "_since": "2024-01-01T00:00:00Z"}),
+            )?;
+            let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
             let params = history_params(args.count, args.since)?;
 
             let result = ctx
@@ -472,76 +694,100 @@ pub async fn tools_call<
                 .history_type(ctx.clone(), resource_type, params)
                 .await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize history result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         R4_CAPABILITIES_TOOL_NAME => {
             let capabilities = ctx.client.capabilities(ctx.clone()).await?;
 
-            let json_value = serde_json::to_value(&capabilities).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize capabilities: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&capabilities).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         R4_TRANSACTION_TOOL_NAME => {
-            let args: FHIRBundleArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRBundleArguments = parse_arguments(
+                R4_TRANSACTION_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"bundle": {"resourceType": "Bundle", "type": "transaction", "entry": [{"request": {"method": "POST", "url": "Patient"}, "resource": {"resourceType": "Patient"}}]}}),
+            )?;
 
             let bundle: Bundle = serde_json::from_value(args.bundle).map_err(|e| MCPError {
                 id: request.id.clone(),
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid transaction Bundle: '{}'", e),
+                    message: format!(
+                        "Invalid 'bundle': {e}. Expected a FHIR Bundle of type 'transaction' whose \
+                         entries each carry request.method and request.url, plus a resource for \
+                         POST and PUT"
+                    ),
                     data: None,
                 },
             })?;
 
             let result = ctx.client.transaction(ctx.clone(), bundle).await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize transaction result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
         R4_BATCH_TOOL_NAME => {
-            let args: FHIRBundleArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRBundleArguments = parse_arguments(
+                R4_BATCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"bundle": {"resourceType": "Bundle", "type": "batch", "entry": [{"request": {"method": "GET", "url": "Patient/123"}}]}}),
+            )?;
 
             let bundle: Bundle = serde_json::from_value(args.bundle).map_err(|e| MCPError {
                 id: request.id.clone(),
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid batch Bundle: '{}'", e),
+                    message: format!(
+                        "Invalid 'bundle': {e}. Expected a FHIR Bundle of type 'batch' whose \
+                         entries each carry request.method and request.url, plus a resource for \
+                         POST and PUT"
+                    ),
                     data: None,
                 },
             })?;
 
             let result = ctx.client.batch(ctx.clone(), bundle).await?;
 
-            let json_value = serde_json::to_value(&result).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::processing(),
-                    format!("Failed to serialize batch result: '{}'", e),
-                )
-            })?;
+            let json_value = serde_json::to_value(&result).map_err(ServerError::from)?;
 
             success_result(&json_value)
         }
-        _ => Err(MCPError {
+        // Anything else is either a FHIR operation exposed as a tool -- built-in
+        // or user-created -- or genuinely unknown.
+        name if name.starts_with(OPERATION_TOOL_PREFIX) => {
+            let operations = discover_operations(ctx.clone()).await?;
+
+            let Some(operation) = operations.iter().find(|o| o.tool_name == name) else {
+                return Err(CallError::UnknownTool(MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 404,
+                        message: format!("Unknown operation tool: '{name}'"),
+                        data: None,
+                    },
+                }));
+            };
+
+            let result = invoke_operation(
+                ctx.clone(),
+                operation,
+                request.params.arguments.clone(),
+                &request.id,
+            )
+            .await?;
+
+            let json_value = resource_to_json(&result)?;
+            success_result(&json_value)
+        }
+        _ => Err(CallError::UnknownTool(MCPError {
             id: request.id.clone(),
             jsonrpc: "2.0".to_string(),
             error: MCPErrorDetail {
@@ -549,6 +795,86 @@ pub async fn tools_call<
                 message: format!("Unknown tool name: '{}'", request.params.name),
                 data: None,
             },
-        }),
+        })),
+    }
+}
+
+/// Authentication, authorization and rate-limit failures stay protocol
+/// errors: MCP clients act on their HTTP status (sign in again, ask for more
+/// scopes, back off), not on a tool result.
+fn answered_over_http(status: u16) -> bool {
+    matches!(status, 401 | 403 | 429)
+}
+
+/// A fault inside the server rather than in the call, which no change to the
+/// arguments fixes, so the spec makes it a protocol error. The FHIR issue type
+/// tells: `exception` and the other transient types. HTTP 500 does not, since
+/// `status()` also gives it to `value`, `required` and other invalid input.
+fn server_fault(error: &OperationOutcomeError) -> bool {
+    error.outcome().issue.first().is_some_and(|issue| {
+        matches!(
+            issue.code.as_str(),
+            Some("exception" | "transient" | "timeout" | "lock-error" | "no-store" | "incomplete")
+        )
+    })
+}
+
+/// A failed call as a result the model reads: `isError` with the reason as text.
+/// No `structuredContent`, which would have to match the tool's output schema.
+fn tool_error(text: String) -> CallToolResult {
+    CallToolResult {
+        structured_content: None,
+        content: vec![ContentBlock::Text(TextContent::new(text))],
+        is_error: Some(true),
+        meta: None,
+    }
+}
+
+/// A failure the tool reported itself (bad arguments, an unknown type, a
+/// missing resource), in the `severity (code): text` form of a FHIR issue, so
+/// every tool error reads the same whichever layer refused the call.
+fn failed_text(error: &MCPError<serde_json::Value>) -> String {
+    let code = match error.error.code {
+        404 => "not-found",
+        409 => "conflict",
+        410 => "deleted",
+        501 => "not-supported",
+        400..=499 => "invalid",
+        _ => "exception",
+    };
+
+    format!("error ({code}): {}", error.error.message)
+}
+
+/// The issues of a FHIR error, one per line, each formatted as the JSON-RPC
+/// error message formats them, so both roads read the same.
+fn outcome_text(error: &OperationOutcomeError) -> String {
+    let issues: Vec<String> = error.outcome().issue.iter().map(issue_line).collect();
+
+    if issues.is_empty() {
+        error.to_string()
+    } else {
+        issues.join("\n")
+    }
+}
+
+pub async fn tools_call<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
+    request: CallToolRequest,
+    api_uri: &str,
+) -> Result<CallToolResult, MCPError<serde_json::Value>> {
+    match call_tool(ctx, request, api_uri).await {
+        Ok(result) => Ok(result),
+        Err(CallError::UnknownTool(error)) => Err(error),
+        Err(CallError::Failed(error)) if answered_over_http(error.error.code) => Err(error),
+        Err(CallError::Failed(error)) => Ok(tool_error(failed_text(&error))),
+        Err(CallError::Fhir(error))
+            if answered_over_http(error.status().as_u16()) || server_fault(&error) =>
+        {
+            Err(error.into())
+        }
+        Err(CallError::Fhir(error)) => Ok(tool_error(outcome_text(&error))),
     }
 }

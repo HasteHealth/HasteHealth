@@ -1,0 +1,8 @@
+{
+    "description": "g10 Single Patient API (US Core 7.0.0): a practitioner (a member User linked to Practitioner/g10-practitioner-2) signing in to an app granted SMART v2 user scopes for every US Core type.",
+    "grantType": "authorization_code",
+    "userEmail": "g10-api@example.org",
+    "clientId": "g10-api-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid fhirUser offline_access user/Medication.rs user/AllergyIntolerance.rs user/CarePlan.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Device.rs user/DiagnosticReport.rs user/DocumentReference.rs user/Encounter.rs user/Goal.rs user/Immunization.rs user/Location.rs user/MedicationDispense.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Patient.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/Provenance.rs user/QuestionnaireResponse.rs user/RelatedPerson.rs user/ServiceRequest.rs user/Specimen.rs user/Media.rs"
+}

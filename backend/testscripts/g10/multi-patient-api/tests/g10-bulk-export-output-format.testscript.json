@@ -1,0 +1,163 @@
+{
+    "id": "g10-bulk-export-output-format",
+    "url": "https://haste.health/fhir/TestScript/g10-bulk-export-output-format",
+    "name": "g10 Bulk Export _outputFormat",
+    "title": "8.5.01 The _outputFormat parameter is accepted",
+    "status": "active",
+    "description": "g10 8.5.01 (DAT-PAT-10, Bulk Data 2.0.0 only). A kick-off with _outputFormat set to application/fhir+ndjson, application/ndjson or ndjson is accepted; each export is then cancelled.",
+    "resourceType": "TestScript",
+    "variable": [
+        {
+            "name": "statusUrl1",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff1"
+        },
+        {
+            "name": "statusUrl2",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff2"
+        },
+        {
+            "name": "statusUrl3",
+            "headerField": "Content-Location",
+            "sourceId": "kickoff3"
+        }
+    ],
+    "test": [
+        {
+            "id": "01-output-format-fhir-ndjson",
+            "name": "_outputFormat=application/fhir+ndjson",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export?_outputFormat=application%2Ffhir%2Bndjson",
+                        "responseId": "kickoff1",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl1}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export is cancelled",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-output-format-ndjson",
+            "name": "_outputFormat=application/ndjson",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export?_outputFormat=application%2Fndjson",
+                        "responseId": "kickoff2",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl2}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export is cancelled",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-output-format-ndjson",
+            "name": "_outputFormat=ndjson",
+            "action": [
+                {
+                    "operation": {
+                        "method": "get",
+                        "url": "Group/g10-bulk-group/$export?_outputFormat=ndjson",
+                        "responseId": "kickoff3",
+                        "requestHeader": [
+                            {
+                                "field": "Accept",
+                                "value": "application/fhir+json"
+                            },
+                            {
+                                "field": "Prefer",
+                                "value": "respond-async"
+                            }
+                        ],
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The kick-off is accepted",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "method": "delete",
+                        "url": "${statusUrl3}",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The export is cancelled",
+                        "responseCode": "202",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

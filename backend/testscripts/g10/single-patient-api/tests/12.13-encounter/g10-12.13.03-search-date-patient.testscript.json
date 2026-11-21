@@ -1,0 +1,219 @@
+{
+    "id": "g10-12.13.03-search-date-patient",
+    "url": "https://haste.health/fhir/TestScript/g10-12.13.03-search-date-patient",
+    "name": "g10-12.13.03-search-date-patient",
+    "title": "12.13.03 Server returns valid results for Encounter search by date + patient",
+    "status": "active",
+    "description": "g10 12.13.03 (SH-PAT-2; US Core 6.1.0: group 10.13). Server returns valid results for Encounter search by date + patient. US Core SHALL search. Every result must match every parameter, and the record's Encounter/g10-example-1 must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-encounter-date-gt2015-10-31t22-00-14z-patient-g10-example",
+            "name": "GET Encounter?date=gt2015-10-31T22:00:14Z&patient=g10-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "date=gt2015-10-31T22:00:14Z&patient=g10-example",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/g10-example-1 is returned",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'g10-example-1').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((subject.reference.endsWith('Patient/g10-example')))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-comparator-gt-get-encounter-date-gt2015-10-31t22-00-14z-patient-g10-example",
+            "name": "Comparator gt: GET Encounter?date=gt2015-10-31T22:00:14Z&patient=g10-example",
+            "description": "Every result's date satisfies gt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "date=gt2015-10-31T22:00:14Z&patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((subject.reference.endsWith('Patient/g10-example')) and (period.ofType(dateTime).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(instant).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(date).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2015-10-31').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-comparator-ge-get-encounter-date-ge2015-10-31t22-00-14z-patient-g10-example",
+            "name": "Comparator ge: GET Encounter?date=ge2015-10-31T22:00:14Z&patient=g10-example",
+            "description": "Every result's date satisfies ge (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "date=ge2015-10-31T22:00:14Z&patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((subject.reference.endsWith('Patient/g10-example')) and (period.ofType(dateTime).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(instant).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(date).where($this.toString().substring(0, 10) >= '2015-10-31').exists() or period.ofType(Period).where(end.empty() or end.where($this.toString().substring(0, 10) >= '2015-10-31').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-comparator-lt-get-encounter-date-lt2015-11-02t22-00-14z-patient-g10-example",
+            "name": "Comparator lt: GET Encounter?date=lt2015-11-02T22:00:14Z&patient=g10-example",
+            "description": "Every result's date satisfies lt (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "date=lt2015-11-02T22:00:14Z&patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((subject.reference.endsWith('Patient/g10-example')) and (period.ofType(dateTime).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(instant).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(date).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2015-11-02').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-comparator-le-get-encounter-date-le2015-11-02t22-00-14z-patient-g10-example",
+            "name": "Comparator le: GET Encounter?date=le2015-11-02T22:00:14Z&patient=g10-example",
+            "description": "Every result's date satisfies le (compared by day). As in Inferno, no result is required.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Encounter",
+                        "params": "date=le2015-11-02T22:00:14Z&patient=g10-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Encounter returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).all((subject.reference.endsWith('Patient/g10-example')) and (period.ofType(dateTime).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(instant).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(date).where($this.toString().substring(0, 10) <= '2015-11-02').exists() or period.ofType(Period).where(start.empty() or start.where($this.toString().substring(0, 10) <= '2015-11-02').exists()).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

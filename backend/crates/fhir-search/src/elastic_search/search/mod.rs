@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
 use crate::{
-    ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
-    SearchReturn,
+    AnyOf, DEFAULT_COUNT, MAX_COUNT, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions,
+    SearchParameterResolve, SearchReturn,
     elastic_search::{
         DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError,
         flatten_parameter_field_name, get_index_name,
     },
+    query::{QueryBuildError, type_filter, value::Values},
 };
 use elasticsearch::{Elasticsearch, SearchParts};
 use haste_fhir_client::{
@@ -15,55 +16,14 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
-    terminology::{IssueType, SearchParamType},
+    terminology::{BoundCode, IssueType, SearchParamType},
 };
-use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 mod clauses;
-
-#[derive(OperationOutcomeError, Debug)]
-pub enum QueryBuildError {
-    #[error(
-        code = "not-found",
-        diagnostic = "Search parameter with name '{arg0}' not found.'"
-    )]
-    MissingParameter(String),
-    #[error(code = "not-supported", diagnostic = "Unsupported parameter: '{arg0}'")]
-    UnsupportedParameter(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Unsupported sorting parameter: '{arg0}'"
-    )]
-    UnsupportedSortParameter(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Unsupported modifier parameter: '{arg0}'"
-    )]
-    UnsupportedModifier(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Prefix '{arg0}' is not supported for this search type."
-    )]
-    UnsupportedPrefix(String),
-
-    #[error(
-        code = "not-supported",
-        diagnostic = "Parameter value '{arg0}' is not supported for this search type."
-    )]
-    UnsupportedParameterValue(String),
-    #[error(code = "invalid", diagnostic = "Invalid parameter value: '{arg0}'")]
-    InvalidParameterValue(String),
-    #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
-    InvalidDateFormat(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Modifier '{arg0}' is not supported"
-    )]
-    ModifierNotSupported(String),
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -81,120 +41,64 @@ fn sort_build(
     })?;
     let url = flatten_parameter_field_name(&url);
 
-    match &search_param.type_ {
-        param_type if param_type == &SearchParamType::date() => match direction {
-            SortDirection::Asc => {
-                let sort_col = url.clone() + ".start";
-                Ok(json!({
-                    sort_col: {
-                        "order": "asc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-            SortDirection::Desc => {
-                let sort_col = url.clone() + ".end";
-                Ok(json!({
-                    sort_col: {
-                        "order": "desc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-        },
-        param_type if param_type == &SearchParamType::string() => match direction {
-            SortDirection::Asc => Ok(json!({
-                url: {
-                    "order": "asc"
+    let param_type = &search_param.type_;
+    let ascending = matches!(direction, SortDirection::Asc);
+
+    // (sort field, nested path). Periods and quantities sort by their start
+    // ascending and their end descending.
+    let (field, nested) = if param_type == &SearchParamType::date() {
+        (
+            format!("{url}.{}", if ascending { "start" } else { "end" }),
+            true,
+        )
+    } else if param_type == &SearchParamType::quantity() {
+        (
+            format!(
+                "{url}.{}",
+                if ascending {
+                    "start_value"
+                } else {
+                    "end_value"
                 }
-            })),
-            SortDirection::Desc => Ok(json!({
-                url: {
-                    "order": "desc"
-                }
-            })),
-        },
-        param_type if param_type == &SearchParamType::token() => match direction {
-            SortDirection::Asc => {
-                let sort_col = url.clone() + ".code";
-                Ok(json!({
-                    sort_col: {
-                        "order": "asc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-            SortDirection::Desc => {
-                let sort_col = url.clone() + ".code";
-                Ok(json!({
-                    sort_col: {
-                        "order": "desc",
-                        "nested": {
-                            "path": url
-                        }
-                    }
-                }))
-            }
-        },
-        _ => Err(QueryBuildError::UnsupportedSortParameter(
+            ),
+            true,
+        )
+    } else if param_type == &SearchParamType::token() {
+        (format!("{url}.code"), true)
+    } else if param_type == &SearchParamType::string()
+        || param_type == &SearchParamType::number()
+        || param_type == &SearchParamType::uri()
+    {
+        (url.clone(), false)
+    } else {
+        return Err(QueryBuildError::UnsupportedSortParameter(
             search_param.name.value.clone().unwrap_or_default(),
-        )),
-    }
-}
-
-// Handles :missing modifier for string,number,uri which have no nesting. For other modifiers, they are handled in their respective clause functions.
-fn simple_missing_modifier(
-    search_param: &SearchParameter,
-    parsed_parameter: &Parameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    if search_param.type_ == SearchParamType::composite() {
-        return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
-    }
-
-    let url = search_param.url.value.as_deref().unwrap_or_default();
-
-    let field_name = match &search_param.type_ {
-        param_type
-            if param_type == &SearchParamType::uri()
-                || param_type == &SearchParamType::string()
-                || param_type == &SearchParamType::number() =>
-        {
-            flatten_parameter_field_name(url)
-        }
-        _ => {
-            return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
-        }
+        ));
     };
 
-    match parsed_parameter.value.as_slice() {
-        [v] => match v.as_str() {
-            "false" => Ok(json!({
-                "exists": {
-                    "field": field_name
-                }
-            })),
-            "true" => Ok(json!({
-                "bool": {
-                    "must_not": {
-                        "exists": {
-                            "field": field_name
-                        }
-                    }
-                }
-            })),
-            _ => Err(QueryBuildError::InvalidParameterValue(
-                parsed_parameter.name.clone(),
-            )),
-        },
-        _ => Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        )),
+    let order = if ascending { "asc" } else { "desc" };
+    let mut sort = json!({ "order": order });
+    if nested {
+        sort["nested"] = json!({ "path": url });
+    }
+    Ok(json!({ field: sort }))
+}
+
+/// Matches documents where the parameter has at least one value. Token, date,
+/// quantity and reference are nested objects; the rest are plain fields.
+fn has_value(field: &str, param_type: &BoundCode<SearchParamType>) -> serde_json::Value {
+    let nested = [
+        SearchParamType::token(),
+        SearchParamType::date(),
+        SearchParamType::quantity(),
+        SearchParamType::reference(),
+    ]
+    .contains(param_type);
+
+    if nested {
+        json!({ "nested": { "path": field, "query": { "match_all": {} } } })
+    } else {
+        json!({ "exists": { "field": field } })
     }
 }
 
@@ -207,35 +111,25 @@ fn parameter_to_elasticsearch_clauses(
         ParameterLevel::Project => Some(DYNAMIC_PARAMETER_INDEX_FIELD),
     };
     let search_param = parameter.search_parameter.as_ref();
-    let elastic_clause = match &search_param.type_ {
-        param_type if param_type == &SearchParamType::uri() => {
-            clauses::uri(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::quantity() => {
-            clauses::quantity(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::reference() => {
-            clauses::reference(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::date() => {
-            clauses::date(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::token() => {
-            clauses::token(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::number() => {
-            clauses::number(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::string() => {
-            clauses::string(namespace, parsed_parameter, search_param)
-        }
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            search_param.name.value.clone().unwrap_or_default(),
-        )),
-    }?;
+    let field = clauses::namespace_parameter(namespace, search_param);
 
-    match parameter.level {
-        ParameterLevel::System => Ok(elastic_clause),
+    // `:not` and `:missing=true` are applied as a `must_not` around the whole
+    // clause, outside any `nested` query. Negating inside `nested` would match
+    // a resource if *any* of its values failed to match, and never match one
+    // with no values at all.
+    let (clause, negate) = match &Values::parse(parsed_parameter, &search_param.type_)? {
+        Values::Missing(missing) => (has_value(&field, &search_param.type_), *missing),
+        Values::String(values) => (clauses::string(&field, values)?, false),
+        Values::Token(values) => clauses::token(&field, values)?,
+        Values::Uri(values) => (clauses::uri(&field, values), false),
+        Values::Reference(values) => (clauses::reference(&field, values)?, false),
+        Values::Date(values) => (clauses::date(&field, values), false),
+        Values::Number(values) => (clauses::number(&field, values), false),
+        Values::Quantity(values) => (clauses::quantity(&field, values), false),
+    };
+
+    let clause = match parameter.level {
+        ParameterLevel::System => clause,
         // The `url` match and the type-specific value match must both land
         // inside this one `nested` query's `bool.must`, so Elasticsearch
         // requires them to be satisfied by the *same* `dynamic_parameters`
@@ -243,27 +137,28 @@ fn parameter_to_elasticsearch_clauses(
         ParameterLevel::Project => {
             let url = search_param.url.value.as_deref().unwrap_or("");
             let url_field = format!("{DYNAMIC_PARAMETER_INDEX_FIELD}.url");
-            Ok(json!({
+            json!({
                 "nested": {
                     "path": DYNAMIC_PARAMETER_INDEX_FIELD,
                     "query": {
                         "bool": {
                             "must": [
                                 { "term": { url_field: url } },
-                                elastic_clause
+                                clause
                             ]
                         }
                     }
                 }
-            }))
+            })
         }
-    }
-}
+    };
 
-// Default value for Elasticsearch is 10k
-// see index.max_result_window
-static ABSOLUTE_MAX: u64 = 10_000;
-static DEFAULT_MAX_COUNT: u64 = 50;
+    Ok(if negate {
+        json!({ "bool": { "must_not": [clause] } })
+    } else {
+        clause
+    })
+}
 
 fn get_resource_type(request: &SearchRequest) -> Option<&ResourceType> {
     match request {
@@ -325,7 +220,26 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
         }
     }
 
+    // `ANDed` with the client's parameters like any other clause, so nothing in
+    // the URL can widen them.
+    for any_of in options
+        .map(|options| options.filters.as_slice())
+        .unwrap_or_default()
+    {
+        clauses.push(
+            any_of_clause(&parameter_resolver, tenant, project, resource_type, any_of).await?,
+        );
+    }
+
+    if let Some(types) = type_filter(request)? {
+        let types = types.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+        clauses.push(json!({ "terms": { "resource_type": types } }));
+    }
+
     add_context_clauses(&mut clauses, resource_type, tenant, project);
+
+    // `_count=0` asks only for the total.
+    state.show_total |= state.max_count == 0;
 
     Ok(build_elastic_query(
         &clauses,
@@ -338,7 +252,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
 
 fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
     if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
-        if count_limit > ABSOLUTE_MAX {
+        if count_limit > MAX_COUNT {
             return Err(OperationOutcomeError::fatal(
                 IssueType::too_costly(),
                 "Count limit passed exceeds maxiumum allowed by ES".to_string(),
@@ -347,8 +261,42 @@ fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcom
 
         Ok(count_limit)
     } else {
-        Ok(DEFAULT_MAX_COUNT)
+        Ok(DEFAULT_COUNT)
     }
+}
+
+/// `any_of`'s branches as a `bool.should` with one branch required, a branch
+/// of several parameters as a `bool.must`. Empty matches nothing: a filter
+/// with no branch must fail closed. A branch with no parameter matches
+/// everything: nothing to match.
+async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: &Arc<ParameterResolver>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: Option<&ResourceType>,
+    any_of: &AnyOf,
+) -> Result<serde_json::Value, OperationOutcomeError> {
+    if any_of.0.is_empty() {
+        return Ok(json!({ "match_none": {} }));
+    }
+
+    let mut branches = Vec::with_capacity(any_of.0.len());
+    for branch in &any_of.0 {
+        let mut conjuncts = Vec::with_capacity(branch.0.len());
+        for param in &branch.0 {
+            conjuncts.push(
+                build_resource_clause(parameter_resolver, tenant, project, resource_type, param)
+                    .await?,
+            );
+        }
+        branches.push(match conjuncts.len() {
+            0 => json!({ "match_all": {} }),
+            1 => conjuncts.remove(0),
+            _ => json!({ "bool": { "must": conjuncts } }),
+        });
+    }
+
+    Ok(json!({ "bool": { "should": branches, "minimum_should_match": 1 } }))
 }
 
 async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
@@ -405,8 +353,8 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
             )
             .await?;
         }
-        "_summary" | "_elements" => {
-            // _elements and _summary are handled in middleware, not in the ES query.
+        "_summary" | "_elements" | "_include" | "_revinclude" | "_type" | "_format" | "_pretty" => {
+            // Handled in middleware, not in the ES query.
         }
         _ => {
             return Err(QueryBuildError::UnsupportedParameter(result_param.name.clone()).into());
@@ -424,12 +372,15 @@ fn parse_count_parameter(result_param: &Parameter) -> Result<u64, OperationOutco
         )
     })?;
 
-    count_parameter_string.parse::<u64>().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
-        )
-    })
+    count_parameter_string
+        .parse::<u64>()
+        .map(|count| count.min(MAX_COUNT))
+        .map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::invalid(),
+                format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
+            )
+        })
 }
 
 fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
@@ -440,14 +391,17 @@ fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutc
         )
     })?;
 
-    offset_param_string.parse::<u64>().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!(
-                "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
-            ),
-        )
-    })
+    offset_param_string
+        .parse::<u64>()
+        .map(|offset| offset.min(i64::MAX.cast_unsigned()))
+        .map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::invalid(),
+                format!(
+                    "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
+                ),
+            )
+        })
 }
 
 fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
@@ -597,4 +551,130 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
             })
             .collect(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parameter(level: ParameterLevel, type_: &str) -> ResolvedParameter {
+        let search_parameter: SearchParameter = serde_json::from_value(json!({
+            "resourceType": "SearchParameter",
+            "url": "http://example.org/SearchParameter/p",
+            "name": "p",
+            "code": "p",
+            "status": "active",
+            "description": "p",
+            "base": ["Observation"],
+            "type": type_,
+            "expression": "Observation.code"
+        }))
+        .unwrap();
+        ResolvedParameter::new(level, Arc::new(search_parameter))
+    }
+
+    fn parsed(modifier: Option<&str>, values: &[&str]) -> Parameter {
+        Parameter {
+            name: "p".to_string(),
+            modifier: modifier.map(str::to_string),
+            value: values.iter().map(|v| (*v).to_string()).collect(),
+            chains: Vec::new(),
+        }
+    }
+
+    fn clause(
+        level: ParameterLevel,
+        type_: &str,
+        modifier: Option<&str>,
+        values: &[&str],
+    ) -> serde_json::Value {
+        parameter_to_elasticsearch_clauses(&parameter(level, type_), &parsed(modifier, values))
+            .expect("clause builds")
+    }
+
+    /// Negating inside `nested` matches a resource with any non-matching
+    /// value; the negation must wrap the whole nested query.
+    #[test]
+    fn not_is_applied_outside_the_nested_query() {
+        let query = clause(ParameterLevel::System, "token", Some("not"), &["s|A"]);
+        let negated = &query["bool"]["must_not"][0];
+        assert!(
+            negated["bool"]["should"][0]["nested"].is_object(),
+            "{query}"
+        );
+    }
+
+    #[test]
+    fn missing_is_applied_outside_the_dynamic_parameters_wrapper() {
+        let query = clause(
+            ParameterLevel::Project,
+            "string",
+            Some("missing"),
+            &["true"],
+        );
+        let nested = &query["bool"]["must_not"][0]["nested"];
+        assert_eq!(nested["path"], DYNAMIC_PARAMETER_INDEX_FIELD, "{query}");
+        assert_eq!(
+            nested["query"]["bool"]["must"][1]["exists"]["field"],
+            "dynamic_parameters.value.string",
+            "{query}"
+        );
+    }
+
+    #[test]
+    fn missing_false_on_a_nested_type_requires_a_nested_value() {
+        let query = clause(
+            ParameterLevel::System,
+            "reference",
+            Some("missing"),
+            &["false"],
+        );
+        assert!(query["nested"]["query"]["match_all"].is_object(), "{query}");
+    }
+
+    /// `system|` once also required an empty code, so it matched nothing.
+    #[test]
+    fn a_trailing_pipe_matches_on_system_alone() {
+        let query = clause(ParameterLevel::System, "token", None, &["http://sys|"]);
+        let inner = &query["bool"]["should"][0]["nested"]["query"];
+        assert!(
+            inner["match"]
+                .as_object()
+                .unwrap()
+                .keys()
+                .all(|k| k.ends_with(".system")),
+            "{query}"
+        );
+    }
+
+    #[test]
+    fn a_leading_pipe_requires_no_system() {
+        let query = clause(ParameterLevel::System, "token", None, &["|code"]);
+        let inner = &query["bool"]["should"][0]["nested"]["query"]["bool"];
+        assert!(inner["must_not"][0]["exists"].is_object(), "{query}");
+    }
+
+    #[test]
+    fn a_bare_quantity_value_matches_any_unit() {
+        let query = clause(ParameterLevel::System, "quantity", None, &["70.2"]);
+        let filter = query["bool"]["should"][0]["nested"]["query"]["bool"]["filter"]
+            .as_array()
+            .unwrap()
+            .clone();
+        assert_eq!(filter.len(), 2, "only the value range: {query}");
+    }
+
+    #[test]
+    fn unsupported_modifiers_are_rejected() {
+        for (type_, modifier) in [("reference", "foo"), ("date", "exact"), ("number", "not")] {
+            assert!(
+                parameter_to_elasticsearch_clauses(
+                    &parameter(ParameterLevel::System, type_),
+                    &parsed(Some(modifier), &["1"]),
+                )
+                .is_err(),
+                "{type_}:{modifier}"
+            );
+        }
+    }
 }

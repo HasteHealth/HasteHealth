@@ -3,6 +3,7 @@
     "position": 1,
     "key": "integration-identity-providers",
     "link": {
-        "type": "generated-index"
+        "type": "generated-index",
+        "description": "Guides for configuring external identity providers for federated login into Haste Health."
     }
 }

@@ -1,0 +1,142 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-constant-05",
+  "url": "https://haste.health/fhir/TestScript/sof-constant-05",
+  "name": "sof-constant-05",
+  "title": "SQL on FHIR constant: integer constant",
+  "status": "active",
+  "description": "constant substitution Suite test 5 of tests/constant.json (constant), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "constant": [
+              {
+                "name": "name_index",
+                "valueInteger": 1
+              }
+            ],
+            "select": [
+              {
+                "column": [
+                  {
+                    "name": "id",
+                    "path": "id",
+                    "type": "id"
+                  },
+                  {
+                    "name": "official_name",
+                    "path": "name[%name_index].family",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt1",
+            "name": [
+              {
+                "family": "Block",
+                "use": "usual"
+              },
+              {
+                "family": "Smith",
+                "use": "official"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2",
+            "deceasedBoolean": true,
+            "name": [
+              {
+                "family": "Johnson",
+                "use": "usual"
+              },
+              {
+                "family": "Menendez",
+                "use": "old"
+              }
+            ]
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "integer constant",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view runs.",
+            "responseCode": "200",
+            "operator": "equals",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The result is JSON.",
+            "expression": "Binary.contentType = 'application/json'",
+            "value": "true",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The rows the suite expects, 2 in all. [{\"id\": \"pt1\", \"official_name\": \"Smith\"}, {\"id\": \"pt2\", \"official_name\": \"Menendez\"}]",
+            "expression": "Binary.data = 'W3siaWQiOiJwdDEiLCJvZmZpY2lhbF9uYW1lIjoiU21pdGgifSx7ImlkIjoicHQyIiwib2ZmaWNpYWxfbmFtZSI6Ik1lbmVuZGV6In1d'",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "DeidentificationPolicy-version",
+    "url": "https://haste.health/fhir/SearchParameter/DeidentificationPolicy-version",
+    "version": "4.0.1",
+    "name": "version",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "Policy version.",
+    "code": "version",
+    "base": [
+        "DeidentificationPolicy"
+    ],
+    "type": "token",
+    "expression": "DeidentificationPolicy.version"
+}

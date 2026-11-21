@@ -1,0 +1,24 @@
+{
+  "name": "@haste-health/hl7.fhir.us.core",
+  "version": "9.0.0",
+  "type": "fhir.ig",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/us/core",
+  "url": "http://hl7.org/fhir/us/core/STU9",
+  "title": "US Core Implementation Guide",
+  "description": "The US Core Implementation Guide is based on FHIR Version R4 and defines the minimum conformance requirements for accessing patient data.",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "author": "HL7 International - US Realm Steering Committee",
+  "maintainers": [
+    {
+      "name": "HL7 International - US Realm Steering Committee",
+      "url": "http://www.hl7.org/Special/committees/usrealm/index.cfm"
+    }
+  ],
+  "jurisdiction": "urn:iso:std:iso:3166#US",
+  "scripts": {
+    "generate-index": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file --extension .json -p . -r ."
+  }
+}

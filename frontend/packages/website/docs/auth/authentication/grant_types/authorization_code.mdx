@@ -1,5 +1,6 @@
 ---
 title: Authorization Code Grant
+description: How the OAuth 2.0 authorization code grant with PKCE works in Haste Health, for single-page apps, mobile apps, and other public clients.
 sidebar_position: 1
 tags:
   - authentication
@@ -22,6 +23,10 @@ We require PKCE to enhance the security of the authorization code flow by adding
 - **Eliminates Client Secret for Public Clients**:	Authorization code flow with PKCE allows public clients (like SPAs and mobile apps) to securely use the authorization code grant without needing to store a client_secret, which they cannot do safely.
 - **Mitigates Cross-Site Request Forgery (CSRF)**:	By dynamically linking the initial authorization request to the final token exchange, PKCE provides strong protection against CSRF, often making the use of the state parameter redundant for this specific purpose.
 - **Default Security Standard**:	PKCE is now mandated in the OAuth 2.0 Security Best Current Practice and the upcoming OAuth 2.1 specification, making it the required flow for modern application development.
+
+:::caution[`patient/*` scopes are not currently enforced]
+The examples below include `patient/*.read` to illustrate the SMART scope shape. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
 
 ## Authorization Code Flow with PKCE
 
@@ -90,7 +95,7 @@ sequenceDiagram
         
         SPA->>SPA: Get access_token from memory
         
-        SPA->>API: GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        SPA->>API: GET /w/{tenant}/{project}/api/v1/fhir/Patient<br/>Authorization: Bearer ACCESS_TOKEN
         
         API->>API: Validate token<br/>Check expiration<br/>Verify scopes
         
@@ -130,6 +135,7 @@ Host: api.haste.health
 | `state` | Recommended | Random value to prevent CSRF attacks |
 | `code_challenge` | **Required** | PKCE code challenge (SHA-256 hash of code_verifier) |
 | `code_challenge_method` | **Required** | Must be `S256` (SHA-256 hash method) |
+| `aud` | Optional (SMART apps send it) | The project's FHIR base URL, `.../api/v1/fhir` (`.../api/v1/fhir/r4` is accepted too). Any other value is rejected with `invalid_request` |
 | `nonce` | Optional | Random value included in ID token to prevent replay attacks |
 | `prompt` | Optional | `none`, `login`, `consent`, or `select_account` |
 | `max_age` | Optional | Maximum authentication age in seconds |
@@ -202,13 +208,15 @@ code_verifier=ORIGINAL_VERIFIER
 }
 ```
 
+The `id_token` is returned when `openid` is granted. It identifies the signed-in user to your application: `sub` is the user's id, `aud` is your `client_id` and `iss` is the project's issuer from its discovery document. With the `email` scope it carries `email` and `email_verified`, with the `fhirUser` scope the user's FHIR resource, and it always names the tenant, project and role in `https://haste.health/tenant`, `https://haste.health/project` and `https://haste.health/user_role`. Call the API with the `access_token`: its `aud` is the project's FHIR base URL, and only it carries the granted scopes.
+
 ### Step 6: Access Protected Resources
 
 Use the access token to call protected APIs:
 
 **Request:**
 ```http
-GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient/123 HTTP/1.1
+GET /w/{tenant}/{project}/api/v1/fhir/Patient/123 HTTP/1.1
 Host: api.haste.health
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```

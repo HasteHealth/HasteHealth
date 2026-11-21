@@ -148,9 +148,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
     const response = await this.request<typeof fhirVersion, "update">(ctx, {
       fhirVersion,
       type: "update-request",
@@ -284,9 +282,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
     const response = await this.request<typeof fhirVersion, "delete">(ctx, {
       fhirVersion,
       type: "delete-request",
@@ -305,9 +301,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
     const response = await this.request<typeof fhirVersion, "delete">(ctx, {
       fhirVersion,
       type: "delete-request",
@@ -325,9 +319,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
 
     const response = await this.request(ctx, {
       fhirVersion,
@@ -351,9 +343,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
     const response = await this.request<typeof fhirVersion, "history">(ctx, {
       fhirVersion,
       type: "history-request",
@@ -378,9 +368,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
     const parsedParameters: ParsedParameter<string | number>[] =
       typeof parameters === "string"
         ? parseQuery(parameters)
-        : parameters
-        ? parameters
-        : [];
+        : (parameters ?? []);
     const response = await this.request<typeof fhirVersion, "history">(ctx, {
       fhirVersion,
       type: "history-request",

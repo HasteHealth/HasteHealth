@@ -6,13 +6,14 @@ export function Add({
   children,
 }: Readonly<{ onChange: () => void; children?: React.ReactNode }>) {
   return (
-    <span
+    <button
+      type="button"
       className="flex items-center text-xs text-brand-500 cursor-pointer hover:text-brand-600"
       onClick={() => {
         onChange();
       }}
     >
       <PlusIcon className=" h-4 w-4 mr-1" /> {children || "Add"}
-    </span>
+    </button>
   );
 }

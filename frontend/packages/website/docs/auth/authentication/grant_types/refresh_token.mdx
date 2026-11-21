@@ -1,5 +1,6 @@
 ---
 title: Refresh Token Grant
+description: How to use OAuth 2.0 refresh tokens in Haste Health to obtain new access tokens without requiring the user to re-authenticate.
 sidebar_position: 3
 tags:
   - authentication
@@ -32,6 +33,10 @@ Access tokens are intentionally short-lived (typically 1 hour) to limit the impa
 - **Revocable**: Refresh tokens can be revoked server-side to immediately terminate access
 - **Rotation Support**: Refresh tokens can be rotated on each use for enhanced security
 - **Offline Access**: Some systems allow refresh tokens to work even when the user is offline
+
+:::caution[`patient/*` scopes are not currently enforced]
+The examples below include `patient/*.read` to illustrate the SMART scope shape. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
 
 ## Refresh Token Flow
 
@@ -85,7 +90,7 @@ sequenceDiagram
         User->>App: Request patient data
         App->>App: Check token expiration
         
-        App->>API: GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        App->>API: GET /w/{tenant}/{project}/api/v1/fhir/Patient<br/>Authorization: Bearer ACCESS_TOKEN
         
         API->>API: Validate access token<br/>Check expiration
         
@@ -229,7 +234,7 @@ refresh_token=REFRESH_TOKEN_HERE
 |-----------|----------|-------------|
 | `grant_type` | Yes | Must be `refresh_token` |
 | `refresh_token` | Yes | The refresh token received from the initial authorization |
-| `client_id` | Yes | Your application's client identifier |
+| `client_id` | Public clients: optional | Your application's client identifier. A public client may leave it out: the refresh token identifies the client it was issued to. A confidential client authenticates, either with `client_id` and `client_secret` or with Basic auth. |
 | `scope` | Optional | Requested scopes (must be subset of original scopes) |
 
 ### Step 4: Refresh Token Response

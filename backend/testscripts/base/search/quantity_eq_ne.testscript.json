@@ -1,0 +1,594 @@
+{
+    "id": "quantity-eq-ne",
+    "url": "https://haste.health/fhir/TestScript/quantity-eq-ne",
+    "title": "Quantity eq and ne prefixes",
+    "name": "Quantity eq-ne prefix tests",
+    "status": "active",
+    "description": "Validate the default eq and the ne prefixes on quantity search with system|code, ||code, bare and exponent values; ne also matches other units.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "qeq-obs-1",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-eq-ne-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity eq/ne"
+            },
+            "valueQuantity": {
+                "value": 5.4,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qeq-obs-2",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-eq-ne-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity eq/ne"
+            },
+            "valueQuantity": {
+                "value": 5.4,
+                "unit": "g",
+                "system": "http://unitsofmeasure.org",
+                "code": "g"
+            }
+        },
+        {
+            "id": "qeq-obs-3",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-eq-ne-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity eq/ne"
+            },
+            "valueQuantity": {
+                "value": 5.5,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        },
+        {
+            "id": "qeq-obs-4",
+            "resourceType": "Observation",
+            "status": "final",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "quantity-eq-ne-test"
+                    }
+                ]
+            },
+            "code": {
+                "text": "quantity eq/ne"
+            },
+            "valueQuantity": {
+                "value": 0.0054,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-obs-1",
+            "resource": {
+                "reference": "#qeq-obs-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-2",
+            "resource": {
+                "reference": "#qeq-obs-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-3",
+            "resource": {
+                "reference": "#qeq-obs-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-obs-4",
+            "resource": {
+                "reference": "#qeq-obs-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-quantity-eq-ne-checks",
+            "name": "Quantity eq/ne checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-1",
+                        "targetId": "fixture-obs-1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-2",
+                        "targetId": "fixture-obs-2"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-3",
+                        "targetId": "fixture-obs-3"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "sourceId": "fixture-obs-4",
+                        "targetId": "fixture-obs-4"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.4|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=eq5.4|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.4|http://unitsofmeasure.org|g&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-2').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.5|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-3').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.4||mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.4&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-2').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=eq5.4&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-1').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-2').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.40e-3|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-4').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=5.40e-3&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-4').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=ne5.4|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-2').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-3').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-4').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=ne5.4||mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-2').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-3').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-4').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=ne5.4&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-3').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'qeq-obs-4').count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=7|http://unitsofmeasure.org|mg&_tag=quantity-eq-ne-test"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "params": "_tag=quantity-eq-ne-test"
+                }
+            }
+        ]
+    }
+}

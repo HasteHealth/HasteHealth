@@ -52,10 +52,8 @@ function ChannelParameters({
             }
           />
 
-          <div>
-            <div>
-              <label>Headers</label>
-            </div>
+          <fieldset>
+            <legend>Headers</legend>
             <div className="space-y-1">
               {resource?.channel.header?.map((header, index) => (
                 <div key={index} className="relative">
@@ -79,7 +77,9 @@ function ChannelParameters({
                       } as Subscription);
                     }}
                   />
-                  <div
+                  <button
+                    type="button"
+                    aria-label={`Remove header ${index + 1}`}
                     className="absolute top-1 right-1 text-slate-400 cursor-pointer hover:text-slate-500 "
                     onClick={() => {
                       const header = (resource?.channel.header ?? [])
@@ -99,12 +99,13 @@ function ChannelParameters({
                     }}
                   >
                     <XMarkIcon className="h-4 w-4" />
-                  </div>
+                  </button>
                 </div>
               ))}
             </div>
             <div className="mt-1">
-              <span
+              <button
+                type="button"
                 className="flex items-center cursor-pointer text-xs hover:text-brand-700 text-brand-600"
                 onClick={() => {
                   onChange({
@@ -118,9 +119,9 @@ function ChannelParameters({
                 }}
               >
                 + Add Header
-              </span>
+              </button>
             </div>
-          </div>
+          </fieldset>
         </>
       );
     }

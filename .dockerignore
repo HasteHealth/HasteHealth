@@ -11,6 +11,7 @@ env.json
 # FRONTEND
 # ----------------
 node_modules
+**/node_modules
 frontend/**/lib 
 frontend/**/dist
 frontend/**/build

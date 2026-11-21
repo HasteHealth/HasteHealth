@@ -34,7 +34,7 @@ type SearchItem =
 const STATIC_PAGES: Readonly<
   { id: string; label: string; category: string; path: string }[]
 > = [
-  { id: "dashboard", label: "Dashboard", category: "General", path: "/" },
+  { id: "console", label: "Console", category: "General", path: "/" },
   {
     id: "settings",
     label: "Settings",
@@ -42,16 +42,10 @@ const STATIC_PAGES: Readonly<
     path: "/settings",
   },
   {
-    id: "all-resources",
-    label: "All Resources",
-    category: "Data",
-    path: "/resources",
-  },
-  {
     id: "system-history",
     label: "Event History",
     category: "Monitoring",
-    path: "/history/system",
+    path: "/r/_history",
   },
   {
     id: "indexing-errors",
@@ -63,7 +57,13 @@ const STATIC_PAGES: Readonly<
     id: "bundle-import",
     label: "Bundles",
     category: "Import",
-    path: "/bundle-import",
+    path: "/import",
+  },
+  {
+    id: "packages",
+    label: "Packages",
+    category: "Configuration",
+    path: "/packages",
   },
 ];
 
@@ -118,23 +118,31 @@ function SearchResultItem({
   onHover: () => void;
 }>) {
   return (
-    <div
-      onClick={onSelect}
-      onMouseEnter={onHover}
-      className={classNames(
-        "group cursor-pointer px-2 py-1.5 rounded",
-        active ? "bg-gray-50" : "",
-      )}
-    >
-      <span className="text-sm group-hover:text-slate-700 font-medium">
-        {item.label}
-      </span>
-      {item.kind === "resource" && item.profile && (
-        <div className="text-xs text-slate-400 group-hover:text-slate-500">
-          {item.profile}
-        </div>
-      )}
-    </div>
+    // A real button: focusable on its own, and Enter/Space activate it
+    // natively. Arrow keys still move the highlight from anywhere in the
+    // modal, and focusing a row moves the highlight with it.
+    <li>
+      <button
+        type="button"
+        aria-current={active ? "true" : undefined}
+        onClick={onSelect}
+        onMouseEnter={onHover}
+        onFocus={onHover}
+        className={classNames(
+          "group block w-full text-left cursor-pointer px-2 py-1.5 rounded-sm",
+          active ? "bg-gray-50" : "",
+        )}
+      >
+        <span className="block text-sm group-hover:text-slate-700 font-medium">
+          {item.label}
+        </span>
+        {item.kind === "resource" && item.profile && (
+          <span className="block text-xs text-slate-400 group-hover:text-slate-500">
+            {item.profile}
+          </span>
+        )}
+      </button>
+    </li>
   );
 }
 
@@ -236,11 +244,7 @@ function SearchModal(props: SearchModalProps) {
       if (item.kind === "page") {
         navigate(generatePath(item.path, {}));
       } else {
-        navigate(
-          generatePath("/resources/:resourceType", {
-            resourceType: item.resourceType,
-          }),
-        );
+        navigate(`/r/${item.resourceType}`);
       }
 
       setOpenModal(false);
@@ -260,15 +264,23 @@ function SearchModal(props: SearchModalProps) {
         if (e.key === "ArrowDown") {
           e.preventDefault();
           setSearchIndex((v) => Math.min(v + 1, flatResults.length - 1));
+          // The input owns arrow-key navigation: bring focus back to it so
+          // Enter opens the highlighted result, not a row tabbed to earlier.
+          inputSearch?.focus();
           return;
         }
         if (e.key === "ArrowUp") {
           e.preventDefault();
           setSearchIndex((v) => Math.max(v - 1, 0));
+          inputSearch?.focus();
           return;
         }
         if (e.key === "Enter") {
-          goToItem(flatResults[searchIndex]);
+          // A focused button (a result row, or ESC) activates itself on
+          // Enter; only drive the highlighted result from anywhere else.
+          if (!(e.target instanceof HTMLButtonElement)) {
+            goToItem(flatResults[searchIndex]);
+          }
           return;
         }
       }
@@ -279,6 +291,7 @@ function SearchModal(props: SearchModalProps) {
     };
   }, [
     openModal,
+    inputSearch,
     flatResults,
     searchIndex,
     setOpenModal,
@@ -290,12 +303,12 @@ function SearchModal(props: SearchModalProps) {
 
   return (
     <Modal open={openModal} setOpen={() => setOpenModal(false)}>
-      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-none shadow-sm">
+      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-hidden shadow-xs">
         <input
           ref={(ref) => {
             setInputSearch(ref);
           }}
-          className="focus:outline-none text-left flex-1 text-slate-500 text-sm"
+          className="focus:outline-hidden text-left flex-1 text-slate-500 text-sm"
           placeholder="Search..."
           value={search}
           onChange={(e) => {
@@ -307,24 +320,27 @@ function SearchModal(props: SearchModalProps) {
           onClick={() => {
             setOpenModal(false);
           }}
-          className="shadow-sm cursor flex-none text-xs text-slate-400 p-1 border"
+          className="shadow-xs cursor flex-none text-xs text-slate-400 p-1 border"
         >
           ESC
         </button>
       </div>
       <div className="w-full" />
-      <div className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto">
+      <ul
+        aria-label="Search results"
+        className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto"
+      >
         {flatResults.length === 0 && (
-          <div className="px-2 py-4 text-sm text-slate-400">No results.</div>
+          <li className="px-2 py-4 text-sm text-slate-400">No results.</li>
         )}
         {groupedResults.map(
           (group) =>
             group.items.length > 0 && (
-              <div key={group.category} className="mb-2">
+              <li key={group.category} className="mb-2">
                 <div className="px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                   {group.category}
                 </div>
-                <div className="space-y-0.5">
+                <ul aria-label={group.category} className="space-y-0.5">
                   {group.items.map((item) => {
                     renderedIndex += 1;
                     const index = renderedIndex;
@@ -338,11 +354,11 @@ function SearchModal(props: SearchModalProps) {
                       />
                     );
                   })}
-                </div>
-              </div>
+                </ul>
+              </li>
             ),
         )}
-      </div>
+      </ul>
     </Modal>
   );
 }

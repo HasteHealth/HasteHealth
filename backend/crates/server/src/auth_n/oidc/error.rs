@@ -1,9 +1,13 @@
 // Custom OIDC error types
 // Based on https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1 and https://openid.net/specs/openid-connect-core-1_0.html and 3.1.2.6
 
-use axum::response::{IntoResponse, Redirect};
+use axum::{
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Redirect},
+};
+use url::Url;
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize, Debug, PartialEq, Eq)]
 pub enum OIDCErrorCode {
     /**
      * The request is missing a required parameter, includes aninvalid parameter value,
@@ -90,67 +94,154 @@ impl From<&OIDCErrorCode> for &str {
     }
 }
 
+/// An OAuth 2.0 error. Sent as a redirect carrying `error` and
+/// `error_description` (RFC 6749 §4.1.2.1), or as a JSON body with the same
+/// names (§5.2).
 #[allow(dead_code)]
 #[derive(serde::Serialize, Debug)]
 pub struct OIDCError {
-    pub code: OIDCErrorCode,
-    pub description: Option<String>,
+    pub error: OIDCErrorCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_description: Option<String>,
+    /// Where the user agent is sent with the error, per RFC 6749 §4.1.2.1.
+    ///
+    /// Only a redirect URI that has already been validated against the client
+    /// application's registered redirect URIs may be set here. The response
+    /// redirects to it without further checks, so an unvalidated value turns
+    /// the authorization server into an open redirector. RFC 6749 §4.1.2.1
+    /// says a request with an invalid redirect URI must not redirect at all,
+    /// and the token endpoint (§5.2) never redirects: both leave this `None`.
     #[serde(skip_serializing)]
     pub redirect_uri: Option<String>,
+    /// The request's `state`, echoed in the redirect (RFC 6749 §4.1.2.1).
+    #[serde(skip_serializing)]
+    pub state: Option<String>,
 }
 
 impl OIDCError {
     pub fn new(
-        code: OIDCErrorCode,
-        description: Option<String>,
+        error: OIDCErrorCode,
+        error_description: Option<String>,
         redirect_uri: Option<String>,
     ) -> Self {
         OIDCError {
-            code,
-            description,
+            error,
+            error_description,
             redirect_uri,
+            state: None,
         }
+    }
+
+    #[must_use]
+    pub fn with_state(mut self, state: &str) -> Self {
+        self.state = Some(state.to_string());
+        self
+    }
+
+    /// The URL the user agent is redirected to, with `error` and
+    /// `error_description` added as query parameters.
+    ///
+    /// `None` when the error carries no redirect URI, or when that URI does
+    /// not parse as an absolute URL: a malformed URI cannot be redirected to.
+    /// The parameters are appended to any query the URI already has, and are
+    /// percent-encoded, so neither the description nor an existing query can
+    /// break the URL.
+    fn error_redirect_url(&self) -> Option<Url> {
+        let mut url = Url::parse(self.redirect_uri.as_deref()?).ok()?;
+        let error_code: &str = (&self.error).into();
+
+        {
+            let mut query = url.query_pairs_mut();
+            query.append_pair("error", error_code);
+
+            if let Some(description) = self.error_description.as_deref() {
+                query.append_pair("error_description", description);
+            }
+
+            if let Some(state) = self.state.as_deref() {
+                query.append_pair("state", state);
+            }
+        }
+
+        Some(url)
     }
 }
 
 impl IntoResponse for OIDCError {
     fn into_response(self) -> axum::response::Response {
-        let error_code: &str = (&self.code).into();
-
-        if let Some(error_uri) = self.redirect_uri {
-            let mut redirect_uri = error_uri + "?error=" + error_code;
-
-            if let Some(description) = self.description {
-                redirect_uri = redirect_uri + "&error_description=" + description.as_str();
-            }
-
-            Redirect::to(&redirect_uri).into_response()
+        if let Some(redirect_url) = self.error_redirect_url() {
+            Redirect::to(redirect_url.as_str()).into_response()
         } else {
+            // RFC 6749 §5.2: a JSON body with the error code and description.
             let json_body = serde_json::to_string(&self).unwrap_or_default();
 
-            match self.code {
+            let status = match self.error {
                 OIDCErrorCode::InvalidRequest
                 | OIDCErrorCode::InvalidGrant
-                | OIDCErrorCode::InvalidClient
-                | OIDCErrorCode::InvalidScope => {
-                    (axum::http::StatusCode::BAD_REQUEST, json_body).into_response()
+                | OIDCErrorCode::InvalidScope => StatusCode::BAD_REQUEST,
+                OIDCErrorCode::UnauthorizedClient | OIDCErrorCode::InvalidClient => {
+                    StatusCode::UNAUTHORIZED
                 }
-                OIDCErrorCode::UnauthorizedClient => {
-                    (axum::http::StatusCode::UNAUTHORIZED, json_body).into_response()
-                }
-                OIDCErrorCode::UnsupportedResponseType => {
-                    (axum::http::StatusCode::UNPROCESSABLE_ENTITY, json_body).into_response()
-                }
-                OIDCErrorCode::ServerError => {
-                    (axum::http::StatusCode::INTERNAL_SERVER_ERROR, json_body).into_response()
-                }
-                OIDCErrorCode::TemporarilyUnavailable => {
-                    (axum::http::StatusCode::SERVICE_UNAVAILABLE, json_body).into_response()
-                }
-                OIDCErrorCode::AccessDenied => {
-                    (axum::http::StatusCode::FORBIDDEN, json_body).into_response()
-                }
+                OIDCErrorCode::UnsupportedResponseType => StatusCode::UNPROCESSABLE_ENTITY,
+                OIDCErrorCode::ServerError => StatusCode::INTERNAL_SERVER_ERROR,
+                OIDCErrorCode::TemporarilyUnavailable => StatusCode::SERVICE_UNAVAILABLE,
+                OIDCErrorCode::AccessDenied => StatusCode::FORBIDDEN,
+            };
+
+            let mut response = (
+                status,
+                [(
+                    header::CONTENT_TYPE,
+                    HeaderValue::from_static("application/json"),
+                )],
+                json_body,
+            )
+                .into_response();
+
+            // RFC 6749 §5.2: a 401 `invalid_client` names the scheme the client may use.
+            if self.error == OIDCErrorCode::InvalidClient {
+                response.headers_mut().insert(
+                    header::WWW_AUTHENTICATE,
+                    HeaderValue::from_static("Basic realm=\"token\""),
+                );
             }
+
+            response
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalid_client_is_401_with_www_authenticate() {
+        let response = OIDCError::new(OIDCErrorCode::InvalidClient, None, None).into_response();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        assert!(response.headers().contains_key(header::WWW_AUTHENTICATE));
+    }
+
+    #[test]
+    fn invalid_grant_is_400() {
+        let response = OIDCError::new(OIDCErrorCode::InvalidGrant, None, None).into_response();
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn invalid_scope_redirects_with_error_and_state() {
+        let response = OIDCError::new(
+            OIDCErrorCode::InvalidScope,
+            Some("bad".to_string()),
+            Some("https://app.example/cb".to_string()),
+        )
+        .with_state("abc")
+        .into_response();
+
+        let location = response.headers()[header::LOCATION].to_str().unwrap();
+        assert!(location.starts_with("https://app.example/cb?error=invalid_scope"));
+        assert!(location.ends_with("&state=abc"));
     }
 }

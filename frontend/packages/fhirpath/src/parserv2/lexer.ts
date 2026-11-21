@@ -59,7 +59,7 @@ export const TYPE_OPERATION = chevrotain.createToken({
 // ('+' / '-' / '&')
 export const ADDITIVE_OPERATION = chevrotain.createToken({
   name: "AdditiveOperation",
-  pattern: /\+|-|&/,
+  pattern: /[+\-&]/,
 });
 // // Multiplicative operations
 // $('*' / '/' / 'div' / 'mod')

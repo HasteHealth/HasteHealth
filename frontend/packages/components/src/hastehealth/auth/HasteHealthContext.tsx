@@ -16,6 +16,8 @@ export type AccessTokenResponse = {
   token_type: string;
   expires_in: number;
   refresh_token?: string;
+  /** The scopes granted, which may differ from those requested. */
+  scope?: string;
 };
 
 export type HasteHealthContextState = {

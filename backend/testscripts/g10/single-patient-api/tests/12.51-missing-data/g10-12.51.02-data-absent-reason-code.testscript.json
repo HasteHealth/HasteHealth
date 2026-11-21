@@ -1,0 +1,43 @@
+{
+    "id": "g10-12.51.02-data-absent-reason-code",
+    "url": "https://haste.health/fhir/TestScript/g10-12.51.02-data-absent-reason-code",
+    "name": "g10-12.51.02-data-absent-reason-code",
+    "title": "12.51.02 Missing data is represented with the data-absent-reason code system",
+    "status": "active",
+    "description": "g10 12.51.02 (DAT-PAT-6; US Core 6.1.0: 10.46.02). A returned resource carries a Coding http://terminology.hl7.org/CodeSystem/data-absent-reason|unknown (here Observation/g10-bp-data-absent).",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-code",
+            "name": "GET Observation?_id=g10-bp-data-absent",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=g10-bp-data-absent",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The unknown data-absent-reason code is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).descendants().ofType(Coding).where(system = 'http://terminology.hl7.org/CodeSystem/data-absent-reason' and code = 'unknown').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

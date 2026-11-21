@@ -1,4 +1,4 @@
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use crate::error::ServerError;
 use haste_fhir_operation_error::OperationOutcomeError;
 // This module provides functions to generate routes for different entities in the system.
 use haste_jwt::{ProjectId, TenantId};
@@ -54,33 +54,100 @@ pub fn api_v1_oidc_auth_path(tenant: &TenantId, project: &ProjectId) -> PathBuf 
     api_v1_oidc_path
 }
 
+/// Appends path segments to a URL: `…/api/v1/fhir` and `["Patient", "1"]` give
+/// `…/api/v1/fhir/Patient/1`.
+///
+/// Not `Url::join`, which resolves its argument relative to the URL's last path
+/// segment and would drop `fhir`. Also tolerates a trailing slash on the base,
+/// and escapes the segments.
+pub fn append_path_segments<'a>(
+    url: &Url,
+    segments: impl IntoIterator<Item = &'a str>,
+) -> Option<Url> {
+    let mut url = url.clone();
+
+    url.path_segments_mut()
+        .ok()?
+        .pop_if_empty()
+        .extend(segments);
+
+    Some(url)
+}
+
 pub fn api_fhir_root_url(
     api_url_string: &str,
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<Url, OperationOutcomeError> {
-    let api_url = Url::parse(api_url_string).map_err(|e| {
-        tracing::error!("Failed to parse API URL: {:?}", e);
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid API URL configured".to_string(),
-        )
-    })?;
+    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
 
     let fhir_url = api_url
-        .join(
-            api_v1_fhir_path(tenant, project)
-                .join("r4")
-                .to_str()
-                .unwrap(),
-        )
-        .map_err(|e| {
-            tracing::error!("Failed to derive FHIR URL: {:?}", e);
-            OperationOutcomeError::error(
-                IssueType::invalid(),
-                "Invalid API URL configured".to_string(),
-            )
-        })?;
+        .join(api_v1_fhir_path(tenant, project).to_str().unwrap())
+        .map_err(ServerError::from)?;
 
     Ok(fhir_url)
+}
+
+/// The identifier of a project's authorization server: what its discovery
+/// document returns as `issuer` and `oauth_protected_resource` lists under
+/// `authorization_servers`. An id token names it in `iss`, so the two must
+/// agree.
+pub fn issuer_url(
+    api_url_string: &str,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<Url, OperationOutcomeError> {
+    let api_url = Url::parse(api_url_string).map_err(ServerError::from)?;
+
+    api_url
+        .join(project_path(tenant, project).to_str().unwrap_or_default())
+        .map_err(|e| ServerError::from(e).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn segments_are_appended_under_the_last_path_segment() {
+        let root = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        assert_eq!(
+            append_path_segments(&root, ["Patient", "123"])
+                .as_ref()
+                .map(Url::as_str),
+            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
+    }
+
+    /// A base given with a trailing slash addresses the same thing, without
+    /// doubling the separator.
+    #[test]
+    fn a_trailing_slash_on_the_base_is_ignored() {
+        let with = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir/").unwrap();
+        let without = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        assert_eq!(
+            append_path_segments(&with, ["metadata"]),
+            append_path_segments(&without, ["metadata"])
+        );
+    }
+
+    /// The FHIR endpoint carries no version: it is a property of the project.
+    /// This string is also the token `aud`, so a change here invalidates every
+    /// token already issued.
+    #[test]
+    fn fhir_root_url_has_no_version_segment() {
+        let url = api_fhir_root_url(
+            "https://api.haste.health",
+            &TenantId::new("acme".to_string()).unwrap(),
+            &ProjectId::new("default".to_string()).unwrap(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            url.as_str(),
+            "https://api.haste.health/w/acme/default/api/v1/fhir"
+        );
+    }
 }

@@ -1,0 +1,38 @@
+name: Agent task
+description: A task eligible for autonomous agent work (requires verifiable acceptance criteria)
+labels: ["agent-proposed"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What this is and why. Link specs (FHIR R4 sections, SQL-on-FHIR, design docs).
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria (machine-checkable)
+      description: >
+        Every criterion must be verifiable by running something. Name the TestScripts
+        that must pass, exact search results expected, spec examples that must round-trip,
+        or commands with expected output. Prose like "works correctly" will not be
+        promoted to ready-for-agent.
+      placeholder: |
+        - [ ] TestScript `search-token-not-modifier.json` passes
+        - [ ] `GET /Patient?identifier:not=...` returns exactly IDs [a, b]
+        - [ ] `cargo nextest run -p haste-search` green, `cargo clippy -- -D warnings` clean
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Risk tier
+      options: ["tier:auto", "tier:design", "tier:human"]
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope / constraints
+      description: Files or behaviors not to touch (e.g. no schema migrations, no auth paths).

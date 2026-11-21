@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
-    ui::components::{TenantContext, page_banner, page_html},
+    ui::components::{TenantContext, page_banner, page_html, version_watermark},
 };
 use haste_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
 use haste_jwt::ProjectId;
@@ -16,33 +16,33 @@ pub fn login_form_html(
     login_route: &str,
     errors: Option<Vec<String>>,
 ) -> Markup {
-    let project_id = project.id.clone().map(ProjectId::new).unwrap();
-    let project_name = project
-        .name
-        .value
-        .as_ref()
-        .map(|s| Cow::Borrowed(s.as_str()))
-        .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
+    let project_id = project
+        .id
+        .clone()
+        .and_then(|id| ProjectId::new(id).ok())
+        .expect("a stored project has a valid id");
+    let project_name = project.name.value.as_ref().map_or_else(
+        || Cow::Owned(project_id.as_ref().to_string()),
+        |s| Cow::Borrowed(s.as_str()),
+    );
     let password_reset_route =
         oidc_route_string(&context.tenant, &project_id, "interactions/password-reset");
     let password_reset_route_str = password_reset_route
         .to_str()
         .expect("Could not create password reset route.");
-    let client_name = client_app
-        .name
-        .value
-        .as_ref()
-        .map(Cow::Borrowed)
-        .unwrap_or_else(|| {
+    let client_name = client_app.name.value.as_ref().map_or_else(
+        || {
             Cow::Owned(
                 client_app
                     .id
                     .clone()
                     .unwrap_or_else(|| "unknown client".to_string()),
             )
-        });
+        },
+        Cow::Borrowed,
+    );
 
-    page_html(html! {
+    page_html(&html! {
         (page_banner(context.tenant.as_ref(), Some(&project_name), Some(&context.branding)))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
@@ -87,5 +87,6 @@ pub fn login_form_html(
 
             }
         }
+        (version_watermark())
     })
 }

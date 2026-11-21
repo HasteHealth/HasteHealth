@@ -1,40 +1,33 @@
+use super::{instance_id, read_value_set};
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    middleware::{Backend, operations::ServerOperationContext},
     resolver::ServerCTXResolver,
 };
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::ValueSetValidateCode;
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
-use std::sync::Arc;
 
-pub fn valueset_validate_code_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn valueset_validate_code_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     ValueSetValidateCode::Input,
     ValueSetValidateCode::Output,
 > {
     OperationExecutor::new(
-        ValueSetValidateCode::CODE.to_string(),
+        &ValueSetValidateCode::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              _tenant: TenantId,
              _project: ProjectId,
-             _request: &InvocationRequest,
-             input: ValueSetValidateCode::Input| {
+             request: &InvocationRequest,
+             mut input: ValueSetValidateCode::Input| {
+                // Resolved before the future so it does not borrow `request`.
+                let id = instance_id(request);
                 Box::pin(async move {
+                    if let Some(id) = id {
+                        input.valueSet = Some(read_value_set(context.ctx.clone(), id).await?);
+                    }
                     let resolver = ServerCTXResolver::new(context.ctx);
                     let output = context.state.terminology.validate(resolver, input).await?;
                     Ok(output)

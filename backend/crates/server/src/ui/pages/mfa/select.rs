@@ -26,7 +26,7 @@ pub fn mfa_select_html(
     mfa_select_route: &str,
     branding: Option<&TenantName>,
 ) -> Markup {
-    page_html(html! {
+    page_html(&html! {
         (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             @if credentials.is_empty() {

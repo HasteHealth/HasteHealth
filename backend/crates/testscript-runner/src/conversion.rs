@@ -67,11 +67,13 @@ fn downcast_number(value: &dyn MetaValue) -> Option<f64> {
             .as_any()
             .downcast_ref::<FHIRUnsignedInt>()
             .and_then(|fp_uint| downcast_number(fp_uint.value.as_ref().unwrap_or(&0_u64))),
-        "http://hl7.org/fhirpath/System.Integer" =>
-        {
-            #[allow(clippy::cast_precision_loss)]
-            value.as_any().downcast_ref::<i64>().map(|v| *v as f64)
-        }
+        // Both signed and unsigned integers reflect as a System.Integer.
+        #[allow(clippy::cast_precision_loss)]
+        "http://hl7.org/fhirpath/System.Integer" => value
+            .as_any()
+            .downcast_ref::<i64>()
+            .map(|v| *v as f64)
+            .or_else(|| value.as_any().downcast_ref::<u64>().map(|v| *v as f64)),
 
         "http://hl7.org/fhirpath/System.Decimal" => value.as_any().downcast_ref::<f64>().copied(),
         _ => None,

@@ -1,0 +1,138 @@
+{
+    "id": "g10-12.7.06-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.7.06-must-support",
+    "name": "g10-12.7.06-must-support",
+    "title": "12.7.06 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.7.06 (DAT-PAT-2; US Core 6.1.0: group 10.7). Every must support element of US Core Condition Problems and Health Concerns Profile (including the USCDI ones) appears in at least one Condition the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Condition",
+                        "params": "_id=g10-cond-concern,g10-cond-problem,g10-condition-SDOH-example,g10-condition-duodenal-ulcer,g10-condition-duodenal-ulcer-res,g10-health-concern-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.abatementDateTime is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).abatement.ofType(dateTime).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.category is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).category.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.category:screening-assessment is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).category.where(coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category' and (code = 'sdoh' or code = 'functional-status' or code = 'disability-status' or code = 'cognitive-status' or code = 'treatment-intervention-preference' or code = 'care-experience-preference')).exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.category:us-core is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).category.where(coding.where(system = 'http://hl7.org/fhir/us/core/CodeSystem/condition-category' and (code = 'problem-list-item' or code = 'health-concern')).exists()).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.clinicalStatus is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).clinicalStatus.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.code is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).code.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.meta is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).meta.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.meta.lastUpdated is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).meta.lastUpdated.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.onsetDateTime or Condition.extension:assertedDate is present",
+                        "expression": "(Bundle.entry.resource.ofType(Condition).onset.ofType(dateTime).exists() or Bundle.entry.resource.ofType(Condition).extension.where(url = 'http://hl7.org/fhir/StructureDefinition/condition-assertedDate').exists())",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.recordedDate is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).recordedDate.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.subject is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).subject.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition.verificationStatus is present",
+                        "expression": "Bundle.entry.resource.ofType(Condition).verificationStatus.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

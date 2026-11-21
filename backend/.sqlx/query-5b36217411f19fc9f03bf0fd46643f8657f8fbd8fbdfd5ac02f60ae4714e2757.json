@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE search_index_locks SET index_sequence_position = $1 WHERE tenant = $2 AND project = $3 AND backend = $4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "search_index_backend",
+            "kind": {
+              "Enum": [
+                "elasticsearch",
+                "postgres"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5b36217411f19fc9f03bf0fd46643f8657f8fbd8fbdfd5ac02f60ae4714e2757"
+}

@@ -1,0 +1,6 @@
+{
+    "description": "g10 Multi-Patient Authorization and API: a backend client signing in on its own with system/*.rs, as SMART Backend Services would (with a client secret rather than a signed JWT assertion).",
+    "grantType": "client_credentials",
+    "clientId": "g10-bulk-client",
+    "scope": "system/*.rs"
+}

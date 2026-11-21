@@ -1,0 +1,15 @@
+name: FHIRPath function
+description: Implement a FHIRPath function that is missing
+title: 'FHIRPath implement "[NAME]" function'
+labels: ["fhirpath", "good first issue"]
+body:
+  - type: input
+    id: spec
+    attributes:
+      label: Specification link
+      description: The function's section at https://hl7.org/fhirpath/
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Functions are dispatched from `evaluate_function` in [backend/crates/fhirpath/src/lib.rs](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/fhirpath/src/lib.rs).

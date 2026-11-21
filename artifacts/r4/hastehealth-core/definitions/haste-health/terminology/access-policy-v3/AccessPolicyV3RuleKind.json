@@ -1,0 +1,58 @@
+{
+    "resourceType": "Bundle",
+    "id": "accesspolicyv3rulekind",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV3RuleKind",
+            "resource": {
+                "id": "accesspolicyv3rulekind-codesystem",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV3RuleKind",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3RuleKind",
+                "title": "AccessPolicyV3RuleKind",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 rule kinds.",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "decision",
+                        "display": "decision"
+                    },
+                    {
+                        "code": "constraint",
+                        "display": "constraint"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "accesspolicyv3rulekind",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV3RuleKind",
+                "version": "4.0.1",
+                "name": "AccessPolicyV3RuleKind",
+                "title": "AccessPolicyV3RuleKind",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Access Policy V3 rule kinds.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV3RuleKind"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+  "name" : "hl7.fhir.us.carin-bb",
+  "version" : "2.2.0",
+  "tools-version" : 3,
+  "type" : "IG",
+  "date" : "20260327180611",
+  "license" : "CC0-1.0",
+  "canonical" : "http://hl7.org/fhir/us/carin-bb",
+  "url" : "http://hl7.org/fhir/us/carin-bb/STU2.2",
+  "title" : "CARIN Consumer Directed Payer Data Exchange (CARIN IG for Blue Button®)",
+  "description" : "CARIN Consumer Directed Payer Data Exchange (CARIN IG for Blue Button®) (built Fri, Mar 27, 2026 18:06+1100+11:00)",
+  "fhirVersions" : ["4.0.1"],
+  "dependencies" : {
+    "hl7.fhir.r4.core" : "4.0.1",
+    "hl7.terminology.r4" : "7.1.0",
+    "hl7.fhir.us.core" : "7.0.0",
+    "hl7.fhir.us.core.v610" : "6.1.0",
+    "hl7.fhir.uv.extensions.r4" : "5.2.0",
+    "us.nlm.vsac" : "0.24.0"
+  },
+  "author" : "HL7 International / Financial Management",
+  "maintainers" : [{
+    "name" : "HL7 International / Financial Management",
+    "email" : "fm@lists.HL7.org",
+    "url" : "http://www.hl7.org/Special/committees/fm"
+  }],
+  "directories" : {
+    "lib" : "package",
+    "example" : "example"
+  },
+  "jurisdiction" : "urn:iso:std:iso:3166#US"
+}

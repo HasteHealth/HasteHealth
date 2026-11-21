@@ -1,3 +1,4 @@
+use crate::auth_n::error::AuthError;
 use crate::{
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
@@ -17,7 +18,9 @@ use axum::{
 use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{IdentityProvider, Project as FHIRProject, Resource, ResourceType},
+    resources::{
+        IdentityProvider, IdentityProviderOidc, Project as FHIRProject, Resource, ResourceType,
+    },
     terminology::{BoundCode, IdentityProviderPkceChallengeMethod, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -84,12 +87,7 @@ pub async fn get_idp<
             Resource::IdentityProvider(ip) => Some(ip),
             _ => None,
         })
-        .ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::not_found(),
-                "The specified identity provider was not found.".to_string(),
-            )
-        })?;
+        .ok_or(AuthError::IdentityProviderNotFound)?;
 
     Ok(identity_provider)
 }
@@ -110,12 +108,10 @@ pub async fn get_idp_session_info(
     session: &Session,
     idp: &IdentityProvider,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
-    let idp_id = idp.id.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Identity Provider resource is missing an ID.".to_string(),
-        )
-    })?;
+    let idp_id = idp
+        .id
+        .as_ref()
+        .ok_or(AuthError::IdentityProviderMissingId)?;
 
     let info: IDPSessionInfo = session
         .get(federated_session_info_key(idp_id).as_str())
@@ -142,12 +138,10 @@ async fn set_session_info(
     idp: &IdentityProvider,
     uri: &OriginalUri,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
-    let idp_id = idp.id.as_ref().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Identity Provider resource is missing an ID.".to_string(),
-        )
-    })?;
+    let idp_id = idp
+        .id
+        .as_ref()
+        .ok_or(AuthError::IdentityProviderMissingId)?;
 
     let state = generate_id(Some(20));
 
@@ -185,13 +179,32 @@ async fn set_session_info(
     Ok(info)
 }
 
+/// Scopes sent to the identity provider's authorization endpoint.
+///
+/// `openid` is always requested. The callback identifies the user from the
+/// `sub` claim of the id token, and a provider only returns an id token when
+/// the request is an OIDC one, so leaving `openid` out of
+/// `IdentityProvider.oidc.scopes` breaks the sign-in after the user has
+/// already authenticated with the provider.
+fn federated_scopes(oidc: &IdentityProviderOidc) -> String {
+    let configured = oidc
+        .scopes
+        .iter()
+        .flatten()
+        .filter_map(|scope| scope.value.as_deref())
+        .filter(|scope| !scope.is_empty() && *scope != "openid");
+
+    std::iter::once("openid")
+        .chain(configured)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 fn oidc_pkce_challenge_method(
     challenge: &BoundCode<IdentityProviderPkceChallengeMethod>,
 ) -> Option<PKCECodeChallengeMethod> {
     if challenge == &IdentityProviderPkceChallengeMethod::s256() {
         Some(PKCECodeChallengeMethod::S256)
-    } else if challenge == &IdentityProviderPkceChallengeMethod::plain() {
-        Some(PKCECodeChallengeMethod::Plain)
     } else {
         None
     }
@@ -225,19 +238,11 @@ async fn create_federated_authorization_url(
             )
         })?;
 
-        let scopes = oidc.scopes.as_ref().map(|s| {
-            s.iter()
-                .filter_map(|v| v.value.as_ref())
-                .map(|s| s.as_str())
-                .collect::<Vec<_>>()
-                .join(" ")
-        });
-
         authorization_url.set_query(Some("response_type=code"));
         authorization_url
             .query_pairs_mut()
             .append_pair("client_id", client_id)
-            .append_pair("scope", &scopes.unwrap_or_default())
+            .append_pair("scope", &federated_scopes(oidc))
             .append_pair(
                 "redirect_uri",
                 &create_federated_callback_url(
@@ -269,10 +274,7 @@ async fn create_federated_authorization_url(
 
         Ok(authorization_url)
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "The specified identity provider was not found.".to_string(),
-        ))
+        Err(AuthError::IdentityProviderNotFound.into())
     }
 }
 
@@ -314,4 +316,44 @@ pub async fn federated_initiate<
     .await?;
 
     Ok(Redirect::to(federated_authorization_url.as_str()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::resources::IdentityProviderOidcClient;
+
+    fn oidc(scopes: Option<Vec<&str>>) -> IdentityProviderOidc {
+        IdentityProviderOidc {
+            scopes: scopes.map(|scopes| {
+                scopes
+                    .into_iter()
+                    .map(|scope| haste_fhir_model::r4::generated::types::FHIRString {
+                        value: Some(scope.to_string()),
+                        ..Default::default()
+                    })
+                    .collect()
+            }),
+            client: IdentityProviderOidcClient::default(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn openid_is_requested_when_not_configured() {
+        assert_eq!(federated_scopes(&oidc(None)), "openid");
+        assert_eq!(federated_scopes(&oidc(Some(vec![]))), "openid");
+        assert_eq!(
+            federated_scopes(&oidc(Some(vec!["profile", "email"]))),
+            "openid profile email"
+        );
+    }
+
+    #[test]
+    fn openid_is_not_requested_twice() {
+        assert_eq!(
+            federated_scopes(&oidc(Some(vec!["openid", "profile"]))),
+            "openid profile"
+        );
+    }
 }

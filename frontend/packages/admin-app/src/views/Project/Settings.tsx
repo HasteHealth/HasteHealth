@@ -43,6 +43,8 @@ import { getErrorMessage } from "../../utilities";
 
 type SettingsProps = {
   user?: IDTokenPayload<string>;
+  /** The scopes the access token was issued with. */
+  scope?: string;
 };
 
 type ScopeRecord = NonNullable<HasteHealthListScopes.Output["scopes"]>[number];
@@ -77,7 +79,7 @@ function MetricCard({
   icon: React.ReactNode;
 }>) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
       <div className="flex items-center justify-between text-slate-500">
         <span className="text-sm font-medium">{title}</span>
         <span className="h-5 w-5">{icon}</span>
@@ -100,7 +102,7 @@ function SectionCard({
   action?: React.ReactNode;
 }>) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
@@ -324,7 +326,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
                 <button
                   type="button"
                   aria-label="Clear logo"
-                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-700"
+                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-xs hover:text-slate-700"
                   onClick={clearLogo}
                 >
                   <XMarkIcon className="h-4 w-4" />
@@ -364,8 +366,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
                 onChange={(e) => selectLogoFile(e.target.files?.[0])}
               />
               <p className="text-xs text-slate-500">
-                Logo must be a square PNG image; it will be resized to
-                150x150.
+                Logo must be a square PNG image; it will be resized to 150x150.
               </p>
 
               <div className="flex justify-end">
@@ -394,7 +395,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
   );
 }
 
-function SettingsContent({ user }: Readonly<SettingsProps>) {
+function SettingsContent({ user, scope }: Readonly<SettingsProps>) {
   const client = useAtomValue(getClient);
   const endpointMetadata = useAtomValue(getEndpointMetadata);
 
@@ -499,8 +500,8 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
 
   const oidcConfigured = Boolean(
     endpointMetadata?.["oidc-discovery-url"] &&
-    endpointMetadata?.["oidc-token-endpoint"] &&
-    endpointMetadata?.["oidc-authorize-endpoint"],
+      endpointMetadata?.["oidc-token-endpoint"] &&
+      endpointMetadata?.["oidc-authorize-endpoint"],
   );
 
   const tenant = user?.["https://haste.health/tenant"];
@@ -537,7 +538,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
 
   return (
     <div className="flex w-full flex-col gap-6 overflow-y-auto">
-      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
           <p className="text-sm text-slate-500">
@@ -601,7 +602,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
               value={user?.["https://haste.health/project"]}
             />
             <CopyField label="Audience" value={user?.aud} />
-            <CopyField label="Scope" value={user?.scope} />
+            <CopyField label="Scope" value={scope} />
           </div>
         </SectionCard>
 
@@ -787,7 +788,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
 }
 
 export default function Settings() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
 
   return (
     <React.Suspense
@@ -798,7 +799,10 @@ export default function Settings() {
         </div>
       }
     >
-      <SettingsContent user={hasteHealth.user} />
+      <SettingsContent
+        user={hasteHealth.user}
+        scope={hasteHealth.payload?.scope}
+      />
     </React.Suspense>
   );
 }

@@ -1,5 +1,6 @@
 ---
 title: Client Registration
+description: How to register OAuth 2.0/OpenID Connect client applications in Haste Health using the ClientApplication FHIR resource, and configure their access.
 sidebar_position: 4
 tags:
   - authentication
@@ -24,7 +25,7 @@ A `ClientApplication` resource represents an OAuth 2.0 client and contains:
 
 - **Client Identity**: Unique identifier and human-readable name
 - **OAuth Configuration**: Grant types, response types, and redirect URIs
-- **Security Credentials**: Client secret for confidential clients
+- **Security Credentials**: A client secret or public keys (JWKS) for confidential clients
 - **Scopes**: Pre-approved scopes the client can request
 - **Additional Metadata**: Logo URI, description, and other client information
 
@@ -32,10 +33,14 @@ A `ClientApplication` resource represents an OAuth 2.0 client and contains:
 
 ### Confidential Clients
 
-Confidential clients can securely store credentials (client secret). They are typically:
+Confidential clients can securely store credentials. They are typically:
 
 - **Backend Services**: Server-to-server applications
 - **CLI Tools**: Command-line tools running in secure environments
+
+A confidential client authenticates with either:
+- a `secret`, sent as `client_secret` or in a Basic Authorization header; or
+- a private key, with its public keys registered as `jwks` or `jwksUri` ([signed JWT, `private_key_jwt`](/docs/auth/authentication/grant_types/client_credentials#authenticating-with-a-signed-jwt-private_key_jwt)).
 
 Confidential clients use grant types:
 - `client_credentials` - Machine-to-machine authentication
@@ -112,7 +117,7 @@ console.log('Client Secret:', createdClient.secret);
 Create a ClientApplication using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/ClientApplication" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/ClientApplication" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
@@ -137,19 +142,25 @@ curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Clien
 
 You can also register clients through the Haste Health Admin App:
 
-1. Navigate to **resources/ClientApplication**
-2. Click **New**
-3. Fill in the client details:
+1. Open your project's console and pick **ClientApplication** from the
+   sidebar's resource types. You can also type `ClientApplication` into the
+   command bar, or pin the type so it stays at the top of the sidebar.
+2. Click **New ClientApplication**.
+3. Fill in the client details on the **Form** tab (or paste the whole resource
+   on the **JSON** tab):
    - Client ID (must be unique)
    - Client Name
    - Grant Types
    - Redirect URIs (for authorization code flow)
    - Scopes
-4. Click **Create**
+4. Choose **Actions → Create**.
 
 
 ## Client Configuration Examples
 
+:::caution[`patient/*` scopes are not currently enforced]
+The Web Application and Mobile Application examples below request `patient/*` scopes to illustrate the intended shape for a patient-facing client. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
 
 <Tabs>
 <TabItem value="web-app" label="Web Application">
@@ -204,6 +215,34 @@ A mobile app with patient context:
 
 </TabItem>
 
+<TabItem value="smart-ehr-launch" label="SMART EHR Launch App">
+
+An app started from Haste Health with an [EHR launch](/docs/auth/authentication/smart_on_fhir#1-ehr-launch-contextual-launch):
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "smart-ehr-app",
+  "name": "SMART EHR Launch App",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "code",
+  "launchUri": "https://app.example.com/launch",
+  "redirectUri": [
+    "https://app.example.com/callback"
+  ],
+  "scope": "openid fhirUser launch launch/encounter patient/*.rs offline_access"
+}
+```
+**Use Case**: A SMART app opened for a patient a clinician has in view
+**Grant Flow**: `$launch` → app opened at `launchUri` → Authorization Code with PKCE and `launch` → Tokens with patient and encounter
+
+`launchUri` is the page the app is opened at; `redirectUri` is where authorization returns. The scope must include `launch`.
+
+</TabItem>
+
 <TabItem value="backend-service" label="Backend Service">
 A headless server-to-server integration:
 
@@ -222,6 +261,26 @@ A headless server-to-server integration:
 ```
 **Use Case**: Machine-to-machine integrations and automation with no human in the loop
 **Grant Flow**: Client Credentials
+
+</TabItem>
+<TabItem value="backend-service-jwt" label="SMART Backend Service">
+A [SMART Backend Services](https://hl7.org/fhir/smart-app-launch/STU2.2/backend-services.html) client, such as a Bulk Data client, that authenticates with a private key instead of a secret:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "bulk-data-client",
+  "name": "Bulk Data Client",
+  "grantType": [
+    "client_credentials"
+  ],
+  "responseTypes": "token",
+  "scope": "system/*.rs",
+  "jwksUri": "https://client.example.com/.well-known/jwks.json"
+}
+```
+**Use Case**: Backend services and bulk data export
+**Grant Flow**: Client Credentials with a `private_key_jwt` assertion (use `jwks` to register the keys inline instead)
 
 </TabItem>
 <TabItem value="cli-tool" label="CLI Tool">
@@ -271,29 +330,43 @@ After registering a client, you may need to configure access policies to grant p
 <Tabs>
 <TabItem value="confidential" label="Client Credentials Flow">
 
-For machine-to-machine (M2M) using client credentials flow, you must create `AccessPolicyV2` resources to define what the client can access.
+For machine-to-machine (M2M) using client credentials flow, you must create an `AccessPolicyV2` resource to define what the client can access, and an `AccessPolicyV2Assignment` to assign it to the client.
 
 ### Example: Grant Client Full Access
 
 ```json
 {
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
       "fullUrl": "access-policy",
       "resource": {
         "resourceType": "AccessPolicyV2",
         "name": "ADMIN",
-        "engine": "full-access",
-        "target": [
-          {
-            "link": {
-              "reference": "ClientApplication/my-backend-service"
-            }
-          }
-        ]
+        "engine": "full-access"
       },
       "request": {
         "method": "POST",
         "url": "AccessPolicyV2"
       }
+    },
+    {
+      "resource": {
+        "resourceType": "AccessPolicyV2Assignment",
+        "accessPolicy": {
+          "reference": "access-policy"
+        },
+        "link": {
+          "reference": "ClientApplication/my-backend-service"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "AccessPolicyV2Assignment"
+      }
+    }
+  ]
 }
 ```
 </TabItem>

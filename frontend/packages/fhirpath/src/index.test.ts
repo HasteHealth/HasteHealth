@@ -278,7 +278,7 @@ test("distinct", async () => {
 test("where", async () => {
   expect(await evaluate("$this.where($this=1)", [1, 2, 3])).toEqual([1]);
 
-  expect(async () => {
+  await expect(async () => {
     await evaluate("$this.where('Bob')", [{ name: "John" }, { name: "Bob" }]);
   }).rejects.toThrow();
 });
@@ -308,7 +308,7 @@ test("repeat", async () => {
 });
 
 test("indexed", async () => {
-  expect(async () => {
+  await expect(async () => {
     await evaluate("$this.test['test']", { test: [1, 2, 3] });
   }).rejects.toThrow();
   expect(await evaluate("$this.test[0]", { test: [1, 2, 3] })).toEqual([1]);

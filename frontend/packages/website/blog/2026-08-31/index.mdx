@@ -1,0 +1,112 @@
+---
+slug: feature-updates/august-2026-feature-updates
+title: August 2026 Feature Updates
+description: August 2026 feature updates - ViewDefinition patient/group scoping, Elasticsearch index migrations, a hardened custom-operation runtime, tenant white-labeling, and a from-scratch CLI OAuth flow.
+authors: [ralph-parkison]
+tags: [hastehealth, feature-update]
+---
+
+August opened with a run of PostgreSQL storage internals and search-correctness fixes — batched transactional writes, Elasticsearch index migrations, and stricter `_count`/`_offset` parsing — running alongside the tail end of Luni-4's clippy remediation effort from July, then pivoted midmonth to a rebuilt MCP and OpenAPI surface and a hardened custom-operation runtime, before closing the month with tenant white-labeling, a from-scratch CLI OAuth flow, and ViewDefinition patient/group scoping.
+
+## Backend Changes
+
+### ViewDefinition patient/group scoping
+- A new `compartment.rs` module in `sql-on-fhir` resolves `patient`/`group` input parameters on a `ViewDefinitionRun` into a flat, deduplicated list of `Patient/{id}` references, expanding Group membership to its Patient members and fetching only resources within that compartment via the Patient `CompartmentDefinition`'s declared search-parameter mapping.
+- Unscoped, history-based runs now page through `_since`/`_count`/`_offset` in 1000-row pages up to a hard 50,000-row cap, instead of a single unpaged fetch, and the frontend runner gained a "Scope & output options" panel for patient/group references, row limit, and CSV header toggle.
+- PRs: [#954](https://github.com/HasteHealth/HasteHealth/pull/954).
+
+### AccessPolicyV2Assignment
+- A new first-class resource, `AccessPolicyV2Assignment`, decouples access-policy grants from the assignee: it holds just an `accessPolicy` reference and a `link` reference (to a `ClientApplication`, `Membership`, or `OperationDefinition`), turning what was previously an embedded lookup into a separate, queryable join resource, generated in both the Rust and TypeScript model layers.
+- PRs: [#946](https://github.com/HasteHealth/HasteHealth/pull/946).
+
+### Tenant customization and white-labeling
+- A new `HasteHealthTenantCustomization` operation, gated to tenant owners, lets a tenant set a display name and a square logo (validated and resized to 150x150 via Lanczos3); a companion `HasteHealthTenantBranding` read op and a `/w/{tenant}/branding/logo` route serve it back.
+- Server-rendered chrome — login, signup, MFA, OIDC interaction, and error pages — now runs through a `TenantContext` and a `tenant_banner()` renderer showing the custom logo and tenant name, and the admin app picked up a matching `useTenantBranding` hook and `AppLogo` component wired into a reworked sidebar.
+- PRs: [#940](https://github.com/HasteHealth/HasteHealth/pull/940), [#941](https://github.com/HasteHealth/HasteHealth/pull/941).
+
+### FHIRUser SMART claim
+- When a token request's approved scopes include the SMART `fhirUser` scope, the token route now resolves the authenticated Membership's `link` reference and embeds it as a `fhir_user` claim on the issued JWT; client-credentials tokens, which have no human membership, always get `fhir_user: None`.
+- PRs: [#916](https://github.com/HasteHealth/HasteHealth/pull/916).
+
+### CLI: browser-based OAuth login
+- The CLI's prior login flow — a downloadable bundle shipping a fixed `client_secret` — was replaced with a real Authorization Code + PKCE flow: `login.rs` generates a code verifier/S256 challenge, opens the system browser to the authorize URL, and binds a one-shot local listener on the profile's configured redirect URI to catch the callback and exchange it for tokens.
+- Secret material was split out of the non-secret `config.toml` into its own `.secrets.toml` so client secrets and cached tokens never surface via `config show-profile`, CLI internals were reorganized under a dedicated `cli/` module, and `set-active-profile`/`delete-profile` moved from free-text prompts to a `Select` dialog. Docs were updated to match, describing the new public-client, browser-login model.
+- PRs: [#935](https://github.com/HasteHealth/HasteHealth/pull/935), [#947](https://github.com/HasteHealth/HasteHealth/pull/947), [#948](https://github.com/HasteHealth/HasteHealth/pull/948), [#949](https://github.com/HasteHealth/HasteHealth/pull/949), [#936](https://github.com/HasteHealth/HasteHealth/pull/936).
+
+## Product and UX
+
+### Admin app search modal rewrite
+- `SearchModal.tsx` dropped its virtualized-list implementation for a categorized flat list combining a new set of static pages (Dashboard, Settings, All Resources, Event History, Indexing Errors, Bundle Import) with FHIR resource types, grouping resource types that already have a dedicated sidebar shortcut under that same category instead of a generic "Resources" bucket.
+- PRs: [#912](https://github.com/HasteHealth/HasteHealth/pull/912).
+
+### Indexing errors view
+- A new admin-app `IndexingErrors` view and sidebar entry expose resources that failed search indexing and were "parked" rather than silently dropped, backed by a new `indexing_errors` operation and repository layer.
+- PRs: [#911](https://github.com/HasteHealth/HasteHealth/pull/911).
+
+### Doc link from the resource editor
+- The `ResourceEditor` header gained a "Docs" button that opens the generated FHIR reference documentation for the resource type currently being edited in a new tab.
+- PRs: [#951](https://github.com/HasteHealth/HasteHealth/pull/951).
+
+## Platform and Runtime
+
+### Elasticsearch index migrations
+- Search-parameter canonical URLs are now flattened (`.` replaced with `_`) before being used as ES field names, since a literal `.` in a mapped field name creates a nested object path instead of a flat field — a gap that had been silently producing the wrong mapping shape.
+- `create_mapping` now diffs expected mapping properties against the live index: additive changes apply in place via `put_mapping`, while removed search parameters — which mappings can't drop in place — go through a staging-index reindex, swap, and reindex-back cycle when a `prune_removed_search_parameters` flag is enabled. The index itself moved from `r4_search_index` to `r4_search_index_v2`.
+- PRs: [#950](https://github.com/HasteHealth/HasteHealth/pull/950).
+
+### Custom-operation runtime hardening
+- `DenoPool` moved from round-robin worker assignment to a shared work queue so an idle worker always grabs the next job, with a queue-depth cap that rejects new work once the pool is saturated. Each worker now keeps one warm, unused V8 isolate ready to hide isolate-construction latency from the request path, and a dedicated watchdog thread terminates any script that runs past a 10-second timeout, since a blocking `tokio::time::timeout` can't interrupt a synchronous runaway script.
+- Module imports in custom-operation scripts are now categorically rejected rather than read from disk, transpiled JS is cached to skip redundant TypeScript parsing on repeat invocations, and the scripting FHIR client surface was filled out to cover the full REST API — `read`, `vread`, `patch`, `history`, `transaction`, `batch`, and the remaining `invoke`/`delete` variants.
+- PRs: [#945](https://github.com/HasteHealth/HasteHealth/pull/945), [#944](https://github.com/HasteHealth/HasteHealth/pull/944), [#943](https://github.com/HasteHealth/HasteHealth/pull/943), [#942](https://github.com/HasteHealth/HasteHealth/pull/942).
+
+### MCP and OpenAPI schema rework
+- MCP's tool list grew from search-only to the full REST surface — read, create, update, patch, delete, history, capabilities, transaction, and batch — with tool schemas referencing an external `/schemas/fhir/{ResourceType}` endpoint instead of inlining definitions.
+- A vendored, generated MCP types file (nearly 28,000 lines) was replaced with a hand-written ~840-line module covering the MCP spec's JSON-RPC types, and a new `RESOURCE_SCHEMAS` cache gives each resource and complex type its own isolated JSON Schema with cross-type references resolved as external `$ref`s.
+- PRs: [#915](https://github.com/HasteHealth/HasteHealth/pull/915), [#913](https://github.com/HasteHealth/HasteHealth/pull/913), [#914](https://github.com/HasteHealth/HasteHealth/pull/914).
+
+### Search result shaping and parameter validation
+- A new `element_filtering` middleware implements FHIR's `_elements` and `_summary` search result subsetting, with `_elements` taking precedence when both are present.
+- `_count`/`_offset` parsing was tightened twice this month: first fixing ES and PG history reads to reject negative values instead of silently clamping to zero, then requiring the parameters parse directly as `u64` rather than falling back to a default on malformed input.
+- PRs: [#920](https://github.com/HasteHealth/HasteHealth/pull/920), [#902](https://github.com/HasteHealth/HasteHealth/pull/902), [#875](https://github.com/HasteHealth/HasteHealth/pull/875).
+
+### PostgreSQL storage: model separation and batched writes
+- Repository model files moved under a dedicated `pg/models/` directory, and `create`/`update`/`delete` on `FHIRRepository` were changed to take resources by value rather than by mutable reference, simplifying transaction-wrapping call sites.
+- A new buffered multi-row insert path lets transactional writes queue as owned rows and flush as a single batched `INSERT`, which is what lets FHIR `transaction`/`batch` bundle processing commit its member writes together instead of one row at a time — the same batching approach was then applied to startup artifact loading, cutting it from one request per resource to a single `Bundle::batch` call.
+- PRs: [#887](https://github.com/HasteHealth/HasteHealth/pull/887), [#886](https://github.com/HasteHealth/HasteHealth/pull/886), [#888](https://github.com/HasteHealth/HasteHealth/pull/888), [#889](https://github.com/HasteHealth/HasteHealth/pull/889), [#896](https://github.com/HasteHealth/HasteHealth/pull/896).
+
+### Testscript runner coverage
+- The testscript runner picked up `Batch`, conditional `UpdateCreate`, `Patch` (sourced from a `Binary` fixture per the standard TestScript convention), and merged conditional-delete handling, plus improved logging detail in both the runner and the CLI's `testscript` command.
+- PRs: [#937](https://github.com/HasteHealth/HasteHealth/pull/937), [#900](https://github.com/HasteHealth/HasteHealth/pull/900).
+
+### Reliability, performance, and workspace hygiene
+- The binary switched its global allocator to mimalloc and the release profile picked up thin LTO and single-codegen-unit builds; a hot path in FHIR structure-definition traversal that was compiling a regex per call was replaced with a plain string comparison, meaningfully speeding up FHIR profiling.
+- Failed search-indexing resources are now tracked and "parked" rather than silently dropped or retried forever, with a gap detector that warns when indexed counts don't match the expected sequence delta, and the `operation_executor`/`wal_worker` crate directories were renamed to match the workspace's hyphenated naming convention.
+- PRs: [#927](https://github.com/HasteHealth/HasteHealth/pull/927), [#931](https://github.com/HasteHealth/HasteHealth/pull/931), [#919](https://github.com/HasteHealth/HasteHealth/pull/919), [#909](https://github.com/HasteHealth/HasteHealth/pull/909), [#908](https://github.com/HasteHealth/HasteHealth/pull/908), [#910](https://github.com/HasteHealth/HasteHealth/pull/910), [#923](https://github.com/HasteHealth/HasteHealth/pull/923).
+
+## Artifacts, Tooling, and Maintenance
+
+### Website: Headless EHR re-centering and a live MCP showcase
+- Homepage messaging was repositioned around "Headless EHR," dropping the prior EHR-integration-logo framing in favor of a new data-flow diagram and a live-rendered MCP tool catalog, auto-categorized into read/create/update/delete/bulk badges from the generated tool list.
+- The homepage hero picked up a typing animation for its sample CLI command and JSON response (respecting `prefers-reduced-motion`), and a new `/contact` page lists business, developer, and security contact channels alongside GitHub Issues and Discussions links.
+- PRs: [#925](https://github.com/HasteHealth/HasteHealth/pull/925), [#934](https://github.com/HasteHealth/HasteHealth/pull/934), [#891](https://github.com/HasteHealth/HasteHealth/pull/891).
+
+### Generated docs and SEO
+- The docs generator now produces a truncated meta description for every generated FHIR resource/data-type page, and category index pages across the API, auth, and reference sections picked up generated-index descriptions for better landing-page SEO; the full FHIR reference doc set was also regenerated to pick up the month's model and terminology changes.
+- PRs: [#952](https://github.com/HasteHealth/HasteHealth/pull/952), [#926](https://github.com/HasteHealth/HasteHealth/pull/926).
+
+### CI and dependency hygiene
+- The Sonar scan workflow was split into a main-branch workflow and a build/analyze pair so PRs from forks can be analyzed without exposing repo secrets to untrusted fork code, and the frontend package pinned several transitive dependencies and expanded audit-ignore entries to keep the dependency audit gate green against upstream advisories.
+- PRs: [#903](https://github.com/HasteHealth/HasteHealth/pull/903), [#890](https://github.com/HasteHealth/HasteHealth/pull/890).
+
+## Standalone Commits (No PR Link)
+
+- Frontend fixes: the SQL-on-FHIR raw-output panel no longer collapses to zero height in flex layouts, plus small follow-up styling fixes to the new contact page and homepage syntax highlighting.
+- Sonar/CI config: generated Rust and TypeScript model code was excluded from SonarQube analysis, an "expensive" test flag was toggled off in CI, and a one-line test workflow fix followed the new clippy-action PR.
+- Small backend follow-ups: a `usize`→`u64` recast in the FHIR client storage middleware, and a stray `.clone()` removed from the search-indexing worker.
+- Docs and repo hygiene: README overview simplification, removal of a stale Postgres 16 benchmark section, an admin app URL fix, and a revised `SECURITY.md` with updated supported versions and reporting instructions.
+- Build/deploy: a Dockerfile build stage trim.
+- Version bumps: [`ade25825b`](https://github.com/HasteHealth/HasteHealth/commit/ade25825b), [`759944b85`](https://github.com/HasteHealth/HasteHealth/commit/759944b85).
+
+## Contributors
+
+Thanks to [Luni-4](https://github.com/Luni-4) for carrying the crate-by-crate clippy remediation effort straight through August. The month opened with the `repository` crate ([#874](https://github.com/HasteHealth/HasteHealth/pull/874)), then a four-PR day covering `hl7v2` ([#882](https://github.com/HasteHealth/HasteHealth/pull/882)), a batch of miscellaneous lints ([#879](https://github.com/HasteHealth/HasteHealth/pull/879)), `fhir-converter` ([#880](https://github.com/HasteHealth/HasteHealth/pull/880)), and `encryption` ([#881](https://github.com/HasteHealth/HasteHealth/pull/881)). Mid-month brought `fhirpath` ([#892](https://github.com/HasteHealth/HasteHealth/pull/892)) and `sd-to-json-schema` ([#893](https://github.com/HasteHealth/HasteHealth/pull/893)), followed by a three-crate day covering `worker` ([#897](https://github.com/HasteHealth/HasteHealth/pull/897)), `wal_worker` ([#898](https://github.com/HasteHealth/HasteHealth/pull/898)), and `macro-loads` ([#895](https://github.com/HasteHealth/HasteHealth/pull/895)), then `fhir-search` ([#894](https://github.com/HasteHealth/HasteHealth/pull/894)) alongside a README development-section improvement ([#901](https://github.com/HasteHealth/HasteHealth/pull/901)). `fhir-subscription-processor` ([#906](https://github.com/HasteHealth/HasteHealth/pull/906)) and a second missing-lints sweep ([#907](https://github.com/HasteHealth/HasteHealth/pull/907)) followed, then `fhir-profiling` ([#905](https://github.com/HasteHealth/HasteHealth/pull/905)), and the effort wrapped with a three-PR day covering the first missing-lints sweep ([#904](https://github.com/HasteHealth/HasteHealth/pull/904)), `openapi-schema-generator` ([#921](https://github.com/HasteHealth/HasteHealth/pull/921)), and `operation-executor` ([#922](https://github.com/HasteHealth/HasteHealth/pull/922)), before a final pass on `sql-on-fhir` ([#924](https://github.com/HasteHealth/HasteHealth/pull/924)) closed out the workspace-wide effort begun back in July.

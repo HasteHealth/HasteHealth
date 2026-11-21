@@ -1,8 +1,9 @@
 use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
-        PGConnection, StoreError,
+        PGConnection, StoreError, VersionCache, decode_resource,
         pending::{self, PendingRows},
+        row_resource_type,
         transaction::{commit_transaction, create_transaction},
     },
     types::{FHIRMethod, SupportedFHIRVersions},
@@ -18,35 +19,32 @@ use haste_fhir_model::r4::{
         resources::{Resource, ResourceType},
         terminology::IssueType,
     },
-    sqlx::FHIRJson,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
-use moka::future::Cache;
-use sqlx::{PgExecutor, Postgres, QueryBuilder, query_builder::Separated};
-use std::sync::Arc;
+use sqlx::{
+    PgExecutor, Postgres, QueryBuilder, Row, postgres::PgRow, query_builder::Separated,
+    types::time::OffsetDateTime,
+};
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(Debug)]
 struct ReturnVersionedResource {
-    resource: FHIRJson<Resource>,
+    resource: Resource,
     version_id: VersionId,
 }
 
-#[derive(sqlx::FromRow, Debug)]
-struct HistoryValue {
-    pub resource: FHIRJson<Resource>,
-    pub request_method: String,
-}
-
 async fn read_version_ids_from_cache<'a>(
-    cache: &Cache<VersionId, Resource>,
+    cache: &VersionCache,
+    tenant_id: &TenantId,
+    project_id: &ProjectId,
     version_ids: &'a [&VersionId],
 ) -> (Vec<Resource>, Vec<&'a VersionId>) {
     let mut remaining_version_ids = vec![];
     let mut cached_resources = vec![];
     for version_id in version_ids {
-        if let Some(resource) = cache.get(*version_id).await {
+        if let Some(resource) = cache.get(tenant_id, project_id, version_id).await {
             cached_resources.push(resource);
         } else {
             remaining_version_ids.push(*version_id);
@@ -143,7 +141,7 @@ impl FHIRRepository for PGConnection {
         }
 
         let (cached_result, remaining_version_ids) =
-            read_version_ids_from_cache(self.cache(), version_ids).await;
+            read_version_ids_from_cache(self.cache(), tenant_id, project_id, version_ids).await;
 
         if remaining_version_ids.is_empty() {
             return Ok(cached_result);
@@ -157,14 +155,19 @@ impl FHIRRepository for PGConnection {
                 if cache_policy == CachePolicy::Cache {
                     for v in &res {
                         cache
-                            .insert(v.version_id.clone(), v.resource.0.clone())
+                            .insert(
+                                tenant_id,
+                                project_id,
+                                v.version_id.clone(),
+                                v.resource.clone(),
+                            )
                             .await;
                     }
                 }
 
                 Ok(cached_result
                     .into_iter()
-                    .chain(res.into_iter().map(|r| r.resource.0))
+                    .chain(res.into_iter().map(|r| r.resource))
                     .collect::<Vec<_>>())
             }
             PGConnection::Transaction(tx, cache, pending) => {
@@ -178,15 +181,56 @@ impl FHIRRepository for PGConnection {
                 if cache_policy == CachePolicy::Cache {
                     for v in &res {
                         cache
-                            .insert(v.version_id.clone(), v.resource.0.clone())
+                            .insert(
+                                tenant_id,
+                                project_id,
+                                v.version_id.clone(),
+                                v.resource.clone(),
+                            )
                             .await;
                     }
                 }
 
                 Ok(cached_result
                     .into_iter()
-                    .chain(res.into_iter().map(|r| r.resource.0))
+                    .chain(res.into_iter().map(|r| r.resource))
                     .collect::<Vec<_>>())
+            }
+        }
+    }
+
+    async fn read_version(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+        version_id: &VersionId,
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
+        match self {
+            PGConnection::Pool(pool, _) => {
+                read_version(
+                    pool,
+                    tenant_id,
+                    project_id,
+                    resource_type,
+                    resource_id,
+                    version_id,
+                )
+                .await
+            }
+            PGConnection::Transaction(tx, _, pending) => {
+                pending.flush(tx).await?;
+                let mut conn = tx.lock().await;
+                read_version(
+                    &mut **conn,
+                    tenant_id,
+                    project_id,
+                    resource_type,
+                    resource_id,
+                    version_id,
+                )
+                .await
             }
         }
     }
@@ -216,6 +260,28 @@ impl FHIRRepository for PGConnection {
                     resource_id,
                 )
                 .await
+            }
+        }
+    }
+
+    async fn read_latest_many(
+        &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        keys: &[(ResourceType, ResourceId)],
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+        if keys.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        match self {
+            PGConnection::Pool(pool, _) => {
+                read_latest_many(pool, tenant_id, project_id, keys).await
+            }
+            PGConnection::Transaction(tx, _, pending) => {
+                pending.flush(tx).await?;
+                let mut conn = tx.lock().await;
+                read_latest_many(&mut **conn, tenant_id, project_id, keys).await
             }
         }
     }
@@ -343,33 +409,84 @@ async fn read_by_version_ids<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new("SELECT resource, version_id FROM resources WHERE tenant = ");
+    let bound_version_ids: Vec<&str> = version_ids
+        .iter()
+        .map(std::convert::AsRef::as_ref)
+        .collect();
 
-    query_builder
-        .push_bind(tenant_id.as_ref())
-        .push(" AND project =")
-        .push_bind(project_id.as_ref());
+    // Rows are decoded in `try_map` as they stream in, overlapping with the
+    // server sending the rest of the result.
+    let mut response = sqlx::query(
+        r"
+            SELECT resource, resource_type, version_id
+            FROM resources
+            WHERE tenant = $1 AND project = $2 AND version_id = ANY($3::text[])
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(&bound_version_ids)
+    .try_map(|row: PgRow| {
+        let resource_type = row_resource_type(&row)?;
+        Ok(ReturnVersionedResource {
+            resource: decode_resource(&row, resource_type)?,
+            version_id: row.try_get("version_id")?,
+        })
+    })
+    .fetch_all(executor)
+    .await
+    .map_err(|e| match e {
+        sqlx::Error::Decode(e) => StoreError::DeserializeError(e.to_string()),
+        e => StoreError::from(e),
+    })?;
 
-    query_builder.push(" AND version_id in (");
-
-    let mut separated = query_builder.separated(", ");
-    for version_id in version_ids {
-        separated.push_bind(version_id.as_ref());
+    // Create a lookup table to remember the original order of the requested version IDs.
+    let mut requested_order: HashMap<&VersionId, usize> = HashMap::with_capacity(version_ids.len());
+    for (index, version_id) in version_ids.iter().enumerate() {
+        requested_order.insert(*version_id, index);
     }
-    separated.push_unseparated(")");
 
-    query_builder.push(" ORDER BY array_position(array[");
-    let mut order_separator = query_builder.separated(", ");
-    for version_id in version_ids {
-        order_separator.push_bind(version_id.as_ref());
-    }
-    query_builder.push("], version_id)");
+    response.sort_by_key(|r| {
+        requested_order
+            .get(&r.version_id)
+            .copied()
+            .unwrap_or(usize::MAX)
+    });
 
-    let query = query_builder.build_query_as::<ReturnVersionedResource>();
+    Ok(response)
+}
 
-    let response: Vec<ReturnVersionedResource> =
-        query.fetch_all(executor).await.map_err(StoreError::from)?;
+/// The version `version_id` of `resource_type/resource_id`. The primary key
+/// finds the row by its version id; the type and id leave it out unless it
+/// is a version of that resource.
+async fn read_version<'a, 'e, E>(
+    executor: E,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    resource_type: &'a ResourceType,
+    resource_id: &'a ResourceId,
+    version_id: &'a VersionId,
+) -> Result<Option<Resource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let response = sqlx::query(
+        r"
+            SELECT resource
+            FROM resources
+            WHERE tenant = $1 AND project = $2 AND version_id = $3
+                AND resource_type = $4 AND id = $5
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(version_id.as_ref())
+    .bind(resource_type.as_ref())
+    .bind(resource_id.as_ref())
+    .try_map(|row: PgRow| decode_resource(&row, *resource_type))
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::from)?;
 
     Ok(response)
 }
@@ -384,7 +501,7 @@ async fn read_latest<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let response = sqlx::query_as::<_, (FHIRJson<Resource>, bool)>(
+    let response = sqlx::query(
         r"
             SELECT resource, deleted
             FROM resources
@@ -397,19 +514,69 @@ where
     .bind(project_id.as_ref())
     .bind(resource_id.as_ref())
     .bind(resource_type.as_ref())
+    .try_map(|row: PgRow| {
+        if row.try_get("deleted")? {
+            return Ok(None);
+        }
+        decode_resource(&row, *resource_type).map(Some)
+    })
     .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    match response {
-        Some((_, true)) | None => Ok(None),
-        Some((json, _)) => Ok(Some(json.0)),
-    }
+    Ok(response.flatten())
 }
 
-fn process_history_parameters<'a>(
-    parameters: &'a ParsedParameters,
-    clauses: &mut Separated<'_, 'a, Postgres, &str>,
+/// The lookup of [`read_latest`] for every key, in one statement. The lateral
+/// subquery is one probe of `resources_id_idx` per key stopping at the newest
+/// version, so the cost is the same as the single reads without their round
+/// trips.
+async fn read_latest_many<'a, 'e, E>(
+    executor: E,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    keys: &'a [(ResourceType, ResourceId)],
+) -> Result<Vec<Resource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let types: Vec<&str> = keys.iter().map(|(type_, _)| type_.as_ref()).collect();
+    let ids: Vec<&str> = keys.iter().map(|(_, id)| id.as_ref()).collect();
+
+    let rows = sqlx::query(
+        r"
+            SELECT r.resource, r.deleted, k.resource_type
+            FROM unnest($3::text[], $4::text[]) AS k(resource_type, id)
+            CROSS JOIN LATERAL (
+                SELECT resource, deleted
+                FROM resources
+                WHERE tenant = $1 AND project = $2
+                  AND resource_type = k.resource_type AND id = k.id
+                ORDER BY sequence DESC
+                LIMIT 1
+            ) r
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(&types)
+    .bind(&ids)
+    .try_map(|row: PgRow| {
+        if row.try_get("deleted")? {
+            return Ok(None);
+        }
+        decode_resource(&row, row_resource_type(&row)?).map(Some)
+    })
+    .fetch_all(executor)
+    .await
+    .map_err(StoreError::from)?;
+
+    Ok(rows.into_iter().flatten().collect())
+}
+
+fn process_history_parameters(
+    parameters: &ParsedParameters,
+    clauses: &mut Separated<'_, Postgres, &str>,
 ) -> Result<(), OperationOutcomeError> {
     for parameter in parameters.parameters() {
         match parameter {
@@ -423,14 +590,26 @@ fn process_history_parameters<'a>(
                             )
                         })?;
 
-                        clauses.push(" created_at >= ").push_bind_unseparated(
-                            chrono::DateTime::try_from(date_time).map_err(|e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::invalid(),
-                                    format!("Invalid _since parameter datetime: {e:?}"),
-                                )
-                            })?,
-                        );
+                        let since = chrono::DateTime::try_from(date_time).map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::invalid(),
+                                format!("Invalid _since parameter datetime: {e:?}"),
+                            )
+                        })?;
+                        // Bound as a `time` value: sqlx's `chrono` feature stays off so
+                        // its query macros map timestamps to one crate only.
+                        let since = OffsetDateTime::from_unix_timestamp_nanos(
+                            i128::from(since.timestamp()) * 1_000_000_000
+                                + i128::from(since.timestamp_subsec_nanos()),
+                        )
+                        .map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::invalid(),
+                                format!("Invalid _since parameter datetime: {e}"),
+                            )
+                        })?;
+
+                        clauses.push(" created_at >= ").push_bind_unseparated(since);
                     }
                 } else {
                     // Ignore offset and count parameter as these parameters are held separately and not used in the where clause.
@@ -461,7 +640,7 @@ where
     E: PgExecutor<'e>,
 {
     let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT resource, request_method FROM resources WHERE ");
+        QueryBuilder::new(r"SELECT resource, resource_type, request_method FROM resources WHERE ");
 
     let mut clauses = query_builder.separated(" AND ");
     clauses
@@ -536,15 +715,18 @@ where
         query_builder.push(" OFFSET ").push_bind(offset);
     }
 
-    let query = query_builder.build_query_as::<HistoryValue>();
-
-    let result: Vec<HistoryValue> = query.fetch_all(executor).await.map_err(StoreError::from)?;
-
-    Ok(result
-        .into_iter()
-        .map(|r| ResourceHistoryValue {
-            resource: r.resource.0,
-            request_method: r.request_method,
+    let result = query_builder
+        .build()
+        .try_map(|row: PgRow| {
+            let resource_type = row_resource_type(&row)?;
+            Ok(ResourceHistoryValue {
+                resource: decode_resource(&row, resource_type)?,
+                request_method: row.try_get("request_method")?,
+            })
         })
-        .collect::<Vec<_>>())
+        .fetch_all(executor)
+        .await
+        .map_err(StoreError::from)?;
+
+    Ok(result)
 }

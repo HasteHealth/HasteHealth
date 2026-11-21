@@ -1,0 +1,101 @@
+{
+  "resourceType": "TestScript",
+  "id": "sof-validate-03",
+  "url": "https://haste.health/fhir/TestScript/sof-validate-03",
+  "name": "sof-validate-03",
+  "title": "SQL on FHIR validate: wrong fhirpath",
+  "status": "active",
+  "description": "TBD Suite test 3 of tests/validate.json (validate), tagged shareable, in https://github.com/FHIR/sql-on-fhir.js at 238d9b2be4ad.",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "run-parameters",
+      "parameter": [
+        {
+          "name": "viewResource",
+          "resource": {
+            "resourceType": "ViewDefinition",
+            "resource": "Patient",
+            "status": "active",
+            "select": [
+              {
+                "forEach": "@@"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "name": [
+              {
+                "family": "F1.1"
+              }
+            ],
+            "id": "pt1"
+          }
+        },
+        {
+          "name": "resource",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "pt2"
+          }
+        },
+        {
+          "name": "_format",
+          "valueCode": "json"
+        }
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "id": "run-parameters",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#run-parameters"
+      }
+    }
+  ],
+  "test": [
+    {
+      "id": "run",
+      "name": "wrong fhirpath",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "invoke"
+            },
+            "description": "Run the test's view over the test case's resources.",
+            "url": "viewdefinition-run",
+            "resource": "ViewDefinition",
+            "sourceId": "run-parameters",
+            "responseId": "result",
+            "encodeRequestUrl": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The view is refused, and not by a server failure.",
+            "responseCode": "500,501,502,503,504",
+            "operator": "notIn",
+            "warningOnly": false
+          }
+        },
+        {
+          "assert": {
+            "description": "The response is an OperationOutcome reporting an error.",
+            "expression": "OperationOutcome.issue.where(severity = 'error' or severity = 'fatal').exists()",
+            "value": "true",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ]
+}

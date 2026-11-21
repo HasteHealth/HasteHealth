@@ -639,7 +639,7 @@ async function deriveComparision<Version extends FHIR_VERSION>(
   } else if (assertion.value) {
     switch (true) {
       case numberRegex.test(assertion.value): {
-        return parseFloat(assertion.value);
+        return Number.parseFloat(assertion.value);
       }
       case assertion.value === "true": {
         return true;
@@ -685,9 +685,15 @@ function evaluateOperator(
     case "notIn":
       return Array.isArray(v2) ? !v2.includes(v1) : false;
     case "greaterThan":
-      return parseInt(v1?.toString() ?? "") > parseInt(v2?.toString() ?? "");
+      return (
+        Number.parseInt(v1?.toString() ?? "") >
+        Number.parseInt(v2?.toString() ?? "")
+      );
     case "lessThan":
-      return parseInt(v1?.toString() ?? "") < parseInt(v2?.toString() ?? "");
+      return (
+        Number.parseInt(v1?.toString() ?? "") <
+        Number.parseInt(v2?.toString() ?? "")
+      );
     case "empty":
       return Array.isArray(v1)
         ? v1.length === 0

@@ -1,105 +1,72 @@
-use crate::elastic_search::search::{QueryBuildError, clauses::namespace_parameter};
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
-use serde_json::json;
+use crate::{
+    elastic_search::search::clauses::{all_of, any_of, match_query, nested, range_query},
+    query::value::{NumberValue, QuantityValue},
+    search_ranges::{above, below},
+};
+use haste_fhir_client::url::Prefix;
 
-pub fn quantity(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    let column_name = namespace_parameter(namespace, search_param);
-    let params = parsed_parameter
-        .value
-        .iter()
-        .map(|value| {
-            let pieces = value.split('|').collect::<Vec<&str>>();
-            match pieces.len() {
-                3 => {
-                    let mut clauses = vec![];
+/// Matches any of `[prefix]value[|system|code]`; an unconstrained segment is
+/// left out.
+pub fn quantity(field: &str, values: &[QuantityValue]) -> serde_json::Value {
+    any_of(
+        values
+            .iter()
+            .map(|quantity| nested(field, quantity_query(field, quantity)))
+            .collect(),
+    )
+}
 
-                    let value = pieces.first().unwrap_or(&"");
-                    let system = pieces.get(1).unwrap_or(&"");
-                    let code = pieces.get(2).unwrap_or(&"");
-
-                    if !value.is_empty() {
-                        let value = value.parse::<f64>().map_err(|_e| {
-                            QueryBuildError::InvalidParameterValue(value.to_string())
-                        })?;
-
-                        clauses.push(json!({
-                            "range": {
-                                format!("{}.start_value", column_name): {
-                                    "lte": value
-                                },
-
-                            }
-                        }));
-
-                        clauses.push(json!({
-                            "range": {
-                                format!("{}.end_value", column_name): {
-                                    "gte": value
-                                }
-                            }
-                        }));
-                    }
-
-                    // Not sure if should instead just have an or statement for this but than value would not make sense.
-                    if !system.is_empty() {
-                        clauses.push(json!({
-                            "match": {
-                                format!("{}.start_system", column_name): {
-                                    "query": system
-                                }
-                            }
-                        }));
-                        clauses.push(json!({
-                            "match": {
-                                format!("{}.end_system", column_name): {
-                                    "query": system
-                                }
-                            }
-                        }));
-                    }
-
-                    if !code.is_empty() {
-                        clauses.push(json!({
-                            "match": {
-                                format!("{}.start_code", column_name): {
-                                    "query": code
-                                }
-                            }
-                        }));
-                        clauses.push(json!({
-                            "match": {
-                                format!("{}.end_code", column_name): {
-                                    "query": code
-                                }
-                            }
-                        }));
-                    }
-
-                    Ok(json!({
-                        "nested": {
-                            "path": column_name,
-                            "query": {
-                                "bool": {
-                                    "must": clauses
-                                }
-                            }
-                        }
-                    }))
-                }
-                4 => Err(QueryBuildError::UnsupportedParameterValue(value.clone())),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
-            }
-        })
-        .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": params
+fn quantity_query(field: &str, quantity: &QuantityValue) -> serde_json::Value {
+    let mut filter = Vec::new();
+    let mut ne_amount = None;
+    match &quantity.amount {
+        Some(amount) if amount.prefix == Prefix::Ne => ne_amount = Some(amount),
+        Some(amount) => filter.extend(amount_queries(field, amount)),
+        None => {}
+    }
+    if let Some(system) = quantity.system.as_deref() {
+        filter.push(match_query(field, "start_system", system));
+        filter.push(match_query(field, "end_system", system));
+    }
+    if let Some(code) = quantity.code.as_deref() {
+        filter.push(match_query(field, "start_code", code));
+        filter.push(match_query(field, "end_code", code));
+    }
+    match ne_amount {
+        // `ne` negates the whole match, so another unit also qualifies.
+        Some(amount) => {
+            filter.extend(amount_queries(field, amount));
+            all_of(Vec::new(), vec![all_of(filter, Vec::new())])
         }
-    }))
+        None => all_of(filter, Vec::new()),
+    }
+}
+
+/// Compares the indexed `[start_value, end_value]` range against
+/// `[prefix]amount`.
+fn amount_queries(field: &str, amount: &NumberValue) -> Vec<serde_json::Value> {
+    let bound =
+        |name: &str, comparison: &str, value: f64| range_query(field, name, comparison, value);
+    let (start, end) = (amount.range.start, amount.range.end);
+    // The value falls inside the indexed range.
+    let contains = || {
+        vec![
+            bound("start_value", "lte", amount.value),
+            bound("end_value", "gte", amount.value),
+        ]
+    };
+
+    match amount.prefix {
+        Prefix::Eq | Prefix::Ne => contains(),
+        // Wholly above or below the search value's precision range.
+        Prefix::Gt | Prefix::Sa => vec![bound("start_value", "gte", above(&amount.range))],
+        Prefix::Lt | Prefix::Eb => vec![bound("end_value", "lte", below(&amount.range))],
+        Prefix::Ge => vec![bound("start_value", "gte", start)],
+        Prefix::Le => vec![bound("end_value", "lte", end)],
+        // Overlaps the range, widened when it was parsed.
+        Prefix::Ap => vec![
+            bound("start_value", "lte", end),
+            bound("end_value", "gte", start),
+        ],
+    }
 }

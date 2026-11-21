@@ -1,0 +1,4241 @@
+{
+    "id": "core-immunizationevaluation",
+    "url": "https://haste.health/fhir/TestScript/core-immunizationevaluation",
+    "title": "Core ImmunizationEvaluation TestScript",
+    "name": "Core ImmunizationEvaluation TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the ImmunizationEvaluation resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "crud-create-1",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAiYWRkIiwgInBhdGgiOiAiL2xhbmd1YWdlIiwgInZhbHVlIjogImVuIn1d"
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "language": "fr",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "date": "2022-05-01",
+            "id": "immunizationevaluation-date-match-2",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-date"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-date-missing-3",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-date"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "coding": [
+                    {
+                        "system": "http://example.org/dosestatus",
+                        "code": "dosestatus-a"
+                    }
+                ]
+            },
+            "id": "immunizationevaluation-dose-status-match-4",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-dose-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "coding": [
+                    {
+                        "system": "http://example.org/dosestatus",
+                        "code": "dosestatus-b"
+                    }
+                ]
+            },
+            "id": "immunizationevaluation-dose-status-other-5",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-dose-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-a"
+                }
+            ],
+            "id": "immunizationevaluation-identifier-match-6",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/identifier",
+                    "value": "identifier-b"
+                }
+            ],
+            "id": "immunizationevaluation-identifier-other-7",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-identifier-missing-8",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-immunizationevaluation-immunizationevent-target",
+            "resourceType": "Immunization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    }
+                ]
+            },
+            "status": "completed",
+            "vaccineCode": {
+                "text": "example"
+            },
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "occurrenceDateTime": "2020-01-01T00:00:00Z"
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/core-immunizationevaluation-immunizationevent-target"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-immunization-event-match-9",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-immunization-event"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-immunizationevaluation-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/core-immunizationevaluation-patient-target"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-patient-match-10",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-status-match-11",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "entered-in-error",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "text": "example"
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-status-other-12",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "coding": [
+                    {
+                        "system": "http://example.org/targetdisease",
+                        "code": "targetdisease-a"
+                    }
+                ]
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-target-disease-match-13",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-target-disease"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "completed",
+            "patient": {
+                "reference": "Patient/example"
+            },
+            "targetDisease": {
+                "coding": [
+                    {
+                        "system": "http://example.org/targetdisease",
+                        "code": "targetdisease-b"
+                    }
+                ]
+            },
+            "immunizationEvent": {
+                "reference": "Immunization/example"
+            },
+            "doseStatus": {
+                "text": "example"
+            },
+            "id": "immunizationevaluation-target-disease-other-14",
+            "resourceType": "ImmunizationEvaluation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-immunizationevaluation-test"
+                    },
+                    {
+                        "code": "scope-target-disease"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-date-match-2",
+            "resource": {
+                "reference": "#immunizationevaluation-date-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-date-missing-3",
+            "resource": {
+                "reference": "#immunizationevaluation-date-missing-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-dose-status-match-4",
+            "resource": {
+                "reference": "#immunizationevaluation-dose-status-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-dose-status-other-5",
+            "resource": {
+                "reference": "#immunizationevaluation-dose-status-other-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-identifier-match-6",
+            "resource": {
+                "reference": "#immunizationevaluation-identifier-match-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-identifier-other-7",
+            "resource": {
+                "reference": "#immunizationevaluation-identifier-other-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-identifier-missing-8",
+            "resource": {
+                "reference": "#immunizationevaluation-identifier-missing-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-immunizationevaluation-immunizationevent-target",
+            "resource": {
+                "reference": "#core-immunizationevaluation-immunizationevent-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-immunization-event-match-9",
+            "resource": {
+                "reference": "#immunizationevaluation-immunization-event-match-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-immunizationevaluation-patient-target",
+            "resource": {
+                "reference": "#core-immunizationevaluation-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-patient-match-10",
+            "resource": {
+                "reference": "#immunizationevaluation-patient-match-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-status-match-11",
+            "resource": {
+                "reference": "#immunizationevaluation-status-match-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-status-other-12",
+            "resource": {
+                "reference": "#immunizationevaluation-status-other-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-target-disease-match-13",
+            "resource": {
+                "reference": "#immunizationevaluation-target-disease-match-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-immunizationevaluation-target-disease-other-14",
+            "resource": {
+                "reference": "#immunizationevaluation-target-disease-other-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create ImmunizationEvaluation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ImmunizationEvaluation",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read ImmunizationEvaluation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ImmunizationEvaluation.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "ImmunizationEvaluation.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ImmunizationEvaluation.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch ImmunizationEvaluation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ImmunizationEvaluation.language",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "en",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update ImmunizationEvaluation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ImmunizationEvaluation.language",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "fr",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ImmunizationEvaluation.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "ImmunizationEvaluation.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete ImmunizationEvaluation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-date",
+            "name": "Search ImmunizationEvaluation by date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-date-match-2",
+                        "responseId": "date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=ne2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ne",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=gt2022-04-30&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=gt2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=lt2022-05-02&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=lt2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=ge2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=ge2022-05-02&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-above",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=le2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=le2022-04-30&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-below",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=sa2022-04-30&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-sa-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=sa2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-sa-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=eb2022-05-02&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eb-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=eb2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eb-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date=ap2022-05-01&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ap-smoke",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-date-missing-3",
+                        "responseId": "date-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date:missing=true&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "date:missing=false&_tag=core-immunizationevaluation-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-date"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "date"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-dose-status",
+            "name": "Search ImmunizationEvaluation by dose-status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-dose-status-match-4",
+                        "responseId": "dose-status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-dose-status-other-5",
+                        "responseId": "dose-status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status=dosestatus-a&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status=http://example.org/dosestatus|dosestatus-a&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status=|dosestatus-a&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status=http://example.org/dosestatus|&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status=|&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "dose-status:not=dosestatus-a&_tag=core-immunizationevaluation-test&_tag=scope-dose-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "dose-status-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-dose-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "dose-status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-identifier",
+            "name": "Search ImmunizationEvaluation by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-identifier-match-6",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-identifier-other-7",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier=identifier-a&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier=http://example.org/identifier|identifier-a&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier=|identifier-a&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier=http://example.org/identifier|&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier=|&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier:not=identifier-a&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-identifier-missing-8",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier:missing=true&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "identifier:missing=false&_tag=core-immunizationevaluation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-immunization-event",
+            "name": "Search ImmunizationEvaluation by immunization-event (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Immunization",
+                        "sourceId": "fixture-core-immunizationevaluation-immunizationevent-target",
+                        "responseId": "immunization-event-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Immunization",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "immunization-event-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-immunization-event-match-9",
+                        "responseId": "immunization-event-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "immunization-event=core-immunizationevaluation-immunizationevent-target&_tag=core-immunizationevaluation-test&_tag=scope-immunization-event"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "immunization-event-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "immunization-event=Immunization/core-immunizationevaluation-immunizationevent-target&_tag=core-immunizationevaluation-test&_tag=scope-immunization-event"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "immunization-event-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-immunization-event"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "immunization-event"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-patient",
+            "name": "Search ImmunizationEvaluation by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-immunizationevaluation-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-patient-match-10",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "patient=core-immunizationevaluation-patient-target&_tag=core-immunizationevaluation-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "patient=Patient/core-immunizationevaluation-patient-target&_tag=core-immunizationevaluation-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-status",
+            "name": "Search ImmunizationEvaluation by status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-status-match-11",
+                        "responseId": "status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-status-other-12",
+                        "responseId": "status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "status=completed&_tag=core-immunizationevaluation-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "status:not=completed&_tag=core-immunizationevaluation-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-target-disease",
+            "name": "Search ImmunizationEvaluation by target-disease (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-target-disease-match-13",
+                        "responseId": "target-disease-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "sourceId": "fixture-immunizationevaluation-target-disease-other-14",
+                        "responseId": "target-disease-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease=targetdisease-a&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease=http://example.org/targetdisease|targetdisease-a&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease=|targetdisease-a&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease=http://example.org/targetdisease|&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease=|&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ImmunizationEvaluation",
+                        "params": "target-disease:not=targetdisease-a&_tag=core-immunizationevaluation-test&_tag=scope-target-disease"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "target-disease-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/ImmunizationEvaluation-target-disease"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "target-disease"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "ImmunizationEvaluation",
+                    "params": "_tag=core-immunizationevaluation-test",
+                    "description": "Delete ImmunizationEvaluation resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

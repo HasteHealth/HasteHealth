@@ -45,7 +45,10 @@ function RenderCell({
 }: Readonly<{ column: Columns; row: unknown }>) {
   const [value, setValue] = useState<unknown[]>([]);
   useEffect(() => {
-    extract(row, column.selector, column.selectorType).then(setValue);
+    extract(row, column.selector, column.selectorType).then(setValue, (e) => {
+      console.error(`Failed to extract column '${column.id}'`, e);
+      setValue([]);
+    });
   }, [column, row]);
 
   const render = useMemo(() => {
@@ -70,7 +73,7 @@ export function Table({
   return (
     <div className="overflow-x-auto overflow-y-auto">
       <table className="text-left text-xs text-slate-600 w-full">
-        <thead className=" sticky top-0 z-5 border-b font-medium">
+        <thead className="sticky top-0 z-10 bg-white border-b font-medium">
           <tr>
             {columns.map((column, i) => (
               <th
@@ -88,9 +91,22 @@ export function Table({
             data.map((row, index) => (
               <tr
                 key={index}
-                className="border cursor-pointer hover:bg-slate-100"
+                // Keyboard reachable, so results can be worked without a
+                // mouse. The row keeps its `row` role: overriding it with
+                // `button` would hide the cells from a screen reader.
+                tabIndex={0}
+                data-table-row
+                className="border cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:bg-brand-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
                 onClick={(e) => {
                   onRowClick(row, e);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" && e.key !== " ") return;
+                  e.preventDefault();
+                  onRowClick(
+                    row,
+                    e as unknown as React.MouseEvent<HTMLTableRowElement>,
+                  );
                 }}
               >
                 {columns.map((column) => (

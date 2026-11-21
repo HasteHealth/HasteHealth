@@ -1,0 +1,43 @@
+{
+    "id": "g10-12.51.01-data-absent-reason-extension",
+    "url": "https://haste.health/fhir/TestScript/g10-12.51.01-data-absent-reason-extension",
+    "name": "g10-12.51.01-data-absent-reason-extension",
+    "title": "12.51.01 Missing data is represented with the data-absent-reason extension",
+    "status": "active",
+    "description": "g10 12.51.01 (DAT-PAT-6; US Core 6.1.0: 10.46.01). A returned resource carries the data-absent-reason extension (here on Patient/g10-deceased-example's gender).",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-extension",
+            "name": "GET Patient?_id=g10-deceased-example",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=g10-deceased-example",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The data-absent-reason extension is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).descendants().where($this is Extension and url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

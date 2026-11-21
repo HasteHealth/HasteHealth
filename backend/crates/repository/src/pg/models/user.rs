@@ -6,18 +6,24 @@ use crate::{
         UserSearchClauses,
     },
 };
-use argon2::{
-    Argon2, PasswordHasher, PasswordVerifier,
-    password_hash::{PasswordHash, SaltString, rand_core::OsRng},
-};
+use argon2::{Argon2, PasswordHasher, PasswordVerifier};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use sqlx::{PgExecutor, QueryBuilder};
+use std::sync::LazyLock;
+
+/// A hash to verify against when there is no user, or the user has no
+/// password. Verifying costs the same as a real check, so a login attempt
+/// takes as long whether or not the address has an account: without this an
+/// unknown address answered in a few milliseconds and a known one only after
+/// the Argon2 work, which told a caller which addresses exist.
+static NO_PASSWORD_HASH: LazyLock<String> = LazyLock::new(|| {
+    hash_password("no such user").expect("hashing a constant password cannot fail")
+});
 
 fn hash_password(password: &str) -> Result<String, StoreError> {
-    let salt = SaltString::generate(&mut OsRng);
     let hash = Argon2::default()
-        .hash_password(password.as_bytes(), &salt)
+        .hash_password(password.as_bytes())
         .map_err(StoreError::PasswordHashError)?
         .to_string();
 
@@ -44,10 +50,11 @@ where
                     AuthMethod,
                     Option<String>,
                     Option<String>,
+                    bool,
                 ),
             >(
                 r"
-                    SELECT id, tenant, email, role, method, provider_id, password
+                    SELECT id, tenant, email, role, method, provider_id, password, email_verified
                     FROM users
                     WHERE tenant = $1 AND method = $2 AND email = $3
                 ",
@@ -59,35 +66,48 @@ where
             .await
             .map_err(StoreError::from)?;
 
-            let Some((id, tenant_id, email_val, role, method_val, provider_id, password_hash)) =
-                row
-            else {
+            // The stored hash when the user exists and has a password, or a
+            // stand-in that is verified (and always fails) otherwise, so both
+            // outcomes take the same time.
+            let (user, password_hash) = match row {
+                Some((
+                    id,
+                    tenant_id,
+                    email_val,
+                    role,
+                    method_val,
+                    provider_id,
+                    hash,
+                    email_verified,
+                )) => {
+                    let user = User {
+                        id,
+                        tenant: tenant_id,
+                        email: email_val,
+                        role,
+                        method: method_val,
+                        provider_id,
+                        email_verified,
+                    };
+                    match hash {
+                        Some(hash) => (Some(user), hash),
+                        None => (None, NO_PASSWORD_HASH.clone()),
+                    }
+                }
+                None => (None, NO_PASSWORD_HASH.clone()),
+            };
+
+            let password_matches = Argon2::default()
+                .verify_password(password.as_bytes(), password_hash.as_str())
+                .is_ok();
+
+            // An unverified address is refused only after the hash check, so
+            // that refusal takes the same time too.
+            let Some(user) = user.filter(|user| password_matches && user.email_verified) else {
                 return Ok(LoginResult::Failure);
             };
 
-            let verified = password_hash
-                .as_deref()
-                .and_then(|hash| PasswordHash::new(hash).ok())
-                .is_some_and(|parsed_hash| {
-                    Argon2::default()
-                        .verify_password(password.as_bytes(), &parsed_hash)
-                        .is_ok()
-                });
-
-            if !verified {
-                return Ok(LoginResult::Failure);
-            }
-
-            Ok(LoginResult::Success {
-                user: User {
-                    id,
-                    tenant: tenant_id,
-                    email: email_val,
-                    role,
-                    method: method_val,
-                    provider_id,
-                },
-            })
+            Ok(LoginResult::Success { user })
         }
         LoginMethod::OIDC {
             email: _,
@@ -127,7 +147,7 @@ where
 {
     let mut query_builder = QueryBuilder::new(
         r"
-            INSERT INTO users(tenant, id, email, role, method, provider_id, password)
+            INSERT INTO users(tenant, id, email, role, method, email_verified, provider_id, password)
         ",
     );
 
@@ -140,7 +160,8 @@ where
         .push_bind(new_user.id)
         .push_bind(new_user.email)
         .push_bind(new_user.role)
-        .push_bind(new_user.method);
+        .push_bind(new_user.method)
+        .push_bind(new_user.email_verified);
 
     if let Some(provider_id) = new_user.provider_id {
         seperator.push_bind(provider_id);
@@ -155,7 +176,7 @@ where
         seperator.push_bind(None::<String>);
     }
 
-    query_builder.push(r") RETURNING id, tenant, provider_id, email, role, method");
+    query_builder.push(r") RETURNING id, tenant, provider_id, email, role, method, email_verified");
 
     let query = query_builder.build_query_as::<User>();
 
@@ -177,7 +198,7 @@ where
 {
     let user = sqlx::query_as::<_, User>(
         r"
-            SELECT id, tenant, provider_id, email, role, method
+            SELECT id, tenant, provider_id, email, role, method, email_verified
             FROM users
             WHERE tenant = $1 AND id = $2
         ",
@@ -236,6 +257,12 @@ where
             .push_bind_unseparated(hashed_password);
     }
 
+    if let Some(email_verified) = model.email_verified {
+        update_clauses
+            .push(" email_verified = ")
+            .push_bind_unseparated(email_verified);
+    }
+
     update_clauses
         .push(" tenant = ")
         .push_bind_unseparated(tenant.as_ref());
@@ -243,7 +270,7 @@ where
     query_builder.push(" WHERE id = ");
     query_builder.push_bind(model.id);
 
-    query_builder.push(r" RETURNING id, tenant, provider_id, email, role, method");
+    query_builder.push(r" RETURNING id, tenant, provider_id, email, role, method, email_verified");
 
     let query = query_builder.build_query_as::<User>();
 
@@ -286,8 +313,9 @@ async fn search_user<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT id, tenant, email, role, method, provider_id FROM users WHERE ");
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        r"SELECT id, tenant, email, role, method, provider_id, email_verified FROM users WHERE ",
+    );
 
     let mut seperator = query_builder.separated(" AND ");
     seperator
@@ -388,5 +416,35 @@ impl<Key: AsRef<str> + Send + Sync>
                 search_user(&mut **tx, tenant, clauses).await
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verifies_hashes_written_by_argon2_0_5() {
+        // Hashed with argon2 0.5.3, `Argon2::default()` and `SaltString::generate`.
+        let stored = "$argon2id$v=19$m=19456,t=2,p=1$p0+D8d7asrAaYBihZmCeqA$oX83sKk+YRUjQPHdVuNh6aswTtUw3BH3y/dD/2DFCZs";
+
+        assert!(
+            Argon2::default()
+                .verify_password(b"correct horse battery staple", stored)
+                .is_ok()
+        );
+        assert!(Argon2::default().verify_password(b"wrong", stored).is_err());
+    }
+
+    #[test]
+    fn new_hashes_keep_the_same_parameters() {
+        let hash = hash_password("correct horse battery staple").unwrap();
+
+        assert!(hash.starts_with("$argon2id$v=19$m=19456,t=2,p=1$"));
+        assert!(
+            Argon2::default()
+                .verify_password(b"correct horse battery staple", hash.as_str())
+                .is_ok()
+        );
     }
 }

@@ -1,0 +1,59 @@
+{
+    "id": "g10-12.43.03-search-name",
+    "url": "https://haste.health/fhir/TestScript/g10-12.43.03-search-name",
+    "name": "g10-12.43.03-search-name",
+    "title": "12.43.03 Server returns valid results for Location search by name",
+    "status": "active",
+    "description": "g10 12.43.03 (SH-PAT-2; US Core 6.1.0: group None). Server returns valid results for Location search by name. US Core SHALL search. Every result must match every parameter, and the record's Location/g10-hl7east must be among them.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-get-location-name-health-level-seven-international-amherst",
+            "name": "GET Location?name=Health Level Seven International - Amherst",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Location",
+                        "params": "name=Health Level Seven International - Amherst",
+                        "responseId": "main",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Location/g10-hl7east is returned",
+                        "expression": "Bundle.entry.resource.ofType(Location).where(id = 'g10-hl7east').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Location returned matches the search",
+                        "expression": "Bundle.entry.resource.ofType(Location).all((name.where($this.lower().startsWith('health level seven international - amherst')).exists()))",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

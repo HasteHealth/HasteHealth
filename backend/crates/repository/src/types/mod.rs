@@ -1,6 +1,5 @@
 use haste_fhir_client::request::FHIRRequest;
-use serde::Serialize;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 pub mod authorization_code;
 pub mod membership;
@@ -11,20 +10,8 @@ pub mod subscription;
 pub mod tenant;
 pub mod user;
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, Serialize)]
-#[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
-#[serde(rename_all = "lowercase")]
-pub enum SupportedFHIRVersions {
-    R4,
-}
-
-impl Display for SupportedFHIRVersions {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SupportedFHIRVersions::R4 => write!(f, "r4"),
-        }
-    }
-}
+// Defined in haste-jwt so that it can also be carried as an access token claim.
+pub use haste_jwt::SupportedFHIRVersions;
 
 #[derive(sqlx::Type, Debug, Clone)]
 #[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
@@ -43,6 +30,22 @@ impl FHIRMethod {
             FHIRMethod::Read => "read",
             FHIRMethod::Update => "update",
             FHIRMethod::Delete => "delete",
+        }
+    }
+}
+
+#[derive(sqlx::Type, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[sqlx(type_name = "search_index_backend", rename_all = "lowercase")]
+pub enum SearchIndexBackend {
+    Elasticsearch,
+    Postgres,
+}
+
+impl std::fmt::Display for SearchIndexBackend {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SearchIndexBackend::Elasticsearch => write!(f, "elasticsearch"),
+            SearchIndexBackend::Postgres => write!(f, "postgres"),
         }
     }
 }

@@ -89,7 +89,7 @@ export function testscriptCommands(command: Command) {
             const report = await executeTestScript(
               options.fhirVersion,
               testScript,
-              parseInt(options.timeout ?? "0")
+              Number.parseInt(options.timeout ?? "0")
             );
             output.entry?.push({ resource: report as any });
             if (report.result === "fail") {
@@ -102,7 +102,7 @@ export function testscriptCommands(command: Command) {
           const report = await executeTestScript(
             options.fhirVersion,
             testScript,
-            parseInt(options.timeout ?? "0")
+            Number.parseInt(options.timeout ?? "0")
           );
           output.entry?.push({ resource: report as any });
           if (report.result === "fail") {

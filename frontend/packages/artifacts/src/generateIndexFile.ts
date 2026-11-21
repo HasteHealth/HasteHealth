@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import path from "path";
+import path from "node:path";
 
 import { Bundle } from "@haste-health/fhir-types/r4/types";
 

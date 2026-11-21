@@ -1,0 +1,29 @@
+/* The travelling dot starts hidden; its SMIL animation fades it in. */
+.dot {
+  opacity: 0;
+}
+
+/* The stacked layout's connector: a dot sliding down a short line. */
+.beam {
+  animation: beam 1.8s linear infinite;
+}
+
+@keyframes beam {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(400%);
+  }
+}
+
+/* SMIL ignores the motion preference, so the dots are removed outright. */
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    display: none;
+  }
+
+  .beam {
+    animation: none;
+  }
+}

@@ -1,0 +1,960 @@
+{
+    "id": "core-accesspolicyv2assignment",
+    "url": "https://haste.health/fhir/TestScript/core-accesspolicyv2assignment",
+    "title": "Core AccessPolicyV2Assignment TestScript",
+    "name": "Core AccessPolicyV2Assignment TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the AccessPolicyV2Assignment resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/example"
+            },
+            "link": {
+                "reference": "ClientApplication/example"
+            },
+            "id": "crud-create-1",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9hY2Nlc3NQb2xpY3kvcmVmZXJlbmNlIiwgInZhbHVlIjogIkFjY2Vzc1BvbGljeVYyL3BhdGNoZWQifV0="
+        },
+        {
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/updated"
+            },
+            "link": {
+                "reference": "ClientApplication/example"
+            },
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "id": "core-accesspolicyv2assignment-accesspolicy-target",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    }
+                ]
+            },
+            "name": "example",
+            "engine": "full-access"
+        },
+        {
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/core-accesspolicyv2assignment-accesspolicy-target"
+            },
+            "link": {
+                "reference": "ClientApplication/example"
+            },
+            "id": "accesspolicyv2assignment-access-policy-match-2",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    },
+                    {
+                        "code": "scope-access-policy"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-accesspolicyv2assignment-link-target",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    }
+                ]
+            },
+            "name": "example",
+            "grantType": [
+                "client_credentials"
+            ],
+            "responseTypes": "code"
+        },
+        {
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/example"
+            },
+            "link": {
+                "reference": "ClientApplication/core-accesspolicyv2assignment-link-target"
+            },
+            "id": "accesspolicyv2assignment-link-match-3",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-accesspolicyv2assignment-test"
+                    },
+                    {
+                        "code": "scope-link"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-accesspolicyv2assignment-accesspolicy-target",
+            "resource": {
+                "reference": "#core-accesspolicyv2assignment-accesspolicy-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-accesspolicyv2assignment-access-policy-match-2",
+            "resource": {
+                "reference": "#accesspolicyv2assignment-access-policy-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-accesspolicyv2assignment-link-target",
+            "resource": {
+                "reference": "#core-accesspolicyv2assignment-link-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-accesspolicyv2assignment-link-match-3",
+            "resource": {
+                "reference": "#accesspolicyv2assignment-link-match-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create AccessPolicyV2Assignment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "AccessPolicyV2Assignment",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read AccessPolicyV2Assignment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV2Assignment.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AccessPolicyV2Assignment.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV2Assignment.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch AccessPolicyV2Assignment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV2Assignment.accessPolicy.reference",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "AccessPolicyV2/patched",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update AccessPolicyV2Assignment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV2Assignment.accessPolicy.reference",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "AccessPolicyV2/updated",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "AccessPolicyV2Assignment.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "AccessPolicyV2Assignment.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete AccessPolicyV2Assignment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-access-policy",
+            "name": "Search AccessPolicyV2Assignment by access-policy (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2",
+                        "sourceId": "fixture-core-accesspolicyv2assignment-accesspolicy-target",
+                        "responseId": "access-policy-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "AccessPolicyV2",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "access-policy-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "sourceId": "fixture-accesspolicyv2assignment-access-policy-match-2",
+                        "responseId": "access-policy-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "access-policy=core-accesspolicyv2assignment-accesspolicy-target&_tag=core-accesspolicyv2assignment-test&_tag=scope-access-policy"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "access-policy-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "access-policy=AccessPolicyV2/core-accesspolicyv2assignment-accesspolicy-target&_tag=core-accesspolicyv2assignment-test&_tag=scope-access-policy"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "access-policy-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "access-policy"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-link",
+            "name": "Search AccessPolicyV2Assignment by link (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "ClientApplication",
+                        "sourceId": "fixture-core-accesspolicyv2assignment-link-target",
+                        "responseId": "link-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ClientApplication",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "link-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "sourceId": "fixture-accesspolicyv2assignment-link-match-3",
+                        "responseId": "link-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=core-accesspolicyv2assignment-link-target&_tag=core-accesspolicyv2assignment-test&_tag=scope-link"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "link-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=ClientApplication/core-accesspolicyv2assignment-link-target&_tag=core-accesspolicyv2assignment-test&_tag=scope-link"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "link-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "link"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "AccessPolicyV2Assignment",
+                    "params": "_tag=core-accesspolicyv2assignment-test",
+                    "description": "Delete AccessPolicyV2Assignment resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "AccessPolicyV2",
+                    "params": "_tag=core-accesspolicyv2assignment-test",
+                    "description": "Delete AccessPolicyV2 resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "ClientApplication",
+                    "params": "_tag=core-accesspolicyv2assignment-test",
+                    "description": "Delete ClientApplication resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

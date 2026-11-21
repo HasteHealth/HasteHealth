@@ -1,0 +1,1049 @@
+{
+    "id": "eq-prefix-number",
+    "url": "https://haste.health/fhir/TestScript/number-eq-prefix",
+    "title": "Number eq prefix",
+    "name": "Number eq prefix tests",
+    "status": "active",
+    "description": "eq and no prefix on number parameters use the implicit precision range of the value.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 94
+                }
+            ],
+            "id": "riskassessment-0"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 96
+                }
+            ],
+            "id": "riskassessment-1"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 99.6
+                }
+            ],
+            "id": "riskassessment-2"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 99.99
+                }
+            ],
+            "id": "riskassessment-3"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 100
+                }
+            ],
+            "id": "riskassessment-4"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 100.4
+                }
+            ],
+            "id": "riskassessment-5"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 100.6
+                }
+            ],
+            "id": "riskassessment-6"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 104
+                }
+            ],
+            "id": "riskassessment-7"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 106
+                }
+            ],
+            "id": "riskassessment-8"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 94
+                }
+            ],
+            "id": "molecularsequence-0"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 96
+                }
+            ],
+            "id": "molecularsequence-1"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 99
+                }
+            ],
+            "id": "molecularsequence-2"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 100
+                }
+            ],
+            "id": "molecularsequence-3"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 101
+                }
+            ],
+            "id": "molecularsequence-4"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 104
+                }
+            ],
+            "id": "molecularsequence-5"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 106
+                }
+            ],
+            "id": "molecularsequence-6"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 49
+                }
+            ],
+            "id": "riskassessment-x0"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 49
+                }
+            ],
+            "id": "molecularsequence-x0"
+        },
+        {
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "eq"
+                    },
+                    "probabilityDecimal": 151
+                }
+            ],
+            "id": "riskassessment-x1"
+        },
+        {
+            "resourceType": "MolecularSequence",
+            "coordinateSystem": 0,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "number-eq-test"
+                    }
+                ]
+            },
+            "variant": [
+                {
+                    "start": 151
+                }
+            ],
+            "id": "molecularsequence-x1"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-riskassessment-0",
+            "resource": {
+                "reference": "#riskassessment-0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-1",
+            "resource": {
+                "reference": "#riskassessment-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-2",
+            "resource": {
+                "reference": "#riskassessment-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-3",
+            "resource": {
+                "reference": "#riskassessment-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-4",
+            "resource": {
+                "reference": "#riskassessment-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-5",
+            "resource": {
+                "reference": "#riskassessment-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-6",
+            "resource": {
+                "reference": "#riskassessment-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-7",
+            "resource": {
+                "reference": "#riskassessment-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-8",
+            "resource": {
+                "reference": "#riskassessment-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-0",
+            "resource": {
+                "reference": "#molecularsequence-0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-1",
+            "resource": {
+                "reference": "#molecularsequence-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-2",
+            "resource": {
+                "reference": "#molecularsequence-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-3",
+            "resource": {
+                "reference": "#molecularsequence-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-4",
+            "resource": {
+                "reference": "#molecularsequence-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-5",
+            "resource": {
+                "reference": "#molecularsequence-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-6",
+            "resource": {
+                "reference": "#molecularsequence-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-x0",
+            "resource": {
+                "reference": "#riskassessment-x0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-x0",
+            "resource": {
+                "reference": "#molecularsequence-x0"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-riskassessment-x1",
+            "resource": {
+                "reference": "#riskassessment-x1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-molecularsequence-x1",
+            "resource": {
+                "reference": "#molecularsequence-x1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-eq-prefix-checks",
+            "name": "eq prefix checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-3",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-4",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-5",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-6",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-7",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-8",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-2",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-3",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-4",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-5",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-6",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-x0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-x0",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-x1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "MolecularSequence",
+                        "sourceId": "fixture-molecularsequence-x1",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=100&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "4",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=100.00&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=1e2&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "9",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=100&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=100.00&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=1e2&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "7",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=eq100&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "4",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=eq100.00&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=eq1e2&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "9",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=eq100&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=eq100.00&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "MolecularSequence",
+                        "params": "variant-start=eq1e2&_tag=number-eq-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "7",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=number-eq-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

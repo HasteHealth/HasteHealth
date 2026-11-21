@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "AccessPolicyV3-name",
+    "url": "https://haste.health/fhir/SearchParameter/AccessPolicyV3-name",
+    "version": "4.0.1",
+    "name": "name",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "An access policies name.",
+    "code": "name",
+    "base": [
+        "AccessPolicyV3"
+    ],
+    "type": "string",
+    "expression": "AccessPolicyV3.name"
+}

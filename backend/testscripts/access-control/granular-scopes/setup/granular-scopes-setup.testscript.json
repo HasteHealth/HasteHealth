@@ -1,0 +1,731 @@
+{
+    "id": "access-control-granular-scopes-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-granular-scopes-setup",
+    "name": "Access Control Granular Scopes Setup",
+    "title": "Granular scopes: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes one patient with Observations, Conditions and Encounters in and out of the granted categories, and the login: a member User with no patient link, a full-access policy, and a public client allowed granular scopes beside plain ones.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acg-patient",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Granular",
+                    "given": [
+                        "Gale"
+                    ]
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-observation-lab",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "2093-3",
+                        "display": "Cholesterol [Mass/volume] in Serum or Plasma"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 180,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg/dL"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-observation-vital",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4",
+                        "display": "Heart rate"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 72,
+                "unit": "beats/minute",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-observation-survey",
+            "resourceType": "Observation",
+            "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "survey"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "44249-1",
+                        "display": "PHQ-9 quick depression assessment panel"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "effectiveDateTime": "2024-03-01",
+            "valueQuantity": {
+                "value": 4,
+                "unit": "{score}",
+                "system": "http://unitsofmeasure.org",
+                "code": "{score}"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-condition-problem",
+            "resourceType": "Condition",
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "problem-list-item"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "38341003",
+                        "display": "Hypertensive disorder"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-condition-encounter",
+            "resourceType": "Condition",
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                            "code": "encounter-diagnosis"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "195662009",
+                        "display": "Acute viral pharyngitis"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-encounter-amb",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-encounter-imp",
+            "resourceType": "Encounter",
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP"
+            },
+            "subject": {
+                "reference": "Patient/acg-patient"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-user",
+            "resourceType": "User",
+            "role": "member",
+            "email": "acg-user@example.org",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-membership",
+            "resourceType": "Membership",
+            "user": {
+                "reference": "User/acg-user"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-policy",
+            "resourceType": "AccessPolicyV2",
+            "name": "Access control: granular scopes",
+            "description": "Full access, so only the scopes limit this login.",
+            "engine": "full-access",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/acg-policy"
+            },
+            "link": {
+                "reference": "Membership/acg-membership"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acg-app",
+            "resourceType": "ClientApplication",
+            "name": "Access control: granular scopes app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "openid offline_access user/Patient.rs user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item user/Condition.rs user/Encounter.cruds?class=http://terminology.hl7.org/CodeSystem/v3-ActCode|AMB",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-granular-scopes"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acg-patient",
+            "resource": {
+                "reference": "#acg-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-observation-lab",
+            "resource": {
+                "reference": "#acg-observation-lab"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-observation-vital",
+            "resource": {
+                "reference": "#acg-observation-vital"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-observation-survey",
+            "resource": {
+                "reference": "#acg-observation-survey"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-condition-problem",
+            "resource": {
+                "reference": "#acg-condition-problem"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-condition-encounter",
+            "resource": {
+                "reference": "#acg-condition-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-encounter-amb",
+            "resource": {
+                "reference": "#acg-encounter-amb"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-encounter-imp",
+            "resource": {
+                "reference": "#acg-encounter-imp"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-user",
+            "resource": {
+                "reference": "#acg-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-membership",
+            "resource": {
+                "reference": "#acg-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-policy",
+            "resource": {
+                "reference": "#acg-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-policy-assignment",
+            "resource": {
+                "reference": "#acg-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acg-app",
+            "resource": {
+                "reference": "#acg-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "One patient with data in and out of the granted categories",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-acg-patient",
+                        "targetId": "fixture-acg-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acg-patient is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-acg-observation-lab",
+                        "targetId": "fixture-acg-observation-lab",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acg-observation-lab is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-acg-observation-vital",
+                        "targetId": "fixture-acg-observation-vital",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acg-observation-vital is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-acg-observation-survey",
+                        "targetId": "fixture-acg-observation-survey",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acg-observation-survey is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Condition",
+                        "sourceId": "fixture-acg-condition-problem",
+                        "targetId": "fixture-acg-condition-problem",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/acg-condition-problem is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Condition",
+                        "sourceId": "fixture-acg-condition-encounter",
+                        "targetId": "fixture-acg-condition-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Condition/acg-condition-encounter is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "sourceId": "fixture-acg-encounter-amb",
+                        "targetId": "fixture-acg-encounter-amb",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/acg-encounter-amb is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "sourceId": "fixture-acg-encounter-imp",
+                        "targetId": "fixture-acg-encounter-imp",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/acg-encounter-imp is written",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "The granular-scopes login, its access policy and client",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "sourceId": "fixture-acg-user",
+                        "targetId": "fixture-acg-user",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/acg-user is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "sourceId": "fixture-acg-membership",
+                        "targetId": "fixture-acg-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/acg-membership is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "sourceId": "fixture-acg-policy",
+                        "targetId": "fixture-acg-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/acg-policy is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "sourceId": "fixture-acg-policy-assignment",
+                        "targetId": "fixture-acg-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/acg-policy-assignment is written",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "sourceId": "fixture-acg-app",
+                        "targetId": "fixture-acg-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/acg-app is written",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-policy-found",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=Membership/acg-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its principal",
+                        "expression": "Bundle.entry.resource.where(id = 'acg-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

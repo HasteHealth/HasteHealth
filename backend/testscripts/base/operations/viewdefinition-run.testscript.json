@@ -1,0 +1,321 @@
+{
+    "id": "viewdefinition-run-test",
+    "url": "https://haste.health/fhir/viewdefinition-run-test",
+    "name": "ViewDefinition run Test",
+    "title": "ViewDefinition run Test",
+    "status": "active",
+    "description": "Tests $viewdefinition-run over server data: current versions only, deleted resources left out, no _since needed.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "viewdefinition-run-a",
+            "resourceType": "Patient",
+            "gender": "male"
+        },
+        {
+            "id": "patient-a-updated",
+            "resourceType": "Patient",
+            "gender": "female"
+        },
+        {
+            "id": "viewdefinition-run-b",
+            "resourceType": "Patient",
+            "gender": "male"
+        },
+        {
+            "id": "viewdefinition-run-c",
+            "resourceType": "Patient",
+            "gender": "other"
+        },
+        {
+            "id": "params-all",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('viewdefinition-run-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    },
+                                    {
+                                        "name": "gender",
+                                        "path": "gender"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-limit",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('viewdefinition-run-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    },
+                                    {
+                                        "name": "gender",
+                                        "path": "gender"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                },
+                {
+                    "name": "_limit",
+                    "valueInteger": 1
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-a",
+            "resource": {
+                "reference": "#viewdefinition-run-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-a-updated",
+            "resource": {
+                "reference": "#patient-a-updated"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-b",
+            "resource": {
+                "reference": "#viewdefinition-run-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-c",
+            "resource": {
+                "reference": "#viewdefinition-run-c"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-all",
+            "resource": {
+                "reference": "#params-all"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-limit",
+            "resource": {
+                "reference": "#params-limit"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient A, first version.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-a",
+                    "sourceId": "fixture-patient-a",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient B.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-b",
+                    "sourceId": "fixture-patient-b",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient A, second version: the view must show only this one.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-a",
+                    "sourceId": "fixture-patient-a-updated",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient C, deleted below.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-c",
+                    "sourceId": "fixture-patient-c",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Delete Patient C: the view must leave it out.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-c",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "run-over-server-data",
+            "name": "Run a view over server data without _since",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the view over every stored Patient.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-all",
+                        "responseId": "run-all",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The result is a JSON Binary.",
+                        "expression": "Binary.contentType = 'application/json'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One row per current Patient: A at its latest version, B, and not the deleted C.",
+                        "expression": "Binary.data = 'W3siaWQiOiJ2aWV3ZGVmaW5pdGlvbi1ydW4tYSIsImdlbmRlciI6ImZlbWFsZSJ9LHsiaWQiOiJ2aWV3ZGVmaW5pdGlvbi1ydW4tYiIsImdlbmRlciI6Im1hbGUifV0='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "run-with-limit",
+            "name": "Run a view over server data with _limit",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the view with _limit=1.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-limit",
+                        "responseId": "run-limit",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the first row.",
+                        "expression": "Binary.data = 'W3siaWQiOiJ2aWV3ZGVmaW5pdGlvbi1ydW4tYSIsImdlbmRlciI6ImZlbWFsZSJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove Patient A.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-a",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove Patient B.",
+                    "resource": "Patient",
+                    "targetId": "fixture-patient-b",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

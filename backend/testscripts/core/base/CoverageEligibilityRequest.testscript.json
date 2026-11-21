@@ -1,0 +1,4129 @@
+{
+    "id": "core-coverageeligibilityrequest",
+    "url": "https://haste.health/fhir/TestScript/core-coverageeligibilityrequest",
+    "title": "Core CoverageEligibilityRequest TestScript",
+    "name": "Core CoverageEligibilityRequest TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the CoverageEligibilityRequest resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "crud-create-1",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9zdGF0dXMiLCAidmFsdWUiOiAiY2FuY2VsbGVkIn1d"
+        },
+        {
+            "status": "draft",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-created-match-2",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-created"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-coverageeligibilityrequest-enterer-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "enterer": {
+                "reference": "Practitioner/core-coverageeligibilityrequest-enterer-target"
+            },
+            "id": "coverageeligibilityrequest-enterer-match-3",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-enterer"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-enterer-missing-4",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-enterer"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-coverageeligibilityrequest-facility-target",
+            "resourceType": "Location",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "name": "Target"
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "facility": {
+                "reference": "Location/core-coverageeligibilityrequest-facility-target"
+            },
+            "id": "coverageeligibilityrequest-facility-match-5",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-facility"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-facility-missing-6",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-facility"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/eligibility-request",
+                    "value": "eligreq-12345"
+                }
+            ],
+            "id": "coverageeligibilityrequest-identifier-match-7",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/eligibility-request",
+                    "value": "eligreq-99999"
+                }
+            ],
+            "id": "coverageeligibilityrequest-identifier-other-8",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-identifier-missing-9",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-coverageeligibilityrequest-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/core-coverageeligibilityrequest-patient-target"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-patient-match-10",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-coverageeligibilityrequest-provider-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "provider": {
+                "reference": "Practitioner/core-coverageeligibilityrequest-provider-target"
+            },
+            "id": "coverageeligibilityrequest-provider-match-11",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-provider"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-provider-missing-12",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-provider"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "active",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-status-match-13",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "cancelled",
+            "purpose": [
+                "benefits"
+            ],
+            "patient": {
+                "reference": "Patient/base-patient"
+            },
+            "created": "2023-04-01T10:00:00Z",
+            "insurer": {
+                "reference": "Organization/base-insurer"
+            },
+            "id": "coverageeligibilityrequest-status-other-14",
+            "resourceType": "CoverageEligibilityRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-coverageeligibilityrequest-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-created-match-2",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-created-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-coverageeligibilityrequest-enterer-target",
+            "resource": {
+                "reference": "#core-coverageeligibilityrequest-enterer-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-enterer-match-3",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-enterer-match-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-enterer-missing-4",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-enterer-missing-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-coverageeligibilityrequest-facility-target",
+            "resource": {
+                "reference": "#core-coverageeligibilityrequest-facility-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-facility-match-5",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-facility-match-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-facility-missing-6",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-facility-missing-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-identifier-match-7",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-identifier-match-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-identifier-other-8",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-identifier-other-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-identifier-missing-9",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-identifier-missing-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-coverageeligibilityrequest-patient-target",
+            "resource": {
+                "reference": "#core-coverageeligibilityrequest-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-patient-match-10",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-patient-match-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-coverageeligibilityrequest-provider-target",
+            "resource": {
+                "reference": "#core-coverageeligibilityrequest-provider-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-provider-match-11",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-provider-match-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-provider-missing-12",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-provider-missing-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-status-match-13",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-status-match-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-coverageeligibilityrequest-status-other-14",
+            "resource": {
+                "reference": "#coverageeligibilityrequest-status-other-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create CoverageEligibilityRequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "CoverageEligibilityRequest",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read CoverageEligibilityRequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CoverageEligibilityRequest.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "CoverageEligibilityRequest.id",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CoverageEligibilityRequest.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "read"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch CoverageEligibilityRequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CoverageEligibilityRequest.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "cancelled",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "patch"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update CoverageEligibilityRequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CoverageEligibilityRequest.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "draft",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "CoverageEligibilityRequest.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "CoverageEligibilityRequest.meta.versionId",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "update"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete CoverageEligibilityRequest",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ],
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "delete"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-created",
+            "name": "Search CoverageEligibilityRequest by created (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-created-match-2",
+                        "responseId": "created-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eq"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=ne2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-ne",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ne"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=gt2023-03-31T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-gt-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=gt2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-gt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "gt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=lt2023-04-02T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-lt-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=lt2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-lt-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "lt"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=ge2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-ge-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=ge2023-04-02T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-ge-above",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ge"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=le2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-le-eq",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=le2023-03-31T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-le-below",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "le"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=sa2023-03-31T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-sa-below",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=sa2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-sa-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "sa"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=eb2023-04-02T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-eb-above",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=eb2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-eb-eq",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "eb"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "created=ap2023-04-01T10:00:00Z&_tag=core-coverageeligibilityrequest-test&_tag=scope-created"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "created-ap-smoke",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-created"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "created"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "ap"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-enterer",
+            "name": "Search CoverageEligibilityRequest by enterer (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-coverageeligibilityrequest-enterer-target",
+                        "responseId": "enterer-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "enterer-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-enterer-match-3",
+                        "responseId": "enterer-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "enterer=core-coverageeligibilityrequest-enterer-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-enterer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "enterer-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "enterer=Practitioner/core-coverageeligibilityrequest-enterer-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-enterer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "enterer-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-enterer-missing-4",
+                        "responseId": "enterer-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "enterer:missing=true&_tag=core-coverageeligibilityrequest-test&_tag=scope-enterer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "enterer-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "enterer:missing=false&_tag=core-coverageeligibilityrequest-test&_tag=scope-enterer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "enterer-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-enterer"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "enterer"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-facility",
+            "name": "Search CoverageEligibilityRequest by facility (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Location",
+                        "sourceId": "fixture-core-coverageeligibilityrequest-facility-target",
+                        "responseId": "facility-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Location",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "facility-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-facility-match-5",
+                        "responseId": "facility-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "facility=core-coverageeligibilityrequest-facility-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-facility"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "facility-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "facility=Location/core-coverageeligibilityrequest-facility-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-facility"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "facility-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-facility-missing-6",
+                        "responseId": "facility-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "facility:missing=true&_tag=core-coverageeligibilityrequest-test&_tag=scope-facility"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "facility-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "facility:missing=false&_tag=core-coverageeligibilityrequest-test&_tag=scope-facility"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "facility-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-facility"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "facility"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-identifier",
+            "name": "Search CoverageEligibilityRequest by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-identifier-match-7",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-identifier-other-8",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier=eligreq-12345&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier=http://example.org/eligibility-request|eligreq-12345&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "system-code"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier=|eligreq-12345&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "no-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier=http://example.org/eligibility-request|&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-code-in-system",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-code-in-system"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier=|&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-any-token",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "any-token"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier:not=eligreq-12345&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-identifier-missing-9",
+                        "responseId": "identifier-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier:missing=true&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "identifier:missing=false&_tag=core-coverageeligibilityrequest-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-missing-false",
+                        "operator": "equals",
+                        "value": "2",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-identifier"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "identifier"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-patient",
+            "name": "Search CoverageEligibilityRequest by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-coverageeligibilityrequest-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-patient-match-10",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "patient=core-coverageeligibilityrequest-patient-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "patient=Patient/core-coverageeligibilityrequest-patient-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-patient"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "patient"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-provider",
+            "name": "Search CoverageEligibilityRequest by provider (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-coverageeligibilityrequest-provider-target",
+                        "responseId": "provider-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "provider-target-created",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-provider-match-11",
+                        "responseId": "provider-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "provider=core-coverageeligibilityrequest-provider-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "provider-id-only",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "id-only"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "provider=Practitioner/core-coverageeligibilityrequest-provider-target&_tag=core-coverageeligibilityrequest-test&_tag=scope-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "provider-type-slash-id",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "type-slash-id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-provider-missing-12",
+                        "responseId": "provider-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "provider:missing=true&_tag=core-coverageeligibilityrequest-test&_tag=scope-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "provider-missing-true",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "provider:missing=false&_tag=core-coverageeligibilityrequest-test&_tag=scope-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "provider-missing-false",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-provider"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "provider"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "missing-false"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-status",
+            "name": "Search CoverageEligibilityRequest by status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-status-match-13",
+                        "responseId": "status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "create"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "sourceId": "fixture-coverageeligibilityrequest-status-other-14",
+                        "responseId": "status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "status=active&_tag=core-coverageeligibilityrequest-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-default",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "default"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ],
+                        "resource": "CoverageEligibilityRequest",
+                        "params": "status:not=active&_tag=core-coverageeligibilityrequest-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-not",
+                        "operator": "equals",
+                        "value": "1",
+                        "extension": [
+                            {
+                                "url": "https://haste.health/fhir/StructureDefinition/testscript-category",
+                                "extension": [
+                                    {
+                                        "url": "group",
+                                        "valueCode": "search"
+                                    },
+                                    {
+                                        "url": "searchParameterUrl",
+                                        "valueUri": "http://hl7.org/fhir/SearchParameter/CoverageEligibilityRequest-status"
+                                    },
+                                    {
+                                        "url": "searchParameterCode",
+                                        "valueCode": "status"
+                                    },
+                                    {
+                                        "url": "variant",
+                                        "valueCode": "not"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "CoverageEligibilityRequest",
+                    "params": "_tag=core-coverageeligibilityrequest-test",
+                    "description": "Delete CoverageEligibilityRequest resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

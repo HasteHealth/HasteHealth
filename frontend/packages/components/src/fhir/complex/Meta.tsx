@@ -38,9 +38,16 @@ function formatInstant(raw: string | undefined): string | undefined {
 }
 
 export const FHIRMetaReadOnly = ({ value }: FHIRMetaReadonlyProps) => {
-  const author = value?.extension?.find(
+  const authorExtension = value?.extension?.find(
     (e) => e.url === "https://haste.health/author",
-  )?.valueReference?.reference;
+  );
+  // A canonical (`https://haste.health/fhir/Membership/<id>`); versions
+  // written before that hold a Reference.
+  const author =
+    authorExtension?.valueCanonical?.replace(
+      "https://haste.health/fhir/",
+      "",
+    ) ?? authorExtension?.valueReference?.reference;
 
   const tags =
     value?.tag && value.tag.length > 0

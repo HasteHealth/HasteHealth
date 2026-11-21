@@ -10,6 +10,9 @@ pub struct User {
     pub role: UserRole,
     pub method: AuthMethod,
     pub provider_id: Option<String>,
+    /// The address accepted the account. Password login requires it.
+    #[serde(default)]
+    pub email_verified: bool,
 }
 
 pub struct UpdateUser {
@@ -19,6 +22,7 @@ pub struct UpdateUser {
     pub method: Option<AuthMethod>,
     pub provider_id: Option<String>,
     pub password: Option<String>,
+    pub email_verified: Option<bool>,
 }
 
 pub enum LoginMethod {
@@ -44,6 +48,7 @@ pub struct CreateUser {
     pub method: AuthMethod,
     pub provider_id: Option<String>,
     pub password: Option<String>,
+    pub email_verified: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]

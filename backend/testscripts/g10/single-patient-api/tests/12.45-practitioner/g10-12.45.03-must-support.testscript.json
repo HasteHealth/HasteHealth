@@ -1,0 +1,114 @@
+{
+    "id": "g10-12.45.03-must-support",
+    "url": "https://haste.health/fhir/TestScript/g10-12.45.03-must-support",
+    "name": "g10-12.45.03-must-support",
+    "title": "12.45.03 Must support elements are returned",
+    "status": "active",
+    "description": "g10 12.45.03 (DAT-PAT-2; US Core 6.1.0: group 10.41). Every must support element of US Core Practitioner Profile (including the USCDI ones) appears in at least one Practitioner the server returns. The record's instances of the profile are fetched together by _id.",
+    "resourceType": "TestScript",
+    "test": [
+        {
+            "id": "01-must-support",
+            "name": "Must support elements",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Practitioner",
+                        "params": "_id=g10-Practitioner-1011,g10-practitioner-1,g10-practitioner-2,g10-practitioner-3,g10-practitioner-pharmacist",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search answers 200",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A searchset Bundle is returned",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.identifier is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.identifier.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).identifier.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.identifier.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).identifier.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.identifier:NPI is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).identifier.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.name is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).name.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.name.family is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).name.family.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.telecom is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).telecom.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.telecom.system is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).telecom.system.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner.telecom.value is present",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).telecom.value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

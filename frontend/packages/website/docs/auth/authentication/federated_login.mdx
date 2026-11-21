@@ -1,5 +1,6 @@
 ---
 title: OIDC Federation
+description: How Haste Health supports federated login via OpenID Connect, letting users authenticate through external identity providers like Okta or Azure AD.
 sidebar_position: 6
 tags:
   - authentication
@@ -71,6 +72,36 @@ sequenceDiagram
     Browser->>User: Display authenticated app
 ```
 
+## Assigning access on first sign-in
+
+The first time a user signs in through an identity provider, Haste Health creates a `User` and a `Membership` for them. Without an access policy, that user can't read or write anything until an administrator assigns one.
+
+A project can assign policies automatically with `Project.identityProviderSetting`:
+
+```json
+{
+  "resourceType": "Project",
+  "id": "my-project",
+  "name": "My Project",
+  "fhirVersion": "4.0.1",
+  "identityProvider": [{ "reference": "IdentityProvider/okta" }],
+  "identityProviderSetting": [
+    {
+      "identityProvider": { "reference": "IdentityProvider/okta" },
+      "defaultAccessPolicy": [
+        { "reference": "AccessPolicyV2/clinician-read" }
+      ]
+    }
+  ]
+}
+```
+
+When a user first signs in through `IdentityProvider/okta`, one `AccessPolicyV2Assignment` is created per listed policy, linked to that user's new `Membership`, in the same transaction that creates the user. The policies apply as soon as the user gets a token.
+
+This runs only when the user is created. Later sign-ins don't change existing assignments, so an assignment an administrator removes is not recreated, and changing `defaultAccessPolicy` does not affect users who have already signed in.
+
+The identity provider must also be listed in `Project.identityProvider`; a setting for any other provider is ignored.
+
 ## Setup Guides
 - [Okta Integration Guide](/docs/integration/identity_providers/okta)
 - [Azure AD Integration Guide](/docs/integration/identity_providers/azure)
@@ -79,7 +110,29 @@ sequenceDiagram
 - [Keycloak Integration Guide](/docs/integration/identity_providers/keycloak)
 - [Haste Health Integration Guide](/docs/integration/identity_providers/haste-health)
 
+## Scopes
+
+`IdentityProvider.oidc.scopes` is sent to the provider's authorization endpoint.
+`openid` is always requested, whether or not it is listed, because the callback
+identifies the user from the `sub` claim of the id token and a provider only
+returns an id token for an OIDC request.
+
+The client registered with the provider must also be allowed those scopes. A
+provider that refuses one of them sends the user back to the callback with an
+error instead of a code, and the sign-in fails with that error.
+
+Add `profile` and `email` to store the user's name and email address on the
+`User` resource. They are read from the id token when the user is first created;
+without them the user is created with only its federated id.
+
 ## Troubleshooting
+
+### No id token returned
+
+**Error**: Identity provider did not return an id token
+
+**Solution**: Register the provider's client for the `openid` scope. Some
+providers only return an id token when the client is explicitly allowed it.
 
 ### Token Validation Failed
 
@@ -88,7 +141,8 @@ sequenceDiagram
 **Solution**:
 1. Verify the JWKS URI is correct and accessible
 2. Check that the token hasn't expired
-3. Ensure the issuer and audience claims match expectations
+3. The id token's `aud` claim must contain the Client ID configured on the IdentityProvider. A provider issues the id token to the client that requested the sign-in, so a token issued to another client is rejected
+4. The id token must be signed with an asymmetric algorithm (RS256, PS256, ES256 or EdDSA among others) by a key published at the JWKS URI. A token signed with an HMAC algorithm is rejected before its key is looked up
 
 
 ## Best Practices

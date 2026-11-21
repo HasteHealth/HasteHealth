@@ -1,6 +1,7 @@
 ---
 id: expand
 title: $expand
+description: How to use the FHIR $expand operation to retrieve the list of codes contained in a ValueSet at a given point in time.
 sidebar_position: 0
 ---
 
@@ -11,7 +12,7 @@ The FHIR [$expand operation](https://www.hl7.org/fhir/valueset-operation-expand.
 ## Endpoint
 
 ```
-POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand
+POST /w/{tenant}/{project}/api/v1/fhir/ValueSet/$expand
 ```
 
 Where `{id}` is the logical ID of a specific ValueSet resource (optional for type-level operations).
@@ -101,6 +102,10 @@ Content-Type: application/fhir+json
   }
 }
 ```
+
+## Limits
+
+An expansion is answered whole, so it is bounded. One that would hold more than 100,000 concepts, resolve more than 1,000 included value sets (`compose.include.valueSet`, at any depth) or follow value sets including one another more than 32 levels deep is refused with `422` and a `too-costly` `OperationOutcome`. A value set that includes itself, directly or through the value sets it includes, is refused with `422` and an `invalid` `OperationOutcome`. `$validate-code` expands the value set first, so the same applies to it. The limits are the server settings `terminology.max_expansion_concepts`, `terminology.max_included_value_sets` and `terminology.max_value_set_depth` (see [Configuration](/docs/reference/configuration#terminology)).
 
 ## Error Handling
 

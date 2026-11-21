@@ -21,6 +21,12 @@ export type FHIRReferenceEditableProps = EditableProps<Reference> &
   ClientProps & {
     disabled?: boolean;
     resourceTypesAllowed?: ResourceType<FHIR_VERSION>[];
+    /** Hide the current reference when another part of the row shows it. */
+    showValue?: boolean;
+    /** Label for the search button; defaults to "Search". */
+    searchLabel?: string;
+    /** Accessible name for the search button. */
+    searchAriaLabel?: string;
   };
 
 const ReferenceView = ({
@@ -92,8 +98,9 @@ const SearchResult = ({
   onChange: FHIRReferenceEditableProps["onChange"];
 }) => {
   return (
-    <div
-      className="hover:bg-brand-200 py-2 px-4 cursor-pointer border "
+    <button
+      type="button"
+      className="hover:bg-brand-200 py-2 px-4 cursor-pointer border w-full text-left"
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,
@@ -103,7 +110,7 @@ const SearchResult = ({
       <span className="font-semibold text-slate-700">
         {resource.resourceType}/{resource.id}
       </span>
-    </div>
+    </button>
   );
 };
 
@@ -123,9 +130,10 @@ const ReferenceSearch = ({
   return (
     <div>
       <div className="flex space-x-1 text-slate-700  ">
-        <div className="w-36">
+        <div className="w-48">
           <Select
             value={resourceType}
+            ariaLabel="Resource type"
             onChange={(option) =>
               setResourceType(option.value as ResourceType<typeof fhirVersion>)
             }
@@ -165,6 +173,9 @@ export const FHIRReferenceEditable = ({
   label,
   fhirVersion,
   resourceTypesAllowed,
+  showValue = true,
+  searchLabel = "Search",
+  searchAriaLabel = "Search for a resource to reference",
 }: FHIRReferenceEditableProps) => {
   return (
     <Modal
@@ -199,18 +210,26 @@ export const FHIRReferenceEditable = ({
               label={label}
               issues={issue ? [issue] : []}
             >
-              <div className="flex items-center gap-1.5">
-                <div onClick={() => openDisplay(true)}>
-                  <a className="text-brand-400 hover:text-brand-500 cursor-pointer">
-                    {value?.reference}
-                  </a>
-                </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {showValue && value?.reference && (
+                  <button
+                    type="button"
+                    className="text-brand-400 hover:text-brand-500 cursor-pointer"
+                    onClick={() => openDisplay(true)}
+                  >
+                    {value.reference}
+                  </button>
+                )}
                 {!disabled && (
-                  <span onClick={() => openSearch(true)}>
-                    <a className="text-slate-700 hover:text-brand-700 cursor-pointer font-semibold">
-                      {<MagnifyingGlassCircleIcon className="w-5 h-5" />}
-                    </a>
-                  </span>
+                  <button
+                    type="button"
+                    aria-label={searchAriaLabel}
+                    className="inline-flex cursor-pointer items-center gap-1 font-semibold text-slate-700 hover:text-brand-700"
+                    onClick={() => openSearch(true)}
+                  >
+                    <MagnifyingGlassCircleIcon className="w-5 h-5" />
+                    {searchLabel}
+                  </button>
                 )}
               </div>
             </InputContainer>

@@ -29,6 +29,7 @@ import ResourceEditorComponent, {
 } from "../../components/ResourceEditor";
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
+import AccessPolicyAssignments from "./AccessPolicyAssignments";
 
 interface AccessPolicyV2EditorProps extends AdditionalContent {
   resource: AccessPolicyV2 | undefined;
@@ -58,7 +59,7 @@ const AccessPolicyInvoke = ({
             title: "Input",
             content: (
               <div className="flex flex-col h-56 w-full">
-                <div className="flex flex-col flex-1 overflow-auto flex-grow space-y-2 px-1">
+                <div className="flex flex-col flex-1 overflow-auto grow space-y-2 px-1">
                   <div>
                     <FHIRReferenceEditable
                       label="User"
@@ -89,8 +90,8 @@ const AccessPolicyInvoke = ({
                       value={requestURL}
                       onChange={(url) => setRequestURL(url)}
                     />
-                    <div>
-                      <label>Body</label>
+                    <fieldset>
+                      <legend>Body</legend>
                       <CodeMirror
                         extensions={[basicSetup, json()]}
                         value={body}
@@ -104,7 +105,7 @@ const AccessPolicyInvoke = ({
                           setBody(value);
                         }}
                       />
-                    </div>
+                    </fieldset>
                   </div>
                 </div>
               </div>
@@ -234,6 +235,18 @@ export default function AccessPolicyView({
             resourceType={resourceType as ResourceType}
             resource={resource}
             onChange={onChange}
+            rightTabs={[
+              {
+                id: "assignments",
+                title: "Assignments",
+                content: (
+                  <AccessPolicyAssignments
+                    policy={resource}
+                    onChange={onChange}
+                  />
+                ),
+              },
+            ]}
           />
         )}
       </Modal>

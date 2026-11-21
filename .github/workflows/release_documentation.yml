@@ -1,0 +1,78 @@
+name: <Release> Documentation
+on:
+  release:
+    types: [published]
+
+jobs:
+  rust_book:
+    environment: production
+    runs-on: ubuntu-latest
+    env:
+      # Nightly gives rustdoc's unstable options. Pinned because later
+      # nightlies fail to compile types that are recursive through a Box
+      # ("cycle detected when computing ... needs async drop",
+      # https://github.com/rust-lang/rust/issues/165263). Move forward once
+      # that is fixed.
+      RUST_NIGHTLY: nightly-2026-10-30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - run: rustup toolchain install "$RUST_NIGHTLY" --profile minimal
+      # Compile with workspace entry with the enable-index-page flag.
+      - name: Compile documentation.
+        run: cd backend && RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo "+$RUST_NIGHTLY" doc --workspace --no-deps
+      - name: Copy wrangler config
+        # Tmp delete large file that wrangler chokes on.
+        run: cp backend/wrangler/rust-book.wrangler.jsonc ./backend/wrangler.jsonc && rm backend/target/doc/src/haste_fhir_model/r4/generated/terminology.rs.html
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          wranglerVersion: "4.161.0"
+          workingDirectory: "backend"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  typedoc:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.9.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 23.9.0
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: pnpm install && pnpm -r build
+
+      # Compile with typescript documentation.
+      - name: Compile documentation.
+        working-directory: ./frontend
+        run: pnpm generate-documentation
+
+      # Need to allowbuilds for latest pnpm to compile properly and ship for wrangler action.
+      - name: Copy wrangler config
+        working-directory: ./frontend
+        run: |
+          cp wrangler/typedoc.wrangler.jsonc ./wrangler.jsonc
+
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          wranglerVersion: "4.161.0"
+          workingDirectory: "frontend"
+          packageManager: pnpm
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

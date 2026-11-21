@@ -1,6 +1,7 @@
 ---
 id: history-instance
 title: history-instance
+description: How to retrieve the version history of a specific FHIR resource instance using the CLI, TypeScript client, or cURL.
 sidebar_position: 9
 ---
 
@@ -17,10 +18,10 @@ import TabItem from '@theme/TabItem';
 Retrieve the history of a Patient resource using the Haste Health CLI:
 
 ```bash
-haste-health api history-instance Patient 12345 ""_since=2026-01-01""
+haste-health api history-instance Patient 12345 "_since=2026-01-01"
 ```
 
-This command retrieves the last 10 versions of the Patient resource with ID `12345`.
+This command retrieves the versions of the Patient resource with ID `12345` changed since January 1, 2026.
 
 You can also retrieve history without parameters:
 
@@ -58,7 +59,7 @@ console.log('History entries:', history.entry);
 Retrieve the history of a Patient resource using cURL:
 
 ```bash
-curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/12345/_history?_count=10" \
+curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/Patient/12345/_history?_count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

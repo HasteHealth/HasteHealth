@@ -1,90 +1,33 @@
 use crate::{
-    elastic_search::search::{
-        QueryBuildError, clauses::namespace_parameter, simple_missing_modifier,
-    },
-    indexing_conversion::get_decimal_range,
+    elastic_search::search::clauses::{all_of, any_of},
+    query::value::NumberValue,
 };
-use haste_fhir_client::url::{Parameter, parse_prefix};
-use haste_fhir_model::r4::generated::resources::SearchParameter;
+use haste_fhir_client::url::Prefix;
 use serde_json::json;
 
-pub fn number(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => simple_missing_modifier(search_param, parsed_parameter),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => {
-            let column_name = namespace_parameter(namespace, search_param);
-            let params = parsed_parameter
-                .value
-                .iter()
-                .map(|value| {
-                    let (prefix, value) = parse_prefix(value);
-                    let range = get_decimal_range(value)
-                        .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+/// A FHIR number has implicit precision, so equality is range containment.
+pub fn number(field: &str, values: &[NumberValue]) -> serde_json::Value {
+    any_of(
+        values
+            .iter()
+            .map(|number| number_query(field, number))
+            .collect(),
+    )
+}
 
-                    match prefix {
-                        Some("ne") => Ok(json!({
-                            "bool": {
-                                "must_not": {
-                                    "range": {
-                                        &column_name: {
-                                            "gte": range.start,
-                                            "lte": range.end
-                                        }
-                                    }
-                                }
-                            }
-                        })),
-                        Some("gt") => Ok(json!({
-                            "range": {
-                                &column_name: {
-                                    "gt": range.end
-                                }
-                            }
-                        })),
-                        Some("lt") => Ok(json!({
-                            "range": {
-                                &column_name: {
-                                    "lt": range.start
-                                }
-                            }
-                        })),
-                        Some("ge") => Ok(json!({
-                            "range": {
-                                &column_name: {
-                                    "gte": range.start
-                                }
-                            }
-                        })),
-                        Some("le") => Ok(json!({
-                            "range": {
-                                &column_name: {
-                                    "lte": range.end
-                                }
-                            }
-                        })),
-                        Some("eq") | None => Ok(json!({
-                            "range": {
-                                &column_name: {
-                                    "gte": range.start,
-                                    "lte": range.end
-                                }
-                            }
-                        })),
-                        Some(prefix) => Err(QueryBuildError::UnsupportedPrefix(prefix.to_string())),
-                    }
-                })
-                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+fn number_query(field: &str, number: &NumberValue) -> serde_json::Value {
+    let range = |bounds: serde_json::Value| json!({ "range": { field: bounds } });
+    let (start, end) = (number.range.start, number.range.end);
+    let within = || range(json!({ "gte": start, "lte": end }));
 
-            Ok(json!({
-                "bool": {
-                    "should": params
-                }
-            }))
-        }
+    match number.prefix {
+        Prefix::Ne => all_of(Vec::new(), vec![within()]),
+        // For a single value, `sa`/`eb` mean the same as `gt`/`lt`.
+        Prefix::Gt | Prefix::Sa => range(json!({ "gt": end })),
+        Prefix::Lt | Prefix::Eb => range(json!({ "lt": start })),
+        Prefix::Ge => range(json!({ "gte": start })),
+        Prefix::Le => range(json!({ "lte": end })),
+        // `ap` was widened when it was parsed.
+        Prefix::Eq | Prefix::Ap => within(),
     }
 }

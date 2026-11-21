@@ -1,0 +1,32 @@
+# Patches for the upstream HL7 FHIR R4 core package.
+#
+# Files in definitions/hl7/*.json are exactly as published by HL7 and must not
+# be edited. Changes go here instead, and are applied when the .min.json files
+# (which the server, codegen and frontend load) are built:
+#
+#   from backend/: cargo run artifacts build ../artifacts/r4/hl7-core/patches/manifest.toml
+#
+# To see every change made to the HL7 resources:
+#
+#   from backend/: cargo run artifacts diff ../artifacts/r4/hl7-core/patches/manifest.toml [--summary]
+#
+# Every other *.json file in this directory is a patch file:
+#
+#   {
+#     "description": "Why the change is needed.",
+#     "patches": [{
+#       "target": { "resourceType": "ValueSet", "id": "resource-types" },
+#       "operations": [ RFC 6902 JSON Patch operations, paths relative to the resource ]
+#     }]
+#   }
+#
+# A target may use "url" instead of (or with) "id" and must match exactly one
+# resource. Use "test" operations to guard paths that index into arrays, so a
+# patch fails loudly if an upstream update moves things.
+
+sources = ["../definitions/hl7"]
+
+# Backticks identifiers and angle-brackets bare URLs in the descriptions codegen
+# emits as #[doc] attributes, so generated code passes clippy::doc_markdown.
+[[rules]]
+name = "clippy-doc-markdown"

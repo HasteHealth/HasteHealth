@@ -14,7 +14,6 @@ pub mod axum;
 pub mod canonical_resolver;
 #[cfg(feature = "http")]
 pub mod http;
-pub mod middleware;
 pub mod request;
 pub mod url;
 

@@ -1,0 +1,8 @@
+{
+    "description": "A member User, not linked to a patient, signing in to an app allowed granular scopes beside plain ones: Observation only in the laboratory and vital-signs categories, Condition both narrowed to problem-list-item and in full, Encounter with every permission but only for ambulatory encounters, and Patient in full.",
+    "grantType": "authorization_code",
+    "userEmail": "acg-user@example.org",
+    "clientId": "acg-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid offline_access user/Patient.rs user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item user/Condition.rs user/Encounter.cruds?class=http://terminology.hl7.org/CodeSystem/v3-ActCode|AMB"
+}

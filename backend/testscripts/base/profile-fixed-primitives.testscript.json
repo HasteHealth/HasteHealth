@@ -1,0 +1,562 @@
+{
+  "resourceType": "TestScript",
+  "id": "profile-fixed-primitives",
+  "url": "https://haste.health/fhir/TestScript/profile-fixed-primitives",
+  "name": "Profile fixed primitive values",
+  "title": "Profile fixed primitive values",
+  "status": "active",
+  "description": "Profile validation compares boolean and number elements with a profile's fixed[x]. Two project profiles carry fixedBoolean, fixedUnsignedInt and fixedDecimal (their snapshots list only the elements under test); resources matching them are stored and resources differing from them are refused. Setup searches for each profile by url so the creates run once the profiles are indexed and resolvable.",
+  "contained": [
+    {
+      "resourceType": "StructureDefinition",
+      "id": "fixed-primitives-group",
+      "meta": {
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "url": "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-group",
+      "name": "TestFixedPrimitivesGroup",
+      "status": "active",
+      "kind": "resource",
+      "abstract": false,
+      "type": "Group",
+      "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Group",
+      "derivation": "constraint",
+      "snapshot": {
+        "element": [
+          {
+            "id": "Group",
+            "path": "Group",
+            "min": 0,
+            "max": "*"
+          },
+          {
+            "id": "Group.active",
+            "path": "Group.active",
+            "min": 1,
+            "max": "1",
+            "type": [
+              {
+                "code": "boolean"
+              }
+            ],
+            "fixedBoolean": true
+          },
+          {
+            "id": "Group.quantity",
+            "path": "Group.quantity",
+            "min": 1,
+            "max": "1",
+            "type": [
+              {
+                "code": "unsignedInt"
+              }
+            ],
+            "fixedUnsignedInt": 3
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "StructureDefinition",
+      "id": "fixed-primitives-location",
+      "meta": {
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "url": "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-location",
+      "name": "TestFixedPrimitivesLocation",
+      "status": "active",
+      "kind": "resource",
+      "abstract": false,
+      "type": "Location",
+      "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Location",
+      "derivation": "constraint",
+      "snapshot": {
+        "element": [
+          {
+            "id": "Location",
+            "path": "Location",
+            "min": 0,
+            "max": "*"
+          },
+          {
+            "id": "Location.position",
+            "path": "Location.position",
+            "min": 1,
+            "max": "1",
+            "type": [
+              {
+                "code": "BackboneElement"
+              }
+            ]
+          },
+          {
+            "id": "Location.position.longitude",
+            "path": "Location.position.longitude",
+            "min": 1,
+            "max": "1",
+            "type": [
+              {
+                "code": "decimal"
+              }
+            ]
+          },
+          {
+            "id": "Location.position.latitude",
+            "path": "Location.position.latitude",
+            "min": 1,
+            "max": "1",
+            "type": [
+              {
+                "code": "decimal"
+              }
+            ],
+            "fixedDecimal": 51.5
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "Group",
+      "id": "group-ok",
+      "meta": {
+        "profile": [
+          "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-group"
+        ],
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "type": "person",
+      "actual": true,
+      "active": true,
+      "quantity": 3
+    },
+    {
+      "resourceType": "Group",
+      "id": "group-wrong-boolean",
+      "meta": {
+        "profile": [
+          "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-group"
+        ],
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "type": "person",
+      "actual": true,
+      "active": false,
+      "quantity": 3
+    },
+    {
+      "resourceType": "Group",
+      "id": "group-wrong-count",
+      "meta": {
+        "profile": [
+          "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-group"
+        ],
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "type": "person",
+      "actual": true,
+      "active": true,
+      "quantity": 4
+    },
+    {
+      "resourceType": "Location",
+      "id": "location-ok",
+      "meta": {
+        "profile": [
+          "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-location"
+        ],
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "name": "Fixed primitives test",
+      "position": {
+        "longitude": -0.12,
+        "latitude": 51.5
+      }
+    },
+    {
+      "resourceType": "Location",
+      "id": "location-wrong",
+      "meta": {
+        "profile": [
+          "https://haste.health/fhir/StructureDefinition/test-fixed-primitives-location"
+        ],
+        "tag": [
+          {
+            "code": "fixed-primitives-test"
+          }
+        ]
+      },
+      "name": "Fixed primitives test",
+      "position": {
+        "longitude": -0.12,
+        "latitude": 48.8
+      }
+    }
+  ],
+  "fixture": [
+    {
+      "id": "fixture-fixed-primitives-group",
+      "resource": {
+        "reference": "#fixed-primitives-group"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-fixed-primitives-location",
+      "resource": {
+        "reference": "#fixed-primitives-location"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-group-ok",
+      "resource": {
+        "reference": "#group-ok"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-group-wrong-boolean",
+      "resource": {
+        "reference": "#group-wrong-boolean"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-group-wrong-count",
+      "resource": {
+        "reference": "#group-wrong-count"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-location-ok",
+      "resource": {
+        "reference": "#location-ok"
+      },
+      "autocreate": false,
+      "autodelete": false
+    },
+    {
+      "id": "fixture-location-wrong",
+      "resource": {
+        "reference": "#location-wrong"
+      },
+      "autocreate": false,
+      "autodelete": false
+    }
+  ],
+  "setup": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "create"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "sourceId": "fixture-fixed-primitives-group",
+          "responseId": "fixed-primitives-group-response"
+        }
+      },
+      {
+        "assert": {
+          "label": "Group profile created",
+          "warningOnly": false,
+          "direction": "response",
+          "resource": "StructureDefinition"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "create"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "sourceId": "fixture-fixed-primitives-location",
+          "responseId": "fixed-primitives-location-response"
+        }
+      },
+      {
+        "assert": {
+          "label": "Location profile created",
+          "warningOnly": false,
+          "direction": "response",
+          "resource": "StructureDefinition"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "search"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "params": "url=https://haste.health/fhir/StructureDefinition/test-fixed-primitives-group"
+        }
+      },
+      {
+        "assert": {
+          "label": "Group profile is findable",
+          "warningOnly": false,
+          "expression": "Bundle.entry.count()",
+          "operator": "equals",
+          "value": "1"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "search"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "params": "url=https://haste.health/fhir/StructureDefinition/test-fixed-primitives-location"
+        }
+      },
+      {
+        "assert": {
+          "label": "Location profile is findable",
+          "warningOnly": false,
+          "expression": "Bundle.entry.count()",
+          "operator": "equals",
+          "value": "1"
+        }
+      }
+    ]
+  },
+  "test": [
+    {
+      "id": "fixed-boolean-and-unsigned-int",
+      "name": "Fixed boolean and unsignedInt",
+      "description": "A Group whose active and quantity equal the profile's fixedBoolean and fixedUnsignedInt is stored; one that differs in either is refused as unprocessable, naming the fixed value.",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Group",
+            "sourceId": "fixture-group-ok",
+            "responseId": "group-ok-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "Matching Group stored",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "Group"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Group",
+            "sourceId": "fixture-group-wrong-boolean"
+          }
+        },
+        {
+          "assert": {
+            "label": "active false against fixedBoolean true: refused",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "OperationOutcome"
+          }
+        },
+        {
+          "assert": {
+            "label": "active false against fixedBoolean true: unprocessable",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "unprocessable"
+          }
+        },
+        {
+          "assert": {
+            "label": "active false against fixedBoolean true: names the fixed value",
+            "warningOnly": false,
+            "expression": "OperationOutcome.issue.diagnostics.where(contains('does not match fixed value')).exists()",
+            "operator": "equals",
+            "value": "true"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Group",
+            "sourceId": "fixture-group-wrong-count"
+          }
+        },
+        {
+          "assert": {
+            "label": "quantity 4 against fixedUnsignedInt 3: refused",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "OperationOutcome"
+          }
+        },
+        {
+          "assert": {
+            "label": "quantity 4 against fixedUnsignedInt 3: unprocessable",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "unprocessable"
+          }
+        },
+        {
+          "assert": {
+            "label": "quantity 4 against fixedUnsignedInt 3: names the fixed value",
+            "warningOnly": false,
+            "expression": "OperationOutcome.issue.diagnostics.where(contains('does not match fixed value')).exists()",
+            "operator": "equals",
+            "value": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fixed-decimal",
+      "name": "Fixed decimal",
+      "description": "A Location whose position.latitude equals the profile's fixedDecimal is stored; another latitude is refused.",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Location",
+            "sourceId": "fixture-location-ok",
+            "responseId": "location-ok-response"
+          }
+        },
+        {
+          "assert": {
+            "label": "Matching Location stored",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "Location"
+          }
+        },
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "encodeRequestUrl": false,
+            "resource": "Location",
+            "sourceId": "fixture-location-wrong"
+          }
+        },
+        {
+          "assert": {
+            "label": "latitude 48.8 against fixedDecimal 51.5: refused",
+            "warningOnly": false,
+            "direction": "response",
+            "resource": "OperationOutcome"
+          }
+        },
+        {
+          "assert": {
+            "label": "latitude 48.8 against fixedDecimal 51.5: unprocessable",
+            "warningOnly": false,
+            "direction": "response",
+            "response": "unprocessable"
+          }
+        },
+        {
+          "assert": {
+            "label": "latitude 48.8 against fixedDecimal 51.5: names the fixed value",
+            "warningOnly": false,
+            "expression": "OperationOutcome.issue.diagnostics.where(contains('does not match fixed value')).exists()",
+            "operator": "equals",
+            "value": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "teardown": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "Group",
+          "params": "_tag=fixed-primitives-test"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "Location",
+          "params": "_tag=fixed-primitives-test"
+        }
+      },
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "encodeRequestUrl": false,
+          "resource": "StructureDefinition",
+          "params": "_tag=fixed-primitives-test"
+        }
+      }
+    ]
+  }
+}

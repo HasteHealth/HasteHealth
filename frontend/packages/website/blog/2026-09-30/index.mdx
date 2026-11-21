@@ -1,0 +1,130 @@
+---
+slug: feature-updates/september-2026-feature-updates
+title: September 2026 Feature Updates
+description: September 2026 feature updates - a PostgreSQL search backend, chained parameters, _include and Patient $everything, centralized FHIR artifacts with upstream patching, core TestScripts for every resource type, and a rewritten admin console.
+authors: [ralph-parkison]
+tags: [hastehealth, feature-update]
+---
+
+September opened with dependency upgrades and a round of Elasticsearch indexing work (strict mappings, byte-sized bulk batches, per-tenant concurrency), then spent its middle weeks on two structural changes: a PostgreSQL search backend that runs alongside Elasticsearch, and a single shared `artifacts/` directory with a patching pipeline for upstream HL7 files. The last week filled in the search surface on top of that backend (`_include`, chained parameters, POST `_search`, `Patient/$everything`), added a core TestScript for every resource type, and closed with a rewritten admin console built around one command bar.
+
+## Backend Changes
+
+### PostgreSQL search backend
+- A new `pg_search` module in `fhir-search` implements the `SearchEngine` trait on PostgreSQL, selected with `HASTE_SEARCH.backend=postgres` and indexing into its own database and connection pool. It covers the number, date, string, token, quantity, reference, and URI parameter types, with its own schema migration and indexing path.
+- Where a parameter is stored depends on whether it can repeat. A singular parameter becomes a scalar column on its resource type's table (`r4_patient_idx`), which is what lets an index answer ordered comparisons, prefix matches, and sorts. A repeating one becomes a row per value in a shared per-type table (`r4_param_token_idx`), keyed by a hashed parameter identity. Every table points back to an anchor row through a `BIGINT` `res_key`, so only the anchor carries tenant, project, type, and id.
+- Cardinality is decided at build time: a new `generate search-param-cardinality` command resolves each SearchParameter's FHIRPath expression against the StructureDefinition snapshots, per resource type, and emits a compiled table of single-valued parameters. Anything it cannot prove singular goes to the shared tables, since a scalar column would silently drop extra values.
+- PRs: [#974](https://github.com/HasteHealth/HasteHealth/pull/974), [#986](https://github.com/HasteHealth/HasteHealth/pull/986), [#987](https://github.com/HasteHealth/HasteHealth/pull/987), [#988](https://github.com/HasteHealth/HasteHealth/pull/988), [#989](https://github.com/HasteHealth/HasteHealth/pull/989).
+
+### Chained search parameters
+- The PostgreSQL backend now supports chains such as `Observation?subject:Patient.name=Smith`. Each reference followed is a correlated `EXISTS` over the referenced resource's anchor row, nested one level per link, so the planner picks the join order from statistics and no capped id list can silently drop matches.
+- A reference with several target types needs a `:Type` modifier, the modifier must be one of the declared targets, and chain depth is capped. Chained search is PostgreSQL-only for now, with its own TestScript suite.
+- PRs: [#1014](https://github.com/HasteHealth/HasteHealth/pull/1014).
+
+### `_include`, `_revinclude`, and POST `_search`
+- A new `search_includes` middleware adds the resources a page of matches points at. It runs above the search backend, so it works on both Elasticsearch and PostgreSQL: references are deduplicated to distinct `(type, id)` pairs and read by primary key, which bounds the cost by the page instead of the corpus. `:iterate` follows up to two hops, and a per-search cap on included resources truncates instead of failing.
+- Included entries now go through the same access-policy check a direct read would face, so an include cannot return a resource the caller could not read, and `_elements` filtering applies to match entries only.
+- `POST [base]/_search` and `POST [base]/{type}/_search` accept form-encoded parameters, combined with any in the query string. The TypeScript client gained a matching option to send searches as POST, which keeps identifiers out of URLs.
+- PRs: [#997](https://github.com/HasteHealth/HasteHealth/pull/997), [#999](https://github.com/HasteHealth/HasteHealth/pull/999), [#1012](https://github.com/HasteHealth/HasteHealth/pull/1012), [#1013](https://github.com/HasteHealth/HasteHealth/pull/1013).
+
+### Patient `$everything`
+- `Patient/{id}/$everything` returns the patient and every resource in their compartment as one searchset Bundle. The resource types and linking parameters come from the R4 Patient `CompartmentDefinition`, so nothing hard-codes a list of clinical types.
+- One search per (type, parameter) pair runs through the normal client, so access policies, scopes, and auditing apply as they would to the equivalent hand-written searches. `_count`, `_type`, `_since`, `start`, and `end` are supported, results are deduplicated, and a hard entry ceiling keeps one request from becoming a bulk export.
+- PRs: [#995](https://github.com/HasteHealth/HasteHealth/pull/995).
+
+### Versionless FHIR routes
+- The FHIR endpoint dropped its version segment: `/w/{tenant}/{project}/api/v1/fhir/r4` is now `/w/{tenant}/{project}/api/v1/fhir`, with the FHIR version treated as a property of the project. The same string is the token `aud`, so tokens issued against the old path are no longer valid. The TypeScript client, OpenAPI generator, and docs were updated to match.
+- The root and type-level route handlers were merged into one.
+- PRs: [#985](https://github.com/HasteHealth/HasteHealth/pull/985), [#984](https://github.com/HasteHealth/HasteHealth/pull/984).
+
+### Access policy assignments and federated login
+- The token route now resolves a user's policies through `AccessPolicyV2Assignment` resources. Policies that still name the user in the deprecated `AccessPolicyV2.target` keep applying until they are migrated.
+- A new `Project.identityProviderSetting` lets a project list default access policies per identity provider. The first time a user signs in through that provider, one assignment per policy is created against their new Membership.
+- The federated callback now verifies `state`, surfaces the provider's `error` response when an authorization request is rejected, and fills the new user's name and email from the id token's `profile` and `email` claims when present.
+- PRs: [#980](https://github.com/HasteHealth/HasteHealth/pull/980), [#982](https://github.com/HasteHealth/HasteHealth/pull/982), [#983](https://github.com/HasteHealth/HasteHealth/pull/983).
+
+### Subscription tiers in one place
+- A new `subscription` crate is the single source for what each tier allows: the request budget the rate limiter enforces, per-type resource caps, whether a tenant may set its own branding, and the price and support terms. Requests are weighted by what they cost the server (a write costs 25 points, a search 6, a read 1).
+- `haste-health subscription export` writes the table to JSON for the website's pricing page, with a check mode that fails when the published file is out of date, so prices cannot drift from enforced limits.
+- PRs: [#1000](https://github.com/HasteHealth/HasteHealth/pull/1000).
+
+### HL7v2 over MLLP
+- The `hl7v2` CLI group gained a hardened `listen` command (connection limit, idle and partial-message timeouts, graceful shutdown) and a `send` command that waits for the acknowledgement.
+- The listener now answers with a real `ACK` message that echoes the sender's `MSH-10` in `MSA-2`, using `AA`, `AE`, or `AR` to tell the sender whether to retry, instead of a bare control byte that interface engines treat as a failure.
+- The CLI's cached access token is now refreshed a minute before it expires, which long-running processes like the listener depend on.
+- PRs: [#998](https://github.com/HasteHealth/HasteHealth/pull/998), [#1004](https://github.com/HasteHealth/HasteHealth/pull/1004).
+
+## Product and UX
+
+### Admin console rewrite
+- The admin app's resource views were rebuilt as a console with a single command bar. Everything it runs is a verb plus a target, so `GET Patient?name=Smith` and `DELETE Patient?name=Smith` are the same target with different consequences, and conditional writes need no separate shape. The workspace picks its view (results, resource, history, mutation editor) from the target level and the response.
+- Follow-ups added resource-type and panel headers, a form view built from the resource's StructureDefinition, and an inline project-creation form on the system landing page so a first sandbox needs no trip through the raw editor.
+- PRs: [#1006](https://github.com/HasteHealth/HasteHealth/pull/1006), [#1007](https://github.com/HasteHealth/HasteHealth/pull/1007), [#1009](https://github.com/HasteHealth/HasteHealth/pull/1009).
+
+### FHIR search input with autocomplete
+- A new `FHIRSearchInput` component in the components package completes resource types at the root, search parameters after the `?`, modifiers and reference target types after a `:`, and prefixes or codes after the `=`, including the parameters reachable through a chain. It ships with syntax highlighting, a results table, and a `useSearch` hook, and is the editor behind the console's command bar.
+- PRs: [#1005](https://github.com/HasteHealth/HasteHealth/pull/1005).
+
+### Access policy assignment UI
+- The resource editor gained an assignments view for attaching access policies to memberships, client applications, and operations through `AccessPolicyV2Assignment`.
+- PRs: [#981](https://github.com/HasteHealth/HasteHealth/pull/981).
+
+## Platform and Runtime
+
+### Search indexing: project-scoped cursors and sequence fixes
+- The tenant-wide indexing cursor was replaced by a `search_index_locks` table with one row per (tenant, project, backend). Projects now index independently, and separate search backends keep separate progress markers. Existing projects inherit their tenant's Elasticsearch position.
+- The sequence functions behind the indexing watermark were rewritten to avoid catalog scans and to fix two skipped-row cases: a first-ever write that took no lock, and a lock-key filter that stopped matching once the sequence passed 2^32.
+- PRs: [#1003](https://github.com/HasteHealth/HasteHealth/pull/1003), [#971](https://github.com/HasteHealth/HasteHealth/pull/971).
+
+### Elasticsearch indexing throughput
+- `_bulk` requests are now batched by byte size (targeting 10MB) instead of document count, with each document serialized once and the same bytes sent on the wire.
+- The index mapping became strict, replica count is preserved across a rebuild, and the number of tenants indexed concurrently in one poll is configurable.
+- PRs: [#967](https://github.com/HasteHealth/HasteHealth/pull/967), [#968](https://github.com/HasteHealth/HasteHealth/pull/968), [#969](https://github.com/HasteHealth/HasteHealth/pull/969).
+
+### Search modifier fixes
+- Modifier handling was pulled into a shared query module in `fhir-search` and corrected across the Elasticsearch and PostgreSQL clause builders for every parameter type.
+- PRs: [#992](https://github.com/HasteHealth/HasteHealth/pull/992).
+
+### Core TestScripts and conformance coverage
+- `backend/testscripts/core` now holds a TestScript for every R4 resource type plus the Haste Health types, 155 in all, run in CI by a dedicated workflow. The website's conformance section gained a test-coverage page built from them.
+- The end-to-end workflow runs as a matrix over both search backends, and a separate workflow exercises HL7v2 ingest and replay.
+- The TestScript runner now honors `requestHeader` entries, with variables evaluated in header values.
+- PRs: [#992](https://github.com/HasteHealth/HasteHealth/pull/992), [#993](https://github.com/HasteHealth/HasteHealth/pull/993), [#994](https://github.com/HasteHealth/HasteHealth/pull/994), [#991](https://github.com/HasteHealth/HasteHealth/pull/991), [#976](https://github.com/HasteHealth/HasteHealth/pull/976).
+
+### Client and runtime internals
+- The Rust HTTP FHIR client supports HTTP Basic authentication alongside bearer tokens.
+- Each `ResourceType` can deserialize its resource directly from raw bytes, transaction processing collects references by walking the entry in place, and the FHIRPath evaluator's allocation context moved to a synchronous mutex.
+- The server's listen port moved from a CLI flag into configuration (`haste.toml` and `HASTE_*` variables).
+- PRs: [#975](https://github.com/HasteHealth/HasteHealth/pull/975), [#970](https://github.com/HasteHealth/HasteHealth/pull/970), [#973](https://github.com/HasteHealth/HasteHealth/pull/973), [#972](https://github.com/HasteHealth/HasteHealth/pull/972), [#990](https://github.com/HasteHealth/HasteHealth/pull/990).
+
+## Artifacts, Tooling, and Maintenance
+
+### Centralized artifacts
+- FHIR artifacts (profiles, search parameters, terminology, operations, test data) moved to a single top-level `artifacts/` directory read by both the Rust and TypeScript stacks, removing the second copy and roughly 1.7 million lines of duplicated JSON. Each package is both an npm package in the frontend workspace and a source of embedded resources for the backend.
+- PRs: [#977](https://github.com/HasteHealth/HasteHealth/pull/977), [#978](https://github.com/HasteHealth/HasteHealth/pull/978).
+
+### Artifact patching
+- A new `artifact-patcher` crate changes upstream HL7 files without editing them. A package opts in with a `patches/manifest.toml`; RFC 6902 JSON Patch files target a resource by type and id or url, Rust rules run over every resource, and the result is written as `.min.json`.
+- `haste-health artifacts build` produces the outputs and `artifacts diff` lists every change from upstream, since each edit is recorded as it is applied.
+- PRs: [#979](https://github.com/HasteHealth/HasteHealth/pull/979).
+
+### Dependency upgrades
+- Backend crates, frontend packages, Storybook, and the website's Docusaurus stack were all brought up to date, followed by a batch of Dependabot frontend updates at month end.
+- PRs: [#963](https://github.com/HasteHealth/HasteHealth/pull/963), [#964](https://github.com/HasteHealth/HasteHealth/pull/964), [#965](https://github.com/HasteHealth/HasteHealth/pull/965), [#966](https://github.com/HasteHealth/HasteHealth/pull/966), [#1015](https://github.com/HasteHealth/HasteHealth/pull/1015).
+
+### Docs and website
+- The generated FHIR reference pages were rebuilt on a set of `FhirModel` components (element tree, search parameters, model index), and the configuration, search, and Docker Compose docs were revised for the new search backend options.
+- PRs: [#994](https://github.com/HasteHealth/HasteHealth/pull/994), [#1001](https://github.com/HasteHealth/HasteHealth/pull/1001), [#1002](https://github.com/HasteHealth/HasteHealth/pull/1002), [#1008](https://github.com/HasteHealth/HasteHealth/pull/1008).
+
+## Standalone Commits (No PR Link)
+
+- Docs: rewritten platform architecture and access control pages, an admin app guide and README update, and a README for the `artifacts/` directory.
+- Website: a new social card, header and margin adjustments, and the test-coverage page wired into the deploy.
+- CI: the core TestScripts workflow added on main, and Haste Health artifacts included in the search-parameter cardinality analysis.
+- Build/deploy: Docker Compose file updates, base image and audit workflow bumps, and a Wrangler bump.
+- Small backend follow-ups: a fix for system-level invocation in the HTTP client, a CORS change to mirror the request, and removal of an outdated test.
+- Version bumps: [`d87db8dc2`](https://github.com/HasteHealth/HasteHealth/commit/d87db8dc2).
+
+## Contributors
+
+Thanks to [Luni-4](https://github.com/Luni-4) for continuing the clippy remediation into the remaining crates: the first pass over the `server` crate ([#960](https://github.com/HasteHealth/HasteHealth/pull/960)), and `fhir-generated-ops` ([#932](https://github.com/HasteHealth/HasteHealth/pull/932)), which fixed the lints at the source by changing the operation codegen.

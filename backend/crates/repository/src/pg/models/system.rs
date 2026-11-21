@@ -13,8 +13,9 @@ async fn search_system_user<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT id, tenant, email, role, method, provider_id FROM users WHERE ");
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        r"SELECT id, tenant, email, role, method, provider_id, email_verified FROM users WHERE ",
+    );
 
     let mut seperator = query_builder.separated(" AND ");
 

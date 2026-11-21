@@ -121,7 +121,7 @@ impl MemorySubscriptionFilter {
                             ));
                         };
 
-                        if resource_param.chains.is_some() {
+                        if resource_param.is_chained() {
                             return Err(OperationOutcomeError::error(
                                 IssueType::exception(),
                                 format!(

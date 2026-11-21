@@ -17,11 +17,12 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::extract::Cached;
+use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::generate_id};
+use haste_repository::{Repository, utilities::generate_id};
 use std::sync::Arc;
 
 #[derive(serde::Serialize, Debug)]
@@ -47,7 +48,7 @@ pub async fn mcp_handler<
         ServerCTX::new(
             tenant,
             project,
-            SupportedFHIRVersions::R4,
+            user.claims.fhir_version.clone(),
             user.clone(),
             state.fhir_client.clone(),
             state.rate_limit.clone(),
@@ -57,9 +58,23 @@ pub async fn mcp_handler<
 
     let api_uri = &state.config.api_uri;
 
+    // Most errors are raised where the request id is not at hand, but the
+    // response must still carry it for the client to match it to its request.
+    let request_id = mcp_request.id();
+
+    respond(ctx, api_uri, mcp_request)
+        .await
+        .map_err(|error| error.with_id(request_id))
+}
+
+async fn respond<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>(
+    ctx: Arc<ServerCTX<Client>>,
+    api_uri: &str,
+    mcp_request: MCPRequest,
+) -> Result<Response, MCPError<serde_json::Value>> {
     match mcp_request {
         MCPRequest::Initialize(initialize_request) => {
-            let result = operations::initialize(ctx, &initialize_request).await?;
+            let result = operations::initialize(ctx, &initialize_request)?;
             Ok(Json(JSONRPCResult {
                 id: initialize_request.id.clone(),
                 result: ServerResult::Initialize(result),
@@ -68,7 +83,7 @@ pub async fn mcp_handler<
             .into_response())
         }
         MCPRequest::ListTools(list_tools_request) => {
-            let result = operations::list_tools(ctx, &list_tools_request, api_uri).await?;
+            let result = operations::list_tools(ctx, &list_tools_request).await?;
             Ok(Json(JSONRPCResult {
                 id: list_tools_request.id.clone(),
                 result: ServerResult::ListTools(result),

@@ -4,17 +4,20 @@
 
 ## Overview
 
-Haste Health is a headless EHR. Store clinical data as FHIR R4 and serve it to your applications, analytics, and AI agents.
+Haste Health is the open-source FHIR server for AI-native health apps. It stores clinical data as FHIR R4 and serves it to your applications, analytics and AI agents through one API, with OAuth2, SMART on FHIR and MCP built in.
+
+Epic, Oracle Health and HL7v2 in. FHIR, SQL-on-FHIR and MCP out. Written in Rust, licensed Apache-2.0, and yours to self-host, or [hosted with a signed BAA](https://haste.health/pricing).
 
 ## Running Locally
 
-The quickest way to get everything running is with the top-level [docker-compose.yml](./docker-compose.yml), which pulls the published images and starts PostgreSQL, Elasticsearch, the server, the worker, and the admin app:
+The quickest way to get everything running is with the top-level [docker-compose.yml](./docker-compose.yml), which pulls the published images and starts PostgreSQL, the server, the worker, and the admin app.
 
 ```bash
-docker-compose up
+curl -O https://raw.githubusercontent.com/HasteHealth/HasteHealth/main/docker-compose.yml
+docker compose up
 ```
 
-Once the containers are healthy, open `http://my-health_system.localhost:3001` and log in with:
+Once the containers are healthy, open `http://my-health--system.localhost:3001` and log in with:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -31,7 +34,8 @@ If you're actively developing on the backend or frontend instead of just running
 docker-compose -f docker-services-compose.yml up
 ```
 
-This starts a PostgreSQL database, Elasticsearch, and a migration job for PostgreSQL and Elasticsearch schema migrations.
+This starts a PostgreSQL database and a migration job for the repository and
+search index schema migrations.
 
 ### 2. Server
 
@@ -78,7 +82,7 @@ cd <repo-root>/frontend/packages/admin-app
 pnpm dev
 ```
 
-Then go to `http://my-health_system.localhost:3001` and fill in the following credentials:
+Then go to `http://my-health--system.localhost:3001` and fill in the following credentials:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -87,8 +91,20 @@ This tenant and user are created automatically when you run the migration in the
 
 ## Binaries
 
-- [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
-- [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
+One `haste-health` binary runs the server, the worker and the CLI. Install it with npm:
+
+```bash
+npm install -g haste-health
+haste-health --help
+```
+
+Or try it without installing:
+
+```bash
+npx haste-health --help
+```
+
+Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon. The Linux builds are static and run on any distribution. On Windows, use it inside WSL. Each [GitHub release](https://github.com/HasteHealth/HasteHealth/releases/latest) also has the binaries attached, for machines without Node.js.
 
 Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md).
 
@@ -120,7 +136,7 @@ Using `wrk` for performance testing.
 ### Example
 
 ```bash
-wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http://localhost:3000/w/ohio-health/zb154qm9/api/v1/fhir/r4/
+wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http://localhost:3000/w/ohio-health/zb154qm9/api/v1/fhir
 ```
 
 #### M3 Macbook Air Local 10 threads Postgres 18

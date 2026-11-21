@@ -1,6 +1,7 @@
 ---
 id: invoke-type
 title: invoke-type
+description: How to invoke a custom or standard FHIR operation on a resource type, such as $expand on ValueSet, using the CLI or cURL.
 sidebar_position: 13
 ---
 
@@ -76,7 +77,7 @@ console.log('Validation result:', result);
 Invoke the `$expand` operation on the ValueSet resource type using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/ValueSet/\$expand" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/ValueSet/\$expand" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

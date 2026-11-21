@@ -21,7 +21,7 @@ export type Options = {
 };
 
 function flatten<T>(arr: T[][]): T[] {
-  return arr.reduce((acc, v) => [...acc, ...v], []);
+  return arr.flat();
 }
 
 function assert(assertion: boolean, message?: string) {
@@ -310,8 +310,8 @@ function typeChecking<T extends ValidOperandType>(
 }
 
 export class InvalidOperandError extends Error {
-  private args: unknown[];
-  private operator: string;
+  private readonly args: unknown[];
+  private readonly operator: string;
   constructor(args: unknown[], operator: string) {
     super(
       `Invalid operands for operator: '${operator}' Found types '${typeof args[0]}' and '${typeof args[1]}'`

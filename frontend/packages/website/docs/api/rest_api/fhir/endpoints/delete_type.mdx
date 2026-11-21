@@ -1,6 +1,7 @@
 ---
 id: delete-type
 title: delete-type
+description: How to conditionally delete FHIR resources of a given type that match search criteria, using the TypeScript client or cURL.
 sidebar_position: 6
 ---
 
@@ -14,12 +15,17 @@ import TabItem from '@theme/TabItem';
 <Tabs>
 <TabItem value="cli" label="CLI" default>
 
-**Note:** The CLI `delete` command only supports deleting individual resource instances, not conditional deletion by type. For conditional deletion, use the TypeScript client or cURL.
+:::danger[Omitting the search parameters deletes every resource of that type]
+`parameters` is optional. Leave it out and the server deletes **every** resource
+of the given type, up to its configured delete limit (past which it errors
+rather than partially deleting). Always pass search criteria unless that's
+genuinely what you want.
+:::
 
-To delete a single Patient resource:
+To delete Patient resources matching a search:
 
 ```bash
-haste-health api delete-type Patient
+haste-health api delete-type Patient 'identifier=http://example.org/fhir/ids|12345'
 ```
 
 </TabItem>
@@ -50,7 +56,7 @@ console.log('Matching Patient resources deleted');
 Conditionally delete Patient resources using cURL:
 
 ```bash
-curl -X DELETE "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient?identifier=http://example.org/fhir/ids|12345" \
+curl -X DELETE "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/Patient?identifier=http://example.org/fhir/ids|12345" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 

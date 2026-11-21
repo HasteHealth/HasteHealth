@@ -1,15 +1,31 @@
 use std::sync::Arc;
 
-use haste_fhir_client::request::SearchRequest;
+use haste_fhir_client::{request::SearchRequest, url::Parameter};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
 use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use serde::Deserialize;
 
+pub mod config;
 pub mod elastic_search;
 pub mod indexing_conversion;
 pub mod memory;
+pub mod pg_search;
+pub mod project_parameters;
+mod query;
+pub mod search_parameter_cardinality;
+mod search_ranges;
+
+#[cfg(test)]
+mod proptests;
+
+/// The page size of a search that doesn't set `_count`.
+pub const DEFAULT_COUNT: u64 = 50;
+
+/// The largest page a search returns, whatever its `_count`. Elasticsearch's
+/// `index.max_result_window` defaults to the same 10k.
+pub const MAX_COUNT: u64 = 10_000;
 
 #[derive(Clone)]
 pub struct IndexResource {
@@ -22,6 +38,11 @@ pub struct IndexResource {
     pub fhir_method: FHIRMethod,
     pub resource_type: ResourceType,
     pub resource: Resource,
+
+    /// The repository's write sequence for this version. Versions of one
+    /// resource are ordered by it, which is what lets an index refuse to
+    /// replace a newer version with an older one replayed after it.
+    pub sequence: i64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -37,8 +58,37 @@ pub struct SearchReturn {
     pub entries: Vec<SearchEntry>,
 }
 
+/// Parameters a resource must match every one of: one branch of an [`AnyOf`].
+#[derive(Debug, Clone)]
+pub struct AllOf(pub Vec<Parameter>);
+
+/// Branches a resource must match at least one of, `ANDed` with the search's
+/// own parameters. Empty matches nothing. The server adds it on the caller's
+/// behalf (a `patient/` scope confining a search to one compartment, a
+/// granular scope narrowing it to the resources its search parameters
+/// match); it never comes from a URL.
+#[derive(Debug, Clone)]
+pub struct AnyOf(pub Vec<AllOf>);
+
+impl AnyOf {
+    /// One branch per parameter: a resource matches when it matches any one.
+    #[must_use]
+    pub fn of_parameters(parameters: Vec<Parameter>) -> Self {
+        AnyOf(
+            parameters
+                .into_iter()
+                .map(|parameter| AllOf(vec![parameter]))
+                .collect(),
+        )
+    }
+}
+
+#[derive(Debug, Default)]
 pub struct SearchOptions {
     pub count_limit: Option<u64>,
+    /// Filters added on the caller's behalf; a resource must satisfy every
+    /// one of them.
+    pub filters: Vec<AnyOf>,
 }
 
 #[derive(Clone, Debug)]
@@ -84,6 +134,15 @@ pub trait SearchParameterResolve: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
     ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> + Send;
+    /// Drops any cached copy of the project's own parameters, so the next
+    /// lookup reads its indexed `SearchParameter`s again.
+    fn invalidate_project(
+        &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+    ) -> impl Future<Output = ()> + Send {
+        std::future::ready(())
+    }
 }
 
 pub struct IndexFailure {

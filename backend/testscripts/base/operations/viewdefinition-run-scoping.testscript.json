@@ -1,0 +1,4194 @@
+{
+    "id": "viewdefinition-run-scoping-test",
+    "url": "https://haste.health/fhir/viewdefinition-run-scoping-test",
+    "name": "ViewDefinition run scoping Test",
+    "title": "ViewDefinition run scoping Test",
+    "status": "active",
+    "description": "Tests which server data $viewdefinition-run reads: patient and group compartments past one search page, both together, several groups, an empty group, _since with and without them, and instance-level runs.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "sof-scope-p1",
+            "resourceType": "Patient",
+            "gender": "unknown"
+        },
+        {
+            "id": "sof-scope-p2",
+            "resourceType": "Patient",
+            "gender": "unknown"
+        },
+        {
+            "id": "sof-scope-p3",
+            "resourceType": "Patient",
+            "gender": "unknown"
+        },
+        {
+            "id": "sof-scope-group",
+            "resourceType": "Group",
+            "type": "person",
+            "actual": true,
+            "member": [
+                {
+                    "entity": {
+                        "reference": "Patient/sof-scope-p1"
+                    }
+                },
+                {
+                    "entity": {
+                        "reference": "Patient/sof-scope-p2"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "sof-scope-other",
+            "resourceType": "Group",
+            "type": "person",
+            "actual": true,
+            "member": [
+                {
+                    "entity": {
+                        "reference": "Patient/sof-scope-p3"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "sof-scope-empty",
+            "resourceType": "Group",
+            "type": "person",
+            "actual": true
+        },
+        {
+            "id": "sof-scope-p1-obs-01",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-02",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-03",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-04",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-05",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-06",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-07",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-08",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-09",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-10",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-11",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-12",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-13",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-14",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-15",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-16",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-17",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-18",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-19",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-20",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-21",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-22",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-23",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-24",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-25",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-26",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-27",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-28",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-29",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-30",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-31",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-32",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-33",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-34",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-35",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-36",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-37",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-38",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-39",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-40",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-41",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-42",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-43",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-44",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-45",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-46",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-47",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-48",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-49",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-50",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-51",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-52",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-53",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-54",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-55",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-56",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-57",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-58",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-59",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p1-obs-60",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p1"
+            }
+        },
+        {
+            "id": "sof-scope-p2-obs-01",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p2"
+            }
+        },
+        {
+            "id": "sof-scope-p3-obs-01",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "sof scope"
+            },
+            "subject": {
+                "reference": "Patient/sof-scope-p3"
+            }
+        },
+        {
+            "resourceType": "ViewDefinition",
+            "resource": "Observation",
+            "status": "active",
+            "where": [
+                {
+                    "path": "id.startsWith('sof-scope-')"
+                }
+            ],
+            "select": [
+                {
+                    "column": [
+                        {
+                            "name": "id",
+                            "path": "id"
+                        }
+                    ]
+                }
+            ],
+            "id": "sof-scope-view"
+        },
+        {
+            "id": "params-patient-obs",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p1"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-group-patients",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-group-obs",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-patient-outside-group",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p3"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-patient-in-group",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p1"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-empty-group",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-empty"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-two-groups",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-other"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-group-and-missing",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-group"
+                    }
+                },
+                {
+                    "name": "group",
+                    "valueReference": {
+                        "reference": "Group/sof-scope-missing"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-since-past-obs",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p2"
+                    }
+                },
+                {
+                    "name": "_since",
+                    "valueInstant": "2000-01-01T00:00:00Z"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-since-future-obs",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p2"
+                    }
+                },
+                {
+                    "name": "_since",
+                    "valueInstant": "2999-01-01T00:00:00Z"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-since-past-patient",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p1"
+                    }
+                },
+                {
+                    "name": "_since",
+                    "valueInstant": "2000-01-01T00:00:00Z"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-since-future-patient",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Patient",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p1"
+                    }
+                },
+                {
+                    "name": "_since",
+                    "valueInstant": "2999-01-01T00:00:00Z"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-since-future-all",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "_since",
+                    "valueInstant": "2999-01-01T00:00:00Z"
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-instance",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p2"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        },
+        {
+            "id": "params-instance-with-view",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "viewResource",
+                    "resource": {
+                        "resourceType": "ViewDefinition",
+                        "resource": "Observation",
+                        "status": "active",
+                        "where": [
+                            {
+                                "path": "id.startsWith('sof-scope-')"
+                            }
+                        ],
+                        "select": [
+                            {
+                                "column": [
+                                    {
+                                        "name": "id",
+                                        "path": "id"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sof-scope-p2"
+                    }
+                },
+                {
+                    "name": "_format",
+                    "valueCode": "json"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-sof-scope-p1",
+            "resource": {
+                "reference": "#sof-scope-p1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p2",
+            "resource": {
+                "reference": "#sof-scope-p2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p3",
+            "resource": {
+                "reference": "#sof-scope-p3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-group",
+            "resource": {
+                "reference": "#sof-scope-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-other",
+            "resource": {
+                "reference": "#sof-scope-other"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-empty",
+            "resource": {
+                "reference": "#sof-scope-empty"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-01",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-01"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-02",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-02"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-03",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-03"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-04",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-04"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-05",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-05"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-06",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-06"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-07",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-07"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-08",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-08"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-09",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-09"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-10",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-11",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-12",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-13",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-14",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-15",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-16",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-16"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-17",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-17"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-18",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-18"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-19",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-19"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-20",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-20"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-21",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-21"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-22",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-22"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-23",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-23"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-24",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-24"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-25",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-25"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-26",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-26"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-27",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-27"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-28",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-28"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-29",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-29"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-30",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-30"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-31",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-31"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-32",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-32"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-33",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-33"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-34",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-34"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-35",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-35"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-36",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-36"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-37",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-37"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-38",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-38"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-39",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-39"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-40",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-40"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-41",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-41"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-42",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-42"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-43",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-43"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-44",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-44"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-45",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-45"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-46",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-46"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-47",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-47"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-48",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-48"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-49",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-49"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-50",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-50"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-51",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-51"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-52",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-52"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-53",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-53"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-54",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-54"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-55",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-55"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-56",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-56"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-57",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-57"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-58",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-58"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-59",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-59"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p1-obs-60",
+            "resource": {
+                "reference": "#sof-scope-p1-obs-60"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p2-obs-01",
+            "resource": {
+                "reference": "#sof-scope-p2-obs-01"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-p3-obs-01",
+            "resource": {
+                "reference": "#sof-scope-p3-obs-01"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sof-scope-view",
+            "resource": {
+                "reference": "#sof-scope-view"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-patient-obs",
+            "resource": {
+                "reference": "#params-patient-obs"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-group-patients",
+            "resource": {
+                "reference": "#params-group-patients"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-group-obs",
+            "resource": {
+                "reference": "#params-group-obs"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-patient-outside-group",
+            "resource": {
+                "reference": "#params-patient-outside-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-patient-in-group",
+            "resource": {
+                "reference": "#params-patient-in-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-empty-group",
+            "resource": {
+                "reference": "#params-empty-group"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-two-groups",
+            "resource": {
+                "reference": "#params-two-groups"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-group-and-missing",
+            "resource": {
+                "reference": "#params-group-and-missing"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-since-past-obs",
+            "resource": {
+                "reference": "#params-since-past-obs"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-since-future-obs",
+            "resource": {
+                "reference": "#params-since-future-obs"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-since-past-patient",
+            "resource": {
+                "reference": "#params-since-past-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-since-future-patient",
+            "resource": {
+                "reference": "#params-since-future-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-since-future-all",
+            "resource": {
+                "reference": "#params-since-future-all"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-instance",
+            "resource": {
+                "reference": "#params-instance"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-params-instance-with-view",
+            "resource": {
+                "reference": "#params-instance-with-view"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient sof-scope-p1.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p1",
+                    "sourceId": "fixture-sof-scope-p1",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient sof-scope-p2.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p2",
+                    "sourceId": "fixture-sof-scope-p2",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Patient sof-scope-p3.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p3",
+                    "sourceId": "fixture-sof-scope-p3",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Group of Patients 1 and 2.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-group",
+                    "sourceId": "fixture-sof-scope-group",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Group of Patient 3.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-other",
+                    "sourceId": "fixture-sof-scope-other",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Group with no members.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-empty",
+                    "sourceId": "fixture-sof-scope-empty",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-01",
+                    "sourceId": "fixture-sof-scope-p1-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-02.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-02",
+                    "sourceId": "fixture-sof-scope-p1-obs-02",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-03.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-03",
+                    "sourceId": "fixture-sof-scope-p1-obs-03",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-04.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-04",
+                    "sourceId": "fixture-sof-scope-p1-obs-04",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-05.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-05",
+                    "sourceId": "fixture-sof-scope-p1-obs-05",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-06.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-06",
+                    "sourceId": "fixture-sof-scope-p1-obs-06",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-07.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-07",
+                    "sourceId": "fixture-sof-scope-p1-obs-07",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-08.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-08",
+                    "sourceId": "fixture-sof-scope-p1-obs-08",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-09.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-09",
+                    "sourceId": "fixture-sof-scope-p1-obs-09",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-10.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-10",
+                    "sourceId": "fixture-sof-scope-p1-obs-10",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-11.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-11",
+                    "sourceId": "fixture-sof-scope-p1-obs-11",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-12.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-12",
+                    "sourceId": "fixture-sof-scope-p1-obs-12",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-13.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-13",
+                    "sourceId": "fixture-sof-scope-p1-obs-13",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-14.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-14",
+                    "sourceId": "fixture-sof-scope-p1-obs-14",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-15.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-15",
+                    "sourceId": "fixture-sof-scope-p1-obs-15",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-16.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-16",
+                    "sourceId": "fixture-sof-scope-p1-obs-16",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-17.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-17",
+                    "sourceId": "fixture-sof-scope-p1-obs-17",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-18.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-18",
+                    "sourceId": "fixture-sof-scope-p1-obs-18",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-19.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-19",
+                    "sourceId": "fixture-sof-scope-p1-obs-19",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-20.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-20",
+                    "sourceId": "fixture-sof-scope-p1-obs-20",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-21.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-21",
+                    "sourceId": "fixture-sof-scope-p1-obs-21",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-22.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-22",
+                    "sourceId": "fixture-sof-scope-p1-obs-22",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-23.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-23",
+                    "sourceId": "fixture-sof-scope-p1-obs-23",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-24.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-24",
+                    "sourceId": "fixture-sof-scope-p1-obs-24",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-25.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-25",
+                    "sourceId": "fixture-sof-scope-p1-obs-25",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-26.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-26",
+                    "sourceId": "fixture-sof-scope-p1-obs-26",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-27.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-27",
+                    "sourceId": "fixture-sof-scope-p1-obs-27",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-28.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-28",
+                    "sourceId": "fixture-sof-scope-p1-obs-28",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-29.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-29",
+                    "sourceId": "fixture-sof-scope-p1-obs-29",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-30.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-30",
+                    "sourceId": "fixture-sof-scope-p1-obs-30",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-31.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-31",
+                    "sourceId": "fixture-sof-scope-p1-obs-31",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-32.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-32",
+                    "sourceId": "fixture-sof-scope-p1-obs-32",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-33.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-33",
+                    "sourceId": "fixture-sof-scope-p1-obs-33",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-34.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-34",
+                    "sourceId": "fixture-sof-scope-p1-obs-34",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-35.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-35",
+                    "sourceId": "fixture-sof-scope-p1-obs-35",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-36.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-36",
+                    "sourceId": "fixture-sof-scope-p1-obs-36",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-37.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-37",
+                    "sourceId": "fixture-sof-scope-p1-obs-37",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-38.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-38",
+                    "sourceId": "fixture-sof-scope-p1-obs-38",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-39.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-39",
+                    "sourceId": "fixture-sof-scope-p1-obs-39",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-40.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-40",
+                    "sourceId": "fixture-sof-scope-p1-obs-40",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-41.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-41",
+                    "sourceId": "fixture-sof-scope-p1-obs-41",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-42.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-42",
+                    "sourceId": "fixture-sof-scope-p1-obs-42",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-43.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-43",
+                    "sourceId": "fixture-sof-scope-p1-obs-43",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-44.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-44",
+                    "sourceId": "fixture-sof-scope-p1-obs-44",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-45.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-45",
+                    "sourceId": "fixture-sof-scope-p1-obs-45",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-46.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-46",
+                    "sourceId": "fixture-sof-scope-p1-obs-46",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-47.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-47",
+                    "sourceId": "fixture-sof-scope-p1-obs-47",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-48.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-48",
+                    "sourceId": "fixture-sof-scope-p1-obs-48",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-49.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-49",
+                    "sourceId": "fixture-sof-scope-p1-obs-49",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-50.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-50",
+                    "sourceId": "fixture-sof-scope-p1-obs-50",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-51.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-51",
+                    "sourceId": "fixture-sof-scope-p1-obs-51",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-52.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-52",
+                    "sourceId": "fixture-sof-scope-p1-obs-52",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-53.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-53",
+                    "sourceId": "fixture-sof-scope-p1-obs-53",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-54.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-54",
+                    "sourceId": "fixture-sof-scope-p1-obs-54",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-55.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-55",
+                    "sourceId": "fixture-sof-scope-p1-obs-55",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-56.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-56",
+                    "sourceId": "fixture-sof-scope-p1-obs-56",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-57.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-57",
+                    "sourceId": "fixture-sof-scope-p1-obs-57",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-58.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-58",
+                    "sourceId": "fixture-sof-scope-p1-obs-58",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-59.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-59",
+                    "sourceId": "fixture-sof-scope-p1-obs-59",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p1-obs-60.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-60",
+                    "sourceId": "fixture-sof-scope-p1-obs-60",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p2-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p2-obs-01",
+                    "sourceId": "fixture-sof-scope-p2-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Observation sof-scope-p3-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p3-obs-01",
+                    "sourceId": "fixture-sof-scope-p3-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "Stored view for the instance-level run.",
+                    "resource": "ViewDefinition",
+                    "targetId": "fixture-sof-scope-view",
+                    "sourceId": "fixture-sof-scope-view",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "patient-reads-every-page",
+            "name": "patient covers more than one search page",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Observation view for Patient 1, who has 60 Observations (the default search page is 50).",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-patient-obs",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "All 60 of Patient 1's Observations, in id order, and no one else's.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTAxIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDIifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wMyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTA0In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDUifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wNiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTA3In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDgifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wOSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTEwIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTEifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xMiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTEzIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTQifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xNSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTE2In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTcifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xOCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTE5In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjAifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yMSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTIyIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjMifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yNCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTI1In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjYifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yNyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTI4In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjkifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zMCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTMxIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzIifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zMyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTM0In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzUifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zNiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTM3In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzgifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zOSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQwIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDEifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00MiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQzIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDQifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00NSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQ2In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDcifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00OCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQ5In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTAifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01MSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTUyIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTMifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01NCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTU1In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTYifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01NyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTU4In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTkifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy02MCJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "group-patients",
+            "name": "group covers its members",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for the Group of Patients 1 and 2.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-group-patients",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patients 1 and 2, not Patient 3.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEifSx7ImlkIjoic29mLXNjb3BlLXAyIn1d'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "group-observations",
+            "name": "group covers its members' compartments",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Observation view for the Group of Patients 1 and 2.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-group-obs",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation of Patients 1 and 2, none of Patient 3's.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTAxIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDIifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wMyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTA0In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDUifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wNiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTA3In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMDgifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0wOSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTEwIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTEifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xMiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTEzIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTQifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xNSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTE2In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMTcifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0xOCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTE5In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjAifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yMSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTIyIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjMifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yNCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTI1In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjYifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0yNyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTI4In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMjkifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zMCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTMxIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzIifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zMyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTM0In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzUifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zNiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTM3In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtMzgifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy0zOSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQwIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDEifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00MiJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQzIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDQifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00NSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQ2In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNDcifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy00OCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTQ5In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTAifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01MSJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTUyIn0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTMifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01NCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTU1In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTYifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy01NyJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDEtb2JzLTU4In0seyJpZCI6InNvZi1zY29wZS1wMS1vYnMtNTkifSx7ImlkIjoic29mLXNjb3BlLXAxLW9icy02MCJ9LHsiaWQiOiJzb2Ytc2NvcGUtcDItb2JzLTAxIn1d'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "patient-outside-group",
+            "name": "patient and group together allow only what both allow",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for Patient 3 and the Group, which Patient 3 is not in.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-patient-outside-group",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No rows: the two limits leave nobody.",
+                        "expression": "Binary.data = 'W10='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for Patient 1 and the Group, which Patient 1 is in.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-patient-in-group",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only Patient 1.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEifV0='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "empty-group",
+            "name": "an empty group gives no rows",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for a Group with no members.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-empty-group",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No rows, rather than every Patient.",
+                        "expression": "Binary.data = 'W10='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "several-groups",
+            "name": "several groups cover the members of any of them",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for the Group of Patients 1 and 2 and the Group of Patient 3.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-two-groups",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patients 1, 2 and 3.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEifSx7ImlkIjoic29mLXNjb3BlLXAyIn0seyJpZCI6InNvZi1zY29wZS1wMyJ9XQ=='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for that Group and one the server doesn't have.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-group-and-missing",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A missing group is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('sof-scope-missing')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "since-with-patient",
+            "name": "_since applies to a patient's compartment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for Patient 2 with _since in the past.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-since-past-obs",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient 2's Observation changed after it.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDItb2JzLTAxIn1d'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run for Patient 2 with _since in the future.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-since-future-obs",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing changed after it.",
+                        "expression": "Binary.data = 'W10='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "since-on-patient-view",
+            "name": "_since applies to a Patient view limited by patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for Patient 1 with _since in the past.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-since-past-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient 1.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDEifV0='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Patient view for Patient 1 with _since in the future.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-since-future-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing changed after it.",
+                        "expression": "Binary.data = 'W10='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "since-without-patient",
+            "name": "_since applies without patient or group",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the Observation view over all server data with _since in the future.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-since-future-all",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing changed after it.",
+                        "expression": "Binary.data = 'W10='",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "instance-level",
+            "name": "the view can be the ViewDefinition in the URL",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run the stored ViewDefinition at instance level for Patient 2.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-instance",
+                        "targetId": "fixture-sof-scope-view",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The run succeeds",
+                        "responseCode": "200",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient 2's Observation.",
+                        "expression": "Binary.data = 'W3siaWQiOiJzb2Ytc2NvcGUtcDItb2JzLTAxIn1d'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "description": "Run at instance level and also send viewResource.",
+                        "url": "viewdefinition-run",
+                        "resource": "ViewDefinition",
+                        "sourceId": "fixture-params-instance-with-view",
+                        "targetId": "fixture-sof-scope-view",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "A view parameter at instance level is 400",
+                        "responseCode": "400",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The OperationOutcome is 'invalid' and names the problem.",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid' and diagnostics.contains('instance level')).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-02.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-02",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-03.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-03",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-04.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-04",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-05.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-05",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-06.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-06",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-07.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-07",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-08.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-08",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-09.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-09",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-10.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-10",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-11.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-11",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-12.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-12",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-13.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-13",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-14.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-14",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-15.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-15",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-16.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-16",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-17.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-17",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-18.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-18",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-19.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-19",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-20.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-20",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-21.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-21",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-22.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-22",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-23.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-23",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-24.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-24",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-25.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-25",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-26.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-26",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-27.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-27",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-28.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-28",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-29.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-29",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-30.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-30",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-31.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-31",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-32.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-32",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-33.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-33",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-34.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-34",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-35.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-35",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-36.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-36",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-37.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-37",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-38.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-38",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-39.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-39",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-40.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-40",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-41.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-41",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-42.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-42",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-43.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-43",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-44.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-44",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-45.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-45",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-46.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-46",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-47.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-47",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-48.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-48",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-49.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-49",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-50.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-50",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-51.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-51",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-52.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-52",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-53.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-53",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-54.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-54",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-55.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-55",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-56.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-56",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-57.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-57",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-58.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-58",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-59.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-59",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1-obs-60.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p1-obs-60",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p2-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p2-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p3-obs-01.",
+                    "resource": "Observation",
+                    "targetId": "fixture-sof-scope-p3-obs-01",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove the stored view.",
+                    "resource": "ViewDefinition",
+                    "targetId": "fixture-sof-scope-view",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-group.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-group",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-other.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-other",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-empty.",
+                    "resource": "Group",
+                    "targetId": "fixture-sof-scope-empty",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p1.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p1",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p2.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p2",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "delete"
+                    },
+                    "description": "Remove sof-scope-p3.",
+                    "resource": "Patient",
+                    "targetId": "fixture-sof-scope-p3",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

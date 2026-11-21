@@ -1,0 +1,87 @@
+/*
+ * Infima styles bare table elements (block display, zebra rows, cell
+ * borders) outside any cascade layer, so layered Tailwind utilities can't
+ * override them. These tables are styled here instead.
+ */
+.table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  overflow: visible;
+  font-size: 0.8125rem;
+}
+
+.table tr,
+.table tr:nth-child(2n) {
+  background: transparent;
+  border: 0;
+}
+
+.table th,
+.table td {
+  border: 0;
+  border-bottom: 1px solid var(--coverage-rule);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--coverage-muted);
+  background: var(--coverage-head);
+}
+
+.table tbody tr:last-child > td {
+  border-bottom: 0;
+}
+
+/* A type heading inside the feature table. */
+.table td.group {
+  padding-top: 1.25rem;
+  background: var(--coverage-head);
+}
+
+/* Expanded detail rows sit on a tinted panel, flush with the row above. */
+.table td.detail {
+  padding: 0;
+  background: var(--coverage-head);
+}
+
+.table .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.root {
+  --coverage-rule: rgb(226 232 240);
+  --coverage-head: rgb(248 250 252);
+  --coverage-muted: rgb(100 116 139);
+}
+
+[data-theme="dark"] .root {
+  --coverage-rule: rgb(51 65 85);
+  --coverage-head: rgb(15 23 42 / 0.6);
+  --coverage-muted: rgb(148 163 184);
+}
+
+/*
+ * Horizontal scroll for wide tables. `contain: inline-size` stops the table's
+ * width from propagating up and widening the whole docs column on phones.
+ */
+.scroll {
+  overflow-x: auto;
+  contain: inline-size;
+}
+
+/* On phones, keep the backend results on screen; secondary columns go. */
+@media (max-width: 640px) {
+  .table .optional {
+    display: none;
+  }
+}

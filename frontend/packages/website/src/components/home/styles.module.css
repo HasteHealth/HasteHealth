@@ -1,0 +1,269 @@
+/*
+ * Homepage-only styles: the product tiles and what moves inside them when
+ * they are hovered, the agent session's step-by-step reveal, and the
+ * conformance cells. What the marketing pages share (hero backdrop, load-in,
+ * card hover) is in src/components/site/styles.module.css. Everything here
+ * is switched off under `prefers-reduced-motion` at the bottom of this file.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Product tiles
+ *
+ * A tile is a link. Hovering it tints the border and lets the illustration
+ * inside respond: a few elements take the brand colour or lift, one after
+ * another (`--i` is the element's place in the sequence). Every illustration
+ * is complete at rest; the hover only adds the accent, so a touch screen or
+ * a keyboard sees the same picture.
+ * ------------------------------------------------------------------------- */
+
+.tile {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.tile:hover,
+.tile:focus-visible {
+  border-color: var(--color-brand-300);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 16px 40px -24px rgb(15 23 42 / 0.2);
+}
+
+/* A chip, a row, a verdict: grey at rest, brand on hover. */
+.accent {
+  transition:
+    color 250ms ease calc(var(--i, 0) * 80ms),
+    border-color 250ms ease calc(var(--i, 0) * 80ms),
+    background-color 250ms ease calc(var(--i, 0) * 80ms);
+}
+
+.tile:hover .accent {
+  color: var(--color-brand-900);
+  border-color: var(--color-brand-300);
+  background-color: var(--color-brand-50);
+}
+
+/* A status code with a dot before it; the dot lights on hover. */
+.status {
+  color: var(--color-slate-400);
+  transition: color 250ms ease calc(var(--i, 0) * 90ms);
+}
+
+.status::before {
+  content: "";
+  display: inline-block;
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-right: 0.5rem;
+  border-radius: 999px;
+  vertical-align: middle;
+  background: var(--color-slate-300);
+  transition: background-color 250ms ease calc(var(--i, 0) * 90ms);
+}
+
+.tile:hover .status {
+  color: var(--color-brand-800);
+}
+
+.tile:hover .status::before {
+  background: var(--color-brand-500);
+}
+
+/* A small card that lifts a little. */
+.lift {
+  transition:
+    transform 250ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 60ms),
+    border-color 250ms ease calc(var(--i, 0) * 60ms);
+}
+
+.tile:hover .lift {
+  transform: translate3d(0, -0.1875rem, 0);
+  border-color: var(--color-brand-300);
+}
+
+/* A text cursor at the end of a line of code, blinking while hovered. */
+.caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.1em;
+  margin-left: 0.125em;
+  vertical-align: text-bottom;
+  background: var(--color-brand-500);
+  opacity: 0;
+}
+
+.tile:hover .caret {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Agent session
+ *
+ * The panel is a reveal target (src/components/site/motion.tsx). It stays in
+ * place while its pieces arrive one at a time, each after `--step-delay`, in
+ * the order the server does the work. Without JavaScript, or with reduced
+ * motion, the panel is simply complete.
+ * ------------------------------------------------------------------------- */
+
+.session[data-reveal="armed"] {
+  opacity: 1;
+  transform: none;
+}
+
+.session[data-reveal="armed"] .step {
+  opacity: 0;
+  transform: translate3d(0, 0.5rem, 0);
+}
+
+.session[data-reveal="in"] .step {
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1) var(--step-delay, 0ms),
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1) var(--step-delay, 0ms);
+}
+
+/* A trace step's tick lands just after the step itself. */
+.session[data-reveal="armed"] .tick {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.session[data-reveal="in"] .tick {
+  transition:
+    opacity 400ms ease calc(var(--step-delay, 0ms) + 160ms),
+    transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1)
+      calc(var(--step-delay, 0ms) + 160ms);
+}
+
+/* The "connected" light: a soft halo that breathes. */
+.live {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-brand-500);
+}
+
+.live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: halo 2.6s ease-out infinite;
+}
+
+@keyframes halo {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Conformance cells
+ *
+ * One square per resource type. The block is a reveal target, but it stays in
+ * place and lets its squares fill in as a wave instead of sliding as a slab.
+ * ------------------------------------------------------------------------- */
+
+.cells {
+  display: grid;
+  grid-template-columns: repeat(var(--cells-per-row, 31), minmax(0, 1fr));
+  gap: 0.1875rem;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 0.125rem;
+  background: var(--color-brand-600);
+}
+
+.cell[data-result="warn"] {
+  background: #f59e0b;
+}
+
+.cell[data-result="fail"] {
+  background: #dc2626;
+}
+
+.cells[data-reveal="armed"] {
+  opacity: 1;
+  transform: none;
+}
+
+.cells[data-reveal="armed"] .cell {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.cells[data-reveal="in"] .cell {
+  transition:
+    opacity 420ms ease calc(var(--i) * 5ms),
+    transform 520ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 5ms);
+}
+
+@media (max-width: 640px) {
+  .cells {
+    --cells-per-row: 20;
+  }
+}
+
+/* Paper has no scroll position: print everything, armed or not. */
+@media print {
+  .session[data-reveal="armed"] .step,
+  .session[data-reveal="armed"] .tick,
+  .cells[data-reveal="armed"] .cell {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion: everything holds still, fully drawn.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .accent,
+  .status,
+  .status::before,
+  .lift,
+  .session .step,
+  .session .tick,
+  .cells .cell {
+    transition: none;
+  }
+
+  .tile:hover .lift {
+    transform: none;
+  }
+
+  .tile:hover .caret,
+  .live::after {
+    animation: none;
+  }
+
+  .session[data-reveal="armed"] .step,
+  .session[data-reveal="armed"] .tick,
+  .cells[data-reveal="armed"] .cell {
+    opacity: 1;
+    transform: none;
+  }
+}
