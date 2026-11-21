@@ -603,7 +603,7 @@ impl<B: Backend> Handler<B> for Storage {
                         .collect();
 
                     let update_search = SearchRequest::Type(FHIRSearchTypeRequest {
-                        resource_type: update_request.resource_type.clone(),
+                        resource_type: update_request.resource_type,
                         parameters: ParsedParameters::new(update_parameters),
                     });
                     let search_results = state

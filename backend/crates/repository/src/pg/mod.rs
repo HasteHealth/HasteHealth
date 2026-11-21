@@ -49,7 +49,7 @@ pub enum StoreError {
 /// struct for `resource_type`, skipping the `resourceType`-tagged enum's buffering.
 pub(crate) fn decode_resource(
     row: &PgRow,
-    resource_type: &ResourceType,
+    resource_type: ResourceType,
 ) -> Result<Resource, sqlx::Error> {
     let bytes = row
         .try_get_raw("resource")?

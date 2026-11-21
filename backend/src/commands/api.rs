@@ -260,7 +260,7 @@ pub(crate) async fn run(
             resource_type,
             file,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let resource =
                 derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
@@ -275,7 +275,7 @@ pub(crate) async fn run(
             Ok(())
         }
         ApiCommands::Read { resource_type, id } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client.read((), resource_type, id.clone()).await?;
 
@@ -320,7 +320,7 @@ pub(crate) async fn run(
                 ));
             };
 
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client
                 .patch((), resource_type, id.clone(), patches)
@@ -339,7 +339,7 @@ pub(crate) async fn run(
             data,
             file,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let resource =
                 derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
@@ -393,7 +393,7 @@ pub(crate) async fn run(
             id,
             version_id,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client
                 .vread((), resource_type, id.clone(), version_id.clone())
@@ -439,7 +439,7 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client
                 .history_type(
@@ -461,7 +461,7 @@ pub(crate) async fn run(
             id,
             parameters,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client
                 .history_instance(
@@ -483,7 +483,7 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let result = fhir_client
                 .search_type(
@@ -542,7 +542,7 @@ pub(crate) async fn run(
             file,
             data,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
@@ -567,7 +567,7 @@ pub(crate) async fn run(
             file,
             data,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
@@ -602,10 +602,10 @@ pub(crate) async fn run(
             Ok(())
         }
         ApiCommands::DeleteInstance { resource_type, id } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             fhir_client
-                .delete_instance((), resource_type.clone(), id.clone())
+                .delete_instance((), resource_type, id.clone())
                 .await?;
 
             println!(
@@ -620,13 +620,13 @@ pub(crate) async fn run(
             resource_type,
             parameters,
         } => {
-            let resource_type = resource_type.clone();
+            let resource_type = *resource_type;
 
             let parsed_parameters =
                 ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?;
 
             fhir_client
-                .delete_type((), resource_type.clone(), parsed_parameters)
+                .delete_type((), resource_type, parsed_parameters)
                 .await?;
 
             println!(

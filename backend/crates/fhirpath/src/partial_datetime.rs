@@ -98,12 +98,7 @@ impl PartialDateTime {
 
 impl fmt::Display for PartialDateTime {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}T{}",
-            self.date.format("%Y-%m-%d"),
-            self.time.to_string()
-        )?;
+        write!(f, "{}T{}", self.date.format("%Y-%m-%d"), self.time)?;
         match self.offset {
             Some(offset) => write!(f, "{offset}"),
             None => Ok(()),

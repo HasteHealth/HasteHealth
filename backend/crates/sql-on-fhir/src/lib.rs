@@ -93,7 +93,7 @@ const SCOPE_KEYS_PER_READ: usize = 1000;
 fn scope_id(
     parameter: &str,
     reference: &Reference,
-    resource_type: &ResourceType,
+    resource_type: ResourceType,
 ) -> Result<String, OperationOutcomeError> {
     let value = reference_value(reference)?;
     reference_id(&value, resource_type.as_ref())
@@ -125,13 +125,13 @@ async fn patient_scope<CTX: Clone>(
     let patient = input
         .patient
         .as_ref()
-        .map(|reference| scope_id("patient", reference, &ResourceType::Patient))
+        .map(|reference| scope_id("patient", reference, ResourceType::Patient))
         .transpose()?;
     let groups = input
         .group
         .iter()
         .flatten()
-        .map(|reference| scope_id("group", reference, &ResourceType::Group))
+        .map(|reference| scope_id("group", reference, ResourceType::Group))
         .collect::<Result<Vec<_>, _>>()?;
     if patient.is_none() && groups.is_empty() {
         return Ok(None);
@@ -344,7 +344,7 @@ async fn add_rows<'v>(
         .limit
         .unwrap_or_else(|| run.limits.max_rows.saturating_add(1));
 
-    for resource in resources_of_type(resources, &run.resource_type) {
+    for resource in resources_of_type(resources, run.resource_type) {
         if !passes_where_clauses(
             run.fp_engine,
             run.variables.clone(),
@@ -460,11 +460,7 @@ async fn rows_from_history<
         }
 
         let entries = client
-            .history_type(
-                context.clone(),
-                run.resource_type.clone(),
-                parameters.into(),
-            )
+            .history_type(context.clone(), run.resource_type, parameters.into())
             .await?
             .entry
             .unwrap_or_default();
@@ -497,7 +493,7 @@ async fn rows_from_compartments<
     let mut seen = HashSet::new();
     let mut read = 0;
 
-    for parameter in compartment::patient_search_parameters(&run.resource_type)? {
+    for parameter in compartment::patient_search_parameters(run.resource_type)? {
         for patients in patients.chunks(PATIENTS_PER_SEARCH) {
             let mut offset = 0;
 
@@ -513,7 +509,7 @@ async fn rows_from_compartments<
                 let resources: Vec<Resource> = client
                     .search_type(
                         context.clone(),
-                        run.resource_type.clone(),
+                        run.resource_type,
                         compartment_search(&parameter, patients, since, offset),
                     )
                     .await?
@@ -1021,13 +1017,10 @@ async fn column_row<'r, 'v>(
 /// The resources a view runs over: those of its resource type. A Bundle of another type stands
 /// for its entries, so its entries of that type are kept. Resources sent with the request can be
 /// of any type, and a view gives rows only for its own.
-fn resources_of_type<'r>(
-    resources: &'r [Resource],
-    resource_type: &ResourceType,
-) -> Vec<&'r Resource> {
+fn resources_of_type(resources: &[Resource], resource_type: ResourceType) -> Vec<&Resource> {
     let mut matching = Vec::new();
     for resource in resources {
-        if &resource.resource_type() == resource_type {
+        if resource.resource_type() == resource_type {
             matching.push(resource);
         } else if let Resource::Bundle(bundle) = resource {
             matching.extend(
@@ -1036,7 +1029,7 @@ fn resources_of_type<'r>(
                     .iter()
                     .flatten()
                     .filter_map(|entry| entry.resource.as_deref())
-                    .filter(|resource| &resource.resource_type() == resource_type),
+                    .filter(|resource| resource.resource_type() == resource_type),
             );
         }
     }

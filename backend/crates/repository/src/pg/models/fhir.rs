@@ -429,7 +429,7 @@ where
     .try_map(|row: PgRow| {
         let resource_type = row_resource_type(&row)?;
         Ok(ReturnVersionedResource {
-            resource: decode_resource(&row, &resource_type)?,
+            resource: decode_resource(&row, resource_type)?,
             version_id: row.try_get("version_id")?,
         })
     })
@@ -483,7 +483,7 @@ where
     .bind(version_id.as_ref())
     .bind(resource_type.as_ref())
     .bind(resource_id.as_ref())
-    .try_map(|row: PgRow| decode_resource(&row, resource_type))
+    .try_map(|row: PgRow| decode_resource(&row, *resource_type))
     .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
@@ -518,7 +518,7 @@ where
         if row.try_get("deleted")? {
             return Ok(None);
         }
-        decode_resource(&row, resource_type).map(Some)
+        decode_resource(&row, *resource_type).map(Some)
     })
     .fetch_optional(executor)
     .await
@@ -565,7 +565,7 @@ where
         if row.try_get("deleted")? {
             return Ok(None);
         }
-        decode_resource(&row, &row_resource_type(&row)?).map(Some)
+        decode_resource(&row, row_resource_type(&row)?).map(Some)
     })
     .fetch_all(executor)
     .await
@@ -720,7 +720,7 @@ where
         .try_map(|row: PgRow| {
             let resource_type = row_resource_type(&row)?;
             Ok(ResourceHistoryValue {
-                resource: decode_resource(&row, &resource_type)?,
+                resource: decode_resource(&row, resource_type)?,
                 request_method: row.try_get("request_method")?,
             })
         })

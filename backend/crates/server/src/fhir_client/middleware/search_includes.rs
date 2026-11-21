@@ -460,7 +460,7 @@ async fn find_referrers<B: Backend>(
         // `Type/id` values, so a Group and a Patient sharing an id are not
         // confused.
         let request = SearchRequest::Type(FHIRSearchTypeRequest {
-            resource_type: resource_type.clone(),
+            resource_type: resource_type,
             parameters: ParsedParameters::new(vec![ParsedParameter::from(Parameter {
                 name: directive.parameter.clone(),
                 value: ids,
@@ -524,7 +524,7 @@ async fn find_referrers<B: Backend>(
                 .into_iter()
                 .filter(|entry| {
                     emitted.insert(IncludeTarget {
-                        resource_type: entry.resource_type.clone(),
+                        resource_type: entry.resource_type,
                         id: entry.id.as_ref().to_string(),
                     })
                 })
@@ -546,12 +546,7 @@ async fn read_targets<B: Backend>(
 ) -> Vec<Resource> {
     let keys: Vec<(ResourceType, ResourceId)> = targets
         .iter()
-        .map(|target| {
-            (
-                target.resource_type.clone(),
-                ResourceId::new(target.id.clone()),
-            )
-        })
+        .map(|target| (target.resource_type, ResourceId::new(target.id.clone())))
         .collect();
 
     match state

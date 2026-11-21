@@ -73,7 +73,7 @@ impl<B: Backend> Middleware<B> for TenantTierLimits {
                 let result = match resource_type.as_ref() {
                     Some(resource_type) => {
                         ctx.client
-                            .search_type(ctx.clone(), resource_type.clone(), parameters)
+                            .search_type(ctx.clone(), *resource_type, parameters)
                             .await?
                     }
                     None => ctx.client.search_system(ctx.clone(), parameters).await?,

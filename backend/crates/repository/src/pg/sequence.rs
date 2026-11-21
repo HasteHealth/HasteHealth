@@ -57,7 +57,7 @@ async fn get_sequence_helper(
             version_id: row.try_get("version_id")?,
             fhir_method: row.try_get("fhir_method")?,
             sequence: row.try_get("sequence")?,
-            resource: FHIRJson(decode_resource(&row, &resource_type)?),
+            resource: FHIRJson(decode_resource(&row, resource_type)?),
             resource_type,
         })
     })

@@ -297,7 +297,7 @@ fn compartment_searches(
                 params
                     .iter()
                     .filter_map(|p| p.value.clone())
-                    .map(move |param| (resource_type.clone(), param))
+                    .map(move |param| (resource_type, param))
                     .collect::<Vec<_>>(),
             )
         })
@@ -328,7 +328,7 @@ fn search_parameters(
 
     // Record currency, so it applies to every type uniformly.
     if let Some(since) = input.since.as_ref().and_then(|s| s.value.as_ref()) {
-        parameters.push(plain("_lastUpdated", format!("ge{}", since.to_string())));
+        parameters.push(plain("_lastUpdated", format!("ge{since}")));
     }
 
     // Care dates. `date` is the clinical date on most compartment types; a type
@@ -336,10 +336,10 @@ fn search_parameters(
     // patient's allergies from their chart because they carry no date would
     // lose data the caller asked for.
     if let Some(start) = input.start.as_ref().and_then(|s| s.value.as_ref()) {
-        parameters.push(plain("date", format!("ge{}", start.to_string())));
+        parameters.push(plain("date", format!("ge{start}")));
     }
     if let Some(end) = input.end.as_ref().and_then(|e| e.value.as_ref()) {
-        parameters.push(plain("date", format!("le{}", end.to_string())));
+        parameters.push(plain("date", format!("le{end}")));
     }
 
     parameters

@@ -594,7 +594,7 @@ pub async fn process_transaction_bundle<'a, Client: Backend>(
 
         let fhir_request =
             bundle_entry_to_fhir_request(sorted_transaction_entry.entry, &ctx).await?;
-        let resource_type = request_to_resource_type(&fhir_request).cloned();
+        let resource_type = request_to_resource_type(&fhir_request).copied();
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
         let resource = get_resource_from_response(&fhir_response);

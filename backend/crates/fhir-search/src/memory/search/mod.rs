@@ -389,7 +389,7 @@ async fn matches(
 fn entry(stored: &Stored, project: &ProjectId) -> SearchEntry {
     SearchEntry {
         id: stored.id.clone(),
-        resource_type: stored.resource_type.clone(),
+        resource_type: stored.resource_type,
         version_id: stored.version_id.clone(),
         project: project.clone(),
     }
