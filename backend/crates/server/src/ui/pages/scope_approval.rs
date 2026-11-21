@@ -3,14 +3,18 @@ use crate::{
         route_string::oidc_route_string,
         scope::{ScopeForm, is_fixed_scope},
     },
-    ui::components::{TenantName, client_app_header_html, page_banner, page_html},
+    ui::{
+        components::{TenantName, client_app_header_html, page_banner, page_html},
+        styles::{BUTTON, BUTTON_SECONDARY, CARD, CARD_BODY, TEXT},
+    },
 };
 use haste_fhir_model::r4::generated::resources::ClientApplication;
 use haste_jwt::{ProjectId, TenantId};
 use maud::{Markup, html};
 use std::borrow::Cow;
 
-const CHECKBOX: &str = "w-4 h-4 rounded-none border border-[var(--auth-line-strong)] bg-[var(--auth-surface-raised)] text-[var(--auth-signal)] focus:ring-1 focus:ring-[var(--auth-signal)] disabled:opacity-60";
+const CHECKBOX: &str =
+    "w-4 h-4 rounded border-line-strong text-primary focus:ring-primary disabled:opacity-60";
 
 /// The consent page: one checkbox per requested scope, all checked. The user
 /// unchecks what the app should not get, then allows or denies. The scopes
@@ -37,22 +41,20 @@ pub fn scope_approval_html(
 
     page_html(&html! {
             (page_banner(tenant.as_ref(), Some(&project_name), branding))
-            div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] text-[var(--auth-ink)] p-6 space-y-6 shadow-2xl" {
-                form class="space-y-4" action=(scope_route_str) method="POST" {
+            div class=(CARD) {
+                form class=(CARD_BODY) action=(scope_route_str) method="POST" {
                     (client_app_header_html(client_application))
-                    div {
-                        span class="block text-xs leading-relaxed text-[var(--auth-ink-muted)]" {
-                            "The above app is requesting the following permissions. Uncheck any you do not want to grant, then allow or deny access for the app."
-                        }
+                    p class=(TEXT) {
+                        "The above app is requesting the following permissions. Uncheck any you do not want to grant, then allow or deny access for the app."
                     }
-                    div class="max-h-72 overflow-auto border border-[var(--auth-line)]" {
-                        table class="w-full border-collapse font-mono text-xs text-[var(--auth-ink)]" {
+                    div class="max-h-72 overflow-auto rounded-lg border border-line" {
+                        table class="border-collapse w-full text-ink" {
                             tbody {
                                 @for (index, scope) in authorization_info.scope.0.iter().enumerate() {
                                     @let value = String::from(scope.clone());
                                     @let id = format!("scope-{index}");
-                                    tr class="border-b border-[var(--auth-line)] last:border-b-0" {
-                                        td class="w-px p-3" {
+                                    tr class="border-b border-line last:border-b-0" {
+                                        td class="p-4 w-px" {
                                             @if is_fixed_scope(scope) {
                                                 // A disabled checkbox is not submitted, so the scope
                                                 // travels in a hidden field.
@@ -62,10 +64,10 @@ pub fn scope_approval_html(
                                                 input id=(id) type="checkbox" class=(CHECKBOX) name="scope" value=(value) checked {}
                                             }
                                         }
-                                        td class="py-3 pr-4" {
-                                            label for=(id) class="block text-xs text-[var(--auth-ink)]" { (value) }
+                                        td class="py-4 pr-4" {
+                                            label for=(id) class="block wrap-anywhere" { (value) }
                                         }
-                                        td class="py-3 pr-4 text-right text-[10px] uppercase tracking-wider text-[var(--auth-ink-muted)]" {
+                                        td class="py-4 pr-4 text-right text-xs text-ink-subtle" {
                                             @if is_fixed_scope(scope) { "Required" }
                                         }
                                     }
@@ -86,15 +88,11 @@ pub fn scope_approval_html(
                     @if let Some(aud) = &authorization_info.aud {
                         input readonly="" class="hidden" type="text" name="aud" value=(aud) {}
                     }
-                    div class="flex items-center gap-3 pt-2" {
-                        button type="submit" name="accept" value="on" class="flex-1 cursor-pointer border border-[var(--auth-signal)] bg-[var(--auth-signal)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-on-signal)] transition-colors hover:bg-[var(--auth-signal-hover)]" {
-                            "Allow"
-                        }
-                        button type="submit" name="accept" value="off" class="flex-1 cursor-pointer border border-[var(--auth-line)] bg-[var(--auth-surface-raised)] px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-wider text-[var(--auth-ink)] transition-colors hover:bg-[var(--auth-line)]" {
-                            "Deny"
-                        }
+                    div class="grid grid-cols-2 gap-4" {
+                        button type="submit" name="accept" value="on" class=(BUTTON) { "Allow" }
+                        button type="submit" name="accept" value="off" class=(BUTTON_SECONDARY) { "Deny" }
                     }
-                }
             }
+        }
     })
 }

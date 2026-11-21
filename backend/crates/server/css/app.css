@@ -17,44 +17,27 @@
   --color-brand-800: oklch(51.1% 0.096 186.391);
   --color-brand-900: oklch(43.7% 0.078 188.216);
   --color-brand-950: oklch(38.6% 0.063 188.416);
-}
 
-:root {
-  /* Server-rendered auth surfaces. Override these to re-theme login,
-     consent and invitation pages without editing the templates. The default
-     is the original Teal palette; data-accent="ember" opts into the paper
-     surfaces with the orange accent. */
-  --auth-bg: #f1f5f9;
-  --auth-surface: #fff;
-  --auth-surface-raised: #fff;
-  --auth-ink: #0f172a;
-  --auth-ink-muted: #475569;
-  --auth-ink-subtle: #64748b;
-  --auth-line: #e2e8f0;
-  --auth-line-strong: #cbd5e1;
-  --auth-signal: #0d9488;
-  --auth-signal-hover: #0f766e;
-  --auth-signal-ink: #0f766e;
-  --auth-signal-soft: rgba(13, 148, 136, 0.10);
-  --auth-on-signal: #fff;
-  --auth-error: #b91c1c;
-  --auth-error-line: #fca5a5;
-  --auth-error-soft: #fef2f2;
-}
-
-/* Optional Ember auth theme: set data-accent="ember" on <html>. */
-html[data-accent="ember"] {
-  --auth-bg: #f1eee7;
-  --auth-surface: #faf8f4;
-  --auth-surface-raised: #fff;
-  --auth-ink: #0e1013;
-  --auth-ink-muted: #4a5260;
-  --auth-ink-subtle: #5b6472;
-  --auth-line: rgba(14, 16, 19, 0.22);
-  --auth-line-strong: rgba(14, 16, 19, 0.42);
-  --auth-signal: #e5451a;
-  --auth-signal-hover: #ce350e;
-  --auth-signal-ink: #b33a12;
-  --auth-signal-soft: rgba(229, 69, 26, 0.10);
-  --auth-on-signal: #fff;
+  /* Roles for the server-rendered pages (sign-in, consent, sign-up, MFA,
+     errors). The templates use only these and the background above, so
+     overriding them on :root re-themes every page without editing the
+     templates. The primary roles follow the brand scale. */
+  --color-surface: var(--color-white);
+  --color-surface-muted: var(--color-gray-50);
+  --color-ink: var(--color-slate-900);
+  --color-ink-body: var(--color-slate-700);
+  --color-ink-muted: var(--color-slate-500);
+  --color-ink-subtle: var(--color-slate-400);
+  --color-line: var(--color-gray-200);
+  --color-line-strong: var(--color-gray-300);
+  --color-primary: var(--color-brand-600);
+  --color-primary-hover: var(--color-brand-500);
+  --color-primary-ring: var(--color-brand-300);
+  --color-primary-line: var(--color-brand-200);
+  --color-primary-soft: var(--color-brand-50);
+  --color-on-primary: var(--color-white);
+  --color-error: var(--color-red-600);
+  --color-error-line: var(--color-red-200);
+  --color-error-soft: var(--color-red-50);
+  --color-warning: var(--color-amber-600);
 }

@@ -2,7 +2,10 @@ use crate::auth_n::error::AuthError;
 use crate::auth_n::oidc::routes::route_string::tenant_route_string;
 use crate::extract::csrf_token::CSRFToken;
 use crate::services::ServerState;
-use crate::ui::components::{banner, page_html};
+use crate::ui::{
+    components::{banner, page_html},
+    styles::{BUTTON, CARD, CARD_BODY, INPUT, LABEL, LINK},
+};
 use axum::response::{IntoResponse, Redirect, Response};
 use axum::{Form, extract::State};
 //use axum_client_ip::ClientIp;
@@ -34,24 +37,17 @@ pub async fn tenant_select_get<
 
     Ok(page_html(&html! {
         (banner("Enter your tenant identifier", None))
-        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
-            div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                form class="space-y-2" action=(action_url) method="POST" {
-                    input type="hidden" name="csrf_token" value=(csrf_token) {}
-                    div class="grid grid-cols-4 gap-1" {
-                        div class="col-span-4" {
-                            label for="tenant" class="block text-sm font-medium text-slate-600" { "Tenant" }
-                            input type="tenant" id="tenant" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " placeholder="Tenant id" required name="tenant" value="" {}
-                        }
-                    }
-
-                    div class="space-y-4" {
-                        button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Continue" }
-                        @if state.config.signup.enabled {
-                            div class="flex items-center justify-start" {
-                                a href=(signup_url) class="text-sm font-medium text-brand-600 hover:underline " { "Sign up" }
-                            }
-                        }
+        div class=(CARD) {
+            form class=(CARD_BODY) action=(action_url) method="POST" {
+                input type="hidden" name="csrf_token" value=(csrf_token) {}
+                div {
+                    label for="tenant" class=(LABEL) { "Tenant" }
+                    input type="text" id="tenant" class=(INPUT) placeholder="Tenant id" required name="tenant" value="" {}
+                }
+                button type="submit" class=(BUTTON) { "Continue" }
+                @if state.config.signup.enabled {
+                    div class="text-sm" {
+                        a href=(signup_url) class=(LINK) { "Sign up" }
                     }
                 }
             }

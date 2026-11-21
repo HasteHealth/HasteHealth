@@ -1,4 +1,7 @@
-use crate::ui::components::{TenantName, page_banner, page_html};
+use crate::ui::{
+    components::{TenantName, page_banner, page_html},
+    styles::{BUTTON, CARD, CARD_BODY, INPUT, LABEL},
+};
 use haste_jwt::TenantId;
 use maud::{Markup, html};
 
@@ -20,20 +23,14 @@ pub fn email_form_html(
 
     page_html(&html! {
         (page_banner(tenant.as_ref(), project_name, branding))
-        div class="border border-[var(--auth-line)] w-full bg-[var(--auth-surface)] rounded-none shadow-2xl md:mt-0 xl:p-0 text-[var(--auth-ink)]" {
-            form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {
+        div class=(CARD) {
+            form class=(CARD_BODY) action=(email_information.continue_url) method="POST" {
                 input type="hidden" name="csrf_token" value=(csrf_token) {}
-                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    div {
-                        label for="email" class="block mb-2 font-mono text-xs uppercase tracking-wider text-[var(--auth-ink-muted)]" {
-                            "Enter your email"
-                        }
-                        input type="email" id="email" class="bg-[var(--auth-surface-raised)] border border-[var(--auth-line-strong)] text-[var(--auth-ink)] text-sm px-3 py-2 rounded-none outline-none focus:border-[var(--auth-signal)] block w-full transition-colors" placeholder="name@company.com" required="" name="email" {}
-                    }
-                    button type="submit" class="cursor-pointer w-full text-[var(--auth-on-signal)] bg-[var(--auth-signal)] hover:bg-[var(--auth-signal-hover)] focus:ring-2 focus:outline-none focus:ring-[var(--auth-signal)] font-mono text-xs uppercase tracking-wider font-semibold rounded-none px-5 py-2.5 text-center transition-colors" {
-                        "Continue"
-                    }
+                div {
+                    label for="email" class=(LABEL) { "Enter your email" }
+                    input type="email" id="email" class=(INPUT) placeholder="name@company.com" required="" name="email" {}
                 }
+                button type="submit" class=(BUTTON) { "Continue" }
             }
         }
     })

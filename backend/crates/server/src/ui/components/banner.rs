@@ -23,10 +23,11 @@ pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
             a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(asset_route("img/logo_text.svg")) alt="logo" {}
             }
-            div class="flex space-x-1 items-center justify-center font-mono text-xs text-[var(--auth-ink-muted)] mt-[-12px]" {
-                div { span class="font-bold text-[var(--auth-ink)]" { (header) } }
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-subtle mt-[-12px]" {
+                div { span class="font-bold" { (header) } }
                 @if let Some(subheader) = subheader {
-                    div { span class="text-[var(--auth-signal-ink)]" { (subheader) } }
+                    div { span { "/" } }
+                    div { span { (subheader) } }
                 }
             }
         }
@@ -39,19 +40,19 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
     let display_name = name.0.as_deref().unwrap_or(header);
 
     html! {
-        div class="flex flex-col items-center justify-center space-y-2 mb-4" {
+        div class="flex flex-col items-center justify-center space-y-1" {
             a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1.5 items-center justify-center font-mono text-xs text-[var(--auth-ink-muted)]" {
-                div { span class="font-bold text-[var(--auth-ink)]" { (display_name) } }
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-subtle" {
+                div { span class="font-bold" { (display_name) } }
                 @if let Some(project_name) = subheader {
-                    div { span class="text-[var(--auth-ink-subtle)]" { "/" } }
-                    div { span class="text-[var(--auth-signal-ink)]" { (project_name) } }
+                    div { span { "/" } }
+                    div { span { (project_name) } }
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="font-mono text-[10px] uppercase tracking-wider text-[var(--auth-ink-subtle)] hover:text-[var(--auth-signal-ink)] transition-colors" {
+                class="text-xs text-ink-subtle hover:text-ink-muted" {
                 "Powered by Haste Health"
             }
         }
