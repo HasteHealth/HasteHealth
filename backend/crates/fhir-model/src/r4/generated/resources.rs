@@ -452,7 +452,7 @@ pub struct AccessPolicyV3ManifestAttribute {
 #[doc = "Server-maintained: the attributes each rule references, recomputed on every save."]
 pub struct AccessPolicyV3Manifest {
     #[primitive]
-    #[doc = "Path of the rule, for example rule[0].rule[1]."]
+    #[doc = "Path of the rule, for example rule\\[0\\].rule\\[1\\]."]
     pub rule: Box<FHIRString>,
     #[cardinality(min = 1u64)]
     #[doc = "An attribute the rule's target, condition or data references."]
@@ -628,7 +628,7 @@ pub struct ClientApplication {
     #[primitive]
     #[cardinality(max = 5u64)]
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and"]
-    #[doc = "implicit flows. As required by Section 2 of `OAuth` 2.0 [RFC6749], clients using flows with"]
+    #[doc = "implicit flows. As required by Section 2 of `OAuth` 2.0 \\[RFC6749\\], clients using flows with"]
     #[doc = "redirection MUST register their redirection URI values. Authorization servers that support dynamic"]
     #[doc = "registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<FHIRString>>,
@@ -1693,7 +1693,7 @@ pub struct ActivityDefinitionDynamicValue {
     #[doc = "of the calculation defined by the expression. The specified path SHALL be a `FHIRPath` resolveable"]
     #[doc = "on the specified target type of the `ActivityDefinition`, and SHALL consist only of identifiers,"]
     #[doc = "constant indexers, and a restricted subset of functions. The path is allowed to contain qualifiers"]
-    #[doc = "(.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality"]
+    #[doc = "(.) to traverse sub-elements, as well as indexers (\\[x\\]) to traverse multiple-cardinality"]
     #[doc = "sub-elements (see the [`Simple `FHIRPath` Profile`](fhirpath.html#simple) for full details)."]
     pub path: Box<FHIRString>,
     #[doc = "An expression specifying the value of the customized element."]
@@ -12471,7 +12471,7 @@ pub struct ContractTermAsset {
     #[doc = "`QuestionnaireResponse` used in the formation of the contract."]
     pub text: Option<Box<FHIRString>>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text about the asset in the referenced form or"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text about the asset in the referenced form or"]
     #[doc = "`QuestionnaireResponse`."]
     pub linkId: Option<Vec<FHIRString>>,
     #[doc = "Response to assets."]
@@ -12584,7 +12584,7 @@ pub struct ContractTermAction {
     #[doc = "Reason or purpose for the action stipulated by this Contract Provision."]
     pub intent: Box<CodeableConcept>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text related to this action in the referenced form or"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text related to this action in the referenced form or"]
     #[doc = "`QuestionnaireResponse`."]
     pub linkId: Option<Vec<FHIRString>>,
     #[doc = "Current state of the term action."]
@@ -12593,7 +12593,7 @@ pub struct ContractTermAction {
     #[doc = "Encounter or Episode with primary association to specified term activity."]
     pub context: Option<Box<Reference>>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text related to the requester of this action in the"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text related to the requester of this action in the"]
     #[doc = "referenced form or `QuestionnaireResponse`."]
     pub contextLinkId: Option<Vec<FHIRString>>,
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
@@ -12603,7 +12603,7 @@ pub struct ContractTermAction {
     #[doc = "Who or what initiated the action and has responsibility for its activation."]
     pub requester: Option<Vec<Reference>>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text related to the requester of this action in the"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text related to the requester of this action in the"]
     #[doc = "referenced form or `QuestionnaireResponse`."]
     pub requesterLinkId: Option<Vec<FHIRString>>,
     #[doc = "The type of individual that is desired or required to perform or not perform the action."]
@@ -12615,7 +12615,7 @@ pub struct ContractTermAction {
     #[doc = "Indicates who or what is being asked to perform (or not perform) the ction."]
     pub performer: Option<Box<Reference>>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text related to the reason type or reference of this"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text related to the reason type or reference of this"]
     #[doc = "action in the referenced form or `QuestionnaireResponse`."]
     pub performerLinkId: Option<Vec<FHIRString>>,
     #[doc = "Rationale for the action to be performed or not performed. Describes why the action is permitted or"]
@@ -12628,7 +12628,7 @@ pub struct ContractTermAction {
     #[doc = "Describes why the action is to be performed or not performed in textual form."]
     pub reason: Option<Vec<FHIRString>>,
     #[primitive]
-    #[doc = "Id [identifier??] of the clause or question text related to the reason type or reference of this"]
+    #[doc = "Id \\[identifier??\\] of the clause or question text related to the reason type or reference of this"]
     #[doc = "action in the referenced form or `QuestionnaireResponse`."]
     pub reasonLinkId: Option<Vec<FHIRString>>,
     #[doc = "Comments made about the term action made by the requester, performer, subject or other participants."]
@@ -25671,7 +25671,7 @@ pub struct ImplementationGuide {
     #[cardinality(min = 1u64)]
     #[doc = "The version(s) of the FHIR specification that this `ImplementationGuide` targets - e.g. describes"]
     #[doc = "how to use. The value of this element is the formal version of the specification, without the"]
-    #[doc = "revision number, e.g. [publication].[major].[minor], which is 4.0.1. for this version."]
+    #[doc = "revision number, e.g. \\[publication\\].\\[major\\].\\[minor\\], which is 4.0.1. for this version."]
     pub fhirVersion: Vec<terminology::BoundCode<terminology::FHIRVersion>>,
     #[doc = "Another implementation guide that this implementation depends on. Typically, an implementation guide"]
     #[doc = "uses value sets, profiles etc.defined in other implementation guides."]
@@ -30944,7 +30944,7 @@ pub struct MedicationRequest {
     #[doc = "given."]
     pub subject: Box<Reference>,
     # [reference (targets = ["Encounter"])]
-    #[doc = "The Encounter during which this [x] was created or to which the creation of this record is tightly"]
+    #[doc = "The Encounter during which this \\[x\\] was created or to which the creation of this record is tightly"]
     #[doc = "associated."]
     pub encounter: Option<Box<Reference>>,
     # [reference (targets = ["Resource"])]
@@ -35992,7 +35992,8 @@ pub struct ObservationComponent {
     #[doc = "The information determined as a result of making the observation, if the information has a simple"]
     #[doc = "value."]
     pub value: Option<ObservationComponentValueTypeChoice>,
-    #[doc = "Provides a reason why the expected value in the element `Observation.component.value`[x] is missing."]
+    #[doc = "Provides a reason why the expected value in the element `Observation.component.value`\\[x\\] is"]
+    #[doc = "missing."]
     pub dataAbsentReason: Option<Box<CodeableConcept>>,
     #[doc = "A categorical assessment of an observation value. For example, high, low, normal."]
     pub interpretation: Option<Vec<CodeableConcept>>,
@@ -36105,7 +36106,7 @@ pub struct Observation {
     #[doc = "The information determined as a result of making the observation, if the information has a simple"]
     #[doc = "value."]
     pub value: Option<ObservationValueTypeChoice>,
-    #[doc = "Provides a reason why the expected value in the element `Observation.value`[x] is missing."]
+    #[doc = "Provides a reason why the expected value in the element `Observation.value`\\[x\\] is missing."]
     pub dataAbsentReason: Option<Box<CodeableConcept>>,
     #[doc = "A categorical assessment of an observation value. For example, high, low, normal."]
     pub interpretation: Option<Vec<CodeableConcept>>,
@@ -38955,7 +38956,7 @@ pub struct PlanDefinitionActionDynamicValue {
     #[doc = "of the calculation defined by the expression. The specified path SHALL be a `FHIRPath` resolveable"]
     #[doc = "on the specified target type of the `ActivityDefinition`, and SHALL consist only of identifiers,"]
     #[doc = "constant indexers, and a restricted subset of functions. The path is allowed to contain qualifiers"]
-    #[doc = "(.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality"]
+    #[doc = "(.) to traverse sub-elements, as well as indexers (\\[x\\]) to traverse multiple-cardinality"]
     #[doc = "sub-elements (see the [`Simple `FHIRPath` Profile`](fhirpath.html#simple) for full details)."]
     pub path: Option<Box<FHIRString>>,
     #[doc = "An expression specifying the value of the customized element."]
@@ -45747,7 +45748,7 @@ pub struct StructureDefinition {
     #[primitive]
     #[doc = "The version of the FHIR specification on which this `StructureDefinition` is based - this is the"]
     #[doc = "formal version of the specification, without the revision number, e.g."]
-    #[doc = "[publication].[major].[minor], which is 4.0.1. for this version."]
+    #[doc = "\\[publication\\].\\[major\\].\\[minor\\], which is 4.0.1. for this version."]
     pub fhirVersion: Option<terminology::BoundCode<terminology::FHIRVersion>>,
     #[doc = "An external specification that the content is mapped to."]
     pub mapping: Option<Vec<StructureDefinitionMapping>>,
@@ -50233,8 +50234,8 @@ pub struct Task {
     #[doc = "Contains business-specific nuances of the business state."]
     pub businessStatus: Option<Box<CodeableConcept>>,
     #[primitive]
-    #[doc = "Indicates the \"level\" of actionability associated with the Task, i.e. i+R[9]Cs this a proposed task,"]
-    #[doc = "a planned task, an actionable task, etc."]
+    #[doc = "Indicates the \"level\" of actionability associated with the Task, i.e. i+R\\[9\\]Cs this a proposed"]
+    #[doc = "task, a planned task, an actionable task, etc."]
     pub intent: terminology::BoundCode<terminology::TaskIntent>,
     #[primitive]
     #[doc = "Indicates how quickly the Task should be addressed with respect to other requests."]
@@ -51968,7 +51969,7 @@ pub struct TestScriptSetupActionOperation {
     #[doc = "`TestScript.origin` section."]
     pub origin: Option<Box<FHIRInteger>>,
     #[primitive]
-    #[doc = "Path plus parameters after [type]. Used to set parts of the request URL explicitly."]
+    #[doc = "Path plus parameters after \\[type\\]. Used to set parts of the request URL explicitly."]
     pub params: Option<Box<FHIRString>>,
     #[doc = "Header elements would be used to set HTTP headers."]
     pub requestHeader: Option<Vec<TestScriptSetupActionOperationRequestHeader>>,
@@ -51982,7 +51983,7 @@ pub struct TestScriptSetupActionOperation {
     #[doc = "The id of the fixture used as the body of a PUT or POST request."]
     pub sourceId: Option<Box<FHIRId>>,
     #[primitive]
-    #[doc = "Id of fixture used for extracting the [id], [type], and [vid] for GET requests."]
+    #[doc = "Id of fixture used for extracting the \\[id\\], \\[type\\], and \\[vid\\] for GET requests."]
     pub targetId: Option<Box<FHIRId>>,
     #[primitive]
     #[doc = "Complete request URL."]
@@ -53843,7 +53844,7 @@ pub struct ViewDefinitionConstant {
     #[doc = "(including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Extension>>,
     #[primitive]
-    #[doc = "Name of constant (referred to in `FHIRPath` as %[name])"]
+    #[doc = "Name of constant (referred to in `FHIRPath` as %\\[name\\])"]
     pub name: Box<FHIRString>,
     # [type_choice_variants (complex = [] , primitive = ["valueBase64Binary" , "valueBoolean" , "valueCanonical" , "valueCode" , "valueDate" , "valueDateTime" , "valueDecimal" , "valueId" , "valueInstant" , "valueInteger" , "valueOid" , "valueString" , "valuePositiveInt" , "valueTime" , "valueUnsignedInt" , "valueUri" , "valueUrl" , "valueUuid"])]
     #[doc = "The value that will be substituted in place of the constant reference. This"]
@@ -53929,7 +53930,7 @@ pub struct ViewDefinitionSelectColumn {
     #[primitive]
     #[doc = "A `FHIRPath` expression that evaluates to the value that will be output in the column for each"]
     #[doc = "resource. The input context is the collection of resources of the type specified in the resource"]
-    #[doc = "element. Constants defined in Reference({constant}) can be referenced as %[name]."]
+    #[doc = "element. Constants defined in Reference({constant}) can be referenced as %\\[name\\]."]
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "Name of the column produced in the output, must be in a database-friendly format. The column"]
@@ -54062,7 +54063,7 @@ pub struct ViewDefinitionWhere {
     #[primitive]
     #[doc = "A `FHIRPath` expression that defines a filter that must evaluate to true for a resource to be"]
     #[doc = "included in the output. The input context is the collection of resources of the type specified in"]
-    #[doc = "the resource element. Constants defined in Reference({constant}) can be referenced as %[name]."]
+    #[doc = "the resource element. Constants defined in Reference({constant}) can be referenced as %\\[name\\]."]
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "A human-readable description of the above where constraint."]
@@ -54202,7 +54203,7 @@ pub struct ViewDefinition {
     #[primitive]
     #[doc = "The FHIR version(s) for the FHIR resource. The value of this element is the"]
     #[doc = "formal version of the specification, without the revision number, e.g."]
-    #[doc = "[publication].[major].[minor]."]
+    #[doc = "\\[publication\\].\\[major\\].\\[minor\\]."]
     pub fhirVersion: Option<Vec<terminology::BoundCode<terminology::FHIRVersion>>>,
     #[doc = "A constant is a value that is injected into a `FHIRPath` expression through the use of a `FHIRPath`"]
     #[doc = "external constant with the same name."]

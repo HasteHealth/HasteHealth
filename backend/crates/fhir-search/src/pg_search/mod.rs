@@ -55,7 +55,7 @@ impl From<sqlx::Error> for PgSearchError {
 }
 
 /// [`SearchEngine`] backed by PostgreSQL. A thin handle: the work is done by
-/// the free functions in [`search`], [`indexing`] and [`migration`].
+/// the free functions in `search`, `indexing` and [`migration`].
 #[derive(Clone)]
 pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'static> {
     parameter_resolver: Arc<SearchParameterResolver>,

@@ -4,7 +4,7 @@
 //! A process caches a project's parameters for [`PROJECT_PARAMETERS_TTL`].
 //! Two things refresh a copy sooner: the indexing worker drops a project's
 //! copy once it has indexed one of its `SearchParameter`s
-//! ([`index_search_parameters_first`]), and a lookup by name that misses
+//! (`index_search_parameters_first`), and a lookup by name that misses
 //! rebuilds the copy once, so a new parameter is searchable as soon as it is
 //! indexed. The TTL bounds what neither catches: an update or delete seen by
 //! a server, a list by type (`_include=*`), and a second worker process.

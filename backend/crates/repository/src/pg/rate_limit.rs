@@ -205,7 +205,7 @@ impl RateLimit for PGConnection {
         })
     }
 
-    /// Goes straight to Postgres, skipping [`MEMORY`].
+    /// Goes straight to Postgres, skipping `MEMORY`.
     /// `check_rate_limit_window` takes a per-key advisory transaction lock, so
     /// concurrent callers are counted one at a time with no lost increments.
     /// The in-memory cache is what makes [`RateLimit::check`] fast but

@@ -171,7 +171,7 @@ impl PendingRows {
         Self::default()
     }
 
-    /// Buffers a row. Unlike [`insert`], `resource` must be an owned copy —
+    /// Buffers a row. Unlike `execute`, `resource` must be an owned copy —
     /// this data has to outlive the call that queued it, until `flush` runs.
     #[allow(clippy::too_many_arguments)]
     pub async fn push(
