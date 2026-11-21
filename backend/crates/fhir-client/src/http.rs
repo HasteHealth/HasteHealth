@@ -85,7 +85,7 @@ impl FHIRHttpState {
     ///
     /// # Errors
     ///
-    /// Returns an [`OperationOutcomeError`] if the provided `api_url` is invalid
+    /// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if the provided `api_url` is invalid
     /// or if the client cannot be initialized.
     pub fn new(
         api_url: &str,
@@ -968,7 +968,7 @@ pub trait FHIRHttpExchange<CTX>: FHIRClient<CTX, OperationOutcomeError> {
     ///
     /// # Errors
     ///
-    /// Returns an [`OperationOutcomeError`] if the URL is invalid or no
+    /// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if the URL is invalid or no
     /// response arrived.
     fn send(
         &self,

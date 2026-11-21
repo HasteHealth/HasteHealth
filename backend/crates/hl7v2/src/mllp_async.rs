@@ -1,10 +1,9 @@
 //! Async MLLP framing, for a listener that serves many senders at once.
 //!
-//! [`crate::mllp::MllpFormatter::read_frame`] reads a byte at a time from a
-//! blocking [`std::io::Read`], which is fine for a client sending one message
-//! and wrong for a listener: it holds a thread per connection and cannot be
-//! cancelled, so one sender that opens a socket and stops writing occupies that
-//! thread until the process restarts.
+//! Reading a byte at a time from a blocking [`std::io::Read`] is fine for a
+//! client sending one message and wrong for a listener: it holds a thread per
+//! connection and cannot be cancelled, so one sender that opens a socket and
+//! stops writing occupies that thread until the process restarts.
 //!
 //! This reader is cancel-safe (a timeout around it drops cleanly), buffers
 //! rather than syscalling per byte, and refuses a frame past

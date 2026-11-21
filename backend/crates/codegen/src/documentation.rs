@@ -62,7 +62,85 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
     }
 
     let documentation = normalize_single_quoted_literals(&output);
-    normalize_canonical_examples(&documentation)
+    let documentation = normalize_canonical_examples(&documentation);
+    escape_link_brackets(&documentation)
+}
+
+/// FHIR prose writes brackets as plain text (`value[x]`, `[id]`, `[RFC6749]`),
+/// which rustdoc reads as intra-doc links that do not resolve. Escapes every
+/// matched pair that is not an inline link `[text](target)`; brackets inside
+/// code spans are left alone, since rustdoc does not parse links there.
+fn escape_link_brackets(documentation: &str) -> String {
+    let bytes = documentation.as_bytes();
+    let mut escape = vec![false; bytes.len()];
+    let mut open_brackets = Vec::new();
+    let mut position = 0;
+
+    while position < bytes.len() {
+        match bytes[position] {
+            b'\\' => position += 1,
+            b'`' => {
+                position = skip_code_span(documentation, position);
+                continue;
+            }
+            b'[' => open_brackets.push(position),
+            b']' => {
+                if let Some(open) = open_brackets.pop()
+                    && bytes.get(position + 1) != Some(&b'(')
+                {
+                    escape[open] = true;
+                    escape[position] = true;
+                }
+            }
+            _ => {}
+        }
+
+        position += 1;
+    }
+
+    let mut output = String::with_capacity(documentation.len());
+
+    for (index, character) in documentation.char_indices() {
+        if escape[index] {
+            output.push('\\');
+        }
+        output.push(character);
+    }
+
+    output
+}
+
+/// The position after the code span opening at `start`, or after the opening
+/// backticks when no run of the same length closes it (they are then literal).
+/// A line here is a whole paragraph or list item (wrapping comes later), and a
+/// code span does not cross one, so a stray backtick in FHIR's text cannot
+/// pair with one in the next list item.
+fn skip_code_span(documentation: &str, start: usize) -> usize {
+    let run = |from: usize| {
+        documentation[from..]
+            .bytes()
+            .take_while(|&byte| byte == b'`')
+            .count()
+    };
+
+    let line_end = documentation[start..]
+        .find('\n')
+        .map_or(documentation.len(), |offset| start + offset);
+    let ticks = run(start);
+    let mut position = start + ticks;
+
+    while let Some(offset) = documentation[position..line_end].find('`') {
+        let close = position + offset;
+        let close_ticks = run(close);
+
+        if close_ticks == ticks {
+            return close + close_ticks;
+        }
+
+        position = close + close_ticks;
+    }
+
+    start + ticks
 }
 
 /// A dotted name with an `_`, such as `observation_status.json`, which
@@ -824,7 +902,31 @@ mod tests {
     fn bracketed_names_with_underscores_are_code() {
         assert_eq!(
             format_documentation("value[x] and [lb_av] and [periodMax]"),
-            "value[x] and `[lb_av]` and [periodMax]"
+            "value\\[x\\] and `[lb_av]` and \\[periodMax\\]"
+        );
+    }
+
+    #[test]
+    fn plain_text_brackets_are_escaped() {
+        assert_eq!(
+            format_documentation("e.g. [publication].[major].[minor], or rule[0].rule[1]"),
+            "e.g. \\[publication\\].\\[major\\].\\[minor\\], or rule\\[0\\].rule\\[1\\]"
+        );
+    }
+
+    #[test]
+    fn brackets_in_code_spans_are_kept() {
+        assert_eq!(
+            format_documentation("Use `[base]/Patient/[id]` or ``a`[x]`` here"),
+            "Use `[base]/Patient/[id]` or ``a`[x]`` here"
+        );
+    }
+
+    #[test]
+    fn stray_backticks_do_not_pair_across_lines() {
+        assert_eq!(
+            format_documentation("'duration` or `period`)\n- The [number] of `values`"),
+            "'duration` or `period`)\n- The \\[number\\] of `values`"
         );
     }
 

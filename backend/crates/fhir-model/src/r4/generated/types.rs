@@ -1272,7 +1272,7 @@ pub struct DataRequirementCodeFilter {
     #[doc = "The code-valued attribute of the filter. The specified path SHALL be a `FHIRPath` resolveable on the"]
     #[doc = "specified type of the `DataRequirement`, and SHALL consist only of identifiers, constant indexers,"]
     #[doc = "and .`resolve()`. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as"]
-    #[doc = "indexers ([x]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
+    #[doc = "indexers (\\[x\\]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
     #[doc = "Profile`](fhirpath.html#simple) for full details). Note that the index must be an integer constant."]
     #[doc = "The path must resolve to an element of type code, Coding, or `CodeableConcept`."]
     pub path: Option<Box<FHIRString>>,
@@ -1337,7 +1337,7 @@ pub struct DataRequirementDateFilter {
     #[doc = "The date-valued attribute of the filter. The specified path SHALL be a `FHIRPath` resolveable on the"]
     #[doc = "specified type of the `DataRequirement`, and SHALL consist only of identifiers, constant indexers,"]
     #[doc = "and .`resolve()`. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as"]
-    #[doc = "indexers ([x]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
+    #[doc = "indexers (\\[x\\]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
     #[doc = "Profile`](fhirpath.html#simple) for full details). Note that the index must be an integer constant."]
     #[doc = "The path must resolve to an element of type date, dateTime, Period, Schedule, or Timing."]
     pub path: Option<Box<FHIRString>>,
@@ -1376,8 +1376,8 @@ pub struct DataRequirementSort {
     pub extension: Option<Vec<Extension>>,
     #[primitive]
     #[doc = "The attribute of the sort. The specified path must be resolvable from the type of the required data."]
-    #[doc = "The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to"]
-    #[doc = "traverse multiple-cardinality sub-elements. Note that the index must be an integer constant."]
+    #[doc = "The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers (\\[x\\])"]
+    #[doc = "to traverse multiple-cardinality sub-elements. Note that the index must be an integer constant."]
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "The direction of the sort, ascending or descending."]
@@ -2506,13 +2506,13 @@ pub struct ElementDefinition {
     #[doc = "must be found in the instance. Other additional values may be found too. This is effectively"]
     #[doc = "constraint by example."]
     #[doc = ""]
-    #[doc = "When pattern[x] is used to constrain a primitive, it means that the value provided in the pattern[x]"]
-    #[doc = "must match the instance value exactly."]
+    #[doc = "When pattern\\[x\\] is used to constrain a primitive, it means that the value provided in the"]
+    #[doc = "pattern\\[x\\] must match the instance value exactly."]
     #[doc = ""]
-    #[doc = "When pattern[x] is used to constrain an array, it means that each element provided in the pattern[x]"]
-    #[doc = "array must (recursively) match at least one element from the instance array."]
+    #[doc = "When pattern\\[x\\] is used to constrain an array, it means that each element provided in the"]
+    #[doc = "pattern\\[x\\] array must (recursively) match at least one element from the instance array."]
     #[doc = ""]
-    #[doc = "When pattern[x] is used to constrain a complex object, it means that each property in the pattern"]
+    #[doc = "When pattern\\[x\\] is used to constrain a complex object, it means that each property in the pattern"]
     #[doc = "must be present in the complex object, and its value must recursively match -- i.e.,"]
     #[doc = ""]
     #[doc = "1. If primitive: it must match exactly the pattern value"]
@@ -3660,16 +3660,16 @@ pub struct TimingRepeat {
     #[doc = "of count values."]
     pub count: Option<Box<FHIRPositiveInt>>,
     #[primitive]
-    #[doc = "If present, indicates that the count is a range - so to perform the action between [count] and"]
-    #[doc = "[countMax] times."]
+    #[doc = "If present, indicates that the count is a range - so to perform the action between \\[count\\] and"]
+    #[doc = "\\[countMax\\] times."]
     pub countMax: Option<Box<FHIRPositiveInt>>,
     #[primitive]
     #[doc = "How long this thing happens for when it happens. If durationMax is present, this element indicates"]
     #[doc = "the lower bound of the allowed range of the duration."]
     pub duration: Option<Box<FHIRDecimal>>,
     #[primitive]
-    #[doc = "If present, indicates that the duration is a range - so to perform the action between [duration] and"]
-    #[doc = "[durationMax] time length."]
+    #[doc = "If present, indicates that the duration is a range - so to perform the action between \\[duration\\]"]
+    #[doc = "and \\[durationMax\\] time length."]
     pub durationMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the duration, in UCUM units."]
@@ -3679,8 +3679,8 @@ pub struct TimingRepeat {
     #[doc = "this element indicates the lower bound of the allowed range of the frequency."]
     pub frequency: Option<Box<FHIRPositiveInt>>,
     #[primitive]
-    #[doc = "If present, indicates that the frequency is a range - so to repeat between [frequency] and"]
-    #[doc = "[frequencyMax] times within the period or period range."]
+    #[doc = "If present, indicates that the frequency is a range - so to repeat between \\[frequency\\] and"]
+    #[doc = "\\[frequencyMax\\] times within the period or period range."]
     pub frequencyMax: Option<Box<FHIRPositiveInt>>,
     #[primitive]
     #[doc = "Indicates the duration of time over which repetitions are to occur; e.g. to express \"3 times per"]
@@ -3688,8 +3688,8 @@ pub struct TimingRepeat {
     #[doc = "element indicates the lower bound of the allowed range of the period length."]
     pub period: Option<Box<FHIRDecimal>>,
     #[primitive]
-    #[doc = "If present, indicates that the period is a range from [period] to [periodMax], allowing expressing"]
-    #[doc = "concepts such as \"do this once every 3-5 days."]
+    #[doc = "If present, indicates that the period is a range from \\[period\\] to \\[periodMax\\], allowing"]
+    #[doc = "expressing concepts such as \"do this once every 3-5 days."]
     pub periodMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the period in UCUM units."]

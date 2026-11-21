@@ -19774,25 +19774,25 @@ impl ValueSetDef for ExampleExtensional {
     const CODES: &[&str] = &["14647-2", "2093-3", "35200-5", "9342-7"];
 }
 impl ExampleExtensional {
-    #[doc = "Cholesterol [`Moles/Volume`]"]
+    #[doc = "Cholesterol \\[`Moles/Volume`\\]"]
     #[inline]
     #[must_use]
     pub fn v14647_2() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
-    #[doc = "Cholesterol [`Mass/Volume`]"]
+    #[doc = "Cholesterol \\[`Mass/Volume`\\]"]
     #[inline]
     #[must_use]
     pub fn v2093_3() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
-    #[doc = "Cholesterol [Mass Or `Moles/Volume`]"]
+    #[doc = "Cholesterol \\[Mass Or `Moles/Volume`\\]"]
     #[inline]
     #[must_use]
     pub fn v35200_5() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
-    #[doc = "Cholesterol [Percentile]"]
+    #[doc = "Cholesterol \\[Percentile\\]"]
     #[inline]
     #[must_use]
     pub fn v9342_7() -> BoundCode<Self> {
@@ -25875,7 +25875,7 @@ impl ValueSetDef for LdlcholesterolCodes {
     const CODES: &[&str] = &["13457-7", "18262-6"];
 }
 impl LdlcholesterolCodes {
-    #[doc = "Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation"]
+    #[doc = "Cholesterol in LDL \\[Mass/volume\\] in Serum or Plasma by calculation"]
     #[inline]
     #[must_use]
     pub fn v13457_7() -> BoundCode<Self> {
@@ -49740,7 +49740,7 @@ impl UcumBodytemp {
     pub fn cel() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
-    #[doc = "[degF]"]
+    #[doc = "\\[degF\\]"]
     #[inline]
     #[must_use]
     pub fn left_square_bracketdegf_right_square_bracket() -> BoundCode<Self> {
@@ -122607,7 +122607,7 @@ impl V3VaccineManufacturer {
     pub fn alp() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
-    #[doc = "Armour [Inactive - use CEN]"]
+    #[doc = "Armour \\[Inactive - use CEN\\]"]
     #[inline]
     #[must_use]
     pub fn ar() -> BoundCode<Self> {
@@ -122631,7 +122631,7 @@ impl V3VaccineManufacturer {
     pub fn bay() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
-    #[doc = "Berna Products [Inactive - use BPC]"]
+    #[doc = "Berna Products \\[Inactive - use BPC\\]"]
     #[inline]
     #[must_use]
     pub fn bp() -> BoundCode<Self> {
@@ -122655,7 +122655,7 @@ impl V3VaccineManufacturer {
     pub fn chi() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
-    #[doc = "Connaught [Inactive - use PMC]"]
+    #[doc = "Connaught \\[Inactive - use PMC\\]"]
     #[inline]
     #[must_use]
     pub fn con() -> BoundCode<Self> {
@@ -122679,7 +122679,7 @@ impl V3VaccineManufacturer {
     pub fn iag() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
-    #[doc = "Merieux [Inactive - use PMC]"]
+    #[doc = "Merieux \\[Inactive - use PMC\\]"]
     #[inline]
     #[must_use]
     pub fn im() -> BoundCode<Self> {
@@ -122703,7 +122703,7 @@ impl V3VaccineManufacturer {
     pub fn kgc() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
-    #[doc = "Lederle [Inactive - use WAL]"]
+    #[doc = "Lederle \\[Inactive - use WAL\\]"]
     #[inline]
     #[must_use]
     pub fn led() -> BoundCode<Self> {
@@ -122721,7 +122721,7 @@ impl V3VaccineManufacturer {
     pub fn med() -> BoundCode<Self> {
         BoundCode::from_index(21u16)
     }
-    #[doc = "Miles [Inactive - use BAY]"]
+    #[doc = "Miles \\[Inactive - use BAY\\]"]
     #[inline]
     #[must_use]
     pub fn mil() -> BoundCode<Self> {
@@ -122788,7 +122788,7 @@ impl V3VaccineManufacturer {
     pub fn pmc() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
-    #[doc = "Praxis Biologics [Inactive - use WAL]"]
+    #[doc = "Praxis Biologics \\[Inactive - use WAL\\]"]
     #[inline]
     #[must_use]
     pub fn prx() -> BoundCode<Self> {
@@ -122800,7 +122800,7 @@ impl V3VaccineManufacturer {
     pub fn scl() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
-    #[doc = "Swiss Serum and Vaccine Inst. [Inactive - use BPC]"]
+    #[doc = "Swiss Serum and Vaccine Inst. \\[Inactive - use BPC\\]"]
     #[inline]
     #[must_use]
     pub fn si() -> BoundCode<Self> {
@@ -122818,7 +122818,7 @@ impl V3VaccineManufacturer {
     pub fn usa() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
-    #[doc = "`Wyeth-Ayerst` [Inactive - use WAL]"]
+    #[doc = "`Wyeth-Ayerst` \\[Inactive - use WAL\\]"]
     #[inline]
     #[must_use]
     pub fn wa() -> BoundCode<Self> {
