@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, BTreeSet, HashMap},
-    path::Path,
-};
+use std::{collections::HashMap, path::Path};
 
 use crate::documentation::{format_documentation, generate_doc_attributes};
 use crate::{
@@ -46,29 +43,11 @@ fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
     let (min, max) = extract::cardinality(element);
 
     match max {
-        extract::Max::Unlimited => {
-            if min > 0 {
-                quote! { #[cardinality(min = #min)] }
-            } else {
-                quote! {}
-            }
-        }
-
-        extract::Max::Fixed(1) => {
-            quote! {}
-        }
-
-        extract::Max::Fixed(max) => {
-            if min > 0 {
-                quote! {
-                    #[cardinality(min = #min, max = #max)]
-                }
-            } else {
-                quote! {
-                    #[cardinality(max = #max)]
-                }
-            }
-        }
+        extract::Max::Unlimited if min > 0 => quote! { #[cardinality(min = #min)] },
+        // `Fixed(1)` means it's a singular value.
+        extract::Max::Unlimited | extract::Max::Fixed(1) => quote! {},
+        extract::Max::Fixed(max) if min > 0 => quote! { #[cardinality(min = #min, max = #max)] },
+        extract::Max::Fixed(max) => quote! { #[cardinality(max = #max)] },
     }
 }
 
@@ -122,148 +101,59 @@ fn get_top_level_fields(sd: &StructureDefinition) -> Vec<String> {
 }
 
 /// `id`, `meta`, and any element with `min >= 1` are always returned regardless
-/// of what a client asked to subset down to, per the `_elements`/`_summary` rules.
-///
-/// `id`/`meta` are forced in explicitly since they're min=0 in the base
+/// of what a client asked to subset down to, per the `_elements`/`_summary`
+/// rules. `id`/`meta` are forced in explicitly since they're min=0 in the base
 /// resource but still mandatory under those rules.
 fn get_mandatory_fields(sd: &StructureDefinition, all_fields: &[String]) -> Vec<String> {
-    let mut mandatory = Vec::with_capacity(all_fields.len());
-
-    mandatory.push("id".to_string());
-    mandatory.push("meta".to_string());
-
+    let mut mandatory = vec!["id".to_string(), "meta".to_string()];
     mandatory.extend(get_top_level_required_fields(sd));
-
-    mandatory.sort_unstable();
-    mandatory.dedup();
-
     mandatory.retain(|field| all_fields.contains(field));
-
     mandatory
 }
 
-fn generate_filter_field_helper() -> TokenStream {
-    quote! {
-        #[inline]
-        fn filter_field<T: Default>(
-            fields: &[&str],
-            name: &str,
-            value: T,
-        ) -> T {
-            if fields.contains(&name) {
-                value
-            } else {
-                T::default()
-            }
-        }
-    }
-}
-
-/// Generates the `impl <Resource>::filter` used to implement `_elements`.
-///
-/// A fresh `Self::default()` is not needed: optional fields are replaced with
-/// their default values directly while mandatory fields are left untouched.
-///
-/// `_elements` only addresses top-level elements, so this never recurses into
-/// complex-type substructure.
+/// Generates the `impl <Resource>::filter` used to implement `_elements`
+/// <https://hl7.org/fhir/R4/search.html#elements>: `id`/`meta`, any element
+/// with `min >= 1`, and any element the caller explicitly requested are kept,
+/// every other element is dropped. `_elements` only addresses top-level
+/// elements, so this never recurses into complex-type substructure. Unknown
+/// field names are rejected.
 fn generate_filter_impl(sd: &StructureDefinition, struct_ident: &Ident) -> TokenStream {
-    const FILTER_FIELDS_PER_HELPER: usize = 25;
-
     let resource_type = sd.type_.value.clone().unwrap_or_default();
 
     let all_fields = get_top_level_fields(sd);
     let mandatory_fields = get_mandatory_fields(sd, &all_fields);
 
-    // Own the filtered list so the generated iterators don't borrow
-    // from a temporary Vec.
-    let optional_fields: Vec<String> = all_fields
-        .iter()
-        .filter(|field| !mandatory_fields.contains(field))
-        .cloned()
-        .collect();
-
-    let filter_fields = quote! {
-        const FILTER_FIELDS: &[&str] = &[
-            #(#all_fields),*
-        ];
-    };
-
-    let filter_helpers = optional_fields
-        .chunks(FILTER_FIELDS_PER_HELPER)
-        .enumerate()
-        .map(|(index, fields)| {
-            let helper_name = format_ident!("filter_fields_{index}");
-
-            let field_initializers = fields.iter().map(|field| {
-                let ident = field_ident(field);
-
-                quote! {
-                    value.#ident = filter_field(
-                        fields,
-                        #field,
-                        value.#ident,
-                    );
-                }
-            });
-
-            quote! {
-                #[inline]
-                fn #helper_name(
-                    mut value: Self,
-                    fields: &[&str],
-                ) -> Self {
-                    #(#field_initializers)*
-                    value
-                }
-            }
-        });
-
-    let helper_calls = optional_fields
-        .chunks(FILTER_FIELDS_PER_HELPER)
-        .enumerate()
-        .map(|(index, _)| {
-            let helper_name = format_ident!("filter_fields_{index}");
-
-            quote! {
-                let value = Self::#helper_name(value, fields);
-            }
-        });
+    let field_values = all_fields.iter().map(|field| {
+        let ident = field_ident(field);
+        if mandatory_fields.contains(field) {
+            quote! { #ident: self.#ident }
+        } else {
+            // An element with `min = 0` is always an `Option`.
+            quote! { #ident: self.#ident.filter(|_| fields.contains(&#field)) }
+        }
+    });
 
     quote! {
         impl #struct_ident {
-            #filter_fields
-
-            #[inline]
-            fn is_filter_field(field: &str) -> bool {
-                Self::FILTER_FIELDS.contains(&field)
-            }
-
-            #(#filter_helpers)*
-
-            /// Filters this resource to the requested top-level fields.
+            /// Keeps `id`, `meta`, the mandatory elements and the elements named in `fields`.
             ///
             /// # Errors
             ///
-            /// Returns `FilterFieldsError::UnknownField` if `fields` contains
-            /// a field that is not supported for this resource.
-            pub fn filter(
-                self,
-                fields: &[&str],
-            ) -> Result<Self, FilterFieldsError> {
-                for field in fields {
-                    if !Self::is_filter_field(field) {
-                        return Err(FilterFieldsError::UnknownField(
-                            field.to_string(),
-                            #resource_type.to_string(),
-                        ));
-                    }
+            /// Returns [`FilterFieldsError::UnknownField`] if `fields` names an element
+            /// this resource does not have.
+            pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+                const FIELDS: &[&str] = &[#(#all_fields),*];
+
+                if let Some(field) = fields.iter().find(|field| !FIELDS.contains(field)) {
+                    return Err(FilterFieldsError::UnknownField(
+                        (*field).to_string(),
+                        #resource_type.to_string(),
+                    ));
                 }
 
-                let value = self;
-
-                #(#helper_calls)*
-
-                Ok(value)
+                Ok(Self {
+                    #(#field_values),*
+                })
             }
         }
     }
@@ -275,20 +165,9 @@ fn wrap_if_vec(
     should_box: bool,
 ) -> TokenStream {
     match extract::cardinality(element).1 {
-        extract::Max::Fixed(1) => {
-            if should_box {
-                quote! {
-                    Box<#field_value>
-                }
-            } else {
-                field_value.clone()
-            }
-        }
-        extract::Max::Unlimited | extract::Max::Fixed(_) => {
-            quote! {
-                Vec<#field_value>
-            }
-        }
+        extract::Max::Fixed(1) if should_box => quote! { Box<#field_value> },
+        extract::Max::Fixed(1) => field_value.clone(),
+        extract::Max::Unlimited | extract::Max::Fixed(_) => quote! { Vec<#field_value> },
     }
 }
 
@@ -300,9 +179,7 @@ fn wrap_cardinality_and_optionality(
     let field_value = wrap_if_vec(element, field_value, should_box);
 
     if extract::cardinality(element).0 == 0 {
-        quote! {
-            Option<#field_value>
-        }
+        quote! { Option<#field_value> }
     } else {
         field_value
     }
@@ -412,14 +289,11 @@ fn resolve_content_reference<'a>(
     sd: &'a StructureDefinition,
     element: &ElementDefinition,
 ) -> &'a ElementDefinition {
-    let content_reference_id = element
+    let content_reference_id = &element
         .contentReference
         .as_ref()
-        .unwrap()
-        .value
-        .as_ref()
-        .unwrap()[1..]
-        .to_string();
+        .and_then(|content_reference| content_reference.value.as_deref())
+        .expect("element has no contentReference")[1..];
 
     let content_reference_element = sd
         .snapshot
@@ -427,7 +301,7 @@ fn resolve_content_reference<'a>(
         .expect("StructureDefinition has no snapshot")
         .element
         .iter()
-        .filter(|element| element.id == Some(content_reference_id.clone()))
+        .filter(|element| element.id.as_deref() == Some(content_reference_id))
         .collect::<Vec<_>>();
 
     assert_eq!(
@@ -616,14 +490,11 @@ fn create_complex_struct(
     element: &ElementDefinition,
     children: &[TokenStream],
     types: &mut NestedTypes,
-    rust_type_name_to_fhir_type: &mut HashMap<String, String>,
     inlined_terminology: &HashMap<String, String>,
 ) -> TokenStream {
     let struct_name = generate::struct_name(sd, element);
     let fhir_type = extract::fhir_type(sd, element);
     let struct_ident = type_ident(&struct_name);
-
-    rust_type_name_to_fhir_type.insert(struct_name.clone(), fhir_type.clone());
 
     let description = extract::element_description(element);
     let formatted_description = format_documentation(&description);
@@ -636,21 +507,13 @@ fn create_complex_struct(
 
         let impls = quote! {
             impl #struct_ident {
-                #[inline]
-                pub fn extension_mut(
-                    &mut self,
-                ) -> &mut Option<Vec<Extension>> {
+                pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
                     &mut self.extension
                 }
-
-                #[inline]
-                pub fn id_mut(
-                    &mut self,
-                ) -> &mut Option<String> {
+                pub fn id_mut(&mut self) -> &mut Option<String> {
                     &mut self.id
                 }
             }
-
             #from_impl
         };
 
@@ -735,7 +598,6 @@ fn create_complex_struct(
 fn generate_from_structure_definition(
     sd: &StructureDefinition,
     inlined_terminology: &HashMap<String, String>,
-    rust_type_name_to_fhir_type: &mut HashMap<String, String>,
 ) -> Result<TokenStream, String> {
     let mut nested_types = NestedTypes::new();
 
@@ -749,7 +611,6 @@ fn generate_from_structure_definition(
                     element,
                     &children,
                     &mut nested_types,
-                    rust_type_name_to_fhir_type,
                     inlined_terminology,
                 )
             }
@@ -768,7 +629,6 @@ struct GeneratedTypes {
     resources: Vec<TokenStream>,
     types: Vec<TokenStream>,
     resource_types: Vec<ResourceTypeInfo>,
-    rust_type_name_to_fhir_type: HashMap<String, String>,
 }
 
 struct ResourceTypeInfo {
@@ -796,43 +656,28 @@ fn generate_fhir_types_from_file(
     inlined_terminology: &HashMap<String, String>,
 ) -> Result<GeneratedTypes, String> {
     let resource = load::load_from_file(file_path)?;
-
+    // Extract StructureDefinitions
     let structure_definitions = load::get_structure_definitions(&resource, level)
         .map_err(|e| format!("Failed to get structure definitions: {e}"))?;
 
-    let mut resources = Vec::new();
-    let mut types = Vec::new();
-    let mut resource_types = Vec::new();
-
-    let mut rust_type_name_to_fhir_type = HashMap::new();
+    let mut resources = vec![];
+    let mut types = vec![];
+    let mut resource_types = vec![];
 
     for sd in structure_definitions
         .iter()
         .filter(|sd| should_generate_structure_definition(sd))
     {
+        let generated = generate_from_structure_definition(sd, inlined_terminology)?;
+
         if conditionals::is_resource_sd(sd) {
             resource_types.push(ResourceTypeInfo {
-                resource_type: sd
-                    .type_
-                    .value
-                    .as_ref()
-                    .expect("resource has no type")
-                    .clone(),
-
-                rust_type_name: sd.id.as_ref().expect("resource has no id").clone(),
+                resource_type: sd.type_.value.clone().expect("resource has no type"),
+                rust_type_name: sd.id.clone().expect("resource has no id"),
             });
-
-            resources.push(generate_from_structure_definition(
-                sd,
-                inlined_terminology,
-                &mut HashMap::new(),
-            )?);
+            resources.push(generated);
         } else {
-            types.push(generate_from_structure_definition(
-                sd,
-                inlined_terminology,
-                &mut rust_type_name_to_fhir_type,
-            )?);
+            types.push(generated);
         }
     }
 
@@ -840,90 +685,54 @@ fn generate_fhir_types_from_file(
         resources,
         types,
         resource_types,
-        rust_type_name_to_fhir_type,
     })
 }
 
-fn generate_resource_type_letter_helpers(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let mut groups: BTreeMap<u8, Vec<&ResourceTypeInfo>> = BTreeMap::new();
-
-    for resource_type_info in resource_types {
-        let Some(&first_byte) = resource_type_info.resource_type.as_bytes().first() else {
-            continue;
-        };
-
-        groups
-            .entry(first_byte)
-            .or_default()
-            .push(resource_type_info);
-    }
-
-    groups
-        .into_iter()
-        .map(|(first_byte, resources)| {
-            let letter = first_byte as char;
-
-            let helper_name = format_ident!("resource_type_from_{}", letter.to_ascii_lowercase());
-
-            let match_arms = resources.iter().map(|resource_type_info| {
-                let rust_type_name = &resource_type_info.rust_type_name;
-
-                let resource_type_name = &resource_type_info.resource_type;
-
-                let variant = rust_resource_ident(rust_type_name);
-
-                if rust_type_name == resource_type_name {
-                    quote! {
-                        #resource_type_name =>
-                            Ok(ResourceType::#variant)
-                    }
-                } else {
-                    quote! {
-                        #rust_type_name |
-                        #resource_type_name =>
-                            Ok(ResourceType::#variant)
-                    }
-                }
-            });
-
-            quote! {
-                #[inline]
-                fn #helper_name(
-                    s: &str,
-                ) -> Result<ResourceType, ResourceTypeError> {
-                    match s {
-                        #(#match_arms),*,
-
-                        _ => Err(
-                            ResourceTypeError::Invalid(
-                                s.to_string(),
-                            )
-                        ),
-                    }
-                }
-            }
-        })
-        .collect()
-}
-
 fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let definition = generate_resource_type_definition(resource_types);
-    let deserializers_and_filters =
-        generate_resource_type_deserializers_and_filters(resource_types);
-    let resource_type_impl = generate_resource_type_impl(resource_types);
+    let enum_variants = resource_types.iter().map(|resource_type_info| {
+        let variant = rust_resource_ident(&resource_type_info.rust_type_name);
+        let type_name = &resource_type_info.resource_type;
 
-    quote! {
-        #definition
-        #deserializers_and_filters
-        #resource_type_impl
-    }
-}
+        if resource_type_info.rust_type_name == resource_type_info.resource_type {
+            quote! { #variant }
+        } else {
+            quote! {
+                #[serde(rename = #type_name)]
+                #variant
+            }
+        }
+    });
 
-fn generate_resource_type_definition(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let enum_variants = generate_resource_type_enum_variants(resource_types);
-    let resource_type_names = generate_resource_type_names(resource_types);
-    let deserializer_table = generate_resource_type_deserializer_table(resource_types);
-    let filter_table = generate_resource_type_filter_table(resource_types);
+    let resource_names = resource_types
+        .iter()
+        .map(|resource_type_info| &resource_type_info.resource_type);
+
+    let deserialize_arms = resource_types.iter().map(|resource_type_info| {
+        let variant = rust_resource_ident(&resource_type_info.rust_type_name);
+
+        quote! {
+            ResourceType::#variant => Ok(Resource::#variant(serde_json::from_slice::<#variant>(data.as_ref())?))
+        }
+    });
+
+    let to_str_arms = resource_types.iter().map(|resource_type_info| {
+        let variant = rust_resource_ident(&resource_type_info.rust_type_name);
+        let resource_name = &resource_type_info.resource_type;
+
+        quote! { ResourceType::#variant => #resource_name }
+    });
+
+    let from_str_arms = resource_types.iter().map(|resource_type_info| {
+        let rust_type_name = &resource_type_info.rust_type_name;
+        let resource_name = &resource_type_info.resource_type;
+        let variant = rust_resource_ident(rust_type_name);
+
+        if rust_type_name == resource_name {
+            quote! { #resource_name => Ok(ResourceType::#variant) }
+        } else {
+            quote! { #rust_type_name | #resource_name => Ok(ResourceType::#variant) }
+        }
+    });
 
     quote! {
         #[derive(Error, Debug)]
@@ -932,131 +741,39 @@ fn generate_resource_type_definition(resource_types: &[ResourceTypeInfo]) -> Tok
             Invalid(String),
         }
 
-        #[derive(
-            Debug,
-            Clone,
-            Copy,
-            PartialEq,
-            Eq,
-            Hash,
-            serde::Deserialize,
-            serde::Serialize,
-            PartialOrd,
-            Ord
-        )]
-        #[repr(u16)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize, PartialOrd, Ord)]
         pub enum ResourceType {
             #(#enum_variants),*
         }
 
-        const RESOURCE_TYPE_NAMES: &[&str] = &[
-            #(#resource_type_names),*
-        ];
-
-        type ResourceDeserializer = fn(
-            &[u8],
-        ) -> Result<
-            Resource,
-            haste_fhir_serialization_json::errors::DeserializeError,
-        >;
-
-        const RESOURCE_DESERIALIZERS: &[ResourceDeserializer] = &[
-            #(#deserializer_table),*
-        ];
-
-        type ResourceFilter =
-            fn(
-                Resource,
-                &[&str],
-            ) -> Result<Resource, FilterFieldsError>;
-
-        const RESOURCE_FILTERS: &[ResourceFilter] = &[
-            #(#filter_table),*
-        ];
-    }
-}
-
-fn generate_resource_type_deserializers_and_filters(
-    resource_types: &[ResourceTypeInfo],
-) -> TokenStream {
-    let deserializer_functions = generate_resource_type_deserializers(resource_types);
-    let filter_functions = generate_resource_type_filters(resource_types);
-
-    quote! {
-        #(#deserializer_functions)*
-        #(#filter_functions)*
-    }
-}
-
-fn generate_resource_type_impl(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let letter_helpers = generate_resource_type_letter_helpers(resource_types);
-    let first_byte_dispatch = generate_resource_type_first_byte_dispatch(resource_types);
-
-    quote! {
         impl ResourceType {
             /// The FHIR name of every resource type, as `as_ref` returns it.
-            pub const NAMES: &'static [&'static str] = RESOURCE_TYPE_NAMES;
+            pub const NAMES: &'static [&'static str] = &[#(#resource_names),*];
 
-            #letter_helpers
-
-            /// Deserializes a resource using the deserializer associated with
-            /// this resource type.
+            /// Deserializes `data` as a resource of this type.
             ///
             /// # Errors
             ///
-            /// Returns
-            /// [`haste_fhir_serialization_json::errors::DeserializeError`] if
-            /// the input data cannot be deserialized into the
-            /// expected resource type.
-            #[inline]
-            pub fn deserialize<D: AsRef<[u8]>>(
-                &self,
-                data: D,
-            ) -> Result<
-                Resource,
-                haste_fhir_serialization_json::errors::DeserializeError,
-            > {
-                RESOURCE_DESERIALIZERS[*self as usize](
-                    data.as_ref()
-                )
-            }
-
-            /// Filters a resource to the requested top-level fields.
-            ///
-            /// Mandatory fields are retained even when they are not included
-            /// in fields.
-            ///
-            /// # Errors
-            ///
-            /// Returns [`FilterFieldsError::UnknownField`] if fields contains a
-            /// field that is not supported by the resource type.
-            #[inline]
-            pub fn filter(
-                &self,
-                resource: Resource,
-                fields: &[&str],
-            ) -> Result<Resource, FilterFieldsError> {
-                RESOURCE_FILTERS[*self as usize](
-                    resource,
-                    fields,
-                )
+            /// Returns a `DeserializeError` if `data` is not a valid resource of this type.
+            pub fn deserialize<D: AsRef<[u8]>>(self, data: D) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+                match self {
+                    #(#deserialize_arms),*
+                }
             }
         }
 
         impl AsRef<str> for ResourceType {
-            #[inline]
             fn as_ref(&self) -> &str {
-                RESOURCE_TYPE_NAMES[*self as usize]
+                match self {
+                    #(#to_str_arms),*
+                }
             }
         }
 
         impl TryFrom<String> for ResourceType {
             type Error = ResourceTypeError;
 
-            #[inline]
-            fn try_from(
-                s: String,
-            ) -> Result<Self, Self::Error> {
+            fn try_from(s: String) -> Result<Self, Self::Error> {
                 Self::try_from(s.as_str())
             }
         }
@@ -1064,198 +781,22 @@ fn generate_resource_type_impl(resource_types: &[ResourceTypeInfo]) -> TokenStre
         impl TryFrom<&str> for ResourceType {
             type Error = ResourceTypeError;
 
-            #[inline]
-            fn try_from(
-                s: &str,
-            ) -> Result<Self, Self::Error> {
-                match s.as_bytes().first().copied() {
-                    #(#first_byte_dispatch)*
-
-                    _ => Err(
-                        ResourceTypeError::Invalid(
-                            s.to_string(),
-                        )
-                    ),
+            fn try_from(s: &str) -> Result<Self, Self::Error> {
+                match s {
+                    #(#from_str_arms),*,
+                    _ => Err(ResourceTypeError::Invalid(s.to_string())),
                 }
             }
         }
     }
-}
-
-fn generate_resource_type_enum_variants(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
-
-        let type_name = &resource_type_info.resource_type;
-
-        if resource_type_info.rust_type_name == resource_type_info.resource_type {
-            quote! {
-                #struct_name
-            }
-        } else {
-            quote! {
-                #[serde(rename = #type_name)]
-                #struct_name
-            }
-        }
-    })
-}
-
-fn generate_resource_type_names(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let resource_name = &resource_type_info.resource_type;
-
-        quote! {
-            #resource_name
-        }
-    })
-}
-
-fn generate_resource_type_deserializers(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
-
-        let function_name = format_ident!(
-            "deserialize_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #[inline]
-            fn #function_name(
-                data: &[u8],
-            ) -> Result<
-                Resource,
-                haste_fhir_serialization_json::errors::DeserializeError,
-            > {
-                Ok(Resource::#struct_name(
-                    serde_json::from_slice::<#struct_name>(data)?
-                ))
-            }
-        }
-    })
-}
-
-fn generate_resource_type_deserializer_table(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let function_name = format_ident!(
-            "deserialize_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #function_name
-        }
-    })
-}
-
-fn generate_resource_type_filters(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
-
-        let function_name = format_ident!(
-            "filter_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #[inline]
-            fn #function_name(
-                resource: Resource,
-                fields: &[&str],
-            ) -> Result<Resource, FilterFieldsError> {
-                match resource {
-                    Resource::#struct_name(resource) => {
-                        resource
-                            .filter(fields)
-                            .map(Resource::#struct_name)
-                    }
-
-                    _ => Err(
-                        FilterFieldsError::ResourceTypeMismatch
-                    ),
-                }
-            }
-        }
-    })
-}
-
-fn generate_resource_type_filter_table(
-    resource_types: &[ResourceTypeInfo],
-) -> impl Iterator<Item = TokenStream> + '_ {
-    resource_types.iter().map(|resource_type_info| {
-        let function_name = format_ident!(
-            "filter_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #function_name
-        }
-    })
-}
-
-fn generate_resource_type_first_byte_dispatch(
-    resource_types: &[ResourceTypeInfo],
-) -> Vec<TokenStream> {
-    let mut first_bytes = BTreeSet::new();
-
-    for resource_type_info in resource_types {
-        if let Some(&first_byte) = resource_type_info.resource_type.as_bytes().first() {
-            first_bytes.insert(first_byte);
-        }
-    }
-
-    first_bytes
-        .into_iter()
-        .map(|first_byte| {
-            let letter = first_byte as char;
-
-            let helper_name = format_ident!("resource_type_from_{}", letter.to_ascii_lowercase());
-
-            let byte_literal = proc_macro2::Literal::byte_character(first_byte);
-
-            quote! {
-                Some(#byte_literal) =>
-                    Self::#helper_name(s),
-            }
-        })
-        .collect()
 }
 
 fn generate_filter_fields_error() -> TokenStream {
     quote! {
         #[derive(Error, Debug)]
         pub enum FilterFieldsError {
-            #[error(
-                "Unknown or unsupported _elements field '{0}' \
-                 for resource type '{1}'"
-            )]
+            #[error("Unknown or unsupported _elements field '{0}' for resource type '{1}'")]
             UnknownField(String, String),
-
-            #[error(
-                "Resource type does not match the provided resource"
-            )]
-            ResourceTypeMismatch,
         }
     }
 }
@@ -1263,191 +804,6 @@ fn generate_filter_fields_error() -> TokenStream {
 pub struct GeneratedCode {
     pub resources: TokenStream,
     pub types: TokenStream,
-}
-
-fn collect_identifiers(tokens: &TokenStream, identifiers: &mut BTreeSet<String>) {
-    for token in tokens.clone() {
-        match token {
-            proc_macro2::TokenTree::Ident(ident) => {
-                identifiers.insert(ident.to_string());
-            }
-
-            proc_macro2::TokenTree::Group(group) => {
-                collect_identifiers(&group.stream(), identifiers);
-            }
-
-            _ => {}
-        }
-    }
-}
-
-fn generate_headers(type_imports: &[String]) -> (TokenStream, TokenStream) {
-    let type_import_idents = type_imports.iter().map(|name| type_ident(name));
-
-    let resource_type_imports = if type_imports.is_empty() {
-        quote! {}
-    } else {
-        quote! {
-            use self::super::types::{
-                #(#type_import_idents),*
-            };
-        }
-    };
-
-    let resource_code = quote! {
-        #![allow(non_snake_case)]
-        #![doc = " @generated by `bash scripts/types_build.sh` - do not edit."]
-
-        #resource_type_imports
-
-        use self::super::terminology;
-        use haste_reflect::{MetaValue, derive::Reflect};
-        use haste_fhir_serialization_json;
-        use thiserror::Error;
-    };
-
-    let type_code = quote! {
-        #![allow(non_snake_case)]
-        #![doc = " @generated by `bash scripts/types_build.sh` - do not edit."]
-
-        use self::super::resources::Resource;
-        use self::super::terminology;
-        use haste_reflect::{MetaValue, derive::Reflect};
-        use haste_fhir_serialization_json;
-    };
-
-    (resource_code, type_code)
-}
-
-fn generate_from_files(
-    file_paths: &[String],
-    level: Option<&'static str>,
-    inlined_terminology: &HashMap<String, String>,
-    resource_code: &mut TokenStream,
-    type_code: &mut TokenStream,
-    rust_type_name_to_fhir_type: &mut BTreeMap<String, String>,
-    resource_types: &mut Vec<ResourceTypeInfo>,
-) -> Result<(), String> {
-    for dir_path in file_paths {
-        for entry in WalkDir::new(dir_path)
-            .sort_by_file_name()
-            .into_iter()
-            .filter_map(Result::ok)
-            .filter(|entry| entry.file_type().is_file())
-            .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "json"))
-        {
-            let generated_types =
-                generate_fhir_types_from_file(entry.path(), level, inlined_terminology)?;
-
-            rust_type_name_to_fhir_type.extend(generated_types.rust_type_name_to_fhir_type);
-
-            resource_types.extend(generated_types.resource_types);
-
-            // Avoid repeatedly rebuilding the complete accumulated
-            // TokenStream with quote!.
-            resource_code.extend(generated_types.resources);
-            type_code.extend(generated_types.types);
-        }
-    }
-
-    Ok(())
-}
-
-fn generate_resource_enum(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let resource_type_enum_variant_idents = resource_types.iter().map(|resource_type_info| {
-        let rust_struct_name = &resource_type_info.rust_type_name;
-        let resource_type_name = &resource_type_info.resource_type;
-
-        let variant = format_ident!("{}", generate::capitalize(rust_struct_name));
-
-        if rust_struct_name == resource_type_name {
-            quote! {
-                #variant(#variant)
-            }
-        } else {
-            quote! {
-                #[serde(rename = #resource_type_name)]
-                #variant(#variant)
-            }
-        }
-    });
-
-    let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_type_info| {
-        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
-
-        quote! {
-            Resource::#resource_type_ident(_) =>
-                ResourceType::#resource_type_ident
-        }
-    });
-
-    let resource_to_id_match_arms = resource_types.iter().map(|resource_type_info| {
-        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
-
-        quote! {
-            Resource::#resource_type_ident(r) => &r.id
-        }
-    });
-
-    quote! {
-        #[derive(
-            Clone,
-            Reflect,
-            Debug,
-            haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
-            serde::Deserialize,
-        )]
-        #[fhir_serialize_type = "enum-variant"]
-        #[serde(tag = "resourceType")]
-        pub enum Resource {
-            #(#resource_type_enum_variant_idents),*
-        }
-
-        impl Resource {
-            #[inline]
-            pub fn empty(&self) -> bool {
-                false
-            }
-
-            /// Filters this resource to the requested top-level fields.
-            ///
-            /// Fields that are mandatory for the resource are retained
-            /// regardless of whether they are included in fields.
-            ///
-            /// # Errors
-            ///
-            /// Returns [`FilterFieldsError::UnknownField`] if fields contains a
-            /// field that is not supported by this resource type.
-            #[inline]
-            pub fn filter(
-                self,
-                fields: &[&str],
-            ) -> Result<Resource, FilterFieldsError> {
-                let resource_type = self.resource_type();
-
-                resource_type.filter(
-                    self,
-                    fields,
-                )
-            }
-
-            #[inline]
-            #[allow(clippy::too_many_lines)]
-            pub fn resource_type(&self) -> ResourceType {
-                match self {
-                    #(#resource_to_resource_type_match_arms),*
-                }
-            }
-
-            #[inline]
-            #[allow(clippy::too_many_lines)]
-            pub fn id(&self) -> &Option<String> {
-                match self {
-                    #(#resource_to_id_match_arms),*
-                }
-            }
-        }
-    }
 }
 
 /*
@@ -1477,12 +833,8 @@ pub fn generate(
     level: Option<&'static str>,
     inlined_terminology: &HashMap<String, String>,
 ) -> Result<GeneratedCode, String> {
-    let mut resource_code = TokenStream::new();
-    let mut type_code = TokenStream::new();
-
-    let mut rust_type_name_to_fhir_type = BTreeMap::<String, String>::new();
-
-    let mut resource_types = Vec::new();
+    let (mut resource_code, mut type_code) = generate_headers();
+    let mut resource_types = vec![];
 
     generate_from_files(
         file_paths,
@@ -1490,59 +842,158 @@ pub fn generate(
         inlined_terminology,
         &mut resource_code,
         &mut type_code,
-        &mut rust_type_name_to_fhir_type,
         &mut resource_types,
     )?;
 
-    let mut resource_identifiers = BTreeSet::new();
-
-    collect_identifiers(&resource_code, &mut resource_identifiers);
-
-    let mut type_imports: Vec<String> = rust_type_name_to_fhir_type
-        .keys()
-        .filter(|type_name| resource_identifiers.contains(*type_name))
-        .cloned()
-        .collect();
-
-    type_imports.push("Element".to_string());
-
-    type_imports.sort_unstable();
-    type_imports.dedup();
-
-    let (resource_header, type_header) = generate_headers(&type_imports);
-
-    let resource_enum = generate_resource_enum(&resource_types);
-
-    let resource_type_type = generate_resource_type(&resource_types);
-
-    let filter_fields_error = generate_filter_fields_error();
-
-    let filter_field_helper = generate_filter_field_helper();
-
-    resource_code = {
-        let mut output = TokenStream::new();
-
-        output.extend(resource_header);
-        output.extend(resource_code);
-        output.extend(resource_enum);
-        output.extend(resource_type_type);
-        output.extend(filter_fields_error);
-        output.extend(filter_field_helper);
-
-        output
-    };
-
-    type_code = {
-        let mut output = TokenStream::new();
-
-        output.extend(type_header);
-        output.extend(type_code);
-
-        output
-    };
+    resource_code.extend(generate_resource_enum(&resource_types));
+    resource_code.extend(generate_resource_type(&resource_types));
+    resource_code.extend(generate_filter_fields_error());
 
     Ok(GeneratedCode {
         resources: resource_code,
         types: type_code,
     })
+}
+
+fn generate_headers() -> (TokenStream, TokenStream) {
+    // Generated code: every resource match covers all ~150 resource types, so
+    // long function bodies are expected.
+    let resource_code = quote! {
+        #![allow(non_snake_case, clippy::too_many_lines, clippy::wildcard_imports)]
+        #![doc = " @generated by `bash scripts/types_build.sh` - do not edit."]
+        use self::super::types::*;
+        use self::super::terminology;
+        use haste_reflect::{MetaValue, derive::Reflect};
+        use haste_fhir_serialization_json;
+        use thiserror::Error;
+    };
+
+    let type_code = quote! {
+        #![allow(non_snake_case)]
+        #![doc = " @generated by `bash scripts/types_build.sh` - do not edit."]
+        use self::super::resources::Resource;
+        use self::super::terminology;
+        use haste_reflect::{MetaValue, derive::Reflect};
+        use haste_fhir_serialization_json;
+    };
+
+    (resource_code, type_code)
+}
+
+fn generate_from_files(
+    file_paths: &[String],
+    level: Option<&'static str>,
+    inlined_terminology: &HashMap<String, String>,
+    resource_code: &mut TokenStream,
+    type_code: &mut TokenStream,
+    resource_types: &mut Vec<ResourceTypeInfo>,
+) -> Result<(), String> {
+    for dir_path in file_paths {
+        for entry in WalkDir::new(dir_path)
+            .sort_by_file_name()
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_type().is_file())
+            .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "json"))
+        {
+            let generated_types =
+                generate_fhir_types_from_file(entry.path(), level, inlined_terminology)?;
+
+            resource_types.extend(generated_types.resource_types);
+            resource_code.extend(generated_types.resources);
+            type_code.extend(generated_types.types);
+        }
+    }
+
+    Ok(())
+}
+
+fn generate_resource_enum(resource_types: &[ResourceTypeInfo]) -> TokenStream {
+    let resource_type_enum_variant_idents = resource_types.iter().map(|resource_type_info| {
+        let rust_struct_name = &resource_type_info.rust_type_name;
+        let resource_type_name = &resource_type_info.resource_type;
+
+        let variant = rust_resource_ident(rust_struct_name);
+
+        if rust_struct_name == resource_type_name {
+            quote! {
+                #variant(#variant)
+            }
+        } else {
+            quote! {
+                #[serde(rename = #resource_type_name)]
+                #variant(#variant)
+            }
+        }
+    });
+
+    let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
+
+        quote! {
+            Resource::#resource_type_ident(_) => ResourceType::#resource_type_ident
+        }
+    });
+
+    let resource_to_id_match_arms = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
+
+        quote! {
+            Resource::#resource_type_ident(r) => &r.id
+        }
+    });
+
+    let filter_fields = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
+
+        quote! {
+            Resource::#resource_type_ident(r) => r.filter(fields).map(Resource::#resource_type_ident)
+        }
+    });
+
+    quote! {
+        #[derive(
+            Clone,
+            Reflect,
+            Debug,
+            haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
+            serde::Deserialize,
+        )]
+        #[fhir_serialize_type = "enum-variant"]
+        #[serde(tag = "resourceType")]
+        pub enum Resource {
+            #(#resource_type_enum_variant_idents),*
+        }
+
+        impl Resource {
+            /// Returns true if the resource is empty, false otherwise.
+            pub fn empty(&self) -> bool {
+                false
+            }
+
+            /// Keeps `id`, `meta`, the mandatory elements and the elements named in `fields`.
+            ///
+            /// # Errors
+            ///
+            /// Returns [`FilterFieldsError::UnknownField`] if `fields` names an element
+            /// this resource does not have.
+            pub fn filter(self, fields: &[&str]) -> Result<Resource, FilterFieldsError> {
+                match self {
+                    #(#filter_fields),*
+                }
+            }
+
+            pub fn resource_type(&self) -> ResourceType {
+                match self {
+                    #(#resource_to_resource_type_match_arms),*
+                }
+            }
+
+            pub fn id(&self) -> &Option<String> {
+                match self {
+                    #(#resource_to_id_match_arms),*
+                }
+            }
+        }
+    }
 }

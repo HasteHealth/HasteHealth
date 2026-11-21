@@ -117,9 +117,8 @@ fn format_const_code_name(identifier: &str) -> String {
 
 fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
     let terminology_enum_name_str =
-        format_term_struct_name(&value_set.id.clone().expect("ValueSet must have an id"));
-
-    let terminology_enum_name = format_ident!("{}", terminology_enum_name_str);
+        format_term_struct_name(value_set.id.as_ref().expect("ValueSet must have an id"));
+    let terminology_enum_name = format_ident!("{terminology_enum_name_str}");
 
     let terminology_url = value_set
         .url
@@ -149,20 +148,25 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
         let type_name_snake_case =
             camelcase_to_snake_case(&terminology_enum_name_str).to_lowercase();
 
-        let code_fn_variants = codes.iter().enumerate().map(|(i, c)| {
-            let mut variant_name_str = format_const_code_name(&c.code).to_lowercase();
+        // In event of concurrent `_` characters, replace with a single `_`.
+        let repeated_underscores = Regex::new(r"_+").unwrap();
 
-            // In event of concurrent `_` characters, replace with a single `_`.
-            let re = Regex::new(r"_+").unwrap();
-            variant_name_str = re.replace_all(&variant_name_str, "_").to_string();
+        let code_fn_variants = codes.iter().enumerate().map(|(i, c)| {
+            let mut variant_name_str = repeated_underscores
+                .replace_all(&format_const_code_name(&c.code).to_lowercase(), "_")
+                .to_string();
 
             if RUST_KEYWORDS.contains(variant_name_str.as_str()) {
                 variant_name_str.push('_');
             }
 
-            if variant_name_str == type_name_snake_case {
-                variant_name_str.push_str("_code");
-            }
+            // A code named like its ValueSet (`MeasurePopulation::measure_population`)
+            // keeps its name, like every other code.
+            let self_named_allow = if variant_name_str == type_name_snake_case {
+                quote! { #[allow(clippy::self_named_constructors)] }
+            } else {
+                quote! {}
+            };
 
             let variant = format_ident!("{variant_name_str}");
             let display = c.description.as_deref().unwrap_or(c.code.as_str());
@@ -176,6 +180,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                 #doc_attributes
                 #[inline]
                 #[must_use]
+                #self_named_allow
                 pub fn #variant() -> BoundCode<Self> {
                     BoundCode::from_index(#index)
                 }
@@ -488,11 +493,11 @@ fn prebuilt_code_impl() -> TokenStream {
                 let element_array: Vec<Option<_>> =
                     values.iter().map(|v| v.element()).collect();
 
-                if value_array.iter().any(std::option::Option::is_some) {
+                if value_array.iter().any(Option::is_some) {
                     serializer.serialize_entry(field_name, &value_array)?;
                 }
 
-                if element_array.iter().any(std::option::Option::is_some) {
+                if element_array.iter().any(Option::is_some) {
                     let element_key = format!("_{field_name}");
                     let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
                     serializer.serialize_entry(&element_key, &element_array)?;
@@ -598,21 +603,13 @@ fn prebuilt_code_serde() -> TokenStream {
             url: &str,
             s: &str,
         ) -> Result<u16, E> {
+            // A ValueSet has fewer than 400 codes, so every index fits a u16.
             codes
                 .binary_search(&s)
-                .map_err(|insertion_index| {
-                    E::custom(format_args!(
-                            "'{s}' is not a valid code in ValueSet {url} \
-                         (insertion index: {insertion_index})"
-                    ))
-                })
-                .and_then(|i| {
-                    u16::try_from(i).map_err(|e| {
-                        E::custom(format_args!(
-                                "code '{s}' has index {i}, \
-                                 which cannot be represented as u16: {e}"
-                        ))
-                    })
+                .ok()
+                .and_then(|i| u16::try_from(i).ok())
+                .ok_or_else(|| {
+                    E::custom(format_args!("'{s}' is not a valid code in ValueSet {url}"))
                 })
         }
 

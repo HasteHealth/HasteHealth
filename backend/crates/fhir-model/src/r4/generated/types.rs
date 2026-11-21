@@ -80,11 +80,9 @@ pub struct FHIRBase64Binary {
     pub value: Option<String>,
 }
 impl FHIRBase64Binary {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -120,11 +118,9 @@ pub struct FHIRBoolean {
     pub value: Option<bool>,
 }
 impl FHIRBoolean {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -160,11 +156,9 @@ pub struct FHIRCanonical {
     pub value: Option<String>,
 }
 impl FHIRCanonical {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -201,11 +195,9 @@ pub struct FHIRCode {
     pub value: Option<String>,
 }
 impl FHIRCode {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -242,11 +234,9 @@ pub struct FHIRDate {
     pub value: Option<crate::r4::datetime::Date>,
 }
 impl FHIRDate {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -285,11 +275,9 @@ pub struct FHIRDateTime {
     pub value: Option<crate::r4::datetime::DateTime>,
 }
 impl FHIRDateTime {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -325,11 +313,9 @@ pub struct FHIRDecimal {
     pub value: Option<f64>,
 }
 impl FHIRDecimal {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -367,11 +353,9 @@ pub struct FHIRId {
     pub value: Option<String>,
 }
 impl FHIRId {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -407,11 +391,9 @@ pub struct FHIRInstant {
     pub value: Option<crate::r4::datetime::Instant>,
 }
 impl FHIRInstant {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -447,11 +429,9 @@ pub struct FHIRInteger {
     pub value: Option<i64>,
 }
 impl FHIRInteger {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -488,11 +468,9 @@ pub struct FHIRMarkdown {
     pub value: Option<String>,
 }
 impl FHIRMarkdown {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -528,11 +506,9 @@ pub struct FHIROid {
     pub value: Option<String>,
 }
 impl FHIROid {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -568,11 +544,9 @@ pub struct FHIRPositiveInt {
     pub value: Option<u64>,
 }
 impl FHIRPositiveInt {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -608,11 +582,9 @@ pub struct FHIRString {
     pub value: Option<String>,
 }
 impl FHIRString {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -648,11 +620,9 @@ pub struct FHIRTime {
     pub value: Option<crate::r4::datetime::Time>,
 }
 impl FHIRTime {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -688,11 +658,9 @@ pub struct FHIRUnsignedInt {
     pub value: Option<u64>,
 }
 impl FHIRUnsignedInt {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -728,11 +696,9 @@ pub struct FHIRUri {
     pub value: Option<String>,
 }
 impl FHIRUri {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -768,11 +734,9 @@ pub struct FHIRUrl {
     pub value: Option<String>,
 }
 impl FHIRUrl {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -808,11 +772,9 @@ pub struct FHIRUuid {
     pub value: Option<String>,
 }
 impl FHIRUuid {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -849,11 +811,9 @@ pub struct FHIRXhtml {
     pub value: String,
 }
 impl FHIRXhtml {
-    #[inline]
     pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.extension
     }
-    #[inline]
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
     }
@@ -1312,7 +1272,7 @@ pub struct DataRequirementCodeFilter {
     #[doc = "The code-valued attribute of the filter. The specified path SHALL be a `FHIRPath` resolveable on the"]
     #[doc = "specified type of the `DataRequirement`, and SHALL consist only of identifiers, constant indexers,"]
     #[doc = "and .`resolve()`. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as"]
-    #[doc = "indexers ([`x`]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
+    #[doc = "indexers ([x]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
     #[doc = "Profile`](fhirpath.html#simple) for full details). Note that the index must be an integer constant."]
     #[doc = "The path must resolve to an element of type code, Coding, or `CodeableConcept`."]
     pub path: Option<Box<FHIRString>>,
@@ -1377,7 +1337,7 @@ pub struct DataRequirementDateFilter {
     #[doc = "The date-valued attribute of the filter. The specified path SHALL be a `FHIRPath` resolveable on the"]
     #[doc = "specified type of the `DataRequirement`, and SHALL consist only of identifiers, constant indexers,"]
     #[doc = "and .`resolve()`. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as"]
-    #[doc = "indexers ([`x`]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
+    #[doc = "indexers ([x]) to traverse multiple-cardinality sub-elements (see the [`Simple `FHIRPath`"]
     #[doc = "Profile`](fhirpath.html#simple) for full details). Note that the index must be an integer constant."]
     #[doc = "The path must resolve to an element of type date, dateTime, Period, Schedule, or Timing."]
     pub path: Option<Box<FHIRString>>,
@@ -1416,8 +1376,8 @@ pub struct DataRequirementSort {
     pub extension: Option<Vec<Extension>>,
     #[primitive]
     #[doc = "The attribute of the sort. The specified path must be resolvable from the type of the required data."]
-    #[doc = "The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([`x`])"]
-    #[doc = "to traverse multiple-cardinality sub-elements. Note that the index must be an integer constant."]
+    #[doc = "The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to"]
+    #[doc = "traverse multiple-cardinality sub-elements. Note that the index must be an integer constant."]
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "The direction of the sort, ascending or descending."]
@@ -1809,7 +1769,7 @@ pub struct ElementDefinitionBase {
     #[doc = "there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Extension>>,
     #[primitive]
-    #[doc = "The Path that identifies the base element - this matches the `ElementDefinition.path` for that"]
+    #[doc = "The Path that identifies the base element - this matches the `ElementDefinition`.path for that"]
     #[doc = "element. Across FHIR, there is only one base definition of any element - that is, an element"]
     #[doc = "definition on a [`StructureDefinition`](structuredefinition.html#) without a"]
     #[doc = "`StructureDefinition.base.`"]
@@ -1843,8 +1803,8 @@ pub struct ElementDefinitionType {
     pub extension: Option<Vec<Extension>>,
     #[primitive]
     #[doc = "URL of Data type or Resource that is a(or the) type used for this element. References are `URLs`"]
-    #[doc = "that are relative to `<http://hl7.org/fhir/StructureDefinition>` e.g. \"string\" is a reference to"]
-    #[doc = "`<http://hl7.org/fhir/StructureDefinition/string>`. Absolute `URLs` are only allowed in logical"]
+    #[doc = "that are relative to <http://hl7.org/fhir/StructureDefinition> e.g. \"string\" is a reference to"]
+    #[doc = "<http://hl7.org/fhir/StructureDefinition/string>. Absolute `URLs` are only allowed in logical"]
     #[doc = "models."]
     pub code: Box<FHIRUri>,
     #[primitive]
@@ -2408,7 +2368,7 @@ pub struct ElementDefinitionMapping {
     #[doc = "An internal reference to the definition of a mapping."]
     pub identity: Box<FHIRId>,
     #[primitive]
-    #[doc = "Identifies the computable language in which `mapping.map` is expressed."]
+    #[doc = "Identifies the computable language in which mapping.map is expressed."]
     pub language: Option<Box<FHIRCode>>,
     #[primitive]
     #[doc = "Expresses what part of the target specification corresponds to this element."]
@@ -2487,12 +2447,12 @@ pub struct ElementDefinition {
     #[doc = "case of elements derived from existing elements (e.g. constraints), the definition SHALL be"]
     #[doc = "consistent with the base definition, but convey the meaning of the element in the particular context"]
     #[doc = "of use of the resource. (Note: The text you are reading is specified in"]
-    #[doc = "`ElementDefinition.definition`)."]
+    #[doc = "`ElementDefinition`.definition)."]
     pub definition: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "Explanatory notes and implementation guidance about the data element, including notes about how to"]
     #[doc = "use the data properly, exceptions to proper use, etc. (Note: The text you are reading is specified"]
-    #[doc = "in `ElementDefinition.comment`)."]
+    #[doc = "in `ElementDefinition`.comment)."]
     pub comment: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "This element is for traceability of why the element was created and why the constraints exist as"]
@@ -2546,13 +2506,13 @@ pub struct ElementDefinition {
     #[doc = "must be found in the instance. Other additional values may be found too. This is effectively"]
     #[doc = "constraint by example."]
     #[doc = ""]
-    #[doc = "When pattern[`x`] is used to constrain a primitive, it means that the value provided in the"]
-    #[doc = "pattern[`x`] must match the instance value exactly."]
+    #[doc = "When pattern[x] is used to constrain a primitive, it means that the value provided in the pattern[x]"]
+    #[doc = "must match the instance value exactly."]
     #[doc = ""]
-    #[doc = "When pattern[`x`] is used to constrain an array, it means that each element provided in the"]
-    #[doc = "pattern[`x`] array must (recursively) match at least one element from the instance array."]
+    #[doc = "When pattern[x] is used to constrain an array, it means that each element provided in the pattern[x]"]
+    #[doc = "array must (recursively) match at least one element from the instance array."]
     #[doc = ""]
-    #[doc = "When pattern[`x`] is used to constrain a complex object, it means that each property in the pattern"]
+    #[doc = "When pattern[x] is used to constrain a complex object, it means that each property in the pattern"]
     #[doc = "must be present in the complex object, and its value must recursively match -- i.e.,"]
     #[doc = ""]
     #[doc = "1. If primitive: it must match exactly the pattern value"]
@@ -3386,20 +3346,19 @@ pub struct Reference {
     pub reference: Option<Box<FHIRString>>,
     #[rename_field = "type"]
     #[primitive]
-    #[doc = "The expected type of the target of the reference. If both `Reference.type` and `Reference.reference`"]
-    #[doc = "are populated and `Reference.reference` is a FHIR URL, both SHALL be consistent."]
+    #[doc = "The expected type of the target of the reference. If both Reference.type and Reference.reference are"]
+    #[doc = "populated and Reference.reference is a FHIR URL, both SHALL be consistent."]
     #[doc = ""]
     #[doc = "The type is the Canonical URL of Resource Definition that is the type this reference refers to."]
-    #[doc = "References are `URLs` that are relative to `<http://hl7.org/fhir/StructureDefinition>`/ e.g."]
-    #[doc = "\"Patient\" is a reference to `<http://hl7.org/fhir/StructureDefinition/Patient>`. Absolute `URLs` are"]
-    #[doc = "only allowed for logical models (and can only be used in references in logical models, not"]
-    #[doc = "resources)."]
+    #[doc = "References are `URLs` that are relative to <http://hl7.org/fhir/StructureDefinition>/ e.g. \"Patient\""]
+    #[doc = "is a reference to <http://hl7.org/fhir/StructureDefinition/Patient>. Absolute `URLs` are only"]
+    #[doc = "allowed for logical models (and can only be used in references in logical models, not resources)."]
     pub type_: Option<Box<FHIRUri>>,
     #[rename_field = "identifier"]
     #[doc = "An identifier for the target resource. This is used when there is no way to reference the other"]
     #[doc = "resource directly, either because the entity it represents is not available through a FHIR server,"]
     #[doc = "or because there is no way for the author of the resource to convert a known identifier to an actual"]
-    #[doc = "location. There is no requirement that a `Reference.identifier` point to something that is actually"]
+    #[doc = "location. There is no requirement that a Reference.identifier point to something that is actually"]
     #[doc = "exposed as a FHIR instance, but it SHALL point to a business concept that would be expected to be"]
     #[doc = "exposed as a FHIR instance, and that instance would need to be of a FHIR resource type allowed by"]
     #[doc = "the reference."]
@@ -3701,16 +3660,16 @@ pub struct TimingRepeat {
     #[doc = "of count values."]
     pub count: Option<Box<FHIRPositiveInt>>,
     #[primitive]
-    #[doc = "If present, indicates that the count is a range - so to perform the action between [`count`] and"]
-    #[doc = "[`countMax`] times."]
+    #[doc = "If present, indicates that the count is a range - so to perform the action between [count] and"]
+    #[doc = "[countMax] times."]
     pub countMax: Option<Box<FHIRPositiveInt>>,
     #[primitive]
     #[doc = "How long this thing happens for when it happens. If durationMax is present, this element indicates"]
     #[doc = "the lower bound of the allowed range of the duration."]
     pub duration: Option<Box<FHIRDecimal>>,
     #[primitive]
-    #[doc = "If present, indicates that the duration is a range - so to perform the action between [`duration`]"]
-    #[doc = "and [`durationMax`] time length."]
+    #[doc = "If present, indicates that the duration is a range - so to perform the action between [duration] and"]
+    #[doc = "[durationMax] time length."]
     pub durationMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the duration, in UCUM units."]
@@ -3720,8 +3679,8 @@ pub struct TimingRepeat {
     #[doc = "this element indicates the lower bound of the allowed range of the frequency."]
     pub frequency: Option<Box<FHIRPositiveInt>>,
     #[primitive]
-    #[doc = "If present, indicates that the frequency is a range - so to repeat between [`frequency`] and"]
-    #[doc = "[`frequencyMax`] times within the period or period range."]
+    #[doc = "If present, indicates that the frequency is a range - so to repeat between [frequency] and"]
+    #[doc = "[frequencyMax] times within the period or period range."]
     pub frequencyMax: Option<Box<FHIRPositiveInt>>,
     #[primitive]
     #[doc = "Indicates the duration of time over which repetitions are to occur; e.g. to express \"3 times per"]
@@ -3729,8 +3688,8 @@ pub struct TimingRepeat {
     #[doc = "element indicates the lower bound of the allowed range of the period length."]
     pub period: Option<Box<FHIRDecimal>>,
     #[primitive]
-    #[doc = "If present, indicates that the period is a range from [`period`] to [`periodMax`], allowing"]
-    #[doc = "expressing concepts such as \"do this once every 3-5 days."]
+    #[doc = "If present, indicates that the period is a range from [period] to [periodMax], allowing expressing"]
+    #[doc = "concepts such as \"do this once every 3-5 days."]
     pub periodMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the period in UCUM units."]
@@ -3793,7 +3752,7 @@ pub struct Timing {
     #[doc = "but many institutions define their own additional codes. If a code is provided, the code is"]
     #[doc = "understood to be a complete statement of whatever is specified in the structured timing data, and"]
     #[doc = "either the code or the data may be used to interpret the Timing, with the exception that"]
-    #[doc = "`.repeat.bounds` still applies over the code (and is not contained in the code)."]
+    #[doc = ".repeat.bounds still applies over the code (and is not contained in the code)."]
     pub code: Option<Box<CodeableConcept>>,
 }
 #[derive(

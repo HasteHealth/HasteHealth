@@ -65,12 +65,19 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
     normalize_canonical_examples(&documentation)
 }
 
+/// A dotted name with an `_`, such as `observation_status.json`, which
+/// `clippy::doc_markdown` flags. Other dotted words (`6.1.x`, `hl7.fhir.us.core`)
+/// pass the lint and are left as written, as is a link target.
 fn normalize_filename(documentation: &str, output: &mut String) -> Option<usize> {
+    if output.ends_with("](") {
+        return None;
+    }
+
     let end = find_filename_end(documentation)?;
 
     let filename = &documentation[..end];
 
-    if !filename.contains('.') {
+    if !filename.contains('_') {
         return None;
     }
 
@@ -161,15 +168,10 @@ fn normalize_malformed_markdown_link(documentation: &str, output: &mut String) -
 }
 
 fn normalize_url(documentation: &str, output: &mut String) -> Option<usize> {
-    if documentation.starts_with('<')
-        && (documentation.starts_with("<http://") || documentation.starts_with("<https://"))
-    {
+    // Already an autolink: keep it a link.
+    if documentation.starts_with("<http://") || documentation.starts_with("<https://") {
         let end = documentation.find('>')?;
-
-        output.push('`');
         output.push_str(&documentation[..=end]);
-        output.push('`');
-
         return Some(end + 1);
     }
 
@@ -369,12 +371,15 @@ fn normalize_markdown(documentation: &str, output: &mut String) -> Option<usize>
     normalize_bracketed_identifier(documentation, output)
 }
 
+/// A bracketed name with an `_` such as `[lb_av]`, which `clippy::doc_markdown`
+/// wants in backticks. The brackets go inside the code span so rustdoc does
+/// not take it for an intra-doc link.
 fn normalize_bracketed_identifier(documentation: &str, output: &mut String) -> Option<usize> {
     let close = documentation.find(']')?;
 
     let value = &documentation[1..close];
 
-    if value.is_empty()
+    if !value.contains('_')
         || !value
             .chars()
             .all(|character| character.is_ascii_alphanumeric() || character == '_')
@@ -382,9 +387,9 @@ fn normalize_bracketed_identifier(documentation: &str, output: &mut String) -> O
         return None;
     }
 
-    output.push_str("[`");
-    output.push_str(value);
-    output.push_str("`]");
+    output.push('`');
+    output.push_str(&documentation[..=close]);
+    output.push('`');
 
     Some(close + 1)
 }
@@ -809,4 +814,43 @@ fn wrap_documentation_line(line: &str, width: usize) -> Vec<String> {
     }
 
     lines
+}
+
+#[cfg(test)]
+mod tests {
+    use super::format_documentation;
+
+    #[test]
+    fn bracketed_names_with_underscores_are_code() {
+        assert_eq!(
+            format_documentation("value[x] and [lb_av] and [periodMax]"),
+            "value[x] and `[lb_av]` and [periodMax]"
+        );
+    }
+
+    #[test]
+    fn dotted_names_are_code_only_with_underscores() {
+        assert_eq!(
+            format_documentation("Example: 'hl7.fhir.us.core@6.1.0', see value_set.json"),
+            "Example: 'hl7.fhir.us.core@6.1.0', see `value_set.json`"
+        );
+    }
+
+    #[test]
+    fn links_are_kept() {
+        assert_eq!(
+            format_documentation(
+                "an [`OperationOutcome`](operationoutcome.html) or <http://hl7.org/fhir>"
+            ),
+            "an [`OperationOutcome`](operationoutcome.html) or <http://hl7.org/fhir>"
+        );
+    }
+
+    #[test]
+    fn canonical_examples_are_one_code_span() {
+        assert_eq!(
+            format_documentation("[system]|[version] - e.g. http://loinc.org|2.56."),
+            "`[system]|[version] - e.g. http://loinc.org|2.56`."
+        );
+    }
 }

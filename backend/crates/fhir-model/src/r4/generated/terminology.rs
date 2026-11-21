@@ -103,10 +103,10 @@ impl<VS: ValueSetDef> BoundCode<VS> {
     ) -> Result<(), M::Error> {
         let value_array: Vec<Option<&'static str>> = values.iter().map(BoundCode::as_str).collect();
         let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
-        if value_array.iter().any(std::option::Option::is_some) {
+        if value_array.iter().any(Option::is_some) {
             serializer.serialize_entry(field_name, &value_array)?;
         }
-        if element_array.iter().any(std::option::Option::is_some) {
+        if element_array.iter().any(Option::is_some) {
             let element_key = format!("_{field_name}");
             let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
             serializer.serialize_entry(&element_key, &element_array)?;
@@ -177,20 +177,9 @@ impl<VS: ValueSetDef> MetaValue for BoundCode<VS> {
 fn parse_code<E: serde::de::Error>(codes: &[&str], url: &str, s: &str) -> Result<u16, E> {
     codes
         .binary_search(&s)
-        .map_err(|insertion_index| {
-            E::custom(format_args!(
-                "'{s}' is not a valid code in ValueSet {url} \
-                         (insertion index: {insertion_index})"
-            ))
-        })
-        .and_then(|i| {
-            u16::try_from(i).map_err(|e| {
-                E::custom(format_args!(
-                    "code '{s}' has index {i}, \
-                                 which cannot be represented as u16: {e}"
-                ))
-            })
-        })
+        .ok()
+        .and_then(|i| u16::try_from(i).ok())
+        .ok_or_else(|| E::custom(format_args!("'{s}' is not a valid code in ValueSet {url}")))
 }
 struct BoundCodeVisitor<VS>(PhantomData<VS>);
 impl<VS: ValueSetDef> serde::de::Visitor<'_> for BoundCodeVisitor<VS> {
@@ -231,133 +220,133 @@ impl ValueSetDef for FHIRVersion {
     ];
 }
 impl FHIRVersion {
-    #[doc = "`0.0.80`"]
+    #[doc = "0.0.80"]
     #[inline]
     #[must_use]
     pub fn v0080() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
-    #[doc = "`0.0.81`"]
+    #[doc = "0.0.81"]
     #[inline]
     #[must_use]
     pub fn v0081() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
-    #[doc = "`0.0.82`"]
+    #[doc = "0.0.82"]
     #[inline]
     #[must_use]
     pub fn v0082() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
-    #[doc = "`0.01`"]
+    #[doc = "0.01"]
     #[inline]
     #[must_use]
     pub fn v001() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
-    #[doc = "`0.05`"]
+    #[doc = "0.05"]
     #[inline]
     #[must_use]
     pub fn v005() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
-    #[doc = "`0.06`"]
+    #[doc = "0.06"]
     #[inline]
     #[must_use]
     pub fn v006() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
-    #[doc = "`0.11`"]
+    #[doc = "0.11"]
     #[inline]
     #[must_use]
     pub fn v011() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
-    #[doc = "`0.4.0`"]
+    #[doc = "0.4.0"]
     #[inline]
     #[must_use]
     pub fn v040() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
-    #[doc = "`0.5.0`"]
+    #[doc = "0.5.0"]
     #[inline]
     #[must_use]
     pub fn v050() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
-    #[doc = "`1.0.0`"]
+    #[doc = "1.0.0"]
     #[inline]
     #[must_use]
     pub fn v100() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
-    #[doc = "`1.0.1`"]
+    #[doc = "1.0.1"]
     #[inline]
     #[must_use]
     pub fn v101() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
-    #[doc = "`1.0.2`"]
+    #[doc = "1.0.2"]
     #[inline]
     #[must_use]
     pub fn v102() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
-    #[doc = "`1.1.0`"]
+    #[doc = "1.1.0"]
     #[inline]
     #[must_use]
     pub fn v110() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
-    #[doc = "`1.4.0`"]
+    #[doc = "1.4.0"]
     #[inline]
     #[must_use]
     pub fn v140() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
-    #[doc = "`1.6.0`"]
+    #[doc = "1.6.0"]
     #[inline]
     #[must_use]
     pub fn v160() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
-    #[doc = "`1.8.0`"]
+    #[doc = "1.8.0"]
     #[inline]
     #[must_use]
     pub fn v180() -> BoundCode<Self> {
         BoundCode::from_index(15u16)
     }
-    #[doc = "`3.0.0`"]
+    #[doc = "3.0.0"]
     #[inline]
     #[must_use]
     pub fn v300() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
-    #[doc = "`3.0.1`"]
+    #[doc = "3.0.1"]
     #[inline]
     #[must_use]
     pub fn v301() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
-    #[doc = "`3.3.0`"]
+    #[doc = "3.3.0"]
     #[inline]
     #[must_use]
     pub fn v330() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
-    #[doc = "`3.5.0`"]
+    #[doc = "3.5.0"]
     #[inline]
     #[must_use]
     pub fn v350() -> BoundCode<Self> {
         BoundCode::from_index(19u16)
     }
-    #[doc = "`4.0.0`"]
+    #[doc = "4.0.0"]
     #[inline]
     #[must_use]
     pub fn v400() -> BoundCode<Self> {
         BoundCode::from_index(20u16)
     }
-    #[doc = "`4.0.1`"]
+    #[doc = "4.0.1"]
     #[inline]
     #[must_use]
     pub fn v401() -> BoundCode<Self> {
@@ -19803,7 +19792,7 @@ impl ExampleExtensional {
     pub fn v35200_5() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
-    #[doc = "Cholesterol [`Percentile`]"]
+    #[doc = "Cholesterol [Percentile]"]
     #[inline]
     #[must_use]
     pub fn v9342_7() -> BoundCode<Self> {
@@ -27030,7 +27019,8 @@ impl MeasurePopulation {
     #[doc = "Measure Population"]
     #[inline]
     #[must_use]
-    pub fn measure_population_code() -> BoundCode<Self> {
+    #[allow(clippy::self_named_constructors)]
+    pub fn measure_population() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[doc = "Measure Population Exclusion"]
@@ -31122,7 +31112,7 @@ impl OperationOutcome {
     pub fn ms_g_transactio_n_duplicat_e_id() -> BoundCode<Self> {
         BoundCode::from_index(36u16)
     }
-    #[doc = "Missing Identifier in transaction - an `entry.id` must be provided"]
+    #[doc = "Missing Identifier in transaction - an entry.id must be provided"]
     #[inline]
     #[must_use]
     pub fn ms_g_transactio_n_missin_g_id() -> BoundCode<Self> {
@@ -44537,55 +44527,55 @@ impl SpdxLicense {
     pub fn adsl() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
-    #[doc = "Academic Free License `v1.1`"]
+    #[doc = "Academic Free License v1.1"]
     #[inline]
     #[must_use]
     pub fn af_l_11() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
-    #[doc = "Academic Free License `v1.2`"]
+    #[doc = "Academic Free License v1.2"]
     #[inline]
     #[must_use]
     pub fn af_l_12() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
-    #[doc = "Academic Free License `v2.0`"]
+    #[doc = "Academic Free License v2.0"]
     #[inline]
     #[must_use]
     pub fn af_l_20() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
-    #[doc = "Academic Free License `v2.1`"]
+    #[doc = "Academic Free License v2.1"]
     #[inline]
     #[must_use]
     pub fn af_l_21() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
-    #[doc = "Academic Free License `v3.0`"]
+    #[doc = "Academic Free License v3.0"]
     #[inline]
     #[must_use]
     pub fn af_l_30() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
-    #[doc = "Affero General Public License `v1.0` only"]
+    #[doc = "Affero General Public License v1.0 only"]
     #[inline]
     #[must_use]
     pub fn agp_l_10_only() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
-    #[doc = "Affero General Public License `v1.0` or later"]
+    #[doc = "Affero General Public License v1.0 or later"]
     #[inline]
     #[must_use]
     pub fn agp_l_10_or_later() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
-    #[doc = "GNU Affero General Public License `v3.0` only"]
+    #[doc = "GNU Affero General Public License v3.0 only"]
     #[inline]
     #[must_use]
     pub fn agp_l_30_only() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
-    #[doc = "GNU Affero General Public License `v3.0` or later"]
+    #[doc = "GNU Affero General Public License v3.0 or later"]
     #[inline]
     #[must_use]
     pub fn agp_l_30_or_later() -> BoundCode<Self> {
@@ -44621,31 +44611,31 @@ impl SpdxLicense {
     pub fn apafml() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
-    #[doc = "Adaptive Public License `1.0`"]
+    #[doc = "Adaptive Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn ap_l_10() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
-    #[doc = "Apple Public Source License `1.0`"]
+    #[doc = "Apple Public Source License 1.0"]
     #[inline]
     #[must_use]
     pub fn aps_l_10() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
-    #[doc = "Apple Public Source License `1.1`"]
+    #[doc = "Apple Public Source License 1.1"]
     #[inline]
     #[must_use]
     pub fn aps_l_11() -> BoundCode<Self> {
         BoundCode::from_index(19u16)
     }
-    #[doc = "Apple Public Source License `1.2`"]
+    #[doc = "Apple Public Source License 1.2"]
     #[inline]
     #[must_use]
     pub fn aps_l_12() -> BoundCode<Self> {
         BoundCode::from_index(20u16)
     }
-    #[doc = "Apple Public Source License `2.0`"]
+    #[doc = "Apple Public Source License 2.0"]
     #[inline]
     #[must_use]
     pub fn aps_l_20() -> BoundCode<Self> {
@@ -44681,43 +44671,43 @@ impl SpdxLicense {
     pub fn aladdin() -> BoundCode<Self> {
         BoundCode::from_index(26u16)
     }
-    #[doc = "Apache License `1.0`"]
+    #[doc = "Apache License 1.0"]
     #[inline]
     #[must_use]
     pub fn apache_10() -> BoundCode<Self> {
         BoundCode::from_index(27u16)
     }
-    #[doc = "Apache License `1.1`"]
+    #[doc = "Apache License 1.1"]
     #[inline]
     #[must_use]
     pub fn apache_11() -> BoundCode<Self> {
         BoundCode::from_index(28u16)
     }
-    #[doc = "Apache License `2.0`"]
+    #[doc = "Apache License 2.0"]
     #[inline]
     #[must_use]
     pub fn apache_20() -> BoundCode<Self> {
         BoundCode::from_index(29u16)
     }
-    #[doc = "Artistic License `1.0`"]
+    #[doc = "Artistic License 1.0"]
     #[inline]
     #[must_use]
     pub fn artistic_10() -> BoundCode<Self> {
         BoundCode::from_index(30u16)
     }
-    #[doc = "Artistic License `1.0` (Perl)"]
+    #[doc = "Artistic License 1.0 (Perl)"]
     #[inline]
     #[must_use]
     pub fn artistic_10_perl() -> BoundCode<Self> {
         BoundCode::from_index(31u16)
     }
-    #[doc = "Artistic License `1.0` w/clause 8"]
+    #[doc = "Artistic License 1.0 w/clause 8"]
     #[inline]
     #[must_use]
     pub fn artistic_10_cl8() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
-    #[doc = "Artistic License `2.0`"]
+    #[doc = "Artistic License 2.0"]
     #[inline]
     #[must_use]
     pub fn artistic_20() -> BoundCode<Self> {
@@ -44819,7 +44809,7 @@ impl SpdxLicense {
     pub fn bs_d_source_code() -> BoundCode<Self> {
         BoundCode::from_index(49u16)
     }
-    #[doc = "Boost Software License `1.0`"]
+    #[doc = "Boost Software License 1.0"]
     #[inline]
     #[must_use]
     pub fn bs_l_10() -> BoundCode<Self> {
@@ -44843,13 +44833,13 @@ impl SpdxLicense {
     pub fn beerware() -> BoundCode<Self> {
         BoundCode::from_index(53u16)
     }
-    #[doc = "`BitTorrent` Open Source License `v1.0`"]
+    #[doc = "`BitTorrent` Open Source License v1.0"]
     #[inline]
     #[must_use]
     pub fn bit_torrent_10() -> BoundCode<Self> {
         BoundCode::from_index(54u16)
     }
-    #[doc = "`BitTorrent` Open Source License `v1.1`"]
+    #[doc = "`BitTorrent` Open Source License v1.1"]
     #[inline]
     #[must_use]
     pub fn bit_torrent_11() -> BoundCode<Self> {
@@ -44861,241 +44851,241 @@ impl SpdxLicense {
     pub fn borceux() -> BoundCode<Self> {
         BoundCode::from_index(56u16)
     }
-    #[doc = "Computer Associates Trusted Open Source License `1.1`"]
+    #[doc = "Computer Associates Trusted Open Source License 1.1"]
     #[inline]
     #[must_use]
     pub fn catos_l_11() -> BoundCode<Self> {
         BoundCode::from_index(57u16)
     }
-    #[doc = "Creative Commons Attribution `1.0` Generic"]
+    #[doc = "Creative Commons Attribution 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_10() -> BoundCode<Self> {
         BoundCode::from_index(58u16)
     }
-    #[doc = "Creative Commons Attribution `2.0` Generic"]
+    #[doc = "Creative Commons Attribution 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_20() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
-    #[doc = "Creative Commons Attribution `2.5` Generic"]
+    #[doc = "Creative Commons Attribution 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_25() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
-    #[doc = "Creative Commons Attribution `3.0` Unported"]
+    #[doc = "Creative Commons Attribution 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_30() -> BoundCode<Self> {
         BoundCode::from_index(61u16)
     }
-    #[doc = "Creative Commons Attribution `4.0` International"]
+    #[doc = "Creative Commons Attribution 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_40() -> BoundCode<Self> {
         BoundCode::from_index(62u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial `1.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_10() -> BoundCode<Self> {
         BoundCode::from_index(63u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial `2.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_20() -> BoundCode<Self> {
         BoundCode::from_index(64u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial `2.5` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_25() -> BoundCode<Self> {
         BoundCode::from_index(65u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial `3.0` Unported"]
+    #[doc = "Creative Commons Attribution Non Commercial 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_30() -> BoundCode<Self> {
         BoundCode::from_index(66u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial `4.0` International"]
+    #[doc = "Creative Commons Attribution Non Commercial 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_40() -> BoundCode<Self> {
         BoundCode::from_index(67u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial No Derivatives `1.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial No Derivatives 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_n_d_10() -> BoundCode<Self> {
         BoundCode::from_index(68u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial No Derivatives `2.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial No Derivatives 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_n_d_20() -> BoundCode<Self> {
         BoundCode::from_index(69u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial No Derivatives `2.5` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial No Derivatives 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_n_d_25() -> BoundCode<Self> {
         BoundCode::from_index(70u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial No Derivatives `3.0` Unported"]
+    #[doc = "Creative Commons Attribution Non Commercial No Derivatives 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_n_d_30() -> BoundCode<Self> {
         BoundCode::from_index(71u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial No Derivatives `4.0` International"]
+    #[doc = "Creative Commons Attribution Non Commercial No Derivatives 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_n_d_40() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial Share Alike `1.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial Share Alike 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_s_a_10() -> BoundCode<Self> {
         BoundCode::from_index(73u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial Share Alike `2.0` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial Share Alike 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_s_a_20() -> BoundCode<Self> {
         BoundCode::from_index(74u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial Share Alike `2.5` Generic"]
+    #[doc = "Creative Commons Attribution Non Commercial Share Alike 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_s_a_25() -> BoundCode<Self> {
         BoundCode::from_index(75u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial Share Alike `3.0` Unported"]
+    #[doc = "Creative Commons Attribution Non Commercial Share Alike 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_s_a_30() -> BoundCode<Self> {
         BoundCode::from_index(76u16)
     }
-    #[doc = "Creative Commons Attribution Non Commercial Share Alike `4.0` International"]
+    #[doc = "Creative Commons Attribution Non Commercial Share Alike 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_c_s_a_40() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
-    #[doc = "Creative Commons Attribution No Derivatives `1.0` Generic"]
+    #[doc = "Creative Commons Attribution No Derivatives 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_d_10() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
-    #[doc = "Creative Commons Attribution No Derivatives `2.0` Generic"]
+    #[doc = "Creative Commons Attribution No Derivatives 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_d_20() -> BoundCode<Self> {
         BoundCode::from_index(79u16)
     }
-    #[doc = "Creative Commons Attribution No Derivatives `2.5` Generic"]
+    #[doc = "Creative Commons Attribution No Derivatives 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_d_25() -> BoundCode<Self> {
         BoundCode::from_index(80u16)
     }
-    #[doc = "Creative Commons Attribution No Derivatives `3.0` Unported"]
+    #[doc = "Creative Commons Attribution No Derivatives 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_d_30() -> BoundCode<Self> {
         BoundCode::from_index(81u16)
     }
-    #[doc = "Creative Commons Attribution No Derivatives `4.0` International"]
+    #[doc = "Creative Commons Attribution No Derivatives 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_n_d_40() -> BoundCode<Self> {
         BoundCode::from_index(82u16)
     }
-    #[doc = "Creative Commons Attribution Share Alike `1.0` Generic"]
+    #[doc = "Creative Commons Attribution Share Alike 1.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_s_a_10() -> BoundCode<Self> {
         BoundCode::from_index(83u16)
     }
-    #[doc = "Creative Commons Attribution Share Alike `2.0` Generic"]
+    #[doc = "Creative Commons Attribution Share Alike 2.0 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_s_a_20() -> BoundCode<Self> {
         BoundCode::from_index(84u16)
     }
-    #[doc = "Creative Commons Attribution Share Alike `2.5` Generic"]
+    #[doc = "Creative Commons Attribution Share Alike 2.5 Generic"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_s_a_25() -> BoundCode<Self> {
         BoundCode::from_index(85u16)
     }
-    #[doc = "Creative Commons Attribution Share Alike `3.0` Unported"]
+    #[doc = "Creative Commons Attribution Share Alike 3.0 Unported"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_s_a_30() -> BoundCode<Self> {
         BoundCode::from_index(86u16)
     }
-    #[doc = "Creative Commons Attribution Share Alike `4.0` International"]
+    #[doc = "Creative Commons Attribution Share Alike 4.0 International"]
     #[inline]
     #[must_use]
     pub fn c_c_b_y_s_a_40() -> BoundCode<Self> {
         BoundCode::from_index(87u16)
     }
-    #[doc = "Creative Commons Zero `v1.0` Universal"]
+    #[doc = "Creative Commons Zero v1.0 Universal"]
     #[inline]
     #[must_use]
     pub fn c_c0_10() -> BoundCode<Self> {
         BoundCode::from_index(88u16)
     }
-    #[doc = "Common Development and Distribution License `1.0`"]
+    #[doc = "Common Development and Distribution License 1.0"]
     #[inline]
     #[must_use]
     pub fn cdd_l_10() -> BoundCode<Self> {
         BoundCode::from_index(89u16)
     }
-    #[doc = "Common Development and Distribution License `1.1`"]
+    #[doc = "Common Development and Distribution License 1.1"]
     #[inline]
     #[must_use]
     pub fn cdd_l_11() -> BoundCode<Self> {
         BoundCode::from_index(90u16)
     }
-    #[doc = "Community Data License Agreement Permissive `1.0`"]
+    #[doc = "Community Data License Agreement Permissive 1.0"]
     #[inline]
     #[must_use]
     pub fn cdl_a_permissive_10() -> BoundCode<Self> {
         BoundCode::from_index(91u16)
     }
-    #[doc = "Community Data License Agreement Sharing `1.0`"]
+    #[doc = "Community Data License Agreement Sharing 1.0"]
     #[inline]
     #[must_use]
     pub fn cdl_a_sharing_10() -> BoundCode<Self> {
         BoundCode::from_index(92u16)
     }
-    #[doc = "`CeCILL` Free Software License Agreement `v1.0`"]
+    #[doc = "`CeCILL` Free Software License Agreement v1.0"]
     #[inline]
     #[must_use]
     pub fn cecil_l_10() -> BoundCode<Self> {
         BoundCode::from_index(93u16)
     }
-    #[doc = "`CeCILL` Free Software License Agreement `v1.1`"]
+    #[doc = "`CeCILL` Free Software License Agreement v1.1"]
     #[inline]
     #[must_use]
     pub fn cecil_l_11() -> BoundCode<Self> {
         BoundCode::from_index(94u16)
     }
-    #[doc = "`CeCILL` Free Software License Agreement `v2.0`"]
+    #[doc = "`CeCILL` Free Software License Agreement v2.0"]
     #[inline]
     #[must_use]
     pub fn cecil_l_20() -> BoundCode<Self> {
         BoundCode::from_index(95u16)
     }
-    #[doc = "`CeCILL` Free Software License Agreement `v2.1`"]
+    #[doc = "`CeCILL` Free Software License Agreement v2.1"]
     #[inline]
     #[must_use]
     pub fn cecil_l_21() -> BoundCode<Self> {
@@ -45131,25 +45121,25 @@ impl SpdxLicense {
     pub fn cnr_i_python_gp_l_compatible() -> BoundCode<Self> {
         BoundCode::from_index(101u16)
     }
-    #[doc = "Common Public Attribution License `1.0`"]
+    #[doc = "Common Public Attribution License 1.0"]
     #[inline]
     #[must_use]
     pub fn cpa_l_10() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
-    #[doc = "Common Public License `1.0`"]
+    #[doc = "Common Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn cp_l_10() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
-    #[doc = "Code Project Open License `1.02`"]
+    #[doc = "Code Project Open License 1.02"]
     #[inline]
     #[must_use]
     pub fn cpo_l_102() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
-    #[doc = "CUA Office Public License `v1.0`"]
+    #[doc = "CUA Office Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn cu_a_op_l_10() -> BoundCode<Self> {
@@ -45167,7 +45157,7 @@ impl SpdxLicense {
     pub fn cl_artistic() -> BoundCode<Self> {
         BoundCode::from_index(107u16)
     }
-    #[doc = "Condor Public License `v1.1`"]
+    #[doc = "Condor Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn condor_11() -> BoundCode<Self> {
@@ -45215,37 +45205,37 @@ impl SpdxLicense {
     pub fn dotseqn() -> BoundCode<Self> {
         BoundCode::from_index(115u16)
     }
-    #[doc = "Educational Community License `v1.0`"]
+    #[doc = "Educational Community License v1.0"]
     #[inline]
     #[must_use]
     pub fn ec_l_10() -> BoundCode<Self> {
         BoundCode::from_index(116u16)
     }
-    #[doc = "Educational Community License `v2.0`"]
+    #[doc = "Educational Community License v2.0"]
     #[inline]
     #[must_use]
     pub fn ec_l_20() -> BoundCode<Self> {
         BoundCode::from_index(117u16)
     }
-    #[doc = "Eiffel Forum License `v1.0`"]
+    #[doc = "Eiffel Forum License v1.0"]
     #[inline]
     #[must_use]
     pub fn ef_l_10() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
-    #[doc = "Eiffel Forum License `v2.0`"]
+    #[doc = "Eiffel Forum License v2.0"]
     #[inline]
     #[must_use]
     pub fn ef_l_20() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
-    #[doc = "Eclipse Public License `1.0`"]
+    #[doc = "Eclipse Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn ep_l_10() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
-    #[doc = "Eclipse Public License `2.0`"]
+    #[doc = "Eclipse Public License 2.0"]
     #[inline]
     #[must_use]
     pub fn ep_l_20() -> BoundCode<Self> {
@@ -45257,31 +45247,31 @@ impl SpdxLicense {
     pub fn eu_datagrid() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
-    #[doc = "European Union Public License `1.0`"]
+    #[doc = "European Union Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn eup_l_10() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
-    #[doc = "European Union Public License `1.1`"]
+    #[doc = "European Union Public License 1.1"]
     #[inline]
     #[must_use]
     pub fn eup_l_11() -> BoundCode<Self> {
         BoundCode::from_index(124u16)
     }
-    #[doc = "European Union Public License `1.2`"]
+    #[doc = "European Union Public License 1.2"]
     #[inline]
     #[must_use]
     pub fn eup_l_12() -> BoundCode<Self> {
         BoundCode::from_index(125u16)
     }
-    #[doc = "Entessa Public License `v1.0`"]
+    #[doc = "Entessa Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn entessa() -> BoundCode<Self> {
         BoundCode::from_index(126u16)
     }
-    #[doc = "Erlang Public License `v1.1`"]
+    #[doc = "Erlang Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn erlp_l_11() -> BoundCode<Self> {
@@ -45323,49 +45313,49 @@ impl SpdxLicense {
     pub fn fair() -> BoundCode<Self> {
         BoundCode::from_index(133u16)
     }
-    #[doc = "Frameworx Open License `1.0`"]
+    #[doc = "Frameworx Open License 1.0"]
     #[inline]
     #[must_use]
     pub fn frameworx_10() -> BoundCode<Self> {
         BoundCode::from_index(134u16)
     }
-    #[doc = "`FreeImage` Public License `v1.0`"]
+    #[doc = "`FreeImage` Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn free_image() -> BoundCode<Self> {
         BoundCode::from_index(135u16)
     }
-    #[doc = "GNU Free Documentation License `v1.1` only"]
+    #[doc = "GNU Free Documentation License v1.1 only"]
     #[inline]
     #[must_use]
     pub fn gfd_l_11_only() -> BoundCode<Self> {
         BoundCode::from_index(136u16)
     }
-    #[doc = "GNU Free Documentation License `v1.1` or later"]
+    #[doc = "GNU Free Documentation License v1.1 or later"]
     #[inline]
     #[must_use]
     pub fn gfd_l_11_or_later() -> BoundCode<Self> {
         BoundCode::from_index(137u16)
     }
-    #[doc = "GNU Free Documentation License `v1.2` only"]
+    #[doc = "GNU Free Documentation License v1.2 only"]
     #[inline]
     #[must_use]
     pub fn gfd_l_12_only() -> BoundCode<Self> {
         BoundCode::from_index(138u16)
     }
-    #[doc = "GNU Free Documentation License `v1.2` or later"]
+    #[doc = "GNU Free Documentation License v1.2 or later"]
     #[inline]
     #[must_use]
     pub fn gfd_l_12_or_later() -> BoundCode<Self> {
         BoundCode::from_index(139u16)
     }
-    #[doc = "GNU Free Documentation License `v1.3` only"]
+    #[doc = "GNU Free Documentation License v1.3 only"]
     #[inline]
     #[must_use]
     pub fn gfd_l_13_only() -> BoundCode<Self> {
         BoundCode::from_index(140u16)
     }
-    #[doc = "GNU Free Documentation License `v1.3` or later"]
+    #[doc = "GNU Free Documentation License v1.3 or later"]
     #[inline]
     #[must_use]
     pub fn gfd_l_13_or_later() -> BoundCode<Self> {
@@ -45377,37 +45367,37 @@ impl SpdxLicense {
     pub fn g_l2ps() -> BoundCode<Self> {
         BoundCode::from_index(142u16)
     }
-    #[doc = "GNU General Public License `v1.0` only"]
+    #[doc = "GNU General Public License v1.0 only"]
     #[inline]
     #[must_use]
     pub fn gp_l_10_only() -> BoundCode<Self> {
         BoundCode::from_index(143u16)
     }
-    #[doc = "GNU General Public License `v1.0` or later"]
+    #[doc = "GNU General Public License v1.0 or later"]
     #[inline]
     #[must_use]
     pub fn gp_l_10_or_later() -> BoundCode<Self> {
         BoundCode::from_index(144u16)
     }
-    #[doc = "GNU General Public License `v2.0` only"]
+    #[doc = "GNU General Public License v2.0 only"]
     #[inline]
     #[must_use]
     pub fn gp_l_20_only() -> BoundCode<Self> {
         BoundCode::from_index(145u16)
     }
-    #[doc = "GNU General Public License `v2.0` or later"]
+    #[doc = "GNU General Public License v2.0 or later"]
     #[inline]
     #[must_use]
     pub fn gp_l_20_or_later() -> BoundCode<Self> {
         BoundCode::from_index(146u16)
     }
-    #[doc = "GNU General Public License `v3.0` only"]
+    #[doc = "GNU General Public License v3.0 only"]
     #[inline]
     #[must_use]
     pub fn gp_l_30_only() -> BoundCode<Self> {
         BoundCode::from_index(147u16)
     }
-    #[doc = "GNU General Public License `v3.0` or later"]
+    #[doc = "GNU General Public License v3.0 or later"]
     #[inline]
     #[must_use]
     pub fn gp_l_30_or_later() -> BoundCode<Self> {
@@ -45467,7 +45457,7 @@ impl SpdxLicense {
     pub fn ipa() -> BoundCode<Self> {
         BoundCode::from_index(157u16)
     }
-    #[doc = "IBM Public License `v1.0`"]
+    #[doc = "IBM Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn ip_l_10() -> BoundCode<Self> {
@@ -45509,7 +45499,7 @@ impl SpdxLicense {
     pub fn intel_acpi() -> BoundCode<Self> {
         BoundCode::from_index(164u16)
     }
-    #[doc = "Interbase Public License `v1.0`"]
+    #[doc = "Interbase Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn interbase_10() -> BoundCode<Self> {
@@ -45527,13 +45517,13 @@ impl SpdxLicense {
     pub fn jas_per_20() -> BoundCode<Self> {
         BoundCode::from_index(167u16)
     }
-    #[doc = "Licence Art Libre `1.2`"]
+    #[doc = "Licence Art Libre 1.2"]
     #[inline]
     #[must_use]
     pub fn la_l_12() -> BoundCode<Self> {
         BoundCode::from_index(168u16)
     }
-    #[doc = "Licence Art Libre `1.3`"]
+    #[doc = "Licence Art Libre 1.3"]
     #[inline]
     #[must_use]
     pub fn la_l_13() -> BoundCode<Self> {
@@ -45551,25 +45541,25 @@ impl SpdxLicense {
     pub fn lgp_l_20_or_later() -> BoundCode<Self> {
         BoundCode::from_index(171u16)
     }
-    #[doc = "GNU Lesser General Public License `v2.1` only"]
+    #[doc = "GNU Lesser General Public License v2.1 only"]
     #[inline]
     #[must_use]
     pub fn lgp_l_21_only() -> BoundCode<Self> {
         BoundCode::from_index(172u16)
     }
-    #[doc = "GNU Lesser General Public License `v2.1` or later"]
+    #[doc = "GNU Lesser General Public License v2.1 or later"]
     #[inline]
     #[must_use]
     pub fn lgp_l_21_or_later() -> BoundCode<Self> {
         BoundCode::from_index(173u16)
     }
-    #[doc = "GNU Lesser General Public License `v3.0` only"]
+    #[doc = "GNU Lesser General Public License v3.0 only"]
     #[inline]
     #[must_use]
     pub fn lgp_l_30_only() -> BoundCode<Self> {
         BoundCode::from_index(174u16)
     }
-    #[doc = "GNU Lesser General Public License `v3.0` or later"]
+    #[doc = "GNU Lesser General Public License v3.0 or later"]
     #[inline]
     #[must_use]
     pub fn lgp_l_30_or_later() -> BoundCode<Self> {
@@ -45581,43 +45571,43 @@ impl SpdxLicense {
     pub fn lgpllr() -> BoundCode<Self> {
         BoundCode::from_index(176u16)
     }
-    #[doc = "Lucent Public License Version `1.0`"]
+    #[doc = "Lucent Public License Version 1.0"]
     #[inline]
     #[must_use]
     pub fn lp_l_10() -> BoundCode<Self> {
         BoundCode::from_index(177u16)
     }
-    #[doc = "Lucent Public License `v1.02`"]
+    #[doc = "Lucent Public License v1.02"]
     #[inline]
     #[must_use]
     pub fn lp_l_102() -> BoundCode<Self> {
         BoundCode::from_index(178u16)
     }
-    #[doc = "`LaTeX` Project Public License `v1.0`"]
+    #[doc = "`LaTeX` Project Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn lpp_l_10() -> BoundCode<Self> {
         BoundCode::from_index(179u16)
     }
-    #[doc = "`LaTeX` Project Public License `v1.1`"]
+    #[doc = "`LaTeX` Project Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn lpp_l_11() -> BoundCode<Self> {
         BoundCode::from_index(180u16)
     }
-    #[doc = "`LaTeX` Project Public License `v1.2`"]
+    #[doc = "`LaTeX` Project Public License v1.2"]
     #[inline]
     #[must_use]
     pub fn lpp_l_12() -> BoundCode<Self> {
         BoundCode::from_index(181u16)
     }
-    #[doc = "`LaTeX` Project Public License `v1.3a`"]
+    #[doc = "`LaTeX` Project Public License v1.3a"]
     #[inline]
     #[must_use]
     pub fn lpp_l_13a() -> BoundCode<Self> {
         BoundCode::from_index(182u16)
     }
-    #[doc = "`LaTeX` Project Public License `v1.3c`"]
+    #[doc = "`LaTeX` Project Public License v1.3c"]
     #[inline]
     #[must_use]
     pub fn lpp_l_13c() -> BoundCode<Self> {
@@ -45635,19 +45625,19 @@ impl SpdxLicense {
     pub fn leptonica() -> BoundCode<Self> {
         BoundCode::from_index(185u16)
     }
-    #[doc = "Licence Libre du Québec – Permissive version `1.1`"]
+    #[doc = "Licence Libre du Québec – Permissive version 1.1"]
     #[inline]
     #[must_use]
     pub fn li_li_q_p_11() -> BoundCode<Self> {
         BoundCode::from_index(186u16)
     }
-    #[doc = "Licence Libre du Québec – Réciprocité version `1.1`"]
+    #[doc = "Licence Libre du Québec – Réciprocité version 1.1"]
     #[inline]
     #[must_use]
     pub fn li_li_q_r_11() -> BoundCode<Self> {
         BoundCode::from_index(187u16)
     }
-    #[doc = "Licence Libre du Québec – Réciprocité forte version `1.1`"]
+    #[doc = "Licence Libre du Québec – Réciprocité forte version 1.1"]
     #[inline]
     #[must_use]
     pub fn li_li_q_rplus_11() -> BoundCode<Self> {
@@ -45659,7 +45649,7 @@ impl SpdxLicense {
     pub fn libpng() -> BoundCode<Self> {
         BoundCode::from_index(189u16)
     }
-    #[doc = "Linux Kernel Variant of `OpenIB.org` license"]
+    #[doc = "Linux Kernel Variant of `OpenIB`.org license"]
     #[inline]
     #[must_use]
     pub fn linux_openib() -> BoundCode<Self> {
@@ -45707,25 +45697,25 @@ impl SpdxLicense {
     pub fn mitnfa() -> BoundCode<Self> {
         BoundCode::from_index(197u16)
     }
-    #[doc = "Mozilla Public License `1.0`"]
+    #[doc = "Mozilla Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn mp_l_10() -> BoundCode<Self> {
         BoundCode::from_index(198u16)
     }
-    #[doc = "Mozilla Public License `1.1`"]
+    #[doc = "Mozilla Public License 1.1"]
     #[inline]
     #[must_use]
     pub fn mp_l_11() -> BoundCode<Self> {
         BoundCode::from_index(199u16)
     }
-    #[doc = "Mozilla Public License `2.0`"]
+    #[doc = "Mozilla Public License 2.0"]
     #[inline]
     #[must_use]
     pub fn mp_l_20() -> BoundCode<Self> {
         BoundCode::from_index(200u16)
     }
-    #[doc = "Mozilla Public License `2.0` (no copyleft exception)"]
+    #[doc = "Mozilla Public License 2.0 (no copyleft exception)"]
     #[inline]
     #[must_use]
     pub fn mp_l_20_no_copyleft_exception() -> BoundCode<Self> {
@@ -45779,7 +45769,7 @@ impl SpdxLicense {
     pub fn mup() -> BoundCode<Self> {
         BoundCode::from_index(209u16)
     }
-    #[doc = "NASA Open Source Agreement `1.3`"]
+    #[doc = "NASA Open Source Agreement 1.3"]
     #[inline]
     #[must_use]
     pub fn nas_a_13() -> BoundCode<Self> {
@@ -45821,19 +45811,19 @@ impl SpdxLicense {
     pub fn nosl() -> BoundCode<Self> {
         BoundCode::from_index(216u16)
     }
-    #[doc = "Netscape Public License `v1.0`"]
+    #[doc = "Netscape Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn np_l_10() -> BoundCode<Self> {
         BoundCode::from_index(217u16)
     }
-    #[doc = "Netscape Public License `v1.1`"]
+    #[doc = "Netscape Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn np_l_11() -> BoundCode<Self> {
         BoundCode::from_index(218u16)
     }
-    #[doc = "`Non-Profit` Open Software License `3.0`"]
+    #[doc = "`Non-Profit` Open Software License 3.0"]
     #[inline]
     #[must_use]
     pub fn npos_l_30() -> BoundCode<Self> {
@@ -45893,25 +45883,25 @@ impl SpdxLicense {
     pub fn occ_t_pl() -> BoundCode<Self> {
         BoundCode::from_index(228u16)
     }
-    #[doc = "OCLC Research Public License `2.0`"]
+    #[doc = "OCLC Research Public License 2.0"]
     #[inline]
     #[must_use]
     pub fn ocl_c_20() -> BoundCode<Self> {
         BoundCode::from_index(229u16)
     }
-    #[doc = "ODC Open Database License `v1.0`"]
+    #[doc = "ODC Open Database License v1.0"]
     #[inline]
     #[must_use]
     pub fn o_db_l_10() -> BoundCode<Self> {
         BoundCode::from_index(230u16)
     }
-    #[doc = "SIL Open Font License `1.0`"]
+    #[doc = "SIL Open Font License 1.0"]
     #[inline]
     #[must_use]
     pub fn of_l_10() -> BoundCode<Self> {
         BoundCode::from_index(231u16)
     }
-    #[doc = "SIL Open Font License `1.1`"]
+    #[doc = "SIL Open Font License 1.1"]
     #[inline]
     #[must_use]
     pub fn of_l_11() -> BoundCode<Self> {
@@ -45923,97 +45913,97 @@ impl SpdxLicense {
     pub fn ogtsl() -> BoundCode<Self> {
         BoundCode::from_index(233u16)
     }
-    #[doc = "Open LDAP Public License `v1.1`"]
+    #[doc = "Open LDAP Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn olda_p_11() -> BoundCode<Self> {
         BoundCode::from_index(234u16)
     }
-    #[doc = "Open LDAP Public License `v1.2`"]
+    #[doc = "Open LDAP Public License v1.2"]
     #[inline]
     #[must_use]
     pub fn olda_p_12() -> BoundCode<Self> {
         BoundCode::from_index(235u16)
     }
-    #[doc = "Open LDAP Public License `v1.3`"]
+    #[doc = "Open LDAP Public License v1.3"]
     #[inline]
     #[must_use]
     pub fn olda_p_13() -> BoundCode<Self> {
         BoundCode::from_index(236u16)
     }
-    #[doc = "Open LDAP Public License `v1.4`"]
+    #[doc = "Open LDAP Public License v1.4"]
     #[inline]
     #[must_use]
     pub fn olda_p_14() -> BoundCode<Self> {
         BoundCode::from_index(237u16)
     }
-    #[doc = "Open LDAP Public License `v2.0` (or possibly `2.0A` and `2.0B`)"]
+    #[doc = "Open LDAP Public License v2.0 (or possibly 2.0A and 2.0B)"]
     #[inline]
     #[must_use]
     pub fn olda_p_20() -> BoundCode<Self> {
         BoundCode::from_index(238u16)
     }
-    #[doc = "Open LDAP Public License `v2.0.1`"]
+    #[doc = "Open LDAP Public License v2.0.1"]
     #[inline]
     #[must_use]
     pub fn olda_p_201() -> BoundCode<Self> {
         BoundCode::from_index(239u16)
     }
-    #[doc = "Open LDAP Public License `v2.1`"]
+    #[doc = "Open LDAP Public License v2.1"]
     #[inline]
     #[must_use]
     pub fn olda_p_21() -> BoundCode<Self> {
         BoundCode::from_index(240u16)
     }
-    #[doc = "Open LDAP Public License `v2.2`"]
+    #[doc = "Open LDAP Public License v2.2"]
     #[inline]
     #[must_use]
     pub fn olda_p_22() -> BoundCode<Self> {
         BoundCode::from_index(241u16)
     }
-    #[doc = "Open LDAP Public License `v2.2.1`"]
+    #[doc = "Open LDAP Public License v2.2.1"]
     #[inline]
     #[must_use]
     pub fn olda_p_221() -> BoundCode<Self> {
         BoundCode::from_index(242u16)
     }
-    #[doc = "Open LDAP Public License `2.2.2`"]
+    #[doc = "Open LDAP Public License 2.2.2"]
     #[inline]
     #[must_use]
     pub fn olda_p_222() -> BoundCode<Self> {
         BoundCode::from_index(243u16)
     }
-    #[doc = "Open LDAP Public License `v2.3`"]
+    #[doc = "Open LDAP Public License v2.3"]
     #[inline]
     #[must_use]
     pub fn olda_p_23() -> BoundCode<Self> {
         BoundCode::from_index(244u16)
     }
-    #[doc = "Open LDAP Public License `v2.4`"]
+    #[doc = "Open LDAP Public License v2.4"]
     #[inline]
     #[must_use]
     pub fn olda_p_24() -> BoundCode<Self> {
         BoundCode::from_index(245u16)
     }
-    #[doc = "Open LDAP Public License `v2.5`"]
+    #[doc = "Open LDAP Public License v2.5"]
     #[inline]
     #[must_use]
     pub fn olda_p_25() -> BoundCode<Self> {
         BoundCode::from_index(246u16)
     }
-    #[doc = "Open LDAP Public License `v2.6`"]
+    #[doc = "Open LDAP Public License v2.6"]
     #[inline]
     #[must_use]
     pub fn olda_p_26() -> BoundCode<Self> {
         BoundCode::from_index(247u16)
     }
-    #[doc = "Open LDAP Public License `v2.7`"]
+    #[doc = "Open LDAP Public License v2.7"]
     #[inline]
     #[must_use]
     pub fn olda_p_27() -> BoundCode<Self> {
         BoundCode::from_index(248u16)
     }
-    #[doc = "Open LDAP Public License `v2.8`"]
+    #[doc = "Open LDAP Public License v2.8"]
     #[inline]
     #[must_use]
     pub fn olda_p_28() -> BoundCode<Self> {
@@ -46025,43 +46015,43 @@ impl SpdxLicense {
     pub fn oml() -> BoundCode<Self> {
         BoundCode::from_index(250u16)
     }
-    #[doc = "Open Public License `v1.0`"]
+    #[doc = "Open Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn op_l_10() -> BoundCode<Self> {
         BoundCode::from_index(251u16)
     }
-    #[doc = "OSET Public License version `2.1`"]
+    #[doc = "OSET Public License version 2.1"]
     #[inline]
     #[must_use]
     pub fn ose_t_p_l_21() -> BoundCode<Self> {
         BoundCode::from_index(252u16)
     }
-    #[doc = "Open Software License `1.0`"]
+    #[doc = "Open Software License 1.0"]
     #[inline]
     #[must_use]
     pub fn os_l_10() -> BoundCode<Self> {
         BoundCode::from_index(253u16)
     }
-    #[doc = "Open Software License `1.1`"]
+    #[doc = "Open Software License 1.1"]
     #[inline]
     #[must_use]
     pub fn os_l_11() -> BoundCode<Self> {
         BoundCode::from_index(254u16)
     }
-    #[doc = "Open Software License `2.0`"]
+    #[doc = "Open Software License 2.0"]
     #[inline]
     #[must_use]
     pub fn os_l_20() -> BoundCode<Self> {
         BoundCode::from_index(255u16)
     }
-    #[doc = "Open Software License `2.1`"]
+    #[doc = "Open Software License 2.1"]
     #[inline]
     #[must_use]
     pub fn os_l_21() -> BoundCode<Self> {
         BoundCode::from_index(256u16)
     }
-    #[doc = "Open Software License `3.0`"]
+    #[doc = "Open Software License 3.0"]
     #[inline]
     #[must_use]
     pub fn os_l_30() -> BoundCode<Self> {
@@ -46073,19 +46063,19 @@ impl SpdxLicense {
     pub fn openssl() -> BoundCode<Self> {
         BoundCode::from_index(258u16)
     }
-    #[doc = "ODC Public Domain Dedication & License `1.0`"]
+    #[doc = "ODC Public Domain Dedication & License 1.0"]
     #[inline]
     #[must_use]
     pub fn pdd_l_10() -> BoundCode<Self> {
         BoundCode::from_index(259u16)
     }
-    #[doc = "PHP License `v3.0`"]
+    #[doc = "PHP License v3.0"]
     #[inline]
     #[must_use]
     pub fn ph_p_30() -> BoundCode<Self> {
         BoundCode::from_index(260u16)
     }
-    #[doc = "PHP License `v3.01`"]
+    #[doc = "PHP License v3.01"]
     #[inline]
     #[must_use]
     pub fn ph_p_301() -> BoundCode<Self> {
@@ -46103,13 +46093,13 @@ impl SpdxLicense {
     pub fn postgresql() -> BoundCode<Self> {
         BoundCode::from_index(263u16)
     }
-    #[doc = "Python License `2.0`"]
+    #[doc = "Python License 2.0"]
     #[inline]
     #[must_use]
     pub fn python_20() -> BoundCode<Self> {
         BoundCode::from_index(264u16)
     }
-    #[doc = "Q Public License `1.0`"]
+    #[doc = "Q Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn qp_l_10() -> BoundCode<Self> {
@@ -46121,25 +46111,25 @@ impl SpdxLicense {
     pub fn qhull() -> BoundCode<Self> {
         BoundCode::from_index(266u16)
     }
-    #[doc = "Red Hat eCos Public License `v1.1`"]
+    #[doc = "Red Hat eCos Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn r_he_cos_11() -> BoundCode<Self> {
         BoundCode::from_index(267u16)
     }
-    #[doc = "Reciprocal Public License `1.1`"]
+    #[doc = "Reciprocal Public License 1.1"]
     #[inline]
     #[must_use]
     pub fn rp_l_11() -> BoundCode<Self> {
         BoundCode::from_index(268u16)
     }
-    #[doc = "Reciprocal Public License `1.5`"]
+    #[doc = "Reciprocal Public License 1.5"]
     #[inline]
     #[must_use]
     pub fn rp_l_15() -> BoundCode<Self> {
         BoundCode::from_index(269u16)
     }
-    #[doc = "`RealNetworks` Public Source License `v1.0`"]
+    #[doc = "`RealNetworks` Public Source License v1.0"]
     #[inline]
     #[must_use]
     pub fn rps_l_10() -> BoundCode<Self> {
@@ -46181,31 +46171,31 @@ impl SpdxLicense {
     pub fn scea() -> BoundCode<Self> {
         BoundCode::from_index(276u16)
     }
-    #[doc = "SGI Free Software License B `v1.0`"]
+    #[doc = "SGI Free Software License B v1.0"]
     #[inline]
     #[must_use]
     pub fn sg_i_b_10() -> BoundCode<Self> {
         BoundCode::from_index(277u16)
     }
-    #[doc = "SGI Free Software License B `v1.1`"]
+    #[doc = "SGI Free Software License B v1.1"]
     #[inline]
     #[must_use]
     pub fn sg_i_b_11() -> BoundCode<Self> {
         BoundCode::from_index(278u16)
     }
-    #[doc = "SGI Free Software License B `v2.0`"]
+    #[doc = "SGI Free Software License B v2.0"]
     #[inline]
     #[must_use]
     pub fn sg_i_b_20() -> BoundCode<Self> {
         BoundCode::from_index(279u16)
     }
-    #[doc = "Sun Industry Standards Source License `v1.1`"]
+    #[doc = "Sun Industry Standards Source License v1.1"]
     #[inline]
     #[must_use]
     pub fn sissl() -> BoundCode<Self> {
         BoundCode::from_index(280u16)
     }
-    #[doc = "Sun Industry Standards Source License `v1.2`"]
+    #[doc = "Sun Industry Standards Source License v1.2"]
     #[inline]
     #[must_use]
     pub fn siss_l_12() -> BoundCode<Self> {
@@ -46223,13 +46213,13 @@ impl SpdxLicense {
     pub fn smppl() -> BoundCode<Self> {
         BoundCode::from_index(283u16)
     }
-    #[doc = "SNIA Public License `1.1`"]
+    #[doc = "SNIA Public License 1.1"]
     #[inline]
     #[must_use]
     pub fn snia() -> BoundCode<Self> {
         BoundCode::from_index(284u16)
     }
-    #[doc = "Sun Public License `v1.0`"]
+    #[doc = "Sun Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn sp_l_10() -> BoundCode<Self> {
@@ -46253,7 +46243,7 @@ impl SpdxLicense {
     pub fn sendmail() -> BoundCode<Self> {
         BoundCode::from_index(288u16)
     }
-    #[doc = "Simple Public License `2.0`"]
+    #[doc = "Simple Public License 2.0"]
     #[inline]
     #[must_use]
     pub fn simp_l_20() -> BoundCode<Self> {
@@ -46283,7 +46273,7 @@ impl SpdxLicense {
     pub fn spencer_99() -> BoundCode<Self> {
         BoundCode::from_index(293u16)
     }
-    #[doc = "`SugarCRM` Public License `v1.1.3`"]
+    #[doc = "`SugarCRM` Public License v1.1.3"]
     #[inline]
     #[must_use]
     pub fn sugarcr_m_113() -> BoundCode<Self> {
@@ -46307,7 +46297,7 @@ impl SpdxLicense {
     pub fn t_mate() -> BoundCode<Self> {
         BoundCode::from_index(297u16)
     }
-    #[doc = "TORQUE `v2.5`+ Software License `v1.1`"]
+    #[doc = "TORQUE v2.5+ Software License v1.1"]
     #[inline]
     #[must_use]
     pub fn torqu_e_11() -> BoundCode<Self> {
@@ -46319,7 +46309,7 @@ impl SpdxLicense {
     pub fn tosl() -> BoundCode<Self> {
         BoundCode::from_index(299u16)
     }
-    #[doc = "Universal Permissive License `v1.0`"]
+    #[doc = "Universal Permissive License v1.0"]
     #[inline]
     #[must_use]
     pub fn up_l_10() -> BoundCode<Self> {
@@ -46355,7 +46345,7 @@ impl SpdxLicense {
     pub fn vostrom() -> BoundCode<Self> {
         BoundCode::from_index(305u16)
     }
-    #[doc = "Vovida Software License `v1.0`"]
+    #[doc = "Vovida Software License v1.0"]
     #[inline]
     #[must_use]
     pub fn vs_l_10() -> BoundCode<Self> {
@@ -46391,7 +46381,7 @@ impl SpdxLicense {
     pub fn wtfpl() -> BoundCode<Self> {
         BoundCode::from_index(311u16)
     }
-    #[doc = "Sybase Open Watcom Public License `1.0`"]
+    #[doc = "Sybase Open Watcom Public License 1.0"]
     #[inline]
     #[must_use]
     pub fn watcom_10() -> BoundCode<Self> {
@@ -46409,7 +46399,7 @@ impl SpdxLicense {
     pub fn x11() -> BoundCode<Self> {
         BoundCode::from_index(314u16)
     }
-    #[doc = "`XFree86` License `1.1`"]
+    #[doc = "`XFree86` License 1.1"]
     #[inline]
     #[must_use]
     pub fn x_free86_11() -> BoundCode<Self> {
@@ -46427,37 +46417,37 @@ impl SpdxLicense {
     pub fn xerox() -> BoundCode<Self> {
         BoundCode::from_index(317u16)
     }
-    #[doc = "`X.Net` License"]
+    #[doc = "X.Net License"]
     #[inline]
     #[must_use]
     pub fn xnet() -> BoundCode<Self> {
         BoundCode::from_index(318u16)
     }
-    #[doc = "Yahoo! Public License `v1.0`"]
+    #[doc = "Yahoo! Public License v1.0"]
     #[inline]
     #[must_use]
     pub fn yp_l_10() -> BoundCode<Self> {
         BoundCode::from_index(319u16)
     }
-    #[doc = "Yahoo! Public License `v1.1`"]
+    #[doc = "Yahoo! Public License v1.1"]
     #[inline]
     #[must_use]
     pub fn yp_l_11() -> BoundCode<Self> {
         BoundCode::from_index(320u16)
     }
-    #[doc = "Zope Public License `1.1`"]
+    #[doc = "Zope Public License 1.1"]
     #[inline]
     #[must_use]
     pub fn zp_l_11() -> BoundCode<Self> {
         BoundCode::from_index(321u16)
     }
-    #[doc = "Zope Public License `2.0`"]
+    #[doc = "Zope Public License 2.0"]
     #[inline]
     #[must_use]
     pub fn zp_l_20() -> BoundCode<Self> {
         BoundCode::from_index(322u16)
     }
-    #[doc = "Zope Public License `2.1`"]
+    #[doc = "Zope Public License 2.1"]
     #[inline]
     #[must_use]
     pub fn zp_l_21() -> BoundCode<Self> {
@@ -46469,19 +46459,19 @@ impl SpdxLicense {
     pub fn zed() -> BoundCode<Self> {
         BoundCode::from_index(324u16)
     }
-    #[doc = "Zend License `v2.0`"]
+    #[doc = "Zend License v2.0"]
     #[inline]
     #[must_use]
     pub fn zend_20() -> BoundCode<Self> {
         BoundCode::from_index(325u16)
     }
-    #[doc = "Zimbra Public License `v1.3`"]
+    #[doc = "Zimbra Public License v1.3"]
     #[inline]
     #[must_use]
     pub fn zimbra_13() -> BoundCode<Self> {
         BoundCode::from_index(326u16)
     }
-    #[doc = "Zimbra Public License `v1.4`"]
+    #[doc = "Zimbra Public License v1.4"]
     #[inline]
     #[must_use]
     pub fn zimbra_14() -> BoundCode<Self> {
@@ -46493,13 +46483,13 @@ impl SpdxLicense {
     pub fn zlib() -> BoundCode<Self> {
         BoundCode::from_index(328u16)
     }
-    #[doc = "bzip2 and libbzip2 License `v1.0.5`"]
+    #[doc = "bzip2 and libbzip2 License v1.0.5"]
     #[inline]
     #[must_use]
     pub fn bzip2_105() -> BoundCode<Self> {
         BoundCode::from_index(329u16)
     }
-    #[doc = "bzip2 and libbzip2 License `v1.0.6`"]
+    #[doc = "bzip2 and libbzip2 License v1.0.6"]
     #[inline]
     #[must_use]
     pub fn bzip2_106() -> BoundCode<Self> {
@@ -46523,13 +46513,13 @@ impl SpdxLicense {
     pub fn dvipdfm() -> BoundCode<Self> {
         BoundCode::from_index(333u16)
     }
-    #[doc = "`eGenix.com` Public License `1.1.0`"]
+    #[doc = "eGenix.com Public License 1.1.0"]
     #[inline]
     #[must_use]
     pub fn e_genix() -> BoundCode<Self> {
         BoundCode::from_index(334u16)
     }
-    #[doc = "gSOAP Public License `v1.3b`"]
+    #[doc = "gSOAP Public License v1.3b"]
     #[inline]
     #[must_use]
     pub fn gsoa_p_13b() -> BoundCode<Self> {
@@ -49719,7 +49709,7 @@ impl ValueSetDef for UcumBodylength {
     const CODES: &[&str] = &["[in_i]", "cm"];
 }
 impl UcumBodylength {
-    #[doc = "[`in_i`]"]
+    #[doc = "`[in_i]`"]
     #[inline]
     #[must_use]
     pub fn left_square_bracketin_i_right_square_bracket() -> BoundCode<Self> {
@@ -49750,7 +49740,7 @@ impl UcumBodytemp {
     pub fn cel() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
-    #[doc = "[`degF`]"]
+    #[doc = "[degF]"]
     #[inline]
     #[must_use]
     pub fn left_square_bracketdegf_right_square_bracket() -> BoundCode<Self> {
@@ -49769,7 +49759,7 @@ impl ValueSetDef for UcumBodyweight {
     const CODES: &[&str] = &["[lb_av]", "g", "kg"];
 }
 impl UcumBodyweight {
-    #[doc = "[`lb_av`]"]
+    #[doc = "`[lb_av]`"]
     #[inline]
     #[must_use]
     pub fn left_square_bracketlb_av_right_square_bracket() -> BoundCode<Self> {
@@ -73930,13 +73920,13 @@ impl V3EntityCode {
     pub fn bskm() -> BoundCode<Self> {
         BoundCode::from_index(23u16)
     }
-    #[doc = "`3.2`% Citrate"]
+    #[doc = "3.2% Citrate"]
     #[inline]
     #[must_use]
     pub fn c32() -> BoundCode<Self> {
         BoundCode::from_index(24u16)
     }
-    #[doc = "`3.8`% Citrate"]
+    #[doc = "3.8% Citrate"]
     #[inline]
     #[must_use]
     pub fn c38() -> BoundCode<Self> {
@@ -74032,7 +74022,7 @@ impl V3EntityCode {
     pub fn edt_k15() -> BoundCode<Self> {
         BoundCode::from_index(40u16)
     }
-    #[doc = "`Potassium/K` EDTA `7.5`%"]
+    #[doc = "`Potassium/K` EDTA 7.5%"]
     #[inline]
     #[must_use]
     pub fn edt_k75() -> BoundCode<Self> {
@@ -74434,7 +74424,7 @@ impl V3EntityCode {
     pub fn silica() -> BoundCode<Self> {
         BoundCode::from_index(107u16)
     }
-    #[doc = "Sodium polyanethol sulfonate `0.35`% in `0.85`% sodium chloride"]
+    #[doc = "Sodium polyanethol sulfonate 0.35% in 0.85% sodium chloride"]
     #[inline]
     #[must_use]
     pub fn sps() -> BoundCode<Self> {
