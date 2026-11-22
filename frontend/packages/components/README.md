@@ -59,90 +59,72 @@ export function PatientForm({ patientSD }: { patientSD: StructureDefinition }) {
 
 ## Theming
 
-Every visual value the library uses is a CSS custom property, so a host app can
-re-theme the components without forking them. Override the variables on
-`:root`, or on a wrapper element to scope a theme to part of the page.
+The theme is a set of CSS custom properties, defined in [`src/theme.css`](./src/theme.css) and shipped in `dist/index.css`. A host app re-themes the components by overriding them: on `:root` for the light theme, on `[data-theme="dark"]` for the dark one.
 
-### Brand and primary colour
+### Brand palette
 
-The `--hh-color-brand-*` scale is the primary colour API. It is a set of RGB
-channels, so Tailwind's alpha modifiers keep working. Teal is the default.
+`--hh-color-brand-50` to `--hh-color-brand-950` are the scale behind the `brand-*` utilities. The default is teal. Each value is a list of RGB channels rather than a colour, so that alpha modifiers such as `bg-brand-600/10` work. The palette is the same in both themes.
 
 ```css
 :root {
-  --hh-color-brand-500: 20 184 166;
-  --hh-color-brand-600: 13 148 136;
-  --hh-color-brand-700: 15 118 110;
+  --hh-color-brand-500: 99 102 241;
+  --hh-color-brand-600: 79 70 229;
+  --hh-color-brand-700: 67 56 202;
 }
 ```
 
-`--ci-signal` follows `--hh-color-brand-600` (and its dark-theme value), so an
-existing brand override also re-colours primary buttons, selected rows and
-focus rings. `--ci-signal` remains directly overridable when a host wants the
-interactive colour to differ from the brand.
+### Colour roles
 
-The default is the original Haste Health light palette: white surfaces, slate
-ink and the teal brand. The **Ember** accent (`data-accent="ember"`) switches
-both the brand to orange-red and the light surfaces to the warm paper palette.
-Every component picks it up through `--ci-signal` and the surface tokens.
+A role names what a colour is for, and has one value in each theme. The roles and their light values are the ones the Haste Health server uses for its sign-in pages. Each role is a property (`--hh-color-surface`) and a Tailwind colour of the same name (`bg-surface`, `text-ink-muted`, `border-line`).
 
-```html
-<html lang="en" data-theme="light" data-accent="ember">
-```
+| Role            | Light     | Dark             | For                                         |
+| --------------- | --------- | ---------------- | ------------------------------------------- |
+| `background`    | slate-100 | slate-900        | The page behind every surface               |
+| `surface`       | white     | slate-800        | Cards, panels, headers, menus               |
+| `surface-muted` | gray-50   | slate-700        | Inputs, hovered rows and buttons            |
+| `ink`           | slate-900 | white            | Headings and input text                     |
+| `ink-body`      | slate-700 | slate-300        | Running text and labels                     |
+| `ink-muted`     | slate-500 | slate-400        | Secondary text                              |
+| `ink-subtle`    | slate-400 | slate-500        | Hints and placeholders                      |
+| `line`          | gray-200  | slate-700        | Borders and dividers                        |
+| `line-strong`   | gray-300  | slate-600        | Input borders, and rules on `surface-muted` |
+| `primary`       | brand-600 | brand-600        | Primary buttons, links, the selected item   |
+| `primary-hover` | brand-500 | brand-500        | A hovered primary button                    |
+| `primary-ring`  | brand-300 | brand-800        | Focus rings                                 |
+| `primary-line`  | brand-200 | brand-900        | The border of a hovered or selected item    |
+| `primary-soft`  | brand-50  | brand-600 at 15% | The fill of a hovered or selected item      |
+| `on-primary`    | white     | white            | Text and icons on `primary`                 |
+| `error`         | red-600   | red-400          | Error text                                  |
+| `error-line`    | red-200   | red-900          | The border of an error message              |
+| `error-soft`    | red-50    | red-500 at 15%   | The fill of an error message                |
+| `warning`       | amber-600 | amber-400        | Warning text                                |
 
-### Semantic tokens
-
-The default light theme keeps the original white/slate surfaces with the teal
-brand. Override any of these to change the surfaces and ink independently of the
-brand:
+The `primary` roles are derived from the brand palette, so overriding the palette re-colours them too. A role can also be set directly:
 
 ```css
 :root {
-  --ci-bg: #f1f5f9;
-  --ci-surface: #ffffff;
-  --ci-surface-raised: #ffffff;
-  --ci-surface-sunken: #f8fafc;
-  --ci-ink: #0f172a;
-  --ci-ink-muted: #475569;
-  --ci-ink-subtle: #64748b;
-  --ci-line: #e2e8f0;
-  --ci-line-strong: #cbd5e1;
-  --ci-signal: rgb(var(--hh-color-brand-600));
-  --ci-signal-ink: #0b6b62;
-  --ci-signal-soft: rgb(13 148 136 / 12%);
-  --ci-signal-hover: #0a7a70;
-  --ci-on-signal: #ffffff;
+  --hh-color-background: #fafaf9;
+}
+
+[data-theme="dark"] {
+  --hh-color-background: #0c0a09;
 }
 ```
 
-The Ember accent adds the paper surfaces on top of the orange-red brand:
+### Dark theme
+
+Set `data-theme="dark"` on `<html>` to select the dark values. That also sets `color-scheme`, so scrollbars and native controls follow, and it is what Tailwind's `dark:` variant matches. The library never reads the operating system's setting; the host decides, as the admin app's `ThemeProvider` does from a saved preference. Set on an element other than `<html>`, the attribute makes that part of the page dark.
+
+The components do not use the roles yet: they are styled with fixed palette colours, so `data-theme="dark"` does not give a dark interface today. The dark values are here for the components to move onto.
+
+### In your own Tailwind build
+
+Import the theme next to Tailwind to use the role utilities and the `dark:` variant in your own markup:
 
 ```css
-html[data-accent="ember"] {
-  --ci-bg: #f1eee7;
-  --ci-surface: #faf8f4;
-  --ci-surface-raised: #ffffff;
-  --ci-surface-sunken: #f2eee6;
-  --ci-ink: #0e1013;
-  --ci-ink-muted: #4a5260;
-  --ci-ink-subtle: #5b6472;
-  --ci-line: rgb(14 16 19 / 22%);
-  --ci-line-strong: rgb(14 16 19 / 42%);
-}
+@import "tailwindcss";
+@import "@haste-health/components/src/theme.css";
 ```
-
-Dark mode is selected with `html[data-theme="dark"]`; it uses the dark neutral
-surfaces and does not turn on the paper palette. The admin app's
-`ThemeProvider` sets the theme and accent, remembers both choices and applies
-them before first paint. If you set `--ci-signal` on a wrapper rather than at
-the theme root, set `--ci-signal-ink`, `--ci-signal-soft`, `--ci-signal-hover`
-and `--ci-on-signal` on the same wrapper as well; those values are derived at
-the theme root.
-
-The main semantic tokens are `--ci-bg`, `--ci-surface`, `--ci-surface-raised`,
-`--ci-surface-sunken`, `--ci-ink`, `--ci-ink-muted`, `--ci-ink-subtle`,
-`--ci-line`, `--ci-line-strong`, `--ci-signal`, `--ci-signal-ink`,
-`--ci-signal-soft`, `--ci-signal-hover` and `--ci-on-signal`.
 
 ## Components
 

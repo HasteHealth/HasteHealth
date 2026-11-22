@@ -1,23 +1,28 @@
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import classNames from "classnames";
 import React from "react";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
+
 import { useTheme } from "../theme/ThemeProvider";
 
-export const ThemeToggle = ({ className = "" }: { className?: string }) => {
+export const ThemeToggle = ({
+  className,
+}: Readonly<{ className?: string }>) => {
   const { theme, toggleTheme } = useTheme();
+  const label = `Switch to ${theme === "dark" ? "light" : "dark"} mode`;
+  const Icon = theme === "dark" ? SunIcon : MoonIcon;
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      className={`p-2 rounded-none border border-[var(--ci-line)] bg-[var(--ci-surface-raised)] text-[var(--ci-ink)] hover:bg-[var(--ci-surface-sunken)] hover:border-[var(--ci-signal)] transition-colors focus:outline-none focus:ring-1 focus:ring-[var(--ci-signal)] ${className}`}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-    >
-      {theme === "dark" ? (
-        <SunIcon className="h-5 w-5 text-amber-400" aria-hidden="true" />
-      ) : (
-        <MoonIcon className="h-5 w-5 text-[var(--ci-ink)]" aria-hidden="true" />
+      className={classNames(
+        "rounded-sm p-1 text-ink-muted hover:bg-surface-muted hover:text-ink-body",
+        className,
       )}
+      aria-label={label}
+      title={label}
+    >
+      <Icon className="h-5 w-5" aria-hidden="true" />
     </button>
   );
 };
