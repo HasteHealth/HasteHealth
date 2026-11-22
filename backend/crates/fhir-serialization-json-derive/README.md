@@ -2,7 +2,7 @@
 
 The procedural macros behind [`haste-fhir-serialization-json`](https://crates.io/crates/haste-fhir-serialization-json): `FHIRSerdeSerialize` and `FHIRSerdeDeserialize`. They implement serde's `Serialize` and `Deserialize` for a struct or enum following the FHIR JSON rules, which plain serde derives do not know: `_field` entries for primitive `id` and `extension`, `valueX` names for choice elements, `resourceType` on resources, bare strings for bound codes, and cardinality and reference target checks on read.
 
-You do not normally depend on this crate directly. Enable the `derive` feature of `haste-fhir-serialization-json` and import the macros from its `derive` module, which keeps the macro and the runtime crate at matching versions.
+You do not normally depend on this crate directly. Enable the `derive` feature of `haste-fhir-serialization-json` and import the macros from its `derive` module, which keeps the macro and the runtime crate at matching versions. The code `FHIRSerdeDeserialize` generates names `haste_fhir_serialization_json::FieldKey`, so that crate has to be a dependency under its own name.
 
 ## Install
 

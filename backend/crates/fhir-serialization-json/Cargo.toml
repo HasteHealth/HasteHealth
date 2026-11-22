@@ -15,3 +15,7 @@ haste-fhir-serialization-json-derive = { path = "../fhir-serialization-json-deri
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+# `from_reader`, for the tests that read a key the input cannot lend.
+serde_json = { workspace = true, features = ["std"] }
