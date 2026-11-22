@@ -57,6 +57,75 @@ export function PatientForm({ patientSD }: { patientSD: StructureDefinition }) {
 
 `FHIRGenerativeForm` renders an editor for every element of the StructureDefinition and applies edits as JSON patches, so `setValue` receives a function from the old resource to the new one. `client` is handed to the element editors that talk to the server, such as the reference picker and the coding and identifier editors.
 
+## Theming
+
+The theme is a set of CSS custom properties, defined in [`theme.css`](./theme.css) and shipped in `dist/index.css`. A host app re-themes the components by overriding them: on `:root` for the light theme, on `[data-theme="dark"]` for the dark one.
+
+### Brand palette
+
+`--hh-color-brand-50` to `--hh-color-brand-950` are the scale behind the `brand-*` utilities. The default is teal. Each value is a list of RGB channels rather than a colour, so that alpha modifiers such as `bg-brand-600/10` work. The palette is the same in both themes.
+
+```css
+:root {
+  --hh-color-brand-500: 99 102 241;
+  --hh-color-brand-600: 79 70 229;
+  --hh-color-brand-700: 67 56 202;
+}
+```
+
+### Colour roles
+
+A role names what a colour is for, and has one value in each theme. The roles and their light values are the ones the Haste Health server uses for its sign-in pages. Each role is a property (`--hh-color-surface`) and a Tailwind colour of the same name (`bg-surface`, `text-ink-muted`, `border-line`).
+
+| Role            | Light     | Dark             | For                                         |
+| --------------- | --------- | ---------------- | ------------------------------------------- |
+| `background`    | slate-100 | slate-900        | The page behind every surface               |
+| `surface`       | white     | slate-800        | Cards, panels, headers, menus               |
+| `surface-muted` | gray-50   | slate-700        | Inputs, hovered rows and buttons            |
+| `ink`           | slate-900 | white            | Headings and input text                     |
+| `ink-body`      | slate-700 | slate-300        | Running text and labels                     |
+| `ink-muted`     | slate-500 | slate-400        | Secondary text                              |
+| `ink-subtle`    | slate-400 | slate-500        | Hints and placeholders                      |
+| `line`          | gray-200  | slate-700        | Borders and dividers                        |
+| `line-strong`   | gray-300  | slate-600        | Input borders, and rules on `surface-muted` |
+| `primary`       | brand-600 | brand-600        | Primary buttons, links, the selected item   |
+| `primary-hover` | brand-500 | brand-500        | A hovered primary button                    |
+| `primary-ring`  | brand-300 | brand-800        | Focus rings                                 |
+| `primary-line`  | brand-200 | brand-900        | The border of a hovered or selected item    |
+| `primary-soft`  | brand-50  | brand-600 at 15% | The fill of a hovered or selected item      |
+| `on-primary`    | white     | white            | Text and icons on `primary`                 |
+| `error`         | red-600   | red-400          | Error text                                  |
+| `error-line`    | red-200   | red-900          | The border of an error message              |
+| `error-soft`    | red-50    | red-500 at 15%   | The fill of an error message                |
+| `warning`       | amber-600 | amber-400        | Warning text                                |
+
+The `primary` roles are derived from the brand palette, so overriding the palette re-colours them too. A role can also be set directly:
+
+```css
+:root {
+  --hh-color-background: #fafaf9;
+}
+
+[data-theme="dark"] {
+  --hh-color-background: #0c0a09;
+}
+```
+
+### Dark theme
+
+Set `data-theme="dark"` on `<html>` to select the dark values. That also sets `color-scheme`, so scrollbars and native controls follow, and it is what Tailwind's `dark:` variant matches. `data-theme="light"` sets `color-scheme` to light; a page with no `data-theme` keeps the colour scheme it already had. The library never reads the operating system's setting; the host decides, as the admin app's `ThemeProvider` does from a saved preference. Set on an element other than `<html>`, the attribute makes that part of the page dark.
+
+The components do not use the roles yet: they are styled with fixed palette colours, so `data-theme="dark"` does not give a dark interface today. The dark values are here for the components to move onto.
+
+### In your own Tailwind build
+
+Import the theme next to Tailwind to use the role utilities and the `dark:` variant in your own markup:
+
+```css
+@import "tailwindcss";
+@import "@haste-health/components/theme.css";
+```
+
 ## Components
 
 | Group           | Exports                                                                                                                                                                                                                                                                                                                                                                                                       |
