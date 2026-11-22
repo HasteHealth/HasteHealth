@@ -29,6 +29,8 @@ thiserror = { workspace = true }
 [dev-dependencies]
 criterion = { workspace = true }
 proptest = { workspace = true }
+# `from_reader`, for the tests that read a resource from a reader.
+serde_json = { workspace = true, features = ["std"] }
 
 [[bench]]
 name = "serialization_bench"

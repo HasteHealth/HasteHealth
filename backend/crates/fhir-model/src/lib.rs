@@ -687,4 +687,89 @@ mod tests {
             r#"{"start":"1960","end":"1980"}"#
         );
     }
+
+    /// `document` read from a str, which lends its keys, and from a reader
+    /// and a `serde_json::Value`, which cannot.
+    fn read_three_ways<T: serde::de::DeserializeOwned>(document: &str) -> [T; 3] {
+        let value = serde_json::from_str::<serde_json::Value>(document).unwrap();
+
+        [
+            serde_json::from_str(document).unwrap(),
+            serde_json::from_reader(document.as_bytes()).unwrap(),
+            serde_json::from_value(value).unwrap(),
+        ]
+    }
+
+    #[test]
+    fn a_resource_reads_the_same_from_a_str_a_reader_and_a_value() {
+        let document = r#"{
+            "resourceType": "Patient",
+            "id": "example",
+            "meta": {"versionId": "1", "tag": [{"system": "http://example.org/tags", "code": "a"}]},
+            "contained": [
+                {"resourceType": "Organization", "id": "org", "name": "Clinic", "_name": {"id": "name-id"}}
+            ],
+            "extension": [
+                {"url": "http://example.org/ext", "valueString": "text", "_valueString": {"id": "value-id"}}
+            ],
+            "identifier": [{"system": "http://example.org/mrn", "value": "12345"}],
+            "active": true,
+            "_active": {"id": "active-id"},
+            "name": [
+                {"family": "Chalmers", "given": ["Peter", "James"], "_given": [null, {"id": "given-id"}]}
+            ],
+            "gender": "male",
+            "birthDate": "1974-12-25",
+            "_birthDate": {"extension": [{"url": "http://example.org/born", "valueCode": "am"}]},
+            "deceasedBoolean": false,
+            "multipleBirthInteger": 2,
+            "managingOrganization": {"reference": "Organization/1"}
+        }"#;
+
+        let written = |patients: [Patient; 3]| patients.map(|p| serde_json::to_string(&p).unwrap());
+        let [from_str, from_reader, from_value] = written(read_three_ways::<Patient>(document));
+        assert_eq!(from_str, from_reader);
+        assert_eq!(from_str, from_value);
+
+        // Through the `Resource` enum, which the contained resource is read
+        // through in every case.
+        let [resource_from_str, resource_from_reader, resource_from_value] =
+            read_three_ways::<Resource>(document).map(|r| serde_json::to_string(&r).unwrap());
+        assert_eq!(from_str, resource_from_str);
+        assert_eq!(from_str, resource_from_reader);
+        assert_eq!(from_str, resource_from_value);
+
+        // Every key found its field: what was read is the whole document.
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&from_str).unwrap(),
+            serde_json::from_str::<serde_json::Value>(document).unwrap()
+        );
+    }
+
+    #[test]
+    fn a_key_written_with_an_escape_is_read_as_its_field() {
+        let patient = serde_json::from_str::<Patient>(
+            r#"{
+                "\u0072esourceType": "Patient",
+                "\u0069d": "a",
+                "\u0061ctive": true,
+                "_\u0061ctive": {"id": "b"}
+            }"#,
+        )
+        .unwrap();
+
+        assert_eq!(patient.id.as_deref(), Some("a"));
+        let active = patient.active.unwrap();
+        assert_eq!(active.value, Some(true));
+        assert_eq!(active.id.as_deref(), Some("b"));
+
+        // One that names no field is refused by the name it spells.
+        let unknown =
+            serde_json::from_str::<Patient>(r#"{"resourceType": "Patient", "\u0062ad": 1}"#)
+                .unwrap_err();
+        assert!(
+            unknown.to_string().contains("unknown field `bad`"),
+            "{unknown}"
+        );
+    }
 }

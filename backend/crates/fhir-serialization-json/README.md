@@ -58,6 +58,8 @@ assert_eq!(patient.active.as_ref().unwrap().id.as_deref(), Some("a1"));
 
 Errors are reported as `DeserializeError` variants: `UnknownField`, `MissingRequiredField`, `InvalidType`, `InvalidResourceType`, `InvalidEnumVariant`, `InvalidTypeChoiceVariant`, `DuplicateTypeChoiceVariant`, `CardinalityViolation` and `ReferenceTargetValidationFailed`, alongside the underlying `serde_json::Error`.
 
+A derived `complex` or `resource` type reads each object key through `FieldKey`, which borrows the key from the input when the deserializer can lend it (`serde_json::from_str` and `from_slice`) and owns it otherwise (a key written with an escape, `from_reader`, `from_value`). The generated code names it `haste_fhir_serialization_json::FieldKey`, so depend on this crate under its own name.
+
 ## Features
 
 | Feature  | What it enables                                                                              |

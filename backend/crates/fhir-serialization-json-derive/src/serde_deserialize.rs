@@ -798,7 +798,9 @@ fn generate_complex_deserializer(
 
                         #seen_resource_decl
 
-                        while let Some(key) = map.next_key::<String>()? {
+                        while let Some(key) =
+                            map.next_key::<haste_fhir_serialization_json::FieldKey<'de>>()?
+                        {
                             match key.as_str() {
                                 #(#key_match_arms)*
 
