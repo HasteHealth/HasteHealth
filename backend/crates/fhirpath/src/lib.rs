@@ -5309,6 +5309,44 @@ mod tests {
         assert_eq!(Arc::strong_count(&owned), 1);
     }
 
+    #[test]
+    fn deepest_expressions_evaluate() {
+        // The stack the server gives its threads.
+        const STACK_BYTES: usize = 8000 * 1024;
+
+        let levels = parser::MAX_DEPTH - 1;
+        let deepest = [
+            format!("{}1{}", "(".repeat(levels), ")".repeat(levels)),
+            format!("{}1{}", "iif(true, ".repeat(levels), ")".repeat(levels)),
+            format!("{}1", "-".repeat(levels)),
+            format!("1{}", " + 1".repeat(levels)),
+        ];
+
+        let evaluate = move || {
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .build()
+                .unwrap();
+            runtime.block_on(async {
+                let mut numbers = Vec::new();
+                for expression in &deepest {
+                    let result = FPEngine::new().evaluate(expression, vec![]).await.unwrap();
+                    numbers.push(downcast_number(result.values[0]).unwrap());
+                }
+                numbers
+            })
+        };
+        let numbers = std::thread::Builder::new()
+            .stack_size(STACK_BYTES)
+            .spawn(evaluate)
+            .unwrap()
+            .join()
+            .unwrap();
+
+        #[allow(clippy::cast_precision_loss)]
+        let sum = (levels + 1) as f64;
+        assert_eq!(numbers, [1.0, 1.0, -1.0, sum]);
+    }
+
     #[tokio::test]
     async fn ast_cache_stays_within_capacity() {
         let engine = FPEngine::new();
