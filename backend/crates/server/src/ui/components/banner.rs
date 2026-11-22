@@ -23,7 +23,7 @@ pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
             a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(asset_route("img/logo_text.svg")) alt="logo" {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-ink-subtle mt-[-12px]" {
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-muted mt-[-12px]" {
                 div { span class="font-bold" { (header) } }
                 @if let Some(subheader) = subheader {
                     div { span { "/" } }
@@ -44,7 +44,7 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
             a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-ink-subtle" {
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-muted" {
                 div { span class="font-bold" { (display_name) } }
                 @if let Some(project_name) = subheader {
                     div { span { "/" } }
@@ -52,7 +52,7 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="text-xs text-ink-subtle hover:text-ink-muted" {
+                class="text-[11px] text-ink-muted hover:text-ink-body" {
                 "Powered by Haste Health"
             }
         }
