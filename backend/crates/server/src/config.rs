@@ -81,7 +81,7 @@ impl Default for TerminologyConfig {
 }
 
 /// SQL on FHIR. `$viewdefinition-run` answers synchronously with one table, so
-/// a run that would pass either limit is refused with `too-costly` rather than
+/// a run that would pass a limit is refused with `too-costly` rather than
 /// answered with part of the table.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
@@ -90,6 +90,9 @@ pub struct SqlOnFhirConfig {
     pub max_rows: usize,
     /// Most resources one run reads from storage, earlier versions included.
     pub max_resources: usize,
+    /// Most steps one run takes to build its rows: an expression evaluated, a
+    /// select read on a node, or a column value written.
+    pub max_steps: usize,
 }
 
 impl SqlOnFhirConfig {
@@ -98,6 +101,7 @@ impl SqlOnFhirConfig {
         haste_sql_on_fhir::RunLimits {
             max_rows: self.max_rows,
             max_resources: self.max_resources,
+            max_steps: self.max_steps,
         }
     }
 }
@@ -108,6 +112,7 @@ impl Default for SqlOnFhirConfig {
         Self {
             max_rows: limits.max_rows,
             max_resources: limits.max_resources,
+            max_steps: limits.max_steps,
         }
     }
 }

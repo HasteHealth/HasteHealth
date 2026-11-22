@@ -21,7 +21,10 @@ use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
 };
 
 use crate::conversions::primitives::PrimitiveValue;
@@ -259,13 +262,18 @@ async fn resolve_view_definition<
 }
 
 /// Bounds on one run. The operation answers synchronously with one table, so a run that would
-/// pass either is refused rather than answered with part of the table.
+/// pass any of them is refused rather than answered with part of the table.
 #[derive(Debug, Clone, Copy)]
 pub struct RunLimits {
     /// Most rows a run returns. A larger `_limit` is refused.
     pub max_rows: usize,
     /// Most resources a run reads from storage, earlier versions included.
     pub max_resources: usize,
+    /// Most steps a run takes to build its rows. A step is an expression evaluated, a select
+    /// read on a node, or a column value written. The rows don't bound the steps: a nested
+    /// select is read on every node of the selects around it, and gives no row where one of
+    /// its own selects gives none.
+    pub max_steps: usize,
 }
 
 impl Default for RunLimits {
@@ -273,7 +281,58 @@ impl Default for RunLimits {
         Self {
             max_rows: 10_000,
             max_resources: 50_000,
+            max_steps: 10_000_000,
         }
+    }
+}
+
+/// Steps a run takes between two pauses. Its steps wait on nothing, so without the pauses a
+/// long run would keep its thread from the server's other requests.
+const STEPS_PER_PAUSE: usize = 1000;
+
+/// The steps a run has taken, counted against [`RunLimits::max_steps`].
+struct Steps {
+    taken: AtomicUsize,
+    /// What `taken` was at the last pause.
+    paused_at: AtomicUsize,
+    max: usize,
+}
+
+impl Steps {
+    fn new(max: usize) -> Self {
+        Self {
+            taken: AtomicUsize::new(0),
+            paused_at: AtomicUsize::new(0),
+            max,
+        }
+    }
+
+    /// Counts `steps` more, refusing the run past `max_steps`.
+    fn take(&self, steps: usize) -> Result<(), OperationOutcomeError> {
+        let taken = self
+            .taken
+            .fetch_add(steps, Ordering::Relaxed)
+            .saturating_add(steps);
+        if taken > self.max {
+            return Err(too_costly(&format!(
+                "The view takes more than {} steps, the most one run takes.",
+                self.max
+            )));
+        }
+        Ok(())
+    }
+
+    /// Counts one more step, and lets the runtime's other tasks run once in every
+    /// [`STEPS_PER_PAUSE`].
+    async fn step(&self) -> Result<(), OperationOutcomeError> {
+        self.take(1)?;
+
+        let taken = self.taken.load(Ordering::Relaxed);
+        if taken.saturating_sub(self.paused_at.load(Ordering::Relaxed)) >= STEPS_PER_PAUSE {
+            self.paused_at.store(taken, Ordering::Relaxed);
+            tokio::task::yield_now().await;
+        }
+        Ok(())
     }
 }
 
@@ -327,6 +386,7 @@ struct Run<'v> {
     /// The caller's `_limit`.
     limit: Option<usize>,
     limits: RunLimits,
+    steps: Steps,
 }
 
 /// Adds the rows of `resources`: those of the view's type that pass its `where`. Returns whether
@@ -350,6 +410,7 @@ async fn add_rows<'v>(
             run.variables.clone(),
             &run.where_clauses,
             resource,
+            &run.steps,
         )
         .await?
         {
@@ -363,6 +424,7 @@ async fn add_rows<'v>(
                 run.view_definition,
                 resource,
                 cap.saturating_sub(rows.len()).max(1),
+                &run.steps,
             )
             .await?,
         );
@@ -662,16 +724,32 @@ fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String
 /// Column values by name. Names borrow from the view.
 type Row<'a> = OrderMap<&'a str, OutputResults>;
 
-/// The first `cap` rows of the cross product of two row sets, `left`'s columns first.
-fn join<'a>(left: &[Row<'a>], mut right: Vec<Row<'a>>, cap: usize) -> Vec<Row<'a>> {
+/// The first `cap` rows of the cross product of two row sets, `left`'s columns first. Each
+/// value of the rows it writes is a step.
+fn join<'a>(
+    left: &[Row<'a>],
+    mut right: Vec<Row<'a>>,
+    cap: usize,
+    steps: &Steps,
+) -> Result<Vec<Row<'a>>, OperationOutcomeError> {
     let copy = |(&name, value): (&&'a str, &OutputResults)| (name, value.clone());
 
     // Each row of `left` takes all of `right` in turn, so no row of `right` past `cap` is used.
     right.truncate(cap);
 
-    match left {
-        // The fold's empty start row.
-        [row] if row.is_empty() => right,
+    // The fold's empty start row: `right` is the product as it is.
+    if let [row] = left
+        && row.is_empty()
+    {
+        return Ok(right);
+    }
+
+    // The rows of a set have the same columns.
+    let rows = left.len().saturating_mul(right.len()).min(cap);
+    let columns = left.first().map_or(0, Row::len) + right.first().map_or(0, Row::len);
+    steps.take(rows.saturating_mul(columns))?;
+
+    Ok(match left {
         // Usual case: move the right rows instead of copying them.
         [row] => right
             .into_iter()
@@ -683,7 +761,7 @@ fn join<'a>(left: &[Row<'a>], mut right: Vec<Row<'a>>, cap: usize) -> Vec<Row<'a
             .take(cap)
             .map(|(l, r)| l.iter().chain(r).map(copy).collect())
             .collect(),
-    }
+    })
 }
 
 // Need to distinguish between a scalar value and a collection of values for each column in the output. This enum helps to represent that distinction.
@@ -703,6 +781,7 @@ async fn process_resource<'r, 'v: 'r>(
     view_definition: &'v ViewDefinition,
     input: &'r Resource,
     cap: usize,
+    steps: &'r Steps,
 ) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let fp_config = Arc::new(
         Config::builder()
@@ -719,22 +798,26 @@ async fn process_resource<'r, 'v: 'r>(
         input,
         1,
         cap,
+        steps,
     )
     .await?;
 
-    Ok(per_select
+    per_select
         .into_iter()
-        .fold(vec![Row::new()], |rows, more| join(&rows, more, cap)))
+        .try_fold(vec![Row::new()], |rows, more| join(&rows, more, cap, steps))
 }
 
-/// Evaluates `path` on `node`; `what` names the expression in errors.
+/// Evaluates `path` on `node`, a step; `what` names the expression in errors.
 async fn evaluate<'a>(
     fp_engine: &FPEngine,
     fp_config: &Arc<Config<'a>>,
     path: &str,
     node: &'a dyn MetaValue,
     what: &str,
+    steps: &Steps,
 ) -> Result<Context<'a>, OperationOutcomeError> {
+    steps.step().await?;
+
     fp_engine
         .evaluate_with_config(path, vec![node], fp_config.clone())
         .await
@@ -759,6 +842,7 @@ async fn walk_repeat<'a>(
     fp_config: &Arc<Config<'a>>,
     paths: &[FHIRString],
     input: &'a dyn MetaValue,
+    steps: &Steps,
 ) -> Result<Nodes<'a>, OperationOutcomeError> {
     let (mut nodes, mut arenas) = (Vec::new(), Vec::new());
     let mut seen = HashSet::new();
@@ -786,7 +870,8 @@ async fn walk_repeat<'a>(
         // Reversed so the first child pops first.
         let start = stack.len();
         for path in paths.iter().filter_map(|path| path.value.as_deref()) {
-            let found = evaluate(fp_engine, fp_config, path, node, "repeat expression").await?;
+            let found =
+                evaluate(fp_engine, fp_config, path, node, "repeat expression", steps).await?;
             if !found.is_empty() {
                 stack.extend(found.values().iter().map(|&child| (child, true)));
                 arenas.push(found);
@@ -812,6 +897,7 @@ async fn select_rows<'r, 'v: 'r>(
     node: &'r dyn MetaValue,
     mut later: usize,
     cap: usize,
+    steps: &'r Steps,
 ) -> Result<Vec<Vec<Row<'v>>>, OperationOutcomeError> {
     let mut per_select = Vec::with_capacity(selects.len());
 
@@ -819,7 +905,8 @@ async fn select_rows<'r, 'v: 'r>(
         // With no later rows the product stays empty. The select is still read, so that a
         // mistake in it is reported.
         let wanted = if later == 0 { 1 } else { cap.div_ceil(later) };
-        let rows = process_select(fp_engine, fp_config.clone(), select, node, wanted).await?;
+        let rows =
+            process_select(fp_engine, fp_config.clone(), select, node, wanted, steps).await?;
 
         later = later.saturating_mul(rows.len()).min(cap);
         per_select.push(rows);
@@ -836,6 +923,7 @@ async fn union_rows<'r, 'v: 'r>(
     branches: &'v [ViewDefinitionSelect],
     node: &'r dyn MetaValue,
     cap: usize,
+    steps: &'r Steps,
 ) -> Result<Vec<Row<'v>>, OperationOutcomeError> {
     let mut rows = Vec::new();
 
@@ -845,7 +933,7 @@ async fn union_rows<'r, 'v: 'r>(
             break;
         }
 
-        rows.extend(process_select(fp_engine, fp_config.clone(), branch, node, room).await?);
+        rows.extend(process_select(fp_engine, fp_config.clone(), branch, node, room, steps).await?);
     }
 
     Ok(rows)
@@ -853,14 +941,19 @@ async fn union_rows<'r, 'v: 'r>(
 
 /// A select's first `cap` rows: per focus node, its columns joined with its nested and `unionAll`
 /// rows. The focus nodes are the `forEach`, `forEachOrNull` or `repeat` items, else the input.
+///
+/// Reading the select is a step, and so is each focus node it is read on.
 fn process_select<'r, 'v: 'r>(
     fp_engine: &'r FPEngine,
     fp_config: Arc<Config<'r>>,
     select: &'v ViewDefinitionSelect,
     input: &'r dyn MetaValue,
     cap: usize,
+    steps: &'r Steps,
 ) -> BoxFuture<'r, Result<Vec<Row<'v>>, OperationOutcomeError>> {
     Box::pin(async move {
+        steps.step().await?;
+
         let for_each = select.forEach.as_ref().and_then(|p| p.value.as_deref());
         let for_each_or_null = select
             .forEachOrNull
@@ -869,9 +962,17 @@ fn process_select<'r, 'v: 'r>(
 
         // `_arenas` keeps `nodes` valid until the rows are built.
         let (nodes, _arenas) = match (for_each, for_each_or_null, select.repeat.as_deref()) {
-            (Some(path), _, _) => {
-                nodes_of(evaluate(fp_engine, &fp_config, path, input, "forEach expression").await?)
-            }
+            (Some(path), _, _) => nodes_of(
+                evaluate(
+                    fp_engine,
+                    &fp_config,
+                    path,
+                    input,
+                    "forEach expression",
+                    steps,
+                )
+                .await?,
+            ),
             (None, Some(path), _) => nodes_of(
                 evaluate(
                     fp_engine,
@@ -879,16 +980,19 @@ fn process_select<'r, 'v: 'r>(
                     path,
                     input,
                     "forEachOrNull expression",
+                    steps,
                 )
                 .await?,
             ),
-            (None, None, Some(paths)) => walk_repeat(fp_engine, &fp_config, paths, input).await?,
+            (None, None, Some(paths)) => {
+                walk_repeat(fp_engine, &fp_config, paths, input, steps).await?
+            }
             (None, None, None) => (vec![input], Vec::new()),
         };
 
         if nodes.is_empty() && for_each.is_none() && for_each_or_null.is_some() {
             let mut null_row = Row::new();
-            collect_null_columns(select, &mut null_row)?;
+            collect_null_columns(select, &mut null_row, steps)?;
             return Ok(vec![null_row]);
         }
 
@@ -898,11 +1002,12 @@ fn process_select<'r, 'v: 'r>(
             if room == 0 {
                 break;
             }
+            steps.step().await?;
 
-            let columns = column_row(fp_engine, &fp_config, select, node).await?;
+            let columns = column_row(fp_engine, &fp_config, select, node, steps).await?;
             let union = match select.unionAll.as_deref() {
                 Some(branches) => {
-                    Some(union_rows(fp_engine, &fp_config, branches, node, room).await?)
+                    Some(union_rows(fp_engine, &fp_config, branches, node, room, steps).await?)
                 }
                 None => None,
             };
@@ -913,6 +1018,7 @@ fn process_select<'r, 'v: 'r>(
                 node,
                 union.as_ref().map_or(1, Vec::len),
                 room,
+                steps,
             )
             .await?;
 
@@ -920,7 +1026,7 @@ fn process_select<'r, 'v: 'r>(
                 nested
                     .into_iter()
                     .chain(union)
-                    .fold(vec![columns], |rows, more| join(&rows, more, room)),
+                    .try_fold(vec![columns], |rows, more| join(&rows, more, room, steps))?,
             );
         }
 
@@ -929,10 +1035,14 @@ fn process_select<'r, 'v: 'r>(
 }
 
 /// Adds a null for every column of the select, its nested selects and its `unionAll` branches.
+/// Each of these selects is a step, and so is each null.
 fn collect_null_columns<'a>(
     select_statement: &'a ViewDefinitionSelect,
     row: &mut Row<'a>,
+    steps: &Steps,
 ) -> Result<(), OperationOutcomeError> {
+    steps.take(1 + select_statement.column.as_ref().map_or(0, Vec::len))?;
+
     for column in select_statement.column.iter().flatten() {
         let Some(name) = column.name.value.as_deref() else {
             return Err(OperationOutcomeError::error(
@@ -950,7 +1060,7 @@ fn collect_null_columns<'a>(
         .flatten()
         .chain(select_statement.unionAll.iter().flatten())
     {
-        collect_null_columns(nested, row)?;
+        collect_null_columns(nested, row, steps)?;
     }
 
     Ok(())
@@ -962,6 +1072,7 @@ async fn column_row<'r, 'v>(
     fp_config: &Arc<Config<'r>>,
     select: &'v ViewDefinitionSelect,
     node: &'r dyn MetaValue,
+    steps: &Steps,
 ) -> Result<Row<'v>, OperationOutcomeError> {
     let mut row = Row::new();
 
@@ -980,7 +1091,7 @@ async fn column_row<'r, 'v>(
             ));
         };
 
-        let found = evaluate(fp_engine, fp_config, path, node, "expression").await?;
+        let found = evaluate(fp_engine, fp_config, path, node, "expression", steps).await?;
         let values = found.values();
 
         let column_type = column
@@ -1042,8 +1153,11 @@ async fn passes_where_clauses(
     variables: Arc<HashMap<String, &dyn MetaValue>>,
     where_clauses: &[&str],
     resource: &Resource,
+    steps: &Steps,
 ) -> Result<bool, OperationOutcomeError> {
     for where_clause in where_clauses {
+        steps.step().await?;
+
         let result = fp_engine
             .evaluate_with_config(
                 where_clause,
@@ -1119,6 +1233,7 @@ async fn process_view_definition<
         resource_type: view_resource_type(view_definition)?,
         limit: requested_limit(input),
         limits,
+        steps: Steps::new(limits.max_steps),
     };
 
     let results = view_rows(context, client.as_ref(), &run, input, scope).await?;

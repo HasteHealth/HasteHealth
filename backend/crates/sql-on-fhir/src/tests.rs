@@ -1,4 +1,5 @@
-//! A run builds no more rows than it can use: up to `_limit`, else one past `max_rows`.
+//! A run builds no more rows than it can use: up to `_limit`, else one past `max_rows`. And it
+//! takes no more than `max_steps` steps, whether or not they give rows.
 
 use super::*;
 use serde_json::{Value, json};
@@ -67,6 +68,45 @@ fn names_with_union() -> Value {
     })
 }
 
+/// A select nested in `depth` selects, each read on six nodes. It gives no rows, so neither do
+/// the selects around it, on any of their 6^`depth` nodes.
+fn nested_without_rows(depth: usize) -> Value {
+    (0..depth).fold(
+        no_rows(),
+        |select, _| json!({"forEach": "(1 | 2 | 3 | 4 | 5 | 6)", "select": [select]}),
+    )
+}
+
+/// The view's rows over `resources`, each as the JSON output writes it, and the steps the run
+/// took.
+async fn run(
+    view: &ViewDefinition,
+    resources: &[Resource],
+    limit: Option<usize>,
+    limits: RunLimits,
+) -> (Result<Vec<String>, OperationOutcomeError>, usize) {
+    let fp_engine = FPEngine::new();
+    let run = Run {
+        fp_engine: &fp_engine,
+        variables: Arc::new(build_hashmap_fp_variables(view)),
+        view_definition: view,
+        where_clauses: Vec::new(),
+        resource_type: view_resource_type(view).unwrap(),
+        limit,
+        limits,
+        steps: Steps::new(limits.max_steps),
+    };
+
+    let mut rows = Vec::new();
+    let result = add_rows(&run, resources, &mut rows).await.map(|_| {
+        rows.iter()
+            .map(|row| serde_json::to_string(row).unwrap())
+            .collect()
+    });
+
+    (result, run.steps.taken.load(Ordering::Relaxed))
+}
+
 /// The view's rows over `resources`, each as the JSON output writes it.
 async fn rows(
     view: &ViewDefinition,
@@ -74,27 +114,26 @@ async fn rows(
     limit: Option<usize>,
     max_rows: usize,
 ) -> Result<Vec<String>, OperationOutcomeError> {
-    let fp_engine = FPEngine::new();
-    let run = Run {
-        fp_engine: &fp_engine,
-        variables: Arc::new(build_hashmap_fp_variables(view)),
-        view_definition: view,
-        where_clauses: Vec::new(),
-        resource_type: view_resource_type(view)?,
-        limit,
-        limits: RunLimits {
-            max_rows,
-            ..RunLimits::default()
-        },
+    let limits = RunLimits {
+        max_rows,
+        ..RunLimits::default()
     };
 
-    let mut rows = Vec::new();
-    add_rows(&run, resources, &mut rows).await?;
+    run(view, resources, limit, limits).await.0
+}
 
-    Ok(rows
-        .iter()
-        .map(|row| serde_json::to_string(row).unwrap())
-        .collect())
+/// The run of the view over `resources`, with at most `max_steps` steps.
+async fn run_within(
+    view: &ViewDefinition,
+    resources: &[Resource],
+    max_steps: usize,
+) -> (Result<Vec<String>, OperationOutcomeError>, usize) {
+    let limits = RunLimits {
+        max_steps,
+        ..RunLimits::default()
+    };
+
+    run(view, resources, None, limits).await
 }
 
 /// Whether the run was refused for giving more than `max_rows` rows.
@@ -273,4 +312,85 @@ async fn a_column_too_costly_to_evaluate_is_refused() {
     let error = result.unwrap_err();
     assert_eq!(error.outcome().issue[0].code.as_str(), Some("too-costly"));
     assert_eq!(error.http_status(), 422);
+}
+
+#[tokio::test]
+async fn a_run_takes_a_step_per_evaluation_node_and_value() {
+    let patients = [patient("p", 3)];
+    let columns = json!({"column": [
+        {"name": "id", "path": "id"},
+        {"name": "active", "path": "active"},
+    ]});
+    let contact =
+        json!({"forEachOrNull": "contact", "column": [{"name": "contact", "path": "id"}]});
+    let steps = async |selects: Value| {
+        let (rows, steps) = run_within(&view(&selects), &patients, usize::MAX).await;
+        (rows.unwrap().len(), steps)
+    };
+
+    // The select and its node, and two columns.
+    assert_eq!(steps(json!([columns])).await, (1, 4));
+    // The select and its `forEach`, then three nodes with a column each.
+    assert_eq!(steps(json!([per_identifier("a")])).await, (3, 8));
+    // The select and its `forEachOrNull`, then the select and the column of the null row.
+    assert_eq!(steps(json!([contact])).await, (1, 4));
+    // Both of the first two, and their product: three rows of three values.
+    assert_eq!(steps(json!([columns, per_identifier("a")])).await, (3, 21));
+    // Nested, the inner select is read on each of the six nodes, where it evaluates its `forEach`.
+    assert_eq!(steps(json!([nested_without_rows(1)])).await, (0, 20));
+}
+
+#[tokio::test]
+async fn a_run_is_refused_past_max_steps() {
+    let view = view(&json!([per_identifier("a"), per_identifier("b")]));
+    let patients = [patient("p1", 3), patient("p2", 3)];
+
+    let (rows, steps) = run_within(&view, &patients, usize::MAX).await;
+    assert_eq!(rows.unwrap().len(), 18);
+
+    let (rows, _) = run_within(&view, &patients, steps).await;
+    assert_eq!(rows.unwrap().len(), 18);
+
+    let (result, _) = run_within(&view, &patients, steps - 1).await;
+    assert!(refused(&result));
+    assert_eq!(result.unwrap_err().http_status(), 422);
+}
+
+#[tokio::test]
+async fn selects_without_rows_are_refused_past_max_steps() {
+    let patients = [patient("p", 1)];
+
+    // 6^3 nodes.
+    let (rows, steps) = run_within(&view(&json!([nested_without_rows(3)])), &patients, 1000).await;
+    assert!(rows.unwrap().is_empty());
+    assert_eq!(steps, 776);
+
+    // 6^20 nodes: a run that read the innermost select on each would not end.
+    let (result, steps) =
+        run_within(&view(&json!([nested_without_rows(20)])), &patients, 100_000).await;
+    assert!(refused(&result));
+    assert_eq!(steps, 100_001);
+}
+
+#[tokio::test]
+async fn a_long_run_lets_other_tasks_run() {
+    // The test's runtime has one thread, so the other task gets a turn only when the run pauses.
+    let turns = Arc::new(AtomicUsize::new(0));
+    let other = tokio::spawn({
+        let turns = turns.clone();
+        async move {
+            loop {
+                turns.fetch_add(1, Ordering::Relaxed);
+                tokio::task::yield_now().await;
+            }
+        }
+    });
+
+    let view = view(&json!([nested_without_rows(5)]));
+    let (rows, steps) = run_within(&view, &[patient("p", 1)], usize::MAX).await;
+    other.abort();
+
+    assert!(rows.unwrap().is_empty());
+    assert!(steps > 10 * STEPS_PER_PAUSE);
+    assert!(turns.load(Ordering::Relaxed) >= steps / STEPS_PER_PAUSE);
 }

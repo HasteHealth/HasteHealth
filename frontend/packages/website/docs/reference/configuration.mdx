@@ -222,12 +222,13 @@ Settings for installing FHIR packages (implementation guides) with `Implementati
 
 ### `[sql_on_fhir]`
 
-Limits on one `$viewdefinition-run`. A run answers with the whole table in one response, so one past either limit is refused rather than answered with part of the table. See [SQL on FHIR](/docs/guides/sql_on_fhir).
+Limits on one `$viewdefinition-run`. A run answers with the whole table in one response, so one past a limit is refused rather than answered with part of the table. See [SQL on FHIR](/docs/guides/sql_on_fhir).
 
 | Key | Env var | Default | Notes |
 | --- | --- | --- | --- |
 | `sql_on_fhir.max_rows` | `HASTE_SQL_ON_FHIR.max_rows` | `10000` | Most rows one run returns. A run that would return more is refused with `422` (`too-costly`), and a larger `_limit` with `400`. |
 | `sql_on_fhir.max_resources` | `HASTE_SQL_ON_FHIR.max_resources` | `50000` | Most resources one run reads from storage, earlier versions included. A run that would read more is refused with `422` (`too-costly`). |
+| `sql_on_fhir.max_steps` | `HASTE_SQL_ON_FHIR.max_steps` | `10000000` | Most steps one run takes to build its rows: an expression evaluated, a select read on a node, or a column value written. A run that would take more is refused with `422` (`too-costly`). |
 
 ### `[terminology]`
 

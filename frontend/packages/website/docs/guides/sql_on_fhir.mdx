@@ -149,7 +149,9 @@ Exactly one of `viewResource` / `viewReference` is required, except at instance 
 
 ### Limits
 
-A run answers with the whole table in one response, so it is bounded. A run that would return more than 10,000 rows (without `_limit`), or read more than 50,000 resources (earlier versions included), is refused with `422` and a `too-costly` `OperationOutcome` rather than answered with part of the table. Narrow it with `_limit`, `patient`, `group` or `_since`. The limits are the server settings `sql_on_fhir.max_rows` and `sql_on_fhir.max_resources` (see [Configuration](/docs/reference/configuration)).
+A run answers with the whole table in one response, so it is bounded. A run that would return more than 10,000 rows (without `_limit`), read more than 50,000 resources (earlier versions included), or take more than 10,000,000 steps to build its rows, is refused with `422` and a `too-costly` `OperationOutcome` rather than answered with part of the table. Narrow it with `_limit`, `patient`, `group` or `_since`. The limits are the server settings `sql_on_fhir.max_rows`, `sql_on_fhir.max_resources` and `sql_on_fhir.max_steps` (see [Configuration](/docs/reference/configuration)).
+
+A step is an expression evaluated, a select read on a node, or a column value written. A table of 10,000 rows and 100 columns takes one to three million. Rows alone don't bound a run, because a nested select is read on every node of the selects around it, and gives no row where one of its own selects gives none.
 
 ### Output Shapes
 
