@@ -20,12 +20,13 @@ pub struct TenantContext {
 pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
     html! {
         div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold text-gray-900" {
+            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(asset_route("img/logo_text.svg")) alt="logo" {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-slate-400 mt-[-12px]" {
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-muted mt-[-12px]" {
                 div { span class="font-bold" { (header) } }
                 @if let Some(subheader) = subheader {
+                    div { span { "/" } }
                     div { span { (subheader) } }
                 }
             }
@@ -40,17 +41,18 @@ pub fn tenant_banner(header: &str, subheader: Option<&str>, name: &TenantName) -
 
     html! {
         div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold text-gray-900" {
+            a href="#" class="h-16 w-54 relative flex justify-center items-center overflow-hidden text-2xl font-semibold" {
                 img class="max-h-full max-w-full object-contain" src=(format!("/w/{}/branding/logo", header)) alt=(format!("{} logo", display_name)) {}
             }
-            div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
+            div class="flex space-x-1 items-center justify-center text-sm text-ink-muted" {
                 div { span class="font-bold" { (display_name) } }
                 @if let Some(project_name) = subheader {
+                    div { span { "/" } }
                     div { span { (project_name) } }
                 }
             }
             a href="https://haste.health" target="_blank" rel="noopener noreferrer"
-                class="text-xs text-slate-300 hover:text-slate-400" {
+                class="text-[11px] text-ink-muted hover:text-ink-body" {
                 "Powered by Haste Health"
             }
         }

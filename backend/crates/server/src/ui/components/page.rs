@@ -12,13 +12,13 @@ pub fn page_html(children: &Markup) -> Markup {
             link rel="icon" href=(asset_route("img/logo.svg")) {}
             link rel="stylesheet" href=(asset_route("css/app.css")) {}
         }
-        body {
-            section class="bg-background h-screen" {
-                div class="flex flex-col items-center justify-center md:h-screen" {
-                    div class="px-6 py-8 lg:py-0 space-y-4 mx-auto md:-mt-32 min-w-[400px] md:min-w-[500px]" {
-                     (children)
-                    }
+        body class="bg-background text-ink-body" {
+            section class="flex min-h-screen flex-col items-center px-6 py-8" {
+                div class="grow" {}
+                div class="w-full max-w-lg space-y-4" {
+                    (children)
                 }
+                div class="grow md:grow-2" {}
             }
         }
     }

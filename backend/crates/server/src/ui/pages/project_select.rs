@@ -1,7 +1,10 @@
 use crate::{
     auth_n::oidc::hardcoded_clients::admin_app,
     config::ServerConfig,
-    ui::components::{TenantName, page_banner, page_html},
+    ui::{
+        components::{TenantName, page_banner, page_html},
+        styles::{CARD, CARD_BODY, CHOICE},
+    },
 };
 use haste_fhir_model::r4::generated::{resources::Project, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -23,23 +26,16 @@ pub fn project_select_html(
 ) -> Result<Markup, OperationOutcomeError> {
     Ok(page_html(&html! {
         (page_banner(tenant.as_ref(), None, branding))
-        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
-            @if projects.is_empty() {
-                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    span class="font-semibold leading-tight text-red-600 text-md " { "No projects found. Please contact your administrator." }
-                }
-            } @else {
-                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    div class="space-y-4 md:space-y-6" {
-                        div class="grid grid-cols-1 gap-3" {
-                            @for project
-                            in projects.iter() {
-                                div {
-                                    a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or_default())
-                                    class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
-                                        (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
-                                    }
-                                }
+        div class=(CARD) {
+            div class=(CARD_BODY) {
+                @if projects.is_empty() {
+                    span class="font-semibold leading-tight text-error" { "No projects found. Please contact your administrator." }
+                } @else {
+                    div class="grid grid-cols-1 gap-3" {
+                        @for project in projects.iter() {
+                            a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or_default())
+                            class=(CHOICE) {
+                                (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                             }
                         }
                     }
