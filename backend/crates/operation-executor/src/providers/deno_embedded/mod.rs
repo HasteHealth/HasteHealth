@@ -14,9 +14,12 @@ use haste_fhir_client::url::ParsedParameters;
 use haste_fhir_model::r4::generated::resources::{Bundle, Parameters, Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use json_patch::Patch;
+use std::alloc::Layout;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::ffi::c_void;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, LazyLock};
 use std::time::Duration;
 use tokio::sync::Mutex;
@@ -46,6 +49,23 @@ const EXECUTION_TIMEOUT: Duration = Duration::from_secs(10);
 /// script can exhaust memory shared by every other tenant's executions on
 /// the same process.
 const MAX_HEAP_BYTES: usize = 128 * 1024 * 1024;
+
+/// Hard ceiling on the bytes of `ArrayBuffer` and `SharedArrayBuffer` backing
+/// stores, which includes every typed array, a single custom-operation script
+/// may hold at once. V8 allocates these outside its heap, so `MAX_HEAP_BYTES`
+/// never counts them. An allocation that would cross this ceiling fails. V8
+/// answers that with a last-resort collection, which calls the near-heap-limit
+/// callback `run_code` installs, so the script is stopped the same way as one
+/// that outgrows the heap.
+const MAX_ARRAY_BUFFER_BYTES: usize = 64 * 1024 * 1024;
+
+/// Alignment of every backing store: what `malloc` guarantees, and therefore
+/// what V8 gets from its default allocator.
+const ARRAY_BUFFER_ALIGNMENT: usize = 16;
+
+/// Removes from a new isolate's global scope what would let a script hold
+/// memory neither limit above counts. See the file for the details.
+const LOCKDOWN_SCRIPT: &str = include_str!("lockdown.js");
 
 /// Custom-operation source rarely changes between invocations of the same
 /// operation, so cache the transpiled output keyed by (declared media type,
@@ -227,6 +247,93 @@ impl Drop for ExecutionWatchdog {
             let _ = thread.join();
         }
     }
+}
+
+/// Bytes of backing store one isolate currently holds. Owned by the V8
+/// allocator that [`limited_array_buffer_allocator`] creates for it.
+struct ArrayBufferBudget {
+    limit: usize,
+    used: AtomicUsize,
+}
+
+impl ArrayBufferBudget {
+    /// Counts `len` more bytes as held, unless that would cross the limit.
+    fn try_reserve(&self, len: usize) -> bool {
+        self.used
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {
+                used.checked_add(len).filter(|total| *total <= self.limit)
+            })
+            .is_ok()
+    }
+
+    fn release(&self, len: usize) {
+        self.used.fetch_sub(len, Ordering::AcqRel);
+    }
+}
+
+fn array_buffer_layout(len: usize) -> Option<Layout> {
+    Layout::from_size_align(len.max(1), ARRAY_BUFFER_ALIGNMENT).ok()
+}
+
+/// Serves both of V8's allocation entry points. The block is always zeroed:
+/// it becomes readable by the script, and the process heap it comes from is
+/// shared by every tenant.
+unsafe extern "C" fn array_buffer_allocate(budget: &ArrayBufferBudget, len: usize) -> *mut c_void {
+    let Some(layout) = array_buffer_layout(len) else {
+        return std::ptr::null_mut();
+    };
+    if !budget.try_reserve(len) {
+        return std::ptr::null_mut();
+    }
+
+    // SAFETY: `array_buffer_layout` never returns a zero-sized layout.
+    let data = unsafe { std::alloc::alloc_zeroed(layout) };
+    if data.is_null() {
+        budget.release(len);
+    }
+    data.cast()
+}
+
+unsafe extern "C" fn array_buffer_free(budget: &ArrayBufferBudget, data: *mut c_void, len: usize) {
+    let Some(layout) = array_buffer_layout(len) else {
+        return;
+    };
+    if data.is_null() {
+        return;
+    }
+
+    // SAFETY: V8 frees a block with the length it allocated it with, so this
+    // is the layout `array_buffer_allocate` used for `data`.
+    unsafe { std::alloc::dealloc(data.cast(), layout) };
+    budget.release(len);
+}
+
+unsafe extern "C" fn array_buffer_budget_drop(budget: *const ArrayBufferBudget) {
+    // SAFETY: `budget` came from `Box::into_raw` in
+    // `limited_array_buffer_allocator`, and V8 calls this once, when it
+    // destroys the allocator.
+    drop(unsafe { Box::from_raw(budget.cast_mut()) });
+}
+
+static ARRAY_BUFFER_ALLOCATOR_VTABLE: v8::RustAllocatorVtable<ArrayBufferBudget> =
+    v8::RustAllocatorVtable {
+        allocate: array_buffer_allocate,
+        allocate_uninitialized: array_buffer_allocate,
+        free: array_buffer_free,
+        drop: array_buffer_budget_drop,
+    };
+
+/// Builds the `ArrayBuffer` allocator for one isolate: it refuses any
+/// allocation that would take the bytes the isolate holds past `limit`.
+fn limited_array_buffer_allocator(limit: usize) -> v8::UniqueRef<v8::Allocator> {
+    let budget = Box::into_raw(Box::new(ArrayBufferBudget {
+        limit,
+        used: AtomicUsize::new(0),
+    }));
+
+    // SAFETY: `budget` is the handle every function in the vtable expects,
+    // and the vtable's `drop` is what frees it.
+    unsafe { v8::new_rust_allocator(budget, &ARRAY_BUFFER_ALLOCATOR_VTABLE) }
 }
 
 struct JSRuntimeState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
@@ -835,7 +942,8 @@ pub async fn get_input_value<
 }
 
 /// Builds a fresh, never-yet-used V8 isolate wired up with the ops a
-/// custom-operation script needs, but does not run anything against it.
+/// custom-operation script needs, but does not run any script code against
+/// it.
 fn build_deno_runtime<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
@@ -869,15 +977,25 @@ fn build_deno_runtime<
         ..Default::default()
     };
 
-    let create_params = v8::Isolate::create_params().heap_limits(0, MAX_HEAP_BYTES);
+    let create_params = v8::Isolate::create_params()
+        .heap_limits(0, MAX_HEAP_BYTES)
+        .array_buffer_allocator(
+            limited_array_buffer_allocator(MAX_ARRAY_BUFFER_BYTES).make_shared(),
+        );
 
-    deno_core::JsRuntime::new(deno_core::RuntimeOptions {
+    let mut deno_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
         module_loader: Some(Rc::new(TsModuleLoader)),
         extensions: vec![runjs],
         startup_snapshot: Some(RUNTIME_SNAPSHOT),
         create_params: Some(create_params),
         ..Default::default()
-    })
+    });
+
+    deno_runtime
+        .execute_script("ext:lockdown", LOCKDOWN_SCRIPT)
+        .expect("lockdown.js must run in every new isolate");
+
+    deno_runtime
 }
 
 async fn run_code<
@@ -1358,6 +1476,181 @@ pub(crate) mod tests {
             started.elapsed() < timeout * 5,
             "termination took far longer than the configured timeout: {:?}",
             started.elapsed()
+        );
+    }
+
+    #[test]
+    fn array_buffer_allocator_refuses_bytes_past_its_limit() {
+        let budget = ArrayBufferBudget {
+            limit: 1024,
+            used: AtomicUsize::new(0),
+        };
+
+        // SAFETY: every block is freed once, with the length it was
+        // allocated with.
+        unsafe {
+            let held = array_buffer_allocate(&budget, 1000);
+            assert!(!held.is_null());
+            assert!(array_buffer_allocate(&budget, 25).is_null());
+
+            array_buffer_free(&budget, held, 1000);
+            let whole = array_buffer_allocate(&budget, 1024);
+            assert!(!whole.is_null());
+            array_buffer_free(&budget, whole, 1024);
+        }
+
+        assert_eq!(budget.used.load(Ordering::Acquire), 0);
+    }
+
+    /// A script that keeps `count` typed arrays of 16 MiB alive and returns
+    /// how many it holds.
+    fn hold_buffers_script(count: usize) -> String {
+        format!(
+            "export default async function () {{
+                const keep = [];
+                for (let i = 0; i < {count}; i++) {{
+                    keep.push(new Uint8Array(16 * 1024 * 1024).fill(1));
+                }}
+                return keep.length;
+            }}"
+        )
+    }
+
+    #[tokio::test]
+    async fn script_holding_buffers_within_the_limit_runs() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            &hold_buffers_script(3),
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should run successfully");
+
+        assert_eq!(result, Some(json!(3)));
+    }
+
+    #[tokio::test]
+    async fn script_holding_buffers_past_the_limit_is_stopped() {
+        // Regression test: typed-array backing stores live outside the V8
+        // heap, so the heap limit never counted them and one script could
+        // grow the server process by gigabytes.
+        let timeout = Duration::from_secs(5);
+        let started = Instant::now();
+
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            &hold_buffers_script(64),
+            json!({}),
+            timeout,
+        )
+        .await;
+
+        assert!(
+            result.is_err(),
+            "script must not get more buffer bytes than the limit"
+        );
+        assert!(
+            started.elapsed() < timeout,
+            "script was stopped by the timeout, not by the buffer limit"
+        );
+    }
+
+    #[tokio::test]
+    async fn released_buffers_do_not_count_against_the_buffer_limit() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () {
+                let mebibytes = 0;
+                for (let i = 0; i < 32; i++) {
+                    mebibytes += new Uint8Array(16 * 1024 * 1024).fill(1).length / (1024 * 1024);
+                }
+                return mebibytes;
+            }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should run successfully");
+
+        assert_eq!(result, Some(json!(512)));
+    }
+
+    #[tokio::test]
+    async fn buffers_v8_maps_itself_are_unavailable() {
+        // Resizable and growable buffers and WebAssembly memories bypass the
+        // ArrayBuffer allocator, and with it the buffer limit.
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () {
+                const options = { maxByteLength: 16 };
+                const attempt = (make) => {
+                    try {
+                        make();
+                        return 'allowed';
+                    } catch (error) {
+                        return error.name;
+                    }
+                };
+                return {
+                    resizable: attempt(() => new ArrayBuffer(8, options)),
+                    growable: attempt(() => new SharedArrayBuffer(8, options)),
+                    viaPrototype: attempt(
+                        () => new (new Uint8Array(1).buffer.constructor)(8, options),
+                    ),
+                    viaReflect: attempt(() => Reflect.construct(ArrayBuffer, [8, options])),
+                    viaSubclass: attempt(
+                        () => new (class extends ArrayBuffer {
+                            constructor() {
+                                super(8, options);
+                            }
+                        })(),
+                    ),
+                    fixed: new ArrayBuffer(8).byteLength,
+                    sharedFixed: new SharedArrayBuffer(8).byteLength,
+                    isArrayBuffer: new ArrayBuffer(8) instanceof ArrayBuffer,
+                    webAssembly: typeof WebAssembly,
+                    deno: typeof Deno,
+                    bootstrap: typeof __bootstrap,
+                };
+            }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should run successfully");
+
+        assert_eq!(
+            result,
+            Some(json!({
+                "resizable": "TypeError",
+                "growable": "TypeError",
+                "viaPrototype": "TypeError",
+                "viaReflect": "TypeError",
+                "viaSubclass": "TypeError",
+                "fixed": 8,
+                "sharedFixed": 8,
+                "isArrayBuffer": true,
+                "webAssembly": "undefined",
+                "deno": "undefined",
+                "bootstrap": "undefined",
+            }))
         );
     }
 }
