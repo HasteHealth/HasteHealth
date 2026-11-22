@@ -1,6 +1,6 @@
 /*
  * The Haste Health theme: the brand palette, the colour roles built on it and
- * the dark value of each role. index.css imports it, and so does any app
+ * the dark value of each role. src/index.css imports it, and so does any app
  * whose own Tailwind build uses the role utilities (bg-surface, text-ink).
  *
  * The roles and their light values are those of the server-rendered pages
@@ -9,8 +9,6 @@
 
 @layer base {
   :root {
-    color-scheme: light;
-
     /* Teal, as RGB channels so that alpha modifiers work (bg-brand-600/10).
        The channels are converted from oklch and some fall outside sRGB; a
        browser clamps a negative channel to 0. */
@@ -46,6 +44,12 @@
     --hh-color-error-line: var(--color-red-200);
     --hh-color-error-soft: var(--color-red-50);
     --hh-color-warning: var(--color-amber-600);
+  }
+
+  /* color-scheme is set only once the host has picked a theme, so a page
+     that never sets data-theme keeps the colour scheme it already had. */
+  [data-theme="light"] {
+    color-scheme: light;
   }
 
   /* The light theme on the dark end of the same slate scale: the page stays

@@ -1,5 +1,5 @@
 @import "tailwindcss" source(".");
-@import "./theme.css";
+@import "../theme.css";
 @config "../tailwind.config.js";
 
 /* Tailwind 3 defaults that Tailwind 4 changed. */

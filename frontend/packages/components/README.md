@@ -59,7 +59,7 @@ export function PatientForm({ patientSD }: { patientSD: StructureDefinition }) {
 
 ## Theming
 
-The theme is a set of CSS custom properties, defined in [`src/theme.css`](./src/theme.css) and shipped in `dist/index.css`. A host app re-themes the components by overriding them: on `:root` for the light theme, on `[data-theme="dark"]` for the dark one.
+The theme is a set of CSS custom properties, defined in [`theme.css`](./theme.css) and shipped in `dist/index.css`. A host app re-themes the components by overriding them: on `:root` for the light theme, on `[data-theme="dark"]` for the dark one.
 
 ### Brand palette
 
@@ -113,7 +113,7 @@ The `primary` roles are derived from the brand palette, so overriding the palett
 
 ### Dark theme
 
-Set `data-theme="dark"` on `<html>` to select the dark values. That also sets `color-scheme`, so scrollbars and native controls follow, and it is what Tailwind's `dark:` variant matches. The library never reads the operating system's setting; the host decides, as the admin app's `ThemeProvider` does from a saved preference. Set on an element other than `<html>`, the attribute makes that part of the page dark.
+Set `data-theme="dark"` on `<html>` to select the dark values. That also sets `color-scheme`, so scrollbars and native controls follow, and it is what Tailwind's `dark:` variant matches. `data-theme="light"` sets `color-scheme` to light; a page with no `data-theme` keeps the colour scheme it already had. The library never reads the operating system's setting; the host decides, as the admin app's `ThemeProvider` does from a saved preference. Set on an element other than `<html>`, the attribute makes that part of the page dark.
 
 The components do not use the roles yet: they are styled with fixed palette colours, so `data-theme="dark"` does not give a dark interface today. The dark values are here for the components to move onto.
 
@@ -123,7 +123,7 @@ Import the theme next to Tailwind to use the role utilities and the `dark:` vari
 
 ```css
 @import "tailwindcss";
-@import "@haste-health/components/src/theme.css";
+@import "@haste-health/components/theme.css";
 ```
 
 ## Components
