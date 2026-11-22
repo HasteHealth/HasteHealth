@@ -1,8 +1,106 @@
-use std::fmt::Debug;
+use std::{cell::Cell, fmt::Debug};
 
 use peg::parser;
 
 use crate::error::FHIRPathError;
+
+/// How many levels an expression's tree may have: a path is one, and so is each operator
+/// over it and each expression around it (parentheses, an index, a function argument).
+/// Parsing, evaluating and dropping an expression each recurse per level, so the stack
+/// they need grows with it. The deepest expression in the FHIR core packages has 34.
+pub const MAX_DEPTH: usize = 100;
+
+/// A parsed piece of an expression and the height of its tree.
+type Tree<T> = (T, usize);
+
+/// What a parse tracks besides its position.
+#[derive(Default)]
+pub struct Depth {
+    /// How many expressions the parser is inside of.
+    level: Cell<usize>,
+    /// Set once the expression is deeper than [`MAX_DEPTH`]. Nothing parses after that,
+    /// so the parse ends there however much of the expression is left.
+    exceeded: Cell<bool>,
+}
+
+impl Depth {
+    /// Fails once the expression is known to be too deep.
+    fn within(&self) -> Result<(), &'static str> {
+        if self.exceeded.get() {
+            return Err("a shallower expression");
+        }
+        Ok(())
+    }
+
+    /// Goes into a nested expression, and returns the level to [`Depth::leave`] to.
+    fn enter(&self) -> Result<usize, &'static str> {
+        let level = self.level.get();
+        if level >= MAX_DEPTH {
+            self.exceeded.set(true);
+            return Err("a shallower expression");
+        }
+        self.level.set(level + 1);
+        Ok(level)
+    }
+
+    fn leave(&self, level: usize) {
+        self.level.set(level);
+    }
+
+    /// The height of a node whose tallest child has the height `below`.
+    fn height_over(&self, below: usize) -> Result<usize, &'static str> {
+        if below >= MAX_DEPTH {
+            self.exceeded.set(true);
+            return Err("a shallower expression");
+        }
+        Ok(below + 1)
+    }
+
+    /// Puts an operation over its operand. An operator's action cannot fail, so when the
+    /// tree would be too tall the operand stands in for it: what is built stays bounded
+    /// while the parse runs on, and [`parse`] reports the expression as too deep.
+    fn unary(
+        &self,
+        operation: impl FnOnce(Expression) -> Operation,
+        operand: Tree<Expression>,
+    ) -> Tree<Expression> {
+        match self.height_over(operand.1) {
+            Ok(height) => (
+                Expression::Operation(Box::new(operation(operand.0))),
+                height,
+            ),
+            Err(_) => operand,
+        }
+    }
+
+    /// Like [`Depth::unary`], with the left operand standing in.
+    fn binary(
+        &self,
+        operation: fn(Expression, Expression) -> Operation,
+        left: Tree<Expression>,
+        right: Tree<Expression>,
+    ) -> Tree<Expression> {
+        match self.height_over(left.1.max(right.1)) {
+            Ok(height) => (
+                Expression::Operation(Box::new(operation(left.0, right.0))),
+                height,
+            ),
+            Err(_) => left,
+        }
+    }
+
+    /// Puts the signs written before an operand over it, the first one outermost.
+    fn signed(&self, signs: &str, operand: Tree<Expression>) -> Tree<Expression> {
+        signs.bytes().rev().fold(operand, |operand, sign| {
+            let polarity = if sign == b'+' {
+                Polarity::Positive
+            } else {
+                Polarity::Negative
+            };
+            self.unary(|operand| Operation::Polarity(polarity, operand), operand)
+        })
+    }
+}
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Literal {
@@ -106,7 +204,7 @@ pub enum Operation {
 }
 
 parser! {
-    grammar parser() for str {
+    grammar parser(depth: &Depth) for str {
         // Whitespace and <https://hl7.org/fhirpath/N1/#comments>.
         rule _w() = quiet!{(
             [' ' | '\n' | '\r' | '\t']
@@ -114,42 +212,60 @@ parser! {
             / "/*" (!"*/" [_])* "*/"
         )*}
 
-        rule invocation() -> Invocation
-          = "$this" { Invocation::This }
-          / "$index" { Invocation::IndexAccessor }
-          / "$total" { Invocation::Total }
+        // An expression inside another one, a level further down. The level is restored
+        // whether or not the expression parses, and what a failure expected is left as
+        // the expression reported it.
+        rule nested() -> Tree<Expression>
+          = level:({? depth.enter() }) e:tree()? e:quiet!{({?
+            depth.leave(level);
+            e.ok_or("expression")
+          })} { e }
 
-          / identifier:IDENTIFIER() "(" args:((_w() o:operations() _w() { o }) ** ",") _w() ")" {
-                Invocation::Function(FunctionInvocation {
-                    name: Identifier(identifier),
-                    arguments: args,
-                })
+        rule invocation() -> Tree<Invocation>
+          = "$this" { (Invocation::This, 0) }
+          / "$index" { (Invocation::IndexAccessor, 0) }
+          / "$total" { (Invocation::Total, 0) }
+
+          / identifier:IDENTIFIER() "(" args:((_w() o:nested() _w() { o }) ** ",") _w() ")" {
+                let height = args.iter().map(|arg| arg.1).max().unwrap_or(0);
+                (
+                    Invocation::Function(FunctionInvocation {
+                        name: Identifier(identifier),
+                        arguments: args.into_iter().map(|arg| arg.0).collect(),
+                    }),
+                    height,
+                )
             }
-          / identifier:IDENTIFIER() { Invocation::Identifier(Identifier(identifier)) }
+          / identifier:IDENTIFIER() { (Invocation::Identifier(Identifier(identifier)), 0) }
 
-          rule index_accessor() -> Invocation
-            = "[" _w() e:operations() _w() "]" { Invocation::Index(e) }
+          rule index_accessor() -> Tree<Invocation>
+            = "[" _w() e:nested() _w() "]" { (Invocation::Index(e.0), e.1) }
 
-          rule dot_access () -> Invocation
+          rule dot_access () -> Tree<Invocation>
             = "." invocation:invocation() { invocation }
 
-        rule term () -> Term
-          = literal:literal() { Term::Literal(literal) }
-          / invocation:invocation() { Term::Invocation(invocation) }
-          / external_constant:external_constant() { external_constant }
-          / "(" _w() e:operations() _w() ")" { Term::Parenthesized(e) }
+        rule term () -> Tree<Term>
+          = literal:literal() { (Term::Literal(literal), 0) }
+          / invocation:invocation() { (Term::Invocation(invocation.0), invocation.1) }
+          / external_constant:external_constant() { (external_constant, 0) }
+          / "(" _w() e:nested() _w() ")" { (Term::Parenthesized(e.0), e.1) }
 
-        rule singular_expression () -> Vec<Term>
+        rule singular_expression () -> Tree<Vec<Term>>
+          = ({? depth.within() }) terms:singular_terms() { terms }
+
+        rule singular_terms () -> Tree<Vec<Term>>
           = _w() term:term() invocations:(dot_access() / index_accessor())* _w()  {?
+            let mut height = term.1;
             let mut terms = Vec::with_capacity(invocations.len() + 1);
-            terms.push(term);
+            terms.push(term.0);
             for inv in invocations {
-                terms.push(Term::Invocation(inv));
+                height = height.max(inv.1);
+                terms.push(Term::Invocation(inv.0));
             }
-            Ok(terms)
+            Ok((terms, depth.height_over(height)?))
            } /
            term:term() {?
-            Ok(vec![term])
+            Ok((vec![term.0], depth.height_over(term.1)?))
            }
 
         rule number() -> i64
@@ -284,100 +400,107 @@ parser! {
           / literal_time()
           / literal_date()
 
-        pub rule expression() -> Expression = _w() e:operations() _w() { e }
+        pub rule expression() -> Expression = _w() e:tree() _w() { e.0 }
 
-        pub rule operations() -> Expression = precedence!{
+        pub rule operations() -> Expression = e:tree() { e.0 }
+
+        rule tree() -> Tree<Expression> = precedence!{
             x:(@) _w() "implies"  _w() y:@ {
-                Expression::Operation(Box::new(Operation::Implies(x, y)))
+                depth.binary(Operation::Implies, x, y)
             }
             --
             x:(@) _w() op:$("or" / "xor")  _w() y:@ {
                 match op {
-                    "or" => Expression::Operation(Box::new(Operation::Or(x, y))),
-                    "xor" => Expression::Operation(Box::new(Operation::XOr(x, y))),
+                    "or" => depth.binary(Operation::Or, x, y),
+                    "xor" => depth.binary(Operation::XOr, x, y),
                     _ => unreachable!(),
                 }
             }
             --
             x:(@) _w() "and"  _w() y:@ {
-                Expression::Operation(Box::new(Operation::And(x, y)))
+                depth.binary(Operation::And, x, y)
             }
             --
             x:(@) _w() op:$("in" / "contains")  _w() y:@ {
                 match op {
-                    "in" => Expression::Operation(Box::new(Operation::In(x, y))),
-                    "contains" => Expression::Operation(Box::new(Operation::Contains(x, y))),
+                    "in" => depth.binary(Operation::In, x, y),
+                    "contains" => depth.binary(Operation::Contains, x, y),
                     _ => unreachable!(),
                 }
             }
             --
             x:(@) _w() op:$("=" / "~" / "!=" / "!~")  _w() y:@ {
                 match op {
-                    "=" => Expression::Operation(Box::new(Operation::Equal(x, y))),
-                    "!=" => Expression::Operation(Box::new(Operation::NotEqual(x, y))),
-                    "~" => Expression::Operation(Box::new(Operation::Equivalent(x, y))),
-                    "!~" => Expression::Operation(Box::new(Operation::NotEquivalent(x, y))),
+                    "=" => depth.binary(Operation::Equal, x, y),
+                    "!=" => depth.binary(Operation::NotEqual, x, y),
+                    "~" => depth.binary(Operation::Equivalent, x, y),
+                    "!~" => depth.binary(Operation::NotEquivalent, x, y),
                     _ => unreachable!(),
                 }
              }
              --
             x:(@) _w() op:$("<=" / ">=" / "<" / ">" ) _w() y:@{
                 match op {
-                    "<=" => Expression::Operation(Box::new(Operation::LessThanEqual(x, y))),
-                    "<" => Expression::Operation(Box::new(Operation::LessThan(x, y))),
-                    ">" => Expression::Operation(Box::new(Operation::GreaterThan(x, y))),
-                    ">=" => Expression::Operation(Box::new(Operation::GreaterThanEqual(x, y))),
+                    "<=" => depth.binary(Operation::LessThanEqual, x, y),
+                    "<" => depth.binary(Operation::LessThan, x, y),
+                    ">" => depth.binary(Operation::GreaterThan, x, y),
+                    ">=" => depth.binary(Operation::GreaterThanEqual, x, y),
                     _ => unreachable!(),
                 }
             }
             --
             x:(@) _w() "|" _w() y:@ {
-                Expression::Operation(Box::new(Operation::Union(x, y)))
+                depth.binary(Operation::Union, x, y)
             }
             --
-            x:(@) _w() op:$("is" / "as") _w() type_id:qualified_identifier() {
+            x:(@) ({? depth.within() }) _w() op:$("is" / "as") _w() type_id:qualified_identifier() {
                 match op {
-                    "is" => Expression::Operation(Box::new(Operation::Is(x, type_id))),
-                    "as" => Expression::Operation(Box::new(Operation::As(x, type_id))),
+                    "is" => depth.unary(|x| Operation::Is(x, type_id), x),
+                    "as" => depth.unary(|x| Operation::As(x, type_id), x),
                     _ => unreachable!(),
                 }
             }
             --
             x:(@) _w() op:$("+" / "-" / "&") _w() y:@ {
                 match op{
-                    "+" => Expression::Operation(Box::new(Operation::Add(x, y))),
-                    "-" => Expression::Operation(Box::new(Operation::Subtraction(x, y))),
-                    "&" => Expression::Operation(Box::new(Operation::Concatenate(x, y))),
+                    "+" => depth.binary(Operation::Add, x, y),
+                    "-" => depth.binary(Operation::Subtraction, x, y),
+                    "&" => depth.binary(Operation::Concatenate, x, y),
                     _ => unreachable!(),
                 }
              }
              --
             x:(@) _w() op:$("*" / "/" / "div" / "mod") _w() y:@ {
                 match op {
-                    "*" => Expression::Operation(Box::new(Operation::Multiplication(x, y))),
-                    "/" => Expression::Operation(Box::new(Operation::Division(x, y))),
-                    "div" => Expression::Operation(Box::new(Operation::DivisionTruncated(x, y))),
-                    "mod" => Expression::Operation(Box::new(Operation::Modulo(x, y))),
+                    "*" => depth.binary(Operation::Multiplication, x, y),
+                    "/" => depth.binary(Operation::Division, x, y),
+                    "div" => depth.binary(Operation::DivisionTruncated, x, y),
+                    "mod" => depth.binary(Operation::Modulo, x, y),
                     _ => unreachable!(),
                 }
             }
             --
-            pol:$("+" / "-") x:(@)  {
-                match pol {
-                    "+" => Expression::Operation(Box::new(Operation::Polarity(Polarity::Positive, x))),
-                    "-" => Expression::Operation(Box::new(Operation::Polarity(Polarity::Negative, x))),
-                    _ => unreachable!(),
-                }
-             }
-             --
-            n:singular_expression() { Expression::Singular(n) }
-            "(" _w() e:operations() _w() ")" { e }
+            // Signs bind tighter than any operator. They are taken as a run with what
+            // they apply to, where an operator of their own would recurse for each one.
+            signs:$(("+" / "-")*) n:singular_expression() {
+                depth.signed(signs, (Expression::Singular(n.0), n.1))
+            }
+            signs:$(("+" / "-")*) "(" _w() e:nested() _w() ")" { depth.signed(signs, e) }
         }
      }
 }
 
 pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
-    parser::expression(input).map_err(FHIRPathError::ParseError)
+    let depth = Depth::default();
+    let parsed = parser::expression(input, &depth);
+    // Checked first: past the limit the parse fails wherever it happened to be, or
+    // succeeds with a tree that stops short.
+    if depth.exceeded.get() {
+        return Err(FHIRPathError::TooCostly(format!(
+            "expression is more than {MAX_DEPTH} levels deep"
+        )));
+    }
+    parsed.map_err(FHIRPathError::ParseError)
 }
 
 /// Resolves the escapes of <https://hl7.org/fhirpath/N1/#string>; a `\` before
@@ -422,43 +545,52 @@ fn unescape(raw: &str) -> Result<String, &'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use peg::{error::ParseError, str::LineCol};
+
+    fn parse_literal(input: &str) -> Result<Literal, ParseError<LineCol>> {
+        parser::literal(input, &Depth::default())
+    }
+
+    fn parse_operations(input: &str) -> Result<Expression, ParseError<LineCol>> {
+        parser::operations(input, &Depth::default())
+    }
 
     #[test]
     fn literals() {
-        let escaped_string = parser::literal("'hello \\' world'").unwrap();
+        let escaped_string = parse_literal("'hello \\' world'").unwrap();
 
         assert_eq!(escaped_string, Literal::String("hello ' world".to_string()));
 
         assert_eq!(
-            parser::literal("4.5 'mg'").unwrap(),
+            parse_literal("4.5 'mg'").unwrap(),
             Literal::Quantity(4.5, Unit::Ucum("mg".to_string()))
         );
         assert_eq!(
-            parser::literal("2 years").unwrap(),
+            parse_literal("2 years").unwrap(),
             Literal::Quantity(2.0, Unit::Calendar("years".to_string()))
         );
         // A trailing word is not a unit.
-        assert!(parser::literal("2 dayz").is_err());
+        assert!(parse_literal("2 dayz").is_err());
 
-        let time = parser::literal("@T14:34:28").unwrap();
+        let time = parse_literal("@T14:34:28").unwrap();
         assert_eq!(time, Literal::Time("14:34:28".to_string()));
 
-        let date = parser::literal("@1980-01-01").unwrap();
+        let date = parse_literal("@1980-01-01").unwrap();
         assert_eq!(date, Literal::Date("1980-01-01".to_string()));
 
-        let datetime: Literal = parser::literal("@1980-01-01T12:00:23.23").unwrap();
+        let datetime: Literal = parse_literal("@1980-01-01T12:00:23.23").unwrap();
         assert_eq!(
             datetime,
             Literal::DateTime("1980-01-01T12:00:23.23".to_string())
         );
 
-        let datetime_zone: Literal = parser::literal("@2017-01-01T00:00:00.000Z").unwrap();
+        let datetime_zone: Literal = parse_literal("@2017-01-01T00:00:00.000Z").unwrap();
         assert_eq!(
             datetime_zone,
             Literal::DateTime("2017-01-01T00:00:00.000Z".to_string())
         );
 
-        let datetime_zone: Literal = parser::literal("@2015-02-07T13:28:17-05:00").unwrap();
+        let datetime_zone: Literal = parse_literal("@2015-02-07T13:28:17-05:00").unwrap();
         assert_eq!(
             datetime_zone,
             Literal::DateTime("2015-02-07T13:28:17-05:00".to_string())
@@ -467,57 +599,96 @@ mod tests {
 
     #[test]
     fn type_operations() {
-        let result = parser::operations("1 + 2 is Patient").unwrap();
+        let result = parse_operations("1 + 2 is Patient").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let failure = parser::operations("1 + 2 is $this");
+        let failure = parse_operations("1 + 2 is $this");
         assert!(failure.is_err());
     }
 
     #[test]
     fn operations() {
-        let result = parser::operations("1 + 2 * (3 - 4) / 5").unwrap();
+        let result = parse_operations("1 + 2 * (3 - 4) / 5").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let result = parser::operations("%test.asdf").unwrap();
+        let result = parse_operations("%test.asdf").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let result = parser::operations("%test.field + $this.value").unwrap();
+        let result = parse_operations("%test.field + $this.value").unwrap();
         insta::assert_debug_snapshot!(result);
         let result =
-            parser::operations("$this.field + %test._asdf.test(45,    $this.field)").unwrap();
+            parse_operations("$this.field + %test._asdf.test(45,    $this.field)").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let result = parser::operations("$this.field + %test._asdf.test()").unwrap();
+        let result = parse_operations("$this.field + %test._asdf.test()").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let result = parser::operations("-$this.field+%test._asdf.test()").unwrap();
+        let result = parse_operations("-$this.field+%test._asdf.test()").unwrap();
         insta::assert_debug_snapshot!(result);
 
-        let result = parser::operations("-$this.field[45 + 23]").unwrap();
+        let result = parse_operations("-$this.field[45 + 23]").unwrap();
         insta::assert_debug_snapshot!(result);
     }
 
     #[test]
     fn grammar_gaps() {
         assert_eq!(
-            parser::operations("Patient.`\\u006eame`").unwrap(),
-            parser::operations("Patient.name").unwrap()
+            parse_operations("Patient.`\\u006eame`").unwrap(),
+            parse_operations("Patient.name").unwrap()
         );
-        assert!(parser::operations("`Patient`.name").is_ok());
-        assert!(parser::operations("Patient.is(FHIR.`Patient`)").is_ok());
-        assert!(parser::operations("%`vs-administrative-gender`").is_ok());
-        assert!(parser::literal("'\\u+041'").is_err());
+        assert!(parse_operations("`Patient`.name").is_ok());
+        assert!(parse_operations("Patient.is(FHIR.`Patient`)").is_ok());
+        assert!(parse_operations("%`vs-administrative-gender`").is_ok());
+        assert!(parse_literal("'\\u+041'").is_err());
         assert_eq!(
-            parser::literal("'\\u0041'").unwrap(),
+            parse_literal("'\\u0041'").unwrap(),
             Literal::String("A".to_string())
         );
         assert_eq!(
-            parser::literal("'A\nB'").unwrap(),
+            parse_literal("'A\nB'").unwrap(),
             Literal::String("A\nB".to_string())
         );
-        assert!(parser::operations("(1|2).combine( -1)").is_ok());
-        assert!(parser::operations("(1|2).combine(1, -1)").is_ok());
-        assert!(parser::operations("(1|2).count( )").is_ok());
+        assert!(parse_operations("(1|2).combine( -1)").is_ok());
+        assert!(parse_operations("(1|2).combine(1, -1)").is_ok());
+        assert!(parse_operations("(1|2).count( )").is_ok());
+    }
+
+    #[test]
+    fn depth_limit() {
+        let too_deep =
+            |expression: &str| matches!(parse(expression), Err(FHIRPathError::TooCostly(_)));
+
+        // A level for each expression inside another, each sign and each operator.
+        for (before, innermost, after) in [
+            ("(", "1", ")"),
+            ("a[", "1", "]"),
+            ("a.select(", "1", ")"),
+            ("-", "1", ""),
+            ("", "1", " + 1"),
+            ("", "a", " | a"),
+            ("", "1", " is Integer"),
+        ] {
+            let levels = |levels: usize| {
+                format!(
+                    "{}{innermost}{}",
+                    before.repeat(levels),
+                    after.repeat(levels)
+                )
+            };
+
+            assert!(parse(&levels(MAX_DEPTH - 1)).is_ok());
+            assert!(too_deep(&levels(MAX_DEPTH)));
+            assert!(too_deep(&levels(1_000_000)));
+        }
+
+        // Expressions side by side do not add up.
+        let chain = format!("1{}", " + 1".repeat(MAX_DEPTH - 3));
+        assert!(parse(&format!("iif({chain}, {chain}, {chain}) | {chain}")).is_ok());
+
+        // An expression that does not parse is still reported as that.
+        assert!(matches!(
+            parse("((1 1))"),
+            Err(FHIRPathError::ParseError(_))
+        ));
     }
 }
