@@ -17,9 +17,9 @@ static PATIENT_COMPARTMENT: LazyLock<Option<&CompartmentDefinition>> = LazyLock:
 /// Patient compartment. A Patient is found by its own `_id`. A type outside the compartment
 /// can't be limited to patients, so it is refused.
 pub(crate) fn patient_search_parameters(
-    resource_type: &ResourceType,
+    resource_type: ResourceType,
 ) -> Result<Vec<String>, OperationOutcomeError> {
-    if resource_type == &ResourceType::Patient {
+    if resource_type == ResourceType::Patient {
         return Ok(vec!["_id".to_string()]);
     }
 

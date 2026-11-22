@@ -192,7 +192,7 @@ fn resolve_resource_type(
 
     // No explicit type: unambiguous only when the operation names exactly one.
     match declared.len() {
-        1 => Ok(declared[0].clone()),
+        1 => Ok(declared[0]),
         0 => Err(MCPError {
             id: request_id.clone(),
             jsonrpc: "2.0".to_string(),

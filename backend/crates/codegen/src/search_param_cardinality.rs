@@ -25,7 +25,7 @@
 //! *values the expression selects*, not the count of *index entries they
 //! become*: `Observation.code` selects one `CodeableConcept`, which fans out to
 //! one token per coding. Callers have to combine `repeats` with the leaf type's
-//! fan-out, which is why [`ResolvedPath::leaf_type`] is reported alongside.
+//! fan-out, which is why [`ResolvedPath::leaf_types`] is reported alongside.
 
 use std::collections::HashMap;
 use std::fmt::Write as _;

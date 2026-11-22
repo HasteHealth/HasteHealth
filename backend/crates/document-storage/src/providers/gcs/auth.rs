@@ -27,7 +27,7 @@ const ASSERTION_LIFETIME: Duration = Duration::from_secs(3600);
 ///
 /// In configuration it is a table with a `type` field, for example
 /// `{ type = "service_account_key_file", path = "/secrets/key.json" }` or
-/// `{ type = "metadata_server" }`. See [`CredentialsConfig`] for the fields of
+/// `{ type = "metadata_server" }`. See `CredentialsConfig` for the fields of
 /// each type.
 #[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(from = "CredentialsConfig", into = "CredentialsConfig")]

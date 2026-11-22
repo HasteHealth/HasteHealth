@@ -48,6 +48,8 @@ Anything left unset by either source falls back to the default listed below.
 | Key | Env var | Default |
 | --- | --- | --- |
 | `fhir.delete_limit` | `HASTE_FHIR.delete_limit` | `100` — max resources removed by a single type/system-level delete. |
+| `fhir.max_conditional_references` | `HASTE_FHIR.max_conditional_references` | `100` — most distinct conditional references one transaction may resolve; a bundle above it is refused with `422` (`too-costly`). |
+| `fhir.conditional_reference_concurrency` | `HASTE_FHIR.conditional_reference_concurrency` | `12` — how many of a transaction's conditional-reference searches run at once. Keep below `search.max_connections`. |
 
 ### `[repo]` — resource storage backend
 
@@ -226,6 +228,16 @@ Limits on one `$viewdefinition-run`. A run answers with the whole table in one r
 | --- | --- | --- | --- |
 | `sql_on_fhir.max_rows` | `HASTE_SQL_ON_FHIR.max_rows` | `10000` | Most rows one run returns. A run that would return more is refused with `422` (`too-costly`), and a larger `_limit` with `400`. |
 | `sql_on_fhir.max_resources` | `HASTE_SQL_ON_FHIR.max_resources` | `50000` | Most resources one run reads from storage, earlier versions included. A run that would read more is refused with `422` (`too-costly`). |
+
+### `[terminology]`
+
+Limits on one value set expansion, for `ValueSet/$expand` and `ValueSet/$validate-code`. An expansion holds every concept of the value set, those of the value sets it includes among them, so one past a limit is refused rather than answered with part of its concepts. See [$expand](/docs/api/rest_api/terminology/endpoints/expand#limits).
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `terminology.max_expansion_concepts` | `HASTE_TERMINOLOGY.max_expansion_concepts` | `100000` | Most concepts one expansion holds, nested `contains` counted. A larger expansion is refused with `422` (`too-costly`). |
+| `terminology.max_included_value_sets` | `HASTE_TERMINOLOGY.max_included_value_sets` | `1000` | Most value sets one expansion resolves through `compose.include.valueSet`, at any depth; one included twice counts twice. An expansion that needs more is refused with `422` (`too-costly`). |
+| `terminology.max_value_set_depth` | `HASTE_TERMINOLOGY.max_value_set_depth` | `32` | Longest chain of value sets including one another that one expansion follows. A longer chain is refused with `422` (`too-costly`). |
 
 ### `[operations]`
 

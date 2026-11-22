@@ -1063,7 +1063,7 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
 ///
 /// # Errors
 ///
-/// Returns [`OperationOutcomeError`] if the search parameter has an
+/// Returns [`OperationOutcomeError`](struct@OperationOutcomeError) if the search parameter has an
 /// unsupported or invalid type.
 pub fn to_insertable_index(
     parameter: &ResolvedParameter,

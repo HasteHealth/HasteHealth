@@ -2,7 +2,7 @@
 //!
 //! The `[document_storage]` section ([`DocumentStorageConfig`]) selects the
 //! storage and the size from which content goes there. The clinical lane's
-//! [`BinaryContent`] layer moves content of at least `binary_min_bytes` to the
+//! `BinaryContent` layer moves content of at least `binary_min_bytes` to the
 //! storage on the way in and puts it back on the way out, so the repository
 //! only ever stores a row-sized Binary and a client gets the same Binary
 //! either way. The row keeps `data` with only the marker extension
@@ -19,7 +19,6 @@
 //! A document is written before its row, so a write that fails or rolls back
 //! afterwards leaves a document no version refers to; [`sweep`] removes those.
 //!
-//! [`BinaryContent`]: crate::fhir_client::middleware::binary_content::BinaryContent
 //! [`DocumentScope`]: haste_document_storage::DocumentScope
 
 mod sweep;

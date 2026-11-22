@@ -215,7 +215,7 @@ pub async fn process_compartment_request<
                 let bundle = fhir_client
                     .search_type(
                         ctx.clone(),
-                        type_search_request.resource_type.clone(),
+                        type_search_request.resource_type,
                         ParsedParameters::new(parameters),
                     )
                     .await?;

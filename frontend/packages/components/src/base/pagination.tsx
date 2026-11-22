@@ -1,5 +1,6 @@
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import React, { DetailedHTMLProps, HTMLAttributes } from "react";
+import React, { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
 export interface PaginationProps {
   totalPages: number;
@@ -24,24 +25,36 @@ function paginationWindow(
 }
 
 interface PaginationItemProps
-  extends DetailedHTMLProps<HTMLAttributes<HTMLLIElement>, HTMLLIElement> {
+  extends DetailedHTMLProps<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
   children: React.ReactNode;
   active?: boolean;
+  disabled?: boolean;
+  label?: string;
 }
 
 const PaginationItem = ({
   active,
+  disabled,
+  label,
   children,
-  ...liProps
+  ...buttonProps
 }: PaginationItemProps) => {
   return (
-    <li {...liProps}>
+    <li>
       <button
+        {...buttonProps}
         type="button"
         aria-current={active ? "page" : undefined}
+        aria-label={label}
+        disabled={disabled}
         className={classNames(
-          "cursor-pointer flex items-center justify-center px-2 h-6 leading-tight",
+          "flex h-6 items-center justify-center gap-1 px-2 leading-tight",
           {
+            "pointer-events-none opacity-40": disabled,
+            "cursor-pointer": !disabled,
             "text-brand-600 border border-slate-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-700":
               active,
 
@@ -58,15 +71,20 @@ const PaginationItem = ({
 
 export const Pagination = (props: PaginationProps) => {
   const window = paginationWindow(props.totalPages, props.currentPage);
+  const onFirstPage = props.currentPage <= 1;
+  const onLastPage = props.currentPage >= props.totalPages;
 
   return (
-    <nav>
+    <nav aria-label="Pagination">
       <ul className="inline-flex items-center -space-x-px text-xs h-10 ">
         <PaginationItem
-          onClick={(e) => {
+          disabled={onFirstPage}
+          label="Previous page"
+          onClick={() => {
             props.onPagination(Math.max(props.currentPage - 1, 1));
           }}
         >
+          <ChevronLeftIcon className="h-3.5 w-3.5" aria-hidden="true" />
           Previous
         </PaginationItem>
         {window.map((page) => {
@@ -74,7 +92,8 @@ export const Pagination = (props: PaginationProps) => {
             <PaginationItem
               key={page}
               active={page === props.currentPage}
-              onClick={(_e) => {
+              label={`Page ${page}`}
+              onClick={() => {
                 props.onPagination(page);
               }}
             >
@@ -83,13 +102,16 @@ export const Pagination = (props: PaginationProps) => {
           );
         })}
         <PaginationItem
-          onClick={(_e) => {
+          disabled={onLastPage}
+          label="Next page"
+          onClick={() => {
             props.onPagination(
               Math.min(props.currentPage + 1, props.totalPages),
             );
           }}
         >
           Next
+          <ChevronRightIcon className="h-3.5 w-3.5" aria-hidden="true" />
         </PaginationItem>
       </ul>
     </nav>

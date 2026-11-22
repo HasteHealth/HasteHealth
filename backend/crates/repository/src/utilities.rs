@@ -34,7 +34,7 @@ static ID_REGEX: LazyLock<regex::Regex> = LazyLock::new(|| {
 ///
 /// # Errors
 ///
-/// Returns an [`OperationOutcomeError`] if `id` contains characters that are
+/// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if `id` contains characters that are
 /// not permitted in a FHIR resource ID.
 pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
     if ID_REGEX.is_match(id) {
@@ -66,7 +66,7 @@ pub const HOSTNAME_ID_MIN_LEN: usize = 3;
 ///
 /// # Errors
 ///
-/// Returns an [`OperationOutcomeError`] naming the rule `id` breaks.
+/// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) naming the rule `id` breaks.
 pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
     let invalid =
         |message: String| Err(OperationOutcomeError::error(IssueType::invalid(), message));
@@ -89,7 +89,7 @@ pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
 ///
 /// # Errors
 ///
-/// Returns an [`OperationOutcomeError`] if `id` breaks
+/// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if `id` breaks
 /// [`validate_hostname_id`] or is too long for `tenant`.
 pub fn validate_project_id(tenant: &str, id: &str) -> Result<(), OperationOutcomeError> {
     validate_hostname_id(id)?;
@@ -120,7 +120,7 @@ pub enum DataTransformError {
 ///
 /// # Errors
 ///
-/// Returns an [`OperationOutcomeError`] if the resource does not contain an `id`
+/// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if the resource does not contain an `id`
 /// field or if the `id` field is not of type [`Option<String>`].
 pub fn set_resource_id(
     resource: &mut Resource,
@@ -229,7 +229,7 @@ fn filter_and_set_haste_extensions(
 ///
 /// # Errors
 ///
-/// Returns an [`OperationOutcomeError`] if the resource does not contain a
+/// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if the resource does not contain a
 /// `meta` field or if the `meta` field is not of type [`Option<Box<Meta>>`].
 pub fn set_resource_meta(
     resource: &mut Resource,

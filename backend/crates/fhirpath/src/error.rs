@@ -43,6 +43,8 @@ pub enum FHIRPathError {
     NotImplemented(String),
     #[error("Internal error: {0}")]
     InternalError(String),
+    #[error("Too costly: {0}")]
+    TooCostly(String),
     #[error("Operation error: {0}")]
     OperationError(OperationError),
     #[error("Failed to downcast value to type '{0}'")]

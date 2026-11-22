@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 pub(crate) fn format_documentation(documentation: &str) -> String {
+    let documentation = normalize_malformed_markdown_links(documentation);
     let mut output = String::with_capacity(documentation.len());
     let mut position = 0;
 
@@ -16,6 +17,11 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
         }
 
         if let Some(consumed) = normalize_http_operation(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
+        if let Some(consumed) = normalize_url(remaining, &mut output) {
             position += consumed;
             continue;
         }
@@ -40,6 +46,11 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
             continue;
         }
 
+        if let Some(consumed) = normalize_filename(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
         if let Some(consumed) = normalize_identifier(remaining, &mut output) {
             position += consumed;
             continue;
@@ -51,7 +62,217 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
     }
 
     let documentation = normalize_single_quoted_literals(&output);
-    normalize_canonical_examples(&documentation)
+    let documentation = normalize_canonical_examples(&documentation);
+    escape_link_brackets(&documentation)
+}
+
+/// FHIR prose writes brackets as plain text (`value[x]`, `[id]`, `[RFC6749]`),
+/// which rustdoc reads as intra-doc links that do not resolve. Escapes every
+/// matched pair that is not an inline link `[text](target)`; brackets inside
+/// code spans are left alone, since rustdoc does not parse links there.
+fn escape_link_brackets(documentation: &str) -> String {
+    let bytes = documentation.as_bytes();
+    let mut escape = vec![false; bytes.len()];
+    let mut open_brackets = Vec::new();
+    let mut position = 0;
+
+    while position < bytes.len() {
+        match bytes[position] {
+            b'\\' => position += 1,
+            b'`' => {
+                position = skip_code_span(documentation, position);
+                continue;
+            }
+            b'[' => open_brackets.push(position),
+            b']' => {
+                if let Some(open) = open_brackets.pop()
+                    && bytes.get(position + 1) != Some(&b'(')
+                {
+                    escape[open] = true;
+                    escape[position] = true;
+                }
+            }
+            _ => {}
+        }
+
+        position += 1;
+    }
+
+    let mut output = String::with_capacity(documentation.len());
+
+    for (index, character) in documentation.char_indices() {
+        if escape[index] {
+            output.push('\\');
+        }
+        output.push(character);
+    }
+
+    output
+}
+
+/// The position after the code span opening at `start`, or after the opening
+/// backticks when no run of the same length closes it (they are then literal).
+/// A line here is a whole paragraph or list item (wrapping comes later), and a
+/// code span does not cross one, so a stray backtick in FHIR's text cannot
+/// pair with one in the next list item.
+fn skip_code_span(documentation: &str, start: usize) -> usize {
+    let run = |from: usize| {
+        documentation[from..]
+            .bytes()
+            .take_while(|&byte| byte == b'`')
+            .count()
+    };
+
+    let line_end = documentation[start..]
+        .find('\n')
+        .map_or(documentation.len(), |offset| start + offset);
+    let ticks = run(start);
+    let mut position = start + ticks;
+
+    while let Some(offset) = documentation[position..line_end].find('`') {
+        let close = position + offset;
+        let close_ticks = run(close);
+
+        if close_ticks == ticks {
+            return close + close_ticks;
+        }
+
+        position = close + close_ticks;
+    }
+
+    start + ticks
+}
+
+/// A dotted name with an `_`, such as `observation_status.json`, which
+/// `clippy::doc_markdown` flags. Other dotted words (`6.1.x`, `hl7.fhir.us.core`)
+/// pass the lint and are left as written, as is a link target.
+fn normalize_filename(documentation: &str, output: &mut String) -> Option<usize> {
+    if output.ends_with("](") {
+        return None;
+    }
+
+    let end = find_filename_end(documentation)?;
+
+    let filename = &documentation[..end];
+
+    if !filename.contains('_') {
+        return None;
+    }
+
+    output.push('`');
+    output.push_str(filename);
+    output.push('`');
+
+    Some(end)
+}
+
+fn find_filename_end(documentation: &str) -> Option<usize> {
+    let mut end = 0;
+    let mut has_dot = false;
+
+    for (offset, character) in documentation.char_indices() {
+        if character.is_ascii_alphanumeric() || character == '_' || character == '-' {
+            end = offset + character.len_utf8();
+        } else if character == '.' {
+            has_dot = true;
+            end = offset + character.len_utf8();
+        } else {
+            break;
+        }
+    }
+
+    if has_dot && end > 0 && !documentation[..end].ends_with('.') {
+        Some(end)
+    } else {
+        None
+    }
+}
+
+fn normalize_malformed_markdown_links(documentation: &str) -> String {
+    let mut output = String::with_capacity(documentation.len());
+    let mut position = 0;
+
+    while position < documentation.len() {
+        let remaining = &documentation[position..];
+
+        if let Some(consumed) = normalize_malformed_markdown_link(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
+        let character = remaining.chars().next().unwrap();
+        output.push(character);
+        position += character.len_utf8();
+    }
+
+    output
+}
+
+fn normalize_malformed_markdown_link(documentation: &str, output: &mut String) -> Option<usize> {
+    if !documentation.starts_with('[') || documentation.starts_with("[`") {
+        return None;
+    }
+
+    let code_start = documentation[1..].find('`')? + 1;
+
+    let code_end = documentation[code_start + 1..].find('`')? + code_start + 1;
+
+    if documentation.get(code_end + 1..code_end + 3) != Some("](") {
+        return None;
+    }
+
+    let target_start = code_end + 3;
+    let target_end = documentation[target_start..].find(')')? + target_start;
+
+    let target = &documentation[target_start..target_end];
+
+    if !target.contains("fhirpath.html") {
+        return None;
+    }
+
+    let prefix = documentation[1..code_start].trim();
+    let code = documentation[code_start + 1..code_end].trim();
+
+    if prefix.is_empty() || code != "FHIRPath" {
+        return None;
+    }
+
+    output.push_str(prefix);
+    output.push_str(" [`FHIRPath`](");
+    output.push_str(target);
+    output.push(')');
+
+    Some(target_end + 1)
+}
+
+fn normalize_url(documentation: &str, output: &mut String) -> Option<usize> {
+    // Already an autolink: keep it a link.
+    if documentation.starts_with("<http://") || documentation.starts_with("<https://") {
+        let end = documentation.find('>')?;
+        output.push_str(&documentation[..=end]);
+        return Some(end + 1);
+    }
+
+    if !(documentation.starts_with("http://") || documentation.starts_with("https://")) {
+        return None;
+    }
+
+    let end = documentation
+        .char_indices()
+        .find(|(_, character)| character.is_whitespace())
+        .map_or(documentation.len(), |(offset, _)| offset);
+
+    let url = documentation[..end].trim_end_matches('.');
+
+    output.push('`');
+    output.push_str(url);
+    output.push('`');
+
+    if end > url.len() {
+        output.push('.');
+    }
+
+    Some(end)
 }
 
 fn normalize_http_operation(documentation: &str, output: &mut String) -> Option<usize> {
@@ -221,7 +442,34 @@ fn normalize_markdown(documentation: &str, output: &mut String) -> Option<usize>
         return Some(consumed);
     }
 
-    normalize_quoted_bracket_expression(documentation, output)
+    if let Some(consumed) = normalize_quoted_bracket_expression(documentation, output) {
+        return Some(consumed);
+    }
+
+    normalize_bracketed_identifier(documentation, output)
+}
+
+/// A bracketed name with an `_` such as `[lb_av]`, which `clippy::doc_markdown`
+/// wants in backticks. The brackets go inside the code span so rustdoc does
+/// not take it for an intra-doc link.
+fn normalize_bracketed_identifier(documentation: &str, output: &mut String) -> Option<usize> {
+    let close = documentation.find(']')?;
+
+    let value = &documentation[1..close];
+
+    if !value.contains('_')
+        || !value
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric() || character == '_')
+    {
+        return None;
+    }
+
+    output.push('`');
+    output.push_str(&documentation[..=close]);
+    output.push('`');
+
+    Some(close + 1)
 }
 
 fn normalize_markdown_link(documentation: &str, output: &mut String) -> Option<usize> {
@@ -229,6 +477,21 @@ fn normalize_markdown_link(documentation: &str, output: &mut String) -> Option<u
 
     let link = &documentation[..end];
     let after_link = &documentation[end..];
+
+    if link.starts_with("[``") {
+        let close_bracket = link.find("](")?;
+
+        let text = &link[1..close_bracket];
+        let clean_text = strip_markdown_code_ticks(text);
+
+        output.push_str("[`");
+        output.push_str(clean_text);
+        output.push_str("`]");
+
+        output.push_str(&link[close_bracket..]);
+
+        return Some(end);
+    }
 
     if link.starts_with("[`") {
         output.push_str(link);
@@ -366,7 +629,15 @@ fn normalize_identifier(documentation: &str, output: &mut String) -> Option<usiz
 
     let has_internal_uppercase = word.chars().skip(1).any(|c| c.is_ascii_uppercase());
 
-    if !(starts_uppercase && has_lowercase && has_internal_uppercase) {
+    let is_uppercase_snake_case = word.contains('_')
+        && word
+            .chars()
+            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+
+    let is_identifier =
+        (starts_uppercase && has_lowercase && has_internal_uppercase) || is_uppercase_snake_case;
+
+    if !is_identifier {
         return None;
     }
 
@@ -457,7 +728,16 @@ fn normalize_canonical_examples(documentation: &str) -> String {
 
     output.push_str(&documentation[..start]);
     output.push('`');
-    output.push_str(&documentation[start..value_end]);
+
+    let value = &documentation[start..value_end];
+
+    if let Some(url_offset) = value.find(URL_PREFIX) {
+        output.push_str(value[..url_offset].trim_end_matches('`'));
+        output.push_str(value[url_offset..].trim_matches('`'));
+    } else {
+        output.push_str(value);
+    }
+
     output.push('`');
 
     if value_end < url_end {
@@ -612,4 +892,67 @@ fn wrap_documentation_line(line: &str, width: usize) -> Vec<String> {
     }
 
     lines
+}
+
+#[cfg(test)]
+mod tests {
+    use super::format_documentation;
+
+    #[test]
+    fn bracketed_names_with_underscores_are_code() {
+        assert_eq!(
+            format_documentation("value[x] and [lb_av] and [periodMax]"),
+            "value\\[x\\] and `[lb_av]` and \\[periodMax\\]"
+        );
+    }
+
+    #[test]
+    fn plain_text_brackets_are_escaped() {
+        assert_eq!(
+            format_documentation("e.g. [publication].[major].[minor], or rule[0].rule[1]"),
+            "e.g. \\[publication\\].\\[major\\].\\[minor\\], or rule\\[0\\].rule\\[1\\]"
+        );
+    }
+
+    #[test]
+    fn brackets_in_code_spans_are_kept() {
+        assert_eq!(
+            format_documentation("Use `[base]/Patient/[id]` or ``a`[x]`` here"),
+            "Use `[base]/Patient/[id]` or ``a`[x]`` here"
+        );
+    }
+
+    #[test]
+    fn stray_backticks_do_not_pair_across_lines() {
+        assert_eq!(
+            format_documentation("'duration` or `period`)\n- The [number] of `values`"),
+            "'duration` or `period`)\n- The \\[number\\] of `values`"
+        );
+    }
+
+    #[test]
+    fn dotted_names_are_code_only_with_underscores() {
+        assert_eq!(
+            format_documentation("Example: 'hl7.fhir.us.core@6.1.0', see value_set.json"),
+            "Example: 'hl7.fhir.us.core@6.1.0', see `value_set.json`"
+        );
+    }
+
+    #[test]
+    fn links_are_kept() {
+        assert_eq!(
+            format_documentation(
+                "an [`OperationOutcome`](operationoutcome.html) or <http://hl7.org/fhir>"
+            ),
+            "an [`OperationOutcome`](operationoutcome.html) or <http://hl7.org/fhir>"
+        );
+    }
+
+    #[test]
+    fn canonical_examples_are_one_code_span() {
+        assert_eq!(
+            format_documentation("[system]|[version] - e.g. http://loinc.org|2.56."),
+            "`[system]|[version] - e.g. http://loinc.org|2.56`."
+        );
+    }
 }

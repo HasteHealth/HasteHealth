@@ -99,6 +99,11 @@ auditConfig:
     # typedoc (latest 0.28.20) asks for ^10 and fails on 11, which removed
     # matchOne. Remove once typedoc supports minimatch 11.
     - 'GHSA-g3hv-75wg-m249'
+    # No patched release yet (picomatch <=4.0.7, latest 4.0.7). Only reached by
+    # build and test tooling, which matches the patterns of our own configs:
+    # tinyglobby under changesets, micromatch and chokidar under jest and the
+    # website's Docusaurus build. Remove once picomatch ships a fix.
+    - 'GHSA-fc5q-39xc-vjpf'
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.16 || 1.1.18 || 1.1.21 || 2.1.2 || 2.1.4 || 2.1.7 || 5.0.8 || 5.0.9 || 5.0.12

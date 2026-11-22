@@ -77,11 +77,11 @@ pub async fn operation_outcome_error_handle(
             let body_html = error_html(
                 &tenant,
                 &html! {
-                    div class ="text-xl font-semibold text-red-600 mb-4" {
+                    div class="text-xl font-semibold text-error" {
                        (issue.and_then(|i| i.code.as_str())
                             .unwrap_or("UNKNOWN_ERROR").to_ascii_uppercase())
                     }
-                    div class= "text-sm text-red-500" {
+                    div class="text-sm text-error" {
                         (issue.and_then(|i| i.diagnostics.as_ref())
                             .and_then(|d| d.value.as_deref())
                             .unwrap_or("An unexpected error occurred."))
