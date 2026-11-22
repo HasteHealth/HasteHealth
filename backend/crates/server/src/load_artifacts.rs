@@ -181,7 +181,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
 
                 add_hash_tag(&mut resource, sha_hash.clone());
 
-                entry_meta.push((resource_type.clone(), id.clone(), sha_hash.clone()));
+                entry_meta.push((resource_type, id.clone(), sha_hash.clone()));
 
                 artifact_transaction_bundle_entries.push(BundleEntry {
                     resource: Some(Box::new(resource.clone())),

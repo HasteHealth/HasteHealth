@@ -37,6 +37,47 @@ pub struct ServerConfig {
     pub jobs: JobsConfig,
     pub packages: PackagesConfig,
     pub sql_on_fhir: SqlOnFhirConfig,
+    pub terminology: TerminologyConfig,
+}
+
+/// Terminology. `ValueSet/$expand` and `$validate-code` build the whole
+/// expansion of a value set, the value sets it includes among it, so an
+/// expansion that would pass a limit is refused with `too-costly` rather than
+/// answered with part of its concepts.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct TerminologyConfig {
+    /// Most concepts one expansion holds, nested `contains` counted.
+    pub max_expansion_concepts: usize,
+    /// Most value sets one expansion resolves through
+    /// `compose.include.valueSet`, one resolved twice counted twice. Each can
+    /// be a search.
+    pub max_included_value_sets: usize,
+    /// Longest chain of `compose.include.valueSet` references one expansion
+    /// follows.
+    pub max_value_set_depth: usize,
+}
+
+impl TerminologyConfig {
+    #[must_use]
+    pub fn expansion_limits(&self) -> haste_fhir_terminology::client::ExpansionLimits {
+        haste_fhir_terminology::client::ExpansionLimits {
+            max_expansion_concepts: self.max_expansion_concepts,
+            max_included_value_sets: self.max_included_value_sets,
+            max_value_set_depth: self.max_value_set_depth,
+        }
+    }
+}
+
+impl Default for TerminologyConfig {
+    fn default() -> Self {
+        let limits = haste_fhir_terminology::client::ExpansionLimits::default();
+        Self {
+            max_expansion_concepts: limits.max_expansion_concepts,
+            max_included_value_sets: limits.max_included_value_sets,
+            max_value_set_depth: limits.max_value_set_depth,
+        }
+    }
 }
 
 /// SQL on FHIR. `$viewdefinition-run` answers synchronously with one table, so
@@ -270,6 +311,14 @@ pub enum SecretProviderConfig {
 pub struct FHIRConfig {
     /// Max delete limit for type-delete and system-delete operations.
     pub delete_limit: u64,
+    /// Most distinct conditional references (`Type?search`) one transaction may
+    /// resolve; a bundle above this is refused. Each is a search, so it caps a
+    /// transaction's search work. The largest Synthea sample patient has 19.
+    pub max_conditional_references: usize,
+    /// How many of a transaction's conditional-reference searches run at once.
+    /// Kept below `search.max_connections` (default 20) so one transaction
+    /// cannot monopolize the shared search pool. 0 is treated as 1.
+    pub conditional_reference_concurrency: usize,
 }
 
 #[derive(Derivative, Clone, Deserialize, Serialize)]
@@ -305,7 +354,11 @@ pub enum IpSource {
 
 impl Default for FHIRConfig {
     fn default() -> Self {
-        Self { delete_limit: 100 }
+        Self {
+            delete_limit: 100,
+            max_conditional_references: 100,
+            conditional_reference_concurrency: 12,
+        }
     }
 }
 
@@ -331,6 +384,7 @@ impl Default for ServerConfig {
             jobs: JobsConfig::default(),
             packages: PackagesConfig::default(),
             sql_on_fhir: SqlOnFhirConfig::default(),
+            terminology: TerminologyConfig::default(),
         }
     }
 }

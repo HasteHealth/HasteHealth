@@ -1,16 +1,11 @@
-use haste_fhir_model::r4::{
-    generated::resources::{Resource, ResourceType},
-    generated::terminology::IssueType,
-    sqlx::FHIRJson,
-};
+use haste_fhir_model::r4::sqlx::FHIRJson;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId};
-use sqlx::PgConnection;
+use sqlx::{PgConnection, Row, postgres::PgRow};
 
 use crate::{
-    pg::{PGConnection, StoreError},
+    pg::{PGConnection, StoreError, decode_resource, row_resource_type},
     sequence::{ResourcePollingValue, ResourceSequential},
-    types::FHIRMethod,
 };
 
 /// The watermark half of a sequence poll; see
@@ -39,19 +34,7 @@ async fn get_sequence_helper(
     safe_sequence: i64,
     count: Option<u64>,
 ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
-    let result = sqlx::query_as::<
-        _,
-        (
-            String,
-            TenantId,
-            ProjectId,
-            String,
-            String,
-            FHIRMethod,
-            i64,
-            FHIRJson<Resource>,
-        ),
-    >(
+    sqlx::query(
         r"
             SELECT id, tenant, project, version_id, resource_type, fhir_method, sequence, resource
             FROM resources
@@ -65,43 +48,22 @@ async fn get_sequence_helper(
     .bind(cur_sequence.cast_signed())
     .bind(safe_sequence)
     .bind(count.unwrap_or(100).cast_signed())
+    .try_map(|row: PgRow| {
+        let resource_type = row_resource_type(&row)?;
+        Ok(ResourcePollingValue {
+            id: ResourceId::new(row.try_get::<String, _>("id")?),
+            tenant: row.try_get("tenant")?,
+            project: row.try_get("project")?,
+            version_id: row.try_get("version_id")?,
+            fhir_method: row.try_get("fhir_method")?,
+            sequence: row.try_get("sequence")?,
+            resource: FHIRJson(decode_resource(&row, resource_type)?),
+            resource_type,
+        })
+    })
     .fetch_all(executor)
     .await
-    .map_err(StoreError::from)?;
-
-    result
-        .into_iter()
-        .map(
-            |(
-                id,
-                tenant,
-                project,
-                version_id,
-                resource_type_str,
-                fhir_method,
-                sequence,
-                resource,
-            )| {
-                let resource_type = ResourceType::try_from(resource_type_str).map_err(|_| {
-                    OperationOutcomeError::error(
-                        IssueType::structure(),
-                        "Invalid resource type encountered during sequence polling.".to_string(),
-                    )
-                })?;
-
-                Ok::<ResourcePollingValue, OperationOutcomeError>(ResourcePollingValue {
-                    id: ResourceId::new(id),
-                    tenant,
-                    project,
-                    version_id,
-                    resource_type,
-                    fhir_method,
-                    sequence,
-                    resource,
-                })
-            },
-        )
-        .collect()
+    .map_err(|e| StoreError::from(e).into())
 }
 
 // 2. Trait implementation matching your PGConnection enum

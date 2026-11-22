@@ -16,7 +16,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  clippy_rustfmt:
+  rustfmt-clippy-doc:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,8 +29,8 @@ jobs:
           components: clippy, rustfmt
 
       - name: Run rustfmt
-        run: cargo fmt --all -- --check --verbose
         working-directory: ./backend
+        run: cargo fmt --all -- --check --verbose
 
       - name: Run clippy
         working-directory: ./backend
@@ -46,6 +46,7 @@ jobs:
           -p haste-fhir-client \
           -p haste-fhir-converter \
           -p haste-fhir-generated-ops \
+          -p haste-fhir-model \
           -p haste-fhir-operation-error \
           -p haste-fhir-operation-error-derive \
           -p haste-fhir-ops \
@@ -74,6 +75,12 @@ jobs:
           -p haste-worker \
           -p haste-x-fhir-query \
           -- -Dclippy::all -Dclippy::pedantic
+
+      - name: Run cargo doc
+        working-directory: ./backend
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc --workspace --no-deps
 
   unit-tests:
     services:

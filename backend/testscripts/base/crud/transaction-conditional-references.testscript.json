@@ -7243,6 +7243,334 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "too-many-conditionals",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Patient",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "conditional-references-test"
+                                }
+                            ]
+                        },
+                        "generalPractitioner": [
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|0"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|1"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|2"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|3"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|4"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|5"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|6"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|7"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|8"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|9"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|10"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|11"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|12"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|13"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|14"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|15"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|16"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|17"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|18"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|19"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|20"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|21"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|22"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|23"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|24"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|25"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|26"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|27"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|28"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|29"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|30"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|31"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|32"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|33"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|34"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|35"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|36"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|37"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|38"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|39"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|40"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|41"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|42"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|43"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|44"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|45"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|46"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|47"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|48"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|49"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|50"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|51"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|52"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|53"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|54"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|55"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|56"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|57"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|58"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|59"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|60"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|61"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|62"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|63"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|64"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|65"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|66"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|67"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|68"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|69"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|70"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|71"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|72"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|73"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|74"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|75"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|76"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|77"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|78"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|79"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|80"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|81"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|82"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|83"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|84"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|85"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|86"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|87"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|88"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|89"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|90"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|91"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|92"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|93"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|94"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|95"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|96"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|97"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|98"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|99"
+                            },
+                            {
+                                "reference": "Practitioner?identifier=urn:issue19-toomany|100"
+                            }
+                        ]
+                    },
+                    "request": {
+                        "method": "POST",
+                        "url": "Patient"
+                    }
+                }
+            ]
         }
     ],
     "fixture": [
@@ -7340,6 +7668,14 @@
             "autodelete": false,
             "resource": {
                 "reference": "#unknown-parameter"
+            }
+        },
+        {
+            "id": "fixture-too-many-conditionals",
+            "autocreate": false,
+            "autodelete": false,
+            "resource": {
+                "reference": "#too-many-conditionals"
             }
         }
     ],
@@ -7888,6 +8224,38 @@
                     "assert": {
                         "label": "The OperationOutcome mentions 'is not a valid search'",
                         "expression": "OperationOutcome.issue.diagnostics.contains('is not a valid search')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "TooManyConditionalReferences",
+            "description": "A transaction with more distinct conditional references than fhir.max_conditional_references (default 100) is refused with 422 (too-costly) before any search runs.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "description": "Submit a transaction with 101 distinct conditional references.",
+                        "sourceId": "fixture-too-many-conditionals",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "Refused with HTTP 422",
+                        "responseCode": "422",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "The OperationOutcome names the distinct-conditional-reference limit",
+                        "expression": "OperationOutcome.issue.diagnostics.contains('distinct conditional references')",
                         "value": "true",
                         "warningOnly": false
                     }

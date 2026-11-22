@@ -60,7 +60,7 @@ impl MemorySubscriptionFilter {
     ///
     /// # Errors
     ///
-    /// Returns an [`OperationOutcomeError`] if:
+    /// Returns an [`OperationOutcomeError`](struct@OperationOutcomeError) if:
     /// - the subscription criteria has an invalid format;
     /// - the criteria contains an invalid resource type;
     /// - a search parameter cannot be resolved for the resource type;

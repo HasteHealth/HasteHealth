@@ -1,5 +1,6 @@
 use chrono::{Datelike, Days, NaiveDate, Timelike};
 use regex::Regex;
+use std::fmt;
 use std::sync::LazyLock;
 
 mod reflect;
@@ -7,16 +8,6 @@ mod serialize;
 
 #[cfg(test)]
 mod proptests;
-
-/// `year` as four digits. The integer fast path, padded only when short.
-#[inline]
-fn padded_year(year: u16) -> String {
-    let mut text = year.to_string();
-    if text.len() < 4 {
-        text.insert_str(0, &"000"[..4 - text.len()]);
-    }
-    text
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DateTime {
@@ -26,15 +17,15 @@ pub enum DateTime {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
 
-impl ToString for DateTime {
-    fn to_string(&self) -> String {
+impl fmt::Display for DateTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DateTime::Year(year) => padded_year(*year),
-            DateTime::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
+            DateTime::Year(year) => write!(f, "{year:04}"),
+            DateTime::YearMonth(year, month) => write!(f, "{year:04}-{month:02}"),
             DateTime::YearMonthDay(year, month, day) => {
-                format!("{:04}-{:02}-{:02}", year, month, day)
+                write!(f, "{year:04}-{month:02}-{day:02}")
             }
-            DateTime::Iso8601(dt) => dt.to_rfc3339(),
+            DateTime::Iso8601(dt) => f.write_str(&dt.to_rfc3339()),
         }
     }
 }
@@ -47,7 +38,7 @@ impl TryFrom<DateTime> for chrono::DateTime<chrono::Utc> {
             // "1996-12-19T16:39:57-08:00"
             DateTime::Year(year) => {
                 let datetime = chrono::DateTime::parse_from_rfc3339(
-                    format!("{}-01-01T00:00:00Z", year).as_str(),
+                    format!("{year}-01-01T00:00:00Z").as_str(),
                 )
                 .map_err(|_| ParseError::InvalidFormat)?;
 
@@ -55,7 +46,7 @@ impl TryFrom<DateTime> for chrono::DateTime<chrono::Utc> {
             }
             DateTime::YearMonth(year, month) => {
                 let datetime = chrono::DateTime::parse_from_rfc3339(
-                    format!("{}-{:02}-01T00:00:00Z", year, month).as_str(),
+                    format!("{year}-{month:02}-01T00:00:00Z").as_str(),
                 )
                 .map_err(|_| ParseError::InvalidFormat)?;
 
@@ -63,7 +54,7 @@ impl TryFrom<DateTime> for chrono::DateTime<chrono::Utc> {
             }
             DateTime::YearMonthDay(year, month, day) => {
                 let datetime = chrono::DateTime::parse_from_rfc3339(
-                    format!("{}-{:02}-{:02}T00:00:00Z", year, month, day).as_str(),
+                    format!("{year}-{month:02}-{day:02}T00:00:00Z").as_str(),
                 )
                 .map_err(|_| ParseError::InvalidFormat)?;
 
@@ -81,13 +72,13 @@ pub enum Date {
     YearMonthDay(u16, u8, u8),
 }
 
-impl ToString for Date {
-    fn to_string(&self) -> String {
+impl fmt::Display for Date {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Date::Year(year) => padded_year(*year),
-            Date::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
+            Date::Year(year) => write!(f, "{year:04}"),
+            Date::YearMonth(year, month) => write!(f, "{year:04}-{month:02}"),
             Date::YearMonthDay(year, month, day) => {
-                format!("{:04}-{:02}-{:02}", year, month, day)
+                write!(f, "{year:04}-{month:02}-{day:02}")
             }
         }
     }
@@ -126,6 +117,7 @@ pub enum Instant {
 }
 
 impl Instant {
+    #[must_use]
     pub fn format(&self, fmt: &str) -> String {
         match self {
             Instant::Iso8601(dt) => dt.to_utc().format(fmt).to_string(),
@@ -133,15 +125,15 @@ impl Instant {
     }
 }
 
-impl ToString for Instant {
-    fn to_string(&self) -> String {
+impl fmt::Display for Instant {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Instant::Iso8601(dt) => dt.to_rfc3339(),
+            Instant::Iso8601(dt) => f.write_str(&dt.to_rfc3339()),
         }
     }
 }
 
-/// A time of day. FHIR's `time` always has seconds; FHIRPath's also allows
+/// A time of day. FHIR's `time` always has seconds; `FHIRPath`'s also allows
 /// hour and minute precision.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Time {
@@ -166,13 +158,13 @@ impl Time {
     }
 }
 
-impl ToString for Time {
-    fn to_string(&self) -> String {
+impl fmt::Display for Time {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Time::Hour(hour) => format!("{hour:02}"),
-            Time::HourMinute(hour, minute) => format!("{hour:02}:{minute:02}"),
+            Time::Hour(hour) => write!(f, "{hour:02}"),
+            Time::HourMinute(hour, minute) => write!(f, "{hour:02}:{minute:02}"),
             Time::HourMinuteSecond(time) | Time::HourMinuteSecondFraction(time) => {
-                time.format("%H:%M:%S%.f").to_string()
+                write!(f, "{}", time.format("%H:%M:%S%.f"))
             }
         }
     }
@@ -259,6 +251,11 @@ fn parse_rfc3339(text: &str) -> Result<chrono::DateTime<chrono::FixedOffset>, Pa
         .map_err(|_| ParseError::InvalidFormat)
 }
 
+/// Parses a FHIR `instant`.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not a valid FHIR `instant`.
 pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
     if INSTANT_REGEX.is_match(instant_string) {
         let datetime = parse_rfc3339(instant_string)?;
@@ -268,6 +265,11 @@ pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
     }
 }
 
+/// Parses a FHIR `time`, which always has seconds.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not a valid FHIR `time`.
 pub fn parse_time(time_string: &str) -> Result<Time, ParseError> {
     if TIME_REGEX.is_match(time_string) {
         chrono::NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
@@ -278,7 +280,11 @@ pub fn parse_time(time_string: &str) -> Result<Time, ParseError> {
     }
 }
 
-/// A FHIRPath Time, which unlike a FHIR `time` may stop at hour or minute.
+/// A `FHIRPath` Time, which unlike a FHIR `time` may stop at hour or minute.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not a valid `FHIRPath` Time.
 pub fn parse_partial_time(time_string: &str) -> Result<Time, ParseError> {
     let captures = PARTIAL_TIME_REGEX
         .captures(time_string)
@@ -297,6 +303,11 @@ pub fn parse_partial_time(time_string: &str) -> Result<Time, ParseError> {
     }
 }
 
+/// Parses a FHIR `dateTime`, at year, month, day or full RFC 3339 precision.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not a valid FHIR `dateTime`.
 pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
     if let Some(captures) = DATETIME_REGEX.captures(datetime_string) {
         match (
@@ -325,6 +336,11 @@ pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
     }
 }
 
+/// Parses a FHIR `date`, at year, month or day precision.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not a valid FHIR `date`.
 pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {
     if let Some(captures) = DATE_REGEX.captures(date_string) {
         match (
@@ -346,6 +362,7 @@ pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum DateKind {
     DateTime,
     Date,
@@ -360,6 +377,11 @@ pub enum DateResult {
     Instant(Instant),
 }
 
+/// Parses `input` as the FHIR primitive `kind` names.
+///
+/// # Errors
+///
+/// Returns [`ParseError::InvalidFormat`] if the input is not valid for `kind`.
 pub fn parse(kind: DateKind, input: &str) -> Result<DateResult, ParseError> {
     match kind {
         DateKind::DateTime => Ok(DateResult::DateTime(parse_datetime(input)?)),

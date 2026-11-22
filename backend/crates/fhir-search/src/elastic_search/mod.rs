@@ -506,7 +506,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
                 let index_id = unique_index_id(
                     &resource.tenant,
                     &resource.project,
-                    &resource.resource_type,
+                    resource.resource_type,
                     &resource.id,
                 );
                 let op: BulkOperation<HashMap<String, InsertableIndex>> =
@@ -536,7 +536,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         let index_id = unique_index_id(
             &resource.tenant,
             &resource.project,
-            &resource.resource_type,
+            resource.resource_type,
             &resource.id,
         );
 
@@ -713,7 +713,7 @@ struct ElasticSearchResponse {
 fn unique_index_id(
     tenant: &TenantId,
     project: &ProjectId,
-    resource_type: &ResourceType,
+    resource_type: ResourceType,
     id: &ResourceId,
 ) -> String {
     let unique_index_id = format!(

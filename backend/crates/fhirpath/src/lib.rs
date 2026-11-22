@@ -31,7 +31,10 @@ use regex::{Regex, RegexBuilder};
 use std::{cmp::Ordering, pin::Pin};
 use std::{
     collections::{HashMap, HashSet},
-    sync::{Arc, LazyLock, Mutex},
+    sync::{
+        Arc, LazyLock, Mutex, MutexGuard,
+        atomic::{AtomicUsize, Ordering as AtomicOrdering},
+    },
 };
 
 mod allocators;
@@ -58,12 +61,7 @@ fn evaluate_literal<'b>(
     context: &Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
-        Literal::String(string) => Ok(context.new_context_from(vec![context.allocate_literal(
-            FHIRString {
-                value: Some(string.clone()),
-                ..Default::default()
-            },
-        )])),
+        Literal::String(string) => string_result(context, string.clone()),
         Literal::Integer(int) => Ok(context.new_context_from(vec![context.allocate_literal(
             FHIRInteger {
                 value: Some(*int),
@@ -683,12 +681,7 @@ fn evaluate_case<'a>(
         _ => unreachable!(),
     };
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(transformed),
-            ..Default::default()
-        })]),
-    )
+    string_result(context, transformed)
 }
 
 /// `encode(format)` / `decode(format)` for `hex`, `base64` and `urlbase64`.
@@ -759,12 +752,7 @@ async fn evaluate_codec<'a>(
         String::from_utf8(bytes).map_err(|_| invalid())?
     };
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(output),
-            ..Default::default()
-        })]),
-    )
+    string_result(&context, output)
 }
 
 fn evaluate_empty<'a>(
@@ -808,19 +796,21 @@ async fn evaluate_join<'a>(
         String::new()
     };
 
-    let joined = context
+    let items = context
         .values
         .iter()
         .map(|v| downcast_string(*v))
-        .collect::<Result<Vec<_>, _>>()?
-        .join(&separator);
+        .collect::<Result<Vec<_>, _>>()?;
 
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRString {
-            value: Some(joined),
-            ..Default::default()
-        })]),
-    )
+    // Sized before it is built: the separator repeats between every two items.
+    let length = items
+        .iter()
+        .map(String::len)
+        .sum::<usize>()
+        .saturating_add(separator.len().saturating_mul(items.len() - 1));
+    context.check_bytes(length)?;
+
+    string_result(&context, items.join(&separator))
 }
 
 async fn evaluate_exists<'a>(
@@ -1543,8 +1533,25 @@ async fn evaluate_math<'a>(
     Ok(number_result(&context, result))
 }
 
+/// Sized before it is built: a longer substitution grows the input by the difference for
+/// each match.
+fn replace(
+    context: &Context<'_>,
+    input: &str,
+    pattern: &str,
+    substitution: &str,
+) -> Result<String, FHIRPathError> {
+    if substitution.len() > pattern.len() {
+        let growth = substitution.len() - pattern.len();
+        let matches = input.matches(pattern).count();
+        context.check_bytes(input.len().saturating_add(matches.saturating_mul(growth)))?;
+    }
+    Ok(input.replace(pattern, substitution))
+}
+
 /// An empty pattern would match between every character, so it leaves the input as is.
 fn replace_matches(
+    context: &Context<'_>,
     input: String,
     pattern: &str,
     substitution: &str,
@@ -1552,16 +1559,32 @@ fn replace_matches(
     if pattern.is_empty() {
         return Ok(input);
     }
-    Ok(compile_regex(pattern)?
-        .replace_all(&input, substitution)
-        .into_owned())
+    let regex = compile_regex(pattern)?;
+    // A group is never longer than its match, so a match expands to at most this many
+    // times its length on top of the substitution's own.
+    let references = substitution.matches('$').count();
+
+    // Built match by match, as `Regex::replace_all` does, to size each expansion first.
+    let mut replaced = String::new();
+    let mut copied = 0;
+    for captures in regex.captures_iter(&input) {
+        let Some(matched) = captures.get(0) else {
+            continue;
+        };
+        replaced.push_str(&input[copied..matched.start()]);
+        let expansion = references
+            .saturating_mul(matched.len())
+            .saturating_add(substitution.len());
+        context.check_bytes(replaced.len().saturating_add(expansion))?;
+        captures.expand(substitution, &mut replaced);
+        copied = matched.end();
+    }
+    replaced.push_str(&input[copied..]);
+    Ok(replaced)
 }
 
-fn string_result<'a>(context: &Context<'a>, value: String) -> Context<'a> {
-    context.new_context_from(vec![context.allocate_literal(FHIRString {
-        value: Some(value),
-        ..Default::default()
-    })])
+fn string_result<'a>(context: &Context<'a>, value: String) -> Result<Context<'a>, FHIRPathError> {
+    Ok(context.new_context_from(vec![context.allocate_string(value)?]))
 }
 
 /// Compiled patterns, which come from expressions and are cached like their ASTs.
@@ -1651,19 +1674,17 @@ async fn evaluate_string_function<'a>(
 
     Ok(match name {
         "length" => number_result(&context, Some(Number::Integer(char_count(&input)?))),
-        "trim" => string_result(&context, trim(&input)),
+        "trim" => string_result(&context, trim(&input))?,
         "toChars" => {
-            let chars = input.chars().map(|c| {
-                context.allocate_literal(FHIRString {
-                    value: Some(c.to_string()),
-                    ..Default::default()
-                })
-            });
-            context.new_context_from(chars.collect())
+            let chars = input
+                .chars()
+                .map(|c| context.allocate_string(c.to_string()));
+            context.new_context_from(chars.collect::<Result<_, _>>()?)
         }
-        "split" => string_argument(0)?.map_or(empty, |separator| {
-            split_result(&context, &input, &separator)
-        }),
+        "split" => match string_argument(0)? {
+            Some(separator) => split_result(&context, &input, &separator)?,
+            None => empty,
+        },
         "indexOf" => {
             let Some(substring) = string_argument(0)? else {
                 return Ok(empty);
@@ -1687,14 +1708,15 @@ async fn evaluate_string_function<'a>(
             // An empty length is the same as none.
             let length = integer_argument(1)?
                 .map_or(usize::MAX, |length| usize::try_from(length).unwrap_or(0));
-            string_result(&context, input.chars().skip(start).take(length).collect())
+            string_result(&context, input.chars().skip(start).take(length).collect())?
         }
         "replace" => {
             let (Some(pattern), Some(substitution)) = (string_argument(0)?, string_argument(1)?)
             else {
                 return Ok(empty);
             };
-            string_result(&context, input.replace(&pattern, &substitution))
+            let replaced = replace(&context, &input, &pattern, &substitution)?;
+            string_result(&context, replaced)?
         }
         "matches" | "matchesFull" => string_argument(0)?
             .map(|pattern| pattern_matches(&input, &pattern, name == "matchesFull"))
@@ -1705,7 +1727,8 @@ async fn evaluate_string_function<'a>(
             else {
                 return Ok(empty);
             };
-            string_result(&context, replace_matches(input, &pattern, &substitution)?)
+            let replaced = replace_matches(&context, input, &pattern, &substitution)?;
+            string_result(&context, replaced)?
         }
         _ => unreachable!(),
     })
@@ -1729,7 +1752,7 @@ async fn evaluate_escape<'a>(
         return Ok(context.new_context_from(vec![]));
     };
     let result = escape_target(name == "escape", &downcast_string(target)?, &input)?;
-    Ok(string_result(&context, result))
+    string_result(&context, result)
 }
 
 /// Escapes or unescapes `input` for the `html` or `json` target.
@@ -1854,22 +1877,24 @@ fn unescape_json(input: &str) -> String {
 }
 
 /// Splits on `separator`, keeping empty pieces; an empty separator gives characters.
-fn split_result<'a>(context: &Context<'a>, input: &str, separator: &str) -> Context<'a> {
-    let allocate = |piece: &str| {
-        context.allocate_literal(FHIRString {
-            value: Some(piece.to_string()),
-            ..Default::default()
-        })
-    };
+fn split_result<'a>(
+    context: &Context<'a>,
+    input: &str,
+    separator: &str,
+) -> Result<Context<'a>, FHIRPathError> {
+    let allocate = |piece: &str| context.allocate_string(piece.to_string());
     let pieces = if separator.is_empty() {
         input
             .chars()
             .map(|c| allocate(c.encode_utf8(&mut [0; 4])))
-            .collect()
+            .collect::<Result<_, _>>()?
     } else {
-        input.split(separator).map(allocate).collect()
+        input
+            .split(separator)
+            .map(allocate)
+            .collect::<Result<_, _>>()?
     };
-    context.new_context_from(pieces)
+    Ok(context.new_context_from(pieces))
 }
 
 /// The kinds of item the conversion functions accept.
@@ -2149,30 +2174,35 @@ fn evaluate_conversion<'a>(
         None => (false, &name["to".len()..]),
     };
 
-    let converted = Convertible::of(value)?.and_then(|value| match target {
-        "Boolean" => to_boolean(value).map(|value| boolean_result(context, value)),
-        "Integer" => {
+    let converted = match (Convertible::of(value)?, target) {
+        (None, _) => None,
+        (Some(value), "Boolean") => to_boolean(value).map(|value| boolean_result(context, value)),
+        (Some(value), "Integer") => {
             to_integer(value).map(|value| number_result(context, Some(Number::Integer(value))))
         }
-        "Decimal" => {
+        (Some(value), "Decimal") => {
             to_decimal(value).map(|value| number_result(context, Some(Number::Decimal(value))))
         }
-        "String" => to_string(value).map(|value| string_result(context, value)),
-        "Date" => to_date(value).map(|value| {
+        (Some(value), "String") => to_string(value)
+            .map(|value| string_result(context, value))
+            .transpose()?,
+        (Some(value), "Date") => to_date(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRDate {
                 value: Some(value),
                 ..Default::default()
             })])
         }),
-        "DateTime" => to_date_time(value).map(|value| datetime_result(context, value)),
-        "Time" => to_time(value).map(|value| {
+        (Some(value), "DateTime") => {
+            to_date_time(value).map(|value| datetime_result(context, value))
+        }
+        (Some(value), "Time") => to_time(value).map(|value| {
             context.new_context_from(vec![context.allocate_literal(FHIRTime {
                 value: Some(value),
                 ..Default::default()
             })])
         }),
         _ => unreachable!(),
-    });
+    };
 
     if converts {
         Ok(boolean_result(context, converted.is_some()))
@@ -2647,12 +2677,7 @@ async fn evaluate_add<'a>(
                 let left_string = downcast_string(left.values[0])?;
                 let right_string = downcast_string(right.values[0])?;
 
-                Ok(
-                    left.new_context_from(vec![left.allocate_literal(FHIRString {
-                        value: Some(left_string + &right_string),
-                        ..Default::default()
-                    })]),
-                )
+                string_result(&left, left_string + &right_string)
             } else {
                 Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
                     left.values[0].fhir_type(),
@@ -3095,7 +3120,7 @@ async fn evaluate_concatenate<'a>(
             }
         }
 
-        Ok(string_result(&left, concatenated))
+        string_result(&left, concatenated)
     })
     .await
 }
@@ -3198,6 +3223,7 @@ fn evaluate_expression<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Pin<Box<impl Future<Output = Result<Context<'a>, FHIRPathError>>>> {
     Box::pin(async move {
+        context.check_bytes(0)?;
         match ast {
             Expression::Operation(operation) => {
                 evaluate_operation(operation, context, config).await
@@ -3225,8 +3251,38 @@ impl ResolvedValue {
     }
 }
 
+/// Most memory the values one evaluation creates may take, in bytes. An expression can
+/// create far more than it is given: a string function's result can be many times its
+/// input (`'a'.replace('a', 'aaaaaaaaaa')`) and be the input of the next call, and nested
+/// iterations multiply what they evaluate. Evaluation fails past this.
+const VALUE_BYTE_LIMIT: usize = 16 * 1024 * 1024;
+
+/// Refuses an evaluation whose values exceed [`VALUE_BYTE_LIMIT`].
+fn values_too_costly() -> FHIRPathError {
+    FHIRPathError::TooCostly(format!(
+        "the values an evaluation creates may take at most {VALUE_BYTE_LIMIT} bytes"
+    ))
+}
+
+/// What the contexts of one evaluation share.
+struct Evaluation {
+    allocator: Mutex<allocators::bumpalo::Allocator>,
+    // The memory the values created so far take, in bytes. Outside the lock, as every
+    // expression evaluated reads it.
+    bytes: AtomicUsize,
+}
+
+impl Evaluation {
+    fn new() -> Arc<Self> {
+        Arc::new(Self {
+            allocator: Mutex::new(allocators::bumpalo::Allocator::new()),
+            bytes: AtomicUsize::new(0),
+        })
+    }
+}
+
 pub struct Context<'a> {
-    allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
+    evaluation: Arc<Evaluation>,
     values: Vec<&'a dyn MetaValue>,
     // Position of the current item in an iteration function, backing `$index`.
     index: Option<usize>,
@@ -3297,12 +3353,7 @@ async fn resolve_external_constant<'a>(
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     if let Some(value) = fhir_environment_variable(name) {
-        return Ok(
-            context.new_context_from(vec![context.allocate_literal(FHIRString {
-                value: Some(value),
-                ..Default::default()
-            })]),
-        );
+        return string_result(&context, value);
     }
 
     let external_constant = match resolver {
@@ -3339,22 +3390,26 @@ impl<'a> IntoIterator for &'a Context<'_> {
 }
 
 impl<'a> Context<'a> {
-    fn new(
-        values: Vec<&'a dyn MetaValue>,
-        allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
-    ) -> Self {
+    /// The context a new evaluation starts from.
+    fn new(values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
-            allocator,
+            evaluation: Evaluation::new(),
             values,
             index: None,
         }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
-            allocator: self.allocator.clone(),
+            evaluation: self.evaluation.clone(),
             values,
             index: self.index,
         }
+    }
+    fn allocator(&self) -> MutexGuard<'_, allocators::bumpalo::Allocator> {
+        self.evaluation
+            .allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
     /// A singleton context for one item of an iteration function, binding `$index`.
     fn new_item_context(&self, value: &'a dyn MetaValue, index: usize) -> Self {
@@ -3364,27 +3419,17 @@ impl<'a> Context<'a> {
         }
     }
     fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .allocate_resolved(value)
+        self.allocator().allocate_resolved(value)
     }
 
     fn now(&self) -> chrono::DateTime<chrono::Utc> {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .now()
+        self.allocator().now()
     }
 
     /// Counts items `repeat()` produced, failing once the evaluation's total passes
     /// [`REPEAT_ITEM_LIMIT`].
     fn count_repeat_items(&self, count: usize) -> Result<(), FHIRPathError> {
-        let total = self
-            .allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .add_repeat_items(count);
+        let total = self.allocator().add_repeat_items(count);
         if total > REPEAT_ITEM_LIMIT {
             return Err(FunctionError::InvalidFunctionCall(format!(
                 "repeat() produced more than {REPEAT_ITEM_LIMIT} items"
@@ -3394,11 +3439,37 @@ impl<'a> Context<'a> {
         Ok(())
     }
 
+    /// Fails if `more` bytes would take the evaluation's values past [`VALUE_BYTE_LIMIT`].
+    /// Asked before every expression is evaluated, and with the size of a result that can
+    /// be many times its input before it is built.
+    fn check_bytes(&self, more: usize) -> Result<(), FHIRPathError> {
+        let bytes = self.evaluation.bytes.load(AtomicOrdering::Relaxed);
+        if bytes.saturating_add(more) > VALUE_BYTE_LIMIT {
+            return Err(values_too_costly());
+        }
+        Ok(())
+    }
+
+    /// Allocates a string the evaluation created, unless it takes the evaluation's values
+    /// past [`VALUE_BYTE_LIMIT`].
+    fn allocate_string(&self, value: String) -> Result<&'a dyn MetaValue, FHIRPathError> {
+        self.check_bytes(value.len())?;
+        self.evaluation
+            .bytes
+            .fetch_add(value.len(), AtomicOrdering::Relaxed);
+        Ok(self.allocate_literal(FHIRString {
+            value: Some(value),
+            ..Default::default()
+        }))
+    }
+
+    /// Allocates a value the evaluation created, counting the memory of its type. Past
+    /// [`VALUE_BYTE_LIMIT`] the next expression evaluated fails.
     fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
-        self.allocator
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .allocate_literal(value)
+        self.evaluation
+            .bytes
+            .fetch_add(size_of::<T>(), AtomicOrdering::Relaxed);
+        self.allocator().allocate_literal(value)
     }
 
     /// The values, which live as long as `'a` rather than this borrow.
@@ -3421,7 +3492,7 @@ impl<'a> Context<'a> {
 impl Clone for Context<'_> {
     fn clone(&self) -> Self {
         Self {
-            allocator: self.allocator.clone(),
+            evaluation: self.evaluation.clone(),
             values: self.values.clone(),
             index: self.index,
         }
@@ -3474,11 +3545,7 @@ impl FPEngine {
     {
         let ast = get_ast(path)?;
 
-        // Store created.
-        let allocator: Arc<Mutex<allocators::bumpalo::Allocator>> =
-            Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
-
-        let context = Context::new(values, allocator.clone());
+        let context = Context::new(values);
 
         let result = evaluate_expression(&ast, context, None).await?;
         Ok(result)
@@ -3504,10 +3571,7 @@ impl FPEngine {
     {
         let ast = get_ast(path)?;
 
-        // Store created.
-        let allocator = Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
-
-        let context = Context::new(values, allocator.clone());
+        let context = Context::new(values);
 
         let result = evaluate_expression(&ast, context, Some(config)).await?;
 
@@ -5069,5 +5133,137 @@ mod tests {
             .downcast_ref::<FHIRBoolean>()
             .unwrap();
         assert_eq!(b.value, Some(false));
+    }
+
+    /// `'a'`, made ten times as long by each of `calls` calls of `.replace()`.
+    fn grown(calls: usize) -> String {
+        format!("'a'{}", ".replace('a', 'aaaaaaaaaa')".repeat(calls))
+    }
+
+    /// Ten integers, selected for each of ten integers `depth` times over: 10^(`depth` + 1).
+    fn selected(depth: usize) -> String {
+        const TEN: &str = "(1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10)";
+        (0..depth).fold(TEN.to_string(), |inner, _| format!("{TEN}.select({inner})"))
+    }
+
+    /// Whether evaluating `expression` is refused for the values it creates.
+    async fn too_costly(expression: &str) -> bool {
+        matches!(
+            FPEngine::new().evaluate(expression, vec![]).await,
+            Err(FHIRPathError::TooCostly(_))
+        )
+    }
+
+    /// The number `expression` evaluates to.
+    async fn number(expression: &str) -> f64 {
+        let result = FPEngine::new().evaluate(expression, vec![]).await.unwrap();
+        downcast_number(result.values[0]).unwrap()
+    }
+
+    #[tokio::test]
+    async fn values_within_the_limit_are_created() {
+        // 10 MB, after the 1.1 MB of the strings it was made from.
+        let length = format!("{}.length()", grown(7));
+        assert_eq!(number(&length).await, 10_000_000.0);
+
+        // 10,000 strings of one character.
+        let count = format!("{}.toChars().count()", grown(4));
+        assert_eq!(number(&count).await, 10_000.0);
+
+        // 1,000 integers.
+        let count = format!("{}.count()", selected(2));
+        assert_eq!(number(&count).await, 1_000.0);
+    }
+
+    #[tokio::test]
+    async fn a_string_that_grows_past_the_limit_is_refused() {
+        // 100 MB, and 10^40 bytes.
+        assert!(too_costly(&grown(8)).await);
+        assert!(too_costly(&grown(40)).await);
+        // 1 MB around each of twenty characters.
+        let twenty = "a".repeat(20);
+        assert!(too_costly(&format!("'{twenty}'.replace('', {})", grown(6))).await);
+
+        // 10 KB in place of each of 10,000 characters, and a match of 1 MB twenty times over.
+        let text = grown(4);
+        assert!(too_costly(&format!("{text}.replaceMatches('a', {text})")).await);
+        let groups = "$1".repeat(20);
+        assert!(too_costly(&format!("{}.replaceMatches('(a+)', '{groups}')", grown(6))).await);
+
+        // Twice as long with every repetition.
+        assert!(too_costly("'a'.repeat($this + $this)").await);
+        assert!(too_costly("'a'.repeat($this & $this)").await);
+    }
+
+    #[tokio::test]
+    async fn values_that_together_pass_the_limit_are_refused() {
+        // 1,000,000 strings of one character.
+        let characters = grown(6);
+        assert!(too_costly(&format!("{characters}.toChars()")).await);
+        assert!(too_costly(&format!("{characters}.split('')")).await);
+
+        // 10,000 strings, each made 1 KB longer, and joined by 10 KB.
+        let items = format!("{}.toChars()", grown(4));
+        assert!(too_costly(&format!("{items}.select($this + {})", grown(3))).await);
+        assert!(too_costly(&format!("{items}.join({})", grown(4))).await);
+
+        // 10,000,000 integers.
+        assert!(too_costly(&selected(6)).await);
+    }
+
+    /// A value that owns memory outside an evaluation's arena.
+    #[derive(Debug)]
+    struct Owner {
+        _owned: Arc<()>,
+    }
+
+    impl MetaValue for Owner {
+        fn fields(&self) -> Vec<&'static str> {
+            vec![]
+        }
+        fn get_field<'a>(&'a self, _field: &str) -> Option<&'a dyn MetaValue> {
+            None
+        }
+        fn get_field_mut<'a>(&'a mut self, _field: &str) -> Option<&'a mut dyn MetaValue> {
+            None
+        }
+        fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
+            None
+        }
+        fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
+            None
+        }
+        fn flatten(&self) -> Vec<&dyn MetaValue> {
+            vec![self]
+        }
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
+        fn fhir_type(&self) -> &'static str {
+            "Owner"
+        }
+        fn is_many(&self) -> bool {
+            false
+        }
+    }
+
+    #[test]
+    fn an_evaluation_drops_the_values_it_created() {
+        let owned = Arc::new(());
+        let value = || Owner {
+            _owned: owned.clone(),
+        };
+        let context = Context::new(vec![]);
+        let last = context.new_context_from(vec![
+            context.allocate_literal(value()),
+            context.allocate(ResolvedValue::Box(Box::new(value()))),
+        ]);
+        assert_eq!(Arc::strong_count(&owned), 3);
+
+        // The values live as long as any context of their evaluation.
+        drop(context);
+        assert_eq!(Arc::strong_count(&owned), 3);
+        drop(last);
+        assert_eq!(Arc::strong_count(&owned), 1);
     }
 }

@@ -1,5 +1,6 @@
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::derive::OperationOutcomeError;
-use sqlx::Postgres;
+use sqlx::{Postgres, Row, postgres::PgRow};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -42,6 +43,29 @@ pub enum StoreError {
         diagnostic = "Failed to deserialize resource: '{arg0}'"
     )]
     DeserializeError(String),
+}
+
+/// Decodes the `resource` jsonb column of `row` straight into the concrete
+/// struct for `resource_type`, skipping the `resourceType`-tagged enum's buffering.
+pub(crate) fn decode_resource(
+    row: &PgRow,
+    resource_type: ResourceType,
+) -> Result<Resource, sqlx::Error> {
+    let bytes = row
+        .try_get_raw("resource")?
+        .as_bytes()
+        .map_err(sqlx::Error::Decode)?;
+    // Strip the leading JSONB binary version-marker byte.
+    resource_type
+        .deserialize(&bytes[1..])
+        .map_err(|e| sqlx::Error::Decode(e.into()))
+}
+
+/// Reads the `resource_type` column, failing the row on an unknown name.
+pub(crate) fn row_resource_type(row: &PgRow) -> Result<ResourceType, sqlx::Error> {
+    let name: &str = row.try_get("resource_type")?;
+    ResourceType::try_from(name)
+        .map_err(|_| sqlx::Error::Decode(format!("unknown resource type '{name}'").into()))
 }
 
 /// Connection types supported by the repository traits.

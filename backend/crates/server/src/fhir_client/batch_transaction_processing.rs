@@ -10,7 +10,7 @@ use crate::{
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
-use futures_util::future::try_join_all;
+use futures_util::{StreamExt as _, TryStreamExt as _, stream};
 use haste_fhir_client::{
     request::{
         FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, HistoryResponse, InvokeResponse,
@@ -352,19 +352,19 @@ fn invalid_search(search_uri: &str, error: OperationOutcomeError) -> OperationOu
     .with_source(error)
 }
 
-/// Points every conditional reference at the one resource its search matches.
-///
-/// Answered by the search index alone: the id it already holds is all a
-/// reference needs, so no resource is read. The lookups run at once, each
-/// authorized as the caller's own search of the type would be: their access
-/// policies must grant it, and it carries the filters their scopes set.
-///
-/// # Errors
-///
-/// Forbidden when the caller may not run a reference's search, invalid when
-/// it is not a search the type supports. Per
-/// [https://hl7.org/fhir/R4/http.html#trules] the transaction fails when a
-/// reference matches no resource or more than one.
+/// Past `fhir.max_conditional_references`: well formed but past a server limit,
+/// so 422 like other limit refusals.
+fn too_many_conditional_references(count: usize, limit: usize) -> OperationOutcomeError {
+    let error = OperationOutcomeError::error(
+        IssueType::too_costly(),
+        format!(
+            "This transaction has {count} distinct conditional references, more than the \
+             {limit} one transaction may resolve. Split it into smaller transactions."
+        ),
+    );
+    OperationOutcomeError::unprocessable(error.outcome().clone())
+}
+
 async fn resolve_conditional_references<B: Backend>(
     state: &ClientState<B>,
     ctx: &ServerCTX<B>,
@@ -373,54 +373,79 @@ async fn resolve_conditional_references<B: Backend>(
     if conditional_references.is_empty() {
         return Ok(());
     }
+    let limit = state.config.fhir.max_conditional_references;
+    if conditional_references.len() > limit {
+        return Err(too_many_conditional_references(
+            conditional_references.len(),
+            limit,
+        ));
+    }
+    // 0 would stall `buffer_unordered`; floor at 1.
+    let concurrency = state.config.fhir.conditional_reference_concurrency.max(1);
 
-    let policy = &RequestPolicy::of_caller(state, ctx).await?;
+    let policy = RequestPolicy::of_caller(state, ctx).await?;
     let lookups = conditional_references
         .into_iter()
-        .map(|(search_uri, references)| async move {
-            let search = conditional_reference_search(&search_uri)?;
-            let filters = scope_check::search_filters(&ctx.user.claims, &search.resource_type)?;
-            let search = SearchRequest::Type(search);
-            if let Some(policy) = policy {
-                policy.check(&FHIRRequest::Search(search.clone())).await?;
-            }
+        .map(|(search_uri, references)| {
+            resolve_one_conditional_reference(state, ctx, policy.as_ref(), search_uri, references)
+        })
+        .collect::<Vec<_>>();
 
-            let found = state
-                .search
-                .search(
-                    &ctx.fhir_version,
-                    &ctx.tenant,
-                    &ctx.project,
-                    &search,
-                    Some(SearchOptions {
-                        // Two tell one match from several.
-                        count_limit: Some(2),
-                        filters,
-                    }),
-                )
-                .await
-                .map_err(|error| invalid_search(&search_uri, error))?;
+    stream::iter(lookups)
+        .buffer_unordered(concurrency)
+        .try_collect::<()>()
+        .await
+}
 
-            let mut entries = found.entries.into_iter();
-            match (entries.next(), entries.next()) {
-                (Some(entry), None) => {
-                    let literal = format!("{}/{}", entry.resource_type.as_ref(), entry.id.as_ref());
-                    point_at(references, &literal);
-                    Ok(())
-                }
-                (None, _) => Err(OperationOutcomeError::error(
-                    IssueType::invalid(),
-                    format!("Conditional reference '{search_uri}' matched no resources."),
-                )),
-                (Some(_), Some(_)) => Err(OperationOutcomeError::error(
-                    IssueType::conflict(),
-                    format!("Conditional reference '{search_uri}' matched multiple resources."),
-                )),
-            }
-        });
+/// Runs one conditional reference's search and points every reference sharing
+/// its URI at the single resource it matches. Named (not an inline `async`
+/// block) so the lookups have a concrete future type `buffer_unordered` can hold.
+async fn resolve_one_conditional_reference<B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
+    policy: Option<&RequestPolicy<B>>,
+    search_uri: String,
+    references: Vec<Pin<&mut Reference>>,
+) -> Result<(), OperationOutcomeError> {
+    let search = conditional_reference_search(&search_uri)?;
+    let filters = scope_check::search_filters(&ctx.user.claims, &search)?;
+    let search = SearchRequest::Type(search);
+    if let Some(policy) = policy {
+        policy.check(&FHIRRequest::Search(search.clone())).await?;
+    }
 
-    try_join_all(lookups).await?;
-    Ok(())
+    let found = state
+        .search
+        .search(
+            &ctx.fhir_version,
+            &ctx.tenant,
+            &ctx.project,
+            &search,
+            Some(SearchOptions {
+                // Two tell one match from several.
+                count_limit: Some(2),
+                filters,
+            }),
+        )
+        .await
+        .map_err(|error| invalid_search(&search_uri, error))?;
+
+    let mut entries = found.entries.into_iter();
+    match (entries.next(), entries.next()) {
+        (Some(entry), None) => {
+            let literal = format!("{}/{}", entry.resource_type.as_ref(), entry.id.as_ref());
+            point_at(references, &literal);
+            Ok(())
+        }
+        (None, _) => Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("Conditional reference '{search_uri}' matched no resources."),
+        )),
+        (Some(_), Some(_)) => Err(OperationOutcomeError::error(
+            IssueType::conflict(),
+            format!("Conditional reference '{search_uri}' matched multiple resources."),
+        )),
+    }
 }
 
 /// Prepares a transaction bundle before its transaction opens, to keep that
@@ -569,7 +594,7 @@ pub async fn process_transaction_bundle<'a, Client: Backend>(
 
         let fhir_request =
             bundle_entry_to_fhir_request(sorted_transaction_entry.entry, &ctx).await?;
-        let resource_type = request_to_resource_type(&fhir_request).cloned();
+        let resource_type = request_to_resource_type(&fhir_request).copied();
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
         let resource = get_resource_from_response(&fhir_response);
@@ -806,6 +831,22 @@ mod tests {
             invalid_search("Practitioner?identifier=1", server_failure).http_status(),
             500
         );
+    }
+
+    #[test]
+    fn too_many_conditional_references_is_refused_as_too_costly() {
+        let error = too_many_conditional_references(101, 100);
+
+        // Well formed but past the server's limits: 422, not 400.
+        assert_eq!(error.http_status(), 422);
+        let diagnostics = error.outcome().issue[0]
+            .diagnostics
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .expect("the refusal has diagnostics");
+        // Both the actual count and the configured limit are named.
+        assert!(diagnostics.contains("101"), "{diagnostics}");
+        assert!(diagnostics.contains("100"), "{diagnostics}");
     }
 
     #[test]

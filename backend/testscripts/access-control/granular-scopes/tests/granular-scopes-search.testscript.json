@@ -4,7 +4,7 @@
     "name": "Access Control Granular Scopes Search",
     "title": "Granular scopes: searches",
     "status": "active",
-    "description": "Run as the granular-scopes login. Searches of a type granted only by granular scopes return the resources matching any of them, whatever the search asks for; a plain scope beside a granular one lifts the filter; includes are filtered the same way.",
+    "description": "Run as the granular-scopes login. Searches of a type granted only by granular scopes return the resources matching any of them, whatever the search asks for; a plain scope beside a granular one lifts the filter; includes are filtered the same way; chained parameters are refused.",
     "resourceType": "TestScript",
     "contained": [],
     "fixture": [],
@@ -295,6 +295,52 @@
                     "assert": {
                         "description": "Its patient is included",
                         "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'acg-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-chained-parameter",
+            "name": "A chained parameter is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "has-member:Observation.code=http://loinc.org|44249-1",
+                        "encodeRequestUrl": false,
+                        "description": "A chain is evaluated on the Observations a match references, which the granular scopes do not filter."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The chained search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "subject:Patient.family=Granular",
+                        "encodeRequestUrl": false,
+                        "description": "The scopes grant Patient in full, but not every type."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A chain into a type a plain scope grants is forbidden too",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
                         "value": "true",
                         "warningOnly": false
                     }

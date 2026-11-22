@@ -77,7 +77,6 @@ mime_guess = { version = "2.0.5", default-features = false }
 moka = { workspace = true, features = ["future"] }
 petgraph = { version = "0.8.3", default-features = false }
 rand = { version = "0.10", default-features = false, features = ["thread_rng"] }
-regex = { workspace = true }
 reqwest = { workspace = true, features = ["form", "default-tls", "http2"] }
 rsa = { version = "0.10.0", default-features = false, features = ["encoding"] }
 rust-embed = { workspace = true, features = ["axum-ex"] }

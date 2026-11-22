@@ -39,6 +39,8 @@ Any field not set by either source falls back to the default documented below.
 | Key                 | Env var                   | Default                                                             |
 | ------------------- | ------------------------- | ------------------------------------------------------------------- |
 | `fhir.delete_limit` | `HASTE_FHIR.delete_limit` | `100` — max resources removed by a single type/system-level delete. |
+| `fhir.max_conditional_references` | `HASTE_FHIR.max_conditional_references` | `100` — most distinct conditional references one transaction may resolve; a bundle above it is refused with `422` (`too-costly`). |
+| `fhir.conditional_reference_concurrency` | `HASTE_FHIR.conditional_reference_concurrency` | `12` — how many of a transaction's conditional-reference searches run at once. Keep below `search.max_connections`. |
 
 #### `[repo]` — resource storage backend
 
@@ -71,6 +73,14 @@ so the two never share tables. Create it before running `admin migrate search`:
 ```bash
 psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
 ```
+
+The server opens its search connections with
+`plan_cache_mode = force_custom_plan`, so Postgres plans every search with its
+values instead of switching to one generic plan. To choose another mode, set it
+in the URL's `options`, e.g. `?options=-c%20plan_cache_mode%3Dauto`. A
+connection pooler that rejects the `options` startup parameter (PgBouncer, unless
+`ignore_startup_parameters` lists it) needs the mode set on the server instead:
+`ALTER ROLE <search role> SET plan_cache_mode = force_custom_plan`.
 
 `admin migrate search` (also part of `admin migrate all`) runs the sqlx migrations
 in `backend/crates/fhir-search/pg-migrations` that have not run yet, recorded in
