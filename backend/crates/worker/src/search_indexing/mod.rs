@@ -17,14 +17,14 @@ use haste_repository::{
     types::{SearchIndexBackend, SupportedFHIRVersions},
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
+use sqlx::{Acquire, query_as};
 use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
 use tokio::{
-    sync::{Mutex, Semaphore},
-    task::JoinHandle,
+    sync::{Mutex, OwnedSemaphorePermit, Semaphore},
+    task::{JoinError, JoinHandle, JoinSet},
 };
 
 #[derive(OperationOutcomeError, Debug)]
@@ -57,14 +57,70 @@ pub enum IndexingWorkerError {
 struct ProjectReturn {
     tenant: TenantId,
     project: ProjectId,
-    created_at: OffsetDateTime,
 }
 
+/// Reads projects in primary key order, `page_size` at a time, reading the
+/// next page only once the current one has been handed out. Each page starts
+/// after the last project of the one before rather than at an offset, so a
+/// project created or deleted meanwhile moves no other project across a page
+/// boundary.
+struct ProjectPages {
+    page_size: u64,
+    page: std::vec::IntoIter<ProjectReturn>,
+    after: Option<(TenantId, ProjectId)>,
+    read_all: bool,
+}
+
+impl ProjectPages {
+    fn new(page_size: u64) -> Self {
+        Self {
+            page_size,
+            page: Vec::new().into_iter(),
+            after: None,
+            read_all: false,
+        }
+    }
+
+    /// Returns the next project, or `None` once every project has been
+    /// returned.
+    async fn next(
+        &mut self,
+        repo: &PGConnection,
+    ) -> Result<Option<ProjectReturn>, OperationOutcomeError> {
+        loop {
+            if let Some(project) = self.page.next() {
+                return Ok(Some(project));
+            }
+            if self.read_all {
+                return Ok(None);
+            }
+            let after = self
+                .after
+                .as_ref()
+                .map(|(tenant, project)| (tenant, project));
+            let page = get_projects(repo, after, self.page_size.cast_signed()).await?;
+            // A short page is the last one. A full one may be followed by an empty one.
+            self.read_all = page.is_empty() || (page.len() as u64) < self.page_size;
+            if let Some(last) = page.last() {
+                self.after = Some((last.tenant.clone(), last.project.clone()));
+            }
+            self.page = page.into_iter();
+        }
+    }
+}
+
+/// Returns up to `count` projects in primary key order, starting after
+/// `after`, or from the first project when it is `None`.
 async fn get_projects(
     repo: &PGConnection,
-    cursor: &OffsetDateTime,
+    after: Option<(&TenantId, &ProjectId)>,
     count: i64,
 ) -> Result<Vec<ProjectReturn>, OperationOutcomeError> {
+    // Tenant and project ids are never empty, so ('', '') sorts before every
+    // project and the first page needs no query of its own.
+    let (after_tenant, after_project) = after.map_or(("", ""), |(tenant, project)| {
+        (tenant.as_ref(), project.as_ref())
+    });
     match repo {
         PGConnection::Pool(pool, _) => {
             let mut connection = pool.acquire().await.map_err(IndexingWorkerError::from)?;
@@ -74,8 +130,9 @@ async fn get_projects(
                 .map_err(IndexingWorkerError::from)?;
             let result = query_as!(
                 ProjectReturn,
-                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId", created_at FROM projects WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
-                cursor,
+                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId" FROM projects WHERE (tenant, id) > ($1, $2) ORDER BY tenant, id LIMIT $3"#,
+                after_tenant,
+                after_project,
                 count
             )
             .fetch_all(&mut *conn)
@@ -92,8 +149,9 @@ async fn get_projects(
                 .map_err(IndexingWorkerError::from)?;
             let result = query_as!(
                 ProjectReturn,
-                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId", created_at FROM projects WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
-                cursor,
+                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId" FROM projects WHERE (tenant, id) > ($1, $2) ORDER BY tenant, id LIMIT $3"#,
+                after_tenant,
+                after_project,
                 count
             )
             .fetch_all(&mut *conn)
@@ -387,70 +445,82 @@ async fn index_for_project<
     }
 }
 
-/// Indexes every project of one pass concurrently, at most `semaphore`'s
-/// permits at a time, and returns the rows handed to the search engine across
-/// all of them. Zero means every project was already caught up to the
-/// watermark (or locked by another worker).
-async fn index_projects(
-    projects: Vec<ProjectReturn>,
+/// Indexes every project up to `safe_sequence`. A project is read and its task
+/// spawned only once a permit of `semaphore` is free, so however many projects
+/// there are, at most that many are in flight and one page of them is held,
+/// and a slow project holds one permit while the others move on through the
+/// pages. Returns how many projects there were and the rows handed to the
+/// search engine across all of them; zero rows means every project was
+/// already caught up to the watermark (or locked by another worker). A failed
+/// page read is returned once the projects already started have finished.
+async fn index_all_projects(
     repo: &Arc<PGConnection>,
     search_engine: &Arc<SearchEngineBackend>,
     semaphore: &Arc<Semaphore>,
     max_concurrent_limit: u64,
     backend: SearchIndexBackend,
     safe_sequence: i64,
-) -> usize {
-    let handles: Vec<_> = projects
-        .into_iter()
-        .map(|project| {
-            tokio::spawn(index_one_project(
-                project,
-                repo.clone(),
-                search_engine.clone(),
-                semaphore.clone(),
-                max_concurrent_limit,
-                backend,
-                safe_sequence,
-            ))
-        })
-        .collect();
+    page_size: u64,
+) -> Result<(usize, usize), OperationOutcomeError> {
+    let mut pages = ProjectPages::new(page_size);
+    let mut in_flight = JoinSet::new();
+    let mut projects = 0usize;
+    let mut fetched = 0usize;
 
-    let mut fetched_this_pass = 0usize;
-    for handle in handles {
-        match handle.await {
-            Ok(fetched) => fetched_this_pass += fetched,
-            Err(join_error) => {
-                tracing::error!("Project indexing task panicked: '{:?}'", join_error);
-            }
+    let read = loop {
+        let Ok(permit) = semaphore.clone().acquire_owned().await else {
+            tracing::warn!("Project semaphore closed; ending the indexing pass early.");
+            break Ok(());
+        };
+        let project = match pages.next(repo).await {
+            Ok(Some(project)) => project,
+            Ok(None) => break Ok(()),
+            Err(error) => break Err(error),
+        };
+        projects += 1;
+        in_flight.spawn(index_one_project(
+            project,
+            permit,
+            repo.clone(),
+            search_engine.clone(),
+            max_concurrent_limit,
+            backend,
+            safe_sequence,
+        ));
+        // Collect finished projects as we go, so the set holds little more
+        // than the projects in flight.
+        while let Some(joined) = in_flight.try_join_next() {
+            fetched += rows_fetched(joined);
         }
+    };
+
+    while let Some(joined) = in_flight.join_next().await {
+        fetched += rows_fetched(joined);
     }
-    fetched_this_pass
+    read.map(|()| (projects, fetched))
 }
 
-/// Indexes one project up to `safe_sequence` once a permit of `semaphore` is
-/// free, and returns the rows handed to the search engine (zero on failure,
+/// The rows a project's indexing task handed to the search engine, or zero
+/// if it panicked, which is logged.
+fn rows_fetched(joined: Result<usize, JoinError>) -> usize {
+    joined.unwrap_or_else(|join_error| {
+        tracing::error!("Project indexing task panicked: '{:?}'", join_error);
+        0
+    })
+}
+
+/// Indexes one project up to `safe_sequence`, holding `_permit` until it is
+/// done, and returns the rows handed to the search engine (zero on failure,
 /// which is logged).
 async fn index_one_project(
     project: ProjectReturn,
+    _permit: OwnedSemaphorePermit,
     repo: Arc<PGConnection>,
     search_engine: Arc<SearchEngineBackend>,
-    semaphore: Arc<Semaphore>,
     max_concurrent_limit: u64,
     backend: SearchIndexBackend,
     safe_sequence: i64,
 ) -> usize {
-    let _permit = match semaphore.acquire_owned().await {
-        Ok(permit) => permit,
-        Err(_closed) => {
-            tracing::warn!(
-                "Project semaphore closed; skipping indexing for tenant '{}' project '{}'.",
-                &project.tenant,
-                project.project.as_ref()
-            );
-            return 0;
-        }
-    };
-
     tracing::trace!(
         "Indexing tenant: '{}' project: '{}'",
         &project.tenant,
@@ -589,8 +659,7 @@ impl IndexingWorker {
 
 impl Worker for IndexingWorker {
     async fn run(&self) -> Result<JoinHandle<()>, OperationOutcomeError> {
-        let mut cursor = OffsetDateTime::UNIX_EPOCH;
-        let projects_limit: u64 = 100;
+        let projects_page_size: u64 = 100;
 
         tracing::info!("Starting indexing worker...");
 
@@ -624,40 +693,26 @@ impl Worker for IndexingWorker {
                     }
                 };
 
-                let projects_to_check =
-                    get_projects(repo.as_ref(), &cursor, projects_limit.cast_signed()).await;
+                // Every pass polls every project.
+                let pass = index_all_projects(
+                    &repo,
+                    &search_engine,
+                    &project_semaphore,
+                    max_concurrent_limit,
+                    backend,
+                    safe_sequence,
+                    projects_page_size,
+                )
+                .await;
 
                 // How long to wait before the next pass: `idle_backoff` with
                 // nothing to poll (no projects, or the fetch failed), the poll
                 // interval when the projects had nothing new, and none at all
                 // while rows are flowing.
-                let backoff = match projects_to_check {
-                    Ok(projects_to_check) => {
-                        let idle = projects_to_check.is_empty();
-                        if idle || (projects_to_check.len() as u64) < projects_limit {
-                            cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no projects found
-                        } else {
-                            cursor = projects_to_check[0].created_at;
-                        }
-
-                        let fetched_this_pass = index_projects(
-                            projects_to_check,
-                            &repo,
-                            &search_engine,
-                            &project_semaphore,
-                            max_concurrent_limit,
-                            backend,
-                            safe_sequence,
-                        )
-                        .await;
-                        if idle {
-                            Some(idle_backoff)
-                        } else if fetched_this_pass == 0 {
-                            Some(poll_interval)
-                        } else {
-                            None
-                        }
-                    }
+                let backoff = match pass {
+                    Ok((0, _)) => Some(idle_backoff),
+                    Ok((_, 0)) => Some(poll_interval),
+                    Ok(_) => None,
                     Err(error) => {
                         tracing::error!("Failed to retrieve projects: {:?}", error);
                         Some(idle_backoff)
@@ -681,6 +736,115 @@ impl Worker for IndexingWorker {
     async fn stop(&mut self) -> Result<(), OperationOutcomeError> {
         let mut running = self.running.lock().await;
         *running = false;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqlx::PgPool;
+
+    /// Walks `pages` to the end, as a pass does.
+    async fn rest_of(pages: &mut ProjectPages, repo: &PGConnection) -> Vec<(String, String)> {
+        let mut returned = Vec::new();
+        while let Some(project) = pages.next(repo).await.expect("projects are read") {
+            returned.push((
+                project.tenant.as_ref().to_owned(),
+                project.project.as_ref().to_owned(),
+            ));
+        }
+        returned
+    }
+
+    /// Every project comes back once, in key order, whether the last page is
+    /// short, exactly full or the only one. The worker used to read only the
+    /// newest page, so projects past the first page were never indexed.
+    #[sqlx::test(migrations = "../repository/pg-migrations")]
+    async fn project_pages_return_every_project_once(pool: PgPool) -> sqlx::Result<()> {
+        sqlx::query("INSERT INTO tenants (id) VALUES ('tenant-a'), ('tenant-b')")
+            .execute(&pool)
+            .await?;
+        // One statement, so these projects all share one `created_at`.
+        sqlx::query(
+            "INSERT INTO projects (tenant, id, fhir_version)
+             SELECT tenant, 'project-' || n, 'r4'
+             FROM unnest(ARRAY['tenant-a', 'tenant-b']) AS tenant, generate_series(1, 6) AS n",
+        )
+        .execute(&pool)
+        .await?;
+        let expected: Vec<(String, String)> =
+            sqlx::query_as("SELECT tenant, id FROM projects ORDER BY tenant, id")
+                .fetch_all(&pool)
+                .await?;
+
+        let repo = PGConnection::pool(pool.clone());
+        let total = expected.len() as u64;
+        for page_size in [1, 4, total - 1, total, total + 1] {
+            let mut pages = ProjectPages::new(page_size);
+            assert_eq!(
+                rest_of(&mut pages, &repo).await,
+                expected,
+                "page size {page_size}"
+            );
+            assert!(
+                pages
+                    .next(&repo)
+                    .await
+                    .expect("projects are read")
+                    .is_none(),
+                "page size {page_size}"
+            );
+        }
+
+        sqlx::query("DELETE FROM projects").execute(&pool).await?;
+        let mut pages = ProjectPages::new(4);
+        assert!(rest_of(&mut pages, &repo).await.is_empty());
+        Ok(())
+    }
+
+    /// A page is read only once the one before has been handed out, so a
+    /// project created mid-pass after the pages read so far is still polled
+    /// in that pass.
+    #[sqlx::test(migrations = "../repository/pg-migrations")]
+    async fn project_pages_read_each_page_when_needed(pool: PgPool) -> sqlx::Result<()> {
+        sqlx::query("INSERT INTO tenants (id) VALUES ('tenant-a'), ('tenant-b')")
+            .execute(&pool)
+            .await?;
+        sqlx::query(
+            "INSERT INTO projects (tenant, id, fhir_version)
+             SELECT 'tenant-a', 'project-' || n, 'r4' FROM generate_series(1, 6) AS n",
+        )
+        .execute(&pool)
+        .await?;
+
+        let repo = PGConnection::pool(pool.clone());
+        let mut pages = ProjectPages::new(4);
+        let first = pages
+            .next(&repo)
+            .await
+            .expect("projects are read")
+            .expect("there are projects");
+        sqlx::query(
+            "INSERT INTO projects (tenant, id, fhir_version) VALUES ('tenant-b', 'late', 'r4')",
+        )
+        .execute(&pool)
+        .await?;
+
+        let mut returned = vec![(
+            first.tenant.as_ref().to_owned(),
+            first.project.as_ref().to_owned(),
+        )];
+        returned.extend(rest_of(&mut pages, &repo).await);
+        let expected: Vec<(String, String)> =
+            sqlx::query_as("SELECT tenant, id FROM projects ORDER BY tenant, id")
+                .fetch_all(&pool)
+                .await?;
+        assert_eq!(returned, expected);
+        assert_eq!(
+            returned.last(),
+            Some(&("tenant-b".to_owned(), "late".to_owned()))
+        );
         Ok(())
     }
 }
