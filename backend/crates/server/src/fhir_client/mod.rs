@@ -44,7 +44,7 @@ use middleware::{
     binary_content::BinaryContent,
     canonical_cache::CanonicalCacheInvalidation,
     capabilities::Capabilities,
-    check_project::{CheckProject, SetProjectReadOnly},
+    check_project::{CheckProject, MoveReadsToProject},
     custom_models::{
         access_policy_v3::AccessPolicyV3Validation,
         client_application::ClientApplicationValidation,
@@ -556,7 +556,7 @@ impl<
                 vec![
                     // Users and Projects are read from any project of the
                     // tenant; IdentityProviders only from the system project.
-                    Box::new(SetProjectReadOnly::new(
+                    Box::new(MoveReadsToProject::new(
                         ProjectId::System,
                         vec![ResourceType::User, ResourceType::Project],
                     )),

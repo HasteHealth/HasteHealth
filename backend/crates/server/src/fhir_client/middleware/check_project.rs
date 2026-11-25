@@ -56,12 +56,12 @@ impl<B: Backend> Middleware<B> for CheckProject {
 /// A search moved from another project returns its matches alone: its
 /// `_include` and `_revinclude` would be resolved in `project_id` as well,
 /// where they reach types other than `resource_types`.
-pub struct SetProjectReadOnly {
+pub struct MoveReadsToProject {
     project_id: ProjectId,
     resource_types: Vec<ResourceType>,
 }
 
-impl SetProjectReadOnly {
+impl MoveReadsToProject {
     pub fn new(project_id: ProjectId, resource_types: Vec<ResourceType>) -> Self {
         Self {
             project_id,
@@ -100,7 +100,7 @@ fn without_includes(request: FHIRRequest) -> FHIRRequest {
     }
 }
 
-impl<B: Backend> Middleware<B> for SetProjectReadOnly {
+impl<B: Backend> Middleware<B> for MoveReadsToProject {
     fn call<'a>(
         &'a self,
         state: &'a ClientState<B>,
@@ -139,8 +139,8 @@ mod tests {
     use haste_fhir_model::r4::generated::resources::{Resource, User};
     use haste_jwt::VersionId;
 
-    fn tenant_auth() -> SetProjectReadOnly {
-        SetProjectReadOnly::new(
+    fn tenant_auth() -> MoveReadsToProject {
+        MoveReadsToProject::new(
             ProjectId::System,
             vec![ResourceType::User, ResourceType::Project],
         )
