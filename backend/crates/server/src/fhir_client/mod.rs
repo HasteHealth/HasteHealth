@@ -554,8 +554,15 @@ impl<
             ),
             tenant_auth: Pipeline::new(
                 vec![
-                    Box::new(SetProjectReadOnly::new(ProjectId::System)),
-                    // Confirm in system project as above will only set to system if readonly.
+                    // Users and Projects are read from any project of the
+                    // tenant; IdentityProviders only from the system project.
+                    Box::new(SetProjectReadOnly::new(
+                        ProjectId::System,
+                        vec![ResourceType::User, ResourceType::Project],
+                    )),
+                    // Outside the system project, refuses what the line
+                    // above does not move: writes, history and
+                    // IdentityProvider reads.
                     Box::new(CheckProject::new(ProjectId::System)),
                     Box::new(Transaction),
                     // A PATCH runs as an update, so it gets the Project update
