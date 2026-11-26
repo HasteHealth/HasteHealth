@@ -244,7 +244,7 @@ impl<Store: TenantKeyProvider + Send + Sync + 'static> TenantKeys<Store> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use haste_encryption::{Secret, SecretsProvider, key_wrapper::local::LocalKeyWrapper};
     use std::{
@@ -260,7 +260,7 @@ mod tests {
     /// Tenant keys in memory, with `retired` and `active` as the table has
     /// them, and a count of the reads and writes.
     #[derive(Default)]
-    struct MemoryStore {
+    pub(crate) struct MemoryStore {
         keys: Mutex<HashMap<String, Vec<(TenantKey, bool)>>>,
         calls: AtomicUsize,
     }
@@ -278,7 +278,7 @@ mod tests {
         }
 
         /// Retires the active key of `tenant` and makes `key` the active one.
-        fn rotate_to(&self, tenant: &TenantId, key: TenantKey) {
+        pub(crate) fn rotate_to(&self, tenant: &TenantId, key: TenantKey) {
             let mut keys = self.keys.lock().unwrap();
             let keys = keys.entry(tenant.as_ref().to_string()).or_default();
             for (_, active) in keys.iter_mut() {
@@ -371,16 +371,16 @@ mod tests {
         ))
     }
 
-    fn tenant_keys(store: &Arc<MemoryStore>) -> TenantKeys<MemoryStore> {
+    pub(crate) fn tenant_keys(store: &Arc<MemoryStore>) -> TenantKeys<MemoryStore> {
         TenantKeys::new(store.clone(), Some(wrapper("PLATFORM_KEY")))
     }
 
-    fn tenant(id: &str) -> TenantId {
+    pub(crate) fn tenant(id: &str) -> TenantId {
         TenantId::new(id.to_string()).unwrap()
     }
 
     /// A new key for `tenant` at `version`, wrapped as the server would.
-    async fn new_stored_key(tenant: &TenantId, version: i32) -> TenantKey {
+    pub(crate) async fn new_stored_key(tenant: &TenantId, version: i32) -> TenantKey {
         let wrapper = wrapper("PLATFORM_KEY");
         TenantKey {
             version,

@@ -18,5 +18,6 @@ pub mod server;
 pub mod services;
 mod static_assets;
 pub mod tenant_keys;
+pub mod tenant_secrets;
 pub mod tenants;
 mod ui;

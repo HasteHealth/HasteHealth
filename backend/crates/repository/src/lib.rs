@@ -6,6 +6,7 @@ use crate::{
     fhir::FHIRRepository,
     sequence::ResourceSequential,
     tenant_key::TenantKeyProvider,
+    tenant_secret::TenantSecretProvider,
     types::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
@@ -31,6 +32,7 @@ pub mod fhir;
 pub mod pg;
 pub mod sequence;
 pub mod tenant_key;
+pub mod tenant_secret;
 pub mod types;
 pub mod utilities;
 
@@ -65,6 +67,7 @@ pub trait Repository:
     + AsyncJobProvider
     + ClientAssertionReplayProvider
     + TenantKeyProvider
+    + TenantSecretProvider
     + Login
     + ResourceSequential
     + Migrate
