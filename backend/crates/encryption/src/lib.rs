@@ -1,11 +1,12 @@
 mod error;
 
 pub mod encryption;
+pub mod key_wrapper;
 pub mod providers;
 pub mod traits;
 
 pub use error::EncryptionError;
-pub use traits::{Encryptor, Secret, SecretsProvider};
+pub use traits::{Encryptor, KeyWrapper, Secret, SecretsProvider};
 
 use std::sync::Arc;
 

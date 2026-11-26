@@ -1,6 +1,6 @@
 use crate::{
     error::EncryptionError,
-    traits::{EncryptionResult, Encryptor},
+    traits::{EncryptionResult, Encryptor, Secret},
 };
 use aes_gcm::{
     Aes256Gcm, Key,
@@ -30,6 +30,13 @@ impl AesGcmEncryptor {
         Ok(Self {
             cipher: Aes256Gcm::new(&key_array),
         })
+    }
+
+    /// A new random key for [`Self::new`], from the operating system's random
+    /// number generator.
+    #[must_use]
+    pub fn generate_key() -> Secret {
+        Secret::new(Key::<Aes256Gcm>::generate().to_vec())
     }
 }
 
@@ -95,6 +102,20 @@ mod tests {
 
         let decrypted = encryptor.decrypt(&ciphertext).unwrap();
         assert_eq!(decrypted, plaintext);
+    }
+
+    #[test]
+    fn generates_a_usable_key_that_differs_each_time() {
+        let key = AesGcmEncryptor::generate_key();
+        assert_eq!(key.expose_bytes().len(), KEY_LEN);
+        assert_ne!(
+            key.expose_bytes(),
+            AesGcmEncryptor::generate_key().expose_bytes()
+        );
+
+        let encryptor = AesGcmEncryptor::new(key.expose_bytes()).unwrap();
+        let result = encryptor.encrypt(b"totp-secret-material").unwrap();
+        assert_eq!(encryptor.decrypt(&result).unwrap(), b"totp-secret-material");
     }
 
     #[test]

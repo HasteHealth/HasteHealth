@@ -17,5 +17,6 @@ mod safe_fetch;
 pub mod server;
 pub mod services;
 mod static_assets;
+pub mod tenant_keys;
 pub mod tenants;
 mod ui;

@@ -23,6 +23,9 @@ pub enum EncryptionError {
     #[error(code = "exception", diagnostic = "Decryption failed: {arg0}")]
     DecryptionFailed(String),
 
+    #[error(code = "exception", diagnostic = "Failed to unwrap the key: {arg0}")]
+    KeyUnwrapFailed(String),
+
     #[error(
         code = "not-supported",
         diagnostic = "Secrets provider '{arg0}' is not yet implemented"

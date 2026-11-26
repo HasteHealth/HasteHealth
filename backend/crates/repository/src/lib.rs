@@ -5,6 +5,7 @@ use crate::{
     failed_indexing::FailedIndexingProvider,
     fhir::FHIRRepository,
     sequence::ResourceSequential,
+    tenant_key::TenantKeyProvider,
     types::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
@@ -29,6 +30,7 @@ pub mod failed_indexing;
 pub mod fhir;
 pub mod pg;
 pub mod sequence;
+pub mod tenant_key;
 pub mod types;
 pub mod utilities;
 
@@ -62,6 +64,7 @@ pub trait Repository:
     + FailedIndexingProvider
     + AsyncJobProvider
     + ClientAssertionReplayProvider
+    + TenantKeyProvider
     + Login
     + ResourceSequential
     + Migrate
