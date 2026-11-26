@@ -2,6 +2,7 @@ use crate::config::{SecretProviderConfig, ServerConfig};
 use crate::document_storage;
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
 use crate::tenant_keys::TenantKeys;
+use crate::tenant_secrets::TenantSecrets;
 use haste_document_storage::DocumentStorage;
 use haste_encryption::{KeyWrapper, key_wrapper::local::LocalKeyWrapper};
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -92,6 +93,14 @@ impl<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > ServerState<Repo, Search, Terminology>
 {
+    /// The secrets of tenants, encrypted under each tenant's own key. They
+    /// are read and written through `self.repo`: inside a transaction, a
+    /// secret is stored or removed with the rest of the transaction.
+    #[must_use]
+    pub fn tenant_secrets(&self) -> TenantSecrets<'_, Repo, Repo> {
+        TenantSecrets::new(&self.tenant_keys, self.repo.as_ref())
+    }
+
     pub async fn transaction(&self) -> Result<Self, OperationOutcomeError> {
         self.repo.transaction(true).await.map(|tx_repo| {
             let tx_repo = Arc::new(tx_repo);

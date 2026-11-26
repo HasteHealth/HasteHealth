@@ -19,6 +19,7 @@ mod pending;
 mod rate_limit;
 mod sequence;
 mod tenant_key;
+mod tenant_secret;
 mod transaction;
 mod version_cache;
 
