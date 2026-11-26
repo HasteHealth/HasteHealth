@@ -1,7 +1,9 @@
 use crate::config::{SecretProviderConfig, ServerConfig};
 use crate::document_storage;
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
+use crate::tenant_keys::TenantKeys;
 use haste_document_storage::DocumentStorage;
+use haste_encryption::{KeyWrapper, key_wrapper::local::LocalKeyWrapper};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::SearchEngine;
@@ -75,6 +77,10 @@ pub struct ServerState<
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub secret_provider: Arc<dyn haste_encryption::SecretsProvider + Send + Sync>,
+    /// Encryption under each tenant's own key. It keeps the repository it was
+    /// built with, also inside a transaction: a tenant's key is created
+    /// outside of the request's transaction.
+    pub tenant_keys: Arc<TenantKeys<Repo>>,
     pub config: Arc<crate::config::ServerConfig>,
     /// Document storage for large `Binary.data`; `None` when it is off.
     pub binary_storage: Option<Arc<dyn DocumentStorage>>,
@@ -95,6 +101,7 @@ impl<
                 repo: tx_repo.clone(),
                 rate_limit: self.rate_limit.clone(),
                 secret_provider: self.secret_provider.clone(),
+                tenant_keys: self.tenant_keys.clone(),
                 fhir_client: Arc::new(FHIRServerClient::new(
                     ServerClientConfig::new(
                         tx_repo,
@@ -198,27 +205,36 @@ async fn build_services(
         .with_binary_storage(binary_storage.clone()),
     ));
 
+    let secret_provider = match &config.security.encryption {
+        SecretProviderConfig::Environment { prefix } => haste_encryption::get_secrets_provider(
+            haste_encryption::SecretsProviderKind::Environment {
+                prefix: prefix.clone(),
+            },
+        ),
+        _ => {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "Only environment encryption is supported for now.".to_string(),
+            ));
+        }
+    };
+
+    // Tenant keys are wrapped by the key `security.aes_key` names. Without
+    // one the server runs, and whatever needs a tenant key fails.
+    let key_wrapper = config.security.aes_key.clone().map(|secret_name| {
+        Arc::new(LocalKeyWrapper::new(secret_provider.clone(), secret_name)) as Arc<dyn KeyWrapper>
+    });
+
     let shared_state = Arc::new(ServerState {
         config: config.clone(),
         binary_storage,
         rate_limit: pool.clone(),
+        tenant_keys: Arc::new(TenantKeys::new(pool.clone(), key_wrapper)),
         repo: pool,
         terminology,
         search: search_engine,
         fhir_client,
-        secret_provider: match &config.security.encryption {
-            SecretProviderConfig::Environment { prefix } => haste_encryption::get_secrets_provider(
-                haste_encryption::SecretsProviderKind::Environment {
-                    prefix: prefix.clone(),
-                },
-            ),
-            _ => {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "Only environment encryption is supported for now.".to_string(),
-                ));
-            }
-        },
+        secret_provider,
     });
 
     Ok(shared_state)

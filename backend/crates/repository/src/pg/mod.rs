@@ -18,6 +18,7 @@ mod models;
 mod pending;
 mod rate_limit;
 mod sequence;
+mod tenant_key;
 mod transaction;
 mod version_cache;
 
@@ -36,6 +37,11 @@ pub enum StoreError {
     NotTransaction,
     #[error(code = "invalid", diagnostic = "Failed to commit the transaction.")]
     FailedCommitTransaction,
+    #[error(
+        code = "invalid",
+        diagnostic = "A tenant key cannot be created inside a transaction."
+    )]
+    TenantKeyInTransaction,
     #[error(code = "exception", diagnostic = "Failed to hash password.")]
     PasswordHashError(argon2::password_hash::Error),
     #[error(

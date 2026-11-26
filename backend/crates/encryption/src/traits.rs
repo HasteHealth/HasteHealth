@@ -93,3 +93,30 @@ pub trait Encryptor: Sync + Send {
         aad: &[u8],
     ) -> Result<Vec<u8>, OperationOutcomeError>;
 }
+
+/// Wraps a data key: encrypts it with a platform key, so the data key can be
+/// stored next to what it encrypts. The platform key stays with the
+/// implementation, e.g. inside a cloud KMS, and is never handed out.
+pub trait KeyWrapper: Sync + Send {
+    /// Names the platform key that wraps. It is stored with each wrapped key,
+    /// to tell which platform key unwraps it.
+    fn key_id(&self) -> &str;
+
+    /// Wraps `key` and binds the result to `context`: what the key belongs
+    /// to, such as a tenant id. The context is not secret and is not part of
+    /// the result; unwrapping needs the same context again.
+    fn wrap_key<'a>(
+        &'a self,
+        key: &'a [u8],
+        context: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, OperationOutcomeError>> + Send + 'a>>;
+
+    /// Unwraps what [`Self::wrap_key`] returned for `context`. Fails when
+    /// `wrapped_key` was wrapped for another context or by another platform
+    /// key, or was altered.
+    fn unwrap_key<'a>(
+        &'a self,
+        wrapped_key: &'a [u8],
+        context: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<Secret, OperationOutcomeError>> + Send + 'a>>;
+}
