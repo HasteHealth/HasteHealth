@@ -46,18 +46,50 @@ pub struct EncryptionResult {
 /// should be decryptable only by the same implementation initialized with the
 /// same keying material.
 pub trait Encryptor: Sync + Send {
-    /// Encrypts the given plaintext.
+    /// Encrypts the given plaintext: [`Self::encrypt_with_aad`] with empty
+    /// associated data.
     ///
     /// # Errors
     ///
     /// Returns an [`OperationOutcomeError`] if the plaintext cannot be
     /// encrypted.
-    fn encrypt(&self, plaintext: &[u8]) -> Result<EncryptionResult, OperationOutcomeError>;
-    /// Decrypts a previously encrypted payload.
+    fn encrypt(&self, plaintext: &[u8]) -> Result<EncryptionResult, OperationOutcomeError> {
+        self.encrypt_with_aad(plaintext, &[])
+    }
+    /// Decrypts a payload encrypted with empty associated data.
     ///
     /// # Errors
     ///
     /// Returns an [`OperationOutcomeError`] if the ciphertext is invalid,
     /// has been tampered with, or cannot be decrypted.
-    fn decrypt(&self, ciphertext: &EncryptionResult) -> Result<Vec<u8>, OperationOutcomeError>;
+    fn decrypt(&self, ciphertext: &EncryptionResult) -> Result<Vec<u8>, OperationOutcomeError> {
+        self.decrypt_with_aad(ciphertext, &[])
+    }
+    /// Encrypts the given plaintext and binds the result to `aad`, its
+    /// associated data: what the value belongs to, such as the key of the row
+    /// that stores it. The associated data is neither secret nor part of the
+    /// result. Decryption needs the same bytes again, so a result copied to
+    /// another owner does not decrypt there.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the plaintext cannot be
+    /// encrypted.
+    fn encrypt_with_aad(
+        &self,
+        plaintext: &[u8],
+        aad: &[u8],
+    ) -> Result<EncryptionResult, OperationOutcomeError>;
+    /// Decrypts a payload encrypted with the associated data `aad`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the ciphertext is invalid,
+    /// has been tampered with, was encrypted with other associated data, or
+    /// cannot be decrypted.
+    fn decrypt_with_aad(
+        &self,
+        ciphertext: &EncryptionResult,
+        aad: &[u8],
+    ) -> Result<Vec<u8>, OperationOutcomeError>;
 }

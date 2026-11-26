@@ -4,7 +4,7 @@ use crate::{
 };
 use aes_gcm::{
     Aes256Gcm, Key,
-    aead::{Aead, Generate, KeyInit, Nonce},
+    aead::{Aead, Generate, KeyInit, Nonce, Payload},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 
@@ -34,12 +34,22 @@ impl AesGcmEncryptor {
 }
 
 impl Encryptor for AesGcmEncryptor {
-    fn encrypt(&self, plaintext: &[u8]) -> Result<EncryptionResult, OperationOutcomeError> {
+    fn encrypt_with_aad(
+        &self,
+        plaintext: &[u8],
+        aad: &[u8],
+    ) -> Result<EncryptionResult, OperationOutcomeError> {
         let nonce = Nonce::<Aes256Gcm>::generate();
 
         let ciphertext = self
             .cipher
-            .encrypt(&nonce, plaintext)
+            .encrypt(
+                &nonce,
+                Payload {
+                    msg: plaintext,
+                    aad,
+                },
+            )
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
 
         Ok(EncryptionResult {
@@ -48,16 +58,23 @@ impl Encryptor for AesGcmEncryptor {
         })
     }
 
-    fn decrypt(
+    fn decrypt_with_aad(
         &self,
-        encyrpted_result: &EncryptionResult,
+        encrypted_result: &EncryptionResult,
+        aad: &[u8],
     ) -> Result<Vec<u8>, OperationOutcomeError> {
-        let nonce = Nonce::<Aes256Gcm>::try_from(encyrpted_result.nonce.as_slice())
+        let nonce = Nonce::<Aes256Gcm>::try_from(encrypted_result.nonce.as_slice())
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))?;
 
         let plaintext = self
             .cipher
-            .decrypt(&nonce, encyrpted_result.ciphertext.as_slice())
+            .decrypt(
+                &nonce,
+                Payload {
+                    msg: encrypted_result.ciphertext.as_slice(),
+                    aad,
+                },
+            )
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))?;
 
         Ok(plaintext)
@@ -94,5 +111,52 @@ mod tests {
         result.ciphertext[last] ^= 0xFF;
 
         assert!(encryptor.decrypt(&result).is_err());
+    }
+
+    #[test]
+    fn round_trips_plaintext_with_associated_data() {
+        let encryptor = AesGcmEncryptor::new(&[7u8; KEY_LEN]).unwrap();
+        let plaintext = b"totp-secret-material";
+
+        let result = encryptor
+            .encrypt_with_aad(plaintext, b"tenant-a/user-1")
+            .unwrap();
+
+        let decrypted = encryptor
+            .decrypt_with_aad(&result, b"tenant-a/user-1")
+            .unwrap();
+        assert_eq!(decrypted, plaintext);
+    }
+
+    /// A ciphertext copied to another owner's row does not decrypt there.
+    #[test]
+    fn rejects_other_associated_data() {
+        let encryptor = AesGcmEncryptor::new(&[7u8; KEY_LEN]).unwrap();
+        let result = encryptor
+            .encrypt_with_aad(b"totp-secret-material", b"tenant-a/user-1")
+            .unwrap();
+
+        assert!(
+            encryptor
+                .decrypt_with_aad(&result, b"tenant-b/user-1")
+                .is_err()
+        );
+        assert!(encryptor.decrypt(&result).is_err());
+    }
+
+    /// What `encrypt` wrote before associated data existed still decrypts.
+    #[test]
+    fn no_associated_data_is_empty_associated_data() {
+        let encryptor = AesGcmEncryptor::new(&[7u8; KEY_LEN]).unwrap();
+        let plaintext = b"totp-secret-material";
+
+        let without = encryptor.encrypt(plaintext).unwrap();
+        assert_eq!(
+            encryptor.decrypt_with_aad(&without, &[]).unwrap(),
+            plaintext
+        );
+
+        let empty = encryptor.encrypt_with_aad(plaintext, &[]).unwrap();
+        assert_eq!(encryptor.decrypt(&empty).unwrap(), plaintext);
     }
 }
