@@ -40,22 +40,26 @@ fn label(tenant: &TenantId, kind: TenantSecretKind, owner: &str) -> Vec<u8> {
 
 /// Stores, reads and removes the secrets of tenants.
 ///
-/// Secrets are read and written through `rows`. When that is a transaction, a
-/// secret is stored or removed with the rest of the transaction. The tenant's
-/// key is not: `keys` creates a tenant's first key outside of it.
-pub struct TenantSecrets<'a, Keys, Rows> {
-    keys: &'a TenantKeys<Keys>,
-    rows: &'a Rows,
+/// Secrets are read and written through `secret_store`. When that is a
+/// transaction, a secret is stored or removed with the rest of the
+/// transaction. The tenant's key is not: `tenant_keys` creates a tenant's
+/// first key outside of it.
+pub struct TenantSecrets<'a, KeyStore, SecretStore> {
+    tenant_keys: &'a TenantKeys<KeyStore>,
+    secret_store: &'a SecretStore,
 }
 
-impl<'a, Keys, Rows> TenantSecrets<'a, Keys, Rows>
+impl<'a, KeyStore, SecretStore> TenantSecrets<'a, KeyStore, SecretStore>
 where
-    Keys: TenantKeyProvider + Send + Sync + 'static,
-    Rows: TenantSecretProvider + Sync,
+    KeyStore: TenantKeyProvider + Send + Sync + 'static,
+    SecretStore: TenantSecretProvider + Sync,
 {
     #[must_use]
-    pub fn new(keys: &'a TenantKeys<Keys>, rows: &'a Rows) -> Self {
-        Self { keys, rows }
+    pub fn new(tenant_keys: &'a TenantKeys<KeyStore>, secret_store: &'a SecretStore) -> Self {
+        Self {
+            tenant_keys,
+            secret_store,
+        }
     }
 
     /// Stores `secret` as the `kind` secret of `owner`, in place of the one
@@ -76,11 +80,11 @@ where
             key_version,
             encrypted,
         } = self
-            .keys
+            .tenant_keys
             .encrypt(tenant, secret, &label(tenant, kind, owner))
             .await?;
 
-        self.rows
+        self.secret_store
             .put_tenant_secret(
                 tenant,
                 kind,
@@ -107,13 +111,13 @@ where
         kind: TenantSecretKind,
         owner: &str,
     ) -> Result<Option<Secret>, OperationOutcomeError> {
-        let Some(stored) = self.rows.tenant_secret(tenant, kind, owner).await? else {
+        let Some(stored) = self.secret_store.tenant_secret(tenant, kind, owner).await? else {
             return Ok(None);
         };
 
         let key_version = stored.key_version;
         let secret = self
-            .keys
+            .tenant_keys
             .decrypt(
                 tenant,
                 key_version,
@@ -148,7 +152,9 @@ where
         kind: TenantSecretKind,
         owner: &str,
     ) -> Result<bool, OperationOutcomeError> {
-        self.rows.delete_tenant_secret(tenant, kind, owner).await
+        self.secret_store
+            .delete_tenant_secret(tenant, kind, owner)
+            .await
     }
 }
 
@@ -162,21 +168,21 @@ mod tests {
         sync::{Arc, Mutex},
     };
 
-    type Row = (String, TenantSecretKind, String);
+    type SecretId = (String, TenantSecretKind, String);
 
     /// The `tenant_secret` table in memory.
     #[derive(Default)]
-    struct MemoryRows {
-        rows: Mutex<HashMap<Row, TenantSecret>>,
+    struct MemorySecretStore {
+        secrets: Mutex<HashMap<SecretId, TenantSecret>>,
     }
 
-    impl MemoryRows {
-        fn row(tenant: &TenantId, kind: TenantSecretKind, owner: &str) -> Row {
+    impl MemorySecretStore {
+        fn id(tenant: &TenantId, kind: TenantSecretKind, owner: &str) -> SecretId {
             (tenant.as_ref().to_string(), kind, owner.to_string())
         }
 
         fn stored(&self, tenant: &TenantId, kind: TenantSecretKind, owner: &str) -> TenantSecret {
-            self.rows.lock().unwrap()[&Self::row(tenant, kind, owner)].clone()
+            self.secrets.lock().unwrap()[&Self::id(tenant, kind, owner)].clone()
         }
 
         fn store(
@@ -186,16 +192,16 @@ mod tests {
             owner: &str,
             secret: TenantSecret,
         ) {
-            let mut rows = self.rows.lock().unwrap();
-            rows.insert(Self::row(tenant, kind, owner), secret);
+            let mut secrets = self.secrets.lock().unwrap();
+            secrets.insert(Self::id(tenant, kind, owner), secret);
         }
 
         fn len(&self) -> usize {
-            self.rows.lock().unwrap().len()
+            self.secrets.lock().unwrap().len()
         }
     }
 
-    impl TenantSecretProvider for MemoryRows {
+    impl TenantSecretProvider for MemorySecretStore {
         async fn put_tenant_secret(
             &self,
             tenant: &TenantId,
@@ -213,8 +219,8 @@ mod tests {
             kind: TenantSecretKind,
             owner: &str,
         ) -> Result<Option<TenantSecret>, OperationOutcomeError> {
-            let rows = self.rows.lock().unwrap();
-            Ok(rows.get(&Self::row(tenant, kind, owner)).cloned())
+            let secrets = self.secrets.lock().unwrap();
+            Ok(secrets.get(&Self::id(tenant, kind, owner)).cloned())
         }
 
         async fn delete_tenant_secret(
@@ -223,13 +229,13 @@ mod tests {
             kind: TenantSecretKind,
             owner: &str,
         ) -> Result<bool, OperationOutcomeError> {
-            let mut rows = self.rows.lock().unwrap();
-            Ok(rows.remove(&Self::row(tenant, kind, owner)).is_some())
+            let mut secrets = self.secrets.lock().unwrap();
+            Ok(secrets.remove(&Self::id(tenant, kind, owner)).is_some())
         }
     }
 
     async fn get(
-        secrets: &TenantSecrets<'_, MemoryStore, MemoryRows>,
+        secrets: &TenantSecrets<'_, MemoryStore, MemorySecretStore>,
         tenant: &TenantId,
         kind: TenantSecretKind,
         owner: &str,
@@ -243,11 +249,11 @@ mod tests {
 
     #[tokio::test]
     async fn a_secret_is_stored_encrypted_and_read_back() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let acme = tenant("acme");
 
         assert_eq!(get(&secrets, &acme, MfaTotp, "credential-1").await, None);
@@ -256,7 +262,7 @@ mod tests {
             .await
             .unwrap();
 
-        let stored = rows.stored(&acme, MfaTotp, "credential-1");
+        let stored = secret_store.stored(&acme, MfaTotp, "credential-1");
         assert_eq!(stored.key_version, 1);
         assert_ne!(stored.ciphertext, b"totp-secret");
         assert_eq!(
@@ -267,11 +273,11 @@ mod tests {
 
     #[tokio::test]
     async fn a_put_replaces_the_secret() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let acme = tenant("acme");
 
         for secret in [&b"first"[..], b"second"] {
@@ -281,7 +287,7 @@ mod tests {
                 .unwrap();
         }
 
-        assert_eq!(rows.len(), 1);
+        assert_eq!(secret_store.len(), 1);
         assert_eq!(
             get(&secrets, &acme, IdpClientSecret, "idp-1")
                 .await
@@ -292,11 +298,11 @@ mod tests {
 
     #[tokio::test]
     async fn a_deleted_secret_is_gone() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let acme = tenant("acme");
         secrets
             .put(&acme, MfaTotp, "credential-1", b"totp-secret")
@@ -323,11 +329,11 @@ mod tests {
     /// secret per tenant.
     #[tokio::test]
     async fn secrets_are_kept_apart_by_tenant_kind_and_owner() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let stored = [
             ("acme", MfaTotp, "one", &b"acme-totp-one"[..]),
             ("acme", MfaTotp, "two", b"acme-totp-two"),
@@ -355,11 +361,11 @@ mod tests {
     /// of another.
     #[tokio::test]
     async fn a_stored_secret_moved_to_another_row_does_not_decrypt() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let (acme, globex) = (tenant("acme"), tenant("globex"));
         secrets
             .put(&acme, MfaTotp, "credential-1", b"totp-secret")
@@ -370,14 +376,14 @@ mod tests {
             .put(&globex, MfaTotp, "credential-9", b"other")
             .await
             .unwrap();
-        let stored = rows.stored(&acme, MfaTotp, "credential-1");
+        let stored = secret_store.stored(&acme, MfaTotp, "credential-1");
 
         for (to_tenant, to_kind, to_owner) in [
             (&acme, MfaTotp, "credential-2"),
             (&acme, IdpClientSecret, "credential-1"),
             (&globex, MfaTotp, "credential-1"),
         ] {
-            rows.store(to_tenant, to_kind, to_owner, stored.clone());
+            secret_store.store(to_tenant, to_kind, to_owner, stored.clone());
 
             assert!(
                 secrets.get(to_tenant, to_kind, to_owner).await.is_err(),
@@ -393,20 +399,20 @@ mod tests {
 
     #[tokio::test]
     async fn an_altered_secret_does_not_decrypt() {
-        let (keys, rows) = (
+        let (keys, secret_store) = (
             tenant_keys(&Arc::new(MemoryStore::default())),
-            MemoryRows::default(),
+            MemorySecretStore::default(),
         );
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         let acme = tenant("acme");
         secrets
             .put(&acme, MfaTotp, "credential-1", b"totp-secret")
             .await
             .unwrap();
 
-        let mut altered = rows.stored(&acme, MfaTotp, "credential-1");
+        let mut altered = secret_store.stored(&acme, MfaTotp, "credential-1");
         altered.ciphertext[0] ^= 1;
-        rows.store(&acme, MfaTotp, "credential-1", altered);
+        secret_store.store(&acme, MfaTotp, "credential-1", altered);
 
         assert!(secrets.get(&acme, MfaTotp, "credential-1").await.is_err());
     }
@@ -415,26 +421,26 @@ mod tests {
     /// stored with, and a new secret goes under the new one.
     #[tokio::test]
     async fn a_secret_is_read_with_the_key_version_it_was_stored_under() {
-        let store = Arc::new(MemoryStore::default());
-        let rows = MemoryRows::default();
+        let key_store = Arc::new(MemoryStore::default());
+        let secret_store = MemorySecretStore::default();
         let acme = tenant("acme");
-        let keys = tenant_keys(&store);
-        TenantSecrets::new(&keys, &rows)
+        let keys = tenant_keys(&key_store);
+        TenantSecrets::new(&keys, &secret_store)
             .put(&acme, MfaTotp, "before", b"old-secret")
             .await
             .unwrap();
-        store.rotate_to(&acme, new_stored_key(&acme, 2).await);
+        key_store.rotate_to(&acme, new_stored_key(&acme, 2).await);
 
         // A server that starts after the rotation.
-        let keys = tenant_keys(&store);
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let keys = tenant_keys(&key_store);
+        let secrets = TenantSecrets::new(&keys, &secret_store);
         secrets
             .put(&acme, MfaTotp, "after", b"new-secret")
             .await
             .unwrap();
 
-        assert_eq!(rows.stored(&acme, MfaTotp, "before").key_version, 1);
-        assert_eq!(rows.stored(&acme, MfaTotp, "after").key_version, 2);
+        assert_eq!(secret_store.stored(&acme, MfaTotp, "before").key_version, 1);
+        assert_eq!(secret_store.stored(&acme, MfaTotp, "after").key_version, 2);
         assert_eq!(
             get(&secrets, &acme, MfaTotp, "before").await.unwrap(),
             b"old-secret"
@@ -449,8 +455,8 @@ mod tests {
     #[tokio::test]
     async fn without_a_platform_key_nothing_is_stored() {
         let keys = TenantKeys::new(Arc::new(MemoryStore::default()), None);
-        let rows = MemoryRows::default();
-        let secrets = TenantSecrets::new(&keys, &rows);
+        let secret_store = MemorySecretStore::default();
+        let secrets = TenantSecrets::new(&keys, &secret_store);
 
         assert!(
             secrets
@@ -458,7 +464,7 @@ mod tests {
                 .await
                 .is_err()
         );
-        assert_eq!(rows.len(), 0);
+        assert_eq!(secret_store.len(), 0);
     }
 
     /// Stored secrets depend on the label staying as it is.
